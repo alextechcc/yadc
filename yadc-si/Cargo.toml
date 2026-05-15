@@ -1,0 +1,41 @@
+[package]
+name = "yadc-si"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR BSD-3-Clause"
+
+[dependencies]
+yadc = { path = "../yadc" }
+serde = { version = "1", features = ["derive"], optional = true }
+uom = { version = "0.38.0", features = ["si", "f64"], optional = true }
+typenum = { version = "1", optional = true }
+
+[features]
+default = [
+    "std",
+    "mechanical",
+    "angular",
+    "electromagnetic",
+    "thermal",
+    "fluid",
+    "density",
+    "chemistry",
+    "photometric",
+    "information",
+]
+std = []
+mechanical = []
+angular = []
+electromagnetic = []
+thermal = []
+fluid = []
+density = []
+chemistry = []
+photometric = []
+information = []
+serde = ["dep:serde"]
+uom = ["dep:uom", "dep:typenum"]
+
+[[test]]
+name = "uom_bridge"
+required-features = ["uom"]
