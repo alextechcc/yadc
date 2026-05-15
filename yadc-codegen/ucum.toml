@@ -1,0 +1,95 @@
+# UCUM-mode unit system definition for yadc-codegen.
+#
+# The [ucum] table triggers UCUM-driven generation: families and quantities
+# come from ucum-essence.xml rather than [[family]] sections in this file.
+#
+# To use UCUM-native dimensions instead of ISQ (keeping `rad` as a real
+# dimension field, `g` as grams, `C` as coulombs):
+#   1. Change [dim].fields to ["m", "g", "s", "C", "K", "cd", "rad"]
+#   2. Remove or remap the [[ucum.base]] entries for g, C, rad, sr
+#   3. Remove "Angle" and "SolidAngle" from [kind].variants if desired
+
+[system]
+crate_name   = "yadc-ucum"
+family_order = [
+    "si", "heat", "iso1000", "intcust", "cgs",
+    "infotech", "us", "british", "clinical", "constants", "misc",
+]
+unit_derives = ["Copy", "Clone"]
+
+[kind]
+variants = ["Linear", "Affine", "Angle", "SolidAngle", "Invalid"]
+
+# ISQ dimension fields.  Change this list (and the [[ucum.base]] overrides
+# below) to switch to a different basis, e.g. native UCUM dimensions.
+[dim]
+fields = ["m", "kg", "s", "A", "K", "mol", "cd"]
+
+[dimensionless]
+units = [
+    {v = "Ratio", m = "1.0", s = "", l = ""},
+]
+
+# ─── UCUM source ─────────────────────────────────────────────────────────────
+
+[ucum]
+# "latest"  → query the GitHub releases API and fetch that tag's ucum-essence.xml
+# URL       → fetch the file at this address directly
+# file path → read a local copy (pinned version, offline use)
+source = "latest"
+
+# ─── Base-unit remapping ─────────────────────────────────────────────────────
+#
+# Each [[ucum.base]] entry overrides how one UCUM base-unit code is seeded in
+# the resolver.  Omitted base units default to self-seeding (the code becomes
+# its own dim field with exponent 1 and multiplier 1.0).
+#
+# UCUM base units: m  s  g  C  K  cd  rad  (7 total, different from ISQ)
+# ISQ base units:  m  s  kg A  K  cd  mol  (7 total)
+#
+# The five entries below perform the ISQ remapping.
+# m, s, K, cd map 1:1 and are handled by self-seeding.
+
+[[ucum.base]]
+# gram → kilogram  (UCUM uses gram; ISQ uses kilogram)
+code       = "g"
+dims       = { kg = 1 }
+multiplier = 1e-3
+
+[[ucum.base]]
+# coulomb → ampere·second  (UCUM uses charge C; ISQ uses current A)
+# C = A·s, so 1 C expressed in ISQ base units has dim {A=1, s=1} × 1.0
+code       = "C"
+dims       = { A = 1, s = 1 }
+multiplier = 1.0
+
+[[ucum.base]]
+# radian → dimensionless with Angle kind
+# In ISQ, plane angle is dimensionless (rad = m/m).  The Angle kind
+# preserves the type distinction against bare ratios and lets the resolver
+# propagate Angle × Angle = SolidAngle automatically.
+#
+# To use rad as a real dimension instead: remove this entry, add "rad" to
+# [dim].fields, and remove "Angle"/"SolidAngle" from [kind].variants.
+code       = "rad"
+dims       = {}
+kind       = "Angle"
+multiplier = 1.0
+
+[[ucum.base]]
+# mole — override UCUM's Avogadro-count interpretation and treat as ISQ base.
+# UCUM defines mol = 6.022×10²³ (a dimensionless count); this entry promotes
+# it to a proper SI base dimension, consistent with ISQ/SI.
+code       = "mol"
+dims       = { mol = 1 }
+multiplier = 1.0
+
+[[ucum.base]]
+# steradian → dimensionless with SolidAngle kind
+# Consistent with rad above: sr = rad², so in ISQ it is also dimensionless.
+# The SolidAngle kind is generated automatically for rad² expressions;
+# this entry ensures the sr code itself resolves the same way.
+code       = "sr"
+dims       = {}
+kind       = "SolidAngle"
+multiplier = 1.0

@@ -1,0 +1,15 @@
+[package]
+name = "yadc-codegen"
+version = "0.1.0"
+edition = "2024"
+description = "CLI code generator: reads a .toml unit-system definition and emits a yadc-compatible Rust crate source tree."
+
+[[bin]]
+name = "yadc-codegen"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+roxmltree = "0.20"
+ureq = "2"

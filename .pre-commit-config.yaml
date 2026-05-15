@@ -1,0 +1,30 @@
+# Install once:    pip install --user pre-commit && pre-commit install
+# Run on demand:   pre-commit run --all-files
+# Update pinned hook versions: pre-commit autoupdate
+
+repos:
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt --check
+        entry: cargo fmt --all -- --check
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: cargo clippy (-D warnings)
+        entry: cargo clippy --workspace --all-targets -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      # Heavy: runs only on `git push`, not every commit.
+      # Requires: cargo install cargo-semver-checks
+      - id: cargo-semver-checks
+        name: cargo semver-checks (release diff)
+        entry: cargo semver-checks check-release --workspace
+        language: system
+        types: [rust]
+        pass_filenames: false
+        stages: [pre-push]
