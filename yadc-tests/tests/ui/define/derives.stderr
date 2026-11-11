@@ -10,7 +10,7 @@ error: `mul` is not a rule: a label declares its sums, `add(..)` and `sub(..)` (
 24 |     #[kind(mul(Plain) = Plain)]
    |            ^^^
 
-error: `Affine` is not a rule: a label declares its sums, `add(Other) = Result` and `sub(Other) = Result`, or the behaviour it has, `affine` (a point) or `log` (a level or a gain)
+error: `Affine` is not a rule: a label declares its sums, `add(Other) = Result` and `sub(Other) = Result`, or the behaviour it has, `affine` (a point), `log` (a level or a gain) or `absolute` (an amount with a true zero: two differ by a plain amount, which moves one)
   --> tests/ui/define/derives.rs:34:12
    |
 34 |     #[kind(Affine)]
@@ -34,52 +34,58 @@ error: a point's and a logarithm's sums are fixed (a point less a point is an am
 68 |     Other,
    |     ^^^^^
 
-error: the kind field is marked `#[kind]` alone; which of its values is a point and which a logarithm is said on the label enum's variants: `#[kind(affine)] Affine`, `#[kind(log)] Log`
-  --> tests/ui/define/derives.rs:76:5
+error: `absolute` is a label's: the `#[default]` label, a point and a logarithm have their own sums
+  --> tests/ui/define/derives.rs:77:5
    |
-76 |     #[kind(affine = MulRule::Other)]
+77 |     Plain,
+   |     ^^^^^
+
+error: the kind field is marked `#[kind]` alone; which of its values is a point and which a logarithm is said on the label enum's variants: `#[kind(affine)] Affine`, `#[kind(log)] Log`
+  --> tests/ui/define/derives.rs:85:5
+   |
+85 |     #[kind(affine = MulRule::Other)]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: `Cast` changes a family's number type, so the family needs one as a parameter: `struct Qty<const D: Dim, N = f64>(N)`
-  --> tests/ui/define/derives.rs:83:12
+  --> tests/ui/define/derives.rs:92:12
    |
-83 | pub struct Fixed<const D: NoPlain>(f64);
+92 | pub struct Fixed<const D: NoPlain>(f64);
    |            ^^^^^
 
 error: `Fn` calls a unit on a number to build and on a quantity to read; a unit of its own numbers (`of` the number type) has one argument type for both, so it is not called - leave `Fn` out
-  --> tests/ui/define/derives.rs:89:12
+  --> tests/ui/define/derives.rs:98:12
    |
-89 | pub struct Percent;
+98 | pub struct Percent;
    |            ^^^^^^^
 
 error: `Zero` is not an extra of `#[derive(Quantity)]`; expected one of Display, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Powi, Root, Inv, Sum, Cast, From, Fn
-  --> tests/ui/define/derives.rs:93:22
-   |
-93 | #[quantity(impl(Neg, Zero))]
-   |                      ^^^^
+   --> tests/ui/define/derives.rs:102:22
+    |
+102 | #[quantity(impl(Neg, Zero))]
+    |                      ^^^^
 
 error: say what this unit measures: `#[unit(of = Q)]` (repeatable)
-  --> tests/ui/define/derives.rs:99:12
-   |
-99 | pub struct NoTarget;
-   |            ^^^^^^^^
+   --> tests/ui/define/derives.rs:108:12
+    |
+108 | pub struct NoTarget;
+    |            ^^^^^^^^
 
 error: say which unit value this is: `by = U` - a constant (`by = KILOMETRE`, a scale `by = CELSIUS`), or a field marked `#[unit(by)]`
-   --> tests/ui/define/derives.rs:104:12
+   --> tests/ui/define/derives.rs:113:12
     |
-104 | pub struct NoForm;
+113 | pub struct NoForm;
     |            ^^^^^^
 
 error: `Display` needs this unit's symbol and name: `#[unit("km", "kilometres", ..)]` - or leave `Display` out with `#[unit(impl(..))]`
-   --> tests/ui/define/derives.rs:109:12
+   --> tests/ui/define/derives.rs:118:12
     |
-109 | pub struct NoLabels;
+118 | pub struct NoLabels;
     |            ^^^^^^^^
 
 error: unknown `#[unit(..)]` item `step`; expected the symbol and name, `by = ..`, `via = ..`, or on the type `of = ..`, `number = ..`, `non_const`, `impl(..)`
-   --> tests/ui/define/derives.rs:113:28
+   --> tests/ui/define/derives.rs:122:28
     |
-113 | #[unit("x", "x", of = f64, step = 1.0)]
+122 | #[unit("x", "x", of = f64, step = 1.0)]
     |                            ^^^^
 
 warning: unused import: `yadc::Dimension`

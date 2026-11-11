@@ -242,7 +242,9 @@ rules    = { Rank = ["add(Rank) = invalid"] }
 `si.toml` names both - its affine quantity is the `Instant`, its logarithmic
 ones the `Gain` and the `PowerLevel` - and makes a temperature a label of its
 own: an amount with a true zero, which scales and multiplies (`n * R * t`),
-kept apart from its differences by three rules.
+kept apart from its differences. `absolute` marks such a label, short for its
+three rules: two differ by a plain amount (`sub(X) = Linear`), and a plain
+amount moves one (`add(Linear) = X`, `sub(Linear) = X`).
 
 ```toml
 [kind]
@@ -250,7 +252,7 @@ variants = ["Linear", "Absolute", "Affine", "Log"]
 default  = "Linear"
 affine   = "Affine"
 log      = "Log"
-rules    = { Absolute = ["sub(Absolute) = Linear", "add(Linear) = Absolute", "sub(Linear) = Absolute"] }
+absolute = ["Absolute"]
 ```
 
 A rule is `add(X) = Y` or `sub(X) = Y`, where `X` is a variant and `Y` a
@@ -258,7 +260,8 @@ variant or `invalid` (no result; it revokes a default). Without rules a label
 adds to and subtracts from itself, and survives `*` and `/` only beside a
 plain number. There is no `Invalid` variant: a sum with no result is `None`.
 The generator checks this before writing anything: a `default`, `affine`,
-`log` or rule key that is not one of `variants`, a `mul` / `div` rule
+`log`, `absolute` or rule key that is not one of `variants`, an `absolute`
+that is the default, affine or log variant, a `mul` / `div` rule
 (products and quotients are not declarable), a rule that is not `op(X) = Y`,
 or an operand that is not a variant.
 

@@ -22,7 +22,7 @@ unit_derives = ["Copy", "Clone"]
 # linear amount and a linear amount moves one.
 variants = ["Linear", "Absolute"]
 default = "Linear"
-rules = { Absolute = ["sub(Absolute) = Linear", "add(Linear) = Absolute", "sub(Linear) = Absolute"] }
+absolute = ["Absolute"]
 
 # ISQ dimension fields.  Change this list (and the [[ucum.base]] overrides
 # below) to switch to a different basis, e.g. native UCUM dimensions.

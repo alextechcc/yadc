@@ -369,6 +369,9 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
         if system.kind.log.as_ref() == Some(v) {
             items.push("log".into());
         }
+        if system.kind.absolute.contains(v) {
+            items.push("absolute".into());
+        }
         if let Some(rules) = system.kind.rules.get(v) {
             items.extend(rules.iter().cloned());
         }
@@ -544,6 +547,17 @@ fn validate_kind(kind: &KindConfig) {
         kind.affine.is_none() || kind.affine != kind.log,
         "[kind] affine and log name the same variant"
     );
+    for v in &kind.absolute {
+        assert!(
+            variants.contains(v),
+            "[kind] absolute `{v}` is not one of the variants {variants:?}"
+        );
+        assert!(
+            *v != kind.default && Some(v) != kind.affine.as_ref() && Some(v) != kind.log.as_ref(),
+            "[kind] absolute `{v}` is the default, the affine or the log variant: those have \
+             their own sums"
+        );
+    }
     for (name, rules) in &kind.rules {
         assert!(
             variants.contains(name),

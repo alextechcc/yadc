@@ -154,6 +154,11 @@ use unit::expand_unit;
 ///   that must not be added together (a torque and an energy). It matters to
 ///   `+` and `-` only: by default it works within itself (`x + x = x`,
 ///   `x - x = x`), and survives `*` and `/` only beside a plain number.
+/// - **`#[kind(absolute)]`** marks a label of an amount with a true zero (a
+///   temperature from absolute zero), short for its three rules: two differ
+///   by a plain amount (`sub(X) = Plain`), and a plain amount moves one
+///   (`add(Plain) = X`, `sub(Plain) = X`), where `Plain` is the `#[default]`
+///   variant. More rules may follow it.
 ///
 /// Nothing depends on a variant's name.
 ///

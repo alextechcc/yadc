@@ -68,6 +68,15 @@ pub enum RuleOnLog {
     Other,
 }
 
+/// `absolute` is a label's; the plain label has its own sums.
+#[derive_const(PartialEq, Default)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
+pub enum DefaultAbsolute {
+    #[default]
+    #[kind(absolute)]
+    Plain,
+}
+
 /// The kind field is marked alone: its variants say which is a point.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]

@@ -78,6 +78,11 @@ pub struct KindConfig {
     /// Marked on its variant, `#[kind(log)]`.
     #[serde(default)]
     pub log: Option<String>,
+    /// Labels of amounts with a true zero, read on scales with other zeros (a
+    /// temperature): two differ by a plain amount, and a plain amount moves
+    /// one. Marked on the variant, `#[kind(absolute)]`.
+    #[serde(default)]
+    pub absolute: Vec<String>,
     /// The sums of a label of the system's own, emitted verbatim as that
     /// variant's `#[kind(..)]`: `Rank = ["add(Rank) = invalid"]`. Labels: `*`
     /// and `/` are fixed, so a rule is an `add(..)` or `sub(..)` entry, its

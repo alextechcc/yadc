@@ -54,7 +54,7 @@ pub use yadc::{Dimension, Quantity, Unit};
 pub enum Kind {
     #[default]
     Linear,
-    #[kind(sub(Absolute) = Linear, add(Linear) = Absolute, sub(Linear) = Absolute)]
+    #[kind(absolute)]
     Absolute,
     #[kind(affine)]
     Affine,

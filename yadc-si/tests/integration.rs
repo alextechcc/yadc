@@ -472,7 +472,7 @@ fn kinds_decide_sums_and_products() {
     let metre = dim_of(mech::METRE);
     assert_eq!(absolute.kind, Kind::Absolute);
     assert_eq!(<Kind as Dimension>::DIMENSIONLESS, Kind::Linear);
-    // Absolute, a label with three rules: two differ by a step, a step
+    // Absolute, a label marked `absolute`: two differ by a step, a step
     // moves one, and they add to each other (an average); nothing with a
     // step on the left. Beside a plain number the label survives a product;
     // any other product is linear.

@@ -52,9 +52,11 @@ impl syn::parse::Parse for KindRef {
 }
 
 /// One item inside a variant's `#[kind(..)]`: `add(Other) = Result` - one
-/// algebra entry - or `affine` / `log`, the behaviour the variant has.
+/// algebra entry - or `affine` / `log`, the behaviour the variant has, or
+/// `absolute`, the three rules of an amount with a true zero.
 enum KindItem {
     Rule { op: Op, other: KindRef, result: KindRef },
+    Absolute,
     Affine(syn::Ident),
     Log(syn::Ident),
 }
@@ -113,6 +115,7 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
     let mut zero: Option<usize> = None;
     let mut affine: Option<usize> = None;
     let mut log: Option<usize> = None;
+    let mut absolute: Vec<usize> = Vec::new();
 
     for (i, variant) in variants.iter().enumerate() {
         if !matches!(variant.fields, Fields::Unit) {
@@ -142,6 +145,7 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
             for item in parse_kind_items(attr)? {
                 match item {
                     KindItem::Rule { op, other, result } => rules.push((i, op, other, result)),
+                    KindItem::Absolute => absolute.push(i),
                     KindItem::Affine(id) | KindItem::Log(id) => {
                         let slot = if id == "affine" { &mut affine } else { &mut log };
                         if slot.replace(i).is_some() {
@@ -168,6 +172,23 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
             "mark the plain label - the label of a plain number - with `#[default]`",
         )
     })?;
+    // `absolute`: an amount whose zero is a fact (a temperature from absolute
+    // zero). Two of it differ by a plain amount, and a plain amount moves one:
+    // `sub(X) = Plain`, `add(Plain) = X`, `sub(Plain) = X`.
+    for &i in &absolute {
+        if i == zero || affine == Some(i) || log == Some(i) {
+            return Err(syn::Error::new_spanned(
+                idents[i],
+                "`absolute` is a label's: the `#[default]` label, a point and a logarithm have \
+                 their own sums",
+            ));
+        }
+        let (me, plain) = (idents[i], idents[zero]);
+        let named = |v: &syn::Ident| KindRef::Named(v.clone());
+        rules.push((i, Op::Sub, named(me), named(plain)));
+        rules.push((i, Op::Add, named(plain), named(me)));
+        rules.push((i, Op::Sub, named(plain), named(me)));
+    }
     if affine == Some(zero) || log == Some(zero) {
         return Err(syn::Error::new_spanned(
             idents[zero],
@@ -273,6 +294,8 @@ fn parse_kind_items(attr: &syn::Attribute) -> syn::Result<Vec<KindItem>> {
                 input.parse::<Token![=]>()?;
                 let result: KindRef = input.parse()?;
                 items.push(KindItem::Rule { op, other, result });
+            } else if id == "absolute" {
+                items.push(KindItem::Absolute);
             } else if id == "affine" {
                 items.push(KindItem::Affine(id));
             } else if id == "log" {
@@ -282,8 +305,9 @@ fn parse_kind_items(attr: &syn::Attribute) -> syn::Result<Vec<KindItem>> {
                     &id,
                     format!(
                         "`{id}` is not a rule: a label declares its sums, `add(Other) = Result` \
-                         and `sub(Other) = Result`, or the behaviour it has, `affine` (a point) \
-                         or `log` (a level or a gain)"
+                         and `sub(Other) = Result`, or the behaviour it has, `affine` (a point), \
+                         `log` (a level or a gain) or `absolute` (an amount with a true zero: two \
+                         differ by a plain amount, which moves one)"
                     ),
                 ));
             }

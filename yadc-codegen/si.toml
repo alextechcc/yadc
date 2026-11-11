@@ -36,7 +36,7 @@ family_order = [
 #   other zeros - a temperature (kelvins, °C, °F). It scales and multiplies
 #   as an amount does (`n * R * t`, an average), but two of them differ by a
 #   linear amount and a linear amount moves one, so a scale with a zero never
-#   reads a difference. A label of this system's own, with three rules.
+#   reads a difference. A label marked `absolute`, whose three rules say so.
 # - `Affine`: a point, measured from a zero somebody chose - an instant, in
 #   seconds from an epoch. Two points of one dimension differ by a linear
 #   amount and an amount moves a point; a point has no sum with another, no
@@ -53,7 +53,7 @@ family_order = [
 # a point or a level has no result.
 variants = ["Linear", "Absolute", "Affine", "Log"]
 default = "Linear"
-rules = { Absolute = ["sub(Absolute) = Linear", "add(Linear) = Absolute", "sub(Linear) = Absolute"] }
+absolute = ["Absolute"]
 affine = "Affine"
 log = "Log"
 
