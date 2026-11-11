@@ -75,10 +75,10 @@ fn main() {
 
     // The way back: std `TryFrom` checks the dimension, and a mismatch hands
     // the value back.
-    let back: Pressure = p.try_into().unwrap();
+    let back: Pressure<f64> = p.try_into().unwrap();
     println!("back        = {:.3} kPa", KILOPASCAL(back));
     println!("as a length = {:?}", Length::try_from(p).is_ok());
-    let kept = round_trip::<Pressure, DynamicSIQuantity>(back);
+    let kept = round_trip::<Pressure<f64>, DynamicSIQuantity>(back);
     println!(
         "round trip  = {:.3?} psi",
         kept.map(POUND_FORCE_PER_SQUARE_INCH)

@@ -86,38 +86,38 @@ let kg = KILOGRAM(m);                             // 4.5359237
 println!("{:.1} {}", MassUnit::Kilogram.value(m), MassUnit::Kilogram); // "4.5 kg" ({:#}: "kilograms")
 
 // Maths is on quantities, and the types follow the dimensions.
-let v: Velocity = KILOMETRE(90.0) / HOUR(1.0);
+let v: Velocity<f64> = KILOMETRE(90.0) / HOUR(1.0);
 let kmh = KILOMETRE_PER_HOUR(v);                  // 90.0
-let f: Force = m * METRE_PER_SECOND_SQUARED(9.81);
+let f: Force<f64> = m * METRE_PER_SECOND_SQUARED(9.81);
 // let nope = m + v;                                    // error: cannot add: the dimensions differ
 
 // °C is a scale, `Scale(ICE_POINT, KELVIN)`: a zero plus steps of 1 K - the unit's business, not yours.
 let t = CELSIUS.quantity(25.0);                                  // a ThermodynamicTemperature: 298.15 K
 let fahrenheit = FAHRENHEIT.value(t);                         // 77.0, to rounding
 let room = CELSIUS.quantity(20.0);
-let rise: TemperatureInterval = t - room;               // T - T = ΔT (5 K)
+let rise: TemperatureInterval<f64> = t - room;          // T - T = ΔT (5 K)
 // let nope = rise + t;                                 // error: cannot add these in this order (write t + rise)
-let twice: ThermodynamicTemperature = 2.0 * t;          // a temperature is an amount: 596.3 K
+let twice: ThermodynamicTemperature<f64> = 2.0 * t;     // a temperature is an amount: 596.3 K
 
 // dBm is a scale too, on the logarithmic line: `Scale(MILLIWATT_LEVEL, DECIBEL)`. It reads a
 // `PowerLevel` - where gains add; the watts are one std `From` away.
-let rx: PowerLevel = DBM.quantity(30.0);
-let p = Power::from(rx);                                // 1 W
-let dbw = DBW.value(PowerLevel::from(p));                     // 0.0
+let rx: PowerLevel<f64> = DBM.quantity(30.0);
+let p = Power::<f64>::from(rx);                         // 1 W
+let dbw = DBW.value(PowerLevel::<f64>::from(p));        // 0.0
 let out = rx - 3.0 * DECIBEL + 13.0 * DECIBEL;          // a link budget: 40 dBm
 // let nope = out + out;                                // error: cannot add: the labels have no sum (it would be the logarithm of W²)
 
 // When the dimension is only known at run time: the same operators, each returning an
 // Option - a sum of a speed and a time has no result, nor has a product of a level.
 let d = (DynamicSIQuantity::from(KILOMETRE(90.0)) / DynamicSIQuantity::from(HOUR(2.0))).unwrap();
-let v: Velocity = d.try_into().unwrap();                // Err(d) on a mismatch
+let v: Velocity<f64> = d.try_into().unwrap();           // Err(d) on a mismatch
 let kmh = KILOMETRE_PER_HOUR(v);                  // 45.0
 assert_eq!(d + DynamicSIQuantity::from(HOUR(1.0)), None); // nonsense has no result
 // so a run-time calculation reads ((a * b)? + c)?
 
 // A unit picked at run time: some unit of length, checked at compile time.
 let metric = true;
-let u: &dyn Unit<Length> = if metric { &KILOMETRE } else { &MILE };
+let u: &dyn Unit<Length<f64>> = if metric { &KILOMETRE } else { &MILE };
 println!("{:.1}", u.value(u.quantity(12.0)));           // 12.0, in whichever unit was picked
 ```
 
@@ -216,7 +216,7 @@ use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 #[derive(Clone, Copy, Debug, Members, Via)]
 #[members(convert(DynamicSIQuantity))]        // From / TryFrom with the dynamic type, through the variants
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)] // the operators listed: computed there
-enum Quantities { Pressure(Pressure), Temperature(ThermodynamicTemperature) }
+enum Quantities { Pressure(Pressure<f64>), Temperature(ThermodynamicTemperature<f64>) }
 
 /// The setting: which quantity, in which unit.
 #[derive(Clone, Copy, PartialEq, Debug, Visit, Variants)]
@@ -224,8 +224,8 @@ enum Units { Pressure(PressureUnit), Temperature(ThermodynamicTemperatureUnit) }
 
 /// Which quantity a unit family measures: a fact about the types, written as one.
 trait Measures: Unit<Self::Quantity> { type Quantity; }
-impl Measures for PressureUnit { type Quantity = Pressure; }
-impl Measures for ThermodynamicTemperatureUnit { type Quantity = ThermodynamicTemperature; }
+impl Measures for PressureUnit { type Quantity = Pressure<f64>; }
+impl Measures for ThermodynamicTemperatureUnit { type Quantity = ThermodynamicTemperature<f64>; }
 
 /// Build and read, once for every unit family: two visitors, over std `From` / `TryFrom`.
 struct Build(f64);
@@ -379,9 +379,9 @@ pub const ABOVE_ROOM: TemperatureStep = BOILING - CELSIUS.quantity(20.0);
 pub const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING); // 373.15, read at compile time
 ```
 
-`yadc-si` generates them: its `base` module holds the base constants, and every family module a `consts` module defining the rest from them (`mechanical::consts::NEWTON` is `METRE * KILOGRAM / (SECOND * SECOND)`, `KILOMETRE` is `1000 * METRE`; `thermal::consts::ICE_POINT`), each defined exactly and counted in the number type its use asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64`, `Length<f32>` an `f32`. **Physical constants are units too** (`SPEED_OF_LIGHT`, `STANDARD_GRAVITY`).
+`yadc-si` generates them: its `base` module holds the base constants, and every family module a `consts` module defining the rest from them (`mechanical::consts::NEWTON` is `METRE * KILOGRAM / (SECOND * SECOND)`, `KILOMETRE` is `1000 * METRE`; `thermal::consts::ICE_POINT`), each defined exactly in `yadc_si::Exact` and generic over the number type it is counted in, rounded once to the one its use asks for: `let d: Length<f64> = KILOMETRE;` is the nearest `f64`, `let d: Length<f32> = KILOMETRE;` the nearest `f32`, and `KILOMETRE::<Exact>` the exact value. Beside a stored value a constant takes that value's type (`trip + KILOMETRE`, `KILOMETRE(3.0)`); an expression of constants alone names it on one of them (`KILOMETRE::<f64> / HOUR`). **Physical constants are units too** (`SPEED_OF_LIGHT`, `STANDARD_GRAVITY`).
 
-**Other number types.** With the number type a parameter (`Qty<const D: Dim, N = f64>(N)`), `p.cast::<f32>()` is the same pressure counted in `f32` (`const`), and std `From` widens where the number converts losslessly: `Pressure::<f64>::from(p32)`.
+**Other number types.** With the number type a parameter (`Qty<const D: Dim, N>(N)`, so every use says it: `Pressure<f64>`, `Pressure<f32>`, or a generic `Pressure<N>`), `p.cast::<f32>()` is the same pressure counted in `f32` (`const`), and std `From` widens where the number converts losslessly: `Pressure::<f64>::from(p32)`. With `#[quantity(from(f32 => f64))]` the operators, units and comparisons also meet across the two, converting with std `From<f32> for f64`, one way only: `p64 + p32` is a `Pressure<f64>`.
 
 **Reciprocals** follow from the algebra too: `num_traits::Inv` is written on every quantity whose inverse the dimension allows, so `SECOND(2.0).inv()` is a frequency.
 
@@ -438,10 +438,10 @@ Up front, this is a pretty experimental crate and relies on a bunch of fairly un
 
 | What your crate does | Required at crate root |
 |---|---|
-| Just uses already-defined aliases and units (`Mass`, `POUND(10.0)`, …) | `generic_const_exprs` |
-| … and does quantity arithmetic in `const` items (`const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
+| Just uses already-defined aliases and units (`Mass<f64>`, `POUND(10.0)`, …) | `generic_const_exprs` |
+| … and does quantity arithmetic in `const` items (`const LIMIT: Velocity<f64> = 50.0 * KILOMETRE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
 | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ … }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and `fn_traits`, `unboxed_closures`, `const_destruct` (the quantity's `Fn` extra, on by default, that makes `KILOMETRE(3.0)` callable) |
-| … with a generic number type (`struct Qty<const D: Dim, N = f64>(N)`) | the same: `const_destruct` lets a `const` operator drop a number it knows nothing about |
+| … with a generic number type (`struct Qty<const D: Dim, N>(N)`) | the same: `const_destruct` lets a `const` operator drop a number it knows nothing about |
 | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl`, and `fn_traits`, `unboxed_closures` for its `Fn` extra (on by default) |
 | Uses `dynamickit`'s derives on your own types and sets | `const_trait_impl`, `const_convert` (plus `const_ops`, `const_cmp` and `const_destruct` for a dynamic type, `const_default` where a field is filled with `Default`, `const_destruct` for `Members`) |
 
@@ -465,9 +465,9 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 - **Points and levels behave as on the whiteboard.** altitude − altitude = length and altitude ± length = altitude, and nothing that depends on where the zero was put; level − level = gain and level ± gain = level, because adding logarithms multiplies.
 - **Static and dynamic, mixed freely.** yadc is the statics; dynamic types are built with [`dynamickit`](dynamickit/), which knows nothing about quantities. `yadc-si`'s `DynamicSIQuantity` holds any dimension, carried at run time: every operator returns an `Option` (`None` for `kg + m`, or for a product of a level), so a calculation reads `((a * b)? + c)?`.
 - **Units picked at run time.** A unit enum is a run-time choice within one family; `&dyn Unit<Length>` is "some unit of length", still checked at compile time; across quantities, your enum of unit enums is visited with `dynamickit`'s `Visit`, each family naming the quantity it measures in an associated type of yours.
-- **Number types are yours too.** The stored number is whatever the quantity's field is: `f64`, `f32`, a newtype, a generic `N` (`Qty<const D: Dim, N = f64>(N)`, with `KILOPASCAL.cast::<f32>()` and a lossless std `From`). A unit counts in `f64` unless `#[unit(number = f32)]` says otherwise.
+- **Number types are yours too.** The stored number is whatever the quantity's field is: `f64`, `f32`, a newtype, a generic `N` (`Qty<const D: Dim, N>(N)`, every use naming it - `Pressure<f64>`, `Pressure<f32>` - with `KILOPASCAL.cast::<f32>()`, a lossless std `From`, and `#[quantity(from(f32 => f64))]` for `f32` and `f64` values that meet). A derived unit enum counts in `f64` unless `#[unit(number = f32)]` says otherwise.
 - **Nothing hidden.** The traits are the whole contract, and the derives write trait impls only; the quantity derive reaches dimensions only through `Dimension`; a derived unit delegates to the unit values you name in its attributes; only the crate that owns a quantity type writes its field.
-- **Compile-time quantities.** Quantity arithmetic, constants and scales as units, and `cast` are `const`, so `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;` is checked and evaluated by the compiler.
+- **Compile-time quantities.** Quantity arithmetic, constants and scales as units, and `cast` are `const`, so `const LIMIT: Velocity<f64> = 50.0 * KILOMETRE / HOUR;` is checked and evaluated by the compiler.
 - **Optional serde** with a UCUM wire format for dimensions (`"m.kg.s-2"`, `"rad"`, `"K{Absolute}"`, `"1"`) via the `UcumSerialize` / `UcumDeserialize` derives, plus `UcumKind` for the label enum - all behind `yadc`'s `ucum` Cargo feature, which `yadc-si`'s `serde` feature turns on.
 - **`no_std`.** `yadc`, `yadc-math` and `dynamickit` are `no_std`; a root or a level's logarithm reaches float maths through `num_traits`, so enable `yadc/libm` for a build without `std`.
 

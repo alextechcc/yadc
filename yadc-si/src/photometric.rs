@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Luminance<N = f64> = SIQuantity<
+pub type Luminance<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -13,7 +13,7 @@ pub type Luminance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type LuminousIntensity<N = f64> = SIQuantity<
+pub type LuminousIntensity<N> = SIQuantity<
     {
         ISQ {
             cd: 1,
@@ -23,7 +23,7 @@ pub type LuminousIntensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Illuminance<N = f64> = SIQuantity<
+pub type Illuminance<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -35,7 +35,7 @@ pub type Illuminance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type RadiantExposure<N = f64> = SIQuantity<
+pub type RadiantExposure<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -430,7 +430,7 @@ pub mod consts {
 /// The units of `Luminance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Luminance)]
+#[unit(of = Luminance<f64>)]
 pub enum LuminanceUnit {
     #[unit("Ycd/m²", "yottacandelas per square metre", by = YOTTACANDELA_PER_SQUARE_METRE)]
     YottacandelaPerSquareMetre,
@@ -508,7 +508,7 @@ pub enum LuminanceUnit {
 /// The units of `LuminousIntensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LuminousIntensity)]
+#[unit(of = LuminousIntensity<f64>)]
 pub enum LuminousIntensityUnit {
     #[unit("Ycd", "yottacandelas", by = YOTTACANDELA)]
     Yottacandela,
@@ -558,7 +558,7 @@ pub enum LuminousIntensityUnit {
 /// The units of `Illuminance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Illuminance)]
+#[unit(of = Illuminance<f64>)]
 pub enum IlluminanceUnit {
     #[unit("Ylx", "yottalux", by = YOTTALUX)]
     Yottalux,
@@ -612,7 +612,7 @@ pub enum IlluminanceUnit {
 /// The units of `RadiantExposure`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = RadiantExposure)]
+#[unit(of = RadiantExposure<f64>)]
 pub enum RadiantExposureUnit {
     #[unit("YJ/m²", "yottajoules per square metre", by = YOTTAJOULE_PER_SQUARE_METRE)]
     YottajoulePerSquareMetre,

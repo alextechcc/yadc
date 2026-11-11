@@ -2,8 +2,9 @@
 //!
 //! Core traits and derive macros for building a compile-time-checked unit
 //! system. You define the dimension (a struct of exponent axes, plus an
-//! optional `#[kind]`), the quantity family
-//! (`Qty<const D: Dim, N = f64>`), the constants, and the units; the derives
+//! optional `#[kind]`), the quantity family (`Qty<const D: Dim>(f64)`, or
+//! `Qty<const D: Dim, N>(N)` generic over its number type), the constants,
+//! and the units; the derives
 //! write the arithmetic, the conversions and the labels. yadc is patterns, a
 //! few small traits and the macros that implement them: every type is yours.
 //!
@@ -18,10 +19,21 @@
 //!
 //! ```ignore
 //! #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
-//! pub struct Qty<const D: Dim, N = f64>(N);
+//! pub struct Qty<const D: Dim>(f64);
 //!
 //! pub type Length = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>;
-//! pub type Length32 = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, f32>;
+//! ```
+//!
+//! A family generic over its number type takes it as a parameter, and every
+//! use names it (`Length<f64>`, `Length<f32>`) or stays generic over it:
+//!
+//! ```ignore
+//! #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+//! pub struct Qty<const D: Dim, N>(N);
+//!
+//! pub type Length<N> = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, N>;
+//!
+//! fn trip<N>(legs: &[Length<N>]) -> Length<N> { /* .. */ }
 //! ```
 //!
 //! Values whose dimension is only known at run time - an enum of the
@@ -194,7 +206,7 @@
 //! | [`Powi<N>`] / [`Root<N>`] | a power or root with the exponent `N` known at compile time, typed: `Length` squared is an `Area`; called as `x.powi::<N>()` / `x.root::<N>()` with [`PowiAs`] / [`RootAs`] in scope |
 //! | [`Quantity`] | an amount: adds, scales by its `Number`s, compares, and is a unit of itself; by `#[derive(Quantity)]` for every member that can be scaled |
 //! | [`Unit<Q, N>`] | a unit of any `Q` counted in `N` (`f64` by default): `quantity(n)` builds, `value(q)` reads; dyn compatible. Quantity constants, and types of yours - `#[derive(Unit)]` or hand-written |
-//! | [`Cast<T>`] / [`CastAs`] | a change of number type, `x.cast::<f32>()`: primitives by `as`, a family generic over its number type by the derive (which also writes std `From` where the change is lossless: `Pressure::from(p32)`) |
+//! | [`Cast<T>`] / [`CastAs`] | a change of number type, `x.cast::<f32>()`: primitives by `as`, a family generic over its number type by the derive (which also writes std `From` where the change is lossless: `Pressure::<f64>::from(p32)`) |
 //!
 //! Printing is std `Display`: a unit's (`{}` its symbol, `{:#}` its name) -
 //! `format!("{:.1} {}", unit.value(q), unit)` - and a quantity's own (its
@@ -268,7 +280,7 @@
 //!   the label's `Option` in const code, so a crate defining a `Dim` needs it.
 //! - **`const_destruct`** - for the quantity derive's `Fn` extra (on by
 //!   default), and for a quantity whose number type is a generic parameter
-//!   (`Qty<const D: Dim, N = f64>`): its const operators drop an `N`.
+//!   (`Qty<const D: Dim, N>`): its const operators drop an `N`.
 //! - **`derive_const`** - `#[derive_const(PartialEq)]` on your `Dim` and
 //!   `Kind` (and `Default` on a `Kind`), so `==` on them is const-callable.
 

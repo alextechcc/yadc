@@ -30,11 +30,11 @@ struct Beaufort;
 // The whole conversion, both directions written in quantity terms: the
 // formula counts metres per second, and `METRE_PER_SECOND` - a constant, so
 // a unit - turns those numbers into a speed and back.
-impl Unit<Velocity> for Beaufort {
-    fn quantity(&self, force: f64) -> Velocity {
+impl Unit<Velocity<f64>> for Beaufort {
+    fn quantity(&self, force: f64) -> Velocity<f64> {
         METRE_PER_SECOND(0.836 * force.powf(1.5))
     }
-    fn value(&self, speed: Velocity) -> f64 {
+    fn value(&self, speed: Velocity<f64>) -> f64 {
         (METRE_PER_SECOND(speed) / 0.836).powf(2.0 / 3.0)
     }
 }
@@ -72,7 +72,8 @@ fn main() {
     // Picked at run time: some unit of velocity, still checked at compile
     // time (a mass unit does not fit here). With `Display` too, it prints.
     // Behind `&dyn` a unit is its two methods.
-    let choices: [&dyn ShownUnit<Velocity>; 3] = [&VelocityUnit::MetrePerSecond, &kmh, &Beaufort];
+    let choices: [&dyn ShownUnit<Velocity<f64>>; 3] =
+        [&VelocityUnit::MetrePerSecond, &kmh, &Beaufort];
     for unit in choices {
         println!("{unit:>#18}: {:.1} {unit}", unit.value(gale));
     }

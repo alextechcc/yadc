@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type AmountOfSubstance<N = f64> = SIQuantity<
+pub type AmountOfSubstance<N> = SIQuantity<
     {
         ISQ {
             mol: 1,
@@ -12,7 +12,7 @@ pub type AmountOfSubstance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarConcentration<N = f64> = SIQuantity<
+pub type MolarConcentration<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -23,7 +23,7 @@ pub type MolarConcentration<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarEnergy<N = f64> = SIQuantity<
+pub type MolarEnergy<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -36,7 +36,7 @@ pub type MolarEnergy<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarFlux<N = f64> = SIQuantity<
+pub type MolarFlux<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -48,7 +48,7 @@ pub type MolarFlux<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarHeatCapacity<N = f64> = SIQuantity<
+pub type MolarHeatCapacity<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -62,7 +62,7 @@ pub type MolarHeatCapacity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarMass<N = f64> = SIQuantity<
+pub type MolarMass<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -73,7 +73,7 @@ pub type MolarMass<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarRadioactivity<N = f64> = SIQuantity<
+pub type MolarRadioactivity<N> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -84,7 +84,7 @@ pub type MolarRadioactivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MolarVolume<N = f64> = SIQuantity<
+pub type MolarVolume<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -95,7 +95,7 @@ pub type MolarVolume<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Molality<N = f64> = SIQuantity<
+pub type Molality<N> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -106,7 +106,7 @@ pub type Molality<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MassConcentration<N = f64> = SIQuantity<
+pub type MassConcentration<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -117,7 +117,7 @@ pub type MassConcentration<N = f64> = SIQuantity<
     N,
 >;
 
-pub type CatalyticActivity<N = f64> = SIQuantity<
+pub type CatalyticActivity<N> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -128,7 +128,7 @@ pub type CatalyticActivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type CatalyticActivityConcentration<N = f64> = SIQuantity<
+pub type CatalyticActivityConcentration<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -140,7 +140,7 @@ pub type CatalyticActivityConcentration<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Radioactivity<N = f64> = SIQuantity<
+pub type Radioactivity<N> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -150,7 +150,7 @@ pub type Radioactivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SpecificRadioactivity<N = f64> = SIQuantity<
+pub type SpecificRadioactivity<N> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -161,7 +161,7 @@ pub type SpecificRadioactivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type InverseAmountOfSubstance<N = f64> = SIQuantity<
+pub type InverseAmountOfSubstance<N> = SIQuantity<
     {
         ISQ {
             mol: -1,
@@ -972,7 +972,7 @@ pub mod consts {
 /// The units of `AmountOfSubstance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AmountOfSubstance)]
+#[unit(of = AmountOfSubstance<f64>)]
 pub enum AmountOfSubstanceUnit {
     #[unit("Ymol", "yottamoles", by = YOTTAMOLE)]
     Yottamole,
@@ -1024,7 +1024,7 @@ pub enum AmountOfSubstanceUnit {
 /// The units of `MolarConcentration`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarConcentration)]
+#[unit(of = MolarConcentration<f64>)]
 pub enum MolarConcentrationUnit {
     #[unit("Ymol/m³", "yottamoles per cubic metre", by = YOTTAMOLE_PER_CUBIC_METRE)]
     YottamolePerCubicMetre,
@@ -1090,7 +1090,7 @@ pub enum MolarConcentrationUnit {
 /// The units of `MolarEnergy`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarEnergy)]
+#[unit(of = MolarEnergy<f64>)]
 pub enum MolarEnergyUnit {
     #[default]
     #[unit("kg · m²/(s² · mol)", "kilograms square metre per second squared mole", by = KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE)]
@@ -1200,7 +1200,7 @@ pub enum MolarEnergyUnit {
 /// The units of `MolarFlux`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarFlux)]
+#[unit(of = MolarFlux<f64>)]
 pub enum MolarFluxUnit {
     #[default]
     #[unit("mol/(m² · s)", "moles per square metre second", by = MOLE_PER_SQUARE_METRE_SECOND)]
@@ -1210,7 +1210,7 @@ pub enum MolarFluxUnit {
 /// The units of `MolarHeatCapacity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarHeatCapacity)]
+#[unit(of = MolarHeatCapacity<f64>)]
 pub enum MolarHeatCapacityUnit {
     #[unit("YJ/(K · mol)", "yottajoules per kelvin mole", by = YOTTAJOULE_PER_KELVIN_MOLE)]
     YottajoulePerKelvinMole,
@@ -1282,7 +1282,7 @@ pub enum MolarHeatCapacityUnit {
 /// The units of `MolarMass`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarMass)]
+#[unit(of = MolarMass<f64>)]
 pub enum MolarMassUnit {
     #[unit("Yg/mol", "yottagrams per mole", by = YOTTAGRAM_PER_MOLE)]
     YottagramPerMole,
@@ -1332,7 +1332,7 @@ pub enum MolarMassUnit {
 /// The units of `MolarRadioactivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarRadioactivity)]
+#[unit(of = MolarRadioactivity<f64>)]
 pub enum MolarRadioactivityUnit {
     #[default]
     #[unit("Bq/mol", "becquerels per mole", by = BECQUEREL_PER_MOLE)]
@@ -1346,7 +1346,7 @@ pub enum MolarRadioactivityUnit {
 /// The units of `MolarVolume`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarVolume)]
+#[unit(of = MolarVolume<f64>)]
 pub enum MolarVolumeUnit {
     #[default]
     #[unit("m³/mol", "cubic metres per mole", by = CUBIC_METRE_PER_MOLE)]
@@ -1358,7 +1358,7 @@ pub enum MolarVolumeUnit {
 /// The units of `Molality`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Molality)]
+#[unit(of = Molality<f64>)]
 pub enum MolalityUnit {
     #[default]
     #[unit("mol/kg", "moles per kilogram", by = MOLE_PER_KILOGRAM)]
@@ -1368,7 +1368,7 @@ pub enum MolalityUnit {
 /// The units of `MassConcentration`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassConcentration)]
+#[unit(of = MassConcentration<f64>)]
 pub enum MassConcentrationUnit {
     #[unit("Yg/m³", "yottagrams per cubic metre", by = YOTTAGRAM_PER_CUBIC_METRE)]
     YottagramPerCubicMetre,
@@ -1418,7 +1418,7 @@ pub enum MassConcentrationUnit {
 /// The units of `CatalyticActivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CatalyticActivity)]
+#[unit(of = CatalyticActivity<f64>)]
 pub enum CatalyticActivityUnit {
     #[unit("Ykat", "yottakatals", by = YOTTAKATAL)]
     Yottakatal,
@@ -1472,7 +1472,7 @@ pub enum CatalyticActivityUnit {
 /// The units of `CatalyticActivityConcentration`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CatalyticActivityConcentration)]
+#[unit(of = CatalyticActivityConcentration<f64>)]
 pub enum CatalyticActivityConcentrationUnit {
     #[unit("Ykat/m³", "yottakatals per cubic metre", by = YOTTAKATAL_PER_CUBIC_METRE)]
     YottakatalPerCubicMetre,
@@ -1538,7 +1538,7 @@ pub enum CatalyticActivityConcentrationUnit {
 /// The units of `Radioactivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Radioactivity)]
+#[unit(of = Radioactivity<f64>)]
 pub enum RadioactivityUnit {
     #[unit("YBq", "yottabecquerels", by = YOTTABECQUEREL)]
     Yottabecquerel,
@@ -1590,7 +1590,7 @@ pub enum RadioactivityUnit {
 /// The units of `SpecificRadioactivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificRadioactivity)]
+#[unit(of = SpecificRadioactivity<f64>)]
 pub enum SpecificRadioactivityUnit {
     #[default]
     #[unit("Bq/kg", "becquerels per kilogram", by = BECQUEREL_PER_KILOGRAM)]
@@ -1604,7 +1604,7 @@ pub enum SpecificRadioactivityUnit {
 /// The units of `InverseAmountOfSubstance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InverseAmountOfSubstance)]
+#[unit(of = InverseAmountOfSubstance<f64>)]
 pub enum InverseAmountOfSubstanceUnit {
     #[default]
     #[unit("mol⁻¹", "per mole", by = PER_MOLE)]

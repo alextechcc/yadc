@@ -35,7 +35,7 @@ fmt-clean files.
     `#[kind(..)]`);
   - the dimension struct (`#[derive(Dimension)]`: one `i8` per `[dim]` field
     and a `#[kind]` field);
-  - the static quantity `Qty<const D: Dim, N = f64>(N)` (`#[derive(Quantity)]`:
+  - the static quantity `Qty<const D: Dim, N>(N)` (`#[derive(Quantity)]`:
     its operators, `Quantity` - every constant a unit - and the
     extras, `Display` and `Fn` among them, so a constant is called to build
     and to read, `KILOMETRE(3.0)`; the field is private to the crate, so the
@@ -47,7 +47,7 @@ fmt-clean files.
     `DynQty { dim: Dim, value: f64 }`, with no hand-written impl:
 
     ```rust
-    #[dynamic(Qty<const D: Dim> => { dim: D, value: .0 })]
+    #[dynamic(Qty<const D: Dim, f64> => { dim: D, value: .0 })]
     #[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]
     #[dynamic(impl(
         Mul -> Option<Self>,
@@ -71,18 +71,18 @@ fmt-clean files.
   - `pub mod base`, the `[[base]]` constants - the only raw numbers;
   - one `pub mod` per family, per `extra_modules` entry and for
     `dimensionless`.
-- `src/dimensionless.rs` - `pub type Dimensionless = Qty<{ Dim::DIMENSIONLESS }>;`,
+- `src/dimensionless.rs` - `pub type Dimensionless<N> = Qty<{ Dim::DIMENSIONLESS }, N>;`,
   its constants and unit enum.
 - `src/<family>.rs` - the quantity aliases, a `consts` module with the
   constants (see [below](#the-consts-modules)), then each quantity's unit
   enum, naming them:
 
 ```rust
-use crate::{Dim, Qty};
+use crate::{Dim, Exact, Qty, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Length<N = f64> = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, N>;
+pub type Length<N> = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, N>;
 
 pub mod consts {
     use super::*;
@@ -96,7 +96,7 @@ pub mod consts {
 
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]
-#[unit(of = Length)]
+#[unit(of = Length<f64>)]
 pub enum LengthUnit {
     #[unit("km", "kilometres", by = KILOMETRE)]
     Kilometre,
@@ -139,9 +139,12 @@ exact definition - `"0.0254"`, `"1000.0 / 3600.0"`, `"core::f64::consts::PI / 18
   `DEGREE_FAHRENHEIT = (5.0 / 9.0) * KELVIN` - or `m * (product)` for a
   quantity with no coherent unit of its own;
 - **a quantity's `consts`** are written verbatim: `ICE_POINT = ABSOLUTE_ZERO + 273.15 * KELVIN`;
-  with a `ty`, one is a scale, a zero and a step - `CELSIUS:
-  Scale<ThermodynamicTemperature, TemperatureInterval> = Scale(ICE_POINT,
-  KELVIN)`.
+  with a `ty`, one is a scale, a zero and a step - `ty =
+  "Scale<ThermodynamicTemperature, TemperatureInterval>"` and `value =
+  "Scale(ICE_POINT, KELVIN)"` give `CELSIUS<N: const From<Exact>>:
+  Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> =
+  Scale(counted(ICE_POINT::<Exact>), counted(KELVIN::<Exact>))`, generic over
+  its number type like every constant.
 
 Each family's `consts` module also re-exports the base constants of its
 quantities (`mechanical::consts::METRE`, `thermal::consts::ABSOLUTE_ZERO`),
@@ -153,7 +156,8 @@ its path, `crate::base::SECOND`.
 
 ### How units map to unit enums
 
-Every quantity with units gets a `<Q>Unit` enum, `#[derive(yadc::Unit,
+Every quantity with units gets a `<Q>Unit` enum, a unit of `Q<f64>`
+(`#[unit(of = Q<f64>)]`), `#[derive(yadc::Unit,
 dynamickit::Variants)]` plus `unit_derives`, and `#[derive_const(Default)]` with the
 coherent unit as `#[default]` (what a menu starts on; `Variants` lists the units for one).
 Each variant names the unit value it is:
@@ -162,7 +166,7 @@ Each variant names the unit value it is:
 |---|---|---|
 | a multiple (`m`) | `#[unit("km", "kilometres", by = KILOMETRE)]` | its constant |
 | a unit value (`by`) | `#[unit("°C", "degrees Celsius", by = CELSIUS)]` | nothing: `by` is written verbatim |
-| a unit value of another type (`by`, `via`) | `#[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel)]` | nothing |
+| a unit value of another type (`by`, `via`) | `#[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel<f64>)]` | nothing |
 
 A `by` names any unit value in scope: another constant (`by = "KELVIN"`, the
 degree Celsius of a temperature step), a scale from the quantity's `consts`
@@ -171,7 +175,7 @@ or a path into a hand-written module. A `via` names the type that unit value
 measures when it is not the enum's quantity: the two convert with std `From`,
 which a hand-written module supplies (a level's scale, in the watts' enum). A
 unit whose conversion is not `const` (such a level: the `From` takes a
-logarithm) says `non_const = true`, and its enum is `#[unit(of = Q,
+logarithm) says `non_const = true`, and its enum is `#[unit(of = Q<f64>,
 non_const)]`.
 
 The enums take the `Unit` derive's extras as they come - `Display`, `FromStr`
@@ -477,7 +481,7 @@ levels; `PowerUnit` lists it beside the watts `via` the level, which is not
 `const`:
 
 ```toml
-{v = "DecibelMilliwatt", s = "dBm", l = "decibels-milliwatt", by = "DBM", via = "PowerLevel", non_const = true},
+{v = "DecibelMilliwatt", s = "dBm", l = "decibels-milliwatt", by = "DBM", via = "PowerLevel<f64>", non_const = true},
 ```
 
 ## UCUM mode

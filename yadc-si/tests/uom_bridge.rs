@@ -25,7 +25,7 @@ fn close(a: f64, b: f64) {
 #[test]
 fn static_from_uom_length() {
     let uom = Length::new::<kilometer>(42.195);
-    let q: SIQuantity<_> = uom.into();
+    let q: SIQuantity<_, f64> = uom.into();
     close(LengthUnit::Metre.value(q), 42_195.0);
     close(LengthUnit::Kilometre.value(q), 42.195);
 }
@@ -33,7 +33,7 @@ fn static_from_uom_length() {
 #[test]
 fn static_from_uom_mass() {
     let uom = Mass::new::<kilogram>(70.0);
-    let q: SIQuantity<_> = uom.into();
+    let q: SIQuantity<_, f64> = uom.into();
     close(MassUnit::Kilogram.value(q), 70.0);
     close(MassUnit::Gram.value(q), 70_000.0);
 }
@@ -49,7 +49,7 @@ fn static_into_uom_length() {
 #[test]
 fn static_round_trip_uom_to_yadc_to_uom() {
     let original = Length::new::<meter>(1234.5);
-    let q: SIQuantity<_> = original.into();
+    let q: SIQuantity<_, f64> = original.into();
     let back: Length = q.into();
     close(back.get::<meter>(), 1234.5);
 }
@@ -57,7 +57,7 @@ fn static_round_trip_uom_to_yadc_to_uom() {
 #[test]
 fn static_derived_quantity_velocity() {
     let uom = Velocity::new::<meter_per_second>(25.0);
-    let q: SIQuantity<_> = uom.into();
+    let q: SIQuantity<_, f64> = uom.into();
     close(VelocityUnit::MetrePerSecond.value(q), 25.0);
     let back: Velocity = q.into();
     close(back.get::<meter_per_second>(), 25.0);
@@ -66,7 +66,7 @@ fn static_derived_quantity_velocity() {
 #[test]
 fn static_derived_quantity_force() {
     let uom = Force::new::<newton>(9.81);
-    let q: SIQuantity<_> = uom.into();
+    let q: SIQuantity<_, f64> = uom.into();
     close(ForceUnit::Newton.value(q), 9.81);
     let back: Force = q.into();
     close(back.get::<newton>(), 9.81);
@@ -166,14 +166,14 @@ fn dynamic_arithmetic_after_uom_conversion() {
 #[test]
 fn static_angle_from_uom_is_one_radian_axis() {
     let uom = Angle::new::<radian>(std::f64::consts::FRAC_PI_2);
-    let q: SIQuantity<_> = uom.into();
+    let q: SIQuantity<_, f64> = uom.into();
     close(AngleUnit::Radian.value(q), std::f64::consts::FRAC_PI_2);
 }
 
 #[test]
 fn static_angle_round_trip() {
     let original = Angle::new::<radian>(std::f64::consts::PI);
-    let q: SIQuantity<_> = original.into();
+    let q: SIQuantity<_, f64> = original.into();
     let back: Angle = q.into();
     close(back.get::<radian>(), std::f64::consts::PI);
 }
@@ -181,7 +181,7 @@ fn static_angle_round_trip() {
 #[test]
 fn static_solid_angle_round_trip() {
     let original = SolidAngle::new::<steradian>(4.0);
-    let q: SIQuantity<_> = original.into();
+    let q: SIQuantity<_, f64> = original.into();
     close(SolidAngleUnit::Steradian.value(q), 4.0);
     let back: SolidAngle = q.into();
     close(back.get::<steradian>(), 4.0);
@@ -233,9 +233,9 @@ fn uom_torque_is_joules_per_radian() {
     use uom::si::torque::newton_meter;
     // uom marks torque with its angle kind; in yadc-si that is rad⁻¹, so the
     // conversion lands on `Torque` (J/rad) and torque × angle is energy.
-    let q: yadc_si::mechanical::Torque = Torque::new::<newton_meter>(5.0).into();
+    let q: yadc_si::mechanical::Torque<f64> = Torque::new::<newton_meter>(5.0).into();
     close(TorqueUnit::NewtonMetre.value(q), 5.0);
-    let work: Energy = q * AngleUnit::Radian.quantity(2.0);
+    let work: Energy<f64> = q * AngleUnit::Radian.quantity(2.0);
     close(EnergyUnit::Joule.value(work), 10.0);
 }
 
@@ -244,7 +244,7 @@ fn uom_temperature_kind_is_absolute() {
     use uom::si::f64::ThermodynamicTemperature;
     use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
     use yadc_si::thermal::ThermodynamicTemperatureUnit;
-    let t: yadc_si::thermal::ThermodynamicTemperature =
+    let t: yadc_si::thermal::ThermodynamicTemperature<f64> =
         ThermodynamicTemperature::new::<degree_celsius>(25.0).into();
     close(ThermodynamicTemperatureUnit::Kelvin.value(t), 298.15);
     let dq: DynamicSIQuantity = ThermodynamicTemperature::new::<kelvin>(300.0).into();
@@ -273,7 +273,7 @@ fn uom_curvature_is_radians_per_metre() {
     use uom::si::curvature::radian_per_meter;
     use uom::si::f64::Curvature;
     // uom marks curvature with its angle kind: rad/m, not a plain 1/m.
-    let q: yadc_si::mechanical::Curvature = Curvature::new::<radian_per_meter>(0.25).into();
+    let q: yadc_si::mechanical::Curvature<f64> = Curvature::new::<radian_per_meter>(0.25).into();
     close(CurvatureUnit::RadianPerMetre.value(q), 0.25);
     let back: Curvature = q.into();
     close(back.get::<radian_per_meter>(), 0.25);
@@ -295,20 +295,22 @@ fn uom_angular_kinds_land_on_their_radians() {
     use uom::si::f64::{
         AngularAbsement, AngularAcceleration, AngularJerk, AngularMomentum, AngularVelocity,
     };
-    let w: yadc_si::angular::AngularVelocity =
+    let w: yadc_si::angular::AngularVelocity<f64> =
         AngularVelocity::new::<radian_per_second>(2.0).into();
     close(AngularVelocityUnit::RadianPerSecond.value(w), 2.0);
-    let a: yadc_si::angular::AngularAcceleration =
+    let a: yadc_si::angular::AngularAcceleration<f64> =
         AngularAcceleration::new::<radian_per_second_squared>(3.0).into();
     close(
         AngularAccelerationUnit::RadianPerSecondSquared.value(a),
         3.0,
     );
-    let j: yadc_si::angular::AngularJerk = AngularJerk::new::<radian_per_second_cubed>(4.0).into();
+    let j: yadc_si::angular::AngularJerk<f64> =
+        AngularJerk::new::<radian_per_second_cubed>(4.0).into();
     close(AngularJerkUnit::RadianPerSecondCubed.value(j), 4.0);
-    let s: yadc_si::angular::AngularAbsement = AngularAbsement::new::<radian_second>(5.0).into();
+    let s: yadc_si::angular::AngularAbsement<f64> =
+        AngularAbsement::new::<radian_second>(5.0).into();
     close(AngularAbsementUnit::RadianSecond.value(s), 5.0);
-    let l: yadc_si::angular::AngularMomentum =
+    let l: yadc_si::angular::AngularMomentum<f64> =
         AngularMomentum::new::<kilogram_square_meter_per_second>(6.0).into();
     close(
         AngularMomentumUnit::KilogramSquareMetrePerSecond.value(l),

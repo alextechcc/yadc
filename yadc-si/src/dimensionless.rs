@@ -4,7 +4,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Dimensionless<N = f64> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
+pub type Dimensionless<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
 
 /// The constants of this module: the base constants of its quantities
 /// (re-exported), then one per multiple, each defined exactly from them -
@@ -56,7 +56,7 @@ pub mod consts {
 /// The units of `Dimensionless`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Dimensionless)]
+#[unit(of = Dimensionless<f64>)]
 pub enum DimensionlessUnit {
     #[default]
     #[unit("", "", by = RATIO)]

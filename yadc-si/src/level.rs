@@ -30,8 +30,8 @@ use yadc::num_traits::real::Real;
 
 /// The power at a level: a watt, ten times for every bel above
 /// `WATT_LEVEL`.
-impl From<PowerLevel> for Power {
-    fn from(level: PowerLevel) -> Self {
+impl From<PowerLevel<f64>> for Power<f64> {
+    fn from(level: PowerLevel<f64>) -> Self {
         WATT.quantity(Real::powf(10.0, BEL.value(level - WATT_LEVEL)))
     }
 }
@@ -39,22 +39,22 @@ impl From<PowerLevel> for Power {
 /// The level of a power: `lg(power / 1 W)` bels above `WATT_LEVEL`. A zero
 /// power is at minus infinity, and a negative one has no level (NaN), as for
 /// `log10`.
-impl From<Power> for PowerLevel {
-    fn from(power: Power) -> Self {
+impl From<Power<f64>> for PowerLevel<f64> {
+    fn from(power: Power<f64>) -> Self {
         WATT_LEVEL + BEL.quantity(Real::log10(WATT.value(power)))
     }
 }
 
 /// The power ratio a gain is: ten times for every bel.
-impl From<Gain> for Dimensionless {
-    fn from(gain: Gain) -> Self {
+impl From<Gain<f64>> for Dimensionless<f64> {
+    fn from(gain: Gain<f64>) -> Self {
         RATIO.quantity(Real::powf(10.0, BEL.value(gain)))
     }
 }
 
 /// The gain a power ratio is: `lg(ratio)` bels.
-impl From<Dimensionless> for Gain {
-    fn from(ratio: Dimensionless) -> Self {
+impl From<Dimensionless<f64>> for Gain<f64> {
+    fn from(ratio: Dimensionless<f64>) -> Self {
         BEL.quantity(Real::log10(RATIO.value(ratio)))
     }
 }

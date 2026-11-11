@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type MassDensity<N = f64> = SIQuantity<
+pub type MassDensity<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -13,7 +13,7 @@ pub type MassDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type LinearMassDensity<N = f64> = SIQuantity<
+pub type LinearMassDensity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -24,7 +24,7 @@ pub type LinearMassDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ArealMassDensity<N = f64> = SIQuantity<
+pub type ArealMassDensity<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -35,7 +35,7 @@ pub type ArealMassDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type LinearNumberDensity<N = f64> = SIQuantity<
+pub type LinearNumberDensity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -45,7 +45,7 @@ pub type LinearNumberDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ArealNumberDensity<N = f64> = SIQuantity<
+pub type ArealNumberDensity<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -55,7 +55,7 @@ pub type ArealNumberDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type VolumetricNumberDensity<N = f64> = SIQuantity<
+pub type VolumetricNumberDensity<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -65,7 +65,7 @@ pub type VolumetricNumberDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type LinearNumberRate<N = f64> = SIQuantity<
+pub type LinearNumberRate<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -76,7 +76,7 @@ pub type LinearNumberRate<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ArealNumberRate<N = f64> = SIQuantity<
+pub type ArealNumberRate<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -87,7 +87,7 @@ pub type ArealNumberRate<N = f64> = SIQuantity<
     N,
 >;
 
-pub type VolumetricNumberRate<N = f64> = SIQuantity<
+pub type VolumetricNumberRate<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -98,7 +98,7 @@ pub type VolumetricNumberRate<N = f64> = SIQuantity<
     N,
 >;
 
-pub type LinearDensityOfStates<N = f64> = SIQuantity<
+pub type LinearDensityOfStates<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -110,7 +110,7 @@ pub type LinearDensityOfStates<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ArealDensityOfStates<N = f64> = SIQuantity<
+pub type ArealDensityOfStates<N> = SIQuantity<
     {
         ISQ {
             m: -4,
@@ -122,7 +122,7 @@ pub type ArealDensityOfStates<N = f64> = SIQuantity<
     N,
 >;
 
-pub type VolumetricDensityOfStates<N = f64> = SIQuantity<
+pub type VolumetricDensityOfStates<N> = SIQuantity<
     {
         ISQ {
             m: -5,
@@ -134,7 +134,7 @@ pub type VolumetricDensityOfStates<N = f64> = SIQuantity<
     N,
 >;
 
-pub type LinearPowerDensity<N = f64> = SIQuantity<
+pub type LinearPowerDensity<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -146,7 +146,7 @@ pub type LinearPowerDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type VolumetricPowerDensity<N = f64> = SIQuantity<
+pub type VolumetricPowerDensity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -575,7 +575,7 @@ pub mod consts {
 /// The units of `MassDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassDensity)]
+#[unit(of = MassDensity<f64>)]
 pub enum MassDensityUnit {
     #[unit("Yg/m³", "yottagrams per cubic metre", by = YOTTAGRAM_PER_CUBIC_METRE)]
     YottagramPerCubicMetre,
@@ -683,7 +683,7 @@ pub enum MassDensityUnit {
 /// The units of `LinearMassDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearMassDensity)]
+#[unit(of = LinearMassDensity<f64>)]
 pub enum LinearMassDensityUnit {
     #[default]
     #[unit("kg/m", "kilograms per metre", by = KILOGRAM_PER_METRE)]
@@ -707,7 +707,7 @@ pub enum LinearMassDensityUnit {
 /// The units of `ArealMassDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealMassDensity)]
+#[unit(of = ArealMassDensity<f64>)]
 pub enum ArealMassDensityUnit {
     #[default]
     #[unit("kg/m²", "kilograms per square metre", by = KILOGRAM_PER_SQUARE_METRE)]
@@ -721,7 +721,7 @@ pub enum ArealMassDensityUnit {
 /// The units of `LinearNumberDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearNumberDensity)]
+#[unit(of = LinearNumberDensity<f64>)]
 pub enum LinearNumberDensityUnit {
     #[unit("km⁻¹", "per kilometre", by = PER_KILOMETRE)]
     PerKilometre,
@@ -753,7 +753,7 @@ pub enum LinearNumberDensityUnit {
 /// The units of `ArealNumberDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealNumberDensity)]
+#[unit(of = ArealNumberDensity<f64>)]
 pub enum ArealNumberDensityUnit {
     #[default]
     #[unit("m⁻²", "per square metre", by = PER_SQUARE_METRE)]
@@ -781,7 +781,7 @@ pub enum ArealNumberDensityUnit {
 /// The units of `VolumetricNumberDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricNumberDensity)]
+#[unit(of = VolumetricNumberDensity<f64>)]
 pub enum VolumetricNumberDensityUnit {
     #[default]
     #[unit("m⁻³", "per cubic metre", by = PER_CUBIC_METRE)]
@@ -809,7 +809,7 @@ pub enum VolumetricNumberDensityUnit {
 /// The units of `LinearNumberRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearNumberRate)]
+#[unit(of = LinearNumberRate<f64>)]
 pub enum LinearNumberRateUnit {
     #[unit("km⁻¹ · s⁻¹", "per kilometre second", by = PER_KILOMETRE_SECOND)]
     PerKilometreSecond,
@@ -837,7 +837,7 @@ pub enum LinearNumberRateUnit {
 /// The units of `ArealNumberRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealNumberRate)]
+#[unit(of = ArealNumberRate<f64>)]
 pub enum ArealNumberRateUnit {
     #[default]
     #[unit("m⁻² · s⁻¹", "per square metre second", by = PER_SQUARE_METRE_SECOND)]
@@ -865,7 +865,7 @@ pub enum ArealNumberRateUnit {
 /// The units of `VolumetricNumberRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricNumberRate)]
+#[unit(of = VolumetricNumberRate<f64>)]
 pub enum VolumetricNumberRateUnit {
     #[default]
     #[unit("m⁻³ · s⁻¹", "per cubic metre second", by = PER_CUBIC_METRE_SECOND)]
@@ -899,7 +899,7 @@ pub enum VolumetricNumberRateUnit {
 /// The units of `LinearDensityOfStates`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearDensityOfStates)]
+#[unit(of = LinearDensityOfStates<f64>)]
 pub enum LinearDensityOfStatesUnit {
     #[default]
     #[unit("1/(m · J)", "states per metre joule", by = STATE_PER_METRE_JOULE)]
@@ -911,7 +911,7 @@ pub enum LinearDensityOfStatesUnit {
 /// The units of `ArealDensityOfStates`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealDensityOfStates)]
+#[unit(of = ArealDensityOfStates<f64>)]
 pub enum ArealDensityOfStatesUnit {
     #[default]
     #[unit("1/(m² · J)", "states per square metre joule", by = STATE_PER_SQUARE_METRE_JOULE)]
@@ -921,7 +921,7 @@ pub enum ArealDensityOfStatesUnit {
 /// The units of `VolumetricDensityOfStates`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricDensityOfStates)]
+#[unit(of = VolumetricDensityOfStates<f64>)]
 pub enum VolumetricDensityOfStatesUnit {
     #[default]
     #[unit("1/(m³ · J)", "states per cubic metre joule", by = STATE_PER_CUBIC_METRE_JOULE)]
@@ -931,7 +931,7 @@ pub enum VolumetricDensityOfStatesUnit {
 /// The units of `LinearPowerDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearPowerDensity)]
+#[unit(of = LinearPowerDensity<f64>)]
 pub enum LinearPowerDensityUnit {
     #[default]
     #[unit("W/m", "watts per metre", by = WATT_PER_METRE)]
@@ -945,7 +945,7 @@ pub enum LinearPowerDensityUnit {
 /// The units of `VolumetricPowerDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricPowerDensity)]
+#[unit(of = VolumetricPowerDensity<f64>)]
 pub enum VolumetricPowerDensityUnit {
     #[default]
     #[unit("W/m³", "watts per cubic metre", by = WATT_PER_CUBIC_METRE)]

@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type ElectricCharge<N = f64> = SIQuantity<
+pub type ElectricCharge<N> = SIQuantity<
     {
         ISQ {
             s: 1,
@@ -13,7 +13,7 @@ pub type ElectricCharge<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricChargeArealDensity<N = f64> = SIQuantity<
+pub type ElectricChargeArealDensity<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -25,7 +25,7 @@ pub type ElectricChargeArealDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricChargeLinearDensity<N = f64> = SIQuantity<
+pub type ElectricChargeLinearDensity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -37,7 +37,7 @@ pub type ElectricChargeLinearDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricChargeVolumetricDensity<N = f64> = SIQuantity<
+pub type ElectricChargeVolumetricDensity<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -49,7 +49,7 @@ pub type ElectricChargeVolumetricDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricCurrent<N = f64> = SIQuantity<
+pub type ElectricCurrent<N> = SIQuantity<
     {
         ISQ {
             A: 1,
@@ -59,7 +59,7 @@ pub type ElectricCurrent<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricCurrentDensity<N = f64> = SIQuantity<
+pub type ElectricCurrentDensity<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -70,7 +70,7 @@ pub type ElectricCurrentDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SurfaceElectricCurrentDensity<N = f64> = SIQuantity<
+pub type SurfaceElectricCurrentDensity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -81,7 +81,7 @@ pub type SurfaceElectricCurrentDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricPotential<N = f64> = SIQuantity<
+pub type ElectricPotential<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -94,7 +94,7 @@ pub type ElectricPotential<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricField<N = f64> = SIQuantity<
+pub type ElectricField<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -107,7 +107,7 @@ pub type ElectricField<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricDisplacementField<N = f64> = SIQuantity<
+pub type ElectricDisplacementField<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -119,7 +119,7 @@ pub type ElectricDisplacementField<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricFlux<N = f64> = SIQuantity<
+pub type ElectricFlux<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -132,7 +132,7 @@ pub type ElectricFlux<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricDipoleMoment<N = f64> = SIQuantity<
+pub type ElectricDipoleMoment<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -144,7 +144,7 @@ pub type ElectricDipoleMoment<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricQuadrupoleMoment<N = f64> = SIQuantity<
+pub type ElectricQuadrupoleMoment<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -156,7 +156,7 @@ pub type ElectricQuadrupoleMoment<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricPermittivity<N = f64> = SIQuantity<
+pub type ElectricPermittivity<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -169,7 +169,7 @@ pub type ElectricPermittivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricalConductance<N = f64> = SIQuantity<
+pub type ElectricalConductance<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -182,7 +182,7 @@ pub type ElectricalConductance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricalConductivity<N = f64> = SIQuantity<
+pub type ElectricalConductivity<N> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -195,7 +195,7 @@ pub type ElectricalConductivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricalMobility<N = f64> = SIQuantity<
+pub type ElectricalMobility<N> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -207,7 +207,7 @@ pub type ElectricalMobility<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricalResistance<N = f64> = SIQuantity<
+pub type ElectricalResistance<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -220,7 +220,7 @@ pub type ElectricalResistance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ElectricalResistivity<N = f64> = SIQuantity<
+pub type ElectricalResistivity<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -233,7 +233,7 @@ pub type ElectricalResistivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Capacitance<N = f64> = SIQuantity<
+pub type Capacitance<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -246,7 +246,7 @@ pub type Capacitance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Inductance<N = f64> = SIQuantity<
+pub type Inductance<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -259,7 +259,7 @@ pub type Inductance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MagneticFieldStrength<N = f64> = SIQuantity<
+pub type MagneticFieldStrength<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -270,7 +270,7 @@ pub type MagneticFieldStrength<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MagneticFlux<N = f64> = SIQuantity<
+pub type MagneticFlux<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -283,7 +283,7 @@ pub type MagneticFlux<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MagneticFluxDensity<N = f64> = SIQuantity<
+pub type MagneticFluxDensity<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -295,7 +295,7 @@ pub type MagneticFluxDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MagneticMoment<N = f64> = SIQuantity<
+pub type MagneticMoment<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -306,7 +306,7 @@ pub type MagneticMoment<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MagneticPermeability<N = f64> = SIQuantity<
+pub type MagneticPermeability<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -319,7 +319,7 @@ pub type MagneticPermeability<N = f64> = SIQuantity<
     N,
 >;
 
-pub type GyromagneticRatio<N = f64> = SIQuantity<
+pub type GyromagneticRatio<N> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -332,7 +332,7 @@ pub type GyromagneticRatio<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ReducedGyromagneticRatio<N = f64> = SIQuantity<
+pub type ReducedGyromagneticRatio<N> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -1433,7 +1433,7 @@ pub mod consts {
 /// The units of `ElectricCharge`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCharge)]
+#[unit(of = ElectricCharge<f64>)]
 pub enum ElectricChargeUnit {
     #[unit("YC", "yottacoulombs", by = YOTTACOULOMB)]
     Yottacoulomb,
@@ -1515,7 +1515,7 @@ pub enum ElectricChargeUnit {
 /// The units of `ElectricChargeArealDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricChargeArealDensity)]
+#[unit(of = ElectricChargeArealDensity<f64>)]
 pub enum ElectricChargeArealDensityUnit {
     #[default]
     #[unit("C/m²", "coulombs per square metre", by = ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE)]
@@ -1525,7 +1525,7 @@ pub enum ElectricChargeArealDensityUnit {
 /// The units of `ElectricChargeLinearDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricChargeLinearDensity)]
+#[unit(of = ElectricChargeLinearDensity<f64>)]
 pub enum ElectricChargeLinearDensityUnit {
     #[default]
     #[unit("C/m", "coulombs per metre", by = COULOMB_PER_METRE)]
@@ -1537,7 +1537,7 @@ pub enum ElectricChargeLinearDensityUnit {
 /// The units of `ElectricChargeVolumetricDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricChargeVolumetricDensity)]
+#[unit(of = ElectricChargeVolumetricDensity<f64>)]
 pub enum ElectricChargeVolumetricDensityUnit {
     #[default]
     #[unit("C/m³", "coulombs per cubic metre", by = COULOMB_PER_CUBIC_METRE)]
@@ -1547,7 +1547,7 @@ pub enum ElectricChargeVolumetricDensityUnit {
 /// The units of `ElectricCurrent`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCurrent)]
+#[unit(of = ElectricCurrent<f64>)]
 pub enum ElectricCurrentUnit {
     #[unit("YA", "yottaamperes", by = YOTTAAMPERE)]
     Yottaampere,
@@ -1607,7 +1607,7 @@ pub enum ElectricCurrentUnit {
 /// The units of `ElectricCurrentDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCurrentDensity)]
+#[unit(of = ElectricCurrentDensity<f64>)]
 pub enum ElectricCurrentDensityUnit {
     #[default]
     #[unit("A/m²", "amperes per square metre", by = AMPERE_PER_SQUARE_METRE)]
@@ -1617,7 +1617,7 @@ pub enum ElectricCurrentDensityUnit {
 /// The units of `SurfaceElectricCurrentDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SurfaceElectricCurrentDensity)]
+#[unit(of = SurfaceElectricCurrentDensity<f64>)]
 pub enum SurfaceElectricCurrentDensityUnit {
     #[default]
     #[unit("A/m", "amperes per metre", by = SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE)]
@@ -1633,7 +1633,7 @@ pub enum SurfaceElectricCurrentDensityUnit {
 /// The units of `ElectricPotential`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricPotential)]
+#[unit(of = ElectricPotential<f64>)]
 pub enum ElectricPotentialUnit {
     #[unit("YV", "yottavolts", by = YOTTAVOLT)]
     Yottavolt,
@@ -1687,7 +1687,7 @@ pub enum ElectricPotentialUnit {
 /// The units of `ElectricField`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricField)]
+#[unit(of = ElectricField<f64>)]
 pub enum ElectricFieldUnit {
     #[default]
     #[unit("V/m", "volts per metre", by = VOLT_PER_METRE)]
@@ -1713,7 +1713,7 @@ pub enum ElectricFieldUnit {
 /// The units of `ElectricDisplacementField`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricDisplacementField)]
+#[unit(of = ElectricDisplacementField<f64>)]
 pub enum ElectricDisplacementFieldUnit {
     #[default]
     #[unit("C/m²", "coulombs per square metre", by = ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE)]
@@ -1723,7 +1723,7 @@ pub enum ElectricDisplacementFieldUnit {
 /// The units of `ElectricFlux`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricFlux)]
+#[unit(of = ElectricFlux<f64>)]
 pub enum ElectricFluxUnit {
     #[default]
     #[unit("V ⋅ m", "volt metres", by = VOLT_METRE)]
@@ -1735,7 +1735,7 @@ pub enum ElectricFluxUnit {
 /// The units of `ElectricDipoleMoment`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricDipoleMoment)]
+#[unit(of = ElectricDipoleMoment<f64>)]
 pub enum ElectricDipoleMomentUnit {
     #[default]
     #[unit("C · m", "coulomb metres", by = COULOMB_METRE)]
@@ -1751,7 +1751,7 @@ pub enum ElectricDipoleMomentUnit {
 /// The units of `ElectricQuadrupoleMoment`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricQuadrupoleMoment)]
+#[unit(of = ElectricQuadrupoleMoment<f64>)]
 pub enum ElectricQuadrupoleMomentUnit {
     #[default]
     #[unit("C · m²", "coulomb square metres", by = COULOMB_SQUARE_METRE)]
@@ -1765,7 +1765,7 @@ pub enum ElectricQuadrupoleMomentUnit {
 /// The units of `ElectricPermittivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricPermittivity)]
+#[unit(of = ElectricPermittivity<f64>)]
 pub enum ElectricPermittivityUnit {
     #[default]
     #[unit("F/m", "farads per metre", by = FARAD_PER_METRE)]
@@ -1777,7 +1777,7 @@ pub enum ElectricPermittivityUnit {
 /// The units of `ElectricalConductance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalConductance)]
+#[unit(of = ElectricalConductance<f64>)]
 pub enum ElectricalConductanceUnit {
     #[unit("YS", "yottasiemens", by = YOTTASIEMENS)]
     Yottasiemens,
@@ -1837,7 +1837,7 @@ pub enum ElectricalConductanceUnit {
 /// The units of `ElectricalConductivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalConductivity)]
+#[unit(of = ElectricalConductivity<f64>)]
 pub enum ElectricalConductivityUnit {
     #[default]
     #[unit("S/m", "siemens per metre", by = SIEMENS_PER_METRE)]
@@ -1849,7 +1849,7 @@ pub enum ElectricalConductivityUnit {
 /// The units of `ElectricalMobility`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalMobility)]
+#[unit(of = ElectricalMobility<f64>)]
 pub enum ElectricalMobilityUnit {
     #[default]
     #[unit("m²/(V · s)", "square metres per volt second", by = SQUARE_METRE_PER_VOLT_SECOND)]
@@ -1861,7 +1861,7 @@ pub enum ElectricalMobilityUnit {
 /// The units of `ElectricalResistance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalResistance)]
+#[unit(of = ElectricalResistance<f64>)]
 pub enum ElectricalResistanceUnit {
     #[unit("YΩ", "yottaohms", by = YOTTAOHM)]
     Yottaohm,
@@ -1915,7 +1915,7 @@ pub enum ElectricalResistanceUnit {
 /// The units of `ElectricalResistivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalResistivity)]
+#[unit(of = ElectricalResistivity<f64>)]
 pub enum ElectricalResistivityUnit {
     #[unit("YΩ · m", "yottaohm metres", by = YOTTAOHM_METRE)]
     YottaohmMetre,
@@ -1983,7 +1983,7 @@ pub enum ElectricalResistivityUnit {
 /// The units of `Capacitance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Capacitance)]
+#[unit(of = Capacitance<f64>)]
 pub enum CapacitanceUnit {
     #[unit("YF", "yottafarads", by = YOTTAFARAD)]
     Yottafarad,
@@ -2037,7 +2037,7 @@ pub enum CapacitanceUnit {
 /// The units of `Inductance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Inductance)]
+#[unit(of = Inductance<f64>)]
 pub enum InductanceUnit {
     #[unit("YH", "yottahenries", by = YOTTAHENRY)]
     Yottahenry,
@@ -2091,7 +2091,7 @@ pub enum InductanceUnit {
 /// The units of `MagneticFieldStrength`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFieldStrength)]
+#[unit(of = MagneticFieldStrength<f64>)]
 pub enum MagneticFieldStrengthUnit {
     #[default]
     #[unit("A/m", "amperes per metre", by = MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE)]
@@ -2109,7 +2109,7 @@ pub enum MagneticFieldStrengthUnit {
 /// The units of `MagneticFlux`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFlux)]
+#[unit(of = MagneticFlux<f64>)]
 pub enum MagneticFluxUnit {
     #[unit("YWb", "yottawebers", by = YOTTAWEBER)]
     Yottaweber,
@@ -2161,7 +2161,7 @@ pub enum MagneticFluxUnit {
 /// The units of `MagneticFluxDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFluxDensity)]
+#[unit(of = MagneticFluxDensity<f64>)]
 pub enum MagneticFluxDensityUnit {
     #[unit("YT", "yottateslas", by = YOTTATESLA)]
     Yottatesla,
@@ -2215,7 +2215,7 @@ pub enum MagneticFluxDensityUnit {
 /// The units of `MagneticMoment`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticMoment)]
+#[unit(of = MagneticMoment<f64>)]
 pub enum MagneticMomentUnit {
     #[default]
     #[unit("A · m²", "ampere square metres", by = AMPERE_SQUARE_METRE)]
@@ -2245,7 +2245,7 @@ pub enum MagneticMomentUnit {
 /// The units of `MagneticPermeability`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticPermeability)]
+#[unit(of = MagneticPermeability<f64>)]
 pub enum MagneticPermeabilityUnit {
     #[default]
     #[unit("H/m", "henrys per metre", by = HENRY_PER_METRE)]
@@ -2257,7 +2257,7 @@ pub enum MagneticPermeabilityUnit {
 /// The units of `GyromagneticRatio`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = GyromagneticRatio)]
+#[unit(of = GyromagneticRatio<f64>)]
 pub enum GyromagneticRatioUnit {
     #[unit("YHz/T", "yottahertz per tesla", by = YOTTAHERTZ_PER_TESLA)]
     YottahertzPerTesla,
@@ -2337,7 +2337,7 @@ pub enum GyromagneticRatioUnit {
 /// The units of `ReducedGyromagneticRatio`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ReducedGyromagneticRatio)]
+#[unit(of = ReducedGyromagneticRatio<f64>)]
 pub enum ReducedGyromagneticRatioUnit {
     #[default]
     #[unit("̅γₚ", "proton reduced gyromagnetic ratio", by = PROTON_REDUCED_GYROMAGNETIC_RATIO)]

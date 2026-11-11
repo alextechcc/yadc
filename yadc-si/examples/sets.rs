@@ -34,10 +34,10 @@ use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
 #[members(convert(DynamicSIQuantity))]
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Quantities {
-    Pressure(Pressure),
-    Temperature(ThermodynamicTemperature),
-    Area(Area),
-    Force(Force),
+    Pressure(Pressure<f64>),
+    Temperature(ThermodynamicTemperature<f64>),
+    Area(Area<f64>),
+    Force(Force<f64>),
 }
 
 /// The setting: which quantity, shown in which unit.
@@ -54,16 +54,16 @@ trait Measures: Unit<Self::Quantity> {
     type Quantity;
 }
 impl Measures for PressureUnit {
-    type Quantity = Pressure;
+    type Quantity = Pressure<f64>;
 }
 impl Measures for ThermodynamicTemperatureUnit {
-    type Quantity = ThermodynamicTemperature;
+    type Quantity = ThermodynamicTemperature<f64>;
 }
 impl Measures for AreaUnit {
-    type Quantity = Area;
+    type Quantity = Area<f64>;
 }
 impl Measures for ForceUnit {
-    type Quantity = Force;
+    type Quantity = Force<f64>;
 }
 
 /// Build: a number in a unit is that unit's quantity, put in the set by

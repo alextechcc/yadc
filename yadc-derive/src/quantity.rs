@@ -756,7 +756,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         return Err(syn::Error::new_spanned(
             &input.ident,
             "`Cast` changes a family's number type, so the family needs one as a parameter: \
-             `struct Qty<const D: Dim, N = f64>(N)`",
+             `struct Qty<const D: Dim, N>(N)`",
         ));
     }
     if opts.has("Cast") && v_ident.is_some() {
@@ -821,7 +821,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         return Err(syn::Error::new_spanned(
             &input.ident,
             "`from(M => N)` mixes number types, so the family needs one as a parameter: \
-             `struct Qty<const D: Dim, N = f64>(N)`",
+             `struct Qty<const D: Dim, N>(N)`",
         ));
     }
     let h_ab_prim = head_prim(&p_ab);

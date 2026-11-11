@@ -19,11 +19,11 @@ use yadc_si::{DynamicSIQuantity, Scale};
 
 // Compile-time quantities: unit and physical constants compose in `const`
 // items, because quantity arithmetic is `const`.
-const SPEED_LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;
-const ELECTRON_REST_ENERGY: Energy = ELECTRON_MASS::<f64> * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // E = mc²
+const SPEED_LIMIT: Velocity<f64> = 50.0 * KILOMETRE / HOUR;
+const ELECTRON_REST_ENERGY: Energy<f64> = ELECTRON_MASS::<f64> * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // E = mc²
 // A unit defined the way a standards document writes it: a pound-force per
 // square inch is a pound under standard gravity, on a square inch.
-const PSI: Pressure = POUND::<f64> * STANDARD_GRAVITY / (INCH::<f64> * INCH);
+const PSI: Pressure<f64> = POUND::<f64> * STANDARD_GRAVITY / (INCH::<f64> * INCH);
 
 fn main() {
     // --- 1. A unit turns a number into a quantity and back ------------------
@@ -49,7 +49,7 @@ fn main() {
         Gram(500.0),
         Gram(250.0),
     ];
-    let total: Mass = masses.iter().sum();
+    let total: Mass<f64> = masses.iter().sum();
     println!("sum   = {} {}", Gram(total), Gram);
 
     // --- 2. Maths is on quantities: km/h is km divided by h -----------------
@@ -60,19 +60,19 @@ fn main() {
     use LengthUnit::Kilometre;
     use TimeUnit::Hour;
     use VelocityUnit::{KilometrePerHour, MetrePerSecond};
-    let v: Velocity = Kilometre(90.0) / Hour(1.0);
+    let v: Velocity<f64> = Kilometre(90.0) / Hour(1.0);
     let kmh = KilometrePerHour(v);
     let mps = MetrePerSecond(v);
     println!("v     = {kmh} km/h = {mps} m/s");
 
     let t = Hour(2.5);
-    let trip: Length = v * t;
+    let trip: Length<f64> = v * t;
     println!("2.5 h at {kmh} km/h = {} km", KILOMETRE(trip));
 
     // --- 3. Mul / Div compose dimensions ------------------------------------
     // `mass * accel` is type-checked to be Force.
 
-    let force: Force = mass * accel;
+    let force: Force<f64> = mass * accel;
     println!(
         "force = {:.2} {}",
         ForceUnit::Newton(force),
@@ -83,8 +83,8 @@ fn main() {
     use ElectricPotentialUnit::Volt;
     let voltage = Volt(12.0);
     let current = Milliampere(500.0);
-    let power: Power = voltage * current;
-    let resistance: ElectricalResistance = voltage / current;
+    let power: Power<f64> = voltage * current;
+    let resistance: ElectricalResistance<f64> = voltage / current;
     let (watt, ohm) = (PowerUnit::Watt, ElectricalResistanceUnit::Ohm);
     println!("12 V x 500 mA -> {:.2} {:#}", watt(power), watt);
     println!("12 V ÷ 500 mA -> {:.1} {}", ohm(resistance), ohm);
@@ -93,7 +93,7 @@ fn main() {
     // `Force / Force` is `Dimensionless`, read like any quantity: in the unit
     // `Ratio` (one), or in percent.
 
-    let ratio: Dimensionless = ForceUnit::Newton(9.0) / ForceUnit::Newton(3.0);
+    let ratio: Dimensionless<f64> = ForceUnit::Newton(9.0) / ForceUnit::Newton(3.0);
     let (one, percent) = (DimensionlessUnit::Ratio, DimensionlessUnit::Percent);
     println!(
         "9 N / 3 N = {} = {} {}",
@@ -119,12 +119,12 @@ fn main() {
     use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit, Kelvin};
     let body = CELSIUS.quantity(37.0);
     let room = Celsius(22.0);
-    let fever: TemperatureInterval = body - room;
+    let fever: TemperatureInterval<f64> = body - room;
     let degrees = TemperatureIntervalUnit::Celsius;
     println!("body - room = {} {:#}", degrees(fever), degrees);
-    let warmer: ThermodynamicTemperature = body + fever;
+    let warmer: ThermodynamicTemperature<f64> = body + fever;
     assert!((FAHRENHEIT.value(warmer) - 125.6).abs() < 1e-9);
-    let between: ThermodynamicTemperature = (body + room) / 2.0;
+    let between: ThermodynamicTemperature<f64> = (body + room) / 2.0;
     println!("between them = {:.1} {}", CELSIUS.value(between), Celsius);
     println!(
         "body + fever = {:.1} {} = {:.1} {} = {:.2} {}",
@@ -172,7 +172,7 @@ fn main() {
     );
     // Two levels differ by a gain, and a gain is the logarithm of a ratio:
     // 20 dB is a hundred times.
-    let gain: Gain = received - level;
+    let gain: Gain<f64> = received - level;
     println!("gain    = {:.0} dB", DECIBEL(gain));
     let hundredfold = Dimensionless::from(DECIBEL(20.0));
     println!("20 dB   = × {:.0}", one(hundredfold));
@@ -187,7 +187,7 @@ fn main() {
     let launch = GPS_SECONDS.quantity(1_400_000_000.0);
     println!("launch  = {:.0} s Unix", UNIX_SECONDS.value(launch));
     let landing = launch + Hour(2.5);
-    let flight: Time = landing - launch;
+    let flight: Time<f64> = landing - launch;
     println!("flight  = {:.0} {}", TimeUnit::Minute(flight), TimeUnit::Minute);
     let jd = InstantUnit::JulianDate;
     println!("landing = {:.4} {jd} ({jd:#})", jd(landing));
@@ -222,7 +222,7 @@ fn main() {
     // still checked at compile time (a force unit does not fit). A choice
     // across *several* quantities is a unit set - your own enum of unit enums
     // (`yadc-si/examples/sets.rs`).
-    let choices: [&dyn Unit<Mass>; 3] = [&Kilogram, &MassUnit::Pound, &Gram];
+    let choices: [&dyn Unit<Mass<f64>>; 3] = [&Kilogram, &MassUnit::Pound, &Gram];
     let m = Kilogram(2.5);
     let shown: Vec<String> = choices.iter().map(|u| format!("{:.2}", u.value(m))).collect();
     println!("2.5 kg in kg, lb, g: {}", shown.join(", "));
@@ -258,7 +258,7 @@ fn main() {
         mev(ELECTRON_REST_ENERGY),
     );
     // A weight is standard gravity times a mass.
-    let weight: Force = STANDARD_GRAVITY * mass;
+    let weight: Force<f64> = STANDARD_GRAVITY * mass;
     println!("70 kg weighs {:.1} {newton}", newton(weight));
     // `PSI`, defined at the top from the pound, gravity and the inch, is the
     // generated psi unit's constant to the last bit or so.
@@ -279,7 +279,7 @@ fn main() {
     // loses nothing, so it is also a plain `From`.
     let m32 = mass.cast::<f32>();
     let kilogram32: Mass<f32> = KILOGRAM;
-    let widened: Mass = m32.into();
+    let widened: Mass<f64> = m32.into();
     println!(
         "70 kg as f32: {} kg (an f32); widened back: {} kg",
         kilogram32(m32),

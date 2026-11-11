@@ -30,19 +30,19 @@ use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure, PressureUn
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Measurement {
     Pressure(
-        #[members(member)] Pressure,
+        #[members(member)] Pressure<f64>,
         #[members(default)]
         #[via(keep)]
         PressureUnit,
     ),
     Area(
-        #[members(member)] Area,
+        #[members(member)] Area<f64>,
         #[members(default)]
         #[via(keep)]
         AreaUnit,
     ),
     Force(
-        #[members(member)] Force,
+        #[members(member)] Force<f64>,
         #[members(default)]
         #[via(keep)]
         ForceUnit,

@@ -875,8 +875,8 @@ units = [
     # logarithmic line (`PowerLevel`, below) and reads a `Power` `via` that
     # line - `level.rs`'s std `From` between the two - so the enum's dBm takes
     # 30 to one watt.
-    {v = "DecibelWatt",      s = "dBW", l = "decibels-watt",      by = "DBW", via = "PowerLevel", non_const = true},
-    {v = "DecibelMilliwatt", s = "dBm", l = "decibels-milliwatt", by = "DBM", via = "PowerLevel", non_const = true},
+    {v = "DecibelWatt",      s = "dBW", l = "decibels-watt",      by = "DBW", via = "PowerLevel<f64>", non_const = true},
+    {v = "DecibelMilliwatt", s = "dBm", l = "decibels-milliwatt", by = "DBM", via = "PowerLevel<f64>", non_const = true},
     {v = "Deciwatt", m = "0.1", s = "dW", l = "deciwatts"},
     {v = "Centiwatt", m = "0.01", s = "cW", l = "centiwatts"},
     {v = "Milliwatt", m = "0.001", s = "mW", l = "milliwatts"},

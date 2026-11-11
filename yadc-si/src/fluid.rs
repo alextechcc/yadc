@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type DynamicViscosity<N = f64> = SIQuantity<
+pub type DynamicViscosity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -14,7 +14,7 @@ pub type DynamicViscosity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type KinematicViscosity<N = f64> = SIQuantity<
+pub type KinematicViscosity<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -25,7 +25,7 @@ pub type KinematicViscosity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SurfaceTension<N = f64> = SIQuantity<
+pub type SurfaceTension<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -36,7 +36,7 @@ pub type SurfaceTension<N = f64> = SIQuantity<
     N,
 >;
 
-pub type CompressibilityCoefficient<N = f64> = SIQuantity<
+pub type CompressibilityCoefficient<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -48,7 +48,7 @@ pub type CompressibilityCoefficient<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MassRate<N = f64> = SIQuantity<
+pub type MassRate<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -59,7 +59,7 @@ pub type MassRate<N = f64> = SIQuantity<
     N,
 >;
 
-pub type VolumeRate<N = f64> = SIQuantity<
+pub type VolumeRate<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -70,7 +70,7 @@ pub type VolumeRate<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MassFlux<N = f64> = SIQuantity<
+pub type MassFlux<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -82,7 +82,7 @@ pub type MassFlux<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MassPerEnergy<N = f64> = SIQuantity<
+pub type MassPerEnergy<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -93,7 +93,7 @@ pub type MassPerEnergy<N = f64> = SIQuantity<
     N,
 >;
 
-pub type DiffusionCoefficient<N = f64> = SIQuantity<
+pub type DiffusionCoefficient<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -713,7 +713,7 @@ pub mod consts {
 /// The units of `DynamicViscosity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DynamicViscosity)]
+#[unit(of = DynamicViscosity<f64>)]
 pub enum DynamicViscosityUnit {
     #[default]
     #[unit("Pa · s", "pascal seconds", by = PASCAL_SECOND)]
@@ -737,7 +737,7 @@ pub enum DynamicViscosityUnit {
 /// The units of `KinematicViscosity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = KinematicViscosity)]
+#[unit(of = KinematicViscosity<f64>)]
 pub enum KinematicViscosityUnit {
     #[default]
     #[unit("m²/s", "square metres per second", by = KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND)]
@@ -757,7 +757,7 @@ pub enum KinematicViscosityUnit {
 /// The units of `SurfaceTension`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SurfaceTension)]
+#[unit(of = SurfaceTension<f64>)]
 pub enum SurfaceTensionUnit {
     #[unit("YN/m", "yottanewtons per metre", by = YOTTANEWTON_PER_METRE)]
     YottanewtonPerMetre,
@@ -817,7 +817,7 @@ pub enum SurfaceTensionUnit {
 /// The units of `CompressibilityCoefficient`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CompressibilityCoefficient)]
+#[unit(of = CompressibilityCoefficient<f64>)]
 pub enum CompressibilityCoefficientUnit {
     #[unit("YPa⁻¹", "per yottapascal", by = PER_YOTTAPASCAL)]
     PerYottapascal,
@@ -875,7 +875,7 @@ pub enum CompressibilityCoefficientUnit {
 /// The units of `MassRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassRate)]
+#[unit(of = MassRate<f64>)]
 pub enum MassRateUnit {
     #[unit("Yg/s", "yottagrams per second", by = YOTTAGRAM_PER_SECOND)]
     YottagramPerSecond,
@@ -979,7 +979,7 @@ pub enum MassRateUnit {
 /// The units of `VolumeRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumeRate)]
+#[unit(of = VolumeRate<f64>)]
 pub enum VolumeRateUnit {
     #[default]
     #[unit("m³/s", "cubic metres per second", by = CUBIC_METRE_PER_SECOND)]
@@ -1095,7 +1095,7 @@ pub enum VolumeRateUnit {
 /// The units of `MassFlux`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassFlux)]
+#[unit(of = MassFlux<f64>)]
 pub enum MassFluxUnit {
     #[default]
     #[unit("kg/(m² · s)", "kilograms per square metre second", by = KILOGRAM_PER_SQUARE_METRE_SECOND)]
@@ -1105,7 +1105,7 @@ pub enum MassFluxUnit {
 /// The units of `MassPerEnergy`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassPerEnergy)]
+#[unit(of = MassPerEnergy<f64>)]
 pub enum MassPerEnergyUnit {
     #[unit("Tg/J", "teragrams per joule", by = TERAGRAM_PER_JOULE)]
     TeragramPerJoule,
@@ -1161,7 +1161,7 @@ pub enum MassPerEnergyUnit {
 /// The units of `DiffusionCoefficient`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DiffusionCoefficient)]
+#[unit(of = DiffusionCoefficient<f64>)]
 pub enum DiffusionCoefficientUnit {
     #[default]
     #[unit("m²/s", "square metres per second", by = DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND)]

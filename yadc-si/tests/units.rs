@@ -72,7 +72,7 @@ fn units_parse_from_their_symbol() {
 // A unit may leave out the derived `FromStr` - `impl(Display)` writes only
 // `Display` - and write its own: here one that also accepts the long names.
 #[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Length, impl(Display))]
+#[unit(of = Length<f64>, impl(Display))]
 enum Distance {
     #[unit("m", "metres", by = METRE)]
     Metre,

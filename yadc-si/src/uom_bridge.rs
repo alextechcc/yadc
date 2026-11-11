@@ -157,6 +157,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
                 <Kd as UomKindMapping>::RADIANS,
             )
         },
+        f64,
     >
 where
     Ld: Integer,
@@ -195,6 +196,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>
                     <Kd as UomKindMapping>::RADIANS,
                 )
             },
+            f64,
         >,
     > for Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, uom::si::SI<f64>, f64>
 where
@@ -222,6 +224,7 @@ where
                     <Kd as UomKindMapping>::RADIANS,
                 )
             },
+            f64,
         >,
     ) -> Self {
         Quantity {

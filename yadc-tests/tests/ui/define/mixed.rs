@@ -18,7 +18,7 @@ pub struct Dim {
 /// Listed both ways: `f32 + f64` would have two results.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 #[quantity(from(f32 => f64), from(f64 => f32))]
-pub struct BothWays<const D: Dim, N = f64>(N);
+pub struct BothWays<const D: Dim, N>(N);
 
 /// No number parameter to mix.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
@@ -27,10 +27,10 @@ pub struct Fixed<const D: Dim>(f64);
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 #[quantity(from(f32 => f64))]
-pub struct Qty<const D: Dim, N = f64>(N);
+pub struct Qty<const D: Dim, N>(N);
 
 pub const METRE_32: Qty<{ Dim { m: 1, s: 0 } }, f32> = Qty(1.0);
-pub const SECOND: Qty<{ Dim { m: 0, s: 1 } }> = Qty(1.0);
+pub const SECOND: Qty<{ Dim { m: 0, s: 1 } }, f64> = Qty(1.0);
 
 fn main() {
     let _ = METRE_32 + SECOND; // cannot add: the dimensions differ

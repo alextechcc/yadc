@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Angle<N = f64> = SIQuantity<
+pub type Angle<N> = SIQuantity<
     {
         ISQ {
             rad: 1,
@@ -12,7 +12,7 @@ pub type Angle<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SolidAngle<N = f64> = SIQuantity<
+pub type SolidAngle<N> = SIQuantity<
     {
         ISQ {
             rad: 2,
@@ -22,7 +22,7 @@ pub type SolidAngle<N = f64> = SIQuantity<
     N,
 >;
 
-pub type AngularVelocity<N = f64> = SIQuantity<
+pub type AngularVelocity<N> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -33,7 +33,7 @@ pub type AngularVelocity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type AngularAcceleration<N = f64> = SIQuantity<
+pub type AngularAcceleration<N> = SIQuantity<
     {
         ISQ {
             s: -2,
@@ -44,7 +44,7 @@ pub type AngularAcceleration<N = f64> = SIQuantity<
     N,
 >;
 
-pub type AngularJerk<N = f64> = SIQuantity<
+pub type AngularJerk<N> = SIQuantity<
     {
         ISQ {
             s: -3,
@@ -55,7 +55,7 @@ pub type AngularJerk<N = f64> = SIQuantity<
     N,
 >;
 
-pub type AngularAbsement<N = f64> = SIQuantity<
+pub type AngularAbsement<N> = SIQuantity<
     {
         ISQ {
             s: 1,
@@ -66,7 +66,7 @@ pub type AngularAbsement<N = f64> = SIQuantity<
     N,
 >;
 
-pub type AngularMomentum<N = f64> = SIQuantity<
+pub type AngularMomentum<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -292,7 +292,7 @@ pub mod consts {
 /// The units of `Angle`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Angle)]
+#[unit(of = Angle<f64>)]
 pub enum AngleUnit {
     #[default]
     #[unit("rad", "radians", by = RADIAN)]
@@ -314,7 +314,7 @@ pub enum AngleUnit {
 /// The units of `SolidAngle`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SolidAngle)]
+#[unit(of = SolidAngle<f64>)]
 pub enum SolidAngleUnit {
     #[default]
     #[unit("sr", "steradians", by = STERADIAN)]
@@ -332,7 +332,7 @@ pub enum SolidAngleUnit {
 /// The units of `AngularVelocity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularVelocity)]
+#[unit(of = AngularVelocity<f64>)]
 pub enum AngularVelocityUnit {
     #[default]
     #[unit("rad/s", "radians per second", by = RADIAN_PER_SECOND)]
@@ -350,7 +350,7 @@ pub enum AngularVelocityUnit {
 /// The units of `AngularAcceleration`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularAcceleration)]
+#[unit(of = AngularAcceleration<f64>)]
 pub enum AngularAccelerationUnit {
     #[default]
     #[unit("rad/s²", "radians per second squared", by = RADIAN_PER_SECOND_SQUARED)]
@@ -362,7 +362,7 @@ pub enum AngularAccelerationUnit {
 /// The units of `AngularJerk`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularJerk)]
+#[unit(of = AngularJerk<f64>)]
 pub enum AngularJerkUnit {
     #[default]
     #[unit("rad/s³", "radians per second cubed", by = RADIAN_PER_SECOND_CUBED)]
@@ -374,7 +374,7 @@ pub enum AngularJerkUnit {
 /// The units of `AngularAbsement`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularAbsement)]
+#[unit(of = AngularAbsement<f64>)]
 pub enum AngularAbsementUnit {
     #[default]
     #[unit("rad · s", "radian seconds", by = RADIAN_SECOND)]
@@ -386,7 +386,7 @@ pub enum AngularAbsementUnit {
 /// The units of `AngularMomentum`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularMomentum)]
+#[unit(of = AngularMomentum<f64>)]
 pub enum AngularMomentumUnit {
     #[unit("ħ", "reduced Planck constants", by = REDUCED_PLANCK_CONSTANT)]
     ReducedPlanckConstant,

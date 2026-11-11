@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, Kind, SIQuantity, Scale, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type ThermodynamicTemperature<N = f64> = SIQuantity<
+pub type ThermodynamicTemperature<N> = SIQuantity<
     {
         ISQ {
             K: 1,
@@ -13,7 +13,7 @@ pub type ThermodynamicTemperature<N = f64> = SIQuantity<
     N,
 >;
 
-pub type TemperatureInterval<N = f64> = SIQuantity<
+pub type TemperatureInterval<N> = SIQuantity<
     {
         ISQ {
             K: 1,
@@ -23,7 +23,7 @@ pub type TemperatureInterval<N = f64> = SIQuantity<
     N,
 >;
 
-pub type TemperatureCoefficient<N = f64> = SIQuantity<
+pub type TemperatureCoefficient<N> = SIQuantity<
     {
         ISQ {
             K: -1,
@@ -33,7 +33,7 @@ pub type TemperatureCoefficient<N = f64> = SIQuantity<
     N,
 >;
 
-pub type TemperatureGradient<N = f64> = SIQuantity<
+pub type TemperatureGradient<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -44,7 +44,7 @@ pub type TemperatureGradient<N = f64> = SIQuantity<
     N,
 >;
 
-pub type HeatCapacity<N = f64> = SIQuantity<
+pub type HeatCapacity<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -57,7 +57,7 @@ pub type HeatCapacity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type HeatFluxDensity<N = f64> = SIQuantity<
+pub type HeatFluxDensity<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -68,7 +68,7 @@ pub type HeatFluxDensity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type HeatTransfer<N = f64> = SIQuantity<
+pub type HeatTransfer<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -80,7 +80,7 @@ pub type HeatTransfer<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ThermalConductance<N = f64> = SIQuantity<
+pub type ThermalConductance<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -93,7 +93,7 @@ pub type ThermalConductance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ThermalConductivity<N = f64> = SIQuantity<
+pub type ThermalConductivity<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -106,7 +106,7 @@ pub type ThermalConductivity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ThermalResistance<N = f64> = SIQuantity<
+pub type ThermalResistance<N> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -119,7 +119,7 @@ pub type ThermalResistance<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SpecificHeatCapacity<N = f64> = SIQuantity<
+pub type SpecificHeatCapacity<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -131,7 +131,7 @@ pub type SpecificHeatCapacity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ArealHeatCapacity<N = f64> = SIQuantity<
+pub type ArealHeatCapacity<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -143,7 +143,7 @@ pub type ArealHeatCapacity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type VolumetricHeatCapacity<N = f64> = SIQuantity<
+pub type VolumetricHeatCapacity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -156,7 +156,7 @@ pub type VolumetricHeatCapacity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type StefanBoltzmannCoefficient<N = f64> = SIQuantity<
+pub type StefanBoltzmannCoefficient<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -1095,7 +1095,7 @@ pub mod consts {
 /// The units of `ThermodynamicTemperature`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermodynamicTemperature)]
+#[unit(of = ThermodynamicTemperature<f64>)]
 pub enum ThermodynamicTemperatureUnit {
     #[default]
     #[unit("K", "kelvin", by = KELVIN_SCALE)]
@@ -1111,7 +1111,7 @@ pub enum ThermodynamicTemperatureUnit {
 /// The units of `TemperatureInterval`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureInterval)]
+#[unit(of = TemperatureInterval<f64>)]
 pub enum TemperatureIntervalUnit {
     #[default]
     #[unit("K", "kelvin", by = KELVIN)]
@@ -1127,7 +1127,7 @@ pub enum TemperatureIntervalUnit {
 /// The units of `TemperatureCoefficient`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureCoefficient)]
+#[unit(of = TemperatureCoefficient<f64>)]
 pub enum TemperatureCoefficientUnit {
     #[default]
     #[unit("K⁻¹", "per kelvin", by = PER_KELVIN)]
@@ -1141,7 +1141,7 @@ pub enum TemperatureCoefficientUnit {
 /// The units of `TemperatureGradient`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureGradient)]
+#[unit(of = TemperatureGradient<f64>)]
 pub enum TemperatureGradientUnit {
     #[unit("K/km", "kelvins per kilometre", by = KELVIN_PER_KILOMETRE)]
     KelvinPerKilometre,
@@ -1161,7 +1161,7 @@ pub enum TemperatureGradientUnit {
 /// The units of `HeatCapacity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatCapacity)]
+#[unit(of = HeatCapacity<f64>)]
 pub enum HeatCapacityUnit {
     #[unit("Yg · m²/(s² · K)", "yottagram square metres per second squared kelvin", by = YOTTAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
     YottagramSquareMetrePerSecondSquaredKelvin,
@@ -1267,7 +1267,7 @@ pub enum HeatCapacityUnit {
 /// The units of `HeatFluxDensity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatFluxDensity)]
+#[unit(of = HeatFluxDensity<f64>)]
 pub enum HeatFluxDensityUnit {
     #[unit("YW/m²", "yottawatts per square metre", by = YOTTAWATT_PER_SQUARE_METRE)]
     YottawattPerSquareMetre,
@@ -1317,7 +1317,7 @@ pub enum HeatFluxDensityUnit {
 /// The units of `HeatTransfer`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatTransfer)]
+#[unit(of = HeatTransfer<f64>)]
 pub enum HeatTransferUnit {
     #[unit("Yg/(s³ · K)", "yottagrams per second cubed kelvin", by = YOTTAGRAM_PER_SECOND_CUBED_KELVIN)]
     YottagramPerSecondCubedKelvin,
@@ -1441,7 +1441,7 @@ pub enum HeatTransferUnit {
 /// The units of `ThermalConductance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalConductance)]
+#[unit(of = ThermalConductance<f64>)]
 pub enum ThermalConductanceUnit {
     #[unit("Yg · m²/(s³ · K)", "yottagrams metre squared per second cubed kelvin", by = YOTTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
     YottagramMetreSquaredPerSecondCubedKelvin,
@@ -1541,7 +1541,7 @@ pub enum ThermalConductanceUnit {
 /// The units of `ThermalConductivity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalConductivity)]
+#[unit(of = ThermalConductivity<f64>)]
 pub enum ThermalConductivityUnit {
     #[unit("Yg · m/(s³ · K)", "yottagrams metre per second cubed kelvin", by = YOTTAGRAM_METRE_PER_SECOND_CUBED_KELVIN)]
     YottagramMetrePerSecondCubedKelvin,
@@ -1641,7 +1641,7 @@ pub enum ThermalConductivityUnit {
 /// The units of `ThermalResistance`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalResistance)]
+#[unit(of = ThermalResistance<f64>)]
 pub enum ThermalResistanceUnit {
     #[unit("K/YW", "kelvins per yottawatt", by = KELVIN_PER_YOTTAWATT)]
     KelvinPerYottawatt,
@@ -1691,7 +1691,7 @@ pub enum ThermalResistanceUnit {
 /// The units of `SpecificHeatCapacity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificHeatCapacity)]
+#[unit(of = SpecificHeatCapacity<f64>)]
 pub enum SpecificHeatCapacityUnit {
     #[unit("km²/(s² · K)", "square kilometres per second squared kelvin", by = SQUARE_KILOMETRE_PER_SECOND_SQUARED_KELVIN)]
     SquareKilometrePerSecondSquaredKelvin,
@@ -1779,7 +1779,7 @@ pub enum SpecificHeatCapacityUnit {
 /// The units of `ArealHeatCapacity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealHeatCapacity)]
+#[unit(of = ArealHeatCapacity<f64>)]
 pub enum ArealHeatCapacityUnit {
     #[default]
     #[unit("J/(m² · K)", "joules per square metre kelvin", by = JOULE_PER_SQUARE_METRE_KELVIN)]
@@ -1789,7 +1789,7 @@ pub enum ArealHeatCapacityUnit {
 /// The units of `VolumetricHeatCapacity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricHeatCapacity)]
+#[unit(of = VolumetricHeatCapacity<f64>)]
 pub enum VolumetricHeatCapacityUnit {
     #[default]
     #[unit("J/(m³ · K)", "joules per cubic metre kelvin", by = JOULE_PER_CUBIC_METRE_KELVIN)]
@@ -1801,7 +1801,7 @@ pub enum VolumetricHeatCapacityUnit {
 /// The units of `StefanBoltzmannCoefficient`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = StefanBoltzmannCoefficient)]
+#[unit(of = StefanBoltzmannCoefficient<f64>)]
 pub enum StefanBoltzmannCoefficientUnit {
     #[default]
     #[unit("W/(m² · K⁴)", "watts per square metre quartic kelvin", by = WATT_PER_SQUARE_METRE_QUARTIC_KELVIN)]

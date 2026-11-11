@@ -26,11 +26,11 @@ use yadc_si::{DynamicSIQuantity, ISQ, SIQuantity};
 #[members(convert(DynamicSIQuantity))]
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Quantities {
-    Pressure(Pressure),
-    Temperature(ThermodynamicTemperature),
-    Length(Length),
-    Area(Area),
-    Force(Force),
+    Pressure(Pressure<f64>),
+    Temperature(ThermodynamicTemperature<f64>),
+    Length(Length<f64>),
+    Area(Area<f64>),
+    Force(Force<f64>),
 }
 
 /// The setting: which quantity, shown in which unit. A menu of menus: the
@@ -49,19 +49,19 @@ trait Measures: Unit<Self::Quantity> {
     type Quantity;
 }
 impl Measures for PressureUnit {
-    type Quantity = Pressure;
+    type Quantity = Pressure<f64>;
 }
 impl Measures for ThermodynamicTemperatureUnit {
-    type Quantity = ThermodynamicTemperature;
+    type Quantity = ThermodynamicTemperature<f64>;
 }
 impl Measures for LengthUnit {
-    type Quantity = Length;
+    type Quantity = Length<f64>;
 }
 impl Measures for AreaUnit {
-    type Quantity = Area;
+    type Quantity = Area<f64>;
 }
 impl Measures for ForceUnit {
-    type Quantity = Force;
+    type Quantity = Force<f64>;
 }
 
 /// Build: a number in a unit is that unit's quantity, put in the set.
@@ -191,31 +191,31 @@ impl FromStr for Units {
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Measurement {
     Pressure(
-        #[members(member)] Pressure,
+        #[members(member)] Pressure<f64>,
         #[members(default)]
         #[via(keep)]
         PressureUnit,
     ),
     Temperature(
-        #[members(member)] ThermodynamicTemperature,
+        #[members(member)] ThermodynamicTemperature<f64>,
         #[members(default)]
         #[via(keep)]
         ThermodynamicTemperatureUnit,
     ),
     Length(
-        #[members(member)] Length,
+        #[members(member)] Length<f64>,
         #[members(default)]
         #[via(keep)]
         LengthUnit,
     ),
     Area(
-        #[members(member)] Area,
+        #[members(member)] Area<f64>,
         #[members(default)]
         #[via(keep)]
         AreaUnit,
     ),
     Force(
-        #[members(member)] Force,
+        #[members(member)] Force<f64>,
         #[members(default)]
         #[via(keep)]
         ForceUnit,
@@ -232,7 +232,7 @@ enum Channel {
         #[members(default)]
         label: &'static str,
         #[members(member)]
-        reading: Pressure,
+        reading: Pressure<f64>,
         #[members(default)]
         shown_in: PressureUnit,
     },
@@ -240,7 +240,7 @@ enum Channel {
         #[members(default)]
         label: &'static str,
         #[members(member)]
-        reading: ThermodynamicTemperature,
+        reading: ThermodynamicTemperature<f64>,
         #[members(default)]
         shown_in: ThermodynamicTemperatureUnit,
     },
@@ -293,9 +293,9 @@ impl<'a, L, Q: Copy, U: Unit<Q>> Visitor<(&'a L, &'a Q, &'a U)> for InItsUnit {
 /// const parameter.
 struct DimOf;
 
-impl<const D: ISQ> Visitor<SIQuantity<D>> for DimOf {
+impl<const D: ISQ> Visitor<SIQuantity<D, f64>> for DimOf {
     type Output = ISQ;
-    fn visit(self, _: SIQuantity<D>) -> ISQ {
+    fn visit(self, _: SIQuantity<D, f64>) -> ISQ {
         D
     }
 }
@@ -355,7 +355,7 @@ fn units_convert_through_the_set() {
 
 #[test]
 fn the_set_bridges_to_static_quantities() {
-    let p: Pressure = PressureUnit::Bar.quantity(2.0);
+    let p: Pressure<f64> = PressureUnit::Bar.quantity(2.0);
     let q = Quantities::from(p);
     assert_eq!(Pressure::try_from(q), Ok(p));
     assert_eq!(Length::try_from(q), Err(q));
@@ -462,7 +462,7 @@ fn a_measurement_keeps_its_unit() {
 #[test]
 fn a_measurement_converts_through_its_members() {
     // From a bare quantity: the family's default unit.
-    let p: Pressure = PressureUnit::Bar.quantity(1.0);
+    let p: Pressure<f64> = PressureUnit::Bar.quantity(1.0);
     let m = Measurement::from(p);
     assert!(matches!(m, Measurement::Pressure(_, PressureUnit::Pascal)));
     assert_eq!(m.to_string(), "100000 Pa");
@@ -535,7 +535,7 @@ fn static_closed_and_open_sets_read_the_same_way() {
     fn read<S, Q: TryFrom<S>, U: Unit<Q>>(u: U, s: S) -> Option<f64> {
         Q::try_from(s).ok().map(|q| u.value(q))
     }
-    let p: Pressure = PressureUnit::Bar.quantity(1.0);
+    let p: Pressure<f64> = PressureUnit::Bar.quantity(1.0);
     close(read(PressureUnit::Kilopascal, p).unwrap(), 100.0);
     let closed: Quantities = Units::Pressure(PressureUnit::Bar).quantity(1.0);
     close(read(PressureUnit::Kilopascal, closed).unwrap(), 100.0);

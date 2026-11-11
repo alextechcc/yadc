@@ -2,9 +2,9 @@ use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Information<N = f64> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
+pub type Information<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
 
-pub type InformationRate<N = f64> = SIQuantity<
+pub type InformationRate<N> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -131,7 +131,7 @@ pub mod consts {
 /// The units of `Information`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Information)]
+#[unit(of = Information<f64>)]
 pub enum InformationUnit {
     #[unit("Yb", "yottabits", by = YOTTABIT)]
     Yottabit,
@@ -183,7 +183,7 @@ pub enum InformationUnit {
 /// The units of `InformationRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InformationRate)]
+#[unit(of = InformationRate<f64>)]
 pub enum InformationRateUnit {
     #[unit("b/s", "bits per second", by = BIT_PER_SECOND)]
     BitPerSecond,

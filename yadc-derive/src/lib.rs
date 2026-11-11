@@ -339,7 +339,7 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 }
 
 /// Derive a static quantity family: `Qty<const D: Dim>(f64)`, or
-/// `Qty<const D: Dim, N = f64>(N)` generic over its number type.
+/// `Qty<const D: Dim, N>(N)` generic over its number type.
 ///
 /// It writes `yadc::Quantity`, its supertraits, and the operators that are
 /// its essence; the extras below are written too unless
@@ -402,7 +402,7 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///   is a number, `f64::from(a / b)` - and, for a generic number type, std
 ///   `From<Qty<D, N>> for Qty<D, W>` wherever std converts the primitives
 ///   losslessly (`f32` to `f64`, `u8` to `i32`, ..), `const`:
-///   `Pressure::from(p32)`.
+///   `Pressure::<f64>::from(p32)`.
 ///
 /// ```ignore
 /// #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
@@ -434,9 +434,9 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// ```ignore
 /// #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 /// #[quantity(from(f32 => f64), from(i32 => f64))]
-/// pub struct Qty<const D: Dim, N = f64>(N);
+/// pub struct Qty<const D: Dim, N>(N);
 ///
-/// const LIMIT: Velocity = 50.0 * KILOMETRE_32 / HOUR_I32;   // f32 and i32 constants, f64 result
+/// const LIMIT: Velocity<f64> = 50.0 * KILOMETRE_32 / HOUR_I32;   // f32 and i32 constants, f64 result
 /// ```
 ///
 /// # Shape
@@ -454,10 +454,10 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// parameter itself takes no bounds: the impls for `n * Qty` and the
 /// lossless `From`s are written once per primitive number type, which a
 /// bound such as `N: Float` would rule out - each impl asks for what it
-/// uses instead. `#[quantity(impl(Cast))]` needs that parameter. A number type
-/// parameter may have a default, and is best put last (`Qty<const D: Dim, N
-/// = f64>`), so `Qty<LENGTH>` is an `f64` length and `Qty<LENGTH, f32>` an
-/// `f32` one.
+/// uses instead. `#[quantity(impl(Cast))]` needs that parameter. The number
+/// type parameter is best put last (`Qty<const D: Dim, N>`), and every use
+/// names it: `Qty<LENGTH, f64>` is an `f64` length, `Qty<LENGTH, f32>` an
+/// `f32` one, and `Qty<LENGTH, N>` a length in any.
 ///
 /// `#[yadc(crate = "path")]` redirects the emitted `::yadc::` paths. The
 /// crate defining `Qty` (or any new `pub type Foo = Qty<{ ... }>;` alias)

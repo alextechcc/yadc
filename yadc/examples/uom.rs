@@ -17,7 +17,7 @@ use yadc_si::{DynamicSIQuantity, SIQuantity, mechanical};
 fn main() {
     // -- uom -> SIQuantity (From, infallible) -----------------------------
     let uom_dist = Length::new::<kilometer>(42.195);
-    let static_dist: SIQuantity<_> = uom_dist.into();
+    let static_dist: SIQuantity<_, f64> = uom_dist.into();
     let km = mechanical::LengthUnit::Kilometre;
     println!(
         "marathon (static, from uom): {} {km}",

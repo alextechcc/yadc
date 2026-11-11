@@ -2,7 +2,7 @@ use crate::{Exact, ISQ, Kind, SIQuantity, Scale, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Length<N = f64> = SIQuantity<
+pub type Length<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -12,7 +12,7 @@ pub type Length<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Mass<N = f64> = SIQuantity<
+pub type Mass<N> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -22,7 +22,7 @@ pub type Mass<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Time<N = f64> = SIQuantity<
+pub type Time<N> = SIQuantity<
     {
         ISQ {
             s: 1,
@@ -32,7 +32,7 @@ pub type Time<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Instant<N = f64> = SIQuantity<
+pub type Instant<N> = SIQuantity<
     {
         ISQ {
             s: 1,
@@ -43,7 +43,7 @@ pub type Instant<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Area<N = f64> = SIQuantity<
+pub type Area<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -53,7 +53,7 @@ pub type Area<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Volume<N = f64> = SIQuantity<
+pub type Volume<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -63,7 +63,7 @@ pub type Volume<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Velocity<N = f64> = SIQuantity<
+pub type Velocity<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -74,7 +74,7 @@ pub type Velocity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Acceleration<N = f64> = SIQuantity<
+pub type Acceleration<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -85,7 +85,7 @@ pub type Acceleration<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Jerk<N = f64> = SIQuantity<
+pub type Jerk<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -96,7 +96,7 @@ pub type Jerk<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Absement<N = f64> = SIQuantity<
+pub type Absement<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -107,7 +107,7 @@ pub type Absement<N = f64> = SIQuantity<
     N,
 >;
 
-pub type InverseVelocity<N = f64> = SIQuantity<
+pub type InverseVelocity<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -118,7 +118,7 @@ pub type InverseVelocity<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Force<N = f64> = SIQuantity<
+pub type Force<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -130,7 +130,7 @@ pub type Force<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Momentum<N = f64> = SIQuantity<
+pub type Momentum<N> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -142,7 +142,7 @@ pub type Momentum<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Energy<N = f64> = SIQuantity<
+pub type Energy<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -154,7 +154,7 @@ pub type Energy<N = f64> = SIQuantity<
     N,
 >;
 
-pub type AvailableEnergy<N = f64> = SIQuantity<
+pub type AvailableEnergy<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -165,7 +165,7 @@ pub type AvailableEnergy<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Power<N = f64> = SIQuantity<
+pub type Power<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -177,7 +177,7 @@ pub type Power<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Gain<N = f64> = SIQuantity<
+pub type Gain<N> = SIQuantity<
     {
         ISQ {
             kind: Kind::Log,
@@ -187,7 +187,7 @@ pub type Gain<N = f64> = SIQuantity<
     N,
 >;
 
-pub type PowerLevel<N = f64> = SIQuantity<
+pub type PowerLevel<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -200,7 +200,7 @@ pub type PowerLevel<N = f64> = SIQuantity<
     N,
 >;
 
-pub type PowerRate<N = f64> = SIQuantity<
+pub type PowerRate<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -212,7 +212,7 @@ pub type PowerRate<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Action<N = f64> = SIQuantity<
+pub type Action<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -224,7 +224,7 @@ pub type Action<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Torque<N = f64> = SIQuantity<
+pub type Torque<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -237,7 +237,7 @@ pub type Torque<N = f64> = SIQuantity<
     N,
 >;
 
-pub type MomentOfInertia<N = f64> = SIQuantity<
+pub type MomentOfInertia<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -249,7 +249,7 @@ pub type MomentOfInertia<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Pressure<N = f64> = SIQuantity<
+pub type Pressure<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -261,7 +261,7 @@ pub type Pressure<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Frequency<N = f64> = SIQuantity<
+pub type Frequency<N> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -271,7 +271,7 @@ pub type Frequency<N = f64> = SIQuantity<
     N,
 >;
 
-pub type FrequencyDrift<N = f64> = SIQuantity<
+pub type FrequencyDrift<N> = SIQuantity<
     {
         ISQ {
             s: -2,
@@ -281,7 +281,7 @@ pub type FrequencyDrift<N = f64> = SIQuantity<
     N,
 >;
 
-pub type ReciprocalLength<N = f64> = SIQuantity<
+pub type ReciprocalLength<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -291,7 +291,7 @@ pub type ReciprocalLength<N = f64> = SIQuantity<
     N,
 >;
 
-pub type Curvature<N = f64> = SIQuantity<
+pub type Curvature<N> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -302,7 +302,7 @@ pub type Curvature<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SpecificArea<N = f64> = SIQuantity<
+pub type SpecificArea<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -313,7 +313,7 @@ pub type SpecificArea<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SpecificVolume<N = f64> = SIQuantity<
+pub type SpecificVolume<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -324,7 +324,7 @@ pub type SpecificVolume<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SpecificPower<N = f64> = SIQuantity<
+pub type SpecificPower<N> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -335,7 +335,7 @@ pub type SpecificPower<N = f64> = SIQuantity<
     N,
 >;
 
-pub type SpecificGravitationalParameter<N = f64> = SIQuantity<
+pub type SpecificGravitationalParameter<N> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -2999,7 +2999,7 @@ pub mod consts {
 /// The units of `Length`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Length)]
+#[unit(of = Length<f64>)]
 pub enum LengthUnit {
     #[unit("Ym", "yottametres", by = YOTTAMETRE)]
     Yottametre,
@@ -3127,7 +3127,7 @@ pub enum LengthUnit {
 /// The units of `Mass`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Mass)]
+#[unit(of = Mass<f64>)]
 pub enum MassUnit {
     #[unit("Yg", "yottagrams", by = YOTTAGRAM)]
     Yottagram,
@@ -3253,7 +3253,7 @@ pub enum MassUnit {
 /// The units of `Time`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Time)]
+#[unit(of = Time<f64>)]
 pub enum TimeUnit {
     #[unit("Ys", "yottaseconds", by = YOTTASECOND)]
     Yottasecond,
@@ -3323,7 +3323,7 @@ pub enum TimeUnit {
 /// The units of `Instant`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Instant)]
+#[unit(of = Instant<f64>)]
 pub enum InstantUnit {
     #[default]
     #[unit("s Unix", "seconds of Unix time", by = UNIX_SECONDS)]
@@ -3341,7 +3341,7 @@ pub enum InstantUnit {
 /// The units of `Area`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Area)]
+#[unit(of = Area<f64>)]
 pub enum AreaUnit {
     #[unit("Ym²", "square yottametres", by = SQUARE_YOTTAMETRE)]
     SquareYottametre,
@@ -3459,7 +3459,7 @@ pub enum AreaUnit {
 /// The units of `Volume`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Volume)]
+#[unit(of = Volume<f64>)]
 pub enum VolumeUnit {
     #[default]
     #[unit("m³", "cubic metres", by = CUBIC_METRE)]
@@ -3585,7 +3585,7 @@ pub enum VolumeUnit {
 /// The units of `Velocity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Velocity)]
+#[unit(of = Velocity<f64>)]
 pub enum VelocityUnit {
     #[unit("Ym/s", "yottametres per second", by = YOTTAMETRE_PER_SECOND)]
     YottametrePerSecond,
@@ -3663,7 +3663,7 @@ pub enum VelocityUnit {
 /// The units of `Acceleration`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Acceleration)]
+#[unit(of = Acceleration<f64>)]
 pub enum AccelerationUnit {
     #[unit("Ym/s²", "yottametres per second squared", by = YOTTAMETRE_PER_SECOND_SQUARED)]
     YottametrePerSecondSquared,
@@ -3723,7 +3723,7 @@ pub enum AccelerationUnit {
 /// The units of `Jerk`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Jerk)]
+#[unit(of = Jerk<f64>)]
 pub enum JerkUnit {
     #[unit("Ym/s³", "yottametres per second cubed", by = YOTTAMETRE_PER_SECOND_CUBED)]
     YottametrePerSecondCubed,
@@ -3779,7 +3779,7 @@ pub enum JerkUnit {
 /// The units of `Absement`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Absement)]
+#[unit(of = Absement<f64>)]
 pub enum AbsementUnit {
     #[unit("Ym · s", "yottametre seconds", by = YOTTAMETRE_SECOND)]
     YottametreSecond,
@@ -3835,7 +3835,7 @@ pub enum AbsementUnit {
 /// The units of `InverseVelocity`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InverseVelocity)]
+#[unit(of = InverseVelocity<f64>)]
 pub enum InverseVelocityUnit {
     #[unit("Ys/m", "yottaseconds per metre", by = YOTTASECOND_PER_METRE)]
     YottasecondPerMetre,
@@ -3903,7 +3903,7 @@ pub enum InverseVelocityUnit {
 /// The units of `Force`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Force)]
+#[unit(of = Force<f64>)]
 pub enum ForceUnit {
     #[unit("YN", "yottanewtons", by = YOTTANEWTON)]
     Yottanewton,
@@ -3967,7 +3967,7 @@ pub enum ForceUnit {
 /// The units of `Momentum`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Momentum)]
+#[unit(of = Momentum<f64>)]
 pub enum MomentumUnit {
     #[unit("Yg · m/s", "yottagram metres per second", by = YOTTAGRAM_METRE_PER_SECOND)]
     YottagramMetrePerSecond,
@@ -4073,7 +4073,7 @@ pub enum MomentumUnit {
 /// The units of `Energy`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Energy)]
+#[unit(of = Energy<f64>)]
 pub enum EnergyUnit {
     #[unit("YJ", "yottajoules", by = YOTTAJOULE)]
     Yottajoule,
@@ -4193,7 +4193,7 @@ pub enum EnergyUnit {
 /// The units of `AvailableEnergy`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AvailableEnergy)]
+#[unit(of = AvailableEnergy<f64>)]
 pub enum AvailableEnergyUnit {
     #[unit("YJ/kg", "yottajoules per kilogram", by = YOTTAJOULE_PER_KILOGRAM)]
     YottajoulePerKilogram,
@@ -4281,7 +4281,7 @@ pub enum AvailableEnergyUnit {
 /// The units of `Power`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Power, non_const)]
+#[unit(of = Power<f64>, non_const)]
 pub enum PowerUnit {
     #[unit("YW", "yottawatts", by = YOTTAWATT)]
     Yottawatt,
@@ -4306,9 +4306,9 @@ pub enum PowerUnit {
     #[default]
     #[unit("W", "watts", by = WATT)]
     Watt,
-    #[unit("dBW", "decibels-watt", by = DBW, via = PowerLevel)]
+    #[unit("dBW", "decibels-watt", by = DBW, via = PowerLevel<f64>)]
     DecibelWatt,
-    #[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel)]
+    #[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel<f64>)]
     DecibelMilliwatt,
     #[unit("dW", "deciwatts", by = DECIWATT)]
     Deciwatt,
@@ -4355,7 +4355,7 @@ pub enum PowerUnit {
 /// The units of `Gain`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Gain)]
+#[unit(of = Gain<f64>)]
 pub enum GainUnit {
     #[default]
     #[unit("B", "bels", by = BEL)]
@@ -4369,7 +4369,7 @@ pub enum GainUnit {
 /// The units of `PowerLevel`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = PowerLevel)]
+#[unit(of = PowerLevel<f64>)]
 pub enum PowerLevelUnit {
     #[default]
     #[unit("dBW", "decibels-watt", by = DBW)]
@@ -4381,7 +4381,7 @@ pub enum PowerLevelUnit {
 /// The units of `PowerRate`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = PowerRate)]
+#[unit(of = PowerRate<f64>)]
 pub enum PowerRateUnit {
     #[unit("YW/s", "yottawatts per second", by = YOTTAWATT_PER_SECOND)]
     YottawattPerSecond,
@@ -4447,7 +4447,7 @@ pub enum PowerRateUnit {
 /// The units of `Action`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Action)]
+#[unit(of = Action<f64>)]
 pub enum ActionUnit {
     #[default]
     #[unit("J · s", "joule seconds", by = JOULE_SECOND)]
@@ -4465,7 +4465,7 @@ pub enum ActionUnit {
 /// The units of `Torque`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Torque)]
+#[unit(of = Torque<f64>)]
 pub enum TorqueUnit {
     #[unit("YN · m", "yottanewton metres", by = YOTTANEWTON_METRE)]
     YottanewtonMetre,
@@ -4567,7 +4567,7 @@ pub enum TorqueUnit {
 /// The units of `MomentOfInertia`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MomentOfInertia)]
+#[unit(of = MomentOfInertia<f64>)]
 pub enum MomentOfInertiaUnit {
     #[default]
     #[unit("kg · m²", "kilogram square metres", by = KILOGRAM_SQUARE_METRE)]
@@ -4579,7 +4579,7 @@ pub enum MomentOfInertiaUnit {
 /// The units of `Pressure`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Pressure)]
+#[unit(of = Pressure<f64>)]
 pub enum PressureUnit {
     #[unit("YPa", "yottapascals", by = YOTTAPASCAL)]
     Yottapascal,
@@ -4671,7 +4671,7 @@ pub enum PressureUnit {
 /// The units of `Frequency`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Frequency)]
+#[unit(of = Frequency<f64>)]
 pub enum FrequencyUnit {
     #[unit("YHz", "yottahertz", by = YOTTAHERTZ)]
     Yottahertz,
@@ -4731,7 +4731,7 @@ pub enum FrequencyUnit {
 /// The units of `FrequencyDrift`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = FrequencyDrift)]
+#[unit(of = FrequencyDrift<f64>)]
 pub enum FrequencyDriftUnit {
     #[unit("THz/s", "terahertz per second", by = TERAHERTZ_PER_SECOND)]
     TerahertzPerSecond,
@@ -4749,7 +4749,7 @@ pub enum FrequencyDriftUnit {
 /// The units of `ReciprocalLength`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ReciprocalLength)]
+#[unit(of = ReciprocalLength<f64>)]
 pub enum ReciprocalLengthUnit {
     #[unit("km⁻¹", "reciprocal kilometres", by = RECIPROCAL_KILOMETRE)]
     ReciprocalKilometre,
@@ -4777,7 +4777,7 @@ pub enum ReciprocalLengthUnit {
 /// The units of `Curvature`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Curvature)]
+#[unit(of = Curvature<f64>)]
 pub enum CurvatureUnit {
     #[default]
     #[unit("rad/m", "radians per metre", by = RADIAN_PER_METRE)]
@@ -4793,7 +4793,7 @@ pub enum CurvatureUnit {
 /// The units of `SpecificArea`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificArea)]
+#[unit(of = SpecificArea<f64>)]
 pub enum SpecificAreaUnit {
     #[default]
     #[unit("m²/kg", "square metres per kilogram", by = SQUARE_METRE_PER_KILOGRAM)]
@@ -4807,7 +4807,7 @@ pub enum SpecificAreaUnit {
 /// The units of `SpecificVolume`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificVolume)]
+#[unit(of = SpecificVolume<f64>)]
 pub enum SpecificVolumeUnit {
     #[unit("m³/Yg", "cubic metres per yottagram", by = CUBIC_METRE_PER_YOTTAGRAM)]
     CubicMetrePerYottagram,
@@ -4913,7 +4913,7 @@ pub enum SpecificVolumeUnit {
 /// The units of `SpecificPower`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificPower)]
+#[unit(of = SpecificPower<f64>)]
 pub enum SpecificPowerUnit {
     #[unit("YW/kg", "yottawatts per kilogram", by = YOTTAWATT_PER_KILOGRAM)]
     YottawattPerKilogram,
@@ -4985,7 +4985,7 @@ pub enum SpecificPowerUnit {
 /// The units of `SpecificGravitationalParameter`, for a menu, a config file, a parser.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificGravitationalParameter)]
+#[unit(of = SpecificGravitationalParameter<f64>)]
 pub enum SpecificGravitationalParameterUnit {
     #[default]
     #[unit("m³/(kg · s²)", "cubic metres per kilogram second squared", by = CUBIC_METRE_PER_KILOGRAM_SECOND_SQUARED)]

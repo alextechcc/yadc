@@ -293,7 +293,7 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "`: the kinds and the dimension (an exponent per base unit, and a kind).\n";
     s += "//! - `";
     s += qty;
-    s += "<D, N = f64>`: a quantity whose dimension is in its type; every constant\n";
+    s += "<D, N>`: a quantity whose dimension is in its type, counted in `N`; every constant\n";
     s += "//!   is a unit (`KILOMETRE(3.0)` builds, `MILE(d)` reads).\n";
     s += "//! - `";
     s += dyn_;
@@ -426,8 +426,8 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "}\n\n";
 
 
-    s += "/// A quantity whose dimension is in its type, counted in `N` (`f64` unless\n";
-    s += "/// you say otherwise: `Pressure<f32>`). Its number is private to\n";
+    s += "/// A quantity whose dimension is in its type, counted in `N`: every use\n";
+    s += "/// says which (`Pressure<f64>`, `Pressure<f32>`). Its number is private to\n";
     s += "/// this crate: the base constants (`base::METRE`) are the only raw numbers,\n";
     s += "/// and everyone else builds and reads through units - every constant is one\n";
     s += "/// (`KILOMETRE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero\n";
@@ -437,7 +437,7 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "/// deserialization target's - schema-trusted, nothing on the wire.\n";
     s += "#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]\n";
     s += "#[cfg_attr(feature = \"serde\", derive(serde::Serialize, serde::Deserialize))]\n";
-    s += &format!("pub struct {qty}<const D: {dim}, N = f64>(N);\n\n");
+    s += &format!("pub struct {qty}<const D: {dim}, N>(N);\n\n");
     s += "/// A scale: a zero and a step, `Scale(zero, step)`. A unit of its zero's type:\n";
     s += "/// `n` is `zero + n · step`, and a value reads `(value - zero) / step`. °C is\n";
     s += "/// `Scale(ICE_POINT, KELVIN)`; a scale made at run time is the same expression.\n";
@@ -511,12 +511,12 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
 /// fields' own. `__DYN__`, `__QTY__` and `__DIM__` are the dynamic, static and
 /// dimension type names.
 const DYNAMIC: &str = r#"/// A quantity of any dimension, decided at run time: the dynamic version of
-/// `__QTY__<D>`, built with dynamickit. Converting (`From`) moves the number into
-/// `value` and records `D` in `dim`; `TryFrom<__DYN__> for __QTY__<D>` is the
+/// `__QTY__<D, f64>`, built with dynamickit. Converting (`From`) moves the number into
+/// `value` and records `D` in `dim`; `TryFrom<__DYN__> for __QTY__<D, f64>` is the
 /// checked way back (the error hands the original back). A bare `f64` is the
 /// same value as a dimensionless quantity (`shared`). Numbers still go through
 /// units, by way of the static quantity: `__DYN__::from(KILOMETRE.quantity(3.0))`,
-/// then `Mass::try_from(d).map(|m| KILOGRAM.value(m))`.
+/// then `Mass::<f64>::try_from(d).map(|m| KILOGRAM.value(m))`.
 ///
 /// Its arithmetic is every field's own: the dimension's operator on `dim`, the
 /// number's on `value`. __PRODUCTS_DOC__ Values of one dimension are ordered by number,
@@ -525,7 +525,7 @@ const DYNAMIC: &str = r#"/// A quantity of any dimension, decided at run time: t
 /// Scaling by a number is the dimension's own too: its `* f64` and `/ f64`,
 /// which `#[derive(Dimension)]` writes.
 #[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
-#[dynamic(__QTY__<const D: __DIM__> => { dim: D, value: .0 })]
+#[dynamic(__QTY__<const D: __DIM__, f64> => { dim: D, value: .0 })]
 #[dynamic(shared f64 => { dim: __DIM__::DIMENSIONLESS, value: self })]
 #[dynamic(impl(
     Mul -> Option<Self>,
@@ -1207,7 +1207,7 @@ pub fn gen_dimensionless_rs(system: &UnitSystem) -> String {
     gen_module(
         &quantities,
         system,
-        &format!("pub type Dimensionless<N = f64> = {qty}<{{ {dim}::DIMENSIONLESS }}, N>;\n"),
+        &format!("pub type Dimensionless<N> = {qty}<{{ {dim}::DIMENSIONLESS }}, N>;\n"),
         "//! Plain numbers: ratios and their units.\n",
         false,
     )
@@ -1337,9 +1337,9 @@ fn gen_unit_enum(q: &QuantityRef<'_>, plan: &ModuleUnits<'_>, system: &UnitSyste
     s += &fmt_derive_attr(&system.system.unit_derives);
     // A level's conversion is not `const`, so neither is the enum's.
     if non_const {
-        s += &format!("#[unit(of = {}, non_const)]\n", q.name);
+        s += &format!("#[unit(of = {}<f64>, non_const)]\n", q.name);
     } else {
-        s += &format!("#[unit(of = {})]\n", q.name);
+        s += &format!("#[unit(of = {}<f64>)]\n", q.name);
     }
     s += &format!("pub enum {}Unit {{\n", q.name);
     for (i, unit) in q.units.iter().enumerate() {
@@ -1437,7 +1437,7 @@ fn dim_field_exprs(
 }
 
 fn fmt_type_alias(qty_name: &str, dim_value: &str, qty_ty: &str) -> String {
-    format!("pub type {qty_name}<N = f64> = {qty_ty}<{dim_value}, N>;\n")
+    format!("pub type {qty_name}<N> = {qty_ty}<{dim_value}, N>;\n")
 }
 
 /// Escape a string for a single-line Rust string literal.
@@ -1586,7 +1586,7 @@ units = [
         assert!(lib.contains("    pub const ABSOLUTE_ZERO<N: const From<Exact>>: Qty<{ Dim { K: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }, N> = counted(Qty(Exact::ZERO));\n"));
         let out = family();
         // The alias writes the dimension once; every constant is typed by it.
-        assert!(out.contains("pub type Speed<N = f64> = Qty<{ Dim { m: 1, s: -1, ..Dim::DIMENSIONLESS } }, N>;\n"));
+        assert!(out.contains("pub type Speed<N> = Qty<{ Dim { m: 1, s: -1, ..Dim::DIMENSIONLESS } }, N>;\n"));
         assert!(out.contains("    pub const METRE_PER_SECOND<N: const From<Exact>>: Speed<N> = counted(METRE::<Exact> / SECOND::<Exact>);\n"));
         // Every factor is written exactly.
         assert!(out.contains(
@@ -1648,12 +1648,12 @@ units = [
     #[test]
     fn non_const_units_make_the_enum_non_const() {
         let out = family();
-        assert!(out.contains("#[unit(of = Loudness, non_const)]\npub enum LoudnessUnit {"));
+        assert!(out.contains("#[unit(of = Loudness<f64>, non_const)]\npub enum LoudnessUnit {"));
         assert!(
             out.contains("    #[unit(\"phon\", \"phons\", by = crate::level::PHON, via = crate::level::LoudnessLevel)]\n    Phon,\n")
         );
         assert!(!out.contains("PHON_REFERENCE"));
-        assert!(out.contains("#[unit(of = Speed)]\npub enum SpeedUnit {"));
+        assert!(out.contains("#[unit(of = Speed<f64>)]\npub enum SpeedUnit {"));
         let d = gen_dimensionless_rs(&system(THERMAL));
         assert!(d.contains("    pub const RATIO<N: const From<Exact>>: Dimensionless<N> = counted(ONE::<Exact>);\n"));
         assert!(d.contains("    pub const PERCENT<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -2) * RATIO::<Exact>);\n"));
@@ -1665,7 +1665,7 @@ units = [
     fn unit_enums_name_their_units() {
         let out = family();
         assert!(out.contains(
-            "#[derive_const(Default)]\n#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]\n#[unit(of = Speed)]\npub enum SpeedUnit {\n    #[default]\n    #[unit(\"m/s\", \"metres per second\", by = METRE_PER_SECOND)]\n    MetrePerSecond,\n"
+            "#[derive_const(Default)]\n#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]\n#[unit(of = Speed<f64>)]\npub enum SpeedUnit {\n    #[default]\n    #[unit(\"m/s\", \"metres per second\", by = METRE_PER_SECOND)]\n    MetrePerSecond,\n"
         ));
     }
 
@@ -1680,11 +1680,11 @@ units = [
         assert!(out.contains(
             "    Mul -> Option<Self>,\n    Div -> Option<Self>,\n    Add -> Option<Self>,\n"
         ));
-        assert!(out.contains("#[dynamic(Qty<const D: Dim> => { dim: D, value: .0 })]\n"));
+        assert!(out.contains("#[dynamic(Qty<const D: Dim, f64> => { dim: D, value: .0 })]\n"));
         assert!(
             out.contains("#[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]\n")
         );
-        assert!(out.contains("pub struct Qty<const D: Dim, N = f64>(N);\n"));
+        assert!(out.contains("pub struct Qty<const D: Dim, N>(N);\n"));
         assert!(!out.contains("impl PartialRoot"));
         assert!(out.contains("#![feature(generic_const_items)]\n"));
         assert!(out.contains("pub(crate) const fn counted<const D: Dim, N: [const] From<Exact>>(q: Qty<D, Exact>) -> Qty<D, N> {\n"));

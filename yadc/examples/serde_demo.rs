@@ -1,7 +1,8 @@
 //! serde round-trip with the yadc-si quantities.
 //!
-//! `SIQuantity<const D: ISQ>` serializes transparently as just its inner
-//! `f64` - the dimension is determined by the target type at deserialize time.
+//! `SIQuantity<const D: ISQ, N>` serializes transparently as just its inner
+//! number (here `f64`) - the dimension is determined by the target type at
+//! deserialize time.
 //! `DynamicSIQuantity` carries `dim: ISQ` at runtime, and that field is
 //! serialized as a UCUM unit string (e.g. `"m.kg.s-2"` for force, `"K"` for a
 //! temperature interval, `"rad"` for angle, `"1"` for dimensionless). A
@@ -29,7 +30,7 @@ fn main() {
     let s = serde_json::to_string(&m).expect("serialize Mass");
     println!("Mass(1.5 kg) -> {s}");
 
-    let parsed: Mass = serde_json::from_str(&s).expect("round-trip Mass");
+    let parsed: Mass<f64> = serde_json::from_str(&s).expect("round-trip Mass");
     println!("round-trip:    {} {Kilogram:#}\n", Kilogram(parsed));
 
     // 2. DynamicSIQuantity carries its dims at runtime - they're serialized as a UCUM
@@ -85,8 +86,8 @@ fn main() {
     #[derive(serde::Serialize, serde::Deserialize)]
     struct Reading {
         sensor: String,
-        temperature: ThermodynamicTemperature,
-        voltage: ElectricPotential,
+        temperature: ThermodynamicTemperature<f64>,
+        voltage: ElectricPotential<f64>,
     }
 
     let r = Reading {

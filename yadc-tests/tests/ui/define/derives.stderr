@@ -46,7 +46,7 @@ error: the kind field is marked `#[kind]` alone; which of its values is a point 
 85 |     #[kind(affine = MulRule::Other)]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: `Cast` changes a family's number type, so the family needs one as a parameter: `struct Qty<const D: Dim, N = f64>(N)`
+error: `Cast` changes a family's number type, so the family needs one as a parameter: `struct Qty<const D: Dim, N>(N)`
   --> tests/ui/define/derives.rs:92:12
    |
 92 | pub struct Fixed<const D: NoPlain>(f64);
