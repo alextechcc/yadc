@@ -7,7 +7,7 @@ fn main() {
     let altitude = SEA_LEVEL + 100.0 * METRE;
     let _ = METRE + SECOND; // cannot add: the dimensions differ
     let _ = altitude + altitude; // cannot add a point to a point
-    let _ = METRE + altitude; // cannot add a point to an amount
+    let _ = METRE + altitude; // cannot add these in this order
     let _ = KELVIN + ABSOLUTE_ZERO; // a temperature is a point: write it first
     let _ = FIRST + FIRST; // cannot add: the labels have no sum
     let _ = altitude + SECOND; // a point moves only by an amount of its dimension

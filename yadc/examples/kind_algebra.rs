@@ -267,7 +267,7 @@ fn main() {
     println!("mean of the two  = {:.2} {Celsius}", Celsius(mean));
     // Everything else would depend on where the zero was put:
     // let _ = warming + morning;   // a sum keeps its left operand: `morning + warming`
-    //     error: cannot add a point to an amount
+    //     error: cannot add these in this order
     // let _ = morning + noon;
     //     error: cannot add a point to a point
     // let _ = 2.0 * morning;
@@ -303,7 +303,7 @@ fn main() {
     // let _ = sent + received;
     //     error: cannot add: the labels have no sum
     // let _ = gain + sent;   // a sum keeps its left operand: `sent + gain`
-    //     error: cannot add: the dimensions differ
+    //     error: cannot add these in this order
     // let _ = 2.0 * sent;
     //     error: cannot scale: this label cannot be added to itself
     // let _ = sent * a;

@@ -92,9 +92,10 @@ use unit::expand_unit;
 /// `yadc::Dimension` and the operators its supertraits ask for, as `const
 /// impl`s:
 ///
-/// - `*` and `/`: exponents add / subtract; a label survives only beside a
-///   plain number (every exponent zero and the ordinary kind), so `2.0 * x`
-///   keeps `x`'s label and any other product is ordinary. Without a
+/// - `*` and `/`: exponents add / subtract. Beside a plain number (every
+///   exponent zero and the ordinary kind) a product is a scaling: `2.0 * x`
+///   keeps `x`'s label where `x + x` is `x`, and has no result otherwise (a
+///   point, a level, a label with no sum); any other product is ordinary. Without a
 ///   `#[kind]` field they are total, `Output = Self`; with one they are
 ///   partial, `Output = Option<Self>`, `None` where the rules above give no
 ///   product (the derive cannot see which variants are points or levels, so
@@ -183,8 +184,9 @@ use unit::expand_unit;
 /// `#[ucum(prefix = none)]` says it has none (the default). Read only by
 /// [`UcumKind`](macro@UcumKind).
 ///
-/// The enum's own `PartialRoot` is the label whose n-th power it is, found
-/// by search; its `PartialPowi` is repeated `*`; its `Display` (unless
+/// The enum's own `PartialRoot` is the label itself for the first root, the
+/// plain label for any root of the plain label, and `None` otherwise (a
+/// label's powers are all plain); its `PartialPowi` is repeated `*`; its `Display` (unless
 /// `#[dimension(impl())]`) is the variant's name. Every variant must be a
 /// unit variant.
 ///

@@ -106,7 +106,7 @@ let step = DEGREE_FAHRENHEIT(rise);                     // 9.0
 let mean: ThermodynamicTemperature = (t + hotter) / 2.0; // an average is a temperature
 let since_dawn = Scale(CELSIUS.quantity(12.0), KELVIN);          // a scale made at run time
 let warmed = since_dawn.value(t);                       // 13.0
-// rise + t doesn't compile ("cannot add: the labels have no sum": write t + rise),
+// rise + t doesn't compile ("cannot add these in this order": write t + rise),
 // and CELSIUS.value(rise) doesn't either: a scale with a zero reads a temperature, not a step.
 ```
 
@@ -293,7 +293,7 @@ then copy `<dir>/src/*.rs` over `yadc-si/src/` (never generate straight into `ya
 
 ## Origin of the unit data
 
-Conversion factors, symbols, and labels are derived from the [`iliekturtles/uom`](https://github.com/iliekturtles/uom) project (MIT/Apache-2.0).
+Symbols, labels and measured conversion factors are derived from the [`iliekturtles/uom`](https://github.com/iliekturtles/uom) project (MIT/Apache-2.0); a unit with an exact definition (inch, pound, standard gravity, survey foot, ...) is written from it (see `yadc-codegen/si.toml`).
 
 ## License
 

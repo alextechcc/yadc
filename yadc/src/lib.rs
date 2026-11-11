@@ -157,7 +157,7 @@
 //!
 //! | Trait | On the whiteboard | It asks for |
 //! |---|---|---|
-//! | [`Dimension`] | exponents that add under `*`, plus optionally a kind - an amount, a point, a logarithm, or a label of yours: a product and a quotient (total for exponents alone, partial with a kind - a point or a logarithm has none; not associative with labels), a sum that may not exist and keeps its left operand (an action, not a commutative sum) | std `*` `/` (`Output: Into<Option<Self>>`), `+` `-` returning `Option`, a power and a root ([`PartialPowi`], [`PartialRoot`]), `DIMENSIONLESS` (dimension one); `plain` (the label forgotten) is provided |
+//! | [`Dimension`] | exponents that add under `*`, plus optionally a kind - an amount, a point, a logarithm, or a label of yours: a product and a quotient (total for exponents alone, partial with a kind - a point, a level, or a label with no sum beside a plain number has none; not associative with labels), a sum that may not exist and keeps its left operand (an action, not a commutative sum) | std `*` `/` (`Output: Into<Option<Self>>`), `+` `-` returning `Option`, a power and a root ([`PartialPowi`], [`PartialRoot`]), `DIMENSIONLESS` (dimension one); `plain` (the label forgotten) is provided |
 //! | [`Quantity`] | a value you can add, scale and compare, with itself as a unit | `Copy`, `PartialOrd`, `+`, scaling by its [`Number`](Quantity::Number)s, [`Unit<Self>`](Unit) |
 //! | [`Unit<Q, N>`] | two inverse functions between numbers and `Q` (a coordinate chart) | `quantity`, `value` |
 //!
@@ -189,7 +189,7 @@
 //! |---|---|
 //! | std `Mul` / `Div` with `Output: Into<Option<Self>>` | a dimension's product and quotient: `Self` (total) for exponents alone, `Option<Self>` (`None` where a point or a level has no product) for a dimension with a kind |
 //! | std `Add` / `Sub` with `Output = Option<Self>` | a partial operation: `None` where there is no result; const, so it runs inside type checks, and chains with `?` |
-//! | [`PartialPowi`] / [`PartialRoot`] | an integer power / n-th root that may not exist: repeated `*` (none for a point); exact division for an integer exponent, the root label for a label; for `f32` / `f64` `powi` / `powf` |
+//! | [`PartialPowi`] / [`PartialRoot`] | an integer power / n-th root that may not exist: repeated `*` (none for a point or a level); exact division for an integer exponent, a label having only its first root; for `f32` / `f64` `powi` / `powf` |
 //! | [`Dimension`] | the above operators, `PartialPowi` and `PartialRoot`, plus `DIMENSIONLESS` (dimension one: the empty product, what `x / x` gives); `plain` provided; implemented by `#[derive(Dimension)]` on a struct (a dimension) or on an enum (a label). A reciprocal is `DIMENSIONLESS / d` |
 //! | [`Powi<N>`] / [`Root<N>`] | a power or root with the exponent `N` known at compile time, typed: `Length` squared is an `Area`; called as `x.powi::<N>()` / `x.root::<N>()` with [`PowiAs`] / [`RootAs`] in scope |
 //! | [`Quantity`] | an amount: adds, scales by its `Number`s, compares, and is a unit of itself; by `#[derive(Quantity)]` for every member that can be scaled |

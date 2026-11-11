@@ -472,10 +472,6 @@ pub(crate) fn expand_label(input: &DeriveInput) -> syn::Result<TokenStream2> {
             type Output = #opt;
             fn sub(self, rhs: Self) -> #opt { #sub }
         }
-        // The n-th root of a label is the label whose n-th power it is (none
-        // squares to a label, so past n = 1 only the plain label has roots): a
-        // search over the variants, each power `v^n` built from `v` with `*` /
-        // `/`.
         // A label's first root is itself; any other root exists only of the
         // plain label (a label's powers are all plain), and is plain.
         const impl #yadc::PartialRoot for #name {

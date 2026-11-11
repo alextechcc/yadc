@@ -7,7 +7,8 @@
 //! - `Scale`: a zero and a step, a unit counted from a chosen zero
 //!   (`CELSIUS.quantity(25.0)`, `DBM`, `UNIX_SECONDS`).
 //! - `base`: the base constants, the only raw numbers.
-//! - One module per family, each a Cargo feature: `mechanical`, `angular`, `electromagnetic`, `thermal`, `fluid`, `density`, `chemistry`, `photometric`, `information`.
+//! - One module per family, each a Cargo feature: `mechanical`, `angular`, `electromagnetic`, `thermal`, `fluid`, `density`, `chemistry`, `photometric`, `information`; and `dimensionless`,
+//!   always present.
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(generic_const_exprs)]
 #![feature(min_adt_const_params)]

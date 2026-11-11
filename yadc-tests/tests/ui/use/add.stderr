@@ -21,7 +21,7 @@ error[E0277]: cannot add a point to a point
 error[E0277]: cannot add these in this order
   --> tests/ui/use/add.rs:10:19
    |
-10 |     let _ = METRE + altitude; // cannot add a point to an amount
+10 |     let _ = METRE + altitude; // cannot add these in this order
    |                   ^ write the other operand first
    |
    = help: the trait `yadc::gates::AddInOrder<Qty<yadc_tests::::Altitude::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Length::{constant#0}>`

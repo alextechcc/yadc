@@ -392,7 +392,7 @@ fn main() {
     // let _ = aircraft + aircraft;
     //     error: cannot add a point to a point
     // let _ = climb + aircraft;   // a sum keeps its left operand: `aircraft + climb`
-    //     error: cannot add a point to an amount
+    //     error: cannot add these in this order
     // let _ = takeoff - runway;   // an instant and an altitude
     //     error: cannot subtract: the dimensions differ
 }

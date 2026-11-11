@@ -48,7 +48,7 @@ pub const trait PartialRoot: Sized {
 
 /// A partial integer power: `self` multiplied by itself `n` times (for a
 /// negative `n` the reciprocal of that), or `None` where a step has no
-/// result - a point has no products, so no powers.
+/// result - a point or a level has no products, so no powers.
 ///
 /// For a dimension it is repeated `*` (yadc's `#[derive(Dimension)]` writes
 /// it); `self^0` is `self / self`. For `f32` / `f64` it is always `Some`.

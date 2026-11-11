@@ -293,7 +293,7 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "//!   (`CELSIUS.quantity(25.0)`, `DBM`, `UNIX_SECONDS`).\n";
     s += "//! - `base`: the base constants, the only raw numbers.\n";
     s += &format!(
-        "//! - One module per family, each a Cargo feature: {}.\n",
+        "//! - One module per family, each a Cargo feature: {}; and `dimensionless`,\n//!   always present.\n",
         system
             .system
             .family_order

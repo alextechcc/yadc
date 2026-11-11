@@ -582,7 +582,7 @@ fn a_gain_per_length_is_a_plain_rate() {
 /// GPS seconds, Julian dates - reads the same line. Not compiled, because
 /// refused: `a + b` ("cannot add a point to a point"), `2.0 * a` ("a point
 /// cannot be scaled"), `a * SECOND` ("these have no product"), `HOUR + a`
-/// ("cannot add a point to an amount").
+/// ("cannot add these in this order").
 #[test]
 fn an_instant_is_a_point_in_time() {
     use yadc_si::mechanical::consts::{
