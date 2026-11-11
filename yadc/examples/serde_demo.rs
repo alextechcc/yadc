@@ -12,7 +12,7 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 
-use yadc_si::DynamicSIQuantity;
+use yadc_si::{DynamicSIQuantity, Unit};
 use yadc_si::electromagnetic::consts::VOLT;
 use yadc_si::electromagnetic::*;
 use yadc_si::mechanical::consts::{KILOGRAM, NEWTON};
@@ -37,7 +37,7 @@ fn main() {
     //    annotation for any kind but the ordinary one (`K{Absolute}`). This lets a
     //    temperature survive a DynamicSIQuantity round-trip. Angles need
     //    no annotation: radians are an axis (`rad`, and `rad2` for steradians).
-    let body = FAHRENHEIT(98.6);
+    let body = FAHRENHEIT.quantity(98.6);
     let body = DynamicSIQuantity::from(body);
     let s = serde_json::to_string_pretty(&body).unwrap();
     println!("DynamicSIQuantity(98.6 °F) ->\n{s}\n");
@@ -46,8 +46,8 @@ fn main() {
     let t = ThermodynamicTemperature::try_from(parsed).expect("a temperature");
     println!(
         "round-trip: {:.1} °F ≡ {:.2} °C\n",
-        FAHRENHEIT(t),
-        CELSIUS(t),
+        FAHRENHEIT.value(t),
+        CELSIUS.value(t),
     );
 
     // A temperature step (plain K) serializes without annotation; a
@@ -91,7 +91,7 @@ fn main() {
 
     let r = Reading {
         sensor: "thermistor-7".into(),
-        temperature: CELSIUS(25.0),
+        temperature: CELSIUS.quantity(25.0),
         voltage: VOLT(3.30),
     };
     let s = serde_json::to_string_pretty(&r).unwrap();
@@ -101,7 +101,7 @@ fn main() {
     println!(
         "read back: {} at {:.1} °C and {:.2} V",
         back.sensor,
-        CELSIUS(back.temperature),
+        CELSIUS.value(back.temperature),
         VOLT(back.voltage),
     );
 }

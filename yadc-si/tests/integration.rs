@@ -276,13 +276,13 @@ fn power_levels_are_scales_on_the_logarithmic_line() {
 
     // A scale of levels is a unit of `PowerLevel`; the watts are one std
     // `From` away, either way.
-    let level = DBM(30.0);
+    let level = DBM.quantity(30.0);
     let p = Power::from(level);
     close(WATT(p), 1.0);
-    close(DBW(level), 0.0);
-    close(DBM(PowerLevel::from(100.0 * MILLIWATT)), 20.0);
+    close(DBW.value(level), 0.0);
+    close(DBM.value(PowerLevel::from(100.0 * MILLIWATT)), 20.0);
     close(DBM.value(MILLIWATT.into()), 0.0);
-    close(DBM(MILLIWATT_LEVEL), 0.0);
+    close(DBM.value(MILLIWATT_LEVEL), 0.0);
 
     // A link budget, in decibels: on the line, multiplying is adding.
     let received = level - 3.0 * DECIBEL + 13.0 * DECIBEL;
@@ -590,11 +590,11 @@ fn an_instant_is_a_point_in_time() {
     };
 
     // Point algebra.
-    let launch: Instant = UNIX_SECONDS(1_700_000_000.0);
+    let launch: Instant = UNIX_SECONDS.quantity(1_700_000_000.0);
     let landing = launch + 2.0 * HOUR;
     let flight: Time = landing - launch;
     close(HOUR(flight), 2.0);
-    close(UNIX_SECONDS(landing - 30.0 * SECOND), 1_700_007_170.0);
+    close(UNIX_SECONDS.value(landing - 30.0 * SECOND), 1_700_007_170.0);
     assert!(launch < landing);
     let mut t = launch;
     t += DAY;
@@ -604,34 +604,34 @@ fn an_instant_is_a_point_in_time() {
     assert_eq!(dim_of(flight), dim_of(SECOND));
 
     // One line, many scales: the zeros are constants on it.
-    close(UNIX_SECONDS(GPS_EPOCH), 315_964_800.0);
-    close(GPS_SECONDS(UNIX_EPOCH), -315_964_800.0);
-    close(JULIAN_DATE(UNIX_EPOCH), 2_440_587.5);
-    close(MODIFIED_JULIAN_DATE(UNIX_EPOCH), 40_587.0);
-    close(MODIFIED_JULIAN_DATE(GPS_EPOCH), 44_244.0);
+    close(UNIX_SECONDS.value(GPS_EPOCH), 315_964_800.0);
+    close(GPS_SECONDS.value(UNIX_EPOCH), -315_964_800.0);
+    close(JULIAN_DATE.value(UNIX_EPOCH), 2_440_587.5);
+    close(MODIFIED_JULIAN_DATE.value(UNIX_EPOCH), 40_587.0);
+    close(MODIFIED_JULIAN_DATE.value(GPS_EPOCH), 44_244.0);
     // An instant built on one scale reads on any other: J2000.0, noon on
     // 1 January 2000, is JD 2451545.0 and Unix 946728000.
-    let j2000 = JULIAN_DATE(2_451_545.0);
-    close(UNIX_SECONDS(j2000), 946_728_000.0);
-    close(GPS_SECONDS(j2000), 946_728_000.0 - 315_964_800.0);
-    close(DAY(j2000 - GPS_SECONDS(0.0)), 7_300.5);
+    let j2000 = JULIAN_DATE.quantity(2_451_545.0);
+    close(UNIX_SECONDS.value(j2000), 946_728_000.0);
+    close(GPS_SECONDS.value(j2000), 946_728_000.0 - 315_964_800.0);
+    close(DAY(j2000 - GPS_SECONDS.quantity(0.0)), 7_300.5);
     // Stored as `f64` seconds from the Unix epoch: today's instants resolve
     // to a fraction of a microsecond, so a millisecond count survives.
-    let precise = UNIX_MILLISECONDS(1_700_000_000_123.0);
-    assert!((UNIX_SECONDS(precise) - 1_700_000_000.123).abs() < 1e-6);
-    assert!((UNIX_MILLISECONDS(precise) - 1_700_000_000_123.0).abs() < 1e-3);
+    let precise = UNIX_MILLISECONDS.quantity(1_700_000_000_123.0);
+    assert!((UNIX_SECONDS.value(precise) - 1_700_000_000.123).abs() < 1e-6);
+    assert!((UNIX_MILLISECONDS.value(precise) - 1_700_000_000_123.0).abs() < 1e-3);
     // A scale made at run time: seconds since launch.
     let mission = yadc_si::Scale(launch, SECOND);
-    close(mission(landing), 7_200.0);
-    close(UNIX_SECONDS(mission(60.0)), 1_700_000_060.0);
-    const EPOCH_JD: f64 = JULIAN_DATE(UNIX_EPOCH);
+    close(mission.value(landing), 7_200.0);
+    close(UNIX_SECONDS.value(mission.quantity(60.0)), 1_700_000_060.0);
+    const EPOCH_JD: f64 = JULIAN_DATE.value(UNIX_EPOCH);
     close(EPOCH_JD, 2_440_587.5);
 
     // The unit enum: a menu of scales.
     use InstantUnit::{GpsSecond, JulianDate, ModifiedJulianDate, UnixMillisecond, UnixSecond};
     close(UnixSecond.value(GpsSecond.quantity(0.0)), 315_964_800.0);
     close(ModifiedJulianDate.value(JulianDate.quantity(2_400_000.5)), 0.0);
-    close(UnixMillisecond.value(UNIX_SECONDS(1.5)), 1_500.0);
+    close(UnixMillisecond.value(UNIX_SECONDS.quantity(1.5)), 1_500.0);
     assert_eq!(format!("{UnixSecond} / {JulianDate:#}"), "s Unix / Julian date");
     assert_eq!("MJD".parse(), Ok(ModifiedJulianDate));
     assert_eq!(InstantUnit::default(), UnixSecond);
@@ -650,7 +650,7 @@ fn an_instant_is_a_point_in_time() {
     assert!(Time::try_from(a).is_err());
     assert_eq!(a.partial_cmp(&b), Some(core::cmp::Ordering::Less));
     assert_eq!(a.partial_cmp(&two_hours), None);
-    assert_eq!(format!("{}", UNIX_SECONDS(12.5)), "12.5 s{Affine}");
+    assert_eq!(format!("{}", UNIX_SECONDS.quantity(12.5)), "12.5 s{Affine}");
 }
 
 fn number_of<Q, U: Unit<Q>>(unit: &U, q: Q) -> f64 {
@@ -1149,8 +1149,8 @@ mod unit_values {
 
     /// Quantity constants and scales (a zero and a step) convert at compile
     /// time - called like the functions they are, or through `Unit`.
-    const BODY: ThermodynamicTemperature = CELSIUS(37.0);
-    const BODY_F: f64 = FAHRENHEIT(BODY);
+    const BODY: ThermodynamicTemperature = CELSIUS.quantity(37.0);
+    const BODY_F: f64 = FAHRENHEIT.value(BODY);
     const ATM_PSI: f64 = POUND_FORCE_PER_SQUARE_INCH.value(KILOPASCAL.quantity(101.325));
     const ATM: Pressure = KILOPASCAL(101.325);
     /// A scale is a constant like any other: so is one of yours.
@@ -1200,28 +1200,32 @@ mod unit_values {
         close(METRE(d), 12.0 * 0.3048);
         close(PASCAL(ATM), 101_325.0);
         // Scales, a constant and one made at run time.
-        close(CELSIUS(BODY), 37.0);
-        let since_morning = Scale(CELSIUS(12.0), KELVIN);
-        close(since_morning(CELSIUS(19.5)), 7.5);
-        close(CELSIUS(since_morning(3.0)), 15.0);
+        close(CELSIUS.value(BODY), 37.0);
+        let since_morning = Scale(CELSIUS.quantity(12.0), KELVIN);
+        close(since_morning.value(CELSIUS.quantity(19.5)), 7.5);
+        close(CELSIUS.value(since_morning.quantity(3.0)), 15.0);
         // A unit enum's value: bound to a name, since `Enum::Variant(x)`
         // reads as a constructor.
         let fahrenheit = ThermodynamicTemperatureUnit::Fahrenheit;
         close(fahrenheit(BODY), 98.6);
-        close(CELSIUS(fahrenheit(212.0)), 100.0);
+        close(CELSIUS.value(fahrenheit(212.0)), 100.0);
         // A level in the watts' unit enum: `via` its logarithmic line.
         let dbm = PowerUnit::DecibelMilliwatt;
         let p: Power = dbm(30.0);
         close(WATT(p), 1.0);
         close(dbm(MILLIWATT(100.0)), 20.0);
-        close(DBM(PowerLevel::from(p)), 30.0);
+        close(DBM.value(PowerLevel::from(p)), 30.0);
         // Generic code asks for the std function traits.
         fn convert<Q>(n: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
             to(from(n))
         }
         close(convert(1.0, FOOT, METRE), 0.3048);
-        close(convert(100.0, CELSIUS, FAHRENHEIT), 212.0);
-        close(convert(98.6, fahrenheit, CELSIUS), 37.0);
+        let (celsius, fahrenheit) = (
+            ThermodynamicTemperatureUnit::Celsius,
+            ThermodynamicTemperatureUnit::Fahrenheit,
+        );
+        close(convert(100.0, celsius, fahrenheit), 212.0);
+        close(convert(98.6, fahrenheit, celsius), 37.0);
         close(convert(30.0, dbm, WATT), 1.0);
     }
 

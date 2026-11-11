@@ -249,8 +249,7 @@ fn dim_value(
 
 // --- lib.rs -------------------------------------------------------------------
 
-/// The impls of the scale type: a unit of its zero's type, called like any
-/// unit. `@DIM@` and `@QTY@` are the system's dimension and quantity.
+/// The scale type's one impl: a unit of its zero's type.
 const SCALE_IMPLS: &str = r#"const impl<P, S, N> Unit<P, N> for Scale<P, S>
 where
     P: Copy + [const] core::ops::Sub + [const] core::ops::Add<<P as core::ops::Sub>::Output, Output = P>,
@@ -263,44 +262,6 @@ where
         self.1.value(quantity - self.0)
     }
 }
-
-// A scale is called like any unit: on a number it builds, on a value it
-// reads. Std's three function traits, once for each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        const impl<const D: @DIM@, N, S> FnOnce<($arg,)> for Scale<@QTY@<D, N>, S>
-        where
-            Self: [const] Unit<@QTY@<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                Unit::$way(&self, x)
-            }
-        }
-        const impl<const D: @DIM@, N, S> FnMut<($arg,)> for Scale<@QTY@<D, N>, S>
-        where
-            Self: [const] Unit<@QTY@<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                Unit::$way(&*self, x)
-            }
-        }
-        const impl<const D: @DIM@, N, S> Fn<($arg,)> for Scale<@QTY@<D, N>, S>
-        where
-            Self: [const] Unit<@QTY@<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(N => @QTY@<D, N>, quantity);
-scale_is_called!(@QTY@<D, N> => N, value);
-
 "#;
 
 pub fn gen_lib_rs(system: &UnitSystem) -> String {
@@ -402,7 +363,7 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "/// this crate: the base constants (`base::METRE`) are the only raw numbers,\n";
     s += "/// and everyone else builds and reads through units - every constant is one\n";
     s += "/// (`KILOMETRE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero\n";
-    s += "/// and a step, and every unit enum's value (`LengthUnit::Mile.value(d)`).\n";
+    s += "/// and a step (`CELSIUS.quantity(25.0)`), and every unit enum's value.\n";
     s += "///\n";
     s += "/// It serializes transparently as just its number: the dimension `D` is the\n";
     s += "/// deserialization target's - schema-trusted, nothing on the wire.\n";
@@ -412,10 +373,9 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "/// A scale: a zero and a step, `Scale(zero, step)`. A unit of its zero's type:\n";
     s += "/// `n` is `zero + n · step`, and a value reads `(value - zero) / step`. °C is\n";
     s += "/// `Scale(ICE_POINT, KELVIN)`; a scale made at run time is the same expression.\n";
-    s += "/// Called like any unit: `CELSIUS(25.0)` builds, `CELSIUS(t)` reads.\n";
     s += "#[derive(Copy, Clone, PartialEq, Debug)]\n";
     s += "pub struct Scale<P, S>(pub P, pub S);\n\n";
-    s += &SCALE_IMPLS.replace("@DIM@", dim).replace("@QTY@", qty);
+    s += SCALE_IMPLS;
 
     // A dimension with a kind field has partial products - a point or a
     // level has none - and the dynamic type's with them.

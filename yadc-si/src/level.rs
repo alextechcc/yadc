@@ -14,8 +14,8 @@
 //!
 //! The logarithm itself is here and nowhere else: the conversions between
 //! the line and the linear quantities. A scale of levels measures levels, and
-//! the watts are one std `From` away - `Power::from(DBM(30.0))` is one watt,
-//! `DBM(PowerLevel::from(p))` reads it back - while `PowerUnit`'s decibel
+//! the watts are one std `From` away - `Power::from(DBM.quantity(30.0))` is one watt,
+//! `DBM.value(PowerLevel::from(p))` reads it back - while `PowerUnit`'s decibel
 //! variants do both steps (`via = PowerLevel`). Both directions read each
 //! quantity's number in a unit - every constant is one - and the float maths
 //! goes through [`Real`], so it works in `no_std` builds with the `libm`

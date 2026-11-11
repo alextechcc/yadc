@@ -1924,8 +1924,8 @@ dims = {K = 1}
 kind = "Absolute"
 # A temperature is read on a scale: steps counted from a zero. The zeros are
 # defined from absolute zero and the steps; each scale is a constant,
-# `Scale(zero, step)` (`CELSIUS(25.0)` builds, `CELSIUS(t)` reads), and the
-# enum names them.
+# `Scale(zero, step)` (`CELSIUS.quantity(25.0)` builds, `CELSIUS.value(t)`
+# reads), and the enum names them.
 consts = [
     {name = "ICE_POINT", value = "ABSOLUTE_ZERO + 273.15 * KELVIN", doc = "0 °C, the ice point of water: 273.15 K."},
     {name = "FAHRENHEIT_ZERO", value = "ICE_POINT - 32.0 * DEGREE_FAHRENHEIT", doc = "0 °F: 32 °F below the ice point."},

@@ -105,7 +105,7 @@ fn main() {
 
     // --- 5. Temperature: read on a scale ------------------------------------
     // °C counts steps of one kelvin from the ice point, 273.15 K - which is
-    // the scale's business: `CELSIUS(37.0)` is 310.15 K. `CELSIUS` is a
+    // the scale's business: `CELSIUS.quantity(37.0)` is 310.15 K. `CELSIUS` is a
     // constant - a zero and a step, `Scale(ICE_POINT, KELVIN)` - and so are
     // `FAHRENHEIT` and `KELVIN_SCALE`; a scale with a zero known only at run
     // time is the same expression, `Scale(room, KELVIN)`.
@@ -118,27 +118,27 @@ fn main() {
     // amount: it averages and scales, in kelvins.
 
     use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit, Kelvin};
-    let body = CELSIUS(37.0);
+    let body = CELSIUS.quantity(37.0);
     let room = Celsius(22.0);
     let fever: TemperatureInterval = body - room;
     let degrees = TemperatureIntervalUnit::Celsius;
     println!("body - room = {} {:#}", degrees(fever), degrees);
     let warmer: ThermodynamicTemperature = body + fever;
-    assert!((FAHRENHEIT(warmer) - 125.6).abs() < 1e-9);
+    assert!((FAHRENHEIT.value(warmer) - 125.6).abs() < 1e-9);
     let between: ThermodynamicTemperature = (body + room) / 2.0;
-    println!("between them = {:.1} {}", CELSIUS(between), Celsius);
+    println!("between them = {:.1} {}", CELSIUS.value(between), Celsius);
     println!(
         "body + fever = {:.1} {} = {:.1} {} = {:.2} {}",
-        CELSIUS(warmer),
+        CELSIUS.value(warmer),
         Celsius,
-        FAHRENHEIT(warmer),
+        FAHRENHEIT.value(warmer),
         Fahrenheit,
-        KELVIN_SCALE(warmer),
+        KELVIN_SCALE.value(warmer),
         Kelvin,
     );
     // Kelvins above room temperature: a scale made on the spot.
     let above_room = Scale(room, KELVIN);
-    println!("body is {:.0} K above room", above_room(body));
+    println!("body is {:.0} K above room", above_room.value(body));
 
     // --- 6. Format flags ----------------------------------------------------
     // The number takes the number's flags (`{:.2}`, `{:>12.3}`, `{:+}`), the
@@ -183,7 +183,7 @@ fn main() {
     // you.
 
     use PowerUnit::{DecibelWatt as Dbw, Watt};
-    let level = DBM(30.0);
+    let level = DBM.quantity(30.0);
     let p = Power::from(level);
     println!("30 dBm = {:.0} {} = {:.0} {}", Watt(p), Watt, Dbw(p), Dbw);
     let amplified = p * 100.0;
@@ -193,7 +193,7 @@ fn main() {
     let received = level - DECIBEL(3.0) + DECIBEL(23.0);
     println!(
         "30 dBm - 3 dB + 23 dB = {:.0} {dbm} = {:.0} {Watt}",
-        DBM(received),
+        DBM.value(received),
         Watt(Power::from(received))
     );
     // Two levels differ by a gain, and a gain is the logarithm of a ratio:
@@ -210,8 +210,8 @@ fn main() {
     // not in the type: Unix seconds, GPS seconds and Julian dates are scales
     // on the one line, so an instant built on one reads on any other.
 
-    let launch = GPS_SECONDS(1_400_000_000.0);
-    println!("launch  = {:.0} s Unix", UNIX_SECONDS(launch));
+    let launch = GPS_SECONDS.quantity(1_400_000_000.0);
+    println!("launch  = {:.0} s Unix", UNIX_SECONDS.value(launch));
     let landing = launch + Hour(2.5);
     let flight: Time = landing - launch;
     println!("flight  = {:.0} {}", TimeUnit::Minute(flight), TimeUnit::Minute);

@@ -121,44 +121,6 @@ where
     }
 }
 
-// And it is called like any unit: on a number it builds (`CELSIUS(25.0)`),
-// on a value it reads (`CELSIUS(t)`). Std's three function traits, once for
-// each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        const impl<const D: Dim, N, S> FnOnce<($arg,)> for Scale<Qty<D, N>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&self, x)
-            }
-        }
-        const impl<const D: Dim, N, S> FnMut<($arg,)> for Scale<Qty<D, N>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&*self, x)
-            }
-        }
-        const impl<const D: Dim, N, S> Fn<($arg,)> for Scale<Qty<D, N>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(N => Qty<D, N>, quantity);
-scale_is_called!(Qty<D, N> => N, value);
-
 // --- Quantities: aliases, spelled relative to `Dim::DIMENSIONLESS` ----------------
 
 pub type Length = Qty<
@@ -350,7 +312,7 @@ pub const NAUTICAL_MILE_32: Length32 = NAUTICAL_MILE.cast::<f32>();
 
 // --- Scales: a zero and a step ---------------------------------------------------
 // A scale is `Scale(zero, step)`: a number `n` is `zero + n · step`. It is a
-// constant like any other, and a unit: `CELSIUS(25.0)` is 298.15 K - the
+// constant like any other, and a unit: `CELSIUS.quantity(25.0)` is 298.15 K - the
 // zero point is the scale's business.
 
 /// Steps of one kelvin counted from the ice point.
@@ -372,7 +334,7 @@ pub const DBM: Scale<PowerLevel, Gain> = Scale(MILLIWATT_LEVEL, DECIBEL);
 
 // The logarithm itself is written once: the conversions between the line and
 // the linear quantity. `DBM` reads levels; the watts are one std `From`
-// away: `Power::from(DBM(30.0))`.
+// away: `Power::from(DBM.quantity(30.0))`.
 
 impl From<PowerLevel> for Power {
     fn from(level: PowerLevel) -> Power {
@@ -511,8 +473,8 @@ pub enum WindUnit {
 // A constant's `Unit`, a scale's and a unit enum's are `const impl`s:
 // building and reading works in `const` items too.
 
-pub const WATER_BOILS: Temperature = CELSIUS(100.0);
-pub const WATER_BOILS_F: f64 = FAHRENHEIT(WATER_BOILS);
+pub const WATER_BOILS: Temperature = CELSIUS.quantity(100.0);
+pub const WATER_BOILS_F: f64 = FAHRENHEIT.value(WATER_BOILS);
 pub const BODY_TEMPERATURE: Temperature = TemperatureUnit::Celsius(36.6);
 
 fn main() {
@@ -550,12 +512,12 @@ fn main() {
 
     // Scales: the zero point is the scale's business.
     use TemperatureUnit::{Celsius, Fahrenheit};
-    let body = CELSIUS(36.6);
+    let body = CELSIUS.quantity(36.6);
     assert_eq!(body, BODY_TEMPERATURE);
     println!(
         "body = {:.1} {Celsius} = {:.1} {Fahrenheit}",
-        CELSIUS(body),
-        FAHRENHEIT(body)
+        CELSIUS.value(body),
+        FAHRENHEIT.value(body)
     );
     println!("water boils at {WATER_BOILS_F:.0} {Fahrenheit} (a compile-time constant)");
     // Two temperatures differ by a step, another type with its own units.
@@ -568,14 +530,14 @@ fn main() {
     );
     // A step moves a temperature (`warm + step`, not `step + warm`).
     let warm = Celsius(21.5) + KELVIN(1.0);
-    println!("21.5 °C + 1 K = {:.1} {Celsius}", CELSIUS(warm));
+    println!("21.5 °C + 1 K = {:.1} {Celsius}", CELSIUS.value(warm));
     // A scale made at run time: degrees above body temperature.
     let above_body = Scale(body, KELVIN);
-    println!("38.1 °C is {:.1} K of fever", above_body(Celsius(38.1)));
+    println!("38.1 °C is {:.1} K of fever", above_body.value(Celsius(38.1)));
 
     // A level's scale builds a level; the watts are one `From` away. The
     // enum's dBm does the conversion itself.
-    let sent = DBM(30.0);
+    let sent = DBM.quantity(30.0);
     println!("30 dBm = {:.3} W", WATT(Power::from(sent)));
     let dbm = PowerUnit::DecibelMilliwatt;
     println!("2 W = {:.2} {dbm}", dbm(WATT(2.0)));
@@ -583,7 +545,7 @@ fn main() {
     let received = sent - DECIBEL(3.0) + DECIBEL(13.0);
     println!(
         "30 dBm - 3 dB + 13 dB = {:.0} {dbm} = {:.0} W",
-        DBM(received),
+        DBM.value(received),
         WATT(Power::from(received))
     );
     // Two levels differ by a gain; `sent + received` does not compile (it
@@ -597,12 +559,12 @@ fn main() {
     println!(
         "0.2 dB/km over 15 km = {:.1} dB, leaving {:.1} dBm",
         DECIBEL(loss),
-        DBM(received - loss)
+        DBM.value(received - loss)
     );
     // A temperature as an amount, where a formula wants one: the kelvins
     // above absolute zero. Twice as hot is twice that.
     let hot: Temperature = ABSOLUTE_ZERO + 2.0 * (body - ABSOLUTE_ZERO);
-    println!("twice as hot as a body: {:.1} {Celsius}", CELSIUS(hot));
+    println!("twice as hot as a body: {:.1} {Celsius}", CELSIUS.value(hot));
 
     // The function-shaped unit, both ways. Written by hand, it is its two
     // `Unit` methods; in the `WindUnit` enum it is called like the rest.

@@ -75,7 +75,7 @@ pub struct ISQ {
 /// this crate: the base constants (`base::METRE`) are the only raw numbers,
 /// and everyone else builds and reads through units - every constant is one
 /// (`KILOMETRE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero
-/// and a step, and every unit enum's value (`LengthUnit::Mile.value(d)`).
+/// and a step (`CELSIUS.quantity(25.0)`), and every unit enum's value.
 ///
 /// It serializes transparently as just its number: the dimension `D` is the
 /// deserialization target's - schema-trusted, nothing on the wire.
@@ -86,7 +86,6 @@ pub struct StaticSIQuantity<const D: ISQ, N = f64>(N);
 /// A scale: a zero and a step, `Scale(zero, step)`. A unit of its zero's type:
 /// `n` is `zero + n · step`, and a value reads `(value - zero) / step`. °C is
 /// `Scale(ICE_POINT, KELVIN)`; a scale made at run time is the same expression.
-/// Called like any unit: `CELSIUS(25.0)` builds, `CELSIUS(t)` reads.
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Scale<P, S>(pub P, pub S);
 
@@ -104,44 +103,6 @@ where
         self.1.value(quantity - self.0)
     }
 }
-
-// A scale is called like any unit: on a number it builds, on a value it
-// reads. Std's three function traits, once for each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        impl<const D: ISQ, N, S> const FnOnce<($arg,)> for Scale<StaticSIQuantity<D, N>, S>
-        where
-            Self: [const] Unit<StaticSIQuantity<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                Unit::$way(&self, x)
-            }
-        }
-        impl<const D: ISQ, N, S> const FnMut<($arg,)> for Scale<StaticSIQuantity<D, N>, S>
-        where
-            Self: [const] Unit<StaticSIQuantity<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                Unit::$way(&*self, x)
-            }
-        }
-        impl<const D: ISQ, N, S> const Fn<($arg,)> for Scale<StaticSIQuantity<D, N>, S>
-        where
-            Self: [const] Unit<StaticSIQuantity<D, N>, N> + [const] core::marker::Destruct,
-            N: [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(N => StaticSIQuantity<D, N>, quantity);
-scale_is_called!(StaticSIQuantity<D, N> => N, value);
-
 /// A quantity of any dimension, decided at run time: the dynamic version of
 /// `StaticSIQuantity<D>`, built with dynamickit. Converting (`From`) moves the number into
 /// `value` and records `D` in `dim`; `TryFrom<DynamicSIQuantity> for StaticSIQuantity<D>` is the

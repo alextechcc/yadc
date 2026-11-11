@@ -41,9 +41,8 @@ fmt-clean files.
     and to read, `KILOMETRE(3.0)`; the field is private to the crate, so the
     base constants are the only raw numbers);
   - the scale type, `pub struct Scale<P, S>(pub P, pub S);`, with its
-    `impl Unit` written out (`n` is `zero + n · step`) and std's `Fn` over
-    it: `Scale(zero, step)` is a unit of its zero's type, and callable like
-    any other;
+    `impl Unit` written out (`n` is `zero + n · step`): `Scale(zero, step)` is
+    a unit of its zero's type;
   - the dynamic quantity, `#[derive(dynamickit::Dynamic)]` on a struct
     `DynQty { dim: Dim, value: f64 }`, with no hand-written impl:
 

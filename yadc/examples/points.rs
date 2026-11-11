@@ -43,8 +43,8 @@
 //! above *this* runway is the same with the runway as its zero,
 //! `Scale(runway, FOOT)`, made at run time; GPS seconds and Unix seconds are
 //! two scales reading the same instant, as °C and °F read the same
-//! temperature. A scale is called like any unit: `FEET_AMSL(5_000.0)` is an
-//! altitude, `FEET_AMSL(aircraft)` a number of feet.
+//! temperature. A scale is a unit: `FEET_AMSL.quantity(5_000.0)` is an
+//! altitude, `FEET_AMSL.value(aircraft)` a number of feet.
 //!
 //! Run with: cargo run -p yadc --example points
 // This file defines its own kind, dimension and quantity type, so it needs
@@ -64,7 +64,7 @@
 use core::marker::ConstParamTy;
 use core::ops::{Add, Mul, Sub};
 
-use yadc::{Dimension, Quantity};
+use yadc::{Dimension, Quantity, Unit};
 
 // --- The system -------------------------------------------------------------------
 
@@ -111,41 +111,6 @@ where
         self.1.value(quantity - self.0)
     }
 }
-
-// And it is called like any unit: on a number it builds (`CELSIUS(25.0)`),
-// on a value it reads (`CELSIUS(t)`). Std's three function traits, once for
-// each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        const impl<const D: Dim, S> FnOnce<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, f64> + [const] core::marker::Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&self, x)
-            }
-        }
-        const impl<const D: Dim, S> FnMut<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, f64> + [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&*self, x)
-            }
-        }
-        const impl<const D: Dim, S> Fn<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, f64> + [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(f64 => Qty<D>, quantity);
-scale_is_called!(Qty<D> => f64, value);
 
 // Amounts.
 pub type Length = Qty<
@@ -257,7 +222,7 @@ struct Minute;
 struct FootPerMinute;
 
 // Units are `const`, for points as for quantities.
-const FL100: Altitude = FEET_AMSL(10_000.0);
+const FL100: Altitude = FEET_AMSL.quantity(10_000.0);
 
 // --- A height bound to its reference --------------------------------------------
 
@@ -304,12 +269,12 @@ fn main() {
 
     // --- 1. Build points through units, read them through units -------------
     // Feet above the runway: a scale whose zero is the runway, made here.
-    let runway = FEET_AMSL(5_000.0);
+    let runway = FEET_AMSL.quantity(5_000.0);
     let agl = Scale(runway, FOOT);
-    let aircraft = agl(1_500.0); // 1 500 ft above *this* runway
+    let aircraft = agl.quantity(1_500.0); // 1 500 ft above *this* runway
     println!(
         "aircraft: {:.0} ft AGL = {:.1} {MetresAmsl} = {:.0} {FeetAmsl}",
-        agl(aircraft),
+        agl.value(aircraft),
         MetresAmsl(aircraft),
         FeetAmsl(aircraft),
     );
@@ -317,7 +282,7 @@ fn main() {
     println!("aircraft itself: {aircraft:.1}");
 
     // --- 2. point - point is an amount ----------------------------------------
-    let terrain = FEET_AMSL(5_800.0); // a ridge under the approach
+    let terrain = FEET_AMSL.quantity(5_800.0); // a ridge under the approach
     let clearance: Length = aircraft - terrain;
     println!(
         "clearance over the ridge: {:.0} {Foot} = {:.1} {Metre}",
@@ -328,7 +293,7 @@ fn main() {
     let above_ridge = Scale(terrain, FOOT);
     println!(
         "height above the ridge: {:.0} ft above the ridge",
-        above_ridge(aircraft)
+        above_ridge.value(aircraft)
     );
 
     // --- 3. point ± amount is a point ------------------------------------------
@@ -353,7 +318,7 @@ fn main() {
     println!(
         "halfway down to the runway: {:.0} {FeetAmsl} = {:.0} ft AGL",
         FeetAmsl(mid),
-        agl(mid),
+        agl.value(mid),
     );
 
     // --- 5. A height bound to a reference *can* be scaled ----------------------
@@ -372,34 +337,34 @@ fn main() {
 
     // --- 6. Clock times: the same rules for time --------------------------------
     // Two instants differ by a duration; a duration divides a distance.
-    let takeoff = GPS_SECONDS(1_400_000_000.0);
+    let takeoff = GPS_SECONDS.quantity(1_400_000_000.0);
     let level_off = takeoff + Minute(12.0);
-    let cruise = FEET_AMSL(11_000.0);
+    let cruise = FEET_AMSL.quantity(11_000.0);
     let elapsed: Time = level_off - takeoff;
     let climb_rate: Velocity = (cruise - runway) / elapsed;
     println!(
         "took off at {:.0} s GPS: {:.0} {Minute} of climbing at {:.0} {FootPerMinute}",
-        GPS_SECONDS(takeoff),
+        GPS_SECONDS.value(takeoff),
         Minute(elapsed),
         FootPerMinute(climb_rate),
     );
     println!(
         "the midpoint of the climb is at {:.0} s GPS",
-        GPS_SECONDS(midpoint(takeoff, level_off)),
+        GPS_SECONDS.value(midpoint(takeoff, level_off)),
     );
     // GPS seconds and Unix seconds read the same instant from two zeros, so
     // the take-off needs no conversion to be read on the Unix clock - and an
     // instant built from Unix seconds subtracts from it like any other.
     println!(
         "on the Unix clock: {:.0} s Unix",
-        UNIX_SECONDS(takeoff)
+        UNIX_SECONDS.value(takeoff)
     );
-    let logged = UNIX_SECONDS(1_715_964_000.0);
+    let logged = UNIX_SECONDS.quantity(1_715_964_000.0);
     println!(
         "logged {:.0} {Minute} before take-off",
         Minute(takeoff - logged)
     );
-    println!("FL100 (a const) is {:.0} ft AGL", agl(FL100));
+    println!("FL100 (a const) is {:.0} ft AGL", agl.value(FL100));
 
     // --- 7. Every value prints its kind ------------------------------------------
     // A quantity's `Display` is its number and its dimension, and a

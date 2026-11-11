@@ -15,7 +15,7 @@
 #![feature(generic_const_exprs, const_trait_impl)]
 #![allow(incomplete_features)]
 
-use yadc::{PartialPowi, PartialRoot};
+use yadc::{PartialPowi, PartialRoot, Unit};
 use yadc_si::DynamicSIQuantity;
 use yadc_si::mechanical::consts::{
     BAR, CUBIC_METRE, DBM, DECIBEL, HOUR, KILOPASCAL, METRE, NEWTON,
@@ -85,27 +85,27 @@ fn main() {
     );
     // A temperature is an amount kept apart from its differences: it scales
     // and averages as a temperature, and two differ by an interval.
-    let t = DynamicSIQuantity::from(CELSIUS(25.0));
-    let ice = DynamicSIQuantity::from(CELSIUS(0.0));
-    let celsius = |x| Some(CELSIUS(ThermodynamicTemperature::try_from(x).ok()?));
+    let t = DynamicSIQuantity::from(CELSIUS.quantity(25.0));
+    let ice = DynamicSIQuantity::from(CELSIUS.quantity(0.0));
+    let celsius = |x| Some(CELSIUS.value(ThermodynamicTemperature::try_from(x).ok()?));
     let kelvins = |x| Some(KELVIN(TemperatureInterval::try_from(x).ok()?));
     println!("(t + ice)/2 = {:.2?} °C", ((t + ice).and_then(|s| s / 2.0)).and_then(celsius));
     println!("t - ice     = {:?} K", (t - ice).and_then(kelvins));
     println!("t × 2       = {:.2?} °C", (t * 2.0).and_then(celsius));
     // A power level is a logarithm: a gain moves it, and it has no products
     // and cannot be scaled.
-    let level = DynamicSIQuantity::from(DBM(30.0));
+    let level = DynamicSIQuantity::from(DBM.quantity(30.0));
     let gain = DynamicSIQuantity::from(DECIBEL(13.0));
-    let dbm = |x| Some(DBM(PowerLevel::try_from(x).ok()?));
+    let dbm = |x| Some(DBM.value(PowerLevel::try_from(x).ok()?));
     println!("30 dBm+13dB = {:.1?} dBm", (level + gain).and_then(dbm));
     println!("level × a   = {:?}", level * a);
     println!("level × 2   = {:?}", level * 2.0);
     // An instant is a point: two differ by a time, a time moves one, and it
     // has no sum with another, no products and no scaling.
-    let launch = DynamicSIQuantity::from(UNIX_SECONDS(1_700_000_000.0));
+    let launch = DynamicSIQuantity::from(UNIX_SECONDS.quantity(1_700_000_000.0));
     let later = (launch + DynamicSIQuantity::from(HOUR(2.0))).unwrap();
     let hours = |x| Some(HOUR(Time::try_from(x).ok()?));
-    let unix = |x| Some(UNIX_SECONDS(Instant::try_from(x).ok()?));
+    let unix = |x| Some(UNIX_SECONDS.value(Instant::try_from(x).ok()?));
     println!("later       = {:?} s Unix", unix(later));
     println!("later - t0  = {:?} h", (later - launch).and_then(hours));
     println!("t0 + later  = {:?}", launch + later);

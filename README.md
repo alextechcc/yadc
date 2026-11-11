@@ -53,7 +53,7 @@ yadc gives you **patterns, a very small set of traits, and derive macros** so yo
 
 What follows from it:
 
-- **Numbers only through units.** A quantity constant reads a quantity as a ratio (`KILOPASCAL(p)` is `p / KILOPASCAL`, a plain number) and builds one by scaling (`KILOPASCAL(2.0)`); a scale adds a zero (`CELSIUS(n)` is `ICE_POINT + n · KELVIN`). No raw "get the number" method exists, because the whiteboard has none: you write the unit.
+- **Numbers only through units.** A quantity constant reads a quantity as a ratio (`KILOPASCAL(p)` is `p / KILOPASCAL`, a plain number) and builds one by scaling (`KILOPASCAL(2.0)`); a scale adds a zero (`CELSIUS.quantity(n)` is `ICE_POINT + n · KELVIN`). No raw "get the number" method exists, because the whiteboard has none: you write the unit.
 - **Axes and kinds.** A dimension is exponent *axes* - metres, seconds, kelvin, and in `yadc-si` radians - plus a *kind*, which says how the quantity behaves. An ordinary amount composes: every two multiply and divide, so every power and reciprocal exists and only a root can fail (there is no "metre to the ½" with whole-number exponents). A *point* (the affine kind) is measured from a zero somebody chose; a *logarithm* (the log kind) is a level or a gain in decibels; any other kind is a label of your own, which only matters to `+` and `-` (a torque is not an energy; an absolute temperature is not a temperature step). A sum keeps its left operand's type, as on the whiteboard. Beside a plain number a label survives (`2.0 * t`, an average `(t1 + t2) / 2.0`); multiplied by anything with units it drops (`R * t` is just J/mol). Nothing computes a kind: a constant that has it gives it, `n * BEL`.
 - **Partial operations return `Option`.** "May not exist" is written in the type, with std operators, and partial steps compose with `?`: on a value whose dimension is known only at run time, `((a * b)? + c)?` - a product of a point has no result, nor has a sum of a length and a time.
 - **A point is not a quantity.** A quantity's zero is a fact (no mass, no length), so it scales, multiplies and adds. An altitude's zero is a convention - sea level, or this runway - so `2 × altitude` would be a different place depending on which zero you picked. A point's kind is affine: two points of one dimension differ by an amount, a point moves by one, and nothing else compiles. A point is not a `Quantity`; it is read on a scale, a zero and a step (feet above sea level, or above *this* runway), and every scale of one dimension reads the same line.
@@ -92,18 +92,18 @@ let f: Force = m * METRE_PER_SECOND_SQUARED(9.81);
 // let nope = m + v;                                    // error: cannot add: the dimensions differ
 
 // °C is a scale, `Scale(ICE_POINT, KELVIN)`: a zero plus steps of 1 K - the unit's business, not yours.
-let t = CELSIUS(25.0);                                  // a ThermodynamicTemperature: 298.15 K
-let fahrenheit = FAHRENHEIT(t);                         // 77.0
-let room = CELSIUS(20.0);
+let t = CELSIUS.quantity(25.0);                                  // a ThermodynamicTemperature: 298.15 K
+let fahrenheit = FAHRENHEIT.value(t);                         // 77.0
+let room = CELSIUS.quantity(20.0);
 let rise: TemperatureInterval = t - room;               // T - T = ΔT (5 K)
 // let nope = rise + t;                                 // error: cannot add: the labels have no sum (write t + rise)
 let twice: ThermodynamicTemperature = 2.0 * t;          // a temperature is an amount: 596.3 K
 
 // dBm is a scale too, on the logarithmic line: `Scale(MILLIWATT_LEVEL, DECIBEL)`. It reads a
 // `PowerLevel` - where gains add; the watts are one std `From` away.
-let rx: PowerLevel = DBM(30.0);
+let rx: PowerLevel = DBM.quantity(30.0);
 let p = Power::from(rx);                                // 1 W
-let dbw = DBW(PowerLevel::from(p));                     // 0.0
+let dbw = DBW.value(PowerLevel::from(p));                     // 0.0
 let out = rx - 3.0 * DECIBEL + 13.0 * DECIBEL;          // a link budget: 40 dBm
 // let nope = out + out;                                // error: cannot add: the labels have no sum (it would be the logarithm of W²)
 
@@ -161,8 +161,8 @@ pub const DBM: Scale<PowerLevel, Gain> = Scale(MILLIWATT_LEVEL, DECIBEL);   // d
 impl From<PowerLevel> for Power { fn from(l: PowerLevel) -> Power { WATT * 10f64.powf(BEL(l - WATT_LEVEL)) } }
 impl From<Power> for PowerLevel { fn from(p: Power) -> PowerLevel { WATT_LEVEL + BEL(WATT(p).log10()) } }
 
-let p = Power::from(DBM(30.0));                  // 1 W: to the linear side
-let n = DBM(PowerLevel::from(2.0 * p));          // 33.01
+let p = Power::from(DBM.quantity(30.0));                  // 1 W: to the linear side
+let n = DBM.value(PowerLevel::from(2.0 * p));          // 33.01
 ```
 
 A level and a gain are both the log kind, told apart by their exponents: a `PowerLevel` carries the exponents of power, and a `Gain` none - so a level less a level is a gain because watts over watts is a plain ratio, and two levels sum to the logarithm of watts squared, which no scale of power reads.
@@ -195,7 +195,7 @@ pub const SEA_LEVEL: Altitude = Qty(0.0);                                  // a 
 
 pub const FEET_AMSL: Scale<Altitude, Length> = Scale(SEA_LEVEL, FOOT);              // a scale: a zero and a step
 
-let aircraft = FEET_AMSL(6500.0);
+let aircraft = FEET_AMSL.quantity(6500.0);
 let clearance: Length = aircraft - terrain;              // a difference of points is an amount
 let halfway = a + (b - a) / 2.0;                         // a midpoint, without ever scaling a point
 let agl = Scale(terrain, FOOT);                               // feet above *this* ground: a unit made at run time
@@ -349,8 +349,8 @@ Add any derives you like next to these (`serde`, `JsonSchema`, `Reflect`, ...); 
 
 ```rust
 pub const MARATHON: Length = 42.195 * KILOMETRE;
-pub const BOILING: Temperature = CELSIUS(100.0);
-pub const ABOVE_ROOM: TemperatureStep = BOILING - CELSIUS(20.0);
+pub const BOILING: Temperature = CELSIUS.quantity(100.0);
+pub const ABOVE_ROOM: TemperatureStep = BOILING - CELSIUS.quantity(20.0);
 pub const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING); // 373.15, read at compile time
 ```
 

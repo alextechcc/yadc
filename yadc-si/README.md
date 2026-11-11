@@ -97,18 +97,18 @@ use yadc_si::thermal::consts::{
 };
 use yadc_si::thermal::*;
 
-let t = CELSIUS(25.0);                                  // 298.15 K
-let f = FAHRENHEIT(t);                                  // 77.0
-let k = KELVIN_SCALE(t);                                // 298.15
+let t = CELSIUS.quantity(25.0);                                  // 298.15 K
+let f = FAHRENHEIT.value(t);                                  // 77.0
+let k = KELVIN_SCALE.value(t);                                // 298.15
 let c = ThermodynamicTemperatureUnit::Celsius.value(t); // 25.0: the enum names the same units
-let rise: TemperatureInterval = t - CELSIUS(20.0);      // T - T = ΔT
+let rise: TemperatureInterval = t - CELSIUS.quantity(20.0);      // T - T = ΔT
 let hotter: ThermodynamicTemperature = t + rise;        // T + ΔT = T
 let step = DEGREE_FAHRENHEIT(rise);                     // 9.0
 let mean: ThermodynamicTemperature = (t + hotter) / 2.0; // an average is a temperature
-let since_dawn = Scale(CELSIUS(12.0), KELVIN);          // a scale made at run time
+let since_dawn = Scale(CELSIUS.quantity(12.0), KELVIN);          // a scale made at run time
 let warmed = since_dawn(t);                             // 13.0
 // rise + t doesn't compile ("cannot add: the labels have no sum": write t + rise),
-// and CELSIUS(rise) doesn't either: a scale with a zero reads a temperature, not a step.
+// and CELSIUS.value(rise) doesn't either: a scale with a zero reads a temperature, not a step.
 ```
 
 Absolute zero is a fact, so a temperature scales and multiplies as any amount does - in kelvins, whatever scale built it - and the label drops out of a product:
@@ -130,10 +130,10 @@ The logarithm itself is in one place, the hand-written [`level.rs`](src/level.rs
 ```rust
 use yadc_si::mechanical::consts::{DBM, DBW, DECIBEL, WATT};
 
-let sent = DBM(30.0);                                   // a PowerLevel: 30 dB above 1 mW
+let sent = DBM.quantity(30.0);                                   // a PowerLevel: 30 dB above 1 mW
 let p = Power::from(sent);                              // 1 W
 let w = WATT(p);                                        // 1.0
-let dbw = DBW(PowerLevel::from(p));                     // 0.0
+let dbw = DBW.value(PowerLevel::from(p));                     // 0.0
 let dbm = PowerUnit::DecibelMilliwatt;                  // in the watts' enum: both steps at once
 let same = dbm(p);                                      // 30.0
 let one_watt: Power = dbm(30.0);
@@ -160,13 +160,13 @@ An `Instant` is a point in time - the affine kind. There is one line of instants
 ```rust
 use yadc_si::mechanical::consts::{GPS_SECONDS, HOUR, JULIAN_DATE, SECOND, UNIX_SECONDS};
 
-let launch = UNIX_SECONDS(1_700_000_000.0);             // an Instant
+let launch = UNIX_SECONDS.quantity(1_700_000_000.0);             // an Instant
 let landing = launch + HOUR(2.0);                       // instant + time = instant
 let flight: Time = landing - launch;                    // instant - instant = time
-let gps = GPS_SECONDS(launch);                          // 1_384_035_200.0: another zero, same line
-let jd = JULIAN_DATE(launch);                           // 2_460_263.42...
-let j2000 = JULIAN_DATE(2_451_545.0);                   // built on one scale,
-let unix = UNIX_SECONDS(j2000);                         // read on another: 946_728_000.0
+let gps = GPS_SECONDS.value(launch);                          // 1_384_035_200.0: another zero, same line
+let jd = JULIAN_DATE.value(launch);                           // 2_460_263.42...
+let j2000 = JULIAN_DATE.quantity(2_451_545.0);                   // built on one scale,
+let unix = UNIX_SECONDS.value(j2000);                         // read on another: 946_728_000.0
 let mission = Scale(launch, SECOND);                    // seconds since launch: a scale made at run time
 let elapsed = mission(landing);                         // 7200.0
 // launch + landing, 2.0 * launch and launch * SECOND don't compile ("cannot add a point to a
@@ -193,7 +193,7 @@ let n = f64::try_from((d / d).unwrap());                 // Ok(1.0): a plain num
 let level = DynamicSIQuantity::from(WATT_LEVEL);        // a logarithm
 assert_eq!(level * d, None);                             // a level has no products
 assert_eq!(level * 2.0, None);                           // nor can it be scaled
-let t0 = DynamicSIQuantity::from(UNIX_SECONDS(0.0));    // a point
+let t0 = DynamicSIQuantity::from(UNIX_SECONDS.quantity(0.0));    // a point
 assert_eq!(t0 + t0, None);                               // two points have no sum
 assert_eq!(t0 * 2.0, None);                              // a point cannot be scaled
 ```
@@ -231,7 +231,7 @@ use yadc_si::mechanical::consts::*;            // KILOMETRE, HOUR, SPEED_OF_LIGH
 
 const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;              // 50 km/h
 const REST_ENERGY: Energy = ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // 8.187e-14 J
-const BOILING: ThermodynamicTemperature = CELSIUS(100.0); // scales are const too, and so is calling one
+const BOILING: ThermodynamicTemperature = CELSIUS.quantity(100.0); // scales are const too
 const PSI: Pressure = POUND * STANDARD_GRAVITY / (INCH * INCH); // a unit, defined as a standard writes it
 let weight: Force = STANDARD_GRAVITY * mass;
 let beta = SPEED_OF_LIGHT(v);                         // a constant is a unit: v in units of c

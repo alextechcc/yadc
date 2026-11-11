@@ -26,10 +26,9 @@
 /// ```ignore
 /// pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
 ///
-/// let t = CELSIUS(25.0);                                   // build: 298.15 K
-/// let f = FAHRENHEIT(t);                                   // read: 77.0
-/// let v = KILOMETRE(90.0) / HOUR(1.0);                     // maths is on quantities
-/// let same = CELSIUS.quantity(25.0);                       // the call is `quantity` / `value`
+/// let t = CELSIUS.quantity(25.0);                         // build: 298.15 K
+/// let f = FAHRENHEIT.value(t);                             // read: 77.0
+/// let v = KILOMETRE(90.0) / HOUR(1.0);                     // a constant is also called
 /// let any: &dyn Unit<Pressure> = &KILOPASCAL;              // picked at run time
 /// let u = TemperatureUnit::Celsius;
 /// println!("{:.1} {u}", u.value(t));                       // "25.0 °C": the enum's `Display`

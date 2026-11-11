@@ -42,7 +42,7 @@
 //! - **a scale** is two of them, a zero and a step, in a tuple struct of
 //!   yours with an `impl Unit` of yours (`n` is `zero + n · step`): °C is
 //!   `Scale(ICE_POINT, KELVIN)` - start at the ice point, count kelvins -
-//!   and `CELSIUS(25.0)` a temperature. A level is a scale on a
+//!   and `CELSIUS.quantity(25.0)` a temperature. A level is a scale on a
 //!   logarithmic line, where a step multiplies: dBm is `Scale(MILLIWATT_LEVEL,
 //!   DECIBEL)`, a unit of power levels, and the watts are one std `From` of
 //!   yours away;
@@ -50,9 +50,10 @@
 //!   the Beaufort scale is two functions on a zero-sized `struct Beaufort;`.
 //!
 //! `#[derive(Unit)]` on an enum of yours names a choice of them, for a menu.
-//! The call is std's `Fn`, written by the derives over [`Unit`]'s two
-//! methods, `quantity` and `value` - which is what generic code and `&dyn
-//! Unit<Q>` use.
+//! Every unit has [`Unit`]'s two methods, `quantity` (build) and `value`
+//! (read) - which is what generic code and `&dyn Unit<Q>` use; a quantity
+//! constant and a derived unit enum's value are also called, std's `Fn` over
+//! those two (`KILOMETRE(3.0)`, `MILE(d)`).
 //!
 //! The base constants are the only raw numbers in a system - one per base
 //! unit, written where the field is visible. They are where numbers enter and
@@ -83,8 +84,8 @@
 //!
 //! let p = PSI(14.7);                                     // build
 //! let kpa = KILOPASCAL(p);                               // read
-//! let t = CELSIUS(25.0);                                 // 298.15 K: the zero point is the unit's business
-//! let c = CELSIUS(t);                                    // 25.0
+//! let t = CELSIUS.quantity(25.0);                       // 298.15 K: the zero point is the unit's business
+//! let c = CELSIUS.value(t);                              // 25.0
 //! ```
 //!
 //! A family of named units picked at run time - for a menu, a config file, a

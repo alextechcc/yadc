@@ -14,7 +14,7 @@
 )]
 #![allow(incomplete_features)]
 
-use core::marker::{ConstParamTy, Destruct};
+use core::marker::ConstParamTy;
 use core::ops::{Add, Sub};
 use yadc::{Dimension, Unit};
 
@@ -70,41 +70,6 @@ where
         self.1.value(quantity - self.0)
     }
 }
-
-/// A scale is called like any unit: on a number it builds (`CELSIUS(25.0)`),
-/// on a value it reads (`CELSIUS(t)`). Std's three function traits, once for
-/// each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        const impl<const D: Dim, S> FnOnce<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] Unit<Qty<D>, f64> + [const] Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                Unit::$way(&self, x)
-            }
-        }
-        const impl<const D: Dim, S> FnMut<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] Unit<Qty<D>, f64> + [const] Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                Unit::$way(&*self, x)
-            }
-        }
-        const impl<const D: Dim, S> Fn<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] Unit<Qty<D>, f64> + [const] Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(f64 => Qty<D>, quantity);
-scale_is_called!(Qty<D> => f64, value);
 
 pub type Number = Qty<{ Dim::DIMENSIONLESS }>;
 pub type Mass = Qty<

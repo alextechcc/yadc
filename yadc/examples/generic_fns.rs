@@ -281,8 +281,8 @@ fn main() {
 
     // -- change ----------------------------------------------------------------
 
-    let morning = CELSIUS(37.0);
-    let evening = CELSIUS(38.5);
+    let morning = CELSIUS.quantity(37.0);
+    let evening = CELSIUS.quantity(38.5);
     let fahrenheit = TemperatureIntervalUnit::Fahrenheit;
     println!(
         "SI   37 °C -> 38.5 °C = {:.1} {fahrenheit}",

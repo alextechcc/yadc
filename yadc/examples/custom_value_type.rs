@@ -159,41 +159,6 @@ where
     }
 }
 
-// And it is called like any unit: on a number it builds (`CELSIUS(25.0)`),
-// on a value it reads (`CELSIUS(t)`). Std's three function traits, once for
-// each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        const impl<const D: Dim, S> FnOnce<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, MyF64> + [const] core::marker::Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&self, x)
-            }
-        }
-        const impl<const D: Dim, S> FnMut<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, MyF64> + [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&*self, x)
-            }
-        }
-        const impl<const D: Dim, S> Fn<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, MyF64> + [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(MyF64 => Qty<D>, quantity);
-scale_is_called!(Qty<D> => MyF64, value);
-
 pub type Length = Qty<
     {
         Dim {
@@ -278,8 +243,8 @@ pub enum AreaUnit {
 }
 
 // Units are `const`, in `MyF64` too.
-const BOILING: Temperature = CELSIUS(MyF64(100.0));
-const BOILING_IN_KELVIN: MyF64 = KELVIN_SCALE(BOILING);
+const BOILING: Temperature = CELSIUS.quantity(MyF64(100.0));
+const BOILING_IN_KELVIN: MyF64 = KELVIN_SCALE.value(BOILING);
 
 fn main() {
     // A unit is called: on a number it builds, on a quantity it reads. A
@@ -300,11 +265,11 @@ fn main() {
 
     // The zero point is the scale's business, computed in `MyF64` too.
     let (celsius, kelvin) = (TemperatureUnit::Celsius, TemperatureUnit::Kelvin);
-    let body = CELSIUS(MyF64(36.6));
+    let body = CELSIUS.quantity(MyF64(36.6));
     println!(
         "body = {:.1} {celsius} (= {:.2} {kelvin})",
-        CELSIUS(body),
-        KELVIN_SCALE(body)
+        CELSIUS.value(body),
+        KELVIN_SCALE.value(body)
     );
 
     // Two temperatures differ by a step, which a step constant reads.
@@ -312,7 +277,7 @@ fn main() {
     println!("fever - body = {:.1} K", KELVIN(fever));
     println!(
         "boiling (const) = {:.2} {celsius} = {BOILING_IN_KELVIN:.2} {kelvin}",
-        CELSIUS(BOILING)
+        CELSIUS.value(BOILING)
     );
 
     // The `Unit` trait is still there, for generic code and `&dyn`.

@@ -108,21 +108,21 @@ fn levels() {
 /// A unit is called like the function it is: on a number it builds, on a
 /// quantity it reads. In `const` too.
 const MARATHON: Length = METRE(42_195.0);
-const BOILING: Temperature = CELSIUS(100.0);
+const BOILING: Temperature = CELSIUS.quantity(100.0);
 const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING);
 
 #[test]
 fn units_are_called() {
     assert!(close(FOOT(MARATHON), 42_195.0 / 0.3048));
     assert!(close(BOILING_K, 373.15));
-    assert!(close(CELSIUS(BOILING), 100.0));
+    assert!(close(CELSIUS.value(BOILING), 100.0));
     assert!(close(KILOPASCAL(PASCAL(2500.0)), 2.5));
-    let aircraft = FEET_AMSL(6500.0);
-    let clearance = aircraft - FEET_AMSL(1200.0);
+    let aircraft = FEET_AMSL.quantity(6500.0);
+    let clearance = aircraft - FEET_AMSL.quantity(1200.0);
     assert!(close(FOOT(clearance), 5300.0));
-    let agl = Scale(FEET_AMSL(1200.0), METRE);
-    assert!(close(agl(aircraft), 5300.0 * 0.3048));
-    assert!(close(DBM(DBM(30.0) + DECIBEL(3.0)), 33.0));
+    let agl = Scale(FEET_AMSL.quantity(1200.0), METRE);
+    assert!(close(agl.value(aircraft), 5300.0 * 0.3048));
+    assert!(close(DBM.value(DBM.quantity(30.0) + DECIBEL(3.0)), 33.0));
     // A unit enum's values are called too; a level reads the watts `via`
     // its line.
     let (celsius, dbm) = (TemperatureUnit::Celsius, PowerUnit::DecibelMilliwatt);
@@ -134,7 +134,8 @@ fn units_are_called() {
         to(from(n))
     }
     assert!(close(convert(12.0, FOOT, METRE), 12.0 * 0.3048));
-    assert!(close(convert(0.0, CELSIUS, Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT)), 32.0));
+    let fahrenheit = TemperatureUnit::Fahrenheit;
+    assert!(close(convert(0.0, celsius, fahrenheit), 32.0));
 }
 
 #[test]

@@ -118,41 +118,6 @@ where
     }
 }
 
-// And it is called like any unit: on a number it builds (`CELSIUS(25.0)`),
-// on a value it reads (`CELSIUS(t)`). Std's three function traits, once for
-// each direction.
-macro_rules! scale_is_called {
-    ($arg:ty => $out:ty, $way:ident) => {
-        const impl<const D: Dim, S> FnOnce<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, f64> + [const] core::marker::Destruct,
-        {
-            type Output = $out;
-            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&self, x)
-            }
-        }
-        const impl<const D: Dim, S> FnMut<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, f64> + [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(&*self, x)
-            }
-        }
-        const impl<const D: Dim, S> Fn<($arg,)> for Scale<Qty<D>, S>
-        where
-            Self: [const] yadc::Unit<Qty<D>, f64> + [const] core::marker::Destruct,
-        {
-            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
-                yadc::Unit::$way(self, x)
-            }
-        }
-    };
-}
-scale_is_called!(f64 => Qty<D>, quantity);
-scale_is_called!(Qty<D> => f64, value);
-
 // --- Quantities ----------------------------------------------------------------
 
 pub type Ratio = Qty<{ Dim::DIMENSIONLESS }>;
@@ -517,8 +482,8 @@ fn main() {
     println!("\n== A point (a temperature)");
     // A scale is a constant; its enum variant is the same unit with a name.
     use TemperatureUnit::{Celsius, KelvinScale};
-    let morning = CELSIUS(15.0);
-    let noon = CELSIUS(22.5);
+    let morning = CELSIUS.quantity(15.0);
+    let noon = CELSIUS.quantity(22.5);
     let warming: TemperatureStep = noon - morning;
     println!("22.5 °C - 15 °C  = {} {Kelvin}", Kelvin(warming));
     println!(
@@ -533,7 +498,7 @@ fn main() {
     println!("mean of the two  = {:.2} {Celsius}", Celsius(mean));
     // Twice as hot: twice the kelvins above absolute zero, moved back onto
     // the line.
-    let cold = KELVIN_SCALE(150.0);
+    let cold = KELVIN_SCALE.quantity(150.0);
     let doubled: Temperature = ABSOLUTE_ZERO + 2.0 * (cold - ABSOLUTE_ZERO);
     println!(
         "twice 150 K      = {} {KelvinScale}",
@@ -565,9 +530,9 @@ fn main() {
     // the line of levels - a zero and a step - and the watts are one `From`
     // away.
     println!("\n== A logarithm (levels and gains)");
-    let sent = DBM(30.0);
+    let sent = DBM.quantity(30.0);
     let received = sent - Decibel(3.0) + Decibel(13.0);
-    println!("30 dBm - 3 dB + 13 dB = {:.0} dBm", DBM(received));
+    println!("30 dBm - 3 dB + 13 dB = {:.0} dBm", DBM.value(received));
     let gain: Gain = received - sent;
     println!("received - sent  = {:.0} {Decibel}", Decibel(gain));
     println!(
@@ -577,7 +542,7 @@ fn main() {
     let two_watts = Watt(2.0);
     println!(
         "2 W              = {:.2} dBm",
-        DBM(PowerLevel::from(two_watts))
+        DBM.value(PowerLevel::from(two_watts))
     );
     // A gain per length is a plain rate - bels per metre - and that many
     // bels is a gain again: a kind is given by a constant that has it.
@@ -648,22 +613,22 @@ fn main() {
     // thermometer reading, where doubling is a bug; choose this where the
     // physics multiplies temperatures.
     println!("\n== A label with rules (a thermodynamic temperature)");
-    let (cool, warm) = (THERMODYNAMIC_CELSIUS(15.0), THERMODYNAMIC_CELSIUS(22.5));
+    let (cool, warm) = (THERMODYNAMIC_CELSIUS.quantity(15.0), THERMODYNAMIC_CELSIUS.quantity(22.5));
     let rise: TemperatureStep = warm - cool;
     println!("22.5 °C - 15 °C  = {} {Kelvin}", Kelvin(rise));
     println!(
         "mean of the two  = {:.2} °C",
-        THERMODYNAMIC_CELSIUS((cool + warm) / 2.0)
+        THERMODYNAMIC_CELSIUS.value((cool + warm) / 2.0)
     );
     println!(
         "twice 150 K      = {} K",
-        THERMODYNAMIC_KELVIN(2.0 * THERMODYNAMIC_KELVIN(150.0))
+        THERMODYNAMIC_KELVIN.value(2.0 * THERMODYNAMIC_KELVIN.quantity(150.0))
     );
-    let t4: KelvinToTheFourth = THERMODYNAMIC_KELVIN(300.0).powi::<4>();
+    let t4: KelvinToTheFourth = THERMODYNAMIC_KELVIN.quantity(300.0).powi::<4>();
     println!("(300 K)⁴         = {:.3e} K⁴", KELVIN_TO_THE_FOURTH(t4));
     // let _ = rise + cool;   // a sum keeps its left operand: `cool + rise`
     //     error: cannot add: the labels have no sum
-    // let _ = THERMODYNAMIC_CELSIUS(rise);   // a scale reads temperatures
+    // let _ = THERMODYNAMIC_CELSIUS.value(rise);   // a scale reads temperatures
     //     error: mismatched types
 
     // --- Radians: an axis -------------------------------------------------------------
