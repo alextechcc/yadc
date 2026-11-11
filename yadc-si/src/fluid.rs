@@ -1,8 +1,8 @@
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type DynamicViscosity = StaticSIQuantity<
+pub type DynamicViscosity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -11,9 +11,10 @@ pub type DynamicViscosity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type KinematicViscosity = StaticSIQuantity<
+pub type KinematicViscosity<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -21,9 +22,10 @@ pub type KinematicViscosity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type SurfaceTension = StaticSIQuantity<
+pub type SurfaceTension<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -31,9 +33,10 @@ pub type SurfaceTension = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type CompressibilityCoefficient = StaticSIQuantity<
+pub type CompressibilityCoefficient<N = f64> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -42,9 +45,10 @@ pub type CompressibilityCoefficient = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MassRate = StaticSIQuantity<
+pub type MassRate<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -52,9 +56,10 @@ pub type MassRate = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type VolumeRate = StaticSIQuantity<
+pub type VolumeRate<N = f64> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -62,9 +67,10 @@ pub type VolumeRate = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MassFlux = StaticSIQuantity<
+pub type MassFlux<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -73,9 +79,10 @@ pub type MassFlux = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MassPerEnergy = StaticSIQuantity<
+pub type MassPerEnergy<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -83,9 +90,10 @@ pub type MassPerEnergy = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type DiffusionCoefficient = StaticSIQuantity<
+pub type DiffusionCoefficient<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -93,642 +101,613 @@ pub type DiffusionCoefficient = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, SECOND};
 
     /// One `PascalSecond` (Pa · s), as a `DynamicViscosity`.
-    pub const PASCAL_SECOND: DynamicViscosity = KILOGRAM / (METRE * SECOND);
+    pub const PASCAL_SECOND<N: const From<Exact>>: DynamicViscosity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact>));
 
     /// One `MillipascalSecond` (mPa · s), as a `DynamicViscosity`.
-    pub const MILLIPASCAL_SECOND: DynamicViscosity = 0.001 * PASCAL_SECOND;
+    pub const MILLIPASCAL_SECOND<N: const From<Exact>>: DynamicViscosity<N> = counted(Exact::dec(1, -3) * PASCAL_SECOND::<Exact>);
 
     /// One `MicropascalSecond` (µPa · s), as a `DynamicViscosity`.
-    pub const MICROPASCAL_SECOND: DynamicViscosity = 9.9999999999999995e-07 * PASCAL_SECOND;
+    pub const MICROPASCAL_SECOND<N: const From<Exact>>: DynamicViscosity<N> = counted(Exact::dec(1, -6) * PASCAL_SECOND::<Exact>);
 
     /// One `Poise` (P), as a `DynamicViscosity`.
-    pub const POISE: DynamicViscosity = 0.10000000000000001 * PASCAL_SECOND;
+    pub const POISE<N: const From<Exact>>: DynamicViscosity<N> = counted(Exact::dec(1, -1) * PASCAL_SECOND::<Exact>);
 
     /// One `Centipoise` (cP), as a `DynamicViscosity`.
-    pub const CENTIPOISE: DynamicViscosity = 0.001 * PASCAL_SECOND;
+    pub const CENTIPOISE<N: const From<Exact>>: DynamicViscosity<N> = counted(Exact::dec(1, -3) * PASCAL_SECOND::<Exact>);
 
     /// One `PoundPerFootSecond` (lb/(ft · s)), as a `DynamicViscosity`.
-    pub const POUND_PER_FOOT_SECOND: DynamicViscosity = 1.4881639435695537 * PASCAL_SECOND;
+    pub const POUND_PER_FOOT_SECOND<N: const From<Exact>>: DynamicViscosity<N> = counted((Exact::dec(45359237, -8) / Exact::dec(3048, -4)) * PASCAL_SECOND::<Exact>);
 
     /// One `SlugPerFootSecond` (slug/(ft · s)), as a `DynamicViscosity`.
-    pub const SLUG_PER_FOOT_SECOND: DynamicViscosity =
-        ((0.45359237 * 9.80665 / 0.3048) / 0.3048) * PASCAL_SECOND;
+    pub const SLUG_PER_FOOT_SECOND<N: const From<Exact>>: DynamicViscosity<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) / Exact::dec(3048, -4)) * PASCAL_SECOND::<Exact>);
 
     /// One `GramPerCentimetreSecond` (g/(cm · s)), as a `DynamicViscosity`.
-    pub const GRAM_PER_CENTIMETRE_SECOND: DynamicViscosity = 0.10000000000000001 * PASCAL_SECOND;
+    pub const GRAM_PER_CENTIMETRE_SECOND<N: const From<Exact>>: DynamicViscosity<N> = counted(Exact::dec(1, -1) * PASCAL_SECOND::<Exact>);
 
     /// One `SquareMetrePerSecond` (m²/s), as a `KinematicViscosity`.
-    pub const KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND: KinematicViscosity =
-        METRE * METRE / SECOND;
+    pub const KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND<N: const From<Exact>>: KinematicViscosity<N> = counted(METRE::<Exact> * METRE::<Exact> / SECOND::<Exact>);
 
     /// One `SquareCentimetrePerSecond` (cm²/s), as a `KinematicViscosity`.
-    pub const KINEMATIC_VISCOSITY_SQUARE_CENTIMETRE_PER_SECOND: KinematicViscosity =
-        0.0001 * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND;
+    pub const KINEMATIC_VISCOSITY_SQUARE_CENTIMETRE_PER_SECOND<N: const From<Exact>>: KinematicViscosity<N> = counted(Exact::dec(1, -4) * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `SquareMillimetrePerSecond` (mm²/s), as a `KinematicViscosity`.
-    pub const KINEMATIC_VISCOSITY_SQUARE_MILLIMETRE_PER_SECOND: KinematicViscosity =
-        9.9999999999999995e-07 * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND;
+    pub const KINEMATIC_VISCOSITY_SQUARE_MILLIMETRE_PER_SECOND<N: const From<Exact>>: KinematicViscosity<N> = counted(Exact::dec(1, -6) * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `SquareMicrometrePerSecond` (µm²/s), as a `KinematicViscosity`.
-    pub const KINEMATIC_VISCOSITY_SQUARE_MICROMETRE_PER_SECOND: KinematicViscosity =
-        9.9999999999999998e-13 * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND;
+    pub const KINEMATIC_VISCOSITY_SQUARE_MICROMETRE_PER_SECOND<N: const From<Exact>>: KinematicViscosity<N> = counted(Exact::dec(1, -12) * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `SquareNanometrePerSecond` (nm²/s), as a `KinematicViscosity`.
-    pub const KINEMATIC_VISCOSITY_SQUARE_NANOMETRE_PER_SECOND: KinematicViscosity =
-        1.0000000000000001e-18 * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND;
+    pub const KINEMATIC_VISCOSITY_SQUARE_NANOMETRE_PER_SECOND<N: const From<Exact>>: KinematicViscosity<N> = counted(Exact::dec(1, -18) * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `Stokes` (St), as a `KinematicViscosity`.
-    pub const KINEMATIC_VISCOSITY_STOKES: KinematicViscosity =
-        0.0001 * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND;
+    pub const KINEMATIC_VISCOSITY_STOKES<N: const From<Exact>>: KinematicViscosity<N> = counted(Exact::dec(1, -4) * KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `YottanewtonPerMetre` (YN/m), as a `SurfaceTension`.
-    pub const YOTTANEWTON_PER_METRE: SurfaceTension = 9.9999999999999998e+23 * NEWTON_PER_METRE;
+    pub const YOTTANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000000000000000000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `ZettanewtonPerMetre` (ZN/m), as a `SurfaceTension`.
-    pub const ZETTANEWTON_PER_METRE: SurfaceTension = 1e+21 * NEWTON_PER_METRE;
+    pub const ZETTANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000000000000000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `ExanewtonPerMetre` (EN/m), as a `SurfaceTension`.
-    pub const EXANEWTON_PER_METRE: SurfaceTension = 1e+18 * NEWTON_PER_METRE;
+    pub const EXANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000000000000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `PetanewtonPerMetre` (PN/m), as a `SurfaceTension`.
-    pub const PETANEWTON_PER_METRE: SurfaceTension = 1000000000000000.0 * NEWTON_PER_METRE;
+    pub const PETANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000000000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `TeranewtonPerMetre` (TN/m), as a `SurfaceTension`.
-    pub const TERANEWTON_PER_METRE: SurfaceTension = 1000000000000.0 * NEWTON_PER_METRE;
+    pub const TERANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `GiganewtonPerMetre` (GN/m), as a `SurfaceTension`.
-    pub const GIGANEWTON_PER_METRE: SurfaceTension = 1000000000.0 * NEWTON_PER_METRE;
+    pub const GIGANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `MeganewtonPerMetre` (MN/m), as a `SurfaceTension`.
-    pub const MEGANEWTON_PER_METRE: SurfaceTension = 1000000.0 * NEWTON_PER_METRE;
+    pub const MEGANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `KilonewtonPerMetre` (kN/m), as a `SurfaceTension`.
-    pub const KILONEWTON_PER_METRE: SurfaceTension = 1000.0 * NEWTON_PER_METRE;
+    pub const KILONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(1000) * NEWTON_PER_METRE::<Exact>);
 
     /// One `HectonewtonPerMetre` (hN/m), as a `SurfaceTension`.
-    pub const HECTONEWTON_PER_METRE: SurfaceTension = 100.0 * NEWTON_PER_METRE;
+    pub const HECTONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(100) * NEWTON_PER_METRE::<Exact>);
 
     /// One `DecanewtonPerMetre` (daN/m), as a `SurfaceTension`.
-    pub const DECANEWTON_PER_METRE: SurfaceTension = 10.0 * NEWTON_PER_METRE;
+    pub const DECANEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::int(10) * NEWTON_PER_METRE::<Exact>);
 
     /// One `NewtonPerMetre` (N/m), as a `SurfaceTension`.
-    pub const NEWTON_PER_METRE: SurfaceTension = KILOGRAM / (SECOND * SECOND);
+    pub const NEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
 
     /// One `DecinewtonPerMetre` (dN/m), as a `SurfaceTension`.
-    pub const DECINEWTON_PER_METRE: SurfaceTension = 0.10000000000000001 * NEWTON_PER_METRE;
+    pub const DECINEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -1) * NEWTON_PER_METRE::<Exact>);
 
     /// One `CentinewtonPerMetre` (cN/m), as a `SurfaceTension`.
-    pub const CENTINEWTON_PER_METRE: SurfaceTension = 0.01 * NEWTON_PER_METRE;
+    pub const CENTINEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -2) * NEWTON_PER_METRE::<Exact>);
 
     /// One `MillinewtonPerMetre` (mN/m), as a `SurfaceTension`.
-    pub const MILLINEWTON_PER_METRE: SurfaceTension = 0.001 * NEWTON_PER_METRE;
+    pub const MILLINEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -3) * NEWTON_PER_METRE::<Exact>);
 
     /// One `MicronewtonPerMetre` (µN/m), as a `SurfaceTension`.
-    pub const MICRONEWTON_PER_METRE: SurfaceTension = 9.9999999999999995e-07 * NEWTON_PER_METRE;
+    pub const MICRONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -6) * NEWTON_PER_METRE::<Exact>);
 
     /// One `NanonewtonPerMetre` (nN/m), as a `SurfaceTension`.
-    pub const NANONEWTON_PER_METRE: SurfaceTension = 1.0000000000000001e-09 * NEWTON_PER_METRE;
+    pub const NANONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -9) * NEWTON_PER_METRE::<Exact>);
 
     /// One `PiconewtonPerMetre` (pN/m), as a `SurfaceTension`.
-    pub const PICONEWTON_PER_METRE: SurfaceTension = 9.9999999999999998e-13 * NEWTON_PER_METRE;
+    pub const PICONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -12) * NEWTON_PER_METRE::<Exact>);
 
     /// One `FemtonewtonPerMetre` (fN/m), as a `SurfaceTension`.
-    pub const FEMTONEWTON_PER_METRE: SurfaceTension = 1.0000000000000001e-15 * NEWTON_PER_METRE;
+    pub const FEMTONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -15) * NEWTON_PER_METRE::<Exact>);
 
     /// One `AttonewtonPerMetre` (aN/m), as a `SurfaceTension`.
-    pub const ATTONEWTON_PER_METRE: SurfaceTension = 1.0000000000000001e-18 * NEWTON_PER_METRE;
+    pub const ATTONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -18) * NEWTON_PER_METRE::<Exact>);
 
     /// One `ZeptonewtonPerMetre` (zN/m), as a `SurfaceTension`.
-    pub const ZEPTONEWTON_PER_METRE: SurfaceTension = 9.9999999999999991e-22 * NEWTON_PER_METRE;
+    pub const ZEPTONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -21) * NEWTON_PER_METRE::<Exact>);
 
     /// One `YoctonewtonPerMetre` (yN/m), as a `SurfaceTension`.
-    pub const YOCTONEWTON_PER_METRE: SurfaceTension = 9.9999999999999992e-25 * NEWTON_PER_METRE;
+    pub const YOCTONEWTON_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(1, -24) * NEWTON_PER_METRE::<Exact>);
 
     /// One `KilogramForcePerMetre` (kgf/m), as a `SurfaceTension`.
-    pub const KILOGRAM_FORCE_PER_METRE: SurfaceTension = 9.8066499999999994 * NEWTON_PER_METRE;
+    pub const KILOGRAM_FORCE_PER_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(Exact::dec(980665, -5) * NEWTON_PER_METRE::<Exact>);
 
     /// One `OunceForcePerInch` (ozf/in), as a `SurfaceTension`.
-    pub const OUNCE_FORCE_PER_INCH: SurfaceTension =
-        ((0.45359237 * 9.80665 / 16.0) / 0.0254) * NEWTON_PER_METRE;
+    pub const OUNCE_FORCE_PER_INCH<N: const From<Exact>>: SurfaceTension<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16)) / Exact::dec(254, -4)) * NEWTON_PER_METRE::<Exact>);
 
     /// One `PoundalPerInch` (pdl/in), as a `SurfaceTension`.
-    pub const POUNDAL_PER_INCH: SurfaceTension =
-        ((0.45359237 * 0.3048) / 0.0254) * NEWTON_PER_METRE;
+    pub const POUNDAL_PER_INCH<N: const From<Exact>>: SurfaceTension<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) / Exact::dec(254, -4)) * NEWTON_PER_METRE::<Exact>);
 
     /// One `PoundForcePerInch` (lbf/in), as a `SurfaceTension`.
-    pub const POUND_FORCE_PER_INCH: SurfaceTension =
-        ((0.45359237 * 9.80665) / 0.0254) * NEWTON_PER_METRE;
+    pub const POUND_FORCE_PER_INCH<N: const From<Exact>>: SurfaceTension<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(254, -4)) * NEWTON_PER_METRE::<Exact>);
 
     /// One `JoulePerSquareMetre` (J/m²), as a `SurfaceTension`.
-    pub const JOULE_PER_SQUARE_METRE: SurfaceTension = NEWTON_PER_METRE;
+    pub const JOULE_PER_SQUARE_METRE<N: const From<Exact>>: SurfaceTension<N> = counted(NEWTON_PER_METRE::<Exact>);
 
     /// One `PerYottapascal` (YPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_YOTTAPASCAL: CompressibilityCoefficient = 1.0000000000000001e-24 * PER_PASCAL;
+    pub const PER_YOTTAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -24) * PER_PASCAL::<Exact>);
 
     /// One `PerZettapascal` (ZPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_ZETTAPASCAL: CompressibilityCoefficient = 9.9999999999999991e-22 * PER_PASCAL;
+    pub const PER_ZETTAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -21) * PER_PASCAL::<Exact>);
 
     /// One `PerExapascal` (EPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_EXAPASCAL: CompressibilityCoefficient = 1.0000000000000001e-18 * PER_PASCAL;
+    pub const PER_EXAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -18) * PER_PASCAL::<Exact>);
 
     /// One `PerPetapascal` (PPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_PETAPASCAL: CompressibilityCoefficient = 1.0000000000000001e-15 * PER_PASCAL;
+    pub const PER_PETAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -15) * PER_PASCAL::<Exact>);
 
     /// One `PerTerapascal` (TPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_TERAPASCAL: CompressibilityCoefficient = 9.9999999999999998e-13 * PER_PASCAL;
+    pub const PER_TERAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -12) * PER_PASCAL::<Exact>);
 
     /// One `PerGigapascal` (GPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_GIGAPASCAL: CompressibilityCoefficient = 1.0000000000000001e-09 * PER_PASCAL;
+    pub const PER_GIGAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -9) * PER_PASCAL::<Exact>);
 
     /// One `PerMegapascal` (MPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_MEGAPASCAL: CompressibilityCoefficient = 9.9999999999999995e-07 * PER_PASCAL;
+    pub const PER_MEGAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -6) * PER_PASCAL::<Exact>);
 
     /// One `PerKilopascal` (kPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_KILOPASCAL: CompressibilityCoefficient = 0.001 * PER_PASCAL;
+    pub const PER_KILOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -3) * PER_PASCAL::<Exact>);
 
     /// One `PerHectopascal` (hPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_HECTOPASCAL: CompressibilityCoefficient = 0.01 * PER_PASCAL;
+    pub const PER_HECTOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -2) * PER_PASCAL::<Exact>);
 
     /// One `PerDecapascal` (daPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_DECAPASCAL: CompressibilityCoefficient = 0.10000000000000001 * PER_PASCAL;
+    pub const PER_DECAPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -1) * PER_PASCAL::<Exact>);
 
     /// One `PerPascal` (Pa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_PASCAL: CompressibilityCoefficient = METRE * SECOND * SECOND / KILOGRAM;
+    pub const PER_PASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact> / KILOGRAM::<Exact>);
 
     /// One `PerDecipascal` (dPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_DECIPASCAL: CompressibilityCoefficient = 10.0 * PER_PASCAL;
+    pub const PER_DECIPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(10) * PER_PASCAL::<Exact>);
 
     /// One `PerCentipascal` (cPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_CENTIPASCAL: CompressibilityCoefficient = 100.0 * PER_PASCAL;
+    pub const PER_CENTIPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(100) * PER_PASCAL::<Exact>);
 
     /// One `PerMillipascal` (mPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_MILLIPASCAL: CompressibilityCoefficient = 1000.0 * PER_PASCAL;
+    pub const PER_MILLIPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000) * PER_PASCAL::<Exact>);
 
     /// One `PerMicropascal` (µPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_MICROPASCAL: CompressibilityCoefficient = 1000000.0 * PER_PASCAL;
+    pub const PER_MICROPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000) * PER_PASCAL::<Exact>);
 
     /// One `PerNanopascal` (nPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_NANOPASCAL: CompressibilityCoefficient = 999999999.99999988 * PER_PASCAL;
+    pub const PER_NANOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000000) * PER_PASCAL::<Exact>);
 
     /// One `PerPicopascal` (pPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_PICOPASCAL: CompressibilityCoefficient = 1000000000000.0 * PER_PASCAL;
+    pub const PER_PICOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000000000) * PER_PASCAL::<Exact>);
 
     /// One `PerFemtopascal` (fPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_FEMTOPASCAL: CompressibilityCoefficient = 999999999999999.88 * PER_PASCAL;
+    pub const PER_FEMTOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000000000000) * PER_PASCAL::<Exact>);
 
     /// One `PerAttopascal` (aPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_ATTOPASCAL: CompressibilityCoefficient = 9.9999999999999987e+17 * PER_PASCAL;
+    pub const PER_ATTOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000000000000000) * PER_PASCAL::<Exact>);
 
     /// One `PerZeptopascal` (zPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_ZEPTOPASCAL: CompressibilityCoefficient = 1.0000000000000001e+21 * PER_PASCAL;
+    pub const PER_ZEPTOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000000000000000000) * PER_PASCAL::<Exact>);
 
     /// One `PerYoctopascal` (yPa⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_YOCTOPASCAL: CompressibilityCoefficient = 1.0000000000000001e+24 * PER_PASCAL;
+    pub const PER_YOCTOPASCAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::int(1000000000000000000000000) * PER_PASCAL::<Exact>);
 
     /// One `PerAtmosphere` (atm⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_ATMOSPHERE: CompressibilityCoefficient = 9.8692326671601285e-06 * PER_PASCAL;
+    pub const PER_ATMOSPHERE<N: const From<Exact>>: CompressibilityCoefficient<N> = counted((Exact::int(1) / Exact::int(101325)) * PER_PASCAL::<Exact>);
 
     /// One `PerAtmosphereTechnical` (at⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_ATMOSPHERE_TECHNICAL: CompressibilityCoefficient =
-        1.0197162129779282e-05 * PER_PASCAL;
+    pub const PER_ATMOSPHERE_TECHNICAL<N: const From<Exact>>: CompressibilityCoefficient<N> = counted((Exact::int(1) / Exact::dec(980665, -1)) * PER_PASCAL::<Exact>);
 
     /// One `PerBar` (bar⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_BAR: CompressibilityCoefficient = 1.0000000000000001e-05 * PER_PASCAL;
+    pub const PER_BAR<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -5) * PER_PASCAL::<Exact>);
 
     /// One `PerMillibar` (mbar⁻¹), as a `CompressibilityCoefficient`.
-    pub const PER_MILLIBAR: CompressibilityCoefficient = 0.01 * PER_PASCAL;
+    pub const PER_MILLIBAR<N: const From<Exact>>: CompressibilityCoefficient<N> = counted(Exact::dec(1, -2) * PER_PASCAL::<Exact>);
 
     /// One `YottagramPerSecond` (Yg/s), as a `MassRate`.
-    pub const YOTTAGRAM_PER_SECOND: MassRate = 1e+21 * KILOGRAM_PER_SECOND;
+    pub const YOTTAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `ZettagramPerSecond` (Zg/s), as a `MassRate`.
-    pub const ZETTAGRAM_PER_SECOND: MassRate = 1e+18 * KILOGRAM_PER_SECOND;
+    pub const ZETTAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `ExagramPerSecond` (Eg/s), as a `MassRate`.
-    pub const EXAGRAM_PER_SECOND: MassRate = 1000000000000000.0 * KILOGRAM_PER_SECOND;
+    pub const EXAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000000000000000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PetagramPerSecond` (Pg/s), as a `MassRate`.
-    pub const PETAGRAM_PER_SECOND: MassRate = 1000000000000.0 * KILOGRAM_PER_SECOND;
+    pub const PETAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000000000000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TeragramPerSecond` (Tg/s), as a `MassRate`.
-    pub const TERAGRAM_PER_SECOND: MassRate = 1000000000.0 * KILOGRAM_PER_SECOND;
+    pub const TERAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000000000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `GigagramPerSecond` (Gg/s), as a `MassRate`.
-    pub const GIGAGRAM_PER_SECOND: MassRate = 1000000.0 * KILOGRAM_PER_SECOND;
+    pub const GIGAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `MegagramPerSecond` (Mg/s), as a `MassRate`.
-    pub const MEGAGRAM_PER_SECOND: MassRate = 1000.0 * KILOGRAM_PER_SECOND;
+    pub const MEGAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `KilogramPerSecond` (kg/s), as a `MassRate`.
-    pub const KILOGRAM_PER_SECOND: MassRate = KILOGRAM / SECOND;
+    pub const KILOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(KILOGRAM::<Exact> / SECOND::<Exact>);
 
     /// One `HectogramPerSecond` (hg/s), as a `MassRate`.
-    pub const HECTOGRAM_PER_SECOND: MassRate = 0.10000000000000001 * KILOGRAM_PER_SECOND;
+    pub const HECTOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `DecagramPerSecond` (dag/s), as a `MassRate`.
-    pub const DECAGRAM_PER_SECOND: MassRate = 0.01 * KILOGRAM_PER_SECOND;
+    pub const DECAGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -2) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `GramPerSecond` (g/s), as a `MassRate`.
-    pub const GRAM_PER_SECOND: MassRate = 0.001 * KILOGRAM_PER_SECOND;
+    pub const GRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `DecigramPerSecond` (dg/s), as a `MassRate`.
-    pub const DECIGRAM_PER_SECOND: MassRate = 0.0001 * KILOGRAM_PER_SECOND;
+    pub const DECIGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -4) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `CentigramPerSecond` (cg/s), as a `MassRate`.
-    pub const CENTIGRAM_PER_SECOND: MassRate = 1.0000000000000001e-05 * KILOGRAM_PER_SECOND;
+    pub const CENTIGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -5) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `MilligramPerSecond` (mg/s), as a `MassRate`.
-    pub const MILLIGRAM_PER_SECOND: MassRate = 9.9999999999999995e-07 * KILOGRAM_PER_SECOND;
+    pub const MILLIGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `MicrogramPerSecond` (µg/s), as a `MassRate`.
-    pub const MICROGRAM_PER_SECOND: MassRate = 9.9999999999999986e-10 * KILOGRAM_PER_SECOND;
+    pub const MICROGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -9) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `NanogramPerSecond` (ng/s), as a `MassRate`.
-    pub const NANOGRAM_PER_SECOND: MassRate = 9.9999999999999998e-13 * KILOGRAM_PER_SECOND;
+    pub const NANOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -12) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PicogramPerSecond` (pg/s), as a `MassRate`.
-    pub const PICOGRAM_PER_SECOND: MassRate = 1.0000000000000001e-15 * KILOGRAM_PER_SECOND;
+    pub const PICOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -15) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `FemtogramPerSecond` (fg/s), as a `MassRate`.
-    pub const FEMTOGRAM_PER_SECOND: MassRate = 1.0000000000000001e-18 * KILOGRAM_PER_SECOND;
+    pub const FEMTOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -18) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `AttogramPerSecond` (ag/s), as a `MassRate`.
-    pub const ATTOGRAM_PER_SECOND: MassRate = 1.0000000000000001e-21 * KILOGRAM_PER_SECOND;
+    pub const ATTOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -21) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `ZeptogramPerSecond` (zg/s), as a `MassRate`.
-    pub const ZEPTOGRAM_PER_SECOND: MassRate = 9.9999999999999992e-25 * KILOGRAM_PER_SECOND;
+    pub const ZEPTOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -24) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `YoctogramPerSecond` (yg/s), as a `MassRate`.
-    pub const YOCTOGRAM_PER_SECOND: MassRate = 9.9999999999999986e-28 * KILOGRAM_PER_SECOND;
+    pub const YOCTOGRAM_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(1, -27) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `KilogramPerMinute` (kg/min), as a `MassRate`.
-    pub const KILOGRAM_PER_MINUTE: MassRate = 0.016666666666666666 * KILOGRAM_PER_SECOND;
+    pub const KILOGRAM_PER_MINUTE<N: const From<Exact>>: MassRate<N> = counted((Exact::int(1) / Exact::int(60)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `KilogramPerHour` (kg/h), as a `MassRate`.
-    pub const KILOGRAM_PER_HOUR: MassRate = 0.00027777777777777778 * KILOGRAM_PER_SECOND;
+    pub const KILOGRAM_PER_HOUR<N: const From<Exact>>: MassRate<N> = counted((Exact::int(1) / Exact::int(3600)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `KilogramPerDay` (kg/d), as a `MassRate`.
-    pub const KILOGRAM_PER_DAY: MassRate = 1.1574074074074073e-05 * KILOGRAM_PER_SECOND;
+    pub const KILOGRAM_PER_DAY<N: const From<Exact>>: MassRate<N> = counted((Exact::int(1) / Exact::int(86400)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `GramPerMinute` (g/min), as a `MassRate`.
-    pub const GRAM_PER_MINUTE: MassRate = 1.6666666666666667e-05 * KILOGRAM_PER_SECOND;
+    pub const GRAM_PER_MINUTE<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(1, -3) / Exact::int(60)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `GramPerHour` (g/h), as a `MassRate`.
-    pub const GRAM_PER_HOUR: MassRate = 2.7777777777777776e-07 * KILOGRAM_PER_SECOND;
+    pub const GRAM_PER_HOUR<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(1, -3) / Exact::int(3600)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `GramPerDay` (g/d), as a `MassRate`.
-    pub const GRAM_PER_DAY: MassRate = 1.1574074074074074e-08 * KILOGRAM_PER_SECOND;
+    pub const GRAM_PER_DAY<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(1, -3) / Exact::int(86400)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `CaratPerSecond` (ct/s), as a `MassRate`.
-    pub const CARAT_PER_SECOND: MassRate = 0.00020000000000000001 * KILOGRAM_PER_SECOND;
+    pub const CARAT_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(2, -4) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `GrainPerSecond` (gr/s), as a `MassRate`.
-    pub const GRAIN_PER_SECOND: MassRate = 6.4798909999999995e-05 * KILOGRAM_PER_SECOND;
+    pub const GRAIN_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(6479891, -11) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `HundredweightLongPerSecond` (cwt long/s), as a `MassRate`.
-    pub const HUNDREDWEIGHT_LONG_PER_SECOND: MassRate = 50.80234544 * KILOGRAM_PER_SECOND;
+    pub const HUNDREDWEIGHT_LONG_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(5080234544, -8) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `HundredweightShortPerSecond` (cwt short/s), as a `MassRate`.
-    pub const HUNDREDWEIGHT_SHORT_PER_SECOND: MassRate = 45.359237 * KILOGRAM_PER_SECOND;
+    pub const HUNDREDWEIGHT_SHORT_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(45359237, -6) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `OuncePerSecond` (oz/s), as a `MassRate`.
-    pub const OUNCE_PER_SECOND: MassRate = 0.028349523125 * KILOGRAM_PER_SECOND;
+    pub const OUNCE_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(28349523125, -12) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `OunceTroyPerSecond` (oz t/s), as a `MassRate`.
-    pub const OUNCE_TROY_PER_SECOND: MassRate = 0.0311034768 * KILOGRAM_PER_SECOND;
+    pub const OUNCE_TROY_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(311034768, -10) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PennyweightPerSecond` (dwt/s), as a `MassRate`.
-    pub const PENNYWEIGHT_PER_SECOND: MassRate = 0.00155517384 * KILOGRAM_PER_SECOND;
+    pub const PENNYWEIGHT_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(155517384, -11) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PoundPerSecond` (lb/s), as a `MassRate`.
-    pub const POUND_PER_SECOND: MassRate = 0.45359237 * KILOGRAM_PER_SECOND;
+    pub const POUND_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(45359237, -8) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PoundPerMinute` (lb/min), as a `MassRate`.
-    pub const POUND_PER_MINUTE: MassRate = 0.007559872833333333 * KILOGRAM_PER_SECOND;
+    pub const POUND_PER_MINUTE<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(45359237, -8) / Exact::int(60)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PoundPerHour` (lb/h), as a `MassRate`.
-    pub const POUND_PER_HOUR: MassRate = 0.00012599788055555553 * KILOGRAM_PER_SECOND;
+    pub const POUND_PER_HOUR<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(45359237, -8) / Exact::int(3600)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PoundPerDay` (lb/d), as a `MassRate`.
-    pub const POUND_PER_DAY: MassRate = 5.249911689814815e-06 * KILOGRAM_PER_SECOND;
+    pub const POUND_PER_DAY<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(45359237, -8) / Exact::int(86400)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `PoundTroyPerSecond` (lb t/s), as a `MassRate`.
-    pub const POUND_TROY_PER_SECOND: MassRate = 0.3732417216 * KILOGRAM_PER_SECOND;
+    pub const POUND_TROY_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(3732417216, -10) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `SlugPerSecond` (slug/s), as a `MassRate`.
-    pub const SLUG_PER_SECOND: MassRate = (0.45359237 * 9.80665 / 0.3048) * KILOGRAM_PER_SECOND;
+    pub const SLUG_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonAssayPerSecond` (AT/s), as a `MassRate`.
-    pub const TON_ASSAY_PER_SECOND: MassRate = (0.175 / 6.0) * KILOGRAM_PER_SECOND;
+    pub const TON_ASSAY_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(175, -3) / Exact::int(6)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonLongPerSecond` (2240 lb/s), as a `MassRate`.
-    pub const TON_LONG_PER_SECOND: MassRate = 1016.0469088 * KILOGRAM_PER_SECOND;
+    pub const TON_LONG_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(10160469088, -7) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonShortPerSecond` (2000 lb/s), as a `MassRate`.
-    pub const TON_SHORT_PER_SECOND: MassRate = 907.18474 * KILOGRAM_PER_SECOND;
+    pub const TON_SHORT_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::dec(90718474, -5) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonShortPerHour` (2000 lb/h), as a `MassRate`.
-    pub const TON_SHORT_PER_HOUR: MassRate = 0.2519957611111111 * KILOGRAM_PER_SECOND;
+    pub const TON_SHORT_PER_HOUR<N: const From<Exact>>: MassRate<N> = counted((Exact::dec(90718474, -5) / Exact::int(3600)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonPerSecond` (t/s), as a `MassRate`.
-    pub const TON_PER_SECOND: MassRate = 1000.0 * KILOGRAM_PER_SECOND;
+    pub const TON_PER_SECOND<N: const From<Exact>>: MassRate<N> = counted(Exact::int(1000) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonPerMinute` (t/min), as a `MassRate`.
-    pub const TON_PER_MINUTE: MassRate = 16.666666666666664 * KILOGRAM_PER_SECOND;
+    pub const TON_PER_MINUTE<N: const From<Exact>>: MassRate<N> = counted((Exact::int(1000) / Exact::int(60)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonPerHour` (t/h), as a `MassRate`.
-    pub const TON_PER_HOUR: MassRate = 0.27777777777777779 * KILOGRAM_PER_SECOND;
+    pub const TON_PER_HOUR<N: const From<Exact>>: MassRate<N> = counted((Exact::int(1000) / Exact::int(3600)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `TonPerDay` (t/d), as a `MassRate`.
-    pub const TON_PER_DAY: MassRate = 0.011574074074074073 * KILOGRAM_PER_SECOND;
+    pub const TON_PER_DAY<N: const From<Exact>>: MassRate<N> = counted((Exact::int(1000) / Exact::int(86400)) * KILOGRAM_PER_SECOND::<Exact>);
 
     /// One `CubicMetrePerSecond` (m³/s), as a `VolumeRate`.
-    pub const CUBIC_METRE_PER_SECOND: VolumeRate = METRE * METRE * METRE / SECOND;
+    pub const CUBIC_METRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> / SECOND::<Exact>);
 
     /// One `CubicMetrePerMinute` (m³/min), as a `VolumeRate`.
-    pub const CUBIC_METRE_PER_MINUTE: VolumeRate = 0.016666666666666666 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_METRE_PER_MINUTE<N: const From<Exact>>: VolumeRate<N> = counted((Exact::int(1) / Exact::int(60)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicMetrePerHour` (m³/h), as a `VolumeRate`.
-    pub const CUBIC_METRE_PER_HOUR: VolumeRate = 0.00027777777777777778 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_METRE_PER_HOUR<N: const From<Exact>>: VolumeRate<N> = counted((Exact::int(1) / Exact::int(3600)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `YottalitrePerSecond` (YL/s), as a `VolumeRate`.
-    pub const YOTTALITRE_PER_SECOND: VolumeRate = 1e+21 * CUBIC_METRE_PER_SECOND;
+    pub const YOTTALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000000000000000000000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `ZettalitrePerSecond` (ZL/s), as a `VolumeRate`.
-    pub const ZETTALITRE_PER_SECOND: VolumeRate = 1e+18 * CUBIC_METRE_PER_SECOND;
+    pub const ZETTALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000000000000000000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `ExalitrePerSecond` (EL/s), as a `VolumeRate`.
-    pub const EXALITRE_PER_SECOND: VolumeRate = 1000000000000000.0 * CUBIC_METRE_PER_SECOND;
+    pub const EXALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000000000000000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `PetalitrePerSecond` (PL/s), as a `VolumeRate`.
-    pub const PETALITRE_PER_SECOND: VolumeRate = 1000000000000.0 * CUBIC_METRE_PER_SECOND;
+    pub const PETALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000000000000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `TeralitrePerSecond` (TL/s), as a `VolumeRate`.
-    pub const TERALITRE_PER_SECOND: VolumeRate = 1000000000.0 * CUBIC_METRE_PER_SECOND;
+    pub const TERALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000000000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GigalitrePerSecond` (GL/s), as a `VolumeRate`.
-    pub const GIGALITRE_PER_SECOND: VolumeRate = 1000000.0 * CUBIC_METRE_PER_SECOND;
+    pub const GIGALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `MegalitrePerSecond` (ML/s), as a `VolumeRate`.
-    pub const MEGALITRE_PER_SECOND: VolumeRate = 1000.0 * CUBIC_METRE_PER_SECOND;
+    pub const MEGALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::int(1000) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `KilolitrePerSecond` (kL/s), as a `VolumeRate`.
-    pub const KILOLITRE_PER_SECOND: VolumeRate = CUBIC_METRE_PER_SECOND;
+    pub const KILOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `HectolitrePerSecond` (hL/s), as a `VolumeRate`.
-    pub const HECTOLITRE_PER_SECOND: VolumeRate = 0.10000000000000001 * CUBIC_METRE_PER_SECOND;
+    pub const HECTOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -1) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `DecalitrePerSecond` (daL/s), as a `VolumeRate`.
-    pub const DECALITRE_PER_SECOND: VolumeRate = 0.01 * CUBIC_METRE_PER_SECOND;
+    pub const DECALITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -2) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `LitrePerSecond` (L/s), as a `VolumeRate`.
-    pub const LITRE_PER_SECOND: VolumeRate = 0.001 * CUBIC_METRE_PER_SECOND;
+    pub const LITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -3) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `DecilitrePerSecond` (dL/s), as a `VolumeRate`.
-    pub const DECILITRE_PER_SECOND: VolumeRate = 0.0001 * CUBIC_METRE_PER_SECOND;
+    pub const DECILITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -4) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CentilitrePerSecond` (cL/s), as a `VolumeRate`.
-    pub const CENTILITRE_PER_SECOND: VolumeRate = 1.0000000000000001e-05 * CUBIC_METRE_PER_SECOND;
+    pub const CENTILITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -5) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `MillilitrePerSecond` (mL/s), as a `VolumeRate`.
-    pub const MILLILITRE_PER_SECOND: VolumeRate = 9.9999999999999995e-07 * CUBIC_METRE_PER_SECOND;
+    pub const MILLILITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -6) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `MicrolitrePerSecond` (µL/s), as a `VolumeRate`.
-    pub const MICROLITRE_PER_SECOND: VolumeRate = 1.0000000000000001e-09 * CUBIC_METRE_PER_SECOND;
+    pub const MICROLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -9) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `NanolitrePerSecond` (nL/s), as a `VolumeRate`.
-    pub const NANOLITRE_PER_SECOND: VolumeRate = 1.0000000000000002e-12 * CUBIC_METRE_PER_SECOND;
+    pub const NANOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -12) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `PicolitrePerSecond` (pL/s), as a `VolumeRate`.
-    pub const PICOLITRE_PER_SECOND: VolumeRate = 1.0000000000000001e-15 * CUBIC_METRE_PER_SECOND;
+    pub const PICOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -15) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `FemtolitrePerSecond` (fL/s), as a `VolumeRate`.
-    pub const FEMTOLITRE_PER_SECOND: VolumeRate = 1.0000000000000001e-18 * CUBIC_METRE_PER_SECOND;
+    pub const FEMTOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -18) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `AttolitrePerSecond` (aL/s), as a `VolumeRate`.
-    pub const ATTOLITRE_PER_SECOND: VolumeRate = 1.0000000000000001e-21 * CUBIC_METRE_PER_SECOND;
+    pub const ATTOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -21) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `ZeptolitrePerSecond` (zL/s), as a `VolumeRate`.
-    pub const ZEPTOLITRE_PER_SECOND: VolumeRate = 9.9999999999999992e-25 * CUBIC_METRE_PER_SECOND;
+    pub const ZEPTOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -24) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `YoctolitrePerSecond` (yL/s), as a `VolumeRate`.
-    pub const YOCTOLITRE_PER_SECOND: VolumeRate = 9.9999999999999986e-28 * CUBIC_METRE_PER_SECOND;
+    pub const YOCTOLITRE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1, -27) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `LitrePerMinute` (L/min), as a `VolumeRate`.
-    pub const LITRE_PER_MINUTE: VolumeRate = 1.6666666666666667e-05 * CUBIC_METRE_PER_SECOND;
+    pub const LITRE_PER_MINUTE<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(1, -3) / Exact::int(60)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `AcreFootPerSecond` (ac · ft/s), as a `VolumeRate`.
-    pub const ACRE_FOOT_PER_SECOND: VolumeRate =
-        (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0))
-            * CUBIC_METRE_PER_SECOND;
+    pub const ACRE_FOOT_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937))) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `BarrelPerSecond` (bbl/s), as a `VolumeRate`.
-    pub const BARREL_PER_SECOND: VolumeRate = 0.158987294928 * CUBIC_METRE_PER_SECOND;
+    pub const BARREL_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(158987294928, -12) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `BushelPerSecond` (bu/s), as a `VolumeRate`.
-    pub const BUSHEL_PER_SECOND: VolumeRate = 0.03523907016688 * CUBIC_METRE_PER_SECOND;
+    pub const BUSHEL_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(3523907016688, -14) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CordPerSecond` (cords/s), as a `VolumeRate`.
-    pub const CORD_PER_SECOND: VolumeRate =
-        (128.0 * 0.3048 * 0.3048 * 0.3048) * CUBIC_METRE_PER_SECOND;
+    pub const CORD_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::int(128) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicFootPerSecond` (ft³/s), as a `VolumeRate`.
-    pub const CUBIC_FOOT_PER_SECOND: VolumeRate =
-        (0.3048 * 0.3048 * 0.3048) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_FOOT_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicFootPerMinute` (ft³/min), as a `VolumeRate`.
-    pub const CUBIC_FOOT_PER_MINUTE: VolumeRate =
-        (0.3048 * 0.3048 * 0.3048 / 60.0) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_FOOT_PER_MINUTE<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4) / Exact::int(60)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicInchPerSecond` (in³/s), as a `VolumeRate`.
-    pub const CUBIC_INCH_PER_SECOND: VolumeRate =
-        (0.0254 * 0.0254 * 0.0254) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_INCH_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicInchPerMinute` (in³/min), as a `VolumeRate`.
-    pub const CUBIC_INCH_PER_MINUTE: VolumeRate =
-        (0.0254 * 0.0254 * 0.0254 / 60.0) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_INCH_PER_MINUTE<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4) / Exact::int(60)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicMilePerSecond` (mi³/s), as a `VolumeRate`.
-    pub const CUBIC_MILE_PER_SECOND: VolumeRate =
-        (1609.344 * 1609.344 * 1609.344) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_MILE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicYardPerSecond` (yd³/s), as a `VolumeRate`.
-    pub const CUBIC_YARD_PER_SECOND: VolumeRate =
-        (0.9144 * 0.9144 * 0.9144) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_YARD_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CubicYardPerMinute` (yd³/min), as a `VolumeRate`.
-    pub const CUBIC_YARD_PER_MINUTE: VolumeRate =
-        (0.9144 * 0.9144 * 0.9144 / 60.0) * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_YARD_PER_MINUTE<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4) / Exact::int(60)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `CupPerSecond` (cup/s), as a `VolumeRate`.
-    pub const CUP_PER_SECOND: VolumeRate = 0.0002365882365 * CUBIC_METRE_PER_SECOND;
+    pub const CUP_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(2365882365, -13) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `FluidOuncePerSecond` (fl oz/s), as a `VolumeRate`.
-    pub const FLUID_OUNCE_PER_SECOND: VolumeRate = 0.0000295735295625 * CUBIC_METRE_PER_SECOND;
+    pub const FLUID_OUNCE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(295735295625, -16) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `FluidOunceImperialPerSecond` (fl oz (UK)/s), as a `VolumeRate`.
-    pub const FLUID_OUNCE_IMPERIAL_PER_SECOND: VolumeRate =
-        0.0000284130625 * CUBIC_METRE_PER_SECOND;
+    pub const FLUID_OUNCE_IMPERIAL_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(284130625, -13) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GallonImperialPerSecond` (gal (UK)/s), as a `VolumeRate`.
-    pub const GALLON_IMPERIAL_PER_SECOND: VolumeRate = 0.00454609 * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_IMPERIAL_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(454609, -8) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GallonPerSecond` (gal/s), as a `VolumeRate`.
-    pub const GALLON_PER_SECOND: VolumeRate = 0.003785411784 * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(3785411784, -12) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GallonPerMinute` (gal/min), as a `VolumeRate`.
-    pub const GALLON_PER_MINUTE: VolumeRate = (0.003785411784 / 60.0) * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_PER_MINUTE<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(3785411784, -12) / Exact::int(60)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GallonPerDay` (gal/d), as a `VolumeRate`.
-    pub const GALLON_PER_DAY: VolumeRate = (0.003785411784 / 86400.0) * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_PER_DAY<N: const From<Exact>>: VolumeRate<N> = counted((Exact::dec(3785411784, -12) / Exact::int(86400)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GillImperialPerSecond` (gi (UK)/s), as a `VolumeRate`.
-    pub const GILL_IMPERIAL_PER_SECOND: VolumeRate = 0.0001420653125 * CUBIC_METRE_PER_SECOND;
+    pub const GILL_IMPERIAL_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1420653125, -13) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `GillPerSecond` (gi/s), as a `VolumeRate`.
-    pub const GILL_PER_SECOND: VolumeRate = 0.00011829411825 * CUBIC_METRE_PER_SECOND;
+    pub const GILL_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(11829411825, -14) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `PeckPerSecond` (pk/s), as a `VolumeRate`.
-    pub const PECK_PER_SECOND: VolumeRate = 0.00880976754172 * CUBIC_METRE_PER_SECOND;
+    pub const PECK_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(880976754172, -14) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `PintDryPerSecond` (dry pt/s), as a `VolumeRate`.
-    pub const PINT_DRY_PER_SECOND: VolumeRate = 0.0005506104713575 * CUBIC_METRE_PER_SECOND;
+    pub const PINT_DRY_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(5506104713575, -16) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `PintLiquidPerSecond` (liq pt/s), as a `VolumeRate`.
-    pub const PINT_LIQUID_PER_SECOND: VolumeRate = 0.000473176473 * CUBIC_METRE_PER_SECOND;
+    pub const PINT_LIQUID_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(473176473, -12) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `QuartDryPerSecond` (dry qt/s), as a `VolumeRate`.
-    pub const QUART_DRY_PER_SECOND: VolumeRate = 0.001101220942715 * CUBIC_METRE_PER_SECOND;
+    pub const QUART_DRY_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1101220942715, -15) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `QuartLiquidPerSecond` (liq qt/s), as a `VolumeRate`.
-    pub const QUART_LIQUID_PER_SECOND: VolumeRate = 0.000946352946 * CUBIC_METRE_PER_SECOND;
+    pub const QUART_LIQUID_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(946352946, -12) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `SterePerSecond` (st/s), as a `VolumeRate`.
-    pub const STERE_PER_SECOND: VolumeRate = CUBIC_METRE_PER_SECOND;
+    pub const STERE_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `TablespoonPerSecond` (tbsp/s), as a `VolumeRate`.
-    pub const TABLESPOON_PER_SECOND: VolumeRate = 0.00001478676478125 * CUBIC_METRE_PER_SECOND;
+    pub const TABLESPOON_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(1478676478125, -17) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `TeaspoonPerSecond` (tsp/s), as a `VolumeRate`.
-    pub const TEASPOON_PER_SECOND: VolumeRate = 0.00000492892159375 * CUBIC_METRE_PER_SECOND;
+    pub const TEASPOON_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted(Exact::dec(492892159375, -17) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `RegisterTonPerSecond` (RT/s), as a `VolumeRate`.
-    pub const REGISTER_TON_PER_SECOND: VolumeRate =
-        (100.0 * 0.3048 * 0.3048 * 0.3048) * CUBIC_METRE_PER_SECOND;
+    pub const REGISTER_TON_PER_SECOND<N: const From<Exact>>: VolumeRate<N> = counted((Exact::int(100) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) * CUBIC_METRE_PER_SECOND::<Exact>);
 
     /// One `KilogramPerSquareMetreSecond` (kg/(m² · s)), as a `MassFlux`.
-    pub const KILOGRAM_PER_SQUARE_METRE_SECOND: MassFlux = KILOGRAM / (METRE * METRE * SECOND);
+    pub const KILOGRAM_PER_SQUARE_METRE_SECOND<N: const From<Exact>>: MassFlux<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * METRE::<Exact> * SECOND::<Exact>));
 
     /// One `TeragramPerJoule` (Tg/J), as a `MassPerEnergy`.
-    pub const TERAGRAM_PER_JOULE: MassPerEnergy = 1000000000.0 * KILOGRAM_PER_JOULE;
+    pub const TERAGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::int(1000000000) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `GigagramPerJoule` (Gg/J), as a `MassPerEnergy`.
-    pub const GIGAGRAM_PER_JOULE: MassPerEnergy = 1000000.0 * KILOGRAM_PER_JOULE;
+    pub const GIGAGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::int(1000000) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `MegagramPerJoule` (Mg/J), as a `MassPerEnergy`.
-    pub const MEGAGRAM_PER_JOULE: MassPerEnergy = 1000.0 * KILOGRAM_PER_JOULE;
+    pub const MEGAGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::int(1000) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `KilogramPerJoule` (kg/J), as a `MassPerEnergy`.
-    pub const KILOGRAM_PER_JOULE: MassPerEnergy = SECOND * SECOND / (METRE * METRE);
+    pub const KILOGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(SECOND::<Exact> * SECOND::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `HectogramPerJoule` (hg/J), as a `MassPerEnergy`.
-    pub const HECTOGRAM_PER_JOULE: MassPerEnergy = 0.10000000000000001 * KILOGRAM_PER_JOULE;
+    pub const HECTOGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `DecagramPerJoule` (dag/J), as a `MassPerEnergy`.
-    pub const DECAGRAM_PER_JOULE: MassPerEnergy = 0.01 * KILOGRAM_PER_JOULE;
+    pub const DECAGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -2) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `GramPerJoule` (g/J), as a `MassPerEnergy`.
-    pub const GRAM_PER_JOULE: MassPerEnergy = 0.001 * KILOGRAM_PER_JOULE;
+    pub const GRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `DecigramPerJoule` (dg/J), as a `MassPerEnergy`.
-    pub const DECIGRAM_PER_JOULE: MassPerEnergy = 0.0001 * KILOGRAM_PER_JOULE;
+    pub const DECIGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -4) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `CentigramPerJoule` (cg/J), as a `MassPerEnergy`.
-    pub const CENTIGRAM_PER_JOULE: MassPerEnergy = 1.0000000000000001e-05 * KILOGRAM_PER_JOULE;
+    pub const CENTIGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -5) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `MilligramPerJoule` (mg/J), as a `MassPerEnergy`.
-    pub const MILLIGRAM_PER_JOULE: MassPerEnergy = 9.9999999999999995e-07 * KILOGRAM_PER_JOULE;
+    pub const MILLIGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `MicrogramPerJoule` (µg/J), as a `MassPerEnergy`.
-    pub const MICROGRAM_PER_JOULE: MassPerEnergy = 9.9999999999999986e-10 * KILOGRAM_PER_JOULE;
+    pub const MICROGRAM_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(1, -9) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `PoundPerJoule` (lb/J), as a `MassPerEnergy`.
-    pub const POUND_PER_JOULE: MassPerEnergy = 0.45359237 * KILOGRAM_PER_JOULE;
+    pub const POUND_PER_JOULE<N: const From<Exact>>: MassPerEnergy<N> = counted(Exact::dec(45359237, -8) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `PoundPerGigawattHour` (lb/GWh), as a `MassPerEnergy`.
-    pub const POUND_PER_GIGAWATT_HOUR: MassPerEnergy = 1.2599788055555555e-13 * KILOGRAM_PER_JOULE;
+    pub const POUND_PER_GIGAWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(45359237, -8) / Exact::int(3600000000000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `PoundPerMegawattHour` (lb/MWh), as a `MassPerEnergy`.
-    pub const POUND_PER_MEGAWATT_HOUR: MassPerEnergy = 1.2599788055555556e-10 * KILOGRAM_PER_JOULE;
+    pub const POUND_PER_MEGAWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(45359237, -8) / Exact::int(3600000000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `PoundPerKilowattHour` (lb/kWh), as a `MassPerEnergy`.
-    pub const POUND_PER_KILOWATT_HOUR: MassPerEnergy = 1.2599788055555555e-07 * KILOGRAM_PER_JOULE;
+    pub const POUND_PER_KILOWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(45359237, -8) / Exact::int(3600000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `PoundPerWattHour` (lb/Wh), as a `MassPerEnergy`.
-    pub const POUND_PER_WATT_HOUR: MassPerEnergy = 0.00012599788055555556 * KILOGRAM_PER_JOULE;
+    pub const POUND_PER_WATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(45359237, -8) / Exact::int(3600)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `KilogramPerGigawattHour` (kg/GWh), as a `MassPerEnergy`.
-    pub const KILOGRAM_PER_GIGAWATT_HOUR: MassPerEnergy =
-        2.7777777777777779e-13 * KILOGRAM_PER_JOULE;
+    pub const KILOGRAM_PER_GIGAWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::int(1) / Exact::int(3600000000000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `KilogramPerMegawattHour` (kg/MWh), as a `MassPerEnergy`.
-    pub const KILOGRAM_PER_MEGAWATT_HOUR: MassPerEnergy =
-        2.7777777777777777e-10 * KILOGRAM_PER_JOULE;
+    pub const KILOGRAM_PER_MEGAWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::int(1) / Exact::int(3600000000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `KilogramPerKilowattHour` (kg/kWh), as a `MassPerEnergy`.
-    pub const KILOGRAM_PER_KILOWATT_HOUR: MassPerEnergy =
-        2.7777777777777776e-07 * KILOGRAM_PER_JOULE;
+    pub const KILOGRAM_PER_KILOWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::int(1) / Exact::int(3600000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `KilogramPerWattHour` (kg/Wh), as a `MassPerEnergy`.
-    pub const KILOGRAM_PER_WATT_HOUR: MassPerEnergy = 0.00027777777777777778 * KILOGRAM_PER_JOULE;
+    pub const KILOGRAM_PER_WATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::int(1) / Exact::int(3600)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `GramPerGigawattHour` (g/GWh), as a `MassPerEnergy`.
-    pub const GRAM_PER_GIGAWATT_HOUR: MassPerEnergy = 2.777777777777778e-16 * KILOGRAM_PER_JOULE;
+    pub const GRAM_PER_GIGAWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(1, -3) / Exact::int(3600000000000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `GramPerMegawattHour` (g/MWh), as a `MassPerEnergy`.
-    pub const GRAM_PER_MEGAWATT_HOUR: MassPerEnergy = 2.7777777777777779e-13 * KILOGRAM_PER_JOULE;
+    pub const GRAM_PER_MEGAWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(1, -3) / Exact::int(3600000000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `GramPerKilowattHour` (g/kWh), as a `MassPerEnergy`.
-    pub const GRAM_PER_KILOWATT_HOUR: MassPerEnergy = 2.7777777777777777e-10 * KILOGRAM_PER_JOULE;
+    pub const GRAM_PER_KILOWATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(1, -3) / Exact::int(3600000)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `GramPerWattHour` (g/Wh), as a `MassPerEnergy`.
-    pub const GRAM_PER_WATT_HOUR: MassPerEnergy = 2.7777777777777776e-07 * KILOGRAM_PER_JOULE;
+    pub const GRAM_PER_WATT_HOUR<N: const From<Exact>>: MassPerEnergy<N> = counted((Exact::dec(1, -3) / Exact::int(3600)) * KILOGRAM_PER_JOULE::<Exact>);
 
     /// One `SquareMetrePerSecond` (m²/s), as a `DiffusionCoefficient`.
-    pub const DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND: DiffusionCoefficient =
-        METRE * METRE / SECOND;
+    pub const DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND<N: const From<Exact>>: DiffusionCoefficient<N> = counted(METRE::<Exact> * METRE::<Exact> / SECOND::<Exact>);
 
     /// One `SquareCentimetrePerSecond` (cm²/s), as a `DiffusionCoefficient`.
-    pub const DIFFUSION_COEFFICIENT_SQUARE_CENTIMETRE_PER_SECOND: DiffusionCoefficient =
-        0.0001 * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND;
+    pub const DIFFUSION_COEFFICIENT_SQUARE_CENTIMETRE_PER_SECOND<N: const From<Exact>>: DiffusionCoefficient<N> = counted(Exact::dec(1, -4) * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `SquareMillimetrePerSecond` (mm²/s), as a `DiffusionCoefficient`.
-    pub const DIFFUSION_COEFFICIENT_SQUARE_MILLIMETRE_PER_SECOND: DiffusionCoefficient =
-        9.9999999999999995e-07 * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND;
+    pub const DIFFUSION_COEFFICIENT_SQUARE_MILLIMETRE_PER_SECOND<N: const From<Exact>>: DiffusionCoefficient<N> = counted(Exact::dec(1, -6) * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `SquareMicrometrePerSecond` (µm²/s), as a `DiffusionCoefficient`.
-    pub const DIFFUSION_COEFFICIENT_SQUARE_MICROMETRE_PER_SECOND: DiffusionCoefficient =
-        9.9999999999999998e-13 * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND;
+    pub const DIFFUSION_COEFFICIENT_SQUARE_MICROMETRE_PER_SECOND<N: const From<Exact>>: DiffusionCoefficient<N> = counted(Exact::dec(1, -12) * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `SquareNanometrePerSecond` (nm²/s), as a `DiffusionCoefficient`.
-    pub const DIFFUSION_COEFFICIENT_SQUARE_NANOMETRE_PER_SECOND: DiffusionCoefficient =
-        1.0000000000000001e-18 * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND;
+    pub const DIFFUSION_COEFFICIENT_SQUARE_NANOMETRE_PER_SECOND<N: const From<Exact>>: DiffusionCoefficient<N> = counted(Exact::dec(1, -18) * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `Stokes` (St), as a `DiffusionCoefficient`.
-    pub const DIFFUSION_COEFFICIENT_STOKES: DiffusionCoefficient =
-        0.0001 * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND;
+    pub const DIFFUSION_COEFFICIENT_STOKES<N: const From<Exact>>: DiffusionCoefficient<N> = counted(Exact::dec(1, -4) * DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND::<Exact>);
 }
 
 /// The units of `DynamicViscosity`, for a menu, a config file, a parser.

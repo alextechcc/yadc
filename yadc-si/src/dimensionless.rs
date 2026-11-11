@@ -1,16 +1,18 @@
 //! Plain numbers: ratios and their units.
 
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Dimensionless = StaticSIQuantity<{ ISQ::DIMENSIONLESS }>;
+pub type Dimensionless<N = f64> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
 
@@ -18,37 +20,37 @@ pub mod consts {
     pub use crate::base::ONE;
 
     /// One `Ratio`, as a `Dimensionless`.
-    pub const RATIO: Dimensionless = ONE;
+    pub const RATIO<N: const From<Exact>>: Dimensionless<N> = counted(ONE::<Exact>);
 
     /// One `PartPerHundred` (parts per hundred), as a `Dimensionless`.
-    pub const PART_PER_HUNDRED: Dimensionless = 1.0e-2 * RATIO;
+    pub const PART_PER_HUNDRED<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -2) * RATIO::<Exact>);
 
     /// One `Percent` (%), as a `Dimensionless`.
-    pub const PERCENT: Dimensionless = 1.0e-2 * RATIO;
+    pub const PERCENT<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -2) * RATIO::<Exact>);
 
     /// One `PartPerThousand` (parts per thousand), as a `Dimensionless`.
-    pub const PART_PER_THOUSAND: Dimensionless = 1.0e-3 * RATIO;
+    pub const PART_PER_THOUSAND<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -3) * RATIO::<Exact>);
 
     /// One `PerMille` (‰), as a `Dimensionless`.
-    pub const PER_MILLE: Dimensionless = 1.0e-3 * RATIO;
+    pub const PER_MILLE<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -3) * RATIO::<Exact>);
 
     /// One `PartPerTenThousand` (parts per ten thousand), as a `Dimensionless`.
-    pub const PART_PER_TEN_THOUSAND: Dimensionless = 1.0e-4 * RATIO;
+    pub const PART_PER_TEN_THOUSAND<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -4) * RATIO::<Exact>);
 
     /// One `BasisPoint` (bp), as a `Dimensionless`.
-    pub const BASIS_POINT: Dimensionless = 1.0e-4 * RATIO;
+    pub const BASIS_POINT<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -4) * RATIO::<Exact>);
 
     /// One `PartPerMillion` (ppm), as a `Dimensionless`.
-    pub const PART_PER_MILLION: Dimensionless = 1.0e-6 * RATIO;
+    pub const PART_PER_MILLION<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -6) * RATIO::<Exact>);
 
     /// One `PartPerBillion` (ppb), as a `Dimensionless`.
-    pub const PART_PER_BILLION: Dimensionless = 1.0e-9 * RATIO;
+    pub const PART_PER_BILLION<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -9) * RATIO::<Exact>);
 
     /// One `PartPerTrillion` (ppt), as a `Dimensionless`.
-    pub const PART_PER_TRILLION: Dimensionless = 1.0e-12 * RATIO;
+    pub const PART_PER_TRILLION<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -12) * RATIO::<Exact>);
 
     /// One `PartPerQuadrillion` (ppq), as a `Dimensionless`.
-    pub const PART_PER_QUADRILLION: Dimensionless = 1.0e-15 * RATIO;
+    pub const PART_PER_QUADRILLION<N: const From<Exact>>: Dimensionless<N> = counted(Exact::dec(1, -15) * RATIO::<Exact>);
 }
 
 /// The units of `Dimensionless`, for a menu, a config file, a parser.

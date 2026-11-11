@@ -1,6 +1,6 @@
 //! serde round-trip with the yadc-si quantities.
 //!
-//! `StaticSIQuantity<const D: ISQ>` serializes transparently as just its inner
+//! `SIQuantity<const D: ISQ>` serializes transparently as just its inner
 //! `f64` - the dimension is determined by the target type at deserialize time.
 //! `DynamicSIQuantity` carries `dim: ISQ` at runtime, and that field is
 //! serialized as a UCUM unit string (e.g. `"m.kg.s-2"` for force, `"K"` for a

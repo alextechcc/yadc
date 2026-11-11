@@ -19,7 +19,7 @@ use yadc_si::mechanical::{
     Area, AreaUnit, Force, ForceUnit, Length, LengthUnit, MassUnit, Pressure, PressureUnit,
 };
 use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
-use yadc_si::{DynamicSIQuantity, ISQ, StaticSIQuantity};
+use yadc_si::{DynamicSIQuantity, ISQ, SIQuantity};
 
 /// What the app measures. Its arithmetic runs through the open type.
 #[derive(Clone, Copy, PartialEq, Debug, Visit, Members, Via)]
@@ -293,9 +293,9 @@ impl<'a, L, Q: Copy, U: Unit<Q>> Visitor<(&'a L, &'a Q, &'a U)> for InItsUnit {
 /// const parameter.
 struct DimOf;
 
-impl<const D: ISQ> Visitor<StaticSIQuantity<D>> for DimOf {
+impl<const D: ISQ> Visitor<SIQuantity<D>> for DimOf {
     type Output = ISQ;
-    fn visit(self, _: StaticSIQuantity<D>) -> ISQ {
+    fn visit(self, _: SIQuantity<D>) -> ISQ {
         D
     }
 }

@@ -24,7 +24,7 @@ use core::marker::PhantomData;
 use typenum::Integer;
 use uom::si::{Quantity, Units, marker};
 
-use crate::{DynamicSIQuantity, ISQ, Kind, StaticSIQuantity};
+use crate::{DynamicSIQuantity, ISQ, Kind, SIQuantity};
 
 // --- Kind mapping -------------------------------------------------------------
 
@@ -143,7 +143,7 @@ const fn isq_of(
 
 impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
     From<Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>>
-    for StaticSIQuantity<
+    for SIQuantity<
         {
             isq_of(
                 <Ld as Integer>::I8,
@@ -170,10 +170,10 @@ where
     U: Units<f64> + ?Sized,
 {
     fn from(q: Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>) -> Self {
-        // This crate owns `StaticSIQuantity`, so it may build one directly:
+        // This crate owns `SIQuantity`, so it may build one directly:
         // generic over every uom dimension, where no unit constant applies.
         // Both store the coherent SI number, so it simply moves.
-        StaticSIQuantity(q.value)
+        SIQuantity(q.value)
     }
 }
 
@@ -181,7 +181,7 @@ where
 
 impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>
     From<
-        StaticSIQuantity<
+        SIQuantity<
             {
                 isq_of(
                     <Ld as Integer>::I8,
@@ -208,7 +208,7 @@ where
     Kd: UomKindMapping + ?Sized,
 {
     fn from(
-        sq: StaticSIQuantity<
+        sq: SIQuantity<
             {
                 isq_of(
                     <Ld as Integer>::I8,

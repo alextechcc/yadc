@@ -9,7 +9,6 @@
 #![allow(incomplete_features)]
 
 use yadc::{CastAs, Unit};
-use yadc_si::dimensionless::consts::RATIO;
 use yadc_si::dimensionless::*;
 use yadc_si::electromagnetic::*;
 use yadc_si::mechanical::consts::*;
@@ -21,10 +20,10 @@ use yadc_si::{DynamicSIQuantity, Scale};
 // Compile-time quantities: unit and physical constants compose in `const`
 // items, because quantity arithmetic is `const`.
 const SPEED_LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;
-const ELECTRON_REST_ENERGY: Energy = ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // E = mc²
+const ELECTRON_REST_ENERGY: Energy = ELECTRON_MASS::<f64> * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // E = mc²
 // A unit defined the way a standards document writes it: a pound-force per
 // square inch is a pound under standard gravity, on a square inch.
-const PSI: Pressure = POUND * STANDARD_GRAVITY / (INCH * INCH);
+const PSI: Pressure = POUND::<f64> * STANDARD_GRAVITY / (INCH::<f64> * INCH);
 
 fn main() {
     // --- 1. A unit turns a number into a quantity and back ------------------
@@ -92,13 +91,13 @@ fn main() {
 
     // --- 4. Same-dim division -> a plain number -----------------------------
     // `Force / Force` is `Dimensionless`, read like any quantity: in the unit
-    // `RATIO` (one), or in percent.
+    // `Ratio` (one), or in percent.
 
     let ratio: Dimensionless = ForceUnit::Newton(9.0) / ForceUnit::Newton(3.0);
-    let percent = DimensionlessUnit::Percent;
+    let (one, percent) = (DimensionlessUnit::Ratio, DimensionlessUnit::Percent);
     println!(
         "9 N / 3 N = {} = {} {}",
-        RATIO(ratio),
+        one(ratio),
         percent(ratio),
         percent
     );
@@ -176,7 +175,7 @@ fn main() {
     let gain: Gain = received - level;
     println!("gain    = {:.0} dB", DECIBEL(gain));
     let hundredfold = Dimensionless::from(DECIBEL(20.0));
-    println!("20 dB   = × {:.0}", RATIO(hundredfold));
+    println!("20 dB   = × {:.0}", one(hundredfold));
 
     // --- 8. Instants: points on the line of time ----------------------------
     // An `Instant` is a point: measured from a zero somebody chose, so two of
@@ -273,13 +272,14 @@ fn main() {
     println!("17 km/s = {:.3e} c", SPEED_OF_LIGHT(probe));
 
     // --- 12. Another number type --------------------------------------------
-    // `StaticSIQuantity` is generic over its number type (`f64` unless you say
-    // otherwise). `cast` changes it - for a compact record, say - and a
-    // constant cast the same way is a unit counting in `f32`. Widening `f32`
-    // to `f64` loses nothing, so it is also a plain `From`.
+    // `SIQuantity` is generic over its number type (`f64` unless you say
+    // otherwise). `cast` changes it - for a compact record, say. A constant
+    // is exact and takes the number type it is used at, so `KILOGRAM` bound
+    // as a `Mass<f32>` is a unit counting in `f32`. Widening `f32` to `f64`
+    // loses nothing, so it is also a plain `From`.
     let m32 = mass.cast::<f32>();
-    let kilogram32 = KILOGRAM.cast::<f32>();
-    let widened = Mass::from(m32);
+    let kilogram32: Mass<f32> = KILOGRAM;
+    let widened: Mass = m32.into();
     println!(
         "70 kg as f32: {} kg (an f32); widened back: {} kg",
         kilogram32(m32),

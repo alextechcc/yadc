@@ -6,14 +6,15 @@ What it defines, in `lib.rs`:
 
 - `Kind` - how a quantity behaves under `+` and `-`, beside its exponents: `Linear` (`#[default]`: an ordinary amount, which adds to its own kind, scales and multiplies), `Absolute` (a temperature: an amount with a true zero: it scales and multiplies as an amount does, but two of them differ by a linear amount and a linear amount moves one; a label marked `#[kind(absolute)]`), `Affine` (a point, measured from a zero somebody chose - an instant: two differ by a linear amount, an amount moves one, and it has no sum with another, no scaling and no products) and `Log` (a logarithm - a level or a gain: adding logarithms multiplies what they are the logarithms of, so `+` and `-` add and subtract the exponents). The last two are marked on their variants, `#[kind(affine)]` and `#[kind(log)]`.
 - `ISQ` - the dimension: one `i8` exponent per SI base unit (`m`, `kg`, `s`, `A`, `K`, `mol`, `cd`) and one for the radian (`rad`), plus the kind. Angle is `rad: 1`, solid angle `rad: 2` (sr = rad²), angular velocity rad/s; torque is J/rad and moment of inertia kg·m²/rad², so torque × angle is energy and an angular speed never mixes with a frequency. Its `*` and `/` are partial (`Option`): a product with a point or a level has no result. It prints as `m·kg·s⁻²`, a kind that is not `Linear` in braces (`K{Absolute}`).
-- `StaticSIQuantity<const D: ISQ, N = f64>(N)` - the compile-time-checked quantity (`#[derive(Quantity)]`), stored in coherent SI units (kilograms, metres, kelvin, radians, watts, ...), counted in `f64` unless you say otherwise (`KILOPASCAL.cast::<f32>()`). Its field is private to this crate: the base constants are the only raw numbers, and everyone else builds and reads through units. It prints as its number and dimension (`9.81 m·s⁻²`).
-- `DynamicSIQuantity` - the same with the dimension carried at run time, as `dim: ISQ`, built with [`dynamickit`](../dynamickit/)'s `#[derive(Dynamic)]`: `StaticSIQuantity<const D: ISQ> => { dim: D, value: .0 }` (converting moves the number in and records `D`; `TryFrom` checks it on the way back, handing the value back on a mismatch), and `shared f64 => { dim: ISQ::DIMENSIONLESS, value: self }` (a bare number is the same value as a dimensionless quantity). Its operators and methods are every field's own, each with its output stated: `*`, `/`, `+`, `-`, scaling by an `f64`, `partial_powi` and `partial_root` return an `Option` (`None` where the dimensions don't combine: a sum of two dimensions, a product with a point or a level, a scaled point or level), so a calculation reads `((a * b)? + c)?`; values of one dimension are ordered. No impl on it is hand-written.
+- `SIQuantity<const D: ISQ, N = f64>(N)` - the compile-time-checked quantity (`#[derive(Quantity)]`), stored in coherent SI units (kilograms, metres, kelvin, radians, watts, ...), counted in `f64` unless you say otherwise (`Pressure<f32>`). Each quantity's alias takes the number type, `f64` by default: `pub type Length<N = f64> = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }, N>`. Its field is private to this crate: the base constants are the only raw numbers, and everyone else builds and reads through units. It prints as its number and dimension (`9.81 m·s⁻²`).
+- `DynamicSIQuantity` - the same with the dimension carried at run time, as `dim: ISQ`, built with [`dynamickit`](../dynamickit/)'s `#[derive(Dynamic)]`: `SIQuantity<const D: ISQ> => { dim: D, value: .0 }` (converting moves the number in and records `D`; `TryFrom` checks it on the way back, handing the value back on a mismatch), and `shared f64 => { dim: ISQ::DIMENSIONLESS, value: self }` (a bare number is the same value as a dimensionless quantity). Its operators and methods are every field's own, each with its output stated: `*`, `/`, `+`, `-`, scaling by an `f64`, `partial_powi` and `partial_root` return an `Option` (`None` where the dimensions don't combine: a sum of two dimensions, a product with a point or a level, a scaled point or level), so a calculation reads `((a * b)? + c)?`; values of one dimension are ordered. No impl on it is hand-written.
 - `base` - the base constants, the only raw numbers in the crate: `ONE`, `METRE`, `KILOGRAM`, `SECOND`, `AMPERE`, `KELVIN` (a step: a temperature difference of 1 K), `MOLE`, `CANDELA`, `RADIAN`, `ABSOLUTE_ZERO` (a temperature), `UNIX_EPOCH` (the base zero of `Instant`: what an instant is stored, printed and serialized from), `BEL` (a gain of ten times) and `WATT_LEVEL` (the level of one watt).
+- `Exact` - the exact number every constant is defined in: `num/den · 10ⁿ · πᵏ`, with `const` arithmetic, rounded once and correctly to `f64` or `f32` (`From<Exact>`).
 - `Scale<P, S>(pub P, pub S)` - a scale: a zero and a step. A unit of its zero's type - `Scale(ICE_POINT, KELVIN)` counts kelvins from the ice point - made as a constant or at run time.
 
 The crate root re-exports `yadc`'s `Dimension`, `Quantity` and `Unit`. Its one point is the `Instant`; a system with altitudes or positions gives them the affine kind the same way (see [`yadc-tests/src/lib.rs`](../yadc-tests/src/lib.rs)).
 
-and ~120 quantity aliases (`pub type Length = StaticSIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }>;`), each with a `<Q>Unit` enum naming its units (`PowerUnit` holds W, kW, dBW and dBm), organized into 9 feature-gated families:
+and ~120 quantity aliases (`pub type Length = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }>;`), each with a `<Q>Unit` enum naming its units (`PowerUnit` holds W, kW, dBW and dBm), organized into 9 feature-gated families:
 
 | Feature | Examples |
 |---|---|
@@ -27,7 +28,7 @@ and ~120 quantity aliases (`pub type Length = StaticSIQuantity<{ ISQ { m: 1, ..I
 | `photometric` | Luminance, LuminousIntensity, Illuminance, RadiantExposure |
 | `information` | Information, InformationRate |
 
-`Dimensionless` (`StaticSIQuantity<{ ISQ::DIMENSIONLESS }>`) with `DimensionlessUnit` (ratio, %, ‰, ppm, ...) is always present. All families are on by default; disable selectively with `default-features = false` plus an explicit feature list to reduce compile time.
+`Dimensionless` (`SIQuantity<{ ISQ::DIMENSIONLESS }>`) with `DimensionlessUnit` (ratio, %, ‰, ppm, ...) is always present. All families are on by default; disable selectively with `default-features = false` plus an explicit feature list to reduce compile time.
 
 ## Nightly features
 
@@ -217,14 +218,16 @@ See [`yadc/examples/basic_use.rs`](../yadc/examples/basic_use.rs) for a tour.
 
 ### Constants
 
-Every family module has a generated `consts` module: the base constants of its quantities (re-exported from `base`: `mechanical::consts::METRE`), then one constant per unit, each defined from them - a coherent unit as their product, everything else as a multiple of it, as a standards document writes it:
+Every family module has a generated `consts` module: the base constants of its quantities (re-exported from `base`: `mechanical::consts::METRE`), then one constant per unit, each defined from them - a coherent unit as their product, everything else as a multiple of it, as a standards document writes it. Each is defined *exactly*, in `Exact`, and is generic over the number type it is counted in, rounded once to the one its use asks for:
 
 ```rust
-pub const NEWTON: Force = METRE * KILOGRAM / (SECOND * SECOND);
-pub const KILOMETRE: Length = 1000.0 * METRE;
-pub const DEGREE_FAHRENHEIT: TemperatureInterval = (5.0 / 9.0) * KELVIN;
-pub const ICE_POINT: ThermodynamicTemperature = ABSOLUTE_ZERO + 273.15 * KELVIN;
+pub const NEWTON<N: const From<Exact>>: Force<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
+pub const KILOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000) * METRE::<Exact>);
+pub const INCH<N: const From<Exact>>: Length<N> = counted(Exact::dec(254, -4) * METRE::<Exact>);
+pub const ICE_POINT<N: const From<Exact>>: ThermodynamicTemperature<N> = counted(ABSOLUTE_ZERO::<Exact> + Exact::dec(27315, -2) * KELVIN::<Exact>);
 ```
+
+So a constant is whatever its use needs, with nothing to write: `let d: Length = KILOMETRE;` is the nearest `f64` to 1000 m, `let d: Length<f32> = KILOMETRE;` the nearest `f32` (rounded once, not through `f64`), and `KILOMETRE::<Exact>` the exact value - `INCH::<Exact> * INCH::<Exact> * INCH::<Exact> == CUBIC_INCH::<Exact>` holds exactly. Beside a stored value it takes that value's type (`trip + KILOMETRE`, `KILOMETRE(3.0)`, `MILE.value(d)`); an expression of constants alone names the number type on one of them (`KILOMETRE::<f64> / HOUR`: an operator's result does not fix its operands'). Using the constants needs no feature beyond `generic_const_exprs`; the generated crate itself uses `generic_const_items`.
 
 Quantity arithmetic is `const`, so they compose in your `const` items too:
 
@@ -233,9 +236,9 @@ use yadc_si::mechanical::consts::*;            // KILOMETRE, HOUR, SPEED_OF_LIGH
 use yadc_si::thermal::consts::CELSIUS;
 
 const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;              // 50 km/h
-const REST_ENERGY: Energy = ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // 8.187e-14 J
+const REST_ENERGY: Energy = ELECTRON_MASS::<f64> * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // 8.187e-14 J: constants alone name their number type
 const BOILING: ThermodynamicTemperature = CELSIUS.quantity(100.0); // scales are const too
-const PSI: Pressure = POUND * STANDARD_GRAVITY / (INCH * INCH); // a unit, defined as a standard writes it
+const PSI: Pressure = POUND::<f64> * STANDARD_GRAVITY / (INCH::<f64> * INCH); // a unit, defined as a standard writes it
 let weight: Force = STANDARD_GRAVITY * mass;
 let beta = SPEED_OF_LIGHT(v);                         // a constant is a unit: v in units of c
 ```
@@ -278,8 +281,8 @@ so a `no_std` target still needs an allocator for it.
 
 ## Optional features
 
-- `serde` (off by default; turns on `yadc/ucum`) — `StaticSIQuantity` serializes transparently as its number (the dimension comes from the target type), and `DynamicSIQuantity` as `{ dim, value }` with the dimension as a UCUM string (`"m.kg.s-2"`, `"K{Absolute}"`, `"s{Affine}"`, `"rad"`, `"rad2"`, `"1{Log}"`, `"1"`).
-- `uom` (off by default) — `From` / `TryFrom` impls bridging `StaticSIQuantity` / `DynamicSIQuantity` and [`uom`](https://docs.rs/uom)'s typenum-based quantities (uom's angle kinds become `rad` exponents, its temperature kind the `Absolute` label).
+- `serde` (off by default; turns on `yadc/ucum`) — `SIQuantity` serializes transparently as its number (the dimension comes from the target type), and `DynamicSIQuantity` as `{ dim, value }` with the dimension as a UCUM string (`"m.kg.s-2"`, `"K{Absolute}"`, `"s{Affine}"`, `"rad"`, `"rad2"`, `"1{Log}"`, `"1"`).
+- `uom` (off by default) — `From` / `TryFrom` impls bridging `SIQuantity` / `DynamicSIQuantity` and [`uom`](https://docs.rs/uom)'s typenum-based quantities (uom's angle kinds become `rad` exponents, its temperature kind the `Absolute` label).
 
 ## Regenerating
 
@@ -289,7 +292,7 @@ Everything in `src/` except `level.rs` and `uom_bridge.rs` is generated by [`yad
 cargo run -p yadc-codegen -- yadc-codegen/si.toml -o <dir>
 ```
 
-then copy `<dir>/src/*.rs` over `yadc-si/src/` (never generate straight into `yadc-si`: the generated `Cargo.toml` is a starting point, not this crate's). Keep the hand-written `src/level.rs` (the logarithms between a level and a power, a gain and a ratio) and `src/uom_bridge.rs` (orphan-rule impls that must sit beside `StaticSIQuantity`) - `si.toml` lists them under `extra_modules`, so the generated `lib.rs` declares them but the generator never writes them.
+then copy `<dir>/src/*.rs` over `yadc-si/src/` (never generate straight into `yadc-si`: the generated `Cargo.toml` is a starting point, not this crate's). Keep the hand-written `src/level.rs` (the logarithms between a level and a power, a gain and a ratio) and `src/uom_bridge.rs` (orphan-rule impls that must sit beside `SIQuantity`) - `si.toml` lists them under `extra_modules`, so the generated `lib.rs` declares them but the generator never writes them.
 
 ## Origin of the unit data
 

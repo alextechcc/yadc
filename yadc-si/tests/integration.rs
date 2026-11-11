@@ -11,10 +11,10 @@ use yadc_si::angular::*;
 use yadc_si::dimensionless::*;
 use yadc_si::mechanical::*;
 use yadc_si::thermal::*;
-use yadc_si::{DynamicSIQuantity, ISQ, Kind, StaticSIQuantity};
+use yadc_si::{DynamicSIQuantity, ISQ, Kind, SIQuantity};
 
 /// A static quantity's dimension: its const parameter.
-fn dim_of<const D: ISQ>(_: StaticSIQuantity<D>) -> ISQ {
+fn dim_of<const D: ISQ>(_: SIQuantity<D>) -> ISQ {
     D
 }
 
@@ -454,7 +454,7 @@ fn a_temperature_is_an_amount_apart_from_its_differences() {
     close(therm::ICE_POINT.value(doubled), 666.3 / 273.15);
     // It multiplies, and the label drops out of the product: the ideal gas
     // law, p V = n R T, and a fourth power for radiation.
-    let energy = chem::MOLE * chem::MOLAR_GAS_CONSTANT * warmer;
+    let energy = chem::MOLE::<f64> * chem::MOLAR_GAS_CONSTANT * warmer;
     close(EnergyUnit::Joule.value(energy), 8.314462618 * 333.15);
     let fourth = warmer.powi::<4>();
     assert_eq!(dim_of(fourth).kind, Kind::Linear);
@@ -618,7 +618,7 @@ fn an_instant_is_a_point_in_time() {
     close(DAY(j2000 - GPS_SECONDS.quantity(0.0)), 7_300.5);
     // Stored as `f64` seconds from the Unix epoch: today's instants resolve
     // to a fraction of a microsecond, so a millisecond count survives.
-    let precise = UNIX_MILLISECONDS.quantity(1_700_000_000_123.0);
+    let precise: Instant = UNIX_MILLISECONDS.quantity(1_700_000_000_123.0);
     assert!((UNIX_SECONDS.value(precise) - 1_700_000_000.123).abs() < 1e-6);
     assert!((UNIX_MILLISECONDS.value(precise) - 1_700_000_000_123.0).abs() < 1e-3);
     // A scale made at run time: seconds since launch.
@@ -889,7 +889,7 @@ use yadc_si::thermal::consts as therm;
 // by the compiler.
 const LIMIT: Velocity = 50.0 * mech::KILOMETRE / mech::HOUR;
 const ELECTRON_REST_ENERGY: Energy =
-    mech::ELECTRON_MASS * mech::SPEED_OF_LIGHT * mech::SPEED_OF_LIGHT;
+    mech::ELECTRON_MASS::<f64> * mech::SPEED_OF_LIGHT * mech::SPEED_OF_LIGHT;
 // A unit with a step, or a step and a zero, is a `const impl`, so building
 // with it is const too, zero point and all.
 const BOILING: ThermodynamicTemperature = ThermodynamicTemperatureUnit::Celsius.quantity(100.0);
@@ -962,7 +962,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
     // R = N_A · k, within the CODATA rounding.
     // (The type annotation is the dimension check: mol⁻¹ · J/K is J/(mol·K).)
     type MolarHeatCapacity = yadc_si::chemistry::MolarHeatCapacity;
-    let r: MolarHeatCapacity = chem::AVOGADRO_CONSTANT * therm::BOLTZMANN_CONSTANT;
+    let r: MolarHeatCapacity = chem::AVOGADRO_CONSTANT::<f64> * therm::BOLTZMANN_CONSTANT;
     // Compare the two numbers, each read in J/(K·mol).
     let number = |q: MolarHeatCapacity| chem::JOULE_PER_KELVIN_MOLE.value(q);
     assert!((number(r) - number(chem::MOLAR_GAS_CONSTANT)).abs() < 1e-8);
@@ -980,7 +980,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
         1.602176634,
     );
     // ε₀ μ₀ c² = 1, to the precision of the CODATA values.
-    let one: Dimensionless = em::VACUUM_PERMITTIVITY
+    let one: Dimensionless = em::VACUUM_PERMITTIVITY::<f64>
         * em::VACUUM_PERMEABILITY
         * mech::SPEED_OF_LIGHT
         * mech::SPEED_OF_LIGHT;
@@ -1225,13 +1225,14 @@ mod unit_values {
         close(convert(30.0, dbm, WATT), 1.0);
     }
 
-    /// The number type is a parameter, `f64` by default: a cast changes it,
-    /// and std `From` widens it losslessly.
+    /// The number type is a parameter, `f64` by default: a constant takes the
+    /// one it is used at, a cast changes it, and std `From` widens it
+    /// losslessly.
     #[test]
     fn other_value_types() {
         use yadc::Dimension;
-        use yadc_si::{ISQ, StaticSIQuantity};
-        const KPA32: StaticSIQuantity<
+        use yadc_si::{ISQ, SIQuantity};
+        const KPA32: SIQuantity<
             {
                 ISQ {
                     m: -1,
@@ -1242,10 +1243,11 @@ mod unit_values {
             },
             f32,
         > =
-            KILOPASCAL.cast::<f32>();
+            KILOPASCAL;
         let p32 = KPA32.quantity(2.5f32);
         assert_eq!(KPA32.value(p32), 2.5f32);
         let p: Pressure = Pressure::from(p32);
         close(KILOPASCAL.value(p), 2.5);
+        assert_eq!(p.cast::<f32>(), p32);
     }
 }

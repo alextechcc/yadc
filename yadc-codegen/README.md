@@ -82,7 +82,7 @@ use crate::{Dim, Qty};
 use consts::*;
 use yadc::Dimension;
 
-pub type Length = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>;
+pub type Length<N = f64> = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, N>;
 
 pub mod consts {
     use super::*;
@@ -91,7 +91,7 @@ pub mod consts {
     pub use crate::base::METRE;
 
     /// One `Kilometre` (km), as a `Length`.
-    pub const KILOMETRE: Length = 1000.0 * METRE;
+    pub const KILOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000) * METRE::<Exact>);
 }
 
 #[derive_const(Default)]
@@ -112,25 +112,30 @@ pub enum LengthUnit {
   regenerate into another directory and copy `src/*.rs` (see
   [`yadc-si`](../yadc-si/README.md#regenerating)).
 
-The generated crate root needs the nine features a crate *defining* a system
-needs (see yadc's README), plus `const_destruct` for the generic number type
-and the dynamic type, and `fn_traits` and `unboxed_closures` for the `Fn`
-extra of the derives - the std function traits that make a unit callable. A
-crate that only uses the generated one, calling its units included, needs
-none of the last three.
+The generated crate root needs the features a crate *defining* a system
+needs (see yadc's README), plus `generic_const_items` for its constants. A
+crate that only uses the generated one needs `generic_const_exprs` alone.
+
+`src/lib.rs` also holds `Exact` (written from `templates/exact.rs`), the
+exact number every constant is defined in, and `counted`, which rounds an exact constant
+once to the number type its use asks for.
 
 ### The `consts` modules
 
-The base constants are the only raw numbers; every other constant is a
-quantity-typed expression of them, written the way a standards document
-writes it:
+The base constants are the only raw numbers; every other constant is an
+expression of them, written the way a standards document writes it and
+evaluated exactly: each constant is generic over its number type,
+`KILOMETRE<N: const From<Exact>>`, its definition taken at `Exact`
+(`METRE::<Exact>`) and rounded once to `N`. A unit's `m` is therefore its
+exact definition - `"0.0254"`, `"1000.0 / 3600.0"`, `"core::f64::consts::PI / 180.0"`
+(numbers, `+ - * /`, parentheses and π) - never a rounded result:
 
 - **a coherent unit** (the first unit of a quantity with `m = "1.0"`) is the
   product of the base constants for its exponents, in `[dim]` order -
   `NEWTON = METRE * KILOGRAM / (SECOND * SECOND)`, `HERTZ = ONE / SECOND`;
   where a base constant *is* the coherent unit (`METRE`, or `BEL` for a
   quantity with a kind), it is re-exported;
-- **a multiple** is `m * COHERENT` - `KILOMETRE = 1000.0 * METRE`,
+- **a multiple** is `m * COHERENT` - `KILOMETRE = 1000 * METRE`,
   `DEGREE_FAHRENHEIT = (5.0 / 9.0) * KELVIN` - or `m * (product)` for a
   quantity with no coherent unit of its own;
 - **a quantity's `consts`** are written verbatim: `ICE_POINT = ABSOLUTE_ZERO + 273.15 * KELVIN`;
@@ -185,7 +190,7 @@ between both modes.
 crate_name   = "yadc-si"                    # output crate name (and default output dir)
 family_order = ["mechanical", "angular"]    # order of features and `pub mod`s
 dim_type     = "ISQ"                        # dimension struct name      (default "Dim")
-qty_type     = "StaticSIQuantity"           # static quantity name       (default "Qty")
+qty_type     = "SIQuantity"           # static quantity name       (default "Qty")
 dynqty_type  = "DynamicSIQuantity"          # dynamic quantity name      (default "DynQty")
 unit_derives = ["Copy", "Clone"]            # extra derives on every unit enum
 extra_modules = [                           # hand-written modules: declared, never written

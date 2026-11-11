@@ -1,26 +1,28 @@
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Angle = StaticSIQuantity<
+pub type Angle<N = f64> = SIQuantity<
     {
         ISQ {
             rad: 1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type SolidAngle = StaticSIQuantity<
+pub type SolidAngle<N = f64> = SIQuantity<
     {
         ISQ {
             rad: 2,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type AngularVelocity = StaticSIQuantity<
+pub type AngularVelocity<N = f64> = SIQuantity<
     {
         ISQ {
             s: -1,
@@ -28,9 +30,10 @@ pub type AngularVelocity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type AngularAcceleration = StaticSIQuantity<
+pub type AngularAcceleration<N = f64> = SIQuantity<
     {
         ISQ {
             s: -2,
@@ -38,9 +41,10 @@ pub type AngularAcceleration = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type AngularJerk = StaticSIQuantity<
+pub type AngularJerk<N = f64> = SIQuantity<
     {
         ISQ {
             s: -3,
@@ -48,9 +52,10 @@ pub type AngularJerk = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type AngularAbsement = StaticSIQuantity<
+pub type AngularAbsement<N = f64> = SIQuantity<
     {
         ISQ {
             s: 1,
@@ -58,9 +63,10 @@ pub type AngularAbsement = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type AngularMomentum = StaticSIQuantity<
+pub type AngularMomentum<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -70,13 +76,16 @@ pub type AngularMomentum = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE};
@@ -85,230 +94,199 @@ pub mod consts {
     pub use crate::base::RADIAN;
 
     /// One `Revolution` (r), as an `Angle`.
-    pub const REVOLUTION: Angle = 6.2831853071795862 * RADIAN;
+    pub const REVOLUTION<N: const From<Exact>>: Angle<N> = counted((Exact::int(2) * Exact::PI) * RADIAN::<Exact>);
 
     /// One `Degree` (°), as an `Angle`.
-    pub const DEGREE: Angle = 0.017453292519943295 * RADIAN;
+    pub const DEGREE<N: const From<Exact>>: Angle<N> = counted((Exact::PI / Exact::int(180)) * RADIAN::<Exact>);
 
     /// One `Gon` (gon), as an `Angle`.
-    pub const GON: Angle = 0.015707963267948967 * RADIAN;
+    pub const GON<N: const From<Exact>>: Angle<N> = counted((Exact::PI / Exact::int(200)) * RADIAN::<Exact>);
 
     /// One `Mil` (mil), as an `Angle`.
-    pub const MIL: Angle = (2.0 * core::f64::consts::PI / 6400.0) * RADIAN;
+    pub const MIL<N: const From<Exact>>: Angle<N> = counted((Exact::int(2) * Exact::PI / Exact::int(6400)) * RADIAN::<Exact>);
 
     /// One `Minute` (′), as an `Angle`.
-    pub const MINUTE: Angle = 0.00029088820866572158 * RADIAN;
+    pub const MINUTE<N: const From<Exact>>: Angle<N> = counted((Exact::PI / Exact::int(10800)) * RADIAN::<Exact>);
 
     /// One `Second` (″), as an `Angle`.
-    pub const SECOND: Angle = 4.8481368110953598e-06 * RADIAN;
+    pub const SECOND<N: const From<Exact>>: Angle<N> = counted((Exact::PI / Exact::int(648000)) * RADIAN::<Exact>);
 
     /// One `Steradian` (sr), as a `SolidAngle`.
-    pub const STERADIAN: SolidAngle = RADIAN * RADIAN;
+    pub const STERADIAN<N: const From<Exact>>: SolidAngle<N> = counted(RADIAN::<Exact> * RADIAN::<Exact>);
 
     /// One `Spat` (sp), as a `SolidAngle`.
-    pub const SPAT: SolidAngle = 12.566370614359172 * STERADIAN;
+    pub const SPAT<N: const From<Exact>>: SolidAngle<N> = counted((Exact::int(4) * Exact::PI) * STERADIAN::<Exact>);
 
     /// One `SquareDegree` (°²), as a `SolidAngle`.
-    pub const SQUARE_DEGREE: SolidAngle = 0.00030461741978670862 * STERADIAN;
+    pub const SQUARE_DEGREE<N: const From<Exact>>: SolidAngle<N> = counted(((Exact::PI / Exact::int(180)) * (Exact::PI / Exact::int(180))) * STERADIAN::<Exact>);
 
     /// One `SquareMinute` (′²), as a `SolidAngle`.
-    pub const SQUARE_MINUTE: SolidAngle = 8.4615949940752387e-08 * STERADIAN;
+    pub const SQUARE_MINUTE<N: const From<Exact>>: SolidAngle<N> = counted(((Exact::PI / Exact::int(10800)) * (Exact::PI / Exact::int(10800))) * STERADIAN::<Exact>);
 
     /// One `SquareSecond` (″²), as a `SolidAngle`.
-    pub const SQUARE_SECOND: SolidAngle = 2.3504430539097885e-11 * STERADIAN;
+    pub const SQUARE_SECOND<N: const From<Exact>>: SolidAngle<N> = counted(((Exact::PI / Exact::int(648000)) * (Exact::PI / Exact::int(648000))) * STERADIAN::<Exact>);
 
     /// One `RadianPerSecond` (rad/s), as an `AngularVelocity`.
-    pub const RADIAN_PER_SECOND: AngularVelocity = RADIAN / crate::base::SECOND;
+    pub const RADIAN_PER_SECOND<N: const From<Exact>>: AngularVelocity<N> = counted(RADIAN::<Exact> / crate::base::SECOND::<Exact>);
 
     /// One `DegreePerSecond` (°/s), as an `AngularVelocity`.
-    pub const DEGREE_PER_SECOND: AngularVelocity = 0.017453292519943295 * RADIAN_PER_SECOND;
+    pub const DEGREE_PER_SECOND<N: const From<Exact>>: AngularVelocity<N> = counted((Exact::PI / Exact::int(180)) * RADIAN_PER_SECOND::<Exact>);
 
     /// One `RevolutionPerSecond` (rps), as an `AngularVelocity`.
-    pub const REVOLUTION_PER_SECOND: AngularVelocity = 6.2831853071795862 * RADIAN_PER_SECOND;
+    pub const REVOLUTION_PER_SECOND<N: const From<Exact>>: AngularVelocity<N> = counted((Exact::int(2) * Exact::PI) * RADIAN_PER_SECOND::<Exact>);
 
     /// One `RevolutionPerMinute` (rpm), as an `AngularVelocity`.
-    pub const REVOLUTION_PER_MINUTE: AngularVelocity = 0.10471975511965977 * RADIAN_PER_SECOND;
+    pub const REVOLUTION_PER_MINUTE<N: const From<Exact>>: AngularVelocity<N> = counted((Exact::int(2) * Exact::PI / Exact::int(60)) * RADIAN_PER_SECOND::<Exact>);
 
     /// One `RevolutionPerHour` (rph), as an `AngularVelocity`.
-    pub const REVOLUTION_PER_HOUR: AngularVelocity = 0.0017453292519943296 * RADIAN_PER_SECOND;
+    pub const REVOLUTION_PER_HOUR<N: const From<Exact>>: AngularVelocity<N> = counted((Exact::int(2) * Exact::PI / Exact::int(3600)) * RADIAN_PER_SECOND::<Exact>);
 
     /// One `RadianPerSecondSquared` (rad/s²), as an `AngularAcceleration`.
-    pub const RADIAN_PER_SECOND_SQUARED: AngularAcceleration =
-        RADIAN / (crate::base::SECOND * crate::base::SECOND);
+    pub const RADIAN_PER_SECOND_SQUARED<N: const From<Exact>>: AngularAcceleration<N> = counted(RADIAN::<Exact> / (crate::base::SECOND::<Exact> * crate::base::SECOND::<Exact>));
 
     /// One `DegreePerSecondSquared` (°/s²), as an `AngularAcceleration`.
-    pub const DEGREE_PER_SECOND_SQUARED: AngularAcceleration =
-        0.017453292519943295 * RADIAN_PER_SECOND_SQUARED;
+    pub const DEGREE_PER_SECOND_SQUARED<N: const From<Exact>>: AngularAcceleration<N> = counted((Exact::PI / Exact::int(180)) * RADIAN_PER_SECOND_SQUARED::<Exact>);
 
     /// One `RadianPerSecondCubed` (rad/s³), as an `AngularJerk`.
-    pub const RADIAN_PER_SECOND_CUBED: AngularJerk =
-        RADIAN / (crate::base::SECOND * crate::base::SECOND * crate::base::SECOND);
+    pub const RADIAN_PER_SECOND_CUBED<N: const From<Exact>>: AngularJerk<N> = counted(RADIAN::<Exact> / (crate::base::SECOND::<Exact> * crate::base::SECOND::<Exact> * crate::base::SECOND::<Exact>));
 
     /// One `DegreePerSecondCubed` (°/s³), as an `AngularJerk`.
-    pub const DEGREE_PER_SECOND_CUBED: AngularJerk = 0.017453292519943295 * RADIAN_PER_SECOND_CUBED;
+    pub const DEGREE_PER_SECOND_CUBED<N: const From<Exact>>: AngularJerk<N> = counted((Exact::PI / Exact::int(180)) * RADIAN_PER_SECOND_CUBED::<Exact>);
 
     /// One `RadianSecond` (rad · s), as an `AngularAbsement`.
-    pub const RADIAN_SECOND: AngularAbsement = crate::base::SECOND * RADIAN;
+    pub const RADIAN_SECOND<N: const From<Exact>>: AngularAbsement<N> = counted(crate::base::SECOND::<Exact> * RADIAN::<Exact>);
 
     /// One `DegreeSecond` (° · s), as an `AngularAbsement`.
-    pub const DEGREE_SECOND: AngularAbsement = 0.017453292519943295 * RADIAN_SECOND;
+    pub const DEGREE_SECOND<N: const From<Exact>>: AngularAbsement<N> = counted((Exact::PI / Exact::int(180)) * RADIAN_SECOND::<Exact>);
 
     /// One `ReducedPlanckConstant` (ħ), as an `AngularMomentum`.
-    pub const REDUCED_PLANCK_CONSTANT: AngularMomentum =
-        (6.62607015e-34 / (2.0 * core::f64::consts::PI)) * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const REDUCED_PLANCK_CONSTANT<N: const From<Exact>>: AngularMomentum<N> = counted((Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI)) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `KilogramSquareMetrePerSecond` (kg · m²/s), as an `AngularMomentum`.
-    pub const KILOGRAM_SQUARE_METRE_PER_SECOND: AngularMomentum =
-        METRE * METRE * KILOGRAM / (crate::base::SECOND * RADIAN);
+    pub const KILOGRAM_SQUARE_METRE_PER_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (crate::base::SECOND::<Exact> * RADIAN::<Exact>));
 
     /// One `YottanewtonMetreSecond` (YN · m · s), as an `AngularMomentum`.
-    pub const YOTTANEWTON_METRE_SECOND: AngularMomentum =
-        9.9999999999999998e+23 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const YOTTANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `ZettanewtonMetreSecond` (ZN · m · s), as an `AngularMomentum`.
-    pub const ZETTANEWTON_METRE_SECOND: AngularMomentum = 1e+21 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const ZETTANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `ExanewtonMetreSecond` (EN · m · s), as an `AngularMomentum`.
-    pub const EXANEWTON_METRE_SECOND: AngularMomentum = 1e+18 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const EXANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `PetanewtonMetreSecond` (PN · m · s), as an `AngularMomentum`.
-    pub const PETANEWTON_METRE_SECOND: AngularMomentum =
-        1000000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const PETANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `TeranewtonMetreSecond` (TN · m · s), as an `AngularMomentum`.
-    pub const TERANEWTON_METRE_SECOND: AngularMomentum =
-        1000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const TERANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `GiganewtonMetreSecond` (GN · m · s), as an `AngularMomentum`.
-    pub const GIGANEWTON_METRE_SECOND: AngularMomentum =
-        1000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const GIGANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `MeganewtonMetreSecond` (MN · m · s), as an `AngularMomentum`.
-    pub const MEGANEWTON_METRE_SECOND: AngularMomentum =
-        1000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const MEGANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `KilonewtonMetreSecond` (kN · m · s), as an `AngularMomentum`.
-    pub const KILONEWTON_METRE_SECOND: AngularMomentum = 1000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const KILONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `HectonewtonMetreSecond` (hN · m · s), as an `AngularMomentum`.
-    pub const HECTONEWTON_METRE_SECOND: AngularMomentum = 100.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const HECTONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(100) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `DecanewtonMetreSecond` (daN · m · s), as an `AngularMomentum`.
-    pub const DECANEWTON_METRE_SECOND: AngularMomentum = 10.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const DECANEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(10) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonMetreSecond` (N · m · s), as an `AngularMomentum`.
-    pub const NEWTON_METRE_SECOND: AngularMomentum = KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `DecinewtonMetreSecond` (dN · m · s), as an `AngularMomentum`.
-    pub const DECINEWTON_METRE_SECOND: AngularMomentum =
-        0.10000000000000001 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const DECINEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -1) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `CentinewtonMetreSecond` (cN · m · s), as an `AngularMomentum`.
-    pub const CENTINEWTON_METRE_SECOND: AngularMomentum = 0.01 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const CENTINEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -2) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `MillinewtonMetreSecond` (mN · m · s), as an `AngularMomentum`.
-    pub const MILLINEWTON_METRE_SECOND: AngularMomentum = 0.001 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const MILLINEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `MicronewtonMetreSecond` (µN · m · s), as an `AngularMomentum`.
-    pub const MICRONEWTON_METRE_SECOND: AngularMomentum =
-        9.9999999999999995e-07 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const MICRONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -6) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NanonewtonMetreSecond` (nN · m · s), as an `AngularMomentum`.
-    pub const NANONEWTON_METRE_SECOND: AngularMomentum =
-        1.0000000000000001e-09 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NANONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -9) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `PiconewtonMetreSecond` (pN · m · s), as an `AngularMomentum`.
-    pub const PICONEWTON_METRE_SECOND: AngularMomentum =
-        9.9999999999999998e-13 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const PICONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -12) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `FemtonewtonMetreSecond` (fN · m · s), as an `AngularMomentum`.
-    pub const FEMTONEWTON_METRE_SECOND: AngularMomentum =
-        1.0000000000000001e-15 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const FEMTONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -15) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `AttonewtonMetreSecond` (aN · m · s), as an `AngularMomentum`.
-    pub const ATTONEWTON_METRE_SECOND: AngularMomentum =
-        1.0000000000000001e-18 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const ATTONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -18) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `ZeptonewtonMetreSecond` (zN · m · s), as an `AngularMomentum`.
-    pub const ZEPTONEWTON_METRE_SECOND: AngularMomentum =
-        9.9999999999999991e-22 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const ZEPTONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -21) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `YoctonewtonMetreSecond` (yN · m · s), as an `AngularMomentum`.
-    pub const YOCTONEWTON_METRE_SECOND: AngularMomentum =
-        9.9999999999999992e-25 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const YOCTONEWTON_METRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -24) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonYottametreSecond` (N · Ym · s), as an `AngularMomentum`.
-    pub const NEWTON_YOTTAMETRE_SECOND: AngularMomentum =
-        9.9999999999999998e+23 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_YOTTAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonZettametreSecond` (N · Zm · s), as an `AngularMomentum`.
-    pub const NEWTON_ZETTAMETRE_SECOND: AngularMomentum = 1e+21 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_ZETTAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonExametreSecond` (N · Em · s), as an `AngularMomentum`.
-    pub const NEWTON_EXAMETRE_SECOND: AngularMomentum = 1e+18 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_EXAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonPetametreSecond` (N · Pm · s), as an `AngularMomentum`.
-    pub const NEWTON_PETAMETRE_SECOND: AngularMomentum =
-        1000000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_PETAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonTerametreSecond` (N · Tm · s), as an `AngularMomentum`.
-    pub const NEWTON_TERAMETRE_SECOND: AngularMomentum =
-        1000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_TERAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonGigametreSecond` (N · Gm · s), as an `AngularMomentum`.
-    pub const NEWTON_GIGAMETRE_SECOND: AngularMomentum =
-        1000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_GIGAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonMegametreSecond` (N · Mm · s), as an `AngularMomentum`.
-    pub const NEWTON_MEGAMETRE_SECOND: AngularMomentum =
-        1000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_MEGAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonKilometreSecond` (N · km · s), as an `AngularMomentum`.
-    pub const NEWTON_KILOMETRE_SECOND: AngularMomentum = 1000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_KILOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(1000) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonHectometreSecond` (N · hm · s), as an `AngularMomentum`.
-    pub const NEWTON_HECTOMETRE_SECOND: AngularMomentum = 100.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_HECTOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(100) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonDecametreSecond` (N · dam · s), as an `AngularMomentum`.
-    pub const NEWTON_DECAMETRE_SECOND: AngularMomentum = 10.0 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_DECAMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::int(10) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonDecimetreSecond` (N · dm · s), as an `AngularMomentum`.
-    pub const NEWTON_DECIMETRE_SECOND: AngularMomentum =
-        0.10000000000000001 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_DECIMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -1) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonCentimetreSecond` (N · cm · s), as an `AngularMomentum`.
-    pub const NEWTON_CENTIMETRE_SECOND: AngularMomentum = 0.01 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_CENTIMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -2) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonMillimetreSecond` (N · mm · s), as an `AngularMomentum`.
-    pub const NEWTON_MILLIMETRE_SECOND: AngularMomentum = 0.001 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_MILLIMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonMicrometreSecond` (N · µm · s), as an `AngularMomentum`.
-    pub const NEWTON_MICROMETRE_SECOND: AngularMomentum =
-        9.9999999999999995e-07 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_MICROMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -6) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonNanometreSecond` (N · nm · s), as an `AngularMomentum`.
-    pub const NEWTON_NANOMETRE_SECOND: AngularMomentum =
-        1.0000000000000001e-09 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_NANOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -9) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonPicometreSecond` (N · pm · s), as an `AngularMomentum`.
-    pub const NEWTON_PICOMETRE_SECOND: AngularMomentum =
-        9.9999999999999998e-13 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_PICOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -12) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonFemtometreSecond` (N · fm · s), as an `AngularMomentum`.
-    pub const NEWTON_FEMTOMETRE_SECOND: AngularMomentum =
-        1.0000000000000001e-15 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_FEMTOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -15) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonAttometreSecond` (N · am · s), as an `AngularMomentum`.
-    pub const NEWTON_ATTOMETRE_SECOND: AngularMomentum =
-        1.0000000000000001e-18 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_ATTOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -18) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonZeptometreSecond` (N · zm · s), as an `AngularMomentum`.
-    pub const NEWTON_ZEPTOMETRE_SECOND: AngularMomentum =
-        9.9999999999999991e-22 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_ZEPTOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -21) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 
     /// One `NewtonYoctometreSecond` (N · ym · s), as an `AngularMomentum`.
-    pub const NEWTON_YOCTOMETRE_SECOND: AngularMomentum =
-        9.9999999999999992e-25 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+    pub const NEWTON_YOCTOMETRE_SECOND<N: const From<Exact>>: AngularMomentum<N> = counted(Exact::dec(1, -24) * KILOGRAM_SQUARE_METRE_PER_SECOND::<Exact>);
 }
 
 /// The units of `Angle`, for a menu, a config file, a parser.

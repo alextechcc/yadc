@@ -14,18 +14,18 @@ use uom::si::velocity::meter_per_second;
 use yadc::Unit;
 use yadc_si::angular::*;
 use yadc_si::mechanical::*;
-use yadc_si::{DynamicSIQuantity, StaticSIQuantity};
+use yadc_si::{DynamicSIQuantity, SIQuantity};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
 }
 
-// --- StaticSIQuantity ---------------------------------------------------------
+// --- SIQuantity ---------------------------------------------------------
 
 #[test]
 fn static_from_uom_length() {
     let uom = Length::new::<kilometer>(42.195);
-    let q: StaticSIQuantity<_> = uom.into();
+    let q: SIQuantity<_> = uom.into();
     close(LengthUnit::Metre.value(q), 42_195.0);
     close(LengthUnit::Kilometre.value(q), 42.195);
 }
@@ -33,7 +33,7 @@ fn static_from_uom_length() {
 #[test]
 fn static_from_uom_mass() {
     let uom = Mass::new::<kilogram>(70.0);
-    let q: StaticSIQuantity<_> = uom.into();
+    let q: SIQuantity<_> = uom.into();
     close(MassUnit::Kilogram.value(q), 70.0);
     close(MassUnit::Gram.value(q), 70_000.0);
 }
@@ -49,7 +49,7 @@ fn static_into_uom_length() {
 #[test]
 fn static_round_trip_uom_to_yadc_to_uom() {
     let original = Length::new::<meter>(1234.5);
-    let q: StaticSIQuantity<_> = original.into();
+    let q: SIQuantity<_> = original.into();
     let back: Length = q.into();
     close(back.get::<meter>(), 1234.5);
 }
@@ -57,7 +57,7 @@ fn static_round_trip_uom_to_yadc_to_uom() {
 #[test]
 fn static_derived_quantity_velocity() {
     let uom = Velocity::new::<meter_per_second>(25.0);
-    let q: StaticSIQuantity<_> = uom.into();
+    let q: SIQuantity<_> = uom.into();
     close(VelocityUnit::MetrePerSecond.value(q), 25.0);
     let back: Velocity = q.into();
     close(back.get::<meter_per_second>(), 25.0);
@@ -66,7 +66,7 @@ fn static_derived_quantity_velocity() {
 #[test]
 fn static_derived_quantity_force() {
     let uom = Force::new::<newton>(9.81);
-    let q: StaticSIQuantity<_> = uom.into();
+    let q: SIQuantity<_> = uom.into();
     close(ForceUnit::Newton.value(q), 9.81);
     let back: Force = q.into();
     close(back.get::<newton>(), 9.81);
@@ -166,14 +166,14 @@ fn dynamic_arithmetic_after_uom_conversion() {
 #[test]
 fn static_angle_from_uom_is_one_radian_axis() {
     let uom = Angle::new::<radian>(std::f64::consts::FRAC_PI_2);
-    let q: StaticSIQuantity<_> = uom.into();
+    let q: SIQuantity<_> = uom.into();
     close(AngleUnit::Radian.value(q), std::f64::consts::FRAC_PI_2);
 }
 
 #[test]
 fn static_angle_round_trip() {
     let original = Angle::new::<radian>(std::f64::consts::PI);
-    let q: StaticSIQuantity<_> = original.into();
+    let q: SIQuantity<_> = original.into();
     let back: Angle = q.into();
     close(back.get::<radian>(), std::f64::consts::PI);
 }
@@ -181,7 +181,7 @@ fn static_angle_round_trip() {
 #[test]
 fn static_solid_angle_round_trip() {
     let original = SolidAngle::new::<steradian>(4.0);
-    let q: StaticSIQuantity<_> = original.into();
+    let q: SIQuantity<_> = original.into();
     close(SolidAngleUnit::Steradian.value(q), 4.0);
     let back: SolidAngle = q.into();
     close(back.get::<steradian>(), 4.0);

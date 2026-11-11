@@ -1,5 +1,5 @@
 //! Demonstrates `From`/`Into`/`TryFrom` between `uom`'s SI quantities and
-//! both `yadc_si::StaticSIQuantity` and `yadc_si::DynamicSIQuantity`.
+//! both `yadc_si::SIQuantity` and `yadc_si::DynamicSIQuantity`.
 //!
 //! Run with: cargo run -p yadc --example uom
 #![feature(generic_const_exprs)]
@@ -12,19 +12,19 @@ use uom::si::length::{kilometer, meter};
 use uom::si::mass::kilogram;
 use uom::si::velocity::meter_per_second;
 use yadc_si::mechanical::consts::{KILOGRAM, METRE_PER_SECOND};
-use yadc_si::{DynamicSIQuantity, StaticSIQuantity, mechanical};
+use yadc_si::{DynamicSIQuantity, SIQuantity, mechanical};
 
 fn main() {
-    // -- uom -> StaticSIQuantity (From, infallible) -----------------------------
+    // -- uom -> SIQuantity (From, infallible) -----------------------------
     let uom_dist = Length::new::<kilometer>(42.195);
-    let static_dist: StaticSIQuantity<_> = uom_dist.into();
+    let static_dist: SIQuantity<_> = uom_dist.into();
     let km = mechanical::LengthUnit::Kilometre;
     println!(
         "marathon (static, from uom): {} {km}",
         km(static_dist)
     );
 
-    // -- StaticSIQuantity -> uom (Into, infallible) ----------------------------
+    // -- SIQuantity -> uom (Into, infallible) ----------------------------
     // Every yadc-si constant is a unit: 25 of `METRE_PER_SECOND`.
     let yadc_v = METRE_PER_SECOND(25.0);
     let uom_v: Velocity = yadc_v.into();

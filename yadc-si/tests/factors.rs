@@ -1,10 +1,11 @@
 //! Units with an exact definition carry it in full: a unit built from the
-//! units it is defined by is the unit's own constant, to the last bits.
+//! units it is defined by is the unit's own constant. Counted in `Exact`,
+//! the two are equal outright.
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 
-use core::f64::consts::PI;
 use yadc::Unit;
+use yadc_si::Exact;
 use yadc_si::angular::consts::{RADIAN, REDUCED_PLANCK_CONSTANT};
 use yadc_si::chemistry::consts::{AVOGADRO_CONSTANT, MOLE};
 use yadc_si::density::consts::SLUG_PER_CUBIC_FOOT;
@@ -17,51 +18,90 @@ use yadc_si::mechanical::consts::{
     STANDARD_ATMOSPHERE, STANDARD_GRAVITY, TORR,
 };
 
-/// `unit.value(q)` of a quantity built from the unit's definition is one, to
-/// a few units in the last place.
-fn one(ratio: f64) {
-    assert!(
-        (ratio - 1.0).abs() <= 4.0 * f64::EPSILON,
-        "expected 1, got {ratio:e}"
+#[test]
+fn inch_based() {
+    assert_eq!(INCH::<Exact> * INCH::<Exact>, SQUARE_INCH::<Exact>);
+    assert_eq!(
+        INCH::<Exact> * INCH::<Exact> * INCH::<Exact>,
+        CUBIC_INCH::<Exact>
+    );
+    assert_eq!(Exact::int(12) * INCH::<Exact>, FOOT::<Exact>);
+    assert_eq!(
+        FOOT::<Exact> * FOOT::<Exact> * FOOT::<Exact>,
+        CUBIC_FOOT::<Exact>
+    );
+    assert_eq!(Exact::int(231) * CUBIC_INCH::<Exact>, GALLON::<Exact>);
+    assert_eq!(GALLON::<Exact> / Exact::int(128), FLUID_OUNCE::<Exact>);
+    assert_eq!(
+        Exact::int(5280) * FOOT_SURVEY::<Exact>,
+        MILE_SURVEY::<Exact>
     );
 }
 
 #[test]
-fn inch_based() {
-    one(SQUARE_INCH.value(INCH * INCH));
-    one(CUBIC_INCH.value(INCH * INCH * INCH));
-    one(FOOT.value(12.0 * INCH));
-    one(CUBIC_FOOT.value(FOOT * FOOT * FOOT));
-    one(GALLON.value(231.0 * CUBIC_INCH));
-    one(FLUID_OUNCE.value(GALLON / 128.0));
-    one(MILE_SURVEY.value(5280.0 * FOOT_SURVEY));
-}
-
-#[test]
 fn pound_based() {
-    one(POUND.value(16.0 * OUNCE));
-    one(POUND_FORCE.value(POUND * STANDARD_GRAVITY));
-    one(SLUG.value(POUND_FORCE * SECOND * SECOND / FOOT));
-    one(SLUG_PER_CUBIC_FOOT.value(SLUG / CUBIC_FOOT));
-    one(FOOT_POUND.value(FOOT * POUND_FORCE));
-    one(HORSEPOWER.value(550.0 * FOOT * POUND_FORCE / SECOND));
-    one(PSI.value(POUND_FORCE / SQUARE_INCH));
-    one(POUND_FORCE_PER_SQUARE_INCH.value(POUND_FORCE / SQUARE_INCH));
-    one(BTU_IT_PER_POUND.value(BTU_IT / POUND));
+    assert_eq!(Exact::int(16) * OUNCE::<Exact>, POUND::<Exact>);
+    assert_eq!(
+        POUND::<Exact> * STANDARD_GRAVITY::<Exact>,
+        POUND_FORCE::<Exact>
+    );
+    assert_eq!(
+        POUND_FORCE::<Exact> * SECOND::<Exact> * SECOND::<Exact> / FOOT::<Exact>,
+        SLUG::<Exact>
+    );
+    assert_eq!(
+        SLUG::<Exact> / CUBIC_FOOT::<Exact>,
+        SLUG_PER_CUBIC_FOOT::<Exact>
+    );
+    assert_eq!(FOOT::<Exact> * POUND_FORCE::<Exact>, FOOT_POUND::<Exact>);
+    assert_eq!(
+        Exact::int(550) * FOOT::<Exact> * POUND_FORCE::<Exact> / SECOND::<Exact>,
+        HORSEPOWER::<Exact>
+    );
+    assert_eq!(POUND_FORCE::<Exact> / SQUARE_INCH::<Exact>, PSI::<Exact>);
+    assert_eq!(
+        POUND_FORCE::<Exact> / SQUARE_INCH::<Exact>,
+        POUND_FORCE_PER_SQUARE_INCH::<Exact>
+    );
+    assert_eq!(BTU_IT::<Exact> / POUND::<Exact>, BTU_IT_PER_POUND::<Exact>);
 }
 
 #[test]
 fn exact_values() {
-    assert_eq!(JOULE_PER_KILOGRAM.value(BTU_IT_PER_POUND), 2326.0);
-    assert_eq!(METRE.value(LIGHT_YEAR), 9_460_730_472_580_800.0);
-    assert_eq!(PASCAL.value(MILLIMETRE_OF_MERCURY), 133.322387415);
+    assert_eq!(
+        JOULE_PER_KILOGRAM.value(BTU_IT_PER_POUND::<Exact>),
+        Exact::int(2326)
+    );
+    assert_eq!(
+        METRE.value(LIGHT_YEAR::<Exact>),
+        Exact::int(9_460_730_472_580_800)
+    );
+    assert_eq!(
+        PASCAL.value(MILLIMETRE_OF_MERCURY::<Exact>),
+        Exact::dec(133_322_387_415, -9)
+    );
 }
 
 #[test]
 fn defined_by_other_constants() {
-    one(TORR.value(STANDARD_ATMOSPHERE / 760.0));
-    one(LIGHT_YEAR.value(365.25 * DAY * SPEED_OF_LIGHT));
-    one(ASTRONOMICAL_UNIT.value(PARSEC * (PI / 648_000.0)));
-    one(FARADAY.value(ELEMENTARY_CHARGE * AVOGADRO_CONSTANT * MOLE));
-    one(PLANCK_CONSTANT.value(REDUCED_PLANCK_CONSTANT * (2.0 * PI * RADIAN)));
+    assert_eq!(
+        STANDARD_ATMOSPHERE::<Exact> / Exact::int(760),
+        TORR::<Exact>
+    );
+    assert_eq!(
+        Exact::dec(36525, -2) * DAY::<Exact> * SPEED_OF_LIGHT::<Exact>,
+        LIGHT_YEAR::<Exact>
+    );
+    assert_eq!(
+        PARSEC::<Exact> * (Exact::PI / Exact::int(648_000)),
+        ASTRONOMICAL_UNIT::<Exact>
+    );
+    assert_eq!(
+        ELEMENTARY_CHARGE::<Exact> * AVOGADRO_CONSTANT::<Exact> * MOLE::<Exact>,
+        FARADAY::<Exact>
+    );
+    assert_eq!(
+        REDUCED_PLANCK_CONSTANT::<Exact> * (Exact::int(2) * Exact::PI * RADIAN::<Exact>),
+        PLANCK_CONSTANT::<Exact>
+    );
 }

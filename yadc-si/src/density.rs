@@ -1,8 +1,8 @@
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type MassDensity = StaticSIQuantity<
+pub type MassDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -10,9 +10,10 @@ pub type MassDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type LinearMassDensity = StaticSIQuantity<
+pub type LinearMassDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -20,9 +21,10 @@ pub type LinearMassDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ArealMassDensity = StaticSIQuantity<
+pub type ArealMassDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -30,36 +32,40 @@ pub type ArealMassDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type LinearNumberDensity = StaticSIQuantity<
+pub type LinearNumberDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ArealNumberDensity = StaticSIQuantity<
+pub type ArealNumberDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type VolumetricNumberDensity = StaticSIQuantity<
+pub type VolumetricNumberDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type LinearNumberRate = StaticSIQuantity<
+pub type LinearNumberRate<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -67,9 +73,10 @@ pub type LinearNumberRate = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ArealNumberRate = StaticSIQuantity<
+pub type ArealNumberRate<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -77,9 +84,10 @@ pub type ArealNumberRate = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type VolumetricNumberRate = StaticSIQuantity<
+pub type VolumetricNumberRate<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -87,9 +95,10 @@ pub type VolumetricNumberRate = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type LinearDensityOfStates = StaticSIQuantity<
+pub type LinearDensityOfStates<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -98,9 +107,10 @@ pub type LinearDensityOfStates = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ArealDensityOfStates = StaticSIQuantity<
+pub type ArealDensityOfStates<N = f64> = SIQuantity<
     {
         ISQ {
             m: -4,
@@ -109,9 +119,10 @@ pub type ArealDensityOfStates = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type VolumetricDensityOfStates = StaticSIQuantity<
+pub type VolumetricDensityOfStates<N = f64> = SIQuantity<
     {
         ISQ {
             m: -5,
@@ -120,9 +131,10 @@ pub type VolumetricDensityOfStates = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type LinearPowerDensity = StaticSIQuantity<
+pub type LinearPowerDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -131,9 +143,10 @@ pub type LinearPowerDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type VolumetricPowerDensity = StaticSIQuantity<
+pub type VolumetricPowerDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -142,468 +155,421 @@ pub type VolumetricPowerDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, ONE, SECOND};
 
     /// One `YottagramPerCubicMetre` (Yg/m³), as a `MassDensity`.
-    pub const YOTTAGRAM_PER_CUBIC_METRE: MassDensity = 1e+21 * KILOGRAM_PER_CUBIC_METRE;
+    pub const YOTTAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `ZettagramPerCubicMetre` (Zg/m³), as a `MassDensity`.
-    pub const ZETTAGRAM_PER_CUBIC_METRE: MassDensity = 1e+18 * KILOGRAM_PER_CUBIC_METRE;
+    pub const ZETTAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `ExagramPerCubicMetre` (Eg/m³), as a `MassDensity`.
-    pub const EXAGRAM_PER_CUBIC_METRE: MassDensity = 1000000000000000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const EXAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PetagramPerCubicMetre` (Pg/m³), as a `MassDensity`.
-    pub const PETAGRAM_PER_CUBIC_METRE: MassDensity = 1000000000000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const PETAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TeragramPerCubicMetre` (Tg/m³), as a `MassDensity`.
-    pub const TERAGRAM_PER_CUBIC_METRE: MassDensity = 1000000000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TERAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `GigagramPerCubicMetre` (Gg/m³), as a `MassDensity`.
-    pub const GIGAGRAM_PER_CUBIC_METRE: MassDensity = 1000000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const GIGAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `MegagramPerCubicMetre` (Mg/m³), as a `MassDensity`.
-    pub const MEGAGRAM_PER_CUBIC_METRE: MassDensity = 1000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const MEGAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `KilogramPerCubicMetre` (kg/m³), as a `MassDensity`.
-    pub const KILOGRAM_PER_CUBIC_METRE: MassDensity = KILOGRAM / (METRE * METRE * METRE);
+    pub const KILOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
 
     /// One `HectogramPerCubicMetre` (hg/m³), as a `MassDensity`.
-    pub const HECTOGRAM_PER_CUBIC_METRE: MassDensity =
-        0.10000000000000001 * KILOGRAM_PER_CUBIC_METRE;
+    pub const HECTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `DecagramPerCubicMetre` (dag/m³), as a `MassDensity`.
-    pub const DECAGRAM_PER_CUBIC_METRE: MassDensity = 0.01 * KILOGRAM_PER_CUBIC_METRE;
+    pub const DECAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -2) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `GramPerCubicMetre` (g/m³), as a `MassDensity`.
-    pub const GRAM_PER_CUBIC_METRE: MassDensity = 0.001 * KILOGRAM_PER_CUBIC_METRE;
+    pub const GRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `DecigramPerCubicMetre` (dg/m³), as a `MassDensity`.
-    pub const DECIGRAM_PER_CUBIC_METRE: MassDensity = 0.0001 * KILOGRAM_PER_CUBIC_METRE;
+    pub const DECIGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -4) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `CentigramPerCubicMetre` (cg/m³), as a `MassDensity`.
-    pub const CENTIGRAM_PER_CUBIC_METRE: MassDensity =
-        1.0000000000000001e-05 * KILOGRAM_PER_CUBIC_METRE;
+    pub const CENTIGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -5) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `MilligramPerCubicMetre` (mg/m³), as a `MassDensity`.
-    pub const MILLIGRAM_PER_CUBIC_METRE: MassDensity =
-        9.9999999999999995e-07 * KILOGRAM_PER_CUBIC_METRE;
+    pub const MILLIGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `MicrogramPerCubicMetre` (µg/m³), as a `MassDensity`.
-    pub const MICROGRAM_PER_CUBIC_METRE: MassDensity =
-        9.9999999999999986e-10 * KILOGRAM_PER_CUBIC_METRE;
+    pub const MICROGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -9) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `NanogramPerCubicMetre` (ng/m³), as a `MassDensity`.
-    pub const NANOGRAM_PER_CUBIC_METRE: MassDensity =
-        9.9999999999999998e-13 * KILOGRAM_PER_CUBIC_METRE;
+    pub const NANOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -12) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PicogramPerCubicMetre` (pg/m³), as a `MassDensity`.
-    pub const PICOGRAM_PER_CUBIC_METRE: MassDensity =
-        1.0000000000000001e-15 * KILOGRAM_PER_CUBIC_METRE;
+    pub const PICOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -15) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `FemtogramPerCubicMetre` (fg/m³), as a `MassDensity`.
-    pub const FEMTOGRAM_PER_CUBIC_METRE: MassDensity =
-        1.0000000000000001e-18 * KILOGRAM_PER_CUBIC_METRE;
+    pub const FEMTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -18) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `AttogramPerCubicMetre` (ag/m³), as a `MassDensity`.
-    pub const ATTOGRAM_PER_CUBIC_METRE: MassDensity =
-        1.0000000000000001e-21 * KILOGRAM_PER_CUBIC_METRE;
+    pub const ATTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -21) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `ZeptogramPerCubicMetre` (zg/m³), as a `MassDensity`.
-    pub const ZEPTOGRAM_PER_CUBIC_METRE: MassDensity =
-        9.9999999999999992e-25 * KILOGRAM_PER_CUBIC_METRE;
+    pub const ZEPTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -24) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `YoctogramPerCubicMetre` (yg/m³), as a `MassDensity`.
-    pub const YOCTOGRAM_PER_CUBIC_METRE: MassDensity =
-        9.9999999999999986e-28 * KILOGRAM_PER_CUBIC_METRE;
+    pub const YOCTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -27) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `CaratPerCubicMetre` (ct/m³), as a `MassDensity`.
-    pub const CARAT_PER_CUBIC_METRE: MassDensity =
-        0.00020000000000000001 * KILOGRAM_PER_CUBIC_METRE;
+    pub const CARAT_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(2, -4) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `GrainPerCubicMetre` (gr/m³), as a `MassDensity`.
-    pub const GRAIN_PER_CUBIC_METRE: MassDensity =
-        6.4798909999999995e-05 * KILOGRAM_PER_CUBIC_METRE;
+    pub const GRAIN_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(6479891, -11) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `HundredweightLongPerCubicMetre` (cwt long/m³), as a `MassDensity`.
-    pub const HUNDREDWEIGHT_LONG_PER_CUBIC_METRE: MassDensity =
-        50.80234544 * KILOGRAM_PER_CUBIC_METRE;
+    pub const HUNDREDWEIGHT_LONG_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(5080234544, -8) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `HundredweightShortPerCubicMetre` (cwt short/m³), as a `MassDensity`.
-    pub const HUNDREDWEIGHT_SHORT_PER_CUBIC_METRE: MassDensity =
-        45.359237 * KILOGRAM_PER_CUBIC_METRE;
+    pub const HUNDREDWEIGHT_SHORT_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(45359237, -6) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `OuncePerCubicMetre` (oz/m³), as a `MassDensity`.
-    pub const OUNCE_PER_CUBIC_METRE: MassDensity = 0.028349523125 * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(28349523125, -12) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `OunceTroyPerCubicMetre` (oz t/m³), as a `MassDensity`.
-    pub const OUNCE_TROY_PER_CUBIC_METRE: MassDensity = 0.0311034768 * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_TROY_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(311034768, -10) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PennyweightPerCubicMetre` (dwt/m³), as a `MassDensity`.
-    pub const PENNYWEIGHT_PER_CUBIC_METRE: MassDensity = 0.00155517384 * KILOGRAM_PER_CUBIC_METRE;
+    pub const PENNYWEIGHT_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(155517384, -11) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundPerCubicMetre` (lb/m³), as a `MassDensity`.
-    pub const POUND_PER_CUBIC_METRE: MassDensity = 0.45359237 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(45359237, -8) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundTroyPerCubicMetre` (lb t/m³), as a `MassDensity`.
-    pub const POUND_TROY_PER_CUBIC_METRE: MassDensity = 0.3732417216 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_TROY_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(3732417216, -10) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `SlugPerCubicMetre` (slug/m³), as a `MassDensity`.
-    pub const SLUG_PER_CUBIC_METRE: MassDensity =
-        (0.45359237 * 9.80665 / 0.3048) * KILOGRAM_PER_CUBIC_METRE;
+    pub const SLUG_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonAssayPerCubicMetre` (AT/m³), as a `MassDensity`.
-    pub const TON_ASSAY_PER_CUBIC_METRE: MassDensity = (0.175 / 6.0) * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_ASSAY_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(175, -3) / Exact::int(6)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonLongPerCubicMetre` (2240 lb/m³), as a `MassDensity`.
-    pub const TON_LONG_PER_CUBIC_METRE: MassDensity = 1016.0469088 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_LONG_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(10160469088, -7) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonShortPerCubicMetre` (2000 lb/m³), as a `MassDensity`.
-    pub const TON_SHORT_PER_CUBIC_METRE: MassDensity = 907.18474 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_SHORT_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(90718474, -5) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonPerCubicMetre` (t/m³), as a `MassDensity`.
-    pub const TON_PER_CUBIC_METRE: MassDensity = 1000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `GrainPerGallon` (gr/gal), as a `MassDensity`.
-    pub const GRAIN_PER_GALLON: MassDensity =
-        (0.00006479891 / 0.003785411784) * KILOGRAM_PER_CUBIC_METRE;
+    pub const GRAIN_PER_GALLON<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(6479891, -11) / Exact::dec(3785411784, -12)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `GramPerCubicCentimetre` (g/cm³), as a `MassDensity`.
-    pub const GRAM_PER_CUBIC_CENTIMETRE: MassDensity = 1000.0 * KILOGRAM_PER_CUBIC_METRE;
+    pub const GRAM_PER_CUBIC_CENTIMETRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `OuncePerCubicInch` (oz/in³), as a `MassDensity`.
-    pub const OUNCE_PER_CUBIC_INCH: MassDensity =
-        (0.028349523125 / (0.0254 * 0.0254 * 0.0254)) * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_CUBIC_INCH<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(28349523125, -12) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `OuncePerGallonImperial` (oz/gal (UK)), as a `MassDensity`.
-    pub const OUNCE_PER_GALLON_IMPERIAL: MassDensity =
-        (0.028349523125 / 0.00454609) * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_GALLON_IMPERIAL<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(28349523125, -12) / Exact::dec(454609, -8)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `OuncePerGallon` (oz/gal), as a `MassDensity`.
-    pub const OUNCE_PER_GALLON: MassDensity =
-        (0.028349523125 / 0.003785411784) * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_GALLON<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(28349523125, -12) / Exact::dec(3785411784, -12)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundPerCubicFoot` (lb/ft³), as a `MassDensity`.
-    pub const POUND_PER_CUBIC_FOOT: MassDensity = 16.018463373960138 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_PER_CUBIC_FOOT<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(45359237, -8) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundPerCubicInch` (lb/in³), as a `MassDensity`.
-    pub const POUND_PER_CUBIC_INCH: MassDensity = 27679.90471020312 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_PER_CUBIC_INCH<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(45359237, -8) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundPerCubicYard` (lb/yd³), as a `MassDensity`.
-    pub const POUND_PER_CUBIC_YARD: MassDensity = 0.5932764212577829 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_PER_CUBIC_YARD<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(45359237, -8) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundPerGallonImperial` (lb/gal (UK)), as a `MassDensity`.
-    pub const POUND_PER_GALLON_IMPERIAL: MassDensity = 99.7763726631017 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_PER_GALLON_IMPERIAL<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(45359237, -8) / Exact::dec(454609, -8)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `PoundPerGallon` (lb/gal), as a `MassDensity`.
-    pub const POUND_PER_GALLON: MassDensity = 119.82642731689663 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_PER_GALLON<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(45359237, -8) / Exact::dec(3785411784, -12)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `SlugPerCubicFoot` (slug/ft³), as a `MassDensity`.
-    pub const SLUG_PER_CUBIC_FOOT: MassDensity =
-        ((0.45359237 * 9.80665 / 0.3048) / (0.3048 * 0.3048 * 0.3048)) * KILOGRAM_PER_CUBIC_METRE;
+    pub const SLUG_PER_CUBIC_FOOT<N: const From<Exact>>: MassDensity<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonLongPerCubicYard` (2240 lb/yd³), as a `MassDensity`.
-    pub const TON_LONG_PER_CUBIC_YARD: MassDensity = 1328.9391836174339 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_LONG_PER_CUBIC_YARD<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(10160469088, -7) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonShortPerCubicYard` (2000 lb/yd³), as a `MassDensity`.
-    pub const TON_SHORT_PER_CUBIC_YARD: MassDensity = 1186.552842515566 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_SHORT_PER_CUBIC_YARD<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(90718474, -5) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonLongPerCubicFoot` (2240 lb/ft³), as a `MassDensity`.
-    pub const TON_LONG_PER_CUBIC_FOOT: MassDensity = 35881.35795767071 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_LONG_PER_CUBIC_FOOT<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(10160469088, -7) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `TonShortPerCubicFoot` (2000 lb/ft³), as a `MassDensity`.
-    pub const TON_SHORT_PER_CUBIC_FOOT: MassDensity = 32036.92674792028 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_SHORT_PER_CUBIC_FOOT<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(90718474, -5) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `KilogramPerMetre` (kg/m), as a `LinearMassDensity`.
-    pub const KILOGRAM_PER_METRE: LinearMassDensity = KILOGRAM / METRE;
+    pub const KILOGRAM_PER_METRE<N: const From<Exact>>: LinearMassDensity<N> = counted(KILOGRAM::<Exact> / METRE::<Exact>);
 
     /// One `GramPerKilometre` (g/km), as a `LinearMassDensity`.
-    pub const GRAM_PER_KILOMETRE: LinearMassDensity = 9.9999999999999995e-07 * KILOGRAM_PER_METRE;
+    pub const GRAM_PER_KILOMETRE<N: const From<Exact>>: LinearMassDensity<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `GramPerCentimetre` (g/cm), as a `LinearMassDensity`.
-    pub const GRAM_PER_CENTIMETRE: LinearMassDensity = 0.10000000000000001 * KILOGRAM_PER_METRE;
+    pub const GRAM_PER_CENTIMETRE<N: const From<Exact>>: LinearMassDensity<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `OuncePerFoot` (oz/ft), as a `LinearMassDensity`.
-    pub const OUNCE_PER_FOOT: LinearMassDensity = (0.028349523125 / 0.3048) * KILOGRAM_PER_METRE;
+    pub const OUNCE_PER_FOOT<N: const From<Exact>>: LinearMassDensity<N> = counted((Exact::dec(28349523125, -12) / Exact::dec(3048, -4)) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `OuncePerInch` (oz/in), as a `LinearMassDensity`.
-    pub const OUNCE_PER_INCH: LinearMassDensity = (0.028349523125 / 0.0254) * KILOGRAM_PER_METRE;
+    pub const OUNCE_PER_INCH<N: const From<Exact>>: LinearMassDensity<N> = counted((Exact::dec(28349523125, -12) / Exact::dec(254, -4)) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `PoundPerYard` (lb/yd), as a `LinearMassDensity`.
-    pub const POUND_PER_YARD: LinearMassDensity = 0.4960546478565179 * KILOGRAM_PER_METRE;
+    pub const POUND_PER_YARD<N: const From<Exact>>: LinearMassDensity<N> = counted((Exact::dec(45359237, -8) / Exact::dec(9144, -4)) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `PoundPerFoot` (lb/ft), as a `LinearMassDensity`.
-    pub const POUND_PER_FOOT: LinearMassDensity = 1.4881639435695537 * KILOGRAM_PER_METRE;
+    pub const POUND_PER_FOOT<N: const From<Exact>>: LinearMassDensity<N> = counted((Exact::dec(45359237, -8) / Exact::dec(3048, -4)) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `PoundPerInch` (lb/in), as a `LinearMassDensity`.
-    pub const POUND_PER_INCH: LinearMassDensity = 17.857967322834646 * KILOGRAM_PER_METRE;
+    pub const POUND_PER_INCH<N: const From<Exact>>: LinearMassDensity<N> = counted((Exact::dec(45359237, -8) / Exact::dec(254, -4)) * KILOGRAM_PER_METRE::<Exact>);
 
     /// One `KilogramPerSquareMetre` (kg/m²), as an `ArealMassDensity`.
-    pub const KILOGRAM_PER_SQUARE_METRE: ArealMassDensity = KILOGRAM / (METRE * METRE);
+    pub const KILOGRAM_PER_SQUARE_METRE<N: const From<Exact>>: ArealMassDensity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `GramPerSquareMetre` (g/m²), as an `ArealMassDensity`.
-    pub const GRAM_PER_SQUARE_METRE: ArealMassDensity = 0.001 * KILOGRAM_PER_SQUARE_METRE;
+    pub const GRAM_PER_SQUARE_METRE<N: const From<Exact>>: ArealMassDensity<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_SQUARE_METRE::<Exact>);
 
     /// One `OuncePerSquareFoot` (oz/ft²), as an `ArealMassDensity`.
-    pub const OUNCE_PER_SQUARE_FOOT: ArealMassDensity =
-        (0.028349523125 / (0.3048 * 0.3048)) * KILOGRAM_PER_SQUARE_METRE;
+    pub const OUNCE_PER_SQUARE_FOOT<N: const From<Exact>>: ArealMassDensity<N> = counted((Exact::dec(28349523125, -12) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * KILOGRAM_PER_SQUARE_METRE::<Exact>);
 
     /// One `PerKilometre` (km⁻¹), as a `LinearNumberDensity`.
-    pub const PER_KILOMETRE: LinearNumberDensity = 0.001 * PER_METRE;
+    pub const PER_KILOMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::dec(1, -3) * PER_METRE::<Exact>);
 
     /// One `PerMetre` (m⁻¹), as a `LinearNumberDensity`.
-    pub const PER_METRE: LinearNumberDensity = ONE / METRE;
+    pub const PER_METRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(ONE::<Exact> / METRE::<Exact>);
 
     /// One `PerDecimetre` (dm⁻¹), as a `LinearNumberDensity`.
-    pub const PER_DECIMETRE: LinearNumberDensity = 10.0 * PER_METRE;
+    pub const PER_DECIMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::int(10) * PER_METRE::<Exact>);
 
     /// One `PerCentimetre` (cm⁻¹), as a `LinearNumberDensity`.
-    pub const PER_CENTIMETRE: LinearNumberDensity = 100.0 * PER_METRE;
+    pub const PER_CENTIMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::int(100) * PER_METRE::<Exact>);
 
     /// One `PerMillimetre` (mm⁻¹), as a `LinearNumberDensity`.
-    pub const PER_MILLIMETRE: LinearNumberDensity = 1000.0 * PER_METRE;
+    pub const PER_MILLIMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::int(1000) * PER_METRE::<Exact>);
 
     /// One `PerFoot` (ft⁻¹), as a `LinearNumberDensity`.
-    pub const PER_FOOT: LinearNumberDensity = 3.280839895013123 * PER_METRE;
+    pub const PER_FOOT<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / Exact::dec(3048, -4)) * PER_METRE::<Exact>);
 
     /// One `PerFootSurvey` (ft (U.S. survey)), as a `LinearNumberDensity`.
-    pub const PER_FOOT_SURVEY: LinearNumberDensity = (1.0 / (1200.0 / 3937.0)) * PER_METRE;
+    pub const PER_FOOT_SURVEY<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / (Exact::int(1200) / Exact::int(3937))) * PER_METRE::<Exact>);
 
     /// One `PerInch` (in⁻¹), as a `LinearNumberDensity`.
-    pub const PER_INCH: LinearNumberDensity = 39.370078740157481 * PER_METRE;
+    pub const PER_INCH<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / Exact::dec(254, -4)) * PER_METRE::<Exact>);
 
     /// One `PerMile` (mi⁻¹), as a `LinearNumberDensity`.
-    pub const PER_MILE: LinearNumberDensity = 0.00062137119223733392 * PER_METRE;
+    pub const PER_MILE<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / Exact::dec(1609344, -3)) * PER_METRE::<Exact>);
 
     /// One `PerMileSurvey` (mi⁻¹ (U.S. survey)), as a `LinearNumberDensity`.
-    pub const PER_MILE_SURVEY: LinearNumberDensity = (1.0 / (6336000.0 / 3937.0)) * PER_METRE;
+    pub const PER_MILE_SURVEY<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / (Exact::int(6336000) / Exact::int(3937))) * PER_METRE::<Exact>);
 
     /// One `PerNauticalMile` (M⁻¹), as a `LinearNumberDensity`.
-    pub const PER_NAUTICAL_MILE: LinearNumberDensity = 0.00053995680345572358 * PER_METRE;
+    pub const PER_NAUTICAL_MILE<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / Exact::int(1852)) * PER_METRE::<Exact>);
 
     /// One `PerYard` (yd⁻¹), as a `LinearNumberDensity`.
-    pub const PER_YARD: LinearNumberDensity = 1.0936132983377078 * PER_METRE;
+    pub const PER_YARD<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / Exact::dec(9144, -4)) * PER_METRE::<Exact>);
 
     /// One `PerSquareMetre` (m⁻²), as an `ArealNumberDensity`.
-    pub const PER_SQUARE_METRE: ArealNumberDensity = ONE / (METRE * METRE);
+    pub const PER_SQUARE_METRE<N: const From<Exact>>: ArealNumberDensity<N> = counted(ONE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `PerAcre` (ac⁻²), as an `ArealNumberDensity`.
-    pub const PER_ACRE: ArealNumberDensity =
-        (1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))) * PER_SQUARE_METRE;
+    pub const PER_ACRE<N: const From<Exact>>: ArealNumberDensity<N> = counted((Exact::int(1) / (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)))) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerAre` (a⁻²), as an `ArealNumberDensity`.
-    pub const PER_ARE: ArealNumberDensity = 0.01 * PER_SQUARE_METRE;
+    pub const PER_ARE<N: const From<Exact>>: ArealNumberDensity<N> = counted(Exact::dec(1, -2) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerBarn` (b⁻²), as an `ArealNumberDensity`.
-    pub const PER_BARN: ArealNumberDensity = 9.9999999999999996e+27 * PER_SQUARE_METRE;
+    pub const PER_BARN<N: const From<Exact>>: ArealNumberDensity<N> = counted(Exact::int(10000000000000000000000000000) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerCircularMil` (cmil⁻²), as an `ArealNumberDensity`.
-    pub const PER_CIRCULAR_MIL: ArealNumberDensity =
-        (4.0 / (core::f64::consts::PI * 0.0000254 * 0.0000254)) * PER_SQUARE_METRE;
+    pub const PER_CIRCULAR_MIL<N: const From<Exact>>: ArealNumberDensity<N> = counted((Exact::int(4) / (Exact::PI * Exact::dec(254, -7) * Exact::dec(254, -7))) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerHectare` (ha⁻²), as an `ArealNumberDensity`.
-    pub const PER_HECTARE: ArealNumberDensity = 0.0001 * PER_SQUARE_METRE;
+    pub const PER_HECTARE<N: const From<Exact>>: ArealNumberDensity<N> = counted(Exact::dec(1, -4) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerSquareFoot` (ft⁻²), as an `ArealNumberDensity`.
-    pub const PER_SQUARE_FOOT: ArealNumberDensity = 10.763910416709722 * PER_SQUARE_METRE;
+    pub const PER_SQUARE_FOOT<N: const From<Exact>>: ArealNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerSquareInch` (in⁻²), as an `ArealNumberDensity`.
-    pub const PER_SQUARE_INCH: ArealNumberDensity = 1550.0031000062002 * PER_SQUARE_METRE;
+    pub const PER_SQUARE_INCH<N: const From<Exact>>: ArealNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerSquareMile` (mi⁻²), as an `ArealNumberDensity`.
-    pub const PER_SQUARE_MILE: ArealNumberDensity = 3.8610215854244582e-07 * PER_SQUARE_METRE;
+    pub const PER_SQUARE_MILE<N: const From<Exact>>: ArealNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3))) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerSquareYard` (yd⁻²), as an `ArealNumberDensity`.
-    pub const PER_SQUARE_YARD: ArealNumberDensity = 1.1959900463010802 * PER_SQUARE_METRE;
+    pub const PER_SQUARE_YARD<N: const From<Exact>>: ArealNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4))) * PER_SQUARE_METRE::<Exact>);
 
     /// One `PerCubicMetre` (m⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_METRE: VolumetricNumberDensity = ONE / (METRE * METRE * METRE);
+    pub const PER_CUBIC_METRE<N: const From<Exact>>: VolumetricNumberDensity<N> = counted(ONE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
 
     /// One `PerCubicFoot` (ft⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_FOOT: VolumetricNumberDensity =
-        (1.0 / (0.3048 * 0.3048 * 0.3048)) * PER_CUBIC_METRE;
+    pub const PER_CUBIC_FOOT<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerCubicInch` (in⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_INCH: VolumetricNumberDensity =
-        (1.0 / (0.0254 * 0.0254 * 0.0254)) * PER_CUBIC_METRE;
+    pub const PER_CUBIC_INCH<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4))) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerCubicMile` (mi⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_MILE: VolumetricNumberDensity =
-        (1.0 / (1609.344 * 1609.344 * 1609.344)) * PER_CUBIC_METRE;
+    pub const PER_CUBIC_MILE<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3))) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerCubicYard` (yd⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_YARD: VolumetricNumberDensity =
-        (1.0 / (0.9144 * 0.9144 * 0.9144)) * PER_CUBIC_METRE;
+    pub const PER_CUBIC_YARD<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4))) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerFluidOunce` (per fl oz), as a `VolumetricNumberDensity`.
-    pub const PER_FLUID_OUNCE: VolumetricNumberDensity =
-        (1.0 / 0.0000295735295625) * PER_CUBIC_METRE;
+    pub const PER_FLUID_OUNCE<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / Exact::dec(295735295625, -16)) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerFluidOunceImperial` (per fl oz (UK)), as a `VolumetricNumberDensity`.
-    pub const PER_FLUID_OUNCE_IMPERIAL: VolumetricNumberDensity =
-        (1.0 / 0.0000284130625) * PER_CUBIC_METRE;
+    pub const PER_FLUID_OUNCE_IMPERIAL<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / Exact::dec(284130625, -13)) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerGallonImperial` (per gal (UK)), as a `VolumetricNumberDensity`.
-    pub const PER_GALLON_IMPERIAL: VolumetricNumberDensity = 219.96924829908778 * PER_CUBIC_METRE;
+    pub const PER_GALLON_IMPERIAL<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / Exact::dec(454609, -8)) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerGallon` (per gal), as a `VolumetricNumberDensity`.
-    pub const PER_GALLON: VolumetricNumberDensity = (1.0 / 0.003785411784) * PER_CUBIC_METRE;
+    pub const PER_GALLON<N: const From<Exact>>: VolumetricNumberDensity<N> = counted((Exact::int(1) / Exact::dec(3785411784, -12)) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerLitre` (L⁻¹), as a `VolumetricNumberDensity`.
-    pub const PER_LITRE: VolumetricNumberDensity = 1000.0 * PER_CUBIC_METRE;
+    pub const PER_LITRE<N: const From<Exact>>: VolumetricNumberDensity<N> = counted(Exact::int(1000) * PER_CUBIC_METRE::<Exact>);
 
     /// One `PerKilometreSecond` (km⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_KILOMETRE_SECOND: LinearNumberRate = 0.001 * PER_METRE_SECOND;
+    pub const PER_KILOMETRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(Exact::dec(1, -3) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerMetreSecond` (m⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_METRE_SECOND: LinearNumberRate = ONE / (METRE * SECOND);
+    pub const PER_METRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(ONE::<Exact> / (METRE::<Exact> * SECOND::<Exact>));
 
     /// One `PerCentimetreSecond` (cm⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_CENTIMETRE_SECOND: LinearNumberRate = 100.0 * PER_METRE_SECOND;
+    pub const PER_CENTIMETRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(Exact::int(100) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerMillimetreSecond` (mm⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_MILLIMETRE_SECOND: LinearNumberRate = 1000.0 * PER_METRE_SECOND;
+    pub const PER_MILLIMETRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(Exact::int(1000) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerFootSecond` (ft⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_FOOT_SECOND: LinearNumberRate = 3.280839895013123 * PER_METRE_SECOND;
+    pub const PER_FOOT_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / Exact::dec(3048, -4)) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerFootSurveySecond` (ft⁻¹ (U.S. survey) · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_FOOT_SURVEY_SECOND: LinearNumberRate =
-        (1.0 / (1200.0 / 3937.0)) * PER_METRE_SECOND;
+    pub const PER_FOOT_SURVEY_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / (Exact::int(1200) / Exact::int(3937))) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerInchSecond` (in⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_INCH_SECOND: LinearNumberRate = 39.370078740157481 * PER_METRE_SECOND;
+    pub const PER_INCH_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / Exact::dec(254, -4)) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerMileSecond` (mi⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_MILE_SECOND: LinearNumberRate = 0.00062137119223733392 * PER_METRE_SECOND;
+    pub const PER_MILE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / Exact::dec(1609344, -3)) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerMileSurveySecond` (mi⁻¹ (U.S. survey) · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_MILE_SURVEY_SECOND: LinearNumberRate =
-        (1.0 / (6336000.0 / 3937.0)) * PER_METRE_SECOND;
+    pub const PER_MILE_SURVEY_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / (Exact::int(6336000) / Exact::int(3937))) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerYardSecond` (yd⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_YARD_SECOND: LinearNumberRate = 1.0936132983377078 * PER_METRE_SECOND;
+    pub const PER_YARD_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / Exact::dec(9144, -4)) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerSquareMetreSecond` (m⁻² · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_SQUARE_METRE_SECOND: ArealNumberRate = ONE / (METRE * METRE * SECOND);
+    pub const PER_SQUARE_METRE_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted(ONE::<Exact> / (METRE::<Exact> * METRE::<Exact> * SECOND::<Exact>));
 
     /// One `PerAcreSecond` (ac⁻¹ · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_ACRE_SECOND: ArealNumberRate =
-        (1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))) * PER_SQUARE_METRE_SECOND;
+    pub const PER_ACRE_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted((Exact::int(1) / (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)))) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerAreSecond` (a⁻¹ · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_ARE_SECOND: ArealNumberRate = 0.01 * PER_SQUARE_METRE_SECOND;
+    pub const PER_ARE_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted(Exact::dec(1, -2) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerBarnSecond` (b⁻¹ · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_BARN_SECOND: ArealNumberRate = 9.9999999999999996e+27 * PER_SQUARE_METRE_SECOND;
+    pub const PER_BARN_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted(Exact::int(10000000000000000000000000000) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerCircularMilSecond` (cmil⁻¹ · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_CIRCULAR_MIL_SECOND: ArealNumberRate =
-        (4.0 / (core::f64::consts::PI * 0.0000254 * 0.0000254)) * PER_SQUARE_METRE_SECOND;
+    pub const PER_CIRCULAR_MIL_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted((Exact::int(4) / (Exact::PI * Exact::dec(254, -7) * Exact::dec(254, -7))) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerHectareSecond` (ha⁻¹ · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_HECTARE_SECOND: ArealNumberRate = 0.0001 * PER_SQUARE_METRE_SECOND;
+    pub const PER_HECTARE_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted(Exact::dec(1, -4) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerSquareFootSecond` (ft⁻² · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_SQUARE_FOOT_SECOND: ArealNumberRate =
-        10.763910416709722 * PER_SQUARE_METRE_SECOND;
+    pub const PER_SQUARE_FOOT_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerSquareInchSecond` (in⁻² · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_SQUARE_INCH_SECOND: ArealNumberRate =
-        1550.0031000062002 * PER_SQUARE_METRE_SECOND;
+    pub const PER_SQUARE_INCH_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted((Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerSquareMileSecond` (mi⁻² · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_SQUARE_MILE_SECOND: ArealNumberRate =
-        3.8610215854244582e-07 * PER_SQUARE_METRE_SECOND;
+    pub const PER_SQUARE_MILE_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted((Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3))) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerSquareYardSecond` (yd⁻² · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_SQUARE_YARD_SECOND: ArealNumberRate =
-        1.1959900463010802 * PER_SQUARE_METRE_SECOND;
+    pub const PER_SQUARE_YARD_SECOND<N: const From<Exact>>: ArealNumberRate<N> = counted((Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4))) * PER_SQUARE_METRE_SECOND::<Exact>);
 
     /// One `PerCubicMetreSecond` (m⁻³ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_CUBIC_METRE_SECOND: VolumetricNumberRate = ONE / (METRE * METRE * METRE * SECOND);
+    pub const PER_CUBIC_METRE_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted(ONE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * SECOND::<Exact>));
 
     /// One `PerCubicFootSecond` (ft⁻³ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_CUBIC_FOOT_SECOND: VolumetricNumberRate =
-        (1.0 / (0.3048 * 0.3048 * 0.3048)) * PER_CUBIC_METRE_SECOND;
+    pub const PER_CUBIC_FOOT_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerCubicInchSecond` (in⁻³ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_CUBIC_INCH_SECOND: VolumetricNumberRate =
-        (1.0 / (0.0254 * 0.0254 * 0.0254)) * PER_CUBIC_METRE_SECOND;
+    pub const PER_CUBIC_INCH_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4))) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerCubicMileSecond` (mi⁻³ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_CUBIC_MILE_SECOND: VolumetricNumberRate =
-        (1.0 / (1609.344 * 1609.344 * 1609.344)) * PER_CUBIC_METRE_SECOND;
+    pub const PER_CUBIC_MILE_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3))) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerCubicYardSecond` (yd⁻³ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_CUBIC_YARD_SECOND: VolumetricNumberRate =
-        (1.0 / (0.9144 * 0.9144 * 0.9144)) * PER_CUBIC_METRE_SECOND;
+    pub const PER_CUBIC_YARD_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4))) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerFluidOunceSecond` (fl oz⁻¹ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_FLUID_OUNCE_SECOND: VolumetricNumberRate =
-        (1.0 / 0.0000295735295625) * PER_CUBIC_METRE_SECOND;
+    pub const PER_FLUID_OUNCE_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / Exact::dec(295735295625, -16)) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerFluidOunceImperialSecond` (fl oz⁻¹ (UK) · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_FLUID_OUNCE_IMPERIAL_SECOND: VolumetricNumberRate =
-        (1.0 / 0.0000284130625) * PER_CUBIC_METRE_SECOND;
+    pub const PER_FLUID_OUNCE_IMPERIAL_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / Exact::dec(284130625, -13)) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerGallonImperialSecond` (gal⁻¹ (UK) · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_GALLON_IMPERIAL_SECOND: VolumetricNumberRate =
-        219.96924829908778 * PER_CUBIC_METRE_SECOND;
+    pub const PER_GALLON_IMPERIAL_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / Exact::dec(454609, -8)) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerGallonSecond` (gal⁻¹ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_GALLON_SECOND: VolumetricNumberRate =
-        (1.0 / 0.003785411784) * PER_CUBIC_METRE_SECOND;
+    pub const PER_GALLON_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / Exact::dec(3785411784, -12)) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `PerLitreSecond` (L⁻¹ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_LITRE_SECOND: VolumetricNumberRate = 1000.0 * PER_CUBIC_METRE_SECOND;
+    pub const PER_LITRE_SECOND<N: const From<Exact>>: VolumetricNumberRate<N> = counted(Exact::int(1000) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `BecquerelPerCubicMetre` (Bq/m³), as a `VolumetricNumberRate`.
-    pub const BECQUEREL_PER_CUBIC_METRE: VolumetricNumberRate = PER_CUBIC_METRE_SECOND;
+    pub const BECQUEREL_PER_CUBIC_METRE<N: const From<Exact>>: VolumetricNumberRate<N> = counted(PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `CuriePerCubicMetre` (Ci/m³), as a `VolumetricNumberRate`.
-    pub const CURIE_PER_CUBIC_METRE: VolumetricNumberRate = 37000000000.0 * PER_CUBIC_METRE_SECOND;
+    pub const CURIE_PER_CUBIC_METRE<N: const From<Exact>>: VolumetricNumberRate<N> = counted(Exact::int(37000000000) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `DisintegrationsPerMinutePerCubicMetre` (dpm/m³), as a `VolumetricNumberRate`.
-    pub const DISINTEGRATIONS_PER_MINUTE_PER_CUBIC_METRE: VolumetricNumberRate =
-        0.016666666666666666 * PER_CUBIC_METRE_SECOND;
+    pub const DISINTEGRATIONS_PER_MINUTE_PER_CUBIC_METRE<N: const From<Exact>>: VolumetricNumberRate<N> = counted((Exact::int(1) / Exact::int(60)) * PER_CUBIC_METRE_SECOND::<Exact>);
 
     /// One `StatePerMetreJoule` (1/(m · J)), as a `LinearDensityOfStates`.
-    pub const STATE_PER_METRE_JOULE: LinearDensityOfStates =
-        SECOND * SECOND / (METRE * METRE * METRE * KILOGRAM);
+    pub const STATE_PER_METRE_JOULE<N: const From<Exact>>: LinearDensityOfStates<N> = counted(SECOND::<Exact> * SECOND::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `StatePerCentimetreJoule` (1/(cm · J)), as a `LinearDensityOfStates`.
-    pub const STATE_PER_CENTIMETRE_JOULE: LinearDensityOfStates = 100.0 * STATE_PER_METRE_JOULE;
+    pub const STATE_PER_CENTIMETRE_JOULE<N: const From<Exact>>: LinearDensityOfStates<N> = counted(Exact::int(100) * STATE_PER_METRE_JOULE::<Exact>);
 
     /// One `StatePerSquareMetreJoule` (1/(m² · J)), as an `ArealDensityOfStates`.
-    pub const STATE_PER_SQUARE_METRE_JOULE: ArealDensityOfStates =
-        SECOND * SECOND / (METRE * METRE * METRE * METRE * KILOGRAM);
+    pub const STATE_PER_SQUARE_METRE_JOULE<N: const From<Exact>>: ArealDensityOfStates<N> = counted(SECOND::<Exact> * SECOND::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `StatePerCubicMetreJoule` (1/(m³ · J)), as a `VolumetricDensityOfStates`.
-    pub const STATE_PER_CUBIC_METRE_JOULE: VolumetricDensityOfStates =
-        SECOND * SECOND / (METRE * METRE * METRE * METRE * METRE * KILOGRAM);
+    pub const STATE_PER_CUBIC_METRE_JOULE<N: const From<Exact>>: VolumetricDensityOfStates<N> = counted(SECOND::<Exact> * SECOND::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `WattPerMetre` (W/m), as a `LinearPowerDensity`.
-    pub const WATT_PER_METRE: LinearPowerDensity = METRE * KILOGRAM / (SECOND * SECOND * SECOND);
+    pub const WATT_PER_METRE<N: const From<Exact>>: LinearPowerDensity<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
 
     /// One `WattPerCentimetre` (W/cm), as a `LinearPowerDensity`.
-    pub const WATT_PER_CENTIMETRE: LinearPowerDensity = 100.0 * WATT_PER_METRE;
+    pub const WATT_PER_CENTIMETRE<N: const From<Exact>>: LinearPowerDensity<N> = counted(Exact::int(100) * WATT_PER_METRE::<Exact>);
 
     /// One `WattPerMillimetre` (W/mm), as a `LinearPowerDensity`.
-    pub const WATT_PER_MILLIMETRE: LinearPowerDensity = 1000.0 * WATT_PER_METRE;
+    pub const WATT_PER_MILLIMETRE<N: const From<Exact>>: LinearPowerDensity<N> = counted(Exact::int(1000) * WATT_PER_METRE::<Exact>);
 
     /// One `WattPerCubicMetre` (W/m³), as a `VolumetricPowerDensity`.
-    pub const WATT_PER_CUBIC_METRE: VolumetricPowerDensity =
-        KILOGRAM / (METRE * SECOND * SECOND * SECOND);
+    pub const WATT_PER_CUBIC_METRE<N: const From<Exact>>: VolumetricPowerDensity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
 }
 
 /// The units of `MassDensity`, for a menu, a config file, a parser.

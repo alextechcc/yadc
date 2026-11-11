@@ -1,8 +1,8 @@
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type ElectricCharge = StaticSIQuantity<
+pub type ElectricCharge<N = f64> = SIQuantity<
     {
         ISQ {
             s: 1,
@@ -10,9 +10,10 @@ pub type ElectricCharge = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricChargeArealDensity = StaticSIQuantity<
+pub type ElectricChargeArealDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -21,9 +22,10 @@ pub type ElectricChargeArealDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricChargeLinearDensity = StaticSIQuantity<
+pub type ElectricChargeLinearDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -32,9 +34,10 @@ pub type ElectricChargeLinearDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricChargeVolumetricDensity = StaticSIQuantity<
+pub type ElectricChargeVolumetricDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -43,18 +46,20 @@ pub type ElectricChargeVolumetricDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricCurrent = StaticSIQuantity<
+pub type ElectricCurrent<N = f64> = SIQuantity<
     {
         ISQ {
             A: 1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricCurrentDensity = StaticSIQuantity<
+pub type ElectricCurrentDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -62,9 +67,10 @@ pub type ElectricCurrentDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type SurfaceElectricCurrentDensity = StaticSIQuantity<
+pub type SurfaceElectricCurrentDensity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -72,9 +78,10 @@ pub type SurfaceElectricCurrentDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricPotential = StaticSIQuantity<
+pub type ElectricPotential<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -84,9 +91,10 @@ pub type ElectricPotential = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricField = StaticSIQuantity<
+pub type ElectricField<N = f64> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -96,9 +104,10 @@ pub type ElectricField = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricDisplacementField = StaticSIQuantity<
+pub type ElectricDisplacementField<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -107,9 +116,10 @@ pub type ElectricDisplacementField = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricFlux = StaticSIQuantity<
+pub type ElectricFlux<N = f64> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -119,9 +129,10 @@ pub type ElectricFlux = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricDipoleMoment = StaticSIQuantity<
+pub type ElectricDipoleMoment<N = f64> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -130,9 +141,10 @@ pub type ElectricDipoleMoment = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricQuadrupoleMoment = StaticSIQuantity<
+pub type ElectricQuadrupoleMoment<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -141,9 +153,10 @@ pub type ElectricQuadrupoleMoment = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricPermittivity = StaticSIQuantity<
+pub type ElectricPermittivity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -153,9 +166,10 @@ pub type ElectricPermittivity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricalConductance = StaticSIQuantity<
+pub type ElectricalConductance<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -165,9 +179,10 @@ pub type ElectricalConductance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricalConductivity = StaticSIQuantity<
+pub type ElectricalConductivity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -3,
@@ -177,9 +192,10 @@ pub type ElectricalConductivity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricalMobility = StaticSIQuantity<
+pub type ElectricalMobility<N = f64> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -188,9 +204,10 @@ pub type ElectricalMobility = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricalResistance = StaticSIQuantity<
+pub type ElectricalResistance<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -200,9 +217,10 @@ pub type ElectricalResistance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ElectricalResistivity = StaticSIQuantity<
+pub type ElectricalResistivity<N = f64> = SIQuantity<
     {
         ISQ {
             m: 3,
@@ -212,9 +230,10 @@ pub type ElectricalResistivity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type Capacitance = StaticSIQuantity<
+pub type Capacitance<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -224,9 +243,10 @@ pub type Capacitance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type Inductance = StaticSIQuantity<
+pub type Inductance<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -236,9 +256,10 @@ pub type Inductance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MagneticFieldStrength = StaticSIQuantity<
+pub type MagneticFieldStrength<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -246,9 +267,10 @@ pub type MagneticFieldStrength = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MagneticFlux = StaticSIQuantity<
+pub type MagneticFlux<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -258,9 +280,10 @@ pub type MagneticFlux = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MagneticFluxDensity = StaticSIQuantity<
+pub type MagneticFluxDensity<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -269,9 +292,10 @@ pub type MagneticFluxDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MagneticMoment = StaticSIQuantity<
+pub type MagneticMoment<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -279,9 +303,10 @@ pub type MagneticMoment = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type MagneticPermeability = StaticSIQuantity<
+pub type MagneticPermeability<N = f64> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -291,9 +316,10 @@ pub type MagneticPermeability = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type GyromagneticRatio = StaticSIQuantity<
+pub type GyromagneticRatio<N = f64> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -303,9 +329,10 @@ pub type GyromagneticRatio = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ReducedGyromagneticRatio = StaticSIQuantity<
+pub type ReducedGyromagneticRatio<N = f64> = SIQuantity<
     {
         ISQ {
             kg: -1,
@@ -314,13 +341,16 @@ pub type ReducedGyromagneticRatio = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, RADIAN, SECOND};
@@ -329,1126 +359,1075 @@ pub mod consts {
     pub use crate::base::AMPERE;
 
     /// One `Yottacoulomb` (YC), as an `ElectricCharge`.
-    pub const YOTTACOULOMB: ElectricCharge = 9.9999999999999998e+23 * COULOMB;
+    pub const YOTTACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000000000000000000000) * COULOMB::<Exact>);
 
     /// One `Zettacoulomb` (ZC), as an `ElectricCharge`.
-    pub const ZETTACOULOMB: ElectricCharge = 1e+21 * COULOMB;
+    pub const ZETTACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000000000000000000) * COULOMB::<Exact>);
 
     /// One `Exacoulomb` (EC), as an `ElectricCharge`.
-    pub const EXACOULOMB: ElectricCharge = 1e+18 * COULOMB;
+    pub const EXACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000000000000000) * COULOMB::<Exact>);
 
     /// One `Petacoulomb` (PC), as an `ElectricCharge`.
-    pub const PETACOULOMB: ElectricCharge = 1000000000000000.0 * COULOMB;
+    pub const PETACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000000000000) * COULOMB::<Exact>);
 
     /// One `Teracoulomb` (TC), as an `ElectricCharge`.
-    pub const TERACOULOMB: ElectricCharge = 1000000000000.0 * COULOMB;
+    pub const TERACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000000000) * COULOMB::<Exact>);
 
     /// One `Gigacoulomb` (GC), as an `ElectricCharge`.
-    pub const GIGACOULOMB: ElectricCharge = 1000000000.0 * COULOMB;
+    pub const GIGACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000000) * COULOMB::<Exact>);
 
     /// One `Megacoulomb` (MC), as an `ElectricCharge`.
-    pub const MEGACOULOMB: ElectricCharge = 1000000.0 * COULOMB;
+    pub const MEGACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000000) * COULOMB::<Exact>);
 
     /// One `Kilocoulomb` (kC), as an `ElectricCharge`.
-    pub const KILOCOULOMB: ElectricCharge = 1000.0 * COULOMB;
+    pub const KILOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(1000) * COULOMB::<Exact>);
 
     /// One `Hectocoulomb` (hC), as an `ElectricCharge`.
-    pub const HECTOCOULOMB: ElectricCharge = 100.0 * COULOMB;
+    pub const HECTOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(100) * COULOMB::<Exact>);
 
     /// One `Decacoulomb` (daC), as an `ElectricCharge`.
-    pub const DECACOULOMB: ElectricCharge = 10.0 * COULOMB;
+    pub const DECACOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(10) * COULOMB::<Exact>);
 
     /// One `Coulomb` (C), as an `ElectricCharge`.
-    pub const COULOMB: ElectricCharge = SECOND * AMPERE;
+    pub const COULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(SECOND::<Exact> * AMPERE::<Exact>);
 
     /// One `Decicoulomb` (dC), as an `ElectricCharge`.
-    pub const DECICOULOMB: ElectricCharge = 0.10000000000000001 * COULOMB;
+    pub const DECICOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -1) * COULOMB::<Exact>);
 
     /// One `Centicoulomb` (cC), as an `ElectricCharge`.
-    pub const CENTICOULOMB: ElectricCharge = 0.01 * COULOMB;
+    pub const CENTICOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -2) * COULOMB::<Exact>);
 
     /// One `Millicoulomb` (mC), as an `ElectricCharge`.
-    pub const MILLICOULOMB: ElectricCharge = 0.001 * COULOMB;
+    pub const MILLICOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -3) * COULOMB::<Exact>);
 
     /// One `Microcoulomb` (µC), as an `ElectricCharge`.
-    pub const MICROCOULOMB: ElectricCharge = 9.9999999999999995e-07 * COULOMB;
+    pub const MICROCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -6) * COULOMB::<Exact>);
 
     /// One `Nanocoulomb` (nC), as an `ElectricCharge`.
-    pub const NANOCOULOMB: ElectricCharge = 1.0000000000000001e-09 * COULOMB;
+    pub const NANOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -9) * COULOMB::<Exact>);
 
     /// One `Picocoulomb` (pC), as an `ElectricCharge`.
-    pub const PICOCOULOMB: ElectricCharge = 9.9999999999999998e-13 * COULOMB;
+    pub const PICOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -12) * COULOMB::<Exact>);
 
     /// One `Femtocoulomb` (fC), as an `ElectricCharge`.
-    pub const FEMTOCOULOMB: ElectricCharge = 1.0000000000000001e-15 * COULOMB;
+    pub const FEMTOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -15) * COULOMB::<Exact>);
 
     /// One `Attocoulomb` (aC), as an `ElectricCharge`.
-    pub const ATTOCOULOMB: ElectricCharge = 1.0000000000000001e-18 * COULOMB;
+    pub const ATTOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -18) * COULOMB::<Exact>);
 
     /// One `Zeptocoulomb` (zC), as an `ElectricCharge`.
-    pub const ZEPTOCOULOMB: ElectricCharge = 9.9999999999999991e-22 * COULOMB;
+    pub const ZEPTOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -21) * COULOMB::<Exact>);
 
     /// One `Yoctocoulomb` (yC), as an `ElectricCharge`.
-    pub const YOCTOCOULOMB: ElectricCharge = 9.9999999999999992e-25 * COULOMB;
+    pub const YOCTOCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1, -24) * COULOMB::<Exact>);
 
     /// One `PetaampereHour` (PA · h), as an `ElectricCharge`.
-    pub const PETAAMPERE_HOUR: ElectricCharge = 3.6e+18 * COULOMB;
+    pub const PETAAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600000000000000000) * COULOMB::<Exact>);
 
     /// One `TeraampereHour` (TA · h), as an `ElectricCharge`.
-    pub const TERAAMPERE_HOUR: ElectricCharge = 3600000000000000.0 * COULOMB;
+    pub const TERAAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600000000000000) * COULOMB::<Exact>);
 
     /// One `GigaampereHour` (GA · h), as an `ElectricCharge`.
-    pub const GIGAAMPERE_HOUR: ElectricCharge = 3600000000000.0 * COULOMB;
+    pub const GIGAAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600000000000) * COULOMB::<Exact>);
 
     /// One `MegaampereHour` (MA · h), as an `ElectricCharge`.
-    pub const MEGAAMPERE_HOUR: ElectricCharge = 3600000000.0 * COULOMB;
+    pub const MEGAAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600000000) * COULOMB::<Exact>);
 
     /// One `KiloampereHour` (kA · h), as an `ElectricCharge`.
-    pub const KILOAMPERE_HOUR: ElectricCharge = 3600000.0 * COULOMB;
+    pub const KILOAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600000) * COULOMB::<Exact>);
 
     /// One `HectoampereHour` (hA · h), as an `ElectricCharge`.
-    pub const HECTOAMPERE_HOUR: ElectricCharge = 360000.0 * COULOMB;
+    pub const HECTOAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(360000) * COULOMB::<Exact>);
 
     /// One `DecaampereHour` (daA · h), as an `ElectricCharge`.
-    pub const DECAAMPERE_HOUR: ElectricCharge = 36000.0 * COULOMB;
+    pub const DECAAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(36000) * COULOMB::<Exact>);
 
     /// One `AmpereHour` (A · h), as an `ElectricCharge`.
-    pub const AMPERE_HOUR: ElectricCharge = 3600.0 * COULOMB;
+    pub const AMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600) * COULOMB::<Exact>);
 
     /// One `MilliampereHour` (mA · h), as an `ElectricCharge`.
-    pub const MILLIAMPERE_HOUR: ElectricCharge = 3.6000000000000001 * COULOMB;
+    pub const MILLIAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(36, -1) * COULOMB::<Exact>);
 
     /// One `MicroampereHour` (µA · h), as an `ElectricCharge`.
-    pub const MICROAMPERE_HOUR: ElectricCharge = 0.0035999999999999999 * COULOMB;
+    pub const MICROAMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(36, -4) * COULOMB::<Exact>);
 
     /// One `ElementaryCharge` (e), as an `ElectricCharge`.
-    pub const ELEMENTARY_CHARGE: ElectricCharge = 1.602176634e-19 * COULOMB;
+    pub const ELEMENTARY_CHARGE<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1602176634, -28) * COULOMB::<Exact>);
 
     /// One `AtomicUnitOfCharge` (a.u. of charge), as an `ElectricCharge`.
-    pub const ATOMIC_UNIT_OF_CHARGE: ElectricCharge = 1.6021766339999999e-19 * COULOMB;
+    pub const ATOMIC_UNIT_OF_CHARGE<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1602176634, -28) * COULOMB::<Exact>);
 
     /// One `Abcoulomb` (abC), as an `ElectricCharge`.
-    pub const ABCOULOMB: ElectricCharge = 10.0 * COULOMB;
+    pub const ABCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(10) * COULOMB::<Exact>);
 
     /// One `Faraday` (F), as an `ElectricCharge`.
-    pub const FARADAY: ElectricCharge = (1.602176634e-19 * 6.02214076e23) * COULOMB;
+    pub const FARADAY<N: const From<Exact>>: ElectricCharge<N> = counted((Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000)) * COULOMB::<Exact>);
 
     /// One `Franklin` (Fr), as an `ElectricCharge`.
-    pub const FRANKLIN: ElectricCharge = (1.0 / 2997924580.0) * COULOMB;
+    pub const FRANKLIN<N: const From<Exact>>: ElectricCharge<N> = counted((Exact::int(1) / Exact::int(2997924580)) * COULOMB::<Exact>);
 
     /// One `Statcoulomb` (statC), as an `ElectricCharge`.
-    pub const STATCOULOMB: ElectricCharge = (1.0 / 2997924580.0) * COULOMB;
+    pub const STATCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted((Exact::int(1) / Exact::int(2997924580)) * COULOMB::<Exact>);
 
     /// One `CoulombPerSquareMetre` (C/m²), as an `ElectricChargeArealDensity`.
-    pub const ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE: ElectricChargeArealDensity =
-        SECOND * AMPERE / (METRE * METRE);
+    pub const ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE<N: const From<Exact>>: ElectricChargeArealDensity<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `CoulombPerMetre` (C/m), as an `ElectricChargeLinearDensity`.
-    pub const COULOMB_PER_METRE: ElectricChargeLinearDensity = SECOND * AMPERE / METRE;
+    pub const COULOMB_PER_METRE<N: const From<Exact>>: ElectricChargeLinearDensity<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / METRE::<Exact>);
 
     /// One `CoulombPerCentimetre` (C/cm), as an `ElectricChargeLinearDensity`.
-    pub const COULOMB_PER_CENTIMETRE: ElectricChargeLinearDensity = 100.0 * COULOMB_PER_METRE;
+    pub const COULOMB_PER_CENTIMETRE<N: const From<Exact>>: ElectricChargeLinearDensity<N> = counted(Exact::int(100) * COULOMB_PER_METRE::<Exact>);
 
     /// One `CoulombPerCubicMetre` (C/m³), as an `ElectricChargeVolumetricDensity`.
-    pub const COULOMB_PER_CUBIC_METRE: ElectricChargeVolumetricDensity =
-        SECOND * AMPERE / (METRE * METRE * METRE);
+    pub const COULOMB_PER_CUBIC_METRE<N: const From<Exact>>: ElectricChargeVolumetricDensity<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
 
     /// One `Yottaampere` (YA), as an `ElectricCurrent`.
-    pub const YOTTAAMPERE: ElectricCurrent = 9.9999999999999998e+23 * AMPERE;
+    pub const YOTTAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000000000000000000000) * AMPERE::<Exact>);
 
     /// One `Zettaampere` (ZA), as an `ElectricCurrent`.
-    pub const ZETTAAMPERE: ElectricCurrent = 1e+21 * AMPERE;
+    pub const ZETTAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000000000000000000) * AMPERE::<Exact>);
 
     /// One `Exaampere` (EA), as an `ElectricCurrent`.
-    pub const EXAAMPERE: ElectricCurrent = 1e+18 * AMPERE;
+    pub const EXAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000000000000000) * AMPERE::<Exact>);
 
     /// One `Petaampere` (PA), as an `ElectricCurrent`.
-    pub const PETAAMPERE: ElectricCurrent = 1000000000000000.0 * AMPERE;
+    pub const PETAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000000000000) * AMPERE::<Exact>);
 
     /// One `Teraampere` (TA), as an `ElectricCurrent`.
-    pub const TERAAMPERE: ElectricCurrent = 1000000000000.0 * AMPERE;
+    pub const TERAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000000000) * AMPERE::<Exact>);
 
     /// One `Gigaampere` (GA), as an `ElectricCurrent`.
-    pub const GIGAAMPERE: ElectricCurrent = 1000000000.0 * AMPERE;
+    pub const GIGAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000000) * AMPERE::<Exact>);
 
     /// One `Megaampere` (MA), as an `ElectricCurrent`.
-    pub const MEGAAMPERE: ElectricCurrent = 1000000.0 * AMPERE;
+    pub const MEGAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000000) * AMPERE::<Exact>);
 
     /// One `Kiloampere` (kA), as an `ElectricCurrent`.
-    pub const KILOAMPERE: ElectricCurrent = 1000.0 * AMPERE;
+    pub const KILOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(1000) * AMPERE::<Exact>);
 
     /// One `Hectoampere` (hA), as an `ElectricCurrent`.
-    pub const HECTOAMPERE: ElectricCurrent = 100.0 * AMPERE;
+    pub const HECTOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(100) * AMPERE::<Exact>);
 
     /// One `Decaampere` (daA), as an `ElectricCurrent`.
-    pub const DECAAMPERE: ElectricCurrent = 10.0 * AMPERE;
+    pub const DECAAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(10) * AMPERE::<Exact>);
 
     /// One `Deciampere` (dA), as an `ElectricCurrent`.
-    pub const DECIAMPERE: ElectricCurrent = 0.10000000000000001 * AMPERE;
+    pub const DECIAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -1) * AMPERE::<Exact>);
 
     /// One `Centiampere` (cA), as an `ElectricCurrent`.
-    pub const CENTIAMPERE: ElectricCurrent = 0.01 * AMPERE;
+    pub const CENTIAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -2) * AMPERE::<Exact>);
 
     /// One `Milliampere` (mA), as an `ElectricCurrent`.
-    pub const MILLIAMPERE: ElectricCurrent = 0.001 * AMPERE;
+    pub const MILLIAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -3) * AMPERE::<Exact>);
 
     /// One `Microampere` (µA), as an `ElectricCurrent`.
-    pub const MICROAMPERE: ElectricCurrent = 9.9999999999999995e-07 * AMPERE;
+    pub const MICROAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -6) * AMPERE::<Exact>);
 
     /// One `Nanoampere` (nA), as an `ElectricCurrent`.
-    pub const NANOAMPERE: ElectricCurrent = 1.0000000000000001e-09 * AMPERE;
+    pub const NANOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -9) * AMPERE::<Exact>);
 
     /// One `Picoampere` (pA), as an `ElectricCurrent`.
-    pub const PICOAMPERE: ElectricCurrent = 9.9999999999999998e-13 * AMPERE;
+    pub const PICOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -12) * AMPERE::<Exact>);
 
     /// One `Femtoampere` (fA), as an `ElectricCurrent`.
-    pub const FEMTOAMPERE: ElectricCurrent = 1.0000000000000001e-15 * AMPERE;
+    pub const FEMTOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -15) * AMPERE::<Exact>);
 
     /// One `Attoampere` (aA), as an `ElectricCurrent`.
-    pub const ATTOAMPERE: ElectricCurrent = 1.0000000000000001e-18 * AMPERE;
+    pub const ATTOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -18) * AMPERE::<Exact>);
 
     /// One `Zeptoampere` (zA), as an `ElectricCurrent`.
-    pub const ZEPTOAMPERE: ElectricCurrent = 9.9999999999999991e-22 * AMPERE;
+    pub const ZEPTOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -21) * AMPERE::<Exact>);
 
     /// One `Yoctoampere` (yA), as an `ElectricCurrent`.
-    pub const YOCTOAMPERE: ElectricCurrent = 9.9999999999999992e-25 * AMPERE;
+    pub const YOCTOAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1, -24) * AMPERE::<Exact>);
 
     /// One `ElementaryChargePerSecond` (e/s), as an `ElectricCurrent`.
-    pub const ELEMENTARY_CHARGE_PER_SECOND: ElectricCurrent = 1.6021766339999999e-19 * AMPERE;
+    pub const ELEMENTARY_CHARGE_PER_SECOND<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1602176634, -28) * AMPERE::<Exact>);
 
     /// One `AtomicUnitOfChargePerSecond` (a.u. of charge/s), as an `ElectricCurrent`.
-    pub const ATOMIC_UNIT_OF_CHARGE_PER_SECOND: ElectricCurrent = 1.6021766339999999e-19 * AMPERE;
+    pub const ATOMIC_UNIT_OF_CHARGE_PER_SECOND<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1602176634, -28) * AMPERE::<Exact>);
 
     /// One `Abampere` (abA), as an `ElectricCurrent`.
-    pub const ABAMPERE: ElectricCurrent = 10.0 * AMPERE;
+    pub const ABAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(10) * AMPERE::<Exact>);
 
     /// One `Gilbert` (Gi), as an `ElectricCurrent`.
-    pub const GILBERT: ElectricCurrent = (10.0 / (4.0 * core::f64::consts::PI)) * AMPERE;
+    pub const GILBERT<N: const From<Exact>>: ElectricCurrent<N> = counted((Exact::int(10) / (Exact::int(4) * Exact::PI)) * AMPERE::<Exact>);
 
     /// One `Statampere` (statA), as an `ElectricCurrent`.
-    pub const STATAMPERE: ElectricCurrent = (1.0 / 2997924580.0) * AMPERE;
+    pub const STATAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted((Exact::int(1) / Exact::int(2997924580)) * AMPERE::<Exact>);
 
     /// One `AmperePerSquareMetre` (A/m²), as an `ElectricCurrentDensity`.
-    pub const AMPERE_PER_SQUARE_METRE: ElectricCurrentDensity = AMPERE / (METRE * METRE);
+    pub const AMPERE_PER_SQUARE_METRE<N: const From<Exact>>: ElectricCurrentDensity<N> = counted(AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `AmperePerMetre` (A/m), as a `SurfaceElectricCurrentDensity`.
-    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE: SurfaceElectricCurrentDensity =
-        AMPERE / METRE;
+    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE<N: const From<Exact>>: SurfaceElectricCurrentDensity<N> = counted(AMPERE::<Exact> / METRE::<Exact>);
 
     /// One `AmperePerCentimetre` (A/cm), as a `SurfaceElectricCurrentDensity`.
-    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_CENTIMETRE:
-        SurfaceElectricCurrentDensity = 100.0 * SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE;
+    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_CENTIMETRE<N: const From<Exact>>: SurfaceElectricCurrentDensity<N> = counted(Exact::int(100) * SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE::<Exact>);
 
     /// One `AmperePerMillimetre` (A/mm), as a `SurfaceElectricCurrentDensity`.
-    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_MILLIMETRE:
-        SurfaceElectricCurrentDensity = 1000.0 * SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE;
+    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_MILLIMETRE<N: const From<Exact>>: SurfaceElectricCurrentDensity<N> = counted(Exact::int(1000) * SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE::<Exact>);
 
     /// One `AmperePerMicrometre` (A/μm), as a `SurfaceElectricCurrentDensity`.
-    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_MICROMETRE:
-        SurfaceElectricCurrentDensity =
-        1000000.0 * SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE;
+    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_MICROMETRE<N: const From<Exact>>: SurfaceElectricCurrentDensity<N> = counted(Exact::int(1000000) * SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE::<Exact>);
 
     /// One `Yottavolt` (YV), as an `ElectricPotential`.
-    pub const YOTTAVOLT: ElectricPotential = 9.9999999999999998e+23 * VOLT;
+    pub const YOTTAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000000000000000000000) * VOLT::<Exact>);
 
     /// One `Zettavolt` (ZV), as an `ElectricPotential`.
-    pub const ZETTAVOLT: ElectricPotential = 1e+21 * VOLT;
+    pub const ZETTAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000000000000000000) * VOLT::<Exact>);
 
     /// One `Exavolt` (EV), as an `ElectricPotential`.
-    pub const EXAVOLT: ElectricPotential = 1e+18 * VOLT;
+    pub const EXAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000000000000000) * VOLT::<Exact>);
 
     /// One `Petavolt` (PV), as an `ElectricPotential`.
-    pub const PETAVOLT: ElectricPotential = 1000000000000000.0 * VOLT;
+    pub const PETAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000000000000) * VOLT::<Exact>);
 
     /// One `Teravolt` (TV), as an `ElectricPotential`.
-    pub const TERAVOLT: ElectricPotential = 1000000000000.0 * VOLT;
+    pub const TERAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000000000) * VOLT::<Exact>);
 
     /// One `Gigavolt` (GV), as an `ElectricPotential`.
-    pub const GIGAVOLT: ElectricPotential = 1000000000.0 * VOLT;
+    pub const GIGAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000000) * VOLT::<Exact>);
 
     /// One `Megavolt` (MV), as an `ElectricPotential`.
-    pub const MEGAVOLT: ElectricPotential = 1000000.0 * VOLT;
+    pub const MEGAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000000) * VOLT::<Exact>);
 
     /// One `Kilovolt` (kV), as an `ElectricPotential`.
-    pub const KILOVOLT: ElectricPotential = 1000.0 * VOLT;
+    pub const KILOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(1000) * VOLT::<Exact>);
 
     /// One `Hectovolt` (hV), as an `ElectricPotential`.
-    pub const HECTOVOLT: ElectricPotential = 100.0 * VOLT;
+    pub const HECTOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(100) * VOLT::<Exact>);
 
     /// One `Decavolt` (daV), as an `ElectricPotential`.
-    pub const DECAVOLT: ElectricPotential = 10.0 * VOLT;
+    pub const DECAVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::int(10) * VOLT::<Exact>);
 
     /// One `Volt` (V), as an `ElectricPotential`.
-    pub const VOLT: ElectricPotential =
-        METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE);
+    pub const VOLT<N: const From<Exact>>: ElectricPotential<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
 
     /// One `Decivolt` (dV), as an `ElectricPotential`.
-    pub const DECIVOLT: ElectricPotential = 0.10000000000000001 * VOLT;
+    pub const DECIVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -1) * VOLT::<Exact>);
 
     /// One `Centivolt` (cV), as an `ElectricPotential`.
-    pub const CENTIVOLT: ElectricPotential = 0.01 * VOLT;
+    pub const CENTIVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -2) * VOLT::<Exact>);
 
     /// One `Millivolt` (mV), as an `ElectricPotential`.
-    pub const MILLIVOLT: ElectricPotential = 0.001 * VOLT;
+    pub const MILLIVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -3) * VOLT::<Exact>);
 
     /// One `Microvolt` (µV), as an `ElectricPotential`.
-    pub const MICROVOLT: ElectricPotential = 9.9999999999999995e-07 * VOLT;
+    pub const MICROVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -6) * VOLT::<Exact>);
 
     /// One `Nanovolt` (nV), as an `ElectricPotential`.
-    pub const NANOVOLT: ElectricPotential = 1.0000000000000001e-09 * VOLT;
+    pub const NANOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -9) * VOLT::<Exact>);
 
     /// One `Picovolt` (pV), as an `ElectricPotential`.
-    pub const PICOVOLT: ElectricPotential = 9.9999999999999998e-13 * VOLT;
+    pub const PICOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -12) * VOLT::<Exact>);
 
     /// One `Femtovolt` (fV), as an `ElectricPotential`.
-    pub const FEMTOVOLT: ElectricPotential = 1.0000000000000001e-15 * VOLT;
+    pub const FEMTOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -15) * VOLT::<Exact>);
 
     /// One `Attovolt` (aV), as an `ElectricPotential`.
-    pub const ATTOVOLT: ElectricPotential = 1.0000000000000001e-18 * VOLT;
+    pub const ATTOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -18) * VOLT::<Exact>);
 
     /// One `Zeptovolt` (zV), as an `ElectricPotential`.
-    pub const ZEPTOVOLT: ElectricPotential = 9.9999999999999991e-22 * VOLT;
+    pub const ZEPTOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -21) * VOLT::<Exact>);
 
     /// One `Yoctovolt` (yV), as an `ElectricPotential`.
-    pub const YOCTOVOLT: ElectricPotential = 9.9999999999999992e-25 * VOLT;
+    pub const YOCTOVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -24) * VOLT::<Exact>);
 
     /// One `Abvolt` (abV), as an `ElectricPotential`.
-    pub const ABVOLT: ElectricPotential = 1e-08 * VOLT;
+    pub const ABVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -8) * VOLT::<Exact>);
 
     /// One `Statvolt` (statV), as an `ElectricPotential`.
-    pub const STATVOLT: ElectricPotential = 299.792458 * VOLT;
+    pub const STATVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(299792458, -6) * VOLT::<Exact>);
 
     /// One `VoltPerMetre` (V/m), as an `ElectricField`.
-    pub const VOLT_PER_METRE: ElectricField =
-        METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE);
+    pub const VOLT_PER_METRE<N: const From<Exact>>: ElectricField<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
 
     /// One `VoltPerCentimetre` (V/cm), as an `ElectricField`.
-    pub const VOLT_PER_CENTIMETRE: ElectricField = 100.0 * VOLT_PER_METRE;
+    pub const VOLT_PER_CENTIMETRE<N: const From<Exact>>: ElectricField<N> = counted(Exact::int(100) * VOLT_PER_METRE::<Exact>);
 
     /// One `VoltPerMillimetre` (V/mm), as an `ElectricField`.
-    pub const VOLT_PER_MILLIMETRE: ElectricField = 1000.0 * VOLT_PER_METRE;
+    pub const VOLT_PER_MILLIMETRE<N: const From<Exact>>: ElectricField<N> = counted(Exact::int(1000) * VOLT_PER_METRE::<Exact>);
 
     /// One `VoltPerMicrometre` (V/μm), as an `ElectricField`.
-    pub const VOLT_PER_MICROMETRE: ElectricField = 1000000.0 * VOLT_PER_METRE;
+    pub const VOLT_PER_MICROMETRE<N: const From<Exact>>: ElectricField<N> = counted(Exact::int(1000000) * VOLT_PER_METRE::<Exact>);
 
     /// One `KilovoltPerMillimetre` (kV/mm), as an `ElectricField`.
-    pub const KILOVOLT_PER_MILLIMETRE: ElectricField = 1000000.0 * VOLT_PER_METRE;
+    pub const KILOVOLT_PER_MILLIMETRE<N: const From<Exact>>: ElectricField<N> = counted(Exact::int(1000000) * VOLT_PER_METRE::<Exact>);
 
     /// One `MegavoltPerMetre` (MV/m), as an `ElectricField`.
-    pub const MEGAVOLT_PER_METRE: ElectricField = 1000000.0 * VOLT_PER_METRE;
+    pub const MEGAVOLT_PER_METRE<N: const From<Exact>>: ElectricField<N> = counted(Exact::int(1000000) * VOLT_PER_METRE::<Exact>);
 
     /// One `MegavoltPerCentimetre` (MV/cm), as an `ElectricField`.
-    pub const MEGAVOLT_PER_CENTIMETRE: ElectricField = 100000000.0 * VOLT_PER_METRE;
+    pub const MEGAVOLT_PER_CENTIMETRE<N: const From<Exact>>: ElectricField<N> = counted(Exact::int(100000000) * VOLT_PER_METRE::<Exact>);
 
     /// One `VoltPerMil` (V/mil), as an `ElectricField`.
-    pub const VOLT_PER_MIL: ElectricField = 39370.078740157478 * VOLT_PER_METRE;
+    pub const VOLT_PER_MIL<N: const From<Exact>>: ElectricField<N> = counted((Exact::int(1) / Exact::dec(254, -7)) * VOLT_PER_METRE::<Exact>);
 
     /// One `AtomicUnitOfElectricField` (a.u. of electric field), as an `ElectricField`.
-    pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD: ElectricField = 514220674763.25952 * VOLT_PER_METRE;
+    pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD<N: const From<Exact>>: ElectricField<N> = counted((Exact::dec(43597447222071, -31) / (Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22))) * VOLT_PER_METRE::<Exact>);
 
     /// One `CoulombPerSquareMetre` (C/m²), as an `ElectricDisplacementField`.
-    pub const ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE: ElectricDisplacementField =
-        SECOND * AMPERE / (METRE * METRE);
+    pub const ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE<N: const From<Exact>>: ElectricDisplacementField<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `VoltMetre` (V ⋅ m), as an `ElectricFlux`.
-    pub const VOLT_METRE: ElectricFlux =
-        METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE);
+    pub const VOLT_METRE<N: const From<Exact>>: ElectricFlux<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
 
     /// One `VoltCentimetre` (V ⋅ cm), as an `ElectricFlux`.
-    pub const VOLT_CENTIMETRE: ElectricFlux = 0.01 * VOLT_METRE;
+    pub const VOLT_CENTIMETRE<N: const From<Exact>>: ElectricFlux<N> = counted(Exact::dec(1, -2) * VOLT_METRE::<Exact>);
 
     /// One `CoulombMetre` (C · m), as an `ElectricDipoleMoment`.
-    pub const COULOMB_METRE: ElectricDipoleMoment = METRE * SECOND * AMPERE;
+    pub const COULOMB_METRE<N: const From<Exact>>: ElectricDipoleMoment<N> = counted(METRE::<Exact> * SECOND::<Exact> * AMPERE::<Exact>);
 
     /// One `AtomicUnitOfChargeCentimetre` (a.u. of charge · cm), as an `ElectricDipoleMoment`.
-    pub const ATOMIC_UNIT_OF_CHARGE_CENTIMETRE: ElectricDipoleMoment =
-        1.6021766339999998e-21 * COULOMB_METRE;
+    pub const ATOMIC_UNIT_OF_CHARGE_CENTIMETRE<N: const From<Exact>>: ElectricDipoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(1, -2)) * COULOMB_METRE::<Exact>);
 
     /// One `ElementaryChargeCentimetre` (e · cm), as an `ElectricDipoleMoment`.
-    pub const ELEMENTARY_CHARGE_CENTIMETRE: ElectricDipoleMoment =
-        1.6021766339999998e-21 * COULOMB_METRE;
+    pub const ELEMENTARY_CHARGE_CENTIMETRE<N: const From<Exact>>: ElectricDipoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(1, -2)) * COULOMB_METRE::<Exact>);
 
     /// One `AtomicUnitOfElectricDipoleMoment` (e · a₀), as an `ElectricDipoleMoment`.
-    pub const ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT: ElectricDipoleMoment =
-        8.478353625540766e-30 * COULOMB_METRE;
+    pub const ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT<N: const From<Exact>>: ElectricDipoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22)) * COULOMB_METRE::<Exact>);
 
     /// One `CoulombSquareMetre` (C · m²), as an `ElectricQuadrupoleMoment`.
-    pub const COULOMB_SQUARE_METRE: ElectricQuadrupoleMoment = METRE * METRE * SECOND * AMPERE;
+    pub const COULOMB_SQUARE_METRE<N: const From<Exact>>: ElectricQuadrupoleMoment<N> = counted(METRE::<Exact> * METRE::<Exact> * SECOND::<Exact> * AMPERE::<Exact>);
 
     /// One `ElementaryChargeBarn` (e · b), as an `ElectricQuadrupoleMoment`.
-    pub const ELEMENTARY_CHARGE_BARN: ElectricQuadrupoleMoment =
-        1.6021766339999998e-47 * COULOMB_SQUARE_METRE;
+    pub const ELEMENTARY_CHARGE_BARN<N: const From<Exact>>: ElectricQuadrupoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(1, -28)) * COULOMB_SQUARE_METRE::<Exact>);
 
     /// One `AtomicUnitOfElectricQuadrupoleMoment` (e · a₀²), as an `ElectricQuadrupoleMoment`.
-    pub const ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT: ElectricQuadrupoleMoment =
-        4.4865515246129999e-40 * COULOMB_SQUARE_METRE;
+    pub const ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT<N: const From<Exact>>: ElectricQuadrupoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22) * Exact::dec(529177210903, -22)) * COULOMB_SQUARE_METRE::<Exact>);
 
     /// One `FaradPerMetre` (F/m), as an `ElectricPermittivity`.
-    pub const FARAD_PER_METRE: ElectricPermittivity =
-        SECOND * SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * METRE * KILOGRAM);
+    pub const FARAD_PER_METRE<N: const From<Exact>>: ElectricPermittivity<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `VacuumPermittivity` (ε₀), as an `ElectricPermittivity`.
-    pub const VACUUM_PERMITTIVITY: ElectricPermittivity = 8.8541878128e-12 * FARAD_PER_METRE;
+    pub const VACUUM_PERMITTIVITY<N: const From<Exact>>: ElectricPermittivity<N> = counted(Exact::dec(88541878128, -22) * FARAD_PER_METRE::<Exact>);
 
     /// One `Yottasiemens` (YS), as an `ElectricalConductance`.
-    pub const YOTTASIEMENS: ElectricalConductance = 9.9999999999999998e+23 * SIEMENS;
+    pub const YOTTASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000000000000000000) * SIEMENS::<Exact>);
 
     /// One `Zettasiemens` (ZS), as an `ElectricalConductance`.
-    pub const ZETTASIEMENS: ElectricalConductance = 1e+21 * SIEMENS;
+    pub const ZETTASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000000000000000) * SIEMENS::<Exact>);
 
     /// One `Exasiemens` (ES), as an `ElectricalConductance`.
-    pub const EXASIEMENS: ElectricalConductance = 1e+18 * SIEMENS;
+    pub const EXASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000000000000) * SIEMENS::<Exact>);
 
     /// One `Petasiemens` (PS), as an `ElectricalConductance`.
-    pub const PETASIEMENS: ElectricalConductance = 1000000000000000.0 * SIEMENS;
+    pub const PETASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000000000) * SIEMENS::<Exact>);
 
     /// One `Terasiemens` (TS), as an `ElectricalConductance`.
-    pub const TERASIEMENS: ElectricalConductance = 1000000000000.0 * SIEMENS;
+    pub const TERASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000000) * SIEMENS::<Exact>);
 
     /// One `Gigasiemens` (GS), as an `ElectricalConductance`.
-    pub const GIGASIEMENS: ElectricalConductance = 1000000000.0 * SIEMENS;
+    pub const GIGASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000) * SIEMENS::<Exact>);
 
     /// One `Megasiemens` (MS), as an `ElectricalConductance`.
-    pub const MEGASIEMENS: ElectricalConductance = 1000000.0 * SIEMENS;
+    pub const MEGASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000) * SIEMENS::<Exact>);
 
     /// One `Kilosiemens` (kS), as an `ElectricalConductance`.
-    pub const KILOSIEMENS: ElectricalConductance = 1000.0 * SIEMENS;
+    pub const KILOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000) * SIEMENS::<Exact>);
 
     /// One `Hectosiemens` (hS), as an `ElectricalConductance`.
-    pub const HECTOSIEMENS: ElectricalConductance = 100.0 * SIEMENS;
+    pub const HECTOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(100) * SIEMENS::<Exact>);
 
     /// One `Decasiemens` (daS), as an `ElectricalConductance`.
-    pub const DECASIEMENS: ElectricalConductance = 10.0 * SIEMENS;
+    pub const DECASIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(10) * SIEMENS::<Exact>);
 
     /// One `Siemens` (S), as an `ElectricalConductance`.
-    pub const SIEMENS: ElectricalConductance =
-        SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * KILOGRAM);
+    pub const SIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `Mho` (℧), as an `ElectricalConductance`.
-    pub const MHO: ElectricalConductance = SIEMENS;
+    pub const MHO<N: const From<Exact>>: ElectricalConductance<N> = counted(SIEMENS::<Exact>);
 
     /// One `Decisiemens` (dS), as an `ElectricalConductance`.
-    pub const DECISIEMENS: ElectricalConductance = 0.10000000000000001 * SIEMENS;
+    pub const DECISIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -1) * SIEMENS::<Exact>);
 
     /// One `Centisiemens` (cS), as an `ElectricalConductance`.
-    pub const CENTISIEMENS: ElectricalConductance = 0.01 * SIEMENS;
+    pub const CENTISIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -2) * SIEMENS::<Exact>);
 
     /// One `Millisiemens` (mS), as an `ElectricalConductance`.
-    pub const MILLISIEMENS: ElectricalConductance = 0.001 * SIEMENS;
+    pub const MILLISIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -3) * SIEMENS::<Exact>);
 
     /// One `Microsiemens` (µS), as an `ElectricalConductance`.
-    pub const MICROSIEMENS: ElectricalConductance = 9.9999999999999995e-07 * SIEMENS;
+    pub const MICROSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -6) * SIEMENS::<Exact>);
 
     /// One `Nanosiemens` (nS), as an `ElectricalConductance`.
-    pub const NANOSIEMENS: ElectricalConductance = 1.0000000000000001e-09 * SIEMENS;
+    pub const NANOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -9) * SIEMENS::<Exact>);
 
     /// One `Picosiemens` (pS), as an `ElectricalConductance`.
-    pub const PICOSIEMENS: ElectricalConductance = 9.9999999999999998e-13 * SIEMENS;
+    pub const PICOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -12) * SIEMENS::<Exact>);
 
     /// One `Femtosiemens` (fS), as an `ElectricalConductance`.
-    pub const FEMTOSIEMENS: ElectricalConductance = 1.0000000000000001e-15 * SIEMENS;
+    pub const FEMTOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -15) * SIEMENS::<Exact>);
 
     /// One `Attosiemens` (aS), as an `ElectricalConductance`.
-    pub const ATTOSIEMENS: ElectricalConductance = 1.0000000000000001e-18 * SIEMENS;
+    pub const ATTOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -18) * SIEMENS::<Exact>);
 
     /// One `Zeptosiemens` (zS), as an `ElectricalConductance`.
-    pub const ZEPTOSIEMENS: ElectricalConductance = 9.9999999999999991e-22 * SIEMENS;
+    pub const ZEPTOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -21) * SIEMENS::<Exact>);
 
     /// One `Yoctosiemens` (yS), as an `ElectricalConductance`.
-    pub const YOCTOSIEMENS: ElectricalConductance = 9.9999999999999992e-25 * SIEMENS;
+    pub const YOCTOSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::dec(1, -24) * SIEMENS::<Exact>);
 
     /// One `Abmho` (abmho), as an `ElectricalConductance`.
-    pub const ABMHO: ElectricalConductance = 1000000000.0 * SIEMENS;
+    pub const ABMHO<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000) * SIEMENS::<Exact>);
 
     /// One `Absiemens` (abS), as an `ElectricalConductance`.
-    pub const ABSIEMENS: ElectricalConductance = 1000000000.0 * SIEMENS;
+    pub const ABSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000) * SIEMENS::<Exact>);
 
     /// One `Statsiemens` (statS), as an `ElectricalConductance`.
-    pub const STATSIEMENS: ElectricalConductance = (1.0 / (299.792458 * 2997924580.0)) * SIEMENS;
+    pub const STATSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted((Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580))) * SIEMENS::<Exact>);
 
     /// One `Statmho` (statmho), as an `ElectricalConductance`.
-    pub const STATMHO: ElectricalConductance = (1.0 / (299.792458 * 2997924580.0)) * SIEMENS;
+    pub const STATMHO<N: const From<Exact>>: ElectricalConductance<N> = counted((Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580))) * SIEMENS::<Exact>);
 
     /// One `SiemensPerMetre` (S/m), as an `ElectricalConductivity`.
-    pub const SIEMENS_PER_METRE: ElectricalConductivity =
-        SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * METRE * KILOGRAM);
+    pub const SIEMENS_PER_METRE<N: const From<Exact>>: ElectricalConductivity<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `SiemensPerCentimetre` (S/cm), as an `ElectricalConductivity`.
-    pub const SIEMENS_PER_CENTIMETRE: ElectricalConductivity = 100.0 * SIEMENS_PER_METRE;
+    pub const SIEMENS_PER_CENTIMETRE<N: const From<Exact>>: ElectricalConductivity<N> = counted(Exact::int(100) * SIEMENS_PER_METRE::<Exact>);
 
     /// One `SquareMetrePerVoltSecond` (m²/(V · s)), as an `ElectricalMobility`.
-    pub const SQUARE_METRE_PER_VOLT_SECOND: ElectricalMobility =
-        SECOND * SECOND * AMPERE / KILOGRAM;
+    pub const SQUARE_METRE_PER_VOLT_SECOND<N: const From<Exact>>: ElectricalMobility<N> = counted(SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>);
 
     /// One `SquareCentimetrePerVoltSecond` (cm²/(V · s)), as an `ElectricalMobility`.
-    pub const SQUARE_CENTIMETRE_PER_VOLT_SECOND: ElectricalMobility =
-        0.0001 * SQUARE_METRE_PER_VOLT_SECOND;
+    pub const SQUARE_CENTIMETRE_PER_VOLT_SECOND<N: const From<Exact>>: ElectricalMobility<N> = counted(Exact::dec(1, -4) * SQUARE_METRE_PER_VOLT_SECOND::<Exact>);
 
     /// One `Yottaohm` (YΩ), as an `ElectricalResistance`.
-    pub const YOTTAOHM: ElectricalResistance = 9.9999999999999998e+23 * OHM;
+    pub const YOTTAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000000000000000000000) * OHM::<Exact>);
 
     /// One `Zettaohm` (ZΩ), as an `ElectricalResistance`.
-    pub const ZETTAOHM: ElectricalResistance = 1e+21 * OHM;
+    pub const ZETTAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000000000000000000) * OHM::<Exact>);
 
     /// One `Exaohm` (EΩ), as an `ElectricalResistance`.
-    pub const EXAOHM: ElectricalResistance = 1e+18 * OHM;
+    pub const EXAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000000000000000) * OHM::<Exact>);
 
     /// One `Petaohm` (PΩ), as an `ElectricalResistance`.
-    pub const PETAOHM: ElectricalResistance = 1000000000000000.0 * OHM;
+    pub const PETAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000000000000) * OHM::<Exact>);
 
     /// One `Teraohm` (TΩ), as an `ElectricalResistance`.
-    pub const TERAOHM: ElectricalResistance = 1000000000000.0 * OHM;
+    pub const TERAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000000000) * OHM::<Exact>);
 
     /// One `Gigaohm` (GΩ), as an `ElectricalResistance`.
-    pub const GIGAOHM: ElectricalResistance = 1000000000.0 * OHM;
+    pub const GIGAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000000) * OHM::<Exact>);
 
     /// One `Megaohm` (MΩ), as an `ElectricalResistance`.
-    pub const MEGAOHM: ElectricalResistance = 1000000.0 * OHM;
+    pub const MEGAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000000) * OHM::<Exact>);
 
     /// One `Kiloohm` (kΩ), as an `ElectricalResistance`.
-    pub const KILOOHM: ElectricalResistance = 1000.0 * OHM;
+    pub const KILOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(1000) * OHM::<Exact>);
 
     /// One `Hectoohm` (hΩ), as an `ElectricalResistance`.
-    pub const HECTOOHM: ElectricalResistance = 100.0 * OHM;
+    pub const HECTOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(100) * OHM::<Exact>);
 
     /// One `Decaohm` (daΩ), as an `ElectricalResistance`.
-    pub const DECAOHM: ElectricalResistance = 10.0 * OHM;
+    pub const DECAOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::int(10) * OHM::<Exact>);
 
     /// One `Ohm` (Ω), as an `ElectricalResistance`.
-    pub const OHM: ElectricalResistance =
-        METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE);
+    pub const OHM<N: const From<Exact>>: ElectricalResistance<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
 
     /// One `Deciohm` (dΩ), as an `ElectricalResistance`.
-    pub const DECIOHM: ElectricalResistance = 0.10000000000000001 * OHM;
+    pub const DECIOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -1) * OHM::<Exact>);
 
     /// One `Centiohm` (cΩ), as an `ElectricalResistance`.
-    pub const CENTIOHM: ElectricalResistance = 0.01 * OHM;
+    pub const CENTIOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -2) * OHM::<Exact>);
 
     /// One `Milliohm` (mΩ), as an `ElectricalResistance`.
-    pub const MILLIOHM: ElectricalResistance = 0.001 * OHM;
+    pub const MILLIOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -3) * OHM::<Exact>);
 
     /// One `Microohm` (µΩ), as an `ElectricalResistance`.
-    pub const MICROOHM: ElectricalResistance = 9.9999999999999995e-07 * OHM;
+    pub const MICROOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -6) * OHM::<Exact>);
 
     /// One `Nanoohm` (nΩ), as an `ElectricalResistance`.
-    pub const NANOOHM: ElectricalResistance = 1.0000000000000001e-09 * OHM;
+    pub const NANOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -9) * OHM::<Exact>);
 
     /// One `Picoohm` (pΩ), as an `ElectricalResistance`.
-    pub const PICOOHM: ElectricalResistance = 9.9999999999999998e-13 * OHM;
+    pub const PICOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -12) * OHM::<Exact>);
 
     /// One `Femtoohm` (fΩ), as an `ElectricalResistance`.
-    pub const FEMTOOHM: ElectricalResistance = 1.0000000000000001e-15 * OHM;
+    pub const FEMTOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -15) * OHM::<Exact>);
 
     /// One `Attoohm` (aΩ), as an `ElectricalResistance`.
-    pub const ATTOOHM: ElectricalResistance = 1.0000000000000001e-18 * OHM;
+    pub const ATTOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -18) * OHM::<Exact>);
 
     /// One `Zeptoohm` (zΩ), as an `ElectricalResistance`.
-    pub const ZEPTOOHM: ElectricalResistance = 9.9999999999999991e-22 * OHM;
+    pub const ZEPTOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -21) * OHM::<Exact>);
 
     /// One `Yoctoohm` (yΩ), as an `ElectricalResistance`.
-    pub const YOCTOOHM: ElectricalResistance = 9.9999999999999992e-25 * OHM;
+    pub const YOCTOOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -24) * OHM::<Exact>);
 
     /// One `Abohm` (abΩ), as an `ElectricalResistance`.
-    pub const ABOHM: ElectricalResistance = 1.0000000000000001e-09 * OHM;
+    pub const ABOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -9) * OHM::<Exact>);
 
     /// One `Statohm` (statΩ), as an `ElectricalResistance`.
-    pub const STATOHM: ElectricalResistance = (299.792458 * 2997924580.0) * OHM;
+    pub const STATOHM<N: const From<Exact>>: ElectricalResistance<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580)) * OHM::<Exact>);
 
     /// One `YottaohmMetre` (YΩ · m), as an `ElectricalResistivity`.
-    pub const YOTTAOHM_METRE: ElectricalResistivity = 9.9999999999999998e+23 * OHM_METRE;
+    pub const YOTTAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000000000000000000000) * OHM_METRE::<Exact>);
 
     /// One `ZettaohmMetre` (ZΩ · m), as an `ElectricalResistivity`.
-    pub const ZETTAOHM_METRE: ElectricalResistivity = 1e+21 * OHM_METRE;
+    pub const ZETTAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000000000000000000) * OHM_METRE::<Exact>);
 
     /// One `ExaohmMetre` (EΩ · m), as an `ElectricalResistivity`.
-    pub const EXAOHM_METRE: ElectricalResistivity = 1e+18 * OHM_METRE;
+    pub const EXAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000000000000000) * OHM_METRE::<Exact>);
 
     /// One `PetaohmMetre` (PΩ · m), as an `ElectricalResistivity`.
-    pub const PETAOHM_METRE: ElectricalResistivity = 1000000000000000.0 * OHM_METRE;
+    pub const PETAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000000000000) * OHM_METRE::<Exact>);
 
     /// One `TeraohmMetre` (TΩ · m), as an `ElectricalResistivity`.
-    pub const TERAOHM_METRE: ElectricalResistivity = 1000000000000.0 * OHM_METRE;
+    pub const TERAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000000000) * OHM_METRE::<Exact>);
 
     /// One `GigaohmMetre` (GΩ · m), as an `ElectricalResistivity`.
-    pub const GIGAOHM_METRE: ElectricalResistivity = 1000000000.0 * OHM_METRE;
+    pub const GIGAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000000) * OHM_METRE::<Exact>);
 
     /// One `MegaohmMetre` (MΩ · m), as an `ElectricalResistivity`.
-    pub const MEGAOHM_METRE: ElectricalResistivity = 1000000.0 * OHM_METRE;
+    pub const MEGAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000000) * OHM_METRE::<Exact>);
 
     /// One `KiloohmMetre` (kΩ · m), as an `ElectricalResistivity`.
-    pub const KILOOHM_METRE: ElectricalResistivity = 1000.0 * OHM_METRE;
+    pub const KILOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(1000) * OHM_METRE::<Exact>);
 
     /// One `HectoohmMetre` (hΩ · m), as an `ElectricalResistivity`.
-    pub const HECTOOHM_METRE: ElectricalResistivity = 100.0 * OHM_METRE;
+    pub const HECTOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(100) * OHM_METRE::<Exact>);
 
     /// One `DecaohmMetre` (daΩ · m), as an `ElectricalResistivity`.
-    pub const DECAOHM_METRE: ElectricalResistivity = 10.0 * OHM_METRE;
+    pub const DECAOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::int(10) * OHM_METRE::<Exact>);
 
     /// One `OhmMetre` (Ω · m), as an `ElectricalResistivity`.
-    pub const OHM_METRE: ElectricalResistivity =
-        METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE);
+    pub const OHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
 
     /// One `DeciohmMetre` (dΩ · m), as an `ElectricalResistivity`.
-    pub const DECIOHM_METRE: ElectricalResistivity = 0.10000000000000001 * OHM_METRE;
+    pub const DECIOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -1) * OHM_METRE::<Exact>);
 
     /// One `CentiohmMetre` (cΩ · m), as an `ElectricalResistivity`.
-    pub const CENTIOHM_METRE: ElectricalResistivity = 0.01 * OHM_METRE;
+    pub const CENTIOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -2) * OHM_METRE::<Exact>);
 
     /// One `MilliohmMetre` (mΩ · m), as an `ElectricalResistivity`.
-    pub const MILLIOHM_METRE: ElectricalResistivity = 0.001 * OHM_METRE;
+    pub const MILLIOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -3) * OHM_METRE::<Exact>);
 
     /// One `MicroohmMetre` (µΩ · m), as an `ElectricalResistivity`.
-    pub const MICROOHM_METRE: ElectricalResistivity = 9.9999999999999995e-07 * OHM_METRE;
+    pub const MICROOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -6) * OHM_METRE::<Exact>);
 
     /// One `NanoohmMetre` (nΩ · m), as an `ElectricalResistivity`.
-    pub const NANOOHM_METRE: ElectricalResistivity = 1.0000000000000001e-09 * OHM_METRE;
+    pub const NANOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -9) * OHM_METRE::<Exact>);
 
     /// One `PicoohmMetre` (pΩ · m), as an `ElectricalResistivity`.
-    pub const PICOOHM_METRE: ElectricalResistivity = 9.9999999999999998e-13 * OHM_METRE;
+    pub const PICOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -12) * OHM_METRE::<Exact>);
 
     /// One `FemtoohmMetre` (fΩ · m), as an `ElectricalResistivity`.
-    pub const FEMTOOHM_METRE: ElectricalResistivity = 1.0000000000000001e-15 * OHM_METRE;
+    pub const FEMTOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -15) * OHM_METRE::<Exact>);
 
     /// One `AttoohmMetre` (aΩ · m), as an `ElectricalResistivity`.
-    pub const ATTOOHM_METRE: ElectricalResistivity = 1.0000000000000001e-18 * OHM_METRE;
+    pub const ATTOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -18) * OHM_METRE::<Exact>);
 
     /// One `ZeptoohmMetre` (zΩ · m), as an `ElectricalResistivity`.
-    pub const ZEPTOOHM_METRE: ElectricalResistivity = 9.9999999999999991e-22 * OHM_METRE;
+    pub const ZEPTOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -21) * OHM_METRE::<Exact>);
 
     /// One `YoctoohmMetre` (yΩ · m), as an `ElectricalResistivity`.
-    pub const YOCTOOHM_METRE: ElectricalResistivity = 9.9999999999999992e-25 * OHM_METRE;
+    pub const YOCTOOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -24) * OHM_METRE::<Exact>);
 
     /// One `AbohmMetre` (abΩ · m), as an `ElectricalResistivity`.
-    pub const ABOHM_METRE: ElectricalResistivity = 1.0000000000000001e-09 * OHM_METRE;
+    pub const ABOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -9) * OHM_METRE::<Exact>);
 
     /// One `StatohmMetre` (statΩ · m), as an `ElectricalResistivity`.
-    pub const STATOHM_METRE: ElectricalResistivity = (299.792458 * 2997924580.0) * OHM_METRE;
+    pub const STATOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580)) * OHM_METRE::<Exact>);
 
     /// One `OhmCentimetre` (Ω · cm), as an `ElectricalResistivity`.
-    pub const OHM_CENTIMETRE: ElectricalResistivity = 0.01 * OHM_METRE;
+    pub const OHM_CENTIMETRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -2) * OHM_METRE::<Exact>);
 
     /// One `AbohmCentimetre` (abΩ · cm), as an `ElectricalResistivity`.
-    pub const ABOHM_CENTIMETRE: ElectricalResistivity = 1.0000000000000001e-11 * OHM_METRE;
+    pub const ABOHM_CENTIMETRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -11) * OHM_METRE::<Exact>);
 
     /// One `StatohmCentimetre` (statΩ · cm), as an `ElectricalResistivity`.
-    pub const STATOHM_CENTIMETRE: ElectricalResistivity =
-        (299.792458 * 2997924580.0 / 100.0) * OHM_METRE;
+    pub const STATOHM_CENTIMETRE<N: const From<Exact>>: ElectricalResistivity<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580) / Exact::int(100)) * OHM_METRE::<Exact>);
 
     /// One `OhmInch` (Ω · in), as an `ElectricalResistivity`.
-    pub const OHM_INCH: ElectricalResistivity = 0.025399999999999999 * OHM_METRE;
+    pub const OHM_INCH<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(254, -4) * OHM_METRE::<Exact>);
 
     /// One `OhmFoot` (Ω · ft), as an `ElectricalResistivity`.
-    pub const OHM_FOOT: ElectricalResistivity = 0.30480000000000002 * OHM_METRE;
+    pub const OHM_FOOT<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(3048, -4) * OHM_METRE::<Exact>);
 
     /// One `OhmYard` (Ω · yd), as an `ElectricalResistivity`.
-    pub const OHM_YARD: ElectricalResistivity = 0.91439999999999999 * OHM_METRE;
+    pub const OHM_YARD<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(9144, -4) * OHM_METRE::<Exact>);
 
     /// One `OhmSquareMillimetrePerMetre` (Ω · mm²/m), as an `ElectricalResistivity`.
-    pub const OHM_SQUARE_MILLIMETRE_PER_METRE: ElectricalResistivity =
-        9.9999999999999995e-07 * OHM_METRE;
+    pub const OHM_SQUARE_MILLIMETRE_PER_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -6) * OHM_METRE::<Exact>);
 
     /// One `Yottafarad` (YF), as a `Capacitance`.
-    pub const YOTTAFARAD: Capacitance = 9.9999999999999998e+23 * FARAD;
+    pub const YOTTAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000000000000000000) * FARAD::<Exact>);
 
     /// One `Zettafarad` (ZF), as a `Capacitance`.
-    pub const ZETTAFARAD: Capacitance = 1e+21 * FARAD;
+    pub const ZETTAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000000000000000) * FARAD::<Exact>);
 
     /// One `Exafarad` (EF), as a `Capacitance`.
-    pub const EXAFARAD: Capacitance = 1e+18 * FARAD;
+    pub const EXAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000000000000) * FARAD::<Exact>);
 
     /// One `Petafarad` (PF), as a `Capacitance`.
-    pub const PETAFARAD: Capacitance = 1000000000000000.0 * FARAD;
+    pub const PETAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000000000) * FARAD::<Exact>);
 
     /// One `Terafarad` (TF), as a `Capacitance`.
-    pub const TERAFARAD: Capacitance = 1000000000000.0 * FARAD;
+    pub const TERAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000000) * FARAD::<Exact>);
 
     /// One `Gigafarad` (GF), as a `Capacitance`.
-    pub const GIGAFARAD: Capacitance = 1000000000.0 * FARAD;
+    pub const GIGAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000) * FARAD::<Exact>);
 
     /// One `Megafarad` (MF), as a `Capacitance`.
-    pub const MEGAFARAD: Capacitance = 1000000.0 * FARAD;
+    pub const MEGAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000) * FARAD::<Exact>);
 
     /// One `Kilofarad` (kF), as a `Capacitance`.
-    pub const KILOFARAD: Capacitance = 1000.0 * FARAD;
+    pub const KILOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000) * FARAD::<Exact>);
 
     /// One `Hectofarad` (hF), as a `Capacitance`.
-    pub const HECTOFARAD: Capacitance = 100.0 * FARAD;
+    pub const HECTOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(100) * FARAD::<Exact>);
 
     /// One `Decafarad` (daF), as a `Capacitance`.
-    pub const DECAFARAD: Capacitance = 10.0 * FARAD;
+    pub const DECAFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(10) * FARAD::<Exact>);
 
     /// One `Farad` (F), as a `Capacitance`.
-    pub const FARAD: Capacitance =
-        SECOND * SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * KILOGRAM);
+    pub const FARAD<N: const From<Exact>>: Capacitance<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `Decifarad` (dF), as a `Capacitance`.
-    pub const DECIFARAD: Capacitance = 0.10000000000000001 * FARAD;
+    pub const DECIFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -1) * FARAD::<Exact>);
 
     /// One `Centifarad` (cF), as a `Capacitance`.
-    pub const CENTIFARAD: Capacitance = 0.01 * FARAD;
+    pub const CENTIFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -2) * FARAD::<Exact>);
 
     /// One `Millifarad` (mF), as a `Capacitance`.
-    pub const MILLIFARAD: Capacitance = 0.001 * FARAD;
+    pub const MILLIFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -3) * FARAD::<Exact>);
 
     /// One `Microfarad` (µF), as a `Capacitance`.
-    pub const MICROFARAD: Capacitance = 9.9999999999999995e-07 * FARAD;
+    pub const MICROFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -6) * FARAD::<Exact>);
 
     /// One `Nanofarad` (nF), as a `Capacitance`.
-    pub const NANOFARAD: Capacitance = 1.0000000000000001e-09 * FARAD;
+    pub const NANOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -9) * FARAD::<Exact>);
 
     /// One `Picofarad` (pF), as a `Capacitance`.
-    pub const PICOFARAD: Capacitance = 9.9999999999999998e-13 * FARAD;
+    pub const PICOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -12) * FARAD::<Exact>);
 
     /// One `Femtofarad` (fF), as a `Capacitance`.
-    pub const FEMTOFARAD: Capacitance = 1.0000000000000001e-15 * FARAD;
+    pub const FEMTOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -15) * FARAD::<Exact>);
 
     /// One `Attofarad` (aF), as a `Capacitance`.
-    pub const ATTOFARAD: Capacitance = 1.0000000000000001e-18 * FARAD;
+    pub const ATTOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -18) * FARAD::<Exact>);
 
     /// One `Zeptofarad` (zF), as a `Capacitance`.
-    pub const ZEPTOFARAD: Capacitance = 9.9999999999999991e-22 * FARAD;
+    pub const ZEPTOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -21) * FARAD::<Exact>);
 
     /// One `Yoctofarad` (yF), as a `Capacitance`.
-    pub const YOCTOFARAD: Capacitance = 9.9999999999999992e-25 * FARAD;
+    pub const YOCTOFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::dec(1, -24) * FARAD::<Exact>);
 
     /// One `Abfarad` (abF), as a `Capacitance`.
-    pub const ABFARAD: Capacitance = 1000000000.0 * FARAD;
+    pub const ABFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000) * FARAD::<Exact>);
 
     /// One `Statfarad` (statF), as a `Capacitance`.
-    pub const STATFARAD: Capacitance = (1.0 / (299.792458 * 2997924580.0)) * FARAD;
+    pub const STATFARAD<N: const From<Exact>>: Capacitance<N> = counted((Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580))) * FARAD::<Exact>);
 
     /// One `Yottahenry` (YH), as an `Inductance`.
-    pub const YOTTAHENRY: Inductance = 9.9999999999999998e+23 * HENRY;
+    pub const YOTTAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000000000000000000000) * HENRY::<Exact>);
 
     /// One `Zettahenry` (ZH), as an `Inductance`.
-    pub const ZETTAHENRY: Inductance = 1e+21 * HENRY;
+    pub const ZETTAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000000000000000000) * HENRY::<Exact>);
 
     /// One `Exahenry` (EH), as an `Inductance`.
-    pub const EXAHENRY: Inductance = 1e+18 * HENRY;
+    pub const EXAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000000000000000) * HENRY::<Exact>);
 
     /// One `Petahenry` (PH), as an `Inductance`.
-    pub const PETAHENRY: Inductance = 1000000000000000.0 * HENRY;
+    pub const PETAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000000000000) * HENRY::<Exact>);
 
     /// One `Terahenry` (TH), as an `Inductance`.
-    pub const TERAHENRY: Inductance = 1000000000000.0 * HENRY;
+    pub const TERAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000000000) * HENRY::<Exact>);
 
     /// One `Gigahenry` (GH), as an `Inductance`.
-    pub const GIGAHENRY: Inductance = 1000000000.0 * HENRY;
+    pub const GIGAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000000) * HENRY::<Exact>);
 
     /// One `Megahenry` (MH), as an `Inductance`.
-    pub const MEGAHENRY: Inductance = 1000000.0 * HENRY;
+    pub const MEGAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000000) * HENRY::<Exact>);
 
     /// One `Kilohenry` (kH), as an `Inductance`.
-    pub const KILOHENRY: Inductance = 1000.0 * HENRY;
+    pub const KILOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(1000) * HENRY::<Exact>);
 
     /// One `Hectohenry` (hH), as an `Inductance`.
-    pub const HECTOHENRY: Inductance = 100.0 * HENRY;
+    pub const HECTOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(100) * HENRY::<Exact>);
 
     /// One `Decahenry` (daH), as an `Inductance`.
-    pub const DECAHENRY: Inductance = 10.0 * HENRY;
+    pub const DECAHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::int(10) * HENRY::<Exact>);
 
     /// One `Henry` (H), as an `Inductance`.
-    pub const HENRY: Inductance = METRE * METRE * KILOGRAM / (SECOND * SECOND * AMPERE * AMPERE);
+    pub const HENRY<N: const From<Exact>>: Inductance<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
 
     /// One `Decihenry` (dH), as an `Inductance`.
-    pub const DECIHENRY: Inductance = 0.10000000000000001 * HENRY;
+    pub const DECIHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -1) * HENRY::<Exact>);
 
     /// One `Centihenry` (cH), as an `Inductance`.
-    pub const CENTIHENRY: Inductance = 0.01 * HENRY;
+    pub const CENTIHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -2) * HENRY::<Exact>);
 
     /// One `Millihenry` (mH), as an `Inductance`.
-    pub const MILLIHENRY: Inductance = 0.001 * HENRY;
+    pub const MILLIHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -3) * HENRY::<Exact>);
 
     /// One `Microhenry` (µH), as an `Inductance`.
-    pub const MICROHENRY: Inductance = 9.9999999999999995e-07 * HENRY;
+    pub const MICROHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -6) * HENRY::<Exact>);
 
     /// One `Nanohenry` (nH), as an `Inductance`.
-    pub const NANOHENRY: Inductance = 1.0000000000000001e-09 * HENRY;
+    pub const NANOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -9) * HENRY::<Exact>);
 
     /// One `Picohenry` (pH), as an `Inductance`.
-    pub const PICOHENRY: Inductance = 9.9999999999999998e-13 * HENRY;
+    pub const PICOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -12) * HENRY::<Exact>);
 
     /// One `Femtohenry` (fH), as an `Inductance`.
-    pub const FEMTOHENRY: Inductance = 1.0000000000000001e-15 * HENRY;
+    pub const FEMTOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -15) * HENRY::<Exact>);
 
     /// One `Attohenry` (aH), as an `Inductance`.
-    pub const ATTOHENRY: Inductance = 1.0000000000000001e-18 * HENRY;
+    pub const ATTOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -18) * HENRY::<Exact>);
 
     /// One `Zeptohenry` (zH), as an `Inductance`.
-    pub const ZEPTOHENRY: Inductance = 9.9999999999999991e-22 * HENRY;
+    pub const ZEPTOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -21) * HENRY::<Exact>);
 
     /// One `Yoctohenry` (yH), as an `Inductance`.
-    pub const YOCTOHENRY: Inductance = 9.9999999999999992e-25 * HENRY;
+    pub const YOCTOHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -24) * HENRY::<Exact>);
 
     /// One `Abhenry` (abH), as an `Inductance`.
-    pub const ABHENRY: Inductance = 1.0000000000000001e-09 * HENRY;
+    pub const ABHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -9) * HENRY::<Exact>);
 
     /// One `Stathenry` (statH), as an `Inductance`.
-    pub const STATHENRY: Inductance = (299.792458 * 2997924580.0) * HENRY;
+    pub const STATHENRY<N: const From<Exact>>: Inductance<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580)) * HENRY::<Exact>);
 
     /// One `AmperePerMetre` (A/m), as a `MagneticFieldStrength`.
-    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE: MagneticFieldStrength = AMPERE / METRE;
+    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE<N: const From<Exact>>: MagneticFieldStrength<N> = counted(AMPERE::<Exact> / METRE::<Exact>);
 
     /// One `AmperePerCentimetre` (A/cm), as a `MagneticFieldStrength`.
-    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_CENTIMETRE: MagneticFieldStrength =
-        100.0 * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE;
+    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_CENTIMETRE<N: const From<Exact>>: MagneticFieldStrength<N> = counted(Exact::int(100) * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE::<Exact>);
 
     /// One `AmperePerMillimetre` (A/mm), as a `MagneticFieldStrength`.
-    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_MILLIMETRE: MagneticFieldStrength =
-        1000.0 * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE;
+    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_MILLIMETRE<N: const From<Exact>>: MagneticFieldStrength<N> = counted(Exact::int(1000) * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE::<Exact>);
 
     /// One `AmperePerMicrometre` (A/μm), as a `MagneticFieldStrength`.
-    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_MICROMETRE: MagneticFieldStrength =
-        1000000.0 * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE;
+    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_MICROMETRE<N: const From<Exact>>: MagneticFieldStrength<N> = counted(Exact::int(1000000) * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE::<Exact>);
 
     /// One `Oersted` (Oe), as a `MagneticFieldStrength`.
-    pub const OERSTED: MagneticFieldStrength =
-        79.577471545947674 * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE;
+    pub const OERSTED<N: const From<Exact>>: MagneticFieldStrength<N> = counted((Exact::int(1000) / (Exact::int(4) * Exact::PI)) * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE::<Exact>);
 
     /// One `Yottaweber` (YWb), as a `MagneticFlux`.
-    pub const YOTTAWEBER: MagneticFlux = 9.9999999999999998e+23 * WEBER;
+    pub const YOTTAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000000000000000000000) * WEBER::<Exact>);
 
     /// One `Zettaweber` (ZWb), as a `MagneticFlux`.
-    pub const ZETTAWEBER: MagneticFlux = 1e+21 * WEBER;
+    pub const ZETTAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000000000000000000) * WEBER::<Exact>);
 
     /// One `Exaweber` (EWb), as a `MagneticFlux`.
-    pub const EXAWEBER: MagneticFlux = 1e+18 * WEBER;
+    pub const EXAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000000000000000) * WEBER::<Exact>);
 
     /// One `Petaweber` (PWb), as a `MagneticFlux`.
-    pub const PETAWEBER: MagneticFlux = 1000000000000000.0 * WEBER;
+    pub const PETAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000000000000) * WEBER::<Exact>);
 
     /// One `Teraweber` (TWb), as a `MagneticFlux`.
-    pub const TERAWEBER: MagneticFlux = 1000000000000.0 * WEBER;
+    pub const TERAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000000000) * WEBER::<Exact>);
 
     /// One `Gigaweber` (GWb), as a `MagneticFlux`.
-    pub const GIGAWEBER: MagneticFlux = 1000000000.0 * WEBER;
+    pub const GIGAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000000) * WEBER::<Exact>);
 
     /// One `Megaweber` (MWb), as a `MagneticFlux`.
-    pub const MEGAWEBER: MagneticFlux = 1000000.0 * WEBER;
+    pub const MEGAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000000) * WEBER::<Exact>);
 
     /// One `Kiloweber` (kWb), as a `MagneticFlux`.
-    pub const KILOWEBER: MagneticFlux = 1000.0 * WEBER;
+    pub const KILOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(1000) * WEBER::<Exact>);
 
     /// One `Hectoweber` (hWb), as a `MagneticFlux`.
-    pub const HECTOWEBER: MagneticFlux = 100.0 * WEBER;
+    pub const HECTOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(100) * WEBER::<Exact>);
 
     /// One `Decaweber` (daWb), as a `MagneticFlux`.
-    pub const DECAWEBER: MagneticFlux = 10.0 * WEBER;
+    pub const DECAWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::int(10) * WEBER::<Exact>);
 
     /// One `Weber` (Wb), as a `MagneticFlux`.
-    pub const WEBER: MagneticFlux = METRE * METRE * KILOGRAM / (SECOND * SECOND * AMPERE);
+    pub const WEBER<N: const From<Exact>>: MagneticFlux<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
 
     /// One `Deciweber` (dWb), as a `MagneticFlux`.
-    pub const DECIWEBER: MagneticFlux = 0.10000000000000001 * WEBER;
+    pub const DECIWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -1) * WEBER::<Exact>);
 
     /// One `Centiweber` (cWb), as a `MagneticFlux`.
-    pub const CENTIWEBER: MagneticFlux = 0.01 * WEBER;
+    pub const CENTIWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -2) * WEBER::<Exact>);
 
     /// One `Milliweber` (mWb), as a `MagneticFlux`.
-    pub const MILLIWEBER: MagneticFlux = 0.001 * WEBER;
+    pub const MILLIWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -3) * WEBER::<Exact>);
 
     /// One `Microweber` (µWb), as a `MagneticFlux`.
-    pub const MICROWEBER: MagneticFlux = 9.9999999999999995e-07 * WEBER;
+    pub const MICROWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -6) * WEBER::<Exact>);
 
     /// One `Nanoweber` (nWb), as a `MagneticFlux`.
-    pub const NANOWEBER: MagneticFlux = 1.0000000000000001e-09 * WEBER;
+    pub const NANOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -9) * WEBER::<Exact>);
 
     /// One `Picoweber` (pWb), as a `MagneticFlux`.
-    pub const PICOWEBER: MagneticFlux = 9.9999999999999998e-13 * WEBER;
+    pub const PICOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -12) * WEBER::<Exact>);
 
     /// One `Femtoweber` (fWb), as a `MagneticFlux`.
-    pub const FEMTOWEBER: MagneticFlux = 1.0000000000000001e-15 * WEBER;
+    pub const FEMTOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -15) * WEBER::<Exact>);
 
     /// One `Attoweber` (aWb), as a `MagneticFlux`.
-    pub const ATTOWEBER: MagneticFlux = 1.0000000000000001e-18 * WEBER;
+    pub const ATTOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -18) * WEBER::<Exact>);
 
     /// One `Zeptoweber` (zWb), as a `MagneticFlux`.
-    pub const ZEPTOWEBER: MagneticFlux = 9.9999999999999991e-22 * WEBER;
+    pub const ZEPTOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -21) * WEBER::<Exact>);
 
     /// One `Yoctoweber` (yWb), as a `MagneticFlux`.
-    pub const YOCTOWEBER: MagneticFlux = 9.9999999999999992e-25 * WEBER;
+    pub const YOCTOWEBER<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -24) * WEBER::<Exact>);
 
     /// One `Maxwell` (Mx), as a `MagneticFlux`.
-    pub const MAXWELL: MagneticFlux = 1e-08 * WEBER;
+    pub const MAXWELL<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -8) * WEBER::<Exact>);
 
     /// One `Yottatesla` (YT), as a `MagneticFluxDensity`.
-    pub const YOTTATESLA: MagneticFluxDensity = 9.9999999999999998e+23 * TESLA;
+    pub const YOTTATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000000000000000000000) * TESLA::<Exact>);
 
     /// One `Zettatesla` (ZT), as a `MagneticFluxDensity`.
-    pub const ZETTATESLA: MagneticFluxDensity = 1e+21 * TESLA;
+    pub const ZETTATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000000000000000000) * TESLA::<Exact>);
 
     /// One `Exatesla` (ET), as a `MagneticFluxDensity`.
-    pub const EXATESLA: MagneticFluxDensity = 1e+18 * TESLA;
+    pub const EXATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000000000000000) * TESLA::<Exact>);
 
     /// One `Petatesla` (PT), as a `MagneticFluxDensity`.
-    pub const PETATESLA: MagneticFluxDensity = 1000000000000000.0 * TESLA;
+    pub const PETATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000000000000) * TESLA::<Exact>);
 
     /// One `Teratesla` (TT), as a `MagneticFluxDensity`.
-    pub const TERATESLA: MagneticFluxDensity = 1000000000000.0 * TESLA;
+    pub const TERATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000000000) * TESLA::<Exact>);
 
     /// One `Gigatesla` (GT), as a `MagneticFluxDensity`.
-    pub const GIGATESLA: MagneticFluxDensity = 1000000000.0 * TESLA;
+    pub const GIGATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000000) * TESLA::<Exact>);
 
     /// One `Megatesla` (MT), as a `MagneticFluxDensity`.
-    pub const MEGATESLA: MagneticFluxDensity = 1000000.0 * TESLA;
+    pub const MEGATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000000) * TESLA::<Exact>);
 
     /// One `Kilotesla` (kT), as a `MagneticFluxDensity`.
-    pub const KILOTESLA: MagneticFluxDensity = 1000.0 * TESLA;
+    pub const KILOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(1000) * TESLA::<Exact>);
 
     /// One `Hectotesla` (hT), as a `MagneticFluxDensity`.
-    pub const HECTOTESLA: MagneticFluxDensity = 100.0 * TESLA;
+    pub const HECTOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(100) * TESLA::<Exact>);
 
     /// One `Decatesla` (daT), as a `MagneticFluxDensity`.
-    pub const DECATESLA: MagneticFluxDensity = 10.0 * TESLA;
+    pub const DECATESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::int(10) * TESLA::<Exact>);
 
     /// One `Tesla` (T), as a `MagneticFluxDensity`.
-    pub const TESLA: MagneticFluxDensity = KILOGRAM / (SECOND * SECOND * AMPERE);
+    pub const TESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
 
     /// One `Decitesla` (dT), as a `MagneticFluxDensity`.
-    pub const DECITESLA: MagneticFluxDensity = 0.10000000000000001 * TESLA;
+    pub const DECITESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -1) * TESLA::<Exact>);
 
     /// One `Centitesla` (cT), as a `MagneticFluxDensity`.
-    pub const CENTITESLA: MagneticFluxDensity = 0.01 * TESLA;
+    pub const CENTITESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -2) * TESLA::<Exact>);
 
     /// One `Millitesla` (mT), as a `MagneticFluxDensity`.
-    pub const MILLITESLA: MagneticFluxDensity = 0.001 * TESLA;
+    pub const MILLITESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -3) * TESLA::<Exact>);
 
     /// One `Microtesla` (µT), as a `MagneticFluxDensity`.
-    pub const MICROTESLA: MagneticFluxDensity = 9.9999999999999995e-07 * TESLA;
+    pub const MICROTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -6) * TESLA::<Exact>);
 
     /// One `Nanotesla` (nT), as a `MagneticFluxDensity`.
-    pub const NANOTESLA: MagneticFluxDensity = 1.0000000000000001e-09 * TESLA;
+    pub const NANOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -9) * TESLA::<Exact>);
 
     /// One `Picotesla` (pT), as a `MagneticFluxDensity`.
-    pub const PICOTESLA: MagneticFluxDensity = 9.9999999999999998e-13 * TESLA;
+    pub const PICOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -12) * TESLA::<Exact>);
 
     /// One `Femtotesla` (fT), as a `MagneticFluxDensity`.
-    pub const FEMTOTESLA: MagneticFluxDensity = 1.0000000000000001e-15 * TESLA;
+    pub const FEMTOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -15) * TESLA::<Exact>);
 
     /// One `Attotesla` (aT), as a `MagneticFluxDensity`.
-    pub const ATTOTESLA: MagneticFluxDensity = 1.0000000000000001e-18 * TESLA;
+    pub const ATTOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -18) * TESLA::<Exact>);
 
     /// One `Zeptotesla` (zT), as a `MagneticFluxDensity`.
-    pub const ZEPTOTESLA: MagneticFluxDensity = 9.9999999999999991e-22 * TESLA;
+    pub const ZEPTOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -21) * TESLA::<Exact>);
 
     /// One `Yoctotesla` (yT), as a `MagneticFluxDensity`.
-    pub const YOCTOTESLA: MagneticFluxDensity = 9.9999999999999992e-25 * TESLA;
+    pub const YOCTOTESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -24) * TESLA::<Exact>);
 
     /// One `Gamma` (γ), as a `MagneticFluxDensity`.
-    pub const GAMMA: MagneticFluxDensity = 1.0000000000000001e-09 * TESLA;
+    pub const GAMMA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -9) * TESLA::<Exact>);
 
     /// One `Gauss` (G), as a `MagneticFluxDensity`.
-    pub const GAUSS: MagneticFluxDensity = 0.0001 * TESLA;
+    pub const GAUSS<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -4) * TESLA::<Exact>);
 
     /// One `AmpereSquareMetre` (A · m²), as a `MagneticMoment`.
-    pub const AMPERE_SQUARE_METRE: MagneticMoment = METRE * METRE * AMPERE;
+    pub const AMPERE_SQUARE_METRE<N: const From<Exact>>: MagneticMoment<N> = counted(METRE::<Exact> * METRE::<Exact> * AMPERE::<Exact>);
 
     /// One `JoulePerTesla` (J/T), as a `MagneticMoment`.
-    pub const JOULE_PER_TESLA: MagneticMoment = AMPERE_SQUARE_METRE;
+    pub const JOULE_PER_TESLA<N: const From<Exact>>: MagneticMoment<N> = counted(AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `NewtonMetrePerTesla` (N · m/T), as a `MagneticMoment`.
-    pub const NEWTON_METRE_PER_TESLA: MagneticMoment = AMPERE_SQUARE_METRE;
+    pub const NEWTON_METRE_PER_TESLA<N: const From<Exact>>: MagneticMoment<N> = counted(AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `ErgPerGauss` (erg/G), as a `MagneticMoment`.
-    pub const ERG_PER_GAUSS: MagneticMoment = 0.0009999999999999998 * AMPERE_SQUARE_METRE;
+    pub const ERG_PER_GAUSS<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(1, -3) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `BohrMagneton` (µ(Bohr)), as a `MagneticMoment`.
-    pub const BOHR_MAGNETON: MagneticMoment = 9.2740100783000004e-24 * AMPERE_SQUARE_METRE;
+    pub const BOHR_MAGNETON<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(92740100783, -34) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `NuclearMagneton` (μ(Nuclear)), as a `MagneticMoment`.
-    pub const NUCLEAR_MAGNETON: MagneticMoment = 5.0507837461000003e-27 * AMPERE_SQUARE_METRE;
+    pub const NUCLEAR_MAGNETON<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(50507837461, -37) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `AtomicUnitOfMagneticDipoleMoment` (ħ · e/mₑ), as a `MagneticMoment`.
-    pub const ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT: MagneticMoment =
-        1.8548020156600001e-23 * AMPERE_SQUARE_METRE;
+    pub const ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(185480201566, -34) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `DeuteronMagneticMoment` (μ(deuteron)), as a `MagneticMoment`.
-    pub const DEUTERON_MAGNETIC_MOMENT: MagneticMoment =
-        4.3307350939999997e-27 * AMPERE_SQUARE_METRE;
+    pub const DEUTERON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(4330735094, -36) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `ProtonMagneticMoment` (μ(proton)), as a `MagneticMoment`.
-    pub const PROTON_MAGNETIC_MOMENT: MagneticMoment = 1.4106067973599999e-26 * AMPERE_SQUARE_METRE;
+    pub const PROTON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(141060679736, -37) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `ShieldedProtonMagneticMoment` (μ’(proton)), as a `MagneticMoment`.
-    pub const SHIELDED_PROTON_MAGNETIC_MOMENT: MagneticMoment =
-        1.41057056e-26 * AMPERE_SQUARE_METRE;
+    pub const SHIELDED_PROTON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(141057056, -34) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `TritonMagneticMoment` (μ(triton)), as a `MagneticMoment`.
-    pub const TRITON_MAGNETIC_MOMENT: MagneticMoment = 1.5046095202000001e-26 * AMPERE_SQUARE_METRE;
+    pub const TRITON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(15046095202, -36) * AMPERE_SQUARE_METRE::<Exact>);
 
     /// One `HenryPerMetre` (H/m), as a `MagneticPermeability`.
-    pub const HENRY_PER_METRE: MagneticPermeability =
-        METRE * KILOGRAM / (SECOND * SECOND * AMPERE * AMPERE);
+    pub const HENRY_PER_METRE<N: const From<Exact>>: MagneticPermeability<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
 
     /// One `VacuumPermeability` (µ₀), as a `MagneticPermeability`.
-    pub const VACUUM_PERMEABILITY: MagneticPermeability = 1.25663706212e-6 * HENRY_PER_METRE;
+    pub const VACUUM_PERMEABILITY<N: const From<Exact>>: MagneticPermeability<N> = counted(Exact::dec(125663706212, -17) * HENRY_PER_METRE::<Exact>);
 
     /// One `YottahertzPerTesla` (YHz/T), as a `GyromagneticRatio`.
-    pub const YOTTAHERTZ_PER_TESLA: GyromagneticRatio = 9.9999999999999998e+23 * HERTZ_PER_TESLA;
+    pub const YOTTAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000000000000000000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ZettahertzPerTesla` (ZHz/T), as a `GyromagneticRatio`.
-    pub const ZETTAHERTZ_PER_TESLA: GyromagneticRatio = 1e+21 * HERTZ_PER_TESLA;
+    pub const ZETTAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000000000000000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ExahertzPerTesla` (EHz/T), as a `GyromagneticRatio`.
-    pub const EXAHERTZ_PER_TESLA: GyromagneticRatio = 1e+18 * HERTZ_PER_TESLA;
+    pub const EXAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000000000000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `PetahertzPerTesla` (PHz/T), as a `GyromagneticRatio`.
-    pub const PETAHERTZ_PER_TESLA: GyromagneticRatio = 1000000000000000.0 * HERTZ_PER_TESLA;
+    pub const PETAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000000000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `TerahertzPerTesla` (THz/T), as a `GyromagneticRatio`.
-    pub const TERAHERTZ_PER_TESLA: GyromagneticRatio = 1000000000000.0 * HERTZ_PER_TESLA;
+    pub const TERAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `GigahertzPerTesla` (GHz/T), as a `GyromagneticRatio`.
-    pub const GIGAHERTZ_PER_TESLA: GyromagneticRatio = 1000000000.0 * HERTZ_PER_TESLA;
+    pub const GIGAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `MegahertzPerTesla` (MHz/T), as a `GyromagneticRatio`.
-    pub const MEGAHERTZ_PER_TESLA: GyromagneticRatio = 1000000.0 * HERTZ_PER_TESLA;
+    pub const MEGAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `KilohertzPerTesla` (kHz/T), as a `GyromagneticRatio`.
-    pub const KILOHERTZ_PER_TESLA: GyromagneticRatio = 1000.0 * HERTZ_PER_TESLA;
+    pub const KILOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(1000) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `HectohertzPerTesla` (hHz/T), as a `GyromagneticRatio`.
-    pub const HECTOHERTZ_PER_TESLA: GyromagneticRatio = 100.0 * HERTZ_PER_TESLA;
+    pub const HECTOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(100) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `DecahertzPerTesla` (daHz/T), as a `GyromagneticRatio`.
-    pub const DECAHERTZ_PER_TESLA: GyromagneticRatio = 10.0 * HERTZ_PER_TESLA;
+    pub const DECAHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(10) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `HertzPerTesla` (Hz/T), as a `GyromagneticRatio`.
-    pub const HERTZ_PER_TESLA: GyromagneticRatio = SECOND * AMPERE * RADIAN / KILOGRAM;
+    pub const HERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(SECOND::<Exact> * AMPERE::<Exact> * RADIAN::<Exact> / KILOGRAM::<Exact>);
 
     /// One `DecihertzPerTesla` (dHz/T), as a `GyromagneticRatio`.
-    pub const DECIHERTZ_PER_TESLA: GyromagneticRatio = 0.10000000000000001 * HERTZ_PER_TESLA;
+    pub const DECIHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `CentihertzPerTesla` (cHz/T), as a `GyromagneticRatio`.
-    pub const CENTIHERTZ_PER_TESLA: GyromagneticRatio = 0.01 * HERTZ_PER_TESLA;
+    pub const CENTIHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -2) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `MillihertzPerTesla` (mHz/T), as a `GyromagneticRatio`.
-    pub const MILLIHERTZ_PER_TESLA: GyromagneticRatio = 0.001 * HERTZ_PER_TESLA;
+    pub const MILLIHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -3) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `MicrohertzPerTesla` (µHz/T), as a `GyromagneticRatio`.
-    pub const MICROHERTZ_PER_TESLA: GyromagneticRatio = 9.9999999999999995e-07 * HERTZ_PER_TESLA;
+    pub const MICROHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -6) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `NanohertzPerTesla` (nHz/T), as a `GyromagneticRatio`.
-    pub const NANOHERTZ_PER_TESLA: GyromagneticRatio = 1.0000000000000001e-09 * HERTZ_PER_TESLA;
+    pub const NANOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -9) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `PicohertzPerTesla` (pHz/T), as a `GyromagneticRatio`.
-    pub const PICOHERTZ_PER_TESLA: GyromagneticRatio = 9.9999999999999998e-13 * HERTZ_PER_TESLA;
+    pub const PICOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -12) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `FemtohertzPerTesla` (fHz/T), as a `GyromagneticRatio`.
-    pub const FEMTOHERTZ_PER_TESLA: GyromagneticRatio = 1.0000000000000001e-15 * HERTZ_PER_TESLA;
+    pub const FEMTOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -15) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `AttohertzPerTesla` (aHz/T), as a `GyromagneticRatio`.
-    pub const ATTOHERTZ_PER_TESLA: GyromagneticRatio = 1.0000000000000001e-18 * HERTZ_PER_TESLA;
+    pub const ATTOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -18) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ZeptohertzPerTesla` (zHz/T), as a `GyromagneticRatio`.
-    pub const ZEPTOHERTZ_PER_TESLA: GyromagneticRatio = 9.9999999999999991e-22 * HERTZ_PER_TESLA;
+    pub const ZEPTOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -21) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `YoctohertzPerTesla` (yHz/T), as a `GyromagneticRatio`.
-    pub const YOCTOHERTZ_PER_TESLA: GyromagneticRatio = 9.9999999999999992e-25 * HERTZ_PER_TESLA;
+    pub const YOCTOHERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(1, -24) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `RadianPerSecondTesla` (rad/(s · T)), as a `GyromagneticRatio`.
-    pub const RADIAN_PER_SECOND_TESLA: GyromagneticRatio = HERTZ_PER_TESLA;
+    pub const RADIAN_PER_SECOND_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(HERTZ_PER_TESLA::<Exact>);
 
     /// One `ProtonGyromagneticRatio` (γₚ), as a `GyromagneticRatio`.
-    pub const PROTON_GYROMAGNETIC_RATIO: GyromagneticRatio = 267522187.08000001 * HERTZ_PER_TESLA;
+    pub const PROTON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(26752218708, -2) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `NeutronGyromagneticRatio` (γₙ), as a `GyromagneticRatio`.
-    pub const NEUTRON_GYROMAGNETIC_RATIO: GyromagneticRatio = 183247174.0 * HERTZ_PER_TESLA;
+    pub const NEUTRON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(183247174) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ElectronGyromagneticRatio` (γₑ), as a `GyromagneticRatio`.
-    pub const ELECTRON_GYROMAGNETIC_RATIO: GyromagneticRatio = 176085962784.0 * HERTZ_PER_TESLA;
+    pub const ELECTRON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(176085962784) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ShieldedProtonGyromagneticRatio` (γ'ₚ), as a `GyromagneticRatio`.
-    pub const SHIELDED_PROTON_GYROMAGNETIC_RATIO: GyromagneticRatio =
-        267515319.40000001 * HERTZ_PER_TESLA;
+    pub const SHIELDED_PROTON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(2675153194, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ShieldedHelionGyromagneticRatio` (γ'ₕ), as a `GyromagneticRatio`.
-    pub const SHIELDED_HELION_GYROMAGNETIC_RATIO: GyromagneticRatio =
-        203789460.78 * HERTZ_PER_TESLA;
+    pub const SHIELDED_HELION_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(20378946078, -2) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `DeuteronGyromagneticRatio` (γ₂), as a `GyromagneticRatio`.
-    pub const DEUTERON_GYROMAGNETIC_RATIO: GyromagneticRatio = 41066288.799999997 * HERTZ_PER_TESLA;
+    pub const DEUTERON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(410662888, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `TritonGyromagneticRatio` (γ₃), as a `GyromagneticRatio`.
-    pub const TRITON_GYROMAGNETIC_RATIO: GyromagneticRatio = 285349844.0 * HERTZ_PER_TESLA;
+    pub const TRITON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(285349844) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Lithium7GyromagneticRatio` (γ₇), as a `GyromagneticRatio`.
-    pub const LITHIUM7_GYROMAGNETIC_RATIO: GyromagneticRatio = 103975264.0 * HERTZ_PER_TESLA;
+    pub const LITHIUM7_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(103975264) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Boron11GyromagneticRatio` (γ₁₁), as a `GyromagneticRatio`.
-    pub const BORON11_GYROMAGNETIC_RATIO: GyromagneticRatio = 85838414.299999997 * HERTZ_PER_TESLA;
+    pub const BORON11_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(858384143, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Carbon13GyromagneticRatio` (γ₁₃), as a `GyromagneticRatio`.
-    pub const CARBON13_GYROMAGNETIC_RATIO: GyromagneticRatio = 67278754.599999994 * HERTZ_PER_TESLA;
+    pub const CARBON13_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(672787546, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Nitrogen14GyromagneticRatio` (γ₁₄), as a `GyromagneticRatio`.
-    pub const NITROGEN14_GYROMAGNETIC_RATIO: GyromagneticRatio =
-        19328792.199999999 * HERTZ_PER_TESLA;
+    pub const NITROGEN14_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(193287922, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Flourine19GyromagneticRatio` (γ₁₉), as a `GyromagneticRatio`.
-    pub const FLOURINE19_GYROMAGNETIC_RATIO: GyromagneticRatio = 251762483.0 * HERTZ_PER_TESLA;
+    pub const FLOURINE19_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(251762483) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Sodium23GyromagneticRatio` (γ₂₃), as a `GyromagneticRatio`.
-    pub const SODIUM23_GYROMAGNETIC_RATIO: GyromagneticRatio = 70803541.700000003 * HERTZ_PER_TESLA;
+    pub const SODIUM23_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(708035417, -1) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `Phosphorus31GyromagneticRatio` (γ₃₁), as a `GyromagneticRatio`.
-    pub const PHOSPHORUS31_GYROMAGNETIC_RATIO: GyromagneticRatio = 108329419.0 * HERTZ_PER_TESLA;
+    pub const PHOSPHORUS31_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(108329419) * HERTZ_PER_TESLA::<Exact>);
 
     /// One `ProtonReducedGyromagneticRatio` (̅γₚ), as a `ReducedGyromagneticRatio`.
-    pub const PROTON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        42577478.461000003 * (SECOND * AMPERE / KILOGRAM);
+    pub const PROTON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(42577478461, -3) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `NeutronReducedGyromagneticRatio` (̅γₙ), as a `ReducedGyromagneticRatio`.
-    pub const NEUTRON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        29164693.5 * (SECOND * AMPERE / KILOGRAM);
+    pub const NEUTRON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(291646935, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `ElectronReducedGyromagneticRatio` (̅γₑ), as a `ReducedGyromagneticRatio`.
-    pub const ELECTRON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        28024951386.099998 * (SECOND * AMPERE / KILOGRAM);
+    pub const ELECTRON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(280249513861, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `ShieldedProtonReducedGyromagneticRatio` (γ'ₚ), as a `ReducedGyromagneticRatio`.
-    pub const SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        42576385.43 * (SECOND * AMPERE / KILOGRAM);
+    pub const SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(4257638543, -2) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `ShieldedHelionReducedGyromagneticRatio` (γ'ₕ), as a `ReducedGyromagneticRatio`.
-    pub const SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        32434100.033 * (SECOND * AMPERE / KILOGRAM);
+    pub const SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(32434100033, -3) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `DeuteronReducedGyromagneticRatio` (̅γ₂), as a `ReducedGyromagneticRatio`.
-    pub const DEUTERON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        6535902.8499999996 * (SECOND * AMPERE / KILOGRAM);
+    pub const DEUTERON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(653590285, -2) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `TritonReducedGyromagneticRatio` (̅γ₃), as a `ReducedGyromagneticRatio`.
-    pub const TRITON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        45414838.100000001 * (SECOND * AMPERE / KILOGRAM);
+    pub const TRITON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(454148381, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Lithium7ReducedGyromagneticRatio` (̅γ₇), as a `ReducedGyromagneticRatio`.
-    pub const LITHIUM7_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        16548177.300000001 * (SECOND * AMPERE / KILOGRAM);
+    pub const LITHIUM7_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(165481773, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Boron11ReducedGyromagneticRatio` (̅γ₁₁), as a `ReducedGyromagneticRatio`.
-    pub const BORON11_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        13661608.0 * (SECOND * AMPERE / KILOGRAM);
+    pub const BORON11_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::int(13661608) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Carbon13ReducedGyromagneticRatio` (̅γ₁₃), as a `ReducedGyromagneticRatio`.
-    pub const CARBON13_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        10707746.4 * (SECOND * AMPERE / KILOGRAM);
+    pub const CARBON13_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(107077464, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Nitrogen14ReducedGyromagneticRatio` (̅γ₁₄), as a `ReducedGyromagneticRatio`.
-    pub const NITROGEN14_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        3076272.8100000001 * (SECOND * AMPERE / KILOGRAM);
+    pub const NITROGEN14_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(307627281, -2) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Flourine19ReducedGyromagneticRatio` (̅γ₁₉), as a `ReducedGyromagneticRatio`.
-    pub const FLOURINE19_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        40069243.700000003 * (SECOND * AMPERE / KILOGRAM);
+    pub const FLOURINE19_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(400692437, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Sodium23ReducedGyromagneticRatio` (̅γ₂₃), as a `ReducedGyromagneticRatio`.
-    pub const SODIUM23_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        11268733.6 * (SECOND * AMPERE / KILOGRAM);
+    pub const SODIUM23_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(112687336, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 
     /// One `Phosphorus31ReducedGyromagneticRatio` (̅γ₃₁), as a `ReducedGyromagneticRatio`.
-    pub const PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio =
-        17241162.5 * (SECOND * AMPERE / KILOGRAM);
+    pub const PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(172411625, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
 }
 
 /// The units of `ElectricCharge`, for a menu, a config file, a parser.

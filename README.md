@@ -127,7 +127,7 @@ A unit is a value: a named way to turn a number into a quantity and back. It has
 
 | Shape | In plain words | Build | Read |
 |---|---|---|---|
-| a quantity constant | a kilometre is `1000.0 * METRE` | `KILOMETRE(n)`, or `n * KILOMETRE` | `KILOMETRE(q)`, the same number as `f64::from(q / KILOMETRE)` |
+| a quantity constant | a kilometre is `1000 * METRE` | `KILOMETRE(n)`, or `n * KILOMETRE` | `KILOMETRE(q)`, the same number as `f64::from(q / KILOMETRE)` |
 | a scale, `Scale(zero, step)` | °C starts at `ICE_POINT` and counts kelvins; dBm starts at one milliwatt and counts decibels | `zero + step.quantity(n)` | `step.value(q - zero)` |
 | a type with a hand-written `impl Unit` | the Beaufort wind scale is a formula, not a scale factor | your function | your function |
 
@@ -207,7 +207,7 @@ A point is not a `Quantity`. Which zero it was read from is not in its type: `Sc
 
 ### Sets: a quantity chosen at run time
 
-When the *quantity* is the run-time choice - a logger channel measures a pressure or a temperature; a setting says "show this as `[Pressure ▾]` in `[kPa ▾]`" - list the choices as your own enums. yadc gives the statics; the dynamic types and the enum plumbing come from [`dynamickit`](dynamickit/), which knows nothing about quantities. `yadc-si`'s dynamic type, `DynamicSIQuantity`, is one: `#[dynamic(StaticSIQuantity<const D: ISQ> => { dim: D, value: .0 })]` says converting (`From`) moves the number and records `D`, and the way back (`TryFrom`) checks it; `#[dynamic(impl(Mul -> Option<Self>, Add -> Option<Self>, ..))]` lifts each operator from the fields' own, its output stated.
+When the *quantity* is the run-time choice - a logger channel measures a pressure or a temperature; a setting says "show this as `[Pressure ▾]` in `[kPa ▾]`" - list the choices as your own enums. yadc gives the statics; the dynamic types and the enum plumbing come from [`dynamickit`](dynamickit/), which knows nothing about quantities. `yadc-si`'s dynamic type, `DynamicSIQuantity`, is one: `#[dynamic(SIQuantity<const D: ISQ> => { dim: D, value: .0 })]` says converting (`From`) moves the number and records `D`, and the way back (`TryFrom`) checks it; `#[dynamic(impl(Mul -> Option<Self>, Add -> Option<Self>, ..))]` lifts each operator from the fields' own, its output stated.
 
 ```rust
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
@@ -379,9 +379,9 @@ pub const ABOVE_ROOM: TemperatureStep = BOILING - CELSIUS.quantity(20.0);
 pub const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING); // 373.15, read at compile time
 ```
 
-`yadc-si` generates them: its `base` module holds the base constants, and every family module a `consts` module defining the rest from them (`mechanical::consts::NEWTON` is `METRE * KILOGRAM / (SECOND * SECOND)`, `KILOMETRE` is `1000.0 * METRE`; `thermal::consts::ICE_POINT`). **Physical constants are units too** (`SPEED_OF_LIGHT`, `STANDARD_GRAVITY`).
+`yadc-si` generates them: its `base` module holds the base constants, and every family module a `consts` module defining the rest from them (`mechanical::consts::NEWTON` is `METRE * KILOGRAM / (SECOND * SECOND)`, `KILOMETRE` is `1000 * METRE`; `thermal::consts::ICE_POINT`), each defined exactly and counted in the number type its use asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64`, `Length<f32>` an `f32`. **Physical constants are units too** (`SPEED_OF_LIGHT`, `STANDARD_GRAVITY`).
 
-**Other number types.** With the number type a parameter (`Qty<const D: Dim, N = f64>(N)`), `KILOPASCAL.cast::<f32>()` is the same pressure counted in `f32` (`const`), and std `From` widens where the number converts losslessly: `Pressure::from(p32)`.
+**Other number types.** With the number type a parameter (`Qty<const D: Dim, N = f64>(N)`), `p.cast::<f32>()` is the same pressure counted in `f32` (`const`), and std `From` widens where the number converts losslessly: `Pressure::<f64>::from(p32)`.
 
 **Reciprocals** follow from the algebra too: `num_traits::Inv` is written on every quantity whose inverse the dimension allows, so `SECOND(2.0).inv()` is a frequency.
 
@@ -476,7 +476,7 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 | Crate | Purpose |
 |---|---|
 | **[`yadc`](yadc/)** | The statics: the core traits, at the crate root (`yadc::Unit`, `yadc::Quantity`, `yadc::Dimension`, `yadc::PartialPowi`, ...; `yadc::ucum::UcumKind` under the `ucum` feature), `yadc::gates` (the refusals and their messages), `yadc::display` (how the derived `Display`s print), and the derives. |
-| **[`yadc-si`](yadc-si/)** | A ready-made SI system built on `yadc`, generated from [`yadc-codegen/si.toml`](yadc-codegen/si.toml): `StaticSIQuantity`, `DynamicSIQuantity`, the `base` constants, ~120 quantity aliases with their units in 9 feature-gated families, plus optional serde and [`uom`](https://crates.io/crates/uom) bridges. |
+| **[`yadc-si`](yadc-si/)** | A ready-made SI system built on `yadc`, generated from [`yadc-codegen/si.toml`](yadc-codegen/si.toml): `SIQuantity`, `DynamicSIQuantity`, the `base` constants, ~120 quantity aliases with their units in 9 feature-gated families, plus optional serde and [`uom`](https://crates.io/crates/uom) bridges. |
 | **[`yadc-derive`](yadc-derive/)** | The proc-macro derives (`Dimension`, `Quantity`, `Unit`, `UcumKind`, `UcumSerialize`, `UcumDeserialize`). Internal — depend on `yadc` instead. |
 | **[`yadc-math`](yadc-math/)** | The generic maths under yadc, knowing nothing about units: `Dimension`, `PartialPowi` / `PartialRoot` (powers and roots that may not exist), `Powi<N>` / `Root<N>` with `PowiAs` / `RootAs` (`x.powi::<2>()`, `x.root::<2>()`), `Cast` / `CastAs`, and `Exponent`. Re-exported at `yadc`'s root. |
 | **[`dynamickit`](dynamickit/)** | Dynamic types and closed sets, knowing nothing about quantities (and depending on nothing): the *dynamic type* (`#[derive(Dynamic)]` on a struct of yours, one mapping per static type it holds - `Bag<F: Fruit> => { fruit: F::KIND, count: .count }` - with std `From` / `TryFrom` both ways and operators and methods lifted field by field, each with its output stated), and *closed sets* (your enums: `Visit` for a value's case - one value or several at once - `Variants` for the variants themselves, `Members` and `Via` for std conversions and operators). |
@@ -498,7 +498,7 @@ In [`yadc/examples/`](yadc/examples/):
 - **`points.rs`** — points: the affine kind, zeros as constants (`SEA_LEVEL`, an epoch), the scales `FEET_AMSL` and `Scale(runway, FOOT)`, clearance and midpoints, and several zeros on one line.
 - **`rotations.rs`** — rotations with real units: your own `Vec3<Q>`, a place in 3-D as a `Vec3` of points, and the site grid and a vehicle's frame as `Unit<Place, [f64; 3]>` values.
 - **`serde_demo.rs`** — JSON round-trips of static and dynamic quantities, including the UCUM dimension string.
-- **`uom.rs`** — `From` / `TryFrom` bridges between [`uom`](https://crates.io/crates/uom)'s SI quantities and `StaticSIQuantity` / `DynamicSIQuantity`.
+- **`uom.rs`** — `From` / `TryFrom` bridges between [`uom`](https://crates.io/crates/uom)'s SI quantities and `SIQuantity` / `DynamicSIQuantity`.
 
 In [`yadc-si/examples/`](yadc-si/examples/), using [`dynamickit`](dynamickit/): closed sets of quantities and their units, the dynamic type at run time, and readings that keep their unit (see each file's header).
 

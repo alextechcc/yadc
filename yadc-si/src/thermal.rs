@@ -1,8 +1,8 @@
-use crate::{ISQ, Kind, Scale, StaticSIQuantity};
+use crate::{Exact, ISQ, Kind, SIQuantity, Scale, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type ThermodynamicTemperature = StaticSIQuantity<
+pub type ThermodynamicTemperature<N = f64> = SIQuantity<
     {
         ISQ {
             K: 1,
@@ -10,27 +10,30 @@ pub type ThermodynamicTemperature = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type TemperatureInterval = StaticSIQuantity<
+pub type TemperatureInterval<N = f64> = SIQuantity<
     {
         ISQ {
             K: 1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type TemperatureCoefficient = StaticSIQuantity<
+pub type TemperatureCoefficient<N = f64> = SIQuantity<
     {
         ISQ {
             K: -1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type TemperatureGradient = StaticSIQuantity<
+pub type TemperatureGradient<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -38,9 +41,10 @@ pub type TemperatureGradient = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type HeatCapacity = StaticSIQuantity<
+pub type HeatCapacity<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -50,9 +54,10 @@ pub type HeatCapacity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type HeatFluxDensity = StaticSIQuantity<
+pub type HeatFluxDensity<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -60,9 +65,10 @@ pub type HeatFluxDensity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type HeatTransfer = StaticSIQuantity<
+pub type HeatTransfer<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -71,9 +77,10 @@ pub type HeatTransfer = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ThermalConductance = StaticSIQuantity<
+pub type ThermalConductance<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -83,9 +90,10 @@ pub type ThermalConductance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ThermalConductivity = StaticSIQuantity<
+pub type ThermalConductivity<N = f64> = SIQuantity<
     {
         ISQ {
             m: 1,
@@ -95,9 +103,10 @@ pub type ThermalConductivity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ThermalResistance = StaticSIQuantity<
+pub type ThermalResistance<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -107,9 +116,10 @@ pub type ThermalResistance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type SpecificHeatCapacity = StaticSIQuantity<
+pub type SpecificHeatCapacity<N = f64> = SIQuantity<
     {
         ISQ {
             m: 2,
@@ -118,9 +128,10 @@ pub type SpecificHeatCapacity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type ArealHeatCapacity = StaticSIQuantity<
+pub type ArealHeatCapacity<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -129,9 +140,10 @@ pub type ArealHeatCapacity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type VolumetricHeatCapacity = StaticSIQuantity<
+pub type VolumetricHeatCapacity<N = f64> = SIQuantity<
     {
         ISQ {
             m: -1,
@@ -141,9 +153,10 @@ pub type VolumetricHeatCapacity = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type StefanBoltzmannCoefficient = StaticSIQuantity<
+pub type StefanBoltzmannCoefficient<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -152,13 +165,16 @@ pub type StefanBoltzmannCoefficient = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, ONE, SECOND};
@@ -170,1171 +186,910 @@ pub mod consts {
     pub use crate::base::ABSOLUTE_ZERO;
 
     /// 0 °C, the ice point of water: 273.15 K.
-    pub const ICE_POINT: ThermodynamicTemperature = ABSOLUTE_ZERO + 273.15 * KELVIN;
+    pub const ICE_POINT<N: const From<Exact>>: ThermodynamicTemperature<N> = counted(ABSOLUTE_ZERO::<Exact> + Exact::dec(27315, -2) * KELVIN::<Exact>);
 
     /// 0 °F: 32 °F below the ice point.
-    pub const FAHRENHEIT_ZERO: ThermodynamicTemperature = ICE_POINT - 32.0 * DEGREE_FAHRENHEIT;
+    pub const FAHRENHEIT_ZERO<N: const From<Exact>>: ThermodynamicTemperature<N> = counted(ICE_POINT::<Exact> - Exact::int(32) * DEGREE_FAHRENHEIT::<Exact>);
 
     /// The kelvin scale (K): kelvins from absolute zero.
-    pub const KELVIN_SCALE: Scale<ThermodynamicTemperature, TemperatureInterval> =
-        Scale(ABSOLUTE_ZERO, KELVIN);
+    pub const KELVIN_SCALE<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(counted(ABSOLUTE_ZERO::<Exact>), counted(KELVIN::<Exact>));
 
     /// The Celsius scale (°C): kelvins from the ice point.
-    pub const CELSIUS: Scale<ThermodynamicTemperature, TemperatureInterval> =
-        Scale(ICE_POINT, KELVIN);
+    pub const CELSIUS<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(counted(ICE_POINT::<Exact>), counted(KELVIN::<Exact>));
 
     /// The Fahrenheit scale (°F): degrees Fahrenheit from 32 °F below the ice point.
-    pub const FAHRENHEIT: Scale<ThermodynamicTemperature, TemperatureInterval> =
-        Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT);
+    pub const FAHRENHEIT<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(counted(FAHRENHEIT_ZERO::<Exact>), counted(DEGREE_FAHRENHEIT::<Exact>));
 
     /// The Rankine scale (°R): degrees Fahrenheit from absolute zero.
-    pub const RANKINE: Scale<ThermodynamicTemperature, TemperatureInterval> =
-        Scale(ABSOLUTE_ZERO, DEGREE_FAHRENHEIT);
+    pub const RANKINE<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(counted(ABSOLUTE_ZERO::<Exact>), counted(DEGREE_FAHRENHEIT::<Exact>));
 
     /// One `Fahrenheit` (°F), as a `TemperatureInterval`.
-    pub const DEGREE_FAHRENHEIT: TemperatureInterval = (5.0 / 9.0) * KELVIN;
+    pub const DEGREE_FAHRENHEIT<N: const From<Exact>>: TemperatureInterval<N> = counted((Exact::int(5) / Exact::int(9)) * KELVIN::<Exact>);
 
     /// One `PerKelvin` (K⁻¹), as a `TemperatureCoefficient`.
-    pub const PER_KELVIN: TemperatureCoefficient = ONE / KELVIN;
+    pub const PER_KELVIN<N: const From<Exact>>: TemperatureCoefficient<N> = counted(ONE::<Exact> / KELVIN::<Exact>);
 
     /// One `PpmPerKelvin` (ppm/K), as a `TemperatureCoefficient`.
-    pub const PPM_PER_KELVIN: TemperatureCoefficient = 9.9999999999999995e-07 * PER_KELVIN;
+    pub const PPM_PER_KELVIN<N: const From<Exact>>: TemperatureCoefficient<N> = counted(Exact::dec(1, -6) * PER_KELVIN::<Exact>);
 
     /// One `PpmPerDegreeCelsius` (ppm/°C), as a `TemperatureCoefficient`.
-    pub const PPM_PER_DEGREE_CELSIUS: TemperatureCoefficient = 9.9999999999999995e-07 * PER_KELVIN;
+    pub const PPM_PER_DEGREE_CELSIUS<N: const From<Exact>>: TemperatureCoefficient<N> = counted(Exact::dec(1, -6) * PER_KELVIN::<Exact>);
 
     /// One `KelvinPerKilometre` (K/km), as a `TemperatureGradient`.
-    pub const KELVIN_PER_KILOMETRE: TemperatureGradient = 0.001 * KELVIN_PER_METRE;
+    pub const KELVIN_PER_KILOMETRE<N: const From<Exact>>: TemperatureGradient<N> = counted(Exact::dec(1, -3) * KELVIN_PER_METRE::<Exact>);
 
     /// One `KelvinPerHectometre` (K/hm), as a `TemperatureGradient`.
-    pub const KELVIN_PER_HECTOMETRE: TemperatureGradient = 0.01 * KELVIN_PER_METRE;
+    pub const KELVIN_PER_HECTOMETRE<N: const From<Exact>>: TemperatureGradient<N> = counted(Exact::dec(1, -2) * KELVIN_PER_METRE::<Exact>);
 
     /// One `KelvinPerMetre` (K/m), as a `TemperatureGradient`.
-    pub const KELVIN_PER_METRE: TemperatureGradient = KELVIN / METRE;
+    pub const KELVIN_PER_METRE<N: const From<Exact>>: TemperatureGradient<N> = counted(KELVIN::<Exact> / METRE::<Exact>);
 
     /// One `KelvinPerCentimetre` (K/cm), as a `TemperatureGradient`.
-    pub const KELVIN_PER_CENTIMETRE: TemperatureGradient = 100.0 * KELVIN_PER_METRE;
+    pub const KELVIN_PER_CENTIMETRE<N: const From<Exact>>: TemperatureGradient<N> = counted(Exact::int(100) * KELVIN_PER_METRE::<Exact>);
 
     /// One `KelvinPerMillimetre` (K/mm), as a `TemperatureGradient`.
-    pub const KELVIN_PER_MILLIMETRE: TemperatureGradient = 1000.0 * KELVIN_PER_METRE;
+    pub const KELVIN_PER_MILLIMETRE<N: const From<Exact>>: TemperatureGradient<N> = counted(Exact::int(1000) * KELVIN_PER_METRE::<Exact>);
 
     /// One `KelvinPerMicrometre` (K/µm), as a `TemperatureGradient`.
-    pub const KELVIN_PER_MICROMETRE: TemperatureGradient = 1000000.0 * KELVIN_PER_METRE;
+    pub const KELVIN_PER_MICROMETRE<N: const From<Exact>>: TemperatureGradient<N> = counted(Exact::int(1000000) * KELVIN_PER_METRE::<Exact>);
 
     /// One `YottagramSquareMetrePerSecondSquaredKelvin` (Yg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const YOTTAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1e+21 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const YOTTAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ZettagramSquareMetrePerSecondSquaredKelvin` (Zg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const ZETTAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1e+18 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ZETTAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ExagramSquareMetrePerSecondSquaredKelvin` (Eg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const EXAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1000000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const EXAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `PetagramSquareMetrePerSecondSquaredKelvin` (Pg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const PETAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const PETAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `TeragramSquareMetrePerSecondSquaredKelvin` (Tg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const TERAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const TERAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `GigagramSquareMetrePerSecondSquaredKelvin` (Gg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const GIGAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const GIGAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MegagramSquareMetrePerSecondSquaredKelvin` (Mg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const MEGAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MEGAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `KilogramSquareMetrePerSecondSquaredKelvin` (kg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN);
+    pub const KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `HectogramSquareMetrePerSecondSquaredKelvin` (hg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const HECTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        0.10000000000000001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const HECTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -1) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `DecagramSquareMetrePerSecondSquaredKelvin` (dag · m²/(s² · K)), as a `HeatCapacity`.
-    pub const DECAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        0.01 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const DECAGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -2) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `GramSquareMetrePerSecondSquaredKelvin` (g · m²/(s² · K)), as a `HeatCapacity`.
-    pub const GRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        0.001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const GRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `DecigramSquareMetrePerSecondSquaredKelvin` (dg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const DECIGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        0.0001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const DECIGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -4) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `CentigramSquareMetrePerSecondSquaredKelvin` (cg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const CENTIGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1.0000000000000001e-05 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const CENTIGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -5) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MilligramSquareMetrePerSecondSquaredKelvin` (mg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const MILLIGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        9.9999999999999995e-07 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MILLIGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -6) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MicrogramSquareMetrePerSecondSquaredKelvin` (µg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const MICROGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        9.9999999999999986e-10 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MICROGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -9) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `NanogramSquareMetrePerSecondSquaredKelvin` (ng · m²/(s² · K)), as a `HeatCapacity`.
-    pub const NANOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        9.9999999999999998e-13 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const NANOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -12) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `PicogramSquareMetrePerSecondSquaredKelvin` (pg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const PICOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1.0000000000000001e-15 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const PICOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -15) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `FemtogramSquareMetrePerSecondSquaredKelvin` (fg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const FEMTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1.0000000000000001e-18 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const FEMTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -18) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `AttogramSquareMetrePerSecondSquaredKelvin` (ag · m²/(s² · K)), as a `HeatCapacity`.
-    pub const ATTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        1.0000000000000001e-21 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ATTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -21) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ZeptogramSquareMetrePerSecondSquaredKelvin` (zg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const ZEPTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        9.9999999999999992e-25 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ZEPTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -24) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `YoctogramSquareMetrePerSecondSquaredKelvin` (yg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const YOCTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: HeatCapacity =
-        9.9999999999999986e-28 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const YOCTOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -27) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `YottajoulePerKelvin` (YJ/K), as a `HeatCapacity`.
-    pub const YOTTAJOULE_PER_KELVIN: HeatCapacity =
-        9.9999999999999998e+23 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const YOTTAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ZettajoulePerKelvin` (ZJ/K), as a `HeatCapacity`.
-    pub const ZETTAJOULE_PER_KELVIN: HeatCapacity =
-        1e+21 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ZETTAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ExajoulePerKelvin` (EJ/K), as a `HeatCapacity`.
-    pub const EXAJOULE_PER_KELVIN: HeatCapacity =
-        1e+18 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const EXAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `PetajoulePerKelvin` (PJ/K), as a `HeatCapacity`.
-    pub const PETAJOULE_PER_KELVIN: HeatCapacity =
-        1000000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const PETAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `TerajoulePerKelvin` (TJ/K), as a `HeatCapacity`.
-    pub const TERAJOULE_PER_KELVIN: HeatCapacity =
-        1000000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const TERAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `GigajoulePerKelvin` (GJ/K), as a `HeatCapacity`.
-    pub const GIGAJOULE_PER_KELVIN: HeatCapacity =
-        1000000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const GIGAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MegajoulePerKelvin` (MJ/K), as a `HeatCapacity`.
-    pub const MEGAJOULE_PER_KELVIN: HeatCapacity =
-        1000000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MEGAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `KilojoulePerKelvin` (kJ/K), as a `HeatCapacity`.
-    pub const KILOJOULE_PER_KELVIN: HeatCapacity =
-        1000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const KILOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `HectojoulePerKelvin` (hJ/K), as a `HeatCapacity`.
-    pub const HECTOJOULE_PER_KELVIN: HeatCapacity =
-        100.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const HECTOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(100) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `DecajoulePerKelvin` (daJ/K), as a `HeatCapacity`.
-    pub const DECAJOULE_PER_KELVIN: HeatCapacity =
-        10.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const DECAJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(10) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `JoulePerKelvin` (J/K), as a `HeatCapacity`.
-    pub const JOULE_PER_KELVIN: HeatCapacity = KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const JOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `DecijoulePerKelvin` (dJ/K), as a `HeatCapacity`.
-    pub const DECIJOULE_PER_KELVIN: HeatCapacity =
-        0.10000000000000001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const DECIJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -1) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `CentijoulePerKelvin` (cJ/K), as a `HeatCapacity`.
-    pub const CENTIJOULE_PER_KELVIN: HeatCapacity =
-        0.01 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const CENTIJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -2) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MillijoulePerKelvin` (mJ/K), as a `HeatCapacity`.
-    pub const MILLIJOULE_PER_KELVIN: HeatCapacity =
-        0.001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MILLIJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MicrojoulePerKelvin` (µJ/K), as a `HeatCapacity`.
-    pub const MICROJOULE_PER_KELVIN: HeatCapacity =
-        9.9999999999999995e-07 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MICROJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -6) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `NanojoulePerKelvin` (nJ/K), as a `HeatCapacity`.
-    pub const NANOJOULE_PER_KELVIN: HeatCapacity =
-        1.0000000000000001e-09 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const NANOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -9) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `PicojoulePerKelvin` (pJ/K), as a `HeatCapacity`.
-    pub const PICOJOULE_PER_KELVIN: HeatCapacity =
-        9.9999999999999998e-13 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const PICOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -12) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `FemtojoulePerKelvin` (fJ/K), as a `HeatCapacity`.
-    pub const FEMTOJOULE_PER_KELVIN: HeatCapacity =
-        1.0000000000000001e-15 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const FEMTOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -15) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `AttojoulePerKelvin` (aJ/K), as a `HeatCapacity`.
-    pub const ATTOJOULE_PER_KELVIN: HeatCapacity =
-        1.0000000000000001e-18 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ATTOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -18) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ZeptojoulePerKelvin` (zJ/K), as a `HeatCapacity`.
-    pub const ZEPTOJOULE_PER_KELVIN: HeatCapacity =
-        9.9999999999999991e-22 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ZEPTOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -21) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `YoctojoulePerKelvin` (yJ/K), as a `HeatCapacity`.
-    pub const YOCTOJOULE_PER_KELVIN: HeatCapacity =
-        9.9999999999999992e-25 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const YOCTOJOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -24) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `KilojoulePerDegreeCelsius` (kJ/°C), as a `HeatCapacity`.
-    pub const KILOJOULE_PER_DEGREE_CELSIUS: HeatCapacity =
-        1000.0 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const KILOJOULE_PER_DEGREE_CELSIUS<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::int(1000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `JoulePerDegreeCelsius` (J/°C), as a `HeatCapacity`.
-    pub const JOULE_PER_DEGREE_CELSIUS: HeatCapacity =
-        KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const JOULE_PER_DEGREE_CELSIUS<N: const From<Exact>>: HeatCapacity<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MillijoulePerDegreeCelsius` (mJ/°C), as a `HeatCapacity`.
-    pub const MILLIJOULE_PER_DEGREE_CELSIUS: HeatCapacity =
-        0.001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MILLIJOULE_PER_DEGREE_CELSIUS<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuPerDegreeFahrenheit` (Btu/°F), as a `HeatCapacity`.
-    pub const BTU_PER_DEGREE_FAHRENHEIT: HeatCapacity = ((4184.0 * 0.45359237 / 1.8) / (5.0 / 9.0))
-        * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_PER_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatCapacity<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(5) / Exact::int(9))) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuItPerDegreeFahrenheit` (Btu (IT)/°F), as a `HeatCapacity`.
-    pub const BTU_IT_PER_DEGREE_FAHRENHEIT: HeatCapacity =
-        (1055.05585262 / (5.0 / 9.0)) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_IT_PER_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatCapacity<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(5) / Exact::int(9))) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BoltzmannConstant` (k), as a `HeatCapacity`.
-    pub const BOLTZMANN_CONSTANT: HeatCapacity =
-        1.380649e-23 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BOLTZMANN_CONSTANT<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1380649, -29) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `CaloriePerKelvin` (cal/K), as a `HeatCapacity`.
-    pub const CALORIE_PER_KELVIN: HeatCapacity =
-        4.1840000000000002 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const CALORIE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(4184, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `YottawattPerSquareMetre` (YW/m²), as a `HeatFluxDensity`.
-    pub const YOTTAWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        9.9999999999999998e+23 * WATT_PER_SQUARE_METRE;
+    pub const YOTTAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000000000000000000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `ZettawattPerSquareMetre` (ZW/m²), as a `HeatFluxDensity`.
-    pub const ZETTAWATT_PER_SQUARE_METRE: HeatFluxDensity = 1e+21 * WATT_PER_SQUARE_METRE;
+    pub const ZETTAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000000000000000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `ExawattPerSquareMetre` (EW/m²), as a `HeatFluxDensity`.
-    pub const EXAWATT_PER_SQUARE_METRE: HeatFluxDensity = 1e+18 * WATT_PER_SQUARE_METRE;
+    pub const EXAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000000000000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `PetawattPerSquareMetre` (PW/m²), as a `HeatFluxDensity`.
-    pub const PETAWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        1000000000000000.0 * WATT_PER_SQUARE_METRE;
+    pub const PETAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000000000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `TerawattPerSquareMetre` (TW/m²), as a `HeatFluxDensity`.
-    pub const TERAWATT_PER_SQUARE_METRE: HeatFluxDensity = 1000000000000.0 * WATT_PER_SQUARE_METRE;
+    pub const TERAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `GigawattPerSquareMetre` (GW/m²), as a `HeatFluxDensity`.
-    pub const GIGAWATT_PER_SQUARE_METRE: HeatFluxDensity = 1000000000.0 * WATT_PER_SQUARE_METRE;
+    pub const GIGAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `MegawattPerSquareMetre` (MW/m²), as a `HeatFluxDensity`.
-    pub const MEGAWATT_PER_SQUARE_METRE: HeatFluxDensity = 1000000.0 * WATT_PER_SQUARE_METRE;
+    pub const MEGAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `KilowattPerSquareMetre` (kW/m²), as a `HeatFluxDensity`.
-    pub const KILOWATT_PER_SQUARE_METRE: HeatFluxDensity = 1000.0 * WATT_PER_SQUARE_METRE;
+    pub const KILOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(1000) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `HectowattPerSquareMetre` (hW/m²), as a `HeatFluxDensity`.
-    pub const HECTOWATT_PER_SQUARE_METRE: HeatFluxDensity = 100.0 * WATT_PER_SQUARE_METRE;
+    pub const HECTOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(100) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecawattPerSquareMetre` (daW/m²), as a `HeatFluxDensity`.
-    pub const DECAWATT_PER_SQUARE_METRE: HeatFluxDensity = 10.0 * WATT_PER_SQUARE_METRE;
+    pub const DECAWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::int(10) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `WattPerSquareMetre` (W/m²), as a `HeatFluxDensity`.
-    pub const WATT_PER_SQUARE_METRE: HeatFluxDensity = KILOGRAM / (SECOND * SECOND * SECOND);
+    pub const WATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
 
     /// One `DeciwattPerSquareMetre` (dW/m²), as a `HeatFluxDensity`.
-    pub const DECIWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        0.10000000000000001 * WATT_PER_SQUARE_METRE;
+    pub const DECIWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -1) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `CentiwattPerSquareMetre` (cW/m²), as a `HeatFluxDensity`.
-    pub const CENTIWATT_PER_SQUARE_METRE: HeatFluxDensity = 0.01 * WATT_PER_SQUARE_METRE;
+    pub const CENTIWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -2) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `MilliwattPerSquareMetre` (mW/m²), as a `HeatFluxDensity`.
-    pub const MILLIWATT_PER_SQUARE_METRE: HeatFluxDensity = 0.001 * WATT_PER_SQUARE_METRE;
+    pub const MILLIWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -3) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `MicrowattPerSquareMetre` (µW/m²), as a `HeatFluxDensity`.
-    pub const MICROWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        9.9999999999999995e-07 * WATT_PER_SQUARE_METRE;
+    pub const MICROWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -6) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `NanowattPerSquareMetre` (nW/m²), as a `HeatFluxDensity`.
-    pub const NANOWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        1.0000000000000001e-09 * WATT_PER_SQUARE_METRE;
+    pub const NANOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -9) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `PicowattPerSquareMetre` (pW/m²), as a `HeatFluxDensity`.
-    pub const PICOWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        9.9999999999999998e-13 * WATT_PER_SQUARE_METRE;
+    pub const PICOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -12) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `FemtowattPerSquareMetre` (fW/m²), as a `HeatFluxDensity`.
-    pub const FEMTOWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        1.0000000000000001e-15 * WATT_PER_SQUARE_METRE;
+    pub const FEMTOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -15) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `AttowattPerSquareMetre` (aW/m²), as a `HeatFluxDensity`.
-    pub const ATTOWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        1.0000000000000001e-18 * WATT_PER_SQUARE_METRE;
+    pub const ATTOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -18) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `ZeptowattPerSquareMetre` (zW/m²), as a `HeatFluxDensity`.
-    pub const ZEPTOWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        9.9999999999999991e-22 * WATT_PER_SQUARE_METRE;
+    pub const ZEPTOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -21) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `YoctowattPerSquareMetre` (yW/m²), as a `HeatFluxDensity`.
-    pub const YOCTOWATT_PER_SQUARE_METRE: HeatFluxDensity =
-        9.9999999999999992e-25 * WATT_PER_SQUARE_METRE;
+    pub const YOCTOWATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(Exact::dec(1, -24) * WATT_PER_SQUARE_METRE::<Exact>);
 
     /// One `YottagramPerSecondCubedKelvin` (Yg/(s³ · K)), as a `HeatTransfer`.
-    pub const YOTTAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1e+21 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const YOTTAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZettagramPerSecondCubedKelvin` (Zg/(s³ · K)), as a `HeatTransfer`.
-    pub const ZETTAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1e+18 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const ZETTAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ExagramPerSecondCubedKelvin` (Eg/(s³ · K)), as a `HeatTransfer`.
-    pub const EXAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1000000000000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const EXAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PetagramPerSecondCubedKelvin` (Pg/(s³ · K)), as a `HeatTransfer`.
-    pub const PETAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1000000000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const PETAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `TeragramPerSecondCubedKelvin` (Tg/(s³ · K)), as a `HeatTransfer`.
-    pub const TERAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1000000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const TERAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GigagramPerSecondCubedKelvin` (Gg/(s³ · K)), as a `HeatTransfer`.
-    pub const GIGAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const GIGAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MegagramPerSecondCubedKelvin` (Mg/(s³ · K)), as a `HeatTransfer`.
-    pub const MEGAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const MEGAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilogramPerSecondCubedKelvin` (kg/(s³ · K)), as a `HeatTransfer`.
-    pub const KILOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        KILOGRAM / (SECOND * SECOND * SECOND * KELVIN);
+    pub const KILOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `HectogramPerSecondCubedKelvin` (hg/(s³ · K)), as a `HeatTransfer`.
-    pub const HECTOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        0.10000000000000001 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const HECTOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecagramPerSecondCubedKelvin` (dag/(s³ · K)), as a `HeatTransfer`.
-    pub const DECAGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        0.01 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const DECAGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -2) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GramPerSecondCubedKelvin` (g/(s³ · K)), as a `HeatTransfer`.
-    pub const GRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer = 0.001 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const GRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecigramPerSecondCubedKelvin` (dg/(s³ · K)), as a `HeatTransfer`.
-    pub const DECIGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        0.0001 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const DECIGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -4) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `CentigramPerSecondCubedKelvin` (cg/(s³ · K)), as a `HeatTransfer`.
-    pub const CENTIGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1.0000000000000001e-05 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const CENTIGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -5) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilligramPerSecondCubedKelvin` (mg/(s³ · K)), as a `HeatTransfer`.
-    pub const MILLIGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        9.9999999999999995e-07 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MicrogramPerSecondCubedKelvin` (µg/(s³ · K)), as a `HeatTransfer`.
-    pub const MICROGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        9.9999999999999986e-10 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const MICROGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -9) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `NanogramPerSecondCubedKelvin` (ng/(s³ · K)), as a `HeatTransfer`.
-    pub const NANOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        9.9999999999999998e-13 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const NANOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -12) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PicogramPerSecondCubedKelvin` (pg/(s³ · K)), as a `HeatTransfer`.
-    pub const PICOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1.0000000000000001e-15 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const PICOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -15) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `FemtogramPerSecondCubedKelvin` (fg/(s³ · K)), as a `HeatTransfer`.
-    pub const FEMTOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1.0000000000000001e-18 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const FEMTOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -18) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `AttogramPerSecondCubedKelvin` (ag/(s³ · K)), as a `HeatTransfer`.
-    pub const ATTOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        1.0000000000000001e-21 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const ATTOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -21) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZeptogramPerSecondCubedKelvin` (zg/(s³ · K)), as a `HeatTransfer`.
-    pub const ZEPTOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        9.9999999999999992e-25 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const ZEPTOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -24) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YoctogramPerSecondCubedKelvin` (yg/(s³ · K)), as a `HeatTransfer`.
-    pub const YOCTOGRAM_PER_SECOND_CUBED_KELVIN: HeatTransfer =
-        9.9999999999999986e-28 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const YOCTOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -27) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilogramPerSecondCubedDegreeCelsius` (kg/(s³ · °C)), as a `HeatTransfer`.
-    pub const KILOGRAM_PER_SECOND_CUBED_DEGREE_CELSIUS: HeatTransfer =
-        KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const KILOGRAM_PER_SECOND_CUBED_DEGREE_CELSIUS<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YottawattPerSquareMetreKelvin` (YW/(m² · K)), as a `HeatTransfer`.
-    pub const YOTTAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        9.9999999999999998e+23 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const YOTTAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZettawattPerSquareMetreKelvin` (ZW/(m² · K)), as a `HeatTransfer`.
-    pub const ZETTAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1e+21 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const ZETTAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ExawattPerSquareMetreKelvin` (EW/(m² · K)), as a `HeatTransfer`.
-    pub const EXAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1e+18 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const EXAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PetawattPerSquareMetreKelvin` (PW/(m² · K)), as a `HeatTransfer`.
-    pub const PETAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1000000000000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const PETAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `TerawattPerSquareMetreKelvin` (TW/(m² · K)), as a `HeatTransfer`.
-    pub const TERAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1000000000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const TERAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GigawattPerSquareMetreKelvin` (GW/(m² · K)), as a `HeatTransfer`.
-    pub const GIGAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1000000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const GIGAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MegawattPerSquareMetreKelvin` (MW/(m² · K)), as a `HeatTransfer`.
-    pub const MEGAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1000000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const MEGAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilowattPerSquareMetreKelvin` (kW/(m² · K)), as a `HeatTransfer`.
-    pub const KILOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1000.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const KILOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(1000) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `HectowattPerSquareMetreKelvin` (hW/(m² · K)), as a `HeatTransfer`.
-    pub const HECTOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        100.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const HECTOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(100) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecawattPerSquareMetreKelvin` (daW/(m² · K)), as a `HeatTransfer`.
-    pub const DECAWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        10.0 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const DECAWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::int(10) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `WattPerSquareMetreKelvin` (W/(m² · K)), as a `HeatTransfer`.
-    pub const WATT_PER_SQUARE_METRE_KELVIN: HeatTransfer = KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const WATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DeciwattPerSquareMetreKelvin` (dW/(m² · K)), as a `HeatTransfer`.
-    pub const DECIWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        0.10000000000000001 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const DECIWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `CentiwattPerSquareMetreKelvin` (cW/(m² · K)), as a `HeatTransfer`.
-    pub const CENTIWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        0.01 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const CENTIWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -2) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilliwattPerSquareMetreKelvin` (mW/(m² · K)), as a `HeatTransfer`.
-    pub const MILLIWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        0.001 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MicrowattPerSquareMetreKelvin` (µW/(m² · K)), as a `HeatTransfer`.
-    pub const MICROWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        9.9999999999999995e-07 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const MICROWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `NanowattPerSquareMetreKelvin` (nW/(m² · K)), as a `HeatTransfer`.
-    pub const NANOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1.0000000000000001e-09 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const NANOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -9) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PicowattPerSquareMetreKelvin` (pW/(m² · K)), as a `HeatTransfer`.
-    pub const PICOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        9.9999999999999998e-13 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const PICOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -12) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `FemtowattPerSquareMetreKelvin` (fW/(m² · K)), as a `HeatTransfer`.
-    pub const FEMTOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1.0000000000000001e-15 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const FEMTOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -15) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `AttowattPerSquareMetreKelvin` (aW/(m² · K)), as a `HeatTransfer`.
-    pub const ATTOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        1.0000000000000001e-18 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const ATTOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -18) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZeptowattPerSquareMetreKelvin` (zW/(m² · K)), as a `HeatTransfer`.
-    pub const ZEPTOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        9.9999999999999991e-22 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const ZEPTOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -21) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YoctowattPerSquareMetreKelvin` (yW/(m² · K)), as a `HeatTransfer`.
-    pub const YOCTOWATT_PER_SQUARE_METRE_KELVIN: HeatTransfer =
-        9.9999999999999992e-25 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const YOCTOWATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -24) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `WattPerSquareMetreDegreeCelsius` (W/(m² · °C)), as a `HeatTransfer`.
-    pub const WATT_PER_SQUARE_METRE_DEGREE_CELSIUS: HeatTransfer = KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const WATT_PER_SQUARE_METRE_DEGREE_CELSIUS<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `JoulePerSecondSquareMetreKelvin` (J/(s · m² · K)), as a `HeatTransfer`.
-    pub const JOULE_PER_SECOND_SQUARE_METRE_KELVIN: HeatTransfer = KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const JOULE_PER_SECOND_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `JoulePerSecondSquareMetreDegreeCelsius` (J/(s · m² · °C)), as a `HeatTransfer`.
-    pub const JOULE_PER_SECOND_SQUARE_METRE_DEGREE_CELSIUS: HeatTransfer =
-        KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const JOULE_PER_SECOND_SQUARE_METRE_DEGREE_CELSIUS<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuItPerHourSquareFootDegreeFahrenheit` (Btu (IT)/(hr · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer = (1055.05585262
-        / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0)))
-        * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(3600) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuItPerHourSquareInchDegreeFahrenheit` (Btu (IT)/(hr · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer = (1055.05585262
-        / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0)))
-        * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(3600) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuItPerMinuteSquareFootDegreeFahrenheit` (Btu (IT)/(min · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        (1055.05585262 / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(60) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuItPerMinuteSquareInchDegreeFahrenheit` (Btu (IT)/(min · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        (1055.05585262 / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(60) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuItPerSecondSquareFootDegreeFahrenheit` (Btu (IT)/(s · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        (1055.05585262 / (0.3048 * 0.3048 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuItPerSecondSquareInchDegreeFahrenheit` (Btu (IT)/(s · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        (1055.05585262 / (0.0254 * 0.0254 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuPerHourSquareFootDegreeFahrenheit` (Btu/(hr · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        ((4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0)))
-            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(3600) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuPerHourSquareInchDegreeFahrenheit` (Btu/(hr · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        ((4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0)))
-            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(3600) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuPerMinuteSquareFootDegreeFahrenheit` (Btu/(min · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        ((4184.0 * 0.45359237 / 1.8) / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0)))
-            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(60) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuPerMinuteSquareInchDegreeFahrenheit` (Btu/(min · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        ((4184.0 * 0.45359237 / 1.8) / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0)))
-            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(60) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuPerSecondSquareFootDegreeFahrenheit` (Btu/(s · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        ((4184.0 * 0.45359237 / 1.8) / (0.3048 * 0.3048 * (5.0 / 9.0)))
-            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `BtuPerSecondSquareInchDegreeFahrenheit` (Btu/(s · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        ((4184.0 * 0.45359237 / 1.8) / (0.0254 * 0.0254 * (5.0 / 9.0)))
-            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YottagramMetreSquaredPerSecondCubedKelvin` (Yg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const YOTTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1e+21 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const YOTTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZettagramMetreSquaredPerSecondCubedKelvin` (Zg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const ZETTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1e+18 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const ZETTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ExagramMetreSquaredPerSecondCubedKelvin` (Eg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const EXAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1000000000000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const EXAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PetagramMetreSquaredPerSecondCubedKelvin` (Pg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const PETAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1000000000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const PETAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `TeragramMetreSquaredPerSecondCubedKelvin` (Tg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const TERAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1000000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const TERAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GigagramMetreSquaredPerSecondCubedKelvin` (Gg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const GIGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const GIGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MegagramMetreSquaredPerSecondCubedKelvin` (Mg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const MEGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MEGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilogramMetreSquaredPerSecondCubedKelvin` (kg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN);
+    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `HectogramMetreSquaredPerSecondCubedKelvin` (hg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const HECTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        0.10000000000000001 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const HECTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecagramMetreSquaredPerSecondCubedKelvin` (dag · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const DECAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        0.01 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const DECAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GramMetreSquaredPerSecondCubedKelvin` (g · m/(s³ · K)), as a `ThermalConductance`.
-    pub const GRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        0.001 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const GRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecigramMetreSquaredPerSecondCubedKelvin` (dg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const DECIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        0.0001 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const DECIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -4) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `CentigramMetreSquaredPerSecondCubedKelvin` (cg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const CENTIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1.0000000000000001e-05 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const CENTIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -5) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilligramMetreSquaredPerSecondCubedKelvin` (mg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const MILLIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        9.9999999999999995e-07 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MicrogramMetreSquaredPerSecondCubedKelvin` (µg · m/(s³ · K)), as a `ThermalConductance`.
-    pub const MICROGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        9.9999999999999986e-10 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MICROGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -9) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `NanogramMetreSquaredPerSecondCubedKelvin` (ng · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const NANOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        9.9999999999999998e-13 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const NANOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PicogramMetreSquaredPerSecondCubedKelvin` (pg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const PICOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1.0000000000000001e-15 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const PICOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `FemtogramMetreSquaredPerSecondCubedKelvin` (fg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const FEMTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1.0000000000000001e-18 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const FEMTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `AttogramMetreSquaredPerSecondCubedKelvin` (ag · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const ATTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        1.0000000000000001e-21 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const ATTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZeptogramMetreSquaredPerSecondCubedKelvin` (zg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const ZEPTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        9.9999999999999992e-25 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const ZEPTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YoctogramMetreSquaredPerSecondCubedKelvin` (yg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const YOCTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
-        9.9999999999999986e-28 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const YOCTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -27) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YottawattPerKelvin` (YW/K), as a `ThermalConductance`.
-    pub const YOTTAWATT_PER_KELVIN: ThermalConductance =
-        9.9999999999999998e+23 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const YOTTAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZettawattPerKelvin` (ZW/K), as a `ThermalConductance`.
-    pub const ZETTAWATT_PER_KELVIN: ThermalConductance =
-        1e+21 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const ZETTAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ExawattPerKelvin` (EW/K), as a `ThermalConductance`.
-    pub const EXAWATT_PER_KELVIN: ThermalConductance =
-        1e+18 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const EXAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PetawattPerKelvin` (PW/K), as a `ThermalConductance`.
-    pub const PETAWATT_PER_KELVIN: ThermalConductance =
-        1000000000000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const PETAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `TerawattPerKelvin` (TW/K), as a `ThermalConductance`.
-    pub const TERAWATT_PER_KELVIN: ThermalConductance =
-        1000000000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const TERAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GigawattPerKelvin` (GW/K), as a `ThermalConductance`.
-    pub const GIGAWATT_PER_KELVIN: ThermalConductance =
-        1000000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const GIGAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MegawattPerKelvin` (MW/K), as a `ThermalConductance`.
-    pub const MEGAWATT_PER_KELVIN: ThermalConductance =
-        1000000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MEGAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilowattPerKelvin` (kW/K), as a `ThermalConductance`.
-    pub const KILOWATT_PER_KELVIN: ThermalConductance =
-        1000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const KILOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `HectowattPerKelvin` (hW/K), as a `ThermalConductance`.
-    pub const HECTOWATT_PER_KELVIN: ThermalConductance =
-        100.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const HECTOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(100) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecawattPerKelvin` (daW/K), as a `ThermalConductance`.
-    pub const DECAWATT_PER_KELVIN: ThermalConductance =
-        10.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const DECAWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(10) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `WattPerKelvin` (W/K), as a `ThermalConductance`.
-    pub const WATT_PER_KELVIN: ThermalConductance = KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const WATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DeciwattPerKelvin` (dW/K), as a `ThermalConductance`.
-    pub const DECIWATT_PER_KELVIN: ThermalConductance =
-        0.10000000000000001 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const DECIWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `CentiwattPerKelvin` (cW/K), as a `ThermalConductance`.
-    pub const CENTIWATT_PER_KELVIN: ThermalConductance =
-        0.01 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const CENTIWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilliwattPerKelvin` (mW/K), as a `ThermalConductance`.
-    pub const MILLIWATT_PER_KELVIN: ThermalConductance =
-        0.001 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MicrowattPerKelvin` (µW/K), as a `ThermalConductance`.
-    pub const MICROWATT_PER_KELVIN: ThermalConductance =
-        9.9999999999999995e-07 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MICROWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `NanowattPerKelvin` (nW/K), as a `ThermalConductance`.
-    pub const NANOWATT_PER_KELVIN: ThermalConductance =
-        1.0000000000000001e-09 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const NANOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -9) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PicowattPerKelvin` (pW/K), as a `ThermalConductance`.
-    pub const PICOWATT_PER_KELVIN: ThermalConductance =
-        9.9999999999999998e-13 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const PICOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `FemtowattPerKelvin` (fW/K), as a `ThermalConductance`.
-    pub const FEMTOWATT_PER_KELVIN: ThermalConductance =
-        1.0000000000000001e-15 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const FEMTOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `AttowattPerKelvin` (aW/K), as a `ThermalConductance`.
-    pub const ATTOWATT_PER_KELVIN: ThermalConductance =
-        1.0000000000000001e-18 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const ATTOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZeptowattPerKelvin` (zW/K), as a `ThermalConductance`.
-    pub const ZEPTOWATT_PER_KELVIN: ThermalConductance =
-        9.9999999999999991e-22 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const ZEPTOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YoctowattPerKelvin` (yW/K), as a `ThermalConductance`.
-    pub const YOCTOWATT_PER_KELVIN: ThermalConductance =
-        9.9999999999999992e-25 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const YOCTOWATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilogramMetreSquaredPerSecondCubedDegreeCelsius` (kg · m²/(s³ · °C)), as a `ThermalConductance`.
-    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_DEGREE_CELSIUS: ThermalConductance =
-        KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilowattPerDegreeCelsius` (kW/°C), as a `ThermalConductance`.
-    pub const KILOWATT_PER_DEGREE_CELSIUS: ThermalConductance =
-        1000.0 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const KILOWATT_PER_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `WattPerMetreDegreeCelsius` (W/°C), as a `ThermalConductance`.
-    pub const THERMAL_CONDUCTANCE_WATT_PER_METRE_DEGREE_CELSIUS: ThermalConductance =
-        KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const THERMAL_CONDUCTANCE_WATT_PER_METRE_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilliwattPerDegreeCelsius` (mW/°C), as a `ThermalConductance`.
-    pub const MILLIWATT_PER_DEGREE_CELSIUS: ThermalConductance =
-        0.001 * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIWATT_PER_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YottagramMetrePerSecondCubedKelvin` (Yg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const YOTTAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1e+21 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const YOTTAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZettagramMetrePerSecondCubedKelvin` (Zg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const ZETTAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1e+18 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const ZETTAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ExagramMetrePerSecondCubedKelvin` (Eg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const EXAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1000000000000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const EXAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PetagramMetrePerSecondCubedKelvin` (Pg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const PETAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1000000000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const PETAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `TeragramMetrePerSecondCubedKelvin` (Tg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const TERAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1000000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const TERAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GigagramMetrePerSecondCubedKelvin` (Gg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const GIGAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const GIGAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MegagramMetrePerSecondCubedKelvin` (Mg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const MEGAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MEGAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilogramMetrePerSecondCubedKelvin` (kg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN);
+    pub const KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `HectogramMetrePerSecondCubedKelvin` (hg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const HECTOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        0.10000000000000001 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const HECTOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecagramMetrePerSecondCubedKelvin` (dag · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const DECAGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        0.01 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const DECAGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GramMetrePerSecondCubedKelvin` (g · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const GRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        0.001 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const GRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecigramMetrePerSecondCubedKelvin` (dg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const DECIGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        0.0001 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const DECIGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -4) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `CentigramMetrePerSecondCubedKelvin` (cg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const CENTIGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1.0000000000000001e-05 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const CENTIGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -5) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilligramMetrePerSecondCubedKelvin` (mg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const MILLIGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        9.9999999999999995e-07 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MicrogramMetrePerSecondCubedKelvin` (µg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const MICROGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        9.9999999999999986e-10 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MICROGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -9) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `NanogramMetrePerSecondCubedKelvin` (ng · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const NANOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        9.9999999999999998e-13 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const NANOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PicogramMetrePerSecondCubedKelvin` (pg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const PICOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1.0000000000000001e-15 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const PICOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `FemtogramMetrePerSecondCubedKelvin` (fg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const FEMTOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1.0000000000000001e-18 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const FEMTOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `AttogramMetrePerSecondCubedKelvin` (ag · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const ATTOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        1.0000000000000001e-21 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const ATTOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZeptogramMetrePerSecondCubedKelvin` (zg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const ZEPTOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        9.9999999999999992e-25 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const ZEPTOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YoctogramMetrePerSecondCubedKelvin` (yg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const YOCTOGRAM_METRE_PER_SECOND_CUBED_KELVIN: ThermalConductivity =
-        9.9999999999999986e-28 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const YOCTOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -27) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YottawattPerMetreKelvin` (YW/(m · K)), as a `ThermalConductivity`.
-    pub const YOTTAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        9.9999999999999998e+23 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const YOTTAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZettawattPerMetreKelvin` (ZW/(m · K)), as a `ThermalConductivity`.
-    pub const ZETTAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1e+21 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const ZETTAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ExawattPerMetreKelvin` (EW/(m · K)), as a `ThermalConductivity`.
-    pub const EXAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1e+18 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const EXAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PetawattPerMetreKelvin` (PW/(m · K)), as a `ThermalConductivity`.
-    pub const PETAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1000000000000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const PETAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `TerawattPerMetreKelvin` (TW/(m · K)), as a `ThermalConductivity`.
-    pub const TERAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1000000000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const TERAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `GigawattPerMetreKelvin` (GW/(m · K)), as a `ThermalConductivity`.
-    pub const GIGAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1000000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const GIGAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MegawattPerMetreKelvin` (MW/(m · K)), as a `ThermalConductivity`.
-    pub const MEGAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1000000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MEGAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilowattPerMetreKelvin` (kW/(m · K)), as a `ThermalConductivity`.
-    pub const KILOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const KILOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `HectowattPerMetreKelvin` (hW/(m · K)), as a `ThermalConductivity`.
-    pub const HECTOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        100.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const HECTOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(100) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DecawattPerMetreKelvin` (daW/(m · K)), as a `ThermalConductivity`.
-    pub const DECAWATT_PER_METRE_KELVIN: ThermalConductivity =
-        10.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const DECAWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(10) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `WattPerMetreKelvin` (W/(m · K)), as a `ThermalConductivity`.
-    pub const WATT_PER_METRE_KELVIN: ThermalConductivity = KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const WATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `DeciwattPerMetreKelvin` (dW/(m · K)), as a `ThermalConductivity`.
-    pub const DECIWATT_PER_METRE_KELVIN: ThermalConductivity =
-        0.10000000000000001 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const DECIWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `CentiwattPerMetreKelvin` (cW/(m · K)), as a `ThermalConductivity`.
-    pub const CENTIWATT_PER_METRE_KELVIN: ThermalConductivity =
-        0.01 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const CENTIWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilliwattPerMetreKelvin` (mW/(m · K)), as a `ThermalConductivity`.
-    pub const MILLIWATT_PER_METRE_KELVIN: ThermalConductivity =
-        0.001 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MicrowattPerMetreKelvin` (µW/(m · K)), as a `ThermalConductivity`.
-    pub const MICROWATT_PER_METRE_KELVIN: ThermalConductivity =
-        9.9999999999999995e-07 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MICROWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `NanowattPerMetreKelvin` (nW/(m · K)), as a `ThermalConductivity`.
-    pub const NANOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1.0000000000000001e-09 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const NANOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -9) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `PicowattPerMetreKelvin` (pW/(m · K)), as a `ThermalConductivity`.
-    pub const PICOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        9.9999999999999998e-13 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const PICOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `FemtowattPerMetreKelvin` (fW/(m · K)), as a `ThermalConductivity`.
-    pub const FEMTOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1.0000000000000001e-15 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const FEMTOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `AttowattPerMetreKelvin` (aW/(m · K)), as a `ThermalConductivity`.
-    pub const ATTOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        1.0000000000000001e-18 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const ATTOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `ZeptowattPerMetreKelvin` (zW/(m · K)), as a `ThermalConductivity`.
-    pub const ZEPTOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        9.9999999999999991e-22 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const ZEPTOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `YoctowattPerMetreKelvin` (yW/(m · K)), as a `ThermalConductivity`.
-    pub const YOCTOWATT_PER_METRE_KELVIN: ThermalConductivity =
-        9.9999999999999992e-25 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const YOCTOWATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilogramMetrePerSecondCubedDegreeCelsius` (kg · m/(s³ · °C)), as a `ThermalConductivity`.
-    pub const KILOGRAM_METRE_PER_SECOND_CUBED_DEGREE_CELSIUS: ThermalConductivity =
-        KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const KILOGRAM_METRE_PER_SECOND_CUBED_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductivity<N> = counted(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KilowattPerMetreDegreeCelsius` (kW/(m · °C)), as a `ThermalConductivity`.
-    pub const KILOWATT_PER_METRE_DEGREE_CELSIUS: ThermalConductivity =
-        1000.0 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const KILOWATT_PER_METRE_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `WattPerMetreDegreeCelsius` (W/(m · °C)), as a `ThermalConductivity`.
-    pub const THERMAL_CONDUCTIVITY_WATT_PER_METRE_DEGREE_CELSIUS: ThermalConductivity =
-        KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const THERMAL_CONDUCTIVITY_WATT_PER_METRE_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductivity<N> = counted(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `MilliwattPerMetreDegreeCelsius` (mW/(m · °C)), as a `ThermalConductivity`.
-    pub const MILLIWATT_PER_METRE_DEGREE_CELSIUS: ThermalConductivity =
-        0.001 * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN;
+    pub const MILLIWATT_PER_METRE_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
 
     /// One `KelvinPerYottawatt` (K/YW), as a `ThermalResistance`.
-    pub const KELVIN_PER_YOTTAWATT: ThermalResistance = 1.0000000000000001e-24 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_YOTTAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -24) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerZettawatt` (K/ZW), as a `ThermalResistance`.
-    pub const KELVIN_PER_ZETTAWATT: ThermalResistance = 9.9999999999999991e-22 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_ZETTAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -21) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerExawatt` (K/EW), as a `ThermalResistance`.
-    pub const KELVIN_PER_EXAWATT: ThermalResistance = 1.0000000000000001e-18 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_EXAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -18) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerPetawatt` (K/PW), as a `ThermalResistance`.
-    pub const KELVIN_PER_PETAWATT: ThermalResistance = 1.0000000000000001e-15 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_PETAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -15) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerTerawatt` (K/TW), as a `ThermalResistance`.
-    pub const KELVIN_PER_TERAWATT: ThermalResistance = 9.9999999999999998e-13 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_TERAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -12) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerGigawatt` (K/GW), as a `ThermalResistance`.
-    pub const KELVIN_PER_GIGAWATT: ThermalResistance = 1.0000000000000001e-09 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_GIGAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -9) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerMegawatt` (K/MW), as a `ThermalResistance`.
-    pub const KELVIN_PER_MEGAWATT: ThermalResistance = 9.9999999999999995e-07 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_MEGAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -6) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerKilowatt` (K/kw), as a `ThermalResistance`.
-    pub const KELVIN_PER_KILOWATT: ThermalResistance = 0.001 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_KILOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -3) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerHectowatt` (K/hW), as a `ThermalResistance`.
-    pub const KELVIN_PER_HECTOWATT: ThermalResistance = 0.01 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_HECTOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -2) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerDecawatt` (K/daW), as a `ThermalResistance`.
-    pub const KELVIN_PER_DECAWATT: ThermalResistance = 0.10000000000000001 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_DECAWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -1) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerWatt` (K/W), as a `ThermalResistance`.
-    pub const KELVIN_PER_WATT: ThermalResistance =
-        SECOND * SECOND * SECOND * KELVIN / (METRE * METRE * KILOGRAM);
+    pub const KELVIN_PER_WATT<N: const From<Exact>>: ThermalResistance<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact> / (METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
     /// One `KelvinPerDeciwatt` (K/dW), as a `ThermalResistance`.
-    pub const KELVIN_PER_DECIWATT: ThermalResistance = 10.0 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_DECIWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(10) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerCentiwatt` (K/cW), as a `ThermalResistance`.
-    pub const KELVIN_PER_CENTIWATT: ThermalResistance = 100.0 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_CENTIWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(100) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerMilliwatt` (K/mW), as a `ThermalResistance`.
-    pub const KELVIN_PER_MILLIWATT: ThermalResistance = 1000.0 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_MILLIWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerMicrowatt` (K/µW), as a `ThermalResistance`.
-    pub const KELVIN_PER_MICROWATT: ThermalResistance = 1000000.0 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_MICROWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerNanowatt` (K/nW), as a `ThermalResistance`.
-    pub const KELVIN_PER_NANOWATT: ThermalResistance = 999999999.99999988 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_NANOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerPicowatt` (K/pW), as a `ThermalResistance`.
-    pub const KELVIN_PER_PICOWATT: ThermalResistance = 1000000000000.0 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_PICOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerFemtowatt` (K/fW), as a `ThermalResistance`.
-    pub const KELVIN_PER_FEMTOWATT: ThermalResistance = 999999999999999.88 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_FEMTOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000000000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerAttowatt` (K/aW), as a `ThermalResistance`.
-    pub const KELVIN_PER_ATTOWATT: ThermalResistance = 9.9999999999999987e+17 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_ATTOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000000000000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerZeptowatt` (K/zW), as a `ThermalResistance`.
-    pub const KELVIN_PER_ZEPTOWATT: ThermalResistance = 1.0000000000000001e+21 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_ZEPTOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000000000000000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `KelvinPerYoctowatt` (K/yW), as a `ThermalResistance`.
-    pub const KELVIN_PER_YOCTOWATT: ThermalResistance = 1.0000000000000001e+24 * KELVIN_PER_WATT;
+    pub const KELVIN_PER_YOCTOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::int(1000000000000000000000000) * KELVIN_PER_WATT::<Exact>);
 
     /// One `SquareKilometrePerSecondSquaredKelvin` (km²/(s² · K)), as a `SpecificHeatCapacity`.
-    pub const SQUARE_KILOMETRE_PER_SECOND_SQUARED_KELVIN: SpecificHeatCapacity =
-        1000000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const SQUARE_KILOMETRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `SquareMetrePerSecondSquaredKelvin` (m²/(s² · K)), as a `SpecificHeatCapacity`.
-    pub const SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: SpecificHeatCapacity =
-        METRE * METRE / (SECOND * SECOND * KELVIN);
+    pub const SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(METRE::<Exact> * METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `SquareCentimetrePerSecondSquaredKelvin` (cm²/(s² · K)), as a `SpecificHeatCapacity`.
-    pub const SQUARE_CENTIMETRE_PER_SECOND_SQUARED_KELVIN: SpecificHeatCapacity =
-        0.0001 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const SQUARE_CENTIMETRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -4) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `SquareMillimetrePerSecondSquaredKelvin` (mm²/(s² · K)), as a `SpecificHeatCapacity`.
-    pub const SQUARE_MILLIMETRE_PER_SECOND_SQUARED_KELVIN: SpecificHeatCapacity =
-        9.9999999999999995e-07 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const SQUARE_MILLIMETRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -6) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `SquareMicrometrePerSecondSquaredKelvin` (µm²/(s² · K)), as a `SpecificHeatCapacity`.
-    pub const SQUARE_MICROMETRE_PER_SECOND_SQUARED_KELVIN: SpecificHeatCapacity =
-        9.9999999999999998e-13 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const SQUARE_MICROMETRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -12) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `YottajoulePerKilogramKelvin` (YJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const YOTTAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        9.9999999999999998e+23 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const YOTTAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000000000000000000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ZettajoulePerKilogramKelvin` (ZJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const ZETTAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1e+21 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ZETTAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000000000000000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ExajoulePerKilogramKelvin` (EJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const EXAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1e+18 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const EXAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000000000000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `PetajoulePerKilogramKelvin` (PJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const PETAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1000000000000000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const PETAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000000000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `TerajoulePerKilogramKelvin` (TJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const TERAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1000000000000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const TERAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `GigajoulePerKilogramKelvin` (GJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const GIGAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1000000000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const GIGAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MegajoulePerKilogramKelvin` (MJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const MEGAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1000000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MEGAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `KilojoulePerKilogramKelvin` (kJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const KILOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const KILOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `HectojoulePerKilogramKelvin` (hJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const HECTOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        100.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const HECTOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(100) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `DecajoulePerKilogramKelvin` (daJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const DECAJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        10.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const DECAJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(10) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `JoulePerKilogramKelvin` (J/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const JOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const JOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `DecijoulePerKilogramKelvin` (dJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const DECIJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        0.10000000000000001 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const DECIJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -1) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `CentijoulePerKilogramKelvin` (cJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const CENTIJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        0.01 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const CENTIJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -2) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MillijoulePerKilogramKelvin` (mJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const MILLIJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        0.001 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MILLIJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -3) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MicrojoulePerKilogramKelvin` (µJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const MICROJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        9.9999999999999995e-07 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MICROJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -6) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `NanojoulePerKilogramKelvin` (nJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const NANOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1.0000000000000001e-09 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const NANOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -9) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `PicojoulePerKilogramKelvin` (pJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const PICOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        9.9999999999999998e-13 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const PICOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -12) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `FemtojoulePerKilogramKelvin` (fJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const FEMTOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1.0000000000000001e-15 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const FEMTOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -15) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `AttojoulePerKilogramKelvin` (aJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const ATTOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        1.0000000000000001e-18 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ATTOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -18) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `ZeptojoulePerKilogramKelvin` (zJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const ZEPTOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        9.9999999999999991e-22 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const ZEPTOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -21) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `YoctojoulePerKilogramKelvin` (yJ/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const YOCTOJOULE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        9.9999999999999992e-25 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const YOCTOJOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -24) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `KilojoulePerKilogramDegreeCelsius` (kJ/(kg · °C)), as a `SpecificHeatCapacity`.
-    pub const KILOJOULE_PER_KILOGRAM_DEGREE_CELSIUS: SpecificHeatCapacity =
-        1000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const KILOJOULE_PER_KILOGRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `KilojoulePerGramDegreeCelsius` (kJ/(g · °C)), as a `SpecificHeatCapacity`.
-    pub const KILOJOULE_PER_GRAM_DEGREE_CELSIUS: SpecificHeatCapacity =
-        1000000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const KILOJOULE_PER_GRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `JoulePerKilogramDegreeCelsius` (J/(kg · °C)), as a `SpecificHeatCapacity`.
-    pub const JOULE_PER_KILOGRAM_DEGREE_CELSIUS: SpecificHeatCapacity =
-        SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const JOULE_PER_KILOGRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `JoulePerGramDegreeCelsius` (J/(g · °C)), as a `SpecificHeatCapacity`.
-    pub const JOULE_PER_GRAM_DEGREE_CELSIUS: SpecificHeatCapacity =
-        1000.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const JOULE_PER_GRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MillijoulePerKilogramDegreeCelsius` (mJ/(kg · °C)), as a `SpecificHeatCapacity`.
-    pub const MILLIJOULE_PER_KILOGRAM_DEGREE_CELSIUS: SpecificHeatCapacity =
-        0.001 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MILLIJOULE_PER_KILOGRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(1, -3) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `MillijoulePerGramDegreeCelsius` (mJ/(g · °C)), as a `SpecificHeatCapacity`.
-    pub const MILLIJOULE_PER_GRAM_DEGREE_CELSIUS: SpecificHeatCapacity =
-        SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const MILLIJOULE_PER_GRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuPerOunceDegreeFahrenheit` (Btu/(oz · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_OUNCE_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        (16.0 * 4184.0) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_PER_OUNCE_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted((Exact::int(16) * Exact::int(4184)) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuItPerOunceDegreeFahrenheit` (Btu (IT)/(oz · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        (16.0 * 4186.8) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted((Exact::int(16) * Exact::dec(41868, -1)) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuPerPoundDegreeFahrenheit` (Btu/(lb · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_POUND_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        4184.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_PER_POUND_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(4184) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuItPerPoundDegreeFahrenheit` (Btu (IT)/(lb · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_IT_PER_POUND_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        4186.8 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_IT_PER_POUND_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(41868, -1) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuPerTonDegreeFahrenheit` (Btu/(t · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_TON_DEGREE_FAHRENHEIT: SpecificHeatCapacity = ((4184.0 * 0.45359237 / 1.8)
-        / (1000.0 * (5.0 / 9.0)))
-        * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_PER_TON_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(1000) * (Exact::int(5) / Exact::int(9)))) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `BtuItPerTonDegreeFahrenheit` (Btu (IT)/(t · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_IT_PER_TON_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        (1055.05585262 / (1000.0 * (5.0 / 9.0))) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_IT_PER_TON_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(1000) * (Exact::int(5) / Exact::int(9)))) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `CaloriePerKilogramKelvin` (cal/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const CALORIE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =
-        4.1840000000000002 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const CALORIE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(4184, -3) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `CaloriePerGramKelvin` (cal/(g · K)), as a `SpecificHeatCapacity`.
-    pub const CALORIE_PER_GRAM_KELVIN: SpecificHeatCapacity =
-        4184.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const CALORIE_PER_GRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(4184) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
 
     /// One `JoulePerSquareMetreKelvin` (J/(m² · K)), as an `ArealHeatCapacity`.
-    pub const JOULE_PER_SQUARE_METRE_KELVIN: ArealHeatCapacity =
-        KILOGRAM / (SECOND * SECOND * KELVIN);
+    pub const JOULE_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: ArealHeatCapacity<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `JoulePerCubicMetreKelvin` (J/(m³ · K)), as a `VolumetricHeatCapacity`.
-    pub const JOULE_PER_CUBIC_METRE_KELVIN: VolumetricHeatCapacity =
-        KILOGRAM / (METRE * SECOND * SECOND * KELVIN);
+    pub const JOULE_PER_CUBIC_METRE_KELVIN<N: const From<Exact>>: VolumetricHeatCapacity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
 
     /// One `CaloriePerCubicMetreKelvin` (cal/(m³ · K)), as a `VolumetricHeatCapacity`.
-    pub const CALORIE_PER_CUBIC_METRE_KELVIN: VolumetricHeatCapacity =
-        4.1840000000000002 * JOULE_PER_CUBIC_METRE_KELVIN;
+    pub const CALORIE_PER_CUBIC_METRE_KELVIN<N: const From<Exact>>: VolumetricHeatCapacity<N> = counted(Exact::dec(4184, -3) * JOULE_PER_CUBIC_METRE_KELVIN::<Exact>);
 
     /// One `WattPerSquareMetreQuarticKelvin` (W/(m² · K⁴)), as a `StefanBoltzmannCoefficient`.
-    pub const WATT_PER_SQUARE_METRE_QUARTIC_KELVIN: StefanBoltzmannCoefficient =
-        KILOGRAM / (SECOND * SECOND * SECOND * KELVIN * KELVIN * KELVIN * KELVIN);
+    pub const WATT_PER_SQUARE_METRE_QUARTIC_KELVIN<N: const From<Exact>>: StefanBoltzmannCoefficient<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact> * KELVIN::<Exact> * KELVIN::<Exact> * KELVIN::<Exact>));
 
     /// One `StefanBoltzmannConstant` (σ), as a `StefanBoltzmannCoefficient`.
-    pub const STEFAN_BOLTZMANN_CONSTANT: StefanBoltzmannCoefficient =
-        5.670374419e-8 * WATT_PER_SQUARE_METRE_QUARTIC_KELVIN;
+    pub const STEFAN_BOLTZMANN_CONSTANT<N: const From<Exact>>: StefanBoltzmannCoefficient<N> = counted(Exact::dec(5670374419, -17) * WATT_PER_SQUARE_METRE_QUARTIC_KELVIN::<Exact>);
 }
 
 /// The units of `ThermodynamicTemperature`, for a menu, a config file, a parser.

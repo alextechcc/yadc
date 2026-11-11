@@ -1,8 +1,8 @@
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Luminance = StaticSIQuantity<
+pub type Luminance<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -10,18 +10,20 @@ pub type Luminance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type LuminousIntensity = StaticSIQuantity<
+pub type LuminousIntensity<N = f64> = SIQuantity<
     {
         ISQ {
             cd: 1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type Illuminance = StaticSIQuantity<
+pub type Illuminance<N = f64> = SIQuantity<
     {
         ISQ {
             m: -2,
@@ -30,9 +32,10 @@ pub type Illuminance = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
-pub type RadiantExposure = StaticSIQuantity<
+pub type RadiantExposure<N = f64> = SIQuantity<
     {
         ISQ {
             kg: 1,
@@ -40,13 +43,16 @@ pub type RadiantExposure = StaticSIQuantity<
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, RADIAN, SECOND};
@@ -55,406 +61,370 @@ pub mod consts {
     pub use crate::base::CANDELA;
 
     /// One `YottacandelaPerSquareMetre` (Ycd/m²), as a `Luminance`.
-    pub const YOTTACANDELA_PER_SQUARE_METRE: Luminance =
-        9.9999999999999998e+23 * CANDELA_PER_SQUARE_METRE;
+    pub const YOTTACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `ZettacandelaPerSquareMetre` (Zcd/m²), as a `Luminance`.
-    pub const ZETTACANDELA_PER_SQUARE_METRE: Luminance = 1e+21 * CANDELA_PER_SQUARE_METRE;
+    pub const ZETTACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `ExacandelaPerSquareMetre` (Ecd/m²), as a `Luminance`.
-    pub const EXACANDELA_PER_SQUARE_METRE: Luminance = 1e+18 * CANDELA_PER_SQUARE_METRE;
+    pub const EXACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `PetacandelaPerSquareMetre` (Pcd/m²), as a `Luminance`.
-    pub const PETACANDELA_PER_SQUARE_METRE: Luminance =
-        1000000000000000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const PETACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `TeracandelaPerSquareMetre` (Tcd/m²), as a `Luminance`.
-    pub const TERACANDELA_PER_SQUARE_METRE: Luminance = 1000000000000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const TERACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `GigacandelaPerSquareMetre` (Gcd/m²), as a `Luminance`.
-    pub const GIGACANDELA_PER_SQUARE_METRE: Luminance = 1000000000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const GIGACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `MegacandelaPerSquareMetre` (Mcd/m²), as a `Luminance`.
-    pub const MEGACANDELA_PER_SQUARE_METRE: Luminance = 1000000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const MEGACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `KilocandelaPerSquareMetre` (kcd/m²), as a `Luminance`.
-    pub const KILOCANDELA_PER_SQUARE_METRE: Luminance = 1000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const KILOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `HectocandelaPerSquareMetre` (hcd/m²), as a `Luminance`.
-    pub const HECTOCANDELA_PER_SQUARE_METRE: Luminance = 100.0 * CANDELA_PER_SQUARE_METRE;
+    pub const HECTOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(100) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecacandelaPerSquareMetre` (dacd/m²), as a `Luminance`.
-    pub const DECACANDELA_PER_SQUARE_METRE: Luminance = 10.0 * CANDELA_PER_SQUARE_METRE;
+    pub const DECACANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(10) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareMetre` (cd/m²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_METRE: Luminance = CANDELA / (METRE * METRE);
+    pub const CANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(CANDELA::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `DecicandelaPerSquareMetre` (dcd/m²), as a `Luminance`.
-    pub const DECICANDELA_PER_SQUARE_METRE: Luminance =
-        0.10000000000000001 * CANDELA_PER_SQUARE_METRE;
+    pub const DECICANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -1) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CenticandelaPerSquareMetre` (ccd/m²), as a `Luminance`.
-    pub const CENTICANDELA_PER_SQUARE_METRE: Luminance = 0.01 * CANDELA_PER_SQUARE_METRE;
+    pub const CENTICANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -2) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `MillicandelaPerSquareMetre` (mcd/m²), as a `Luminance`.
-    pub const MILLICANDELA_PER_SQUARE_METRE: Luminance = 0.001 * CANDELA_PER_SQUARE_METRE;
+    pub const MILLICANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -3) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `MicrocandelaPerSquareMetre` (µcd/m²), as a `Luminance`.
-    pub const MICROCANDELA_PER_SQUARE_METRE: Luminance =
-        9.9999999999999995e-07 * CANDELA_PER_SQUARE_METRE;
+    pub const MICROCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -6) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `NanocandelaPerSquareMetre` (ncd/m²), as a `Luminance`.
-    pub const NANOCANDELA_PER_SQUARE_METRE: Luminance =
-        1.0000000000000001e-09 * CANDELA_PER_SQUARE_METRE;
+    pub const NANOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -9) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `PicocandelaPerSquareMetre` (pcd/m²), as a `Luminance`.
-    pub const PICOCANDELA_PER_SQUARE_METRE: Luminance =
-        9.9999999999999998e-13 * CANDELA_PER_SQUARE_METRE;
+    pub const PICOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -12) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `FemtocandelaPerSquareMetre` (fcd/m²), as a `Luminance`.
-    pub const FEMTOCANDELA_PER_SQUARE_METRE: Luminance =
-        1.0000000000000001e-15 * CANDELA_PER_SQUARE_METRE;
+    pub const FEMTOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -15) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `AttocandelaPerSquareMetre` (acd/m²), as a `Luminance`.
-    pub const ATTOCANDELA_PER_SQUARE_METRE: Luminance =
-        1.0000000000000001e-18 * CANDELA_PER_SQUARE_METRE;
+    pub const ATTOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -18) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `ZeptocandelaPerSquareMetre` (zcd/m²), as a `Luminance`.
-    pub const ZEPTOCANDELA_PER_SQUARE_METRE: Luminance =
-        9.9999999999999991e-22 * CANDELA_PER_SQUARE_METRE;
+    pub const ZEPTOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -21) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `YoctocandelaPerSquareMetre` (ycd/m²), as a `Luminance`.
-    pub const YOCTOCANDELA_PER_SQUARE_METRE: Luminance =
-        9.9999999999999992e-25 * CANDELA_PER_SQUARE_METRE;
+    pub const YOCTOCANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -24) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquarePicometre` (cd/pm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_PICOMETRE: Luminance =
-        9.9999999999999998e+23 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_PICOMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareNanometre` (cd/nm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_NANOMETRE: Luminance = 1e+18 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_NANOMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareMicrometre` (cd/µm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_MICROMETRE: Luminance = 1000000000000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_MICROMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareMillimetre` (cd/mm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_MILLIMETRE: Luminance = 1000000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(1000000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareCentimetre` (cd/cm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_CENTIMETRE: Luminance = 10000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::int(10000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareKilometre` (cd/km²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_KILOMETRE: Luminance =
-        9.9999999999999995e-07 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_KILOMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -6) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareMegametre` (cd/Mm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_MEGAMETRE: Luminance =
-        9.9999999999999998e-13 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_MEGAMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -12) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareGigametre` (cd/Gm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_GIGAMETRE: Luminance =
-        1.0000000000000001e-18 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_GIGAMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -18) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareTerametre` (cd/Tm²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_TERAMETRE: Luminance =
-        9.9999999999999992e-25 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_TERAMETRE<N: const From<Exact>>: Luminance<N> = counted(Exact::dec(1, -24) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareInch` (cd/in²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_INCH: Luminance = 1550.0031000062002 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_INCH<N: const From<Exact>>: Luminance<N> = counted((Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `CandelaPerSquareFoot` (cd/ft²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_FOOT: Luminance = 10.763910416709722 * CANDELA_PER_SQUARE_METRE;
+    pub const CANDELA_PER_SQUARE_FOOT<N: const From<Exact>>: Luminance<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `Footlambert` (fl), as a `Luminance`.
-    pub const FOOTLAMBERT: Luminance = 3.4262590996353905 * CANDELA_PER_SQUARE_METRE;
+    pub const FOOTLAMBERT<N: const From<Exact>>: Luminance<N> = counted((Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `Lambert` (la), as a `Luminance`.
-    pub const LAMBERT: Luminance = 3183.0988618379065 * CANDELA_PER_SQUARE_METRE;
+    pub const LAMBERT<N: const From<Exact>>: Luminance<N> = counted((Exact::int(10000) / Exact::PI) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `Stilb` (sb), as a `Luminance`.
-    pub const STILB: Luminance = 10000.0 * CANDELA_PER_SQUARE_METRE;
+    pub const STILB<N: const From<Exact>>: Luminance<N> = counted(Exact::int(10000) * CANDELA_PER_SQUARE_METRE::<Exact>);
 
     /// One `Yottacandela` (Ycd), as a `LuminousIntensity`.
-    pub const YOTTACANDELA: LuminousIntensity = 9.9999999999999998e+23 * CANDELA;
+    pub const YOTTACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000000000000000000000) * CANDELA::<Exact>);
 
     /// One `Zettacandela` (Zcd), as a `LuminousIntensity`.
-    pub const ZETTACANDELA: LuminousIntensity = 1e+21 * CANDELA;
+    pub const ZETTACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000000000000000000) * CANDELA::<Exact>);
 
     /// One `Exacandela` (Ecd), as a `LuminousIntensity`.
-    pub const EXACANDELA: LuminousIntensity = 1e+18 * CANDELA;
+    pub const EXACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000000000000000) * CANDELA::<Exact>);
 
     /// One `Petacandela` (Pcd), as a `LuminousIntensity`.
-    pub const PETACANDELA: LuminousIntensity = 1000000000000000.0 * CANDELA;
+    pub const PETACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000000000000) * CANDELA::<Exact>);
 
     /// One `Teracandela` (Tcd), as a `LuminousIntensity`.
-    pub const TERACANDELA: LuminousIntensity = 1000000000000.0 * CANDELA;
+    pub const TERACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000000000) * CANDELA::<Exact>);
 
     /// One `Gigacandela` (Gcd), as a `LuminousIntensity`.
-    pub const GIGACANDELA: LuminousIntensity = 1000000000.0 * CANDELA;
+    pub const GIGACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000000) * CANDELA::<Exact>);
 
     /// One `Megacandela` (Mcd), as a `LuminousIntensity`.
-    pub const MEGACANDELA: LuminousIntensity = 1000000.0 * CANDELA;
+    pub const MEGACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000000) * CANDELA::<Exact>);
 
     /// One `Kilocandela` (kcd), as a `LuminousIntensity`.
-    pub const KILOCANDELA: LuminousIntensity = 1000.0 * CANDELA;
+    pub const KILOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(1000) * CANDELA::<Exact>);
 
     /// One `Hectocandela` (hcd), as a `LuminousIntensity`.
-    pub const HECTOCANDELA: LuminousIntensity = 100.0 * CANDELA;
+    pub const HECTOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(100) * CANDELA::<Exact>);
 
     /// One `Decacandela` (dacd), as a `LuminousIntensity`.
-    pub const DECACANDELA: LuminousIntensity = 10.0 * CANDELA;
+    pub const DECACANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::int(10) * CANDELA::<Exact>);
 
     /// One `Decicandela` (dcd), as a `LuminousIntensity`.
-    pub const DECICANDELA: LuminousIntensity = 0.10000000000000001 * CANDELA;
+    pub const DECICANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -1) * CANDELA::<Exact>);
 
     /// One `Centicandela` (ccd), as a `LuminousIntensity`.
-    pub const CENTICANDELA: LuminousIntensity = 0.01 * CANDELA;
+    pub const CENTICANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -2) * CANDELA::<Exact>);
 
     /// One `Millicandela` (mcd), as a `LuminousIntensity`.
-    pub const MILLICANDELA: LuminousIntensity = 0.001 * CANDELA;
+    pub const MILLICANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -3) * CANDELA::<Exact>);
 
     /// One `Microcandela` (µcd), as a `LuminousIntensity`.
-    pub const MICROCANDELA: LuminousIntensity = 9.9999999999999995e-07 * CANDELA;
+    pub const MICROCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -6) * CANDELA::<Exact>);
 
     /// One `Nanocandela` (ncd), as a `LuminousIntensity`.
-    pub const NANOCANDELA: LuminousIntensity = 1.0000000000000001e-09 * CANDELA;
+    pub const NANOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -9) * CANDELA::<Exact>);
 
     /// One `Picocandela` (pcd), as a `LuminousIntensity`.
-    pub const PICOCANDELA: LuminousIntensity = 9.9999999999999998e-13 * CANDELA;
+    pub const PICOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -12) * CANDELA::<Exact>);
 
     /// One `Femtocandela` (fcd), as a `LuminousIntensity`.
-    pub const FEMTOCANDELA: LuminousIntensity = 1.0000000000000001e-15 * CANDELA;
+    pub const FEMTOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -15) * CANDELA::<Exact>);
 
     /// One `Attocandela` (acd), as a `LuminousIntensity`.
-    pub const ATTOCANDELA: LuminousIntensity = 1.0000000000000001e-18 * CANDELA;
+    pub const ATTOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -18) * CANDELA::<Exact>);
 
     /// One `Zeptocandela` (zcd), as a `LuminousIntensity`.
-    pub const ZEPTOCANDELA: LuminousIntensity = 9.9999999999999991e-22 * CANDELA;
+    pub const ZEPTOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -21) * CANDELA::<Exact>);
 
     /// One `Yoctocandela` (ycd), as a `LuminousIntensity`.
-    pub const YOCTOCANDELA: LuminousIntensity = 9.9999999999999992e-25 * CANDELA;
+    pub const YOCTOCANDELA<N: const From<Exact>>: LuminousIntensity<N> = counted(Exact::dec(1, -24) * CANDELA::<Exact>);
 
     /// One `Yottalux` (Ylx), as an `Illuminance`.
-    pub const YOTTALUX: Illuminance = 9.9999999999999998e+23 * LUX;
+    pub const YOTTALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000000000000000000000) * LUX::<Exact>);
 
     /// One `Zettalux` (Zlx), as an `Illuminance`.
-    pub const ZETTALUX: Illuminance = 1e+21 * LUX;
+    pub const ZETTALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000000000000000000) * LUX::<Exact>);
 
     /// One `Exalux` (Elx), as an `Illuminance`.
-    pub const EXALUX: Illuminance = 1e+18 * LUX;
+    pub const EXALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000000000000000) * LUX::<Exact>);
 
     /// One `Petalux` (Plx), as an `Illuminance`.
-    pub const PETALUX: Illuminance = 1000000000000000.0 * LUX;
+    pub const PETALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000000000000) * LUX::<Exact>);
 
     /// One `Teralux` (Tlx), as an `Illuminance`.
-    pub const TERALUX: Illuminance = 1000000000000.0 * LUX;
+    pub const TERALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000000000) * LUX::<Exact>);
 
     /// One `Gigalux` (Glx), as an `Illuminance`.
-    pub const GIGALUX: Illuminance = 1000000000.0 * LUX;
+    pub const GIGALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000000) * LUX::<Exact>);
 
     /// One `Megalux` (Mlx), as an `Illuminance`.
-    pub const MEGALUX: Illuminance = 1000000.0 * LUX;
+    pub const MEGALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000000) * LUX::<Exact>);
 
     /// One `Kilolux` (klx), as an `Illuminance`.
-    pub const KILOLUX: Illuminance = 1000.0 * LUX;
+    pub const KILOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(1000) * LUX::<Exact>);
 
     /// One `Hectolux` (hlx), as an `Illuminance`.
-    pub const HECTOLUX: Illuminance = 100.0 * LUX;
+    pub const HECTOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(100) * LUX::<Exact>);
 
     /// One `Decalux` (dalx), as an `Illuminance`.
-    pub const DECALUX: Illuminance = 10.0 * LUX;
+    pub const DECALUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(10) * LUX::<Exact>);
 
     /// One `Lux` (lx), as an `Illuminance`.
-    pub const LUX: Illuminance = CANDELA * RADIAN * RADIAN / (METRE * METRE);
+    pub const LUX<N: const From<Exact>>: Illuminance<N> = counted(CANDELA::<Exact> * RADIAN::<Exact> * RADIAN::<Exact> / (METRE::<Exact> * METRE::<Exact>));
 
     /// One `Decilux` (dlx), as an `Illuminance`.
-    pub const DECILUX: Illuminance = 0.10000000000000001 * LUX;
+    pub const DECILUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -1) * LUX::<Exact>);
 
     /// One `Centilux` (clx), as an `Illuminance`.
-    pub const CENTILUX: Illuminance = 0.01 * LUX;
+    pub const CENTILUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -2) * LUX::<Exact>);
 
     /// One `Millilux` (mlx), as an `Illuminance`.
-    pub const MILLILUX: Illuminance = 0.001 * LUX;
+    pub const MILLILUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -3) * LUX::<Exact>);
 
     /// One `Microlux` (µlx), as an `Illuminance`.
-    pub const MICROLUX: Illuminance = 9.9999999999999995e-07 * LUX;
+    pub const MICROLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -6) * LUX::<Exact>);
 
     /// One `Nanolux` (nlx), as an `Illuminance`.
-    pub const NANOLUX: Illuminance = 1.0000000000000001e-09 * LUX;
+    pub const NANOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -9) * LUX::<Exact>);
 
     /// One `Picolux` (plx), as an `Illuminance`.
-    pub const PICOLUX: Illuminance = 9.9999999999999998e-13 * LUX;
+    pub const PICOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -12) * LUX::<Exact>);
 
     /// One `Femtolux` (flx), as an `Illuminance`.
-    pub const FEMTOLUX: Illuminance = 1.0000000000000001e-15 * LUX;
+    pub const FEMTOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -15) * LUX::<Exact>);
 
     /// One `Attolux` (alx), as an `Illuminance`.
-    pub const ATTOLUX: Illuminance = 1.0000000000000001e-18 * LUX;
+    pub const ATTOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -18) * LUX::<Exact>);
 
     /// One `Zeptolux` (zlx), as an `Illuminance`.
-    pub const ZEPTOLUX: Illuminance = 9.9999999999999991e-22 * LUX;
+    pub const ZEPTOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -21) * LUX::<Exact>);
 
     /// One `Yoctolux` (ylx), as an `Illuminance`.
-    pub const YOCTOLUX: Illuminance = 9.9999999999999992e-25 * LUX;
+    pub const YOCTOLUX<N: const From<Exact>>: Illuminance<N> = counted(Exact::dec(1, -24) * LUX::<Exact>);
 
     /// One `Phot` (ph), as an `Illuminance`.
-    pub const PHOT: Illuminance = 10000.0 * LUX;
+    pub const PHOT<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(10000) * LUX::<Exact>);
 
     /// One `Footcandle` (fc), as an `Illuminance`.
-    pub const FOOTCANDLE: Illuminance = (1.0 / (0.3048 * 0.3048)) * LUX;
+    pub const FOOTCANDLE<N: const From<Exact>>: Illuminance<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * LUX::<Exact>);
 
     /// One `YottajoulePerSquareMetre` (YJ/m²), as a `RadiantExposure`.
-    pub const YOTTAJOULE_PER_SQUARE_METRE: RadiantExposure =
-        9.9999999999999998e+23 * JOULE_PER_SQUARE_METRE;
+    pub const YOTTAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `ZettajoulePerSquareMetre` (ZJ/m²), as a `RadiantExposure`.
-    pub const ZETTAJOULE_PER_SQUARE_METRE: RadiantExposure = 1e+21 * JOULE_PER_SQUARE_METRE;
+    pub const ZETTAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `ExajoulePerSquareMetre` (EJ/m²), as a `RadiantExposure`.
-    pub const EXAJOULE_PER_SQUARE_METRE: RadiantExposure = 1e+18 * JOULE_PER_SQUARE_METRE;
+    pub const EXAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `PetajoulePerSquareMetre` (PJ/m²), as a `RadiantExposure`.
-    pub const PETAJOULE_PER_SQUARE_METRE: RadiantExposure =
-        1000000000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const PETAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `TerajoulePerSquareMetre` (TJ/m²), as a `RadiantExposure`.
-    pub const TERAJOULE_PER_SQUARE_METRE: RadiantExposure =
-        1000000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const TERAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `GigajoulePerSquareMetre` (GJ/m²), as a `RadiantExposure`.
-    pub const GIGAJOULE_PER_SQUARE_METRE: RadiantExposure = 1000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const GIGAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MegajoulePerSquareMetre` (MJ/m²), as a `RadiantExposure`.
-    pub const MEGAJOULE_PER_SQUARE_METRE: RadiantExposure = 1000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const MEGAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `KilojoulePerSquareMetre` (kJ/m²), as a `RadiantExposure`.
-    pub const KILOJOULE_PER_SQUARE_METRE: RadiantExposure = 1000.0 * JOULE_PER_SQUARE_METRE;
+    pub const KILOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `HectojoulePerSquareMetre` (hJ/m²), as a `RadiantExposure`.
-    pub const HECTOJOULE_PER_SQUARE_METRE: RadiantExposure = 100.0 * JOULE_PER_SQUARE_METRE;
+    pub const HECTOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(100) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecajoulePerSquareMetre` (daJ/m²), as a `RadiantExposure`.
-    pub const DECAJOULE_PER_SQUARE_METRE: RadiantExposure = 10.0 * JOULE_PER_SQUARE_METRE;
+    pub const DECAJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `JoulePerSquareMetre` (J/m²), as a `RadiantExposure`.
-    pub const JOULE_PER_SQUARE_METRE: RadiantExposure = KILOGRAM / (SECOND * SECOND);
+    pub const JOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
 
     /// One `DecijoulePerSquareMetre` (dJ/m²), as a `RadiantExposure`.
-    pub const DECIJOULE_PER_SQUARE_METRE: RadiantExposure =
-        0.10000000000000001 * JOULE_PER_SQUARE_METRE;
+    pub const DECIJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -1) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `CentijoulePerSquareMetre` (cJ/m²), as a `RadiantExposure`.
-    pub const CENTIJOULE_PER_SQUARE_METRE: RadiantExposure = 0.01 * JOULE_PER_SQUARE_METRE;
+    pub const CENTIJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -2) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MillijoulePerSquareMetre` (mJ/m²), as a `RadiantExposure`.
-    pub const MILLIJOULE_PER_SQUARE_METRE: RadiantExposure = 0.001 * JOULE_PER_SQUARE_METRE;
+    pub const MILLIJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -3) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MicrojoulePerSquareMetre` (µJ/m²), as a `RadiantExposure`.
-    pub const MICROJOULE_PER_SQUARE_METRE: RadiantExposure =
-        9.9999999999999995e-07 * JOULE_PER_SQUARE_METRE;
+    pub const MICROJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -6) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `NanojoulePerSquareMetre` (nJ/m²), as a `RadiantExposure`.
-    pub const NANOJOULE_PER_SQUARE_METRE: RadiantExposure =
-        1.0000000000000001e-09 * JOULE_PER_SQUARE_METRE;
+    pub const NANOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -9) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `PicojoulePerSquareMetre` (pJ/m²), as a `RadiantExposure`.
-    pub const PICOJOULE_PER_SQUARE_METRE: RadiantExposure =
-        9.9999999999999998e-13 * JOULE_PER_SQUARE_METRE;
+    pub const PICOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -12) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `FemtojoulePerSquareMetre` (fJ/m²), as a `RadiantExposure`.
-    pub const FEMTOJOULE_PER_SQUARE_METRE: RadiantExposure =
-        1.0000000000000001e-15 * JOULE_PER_SQUARE_METRE;
+    pub const FEMTOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -15) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `AttojoulePerSquareMetre` (aJ/m²), as a `RadiantExposure`.
-    pub const ATTOJOULE_PER_SQUARE_METRE: RadiantExposure =
-        1.0000000000000001e-18 * JOULE_PER_SQUARE_METRE;
+    pub const ATTOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -18) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `ZeptojoulePerSquareMetre` (zJ/m²), as a `RadiantExposure`.
-    pub const ZEPTOJOULE_PER_SQUARE_METRE: RadiantExposure =
-        9.9999999999999991e-22 * JOULE_PER_SQUARE_METRE;
+    pub const ZEPTOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -21) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `YoctojoulePerSquareMetre` (yJ/m²), as a `RadiantExposure`.
-    pub const YOCTOJOULE_PER_SQUARE_METRE: RadiantExposure =
-        9.9999999999999992e-25 * JOULE_PER_SQUARE_METRE;
+    pub const YOCTOJOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -24) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `WattHourPerSquareMetre` (W · h/m²), as a `RadiantExposure`.
-    pub const WATT_HOUR_PER_SQUARE_METRE: RadiantExposure = 3600.0 * JOULE_PER_SQUARE_METRE;
+    pub const WATT_HOUR_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(3600) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `GigajoulePerSquareCentimetre` (GJ/cm²), as a `RadiantExposure`.
-    pub const GIGAJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure =
-        10000000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const GIGAJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MegajoulePerSquareCentimetre` (MJ/cm²), as a `RadiantExposure`.
-    pub const MEGAJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure =
-        10000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const MEGAJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `KilojoulePerSquareCentimetre` (kJ/cm²), as a `RadiantExposure`.
-    pub const KILOJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure =
-        10000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const KILOJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `HectojoulePerSquareCentimetre` (hJ/cm²), as a `RadiantExposure`.
-    pub const HECTOJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure =
-        1000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const HECTOJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecajoulePerSquareCentimetre` (daJ/cm²), as a `RadiantExposure`.
-    pub const DECAJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure = 100000.0 * JOULE_PER_SQUARE_METRE;
+    pub const DECAJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(100000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `JoulePerSquareCentimetre` (J/cm²), as a `RadiantExposure`.
-    pub const JOULE_PER_SQUARE_CENTIMETRE: RadiantExposure = 10000.0 * JOULE_PER_SQUARE_METRE;
+    pub const JOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecijoulePerSquareCentimetre` (dJ/cm²), as a `RadiantExposure`.
-    pub const DECIJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure = 1000.0 * JOULE_PER_SQUARE_METRE;
+    pub const DECIJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `CentijoulePerSquareCentimetre` (cJ/cm²), as a `RadiantExposure`.
-    pub const CENTIJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure = 100.0 * JOULE_PER_SQUARE_METRE;
+    pub const CENTIJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(100) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MillijoulePerSquareCentimetre` (mJ/cm²), as a `RadiantExposure`.
-    pub const MILLIJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure = 10.0 * JOULE_PER_SQUARE_METRE;
+    pub const MILLIJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MicrojoulePerSquareCentimetre` (µJ/cm²), as a `RadiantExposure`.
-    pub const MICROJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure = 0.01 * JOULE_PER_SQUARE_METRE;
+    pub const MICROJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -2) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `NanojoulePerSquareCentimetre` (nJ/cm²), as a `RadiantExposure`.
-    pub const NANOJOULE_PER_SQUARE_CENTIMETRE: RadiantExposure =
-        1.0000000000000001e-05 * JOULE_PER_SQUARE_METRE;
+    pub const NANOJOULE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -5) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `GigajoulePerSquareMillimetre` (GJ/mm²), as a `RadiantExposure`.
-    pub const GIGAJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure =
-        1000000000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const GIGAJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MegajoulePerSquareMillimetre` (MJ/mm²), as a `RadiantExposure`.
-    pub const MEGAJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure =
-        1000000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const MEGAJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `KilojoulePerSquareMillimetre` (kJ/mm²), as a `RadiantExposure`.
-    pub const KILOJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure =
-        1000000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const KILOJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `HectojoulePerSquareMillimetre` (hJ/mm²), as a `RadiantExposure`.
-    pub const HECTOJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure =
-        100000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const HECTOJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(100000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecajoulePerSquareMillimetre` (daJ/mm²), as a `RadiantExposure`.
-    pub const DECAJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure =
-        10000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const DECAJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `JoulePerSquareMillimetre` (J/mm²), as a `RadiantExposure`.
-    pub const JOULE_PER_SQUARE_MILLIMETRE: RadiantExposure = 1000000.0 * JOULE_PER_SQUARE_METRE;
+    pub const JOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `DecijoulePerSquareMillimetre` (dJ/mm²), as a `RadiantExposure`.
-    pub const DECIJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure = 100000.0 * JOULE_PER_SQUARE_METRE;
+    pub const DECIJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(100000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `CentijoulePerSquareMillimetre` (cJ/mm²), as a `RadiantExposure`.
-    pub const CENTIJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure = 10000.0 * JOULE_PER_SQUARE_METRE;
+    pub const CENTIJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(10000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MillijoulePerSquareMillimetre` (mJ/mm²), as a `RadiantExposure`.
-    pub const MILLIJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure = 1000.0 * JOULE_PER_SQUARE_METRE;
+    pub const MILLIJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(1000) * JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `MicrojoulePerSquareMillimetre` (µJ/mm²), as a `RadiantExposure`.
-    pub const MICROJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure = JOULE_PER_SQUARE_METRE;
+    pub const MICROJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(JOULE_PER_SQUARE_METRE::<Exact>);
 
     /// One `NanojoulePerSquareMillimetre` (nJ/mm²), as a `RadiantExposure`.
-    pub const NANOJOULE_PER_SQUARE_MILLIMETRE: RadiantExposure = 0.001 * JOULE_PER_SQUARE_METRE;
+    pub const NANOJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::dec(1, -3) * JOULE_PER_SQUARE_METRE::<Exact>);
 }
 
 /// The units of `Luminance`, for a menu, a config file, a parser.

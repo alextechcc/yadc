@@ -825,6 +825,28 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         ));
     }
     let h_ab_prim = head_prim(&p_ab);
+    // `k * Qty` for a listed number type that is not a primitive (those
+    // have it already): scaling from the left, with the scaling refusals.
+    let mut listed: Vec<String> = Vec::new();
+    for (m, n) in &opts.from {
+        for t in [m, n] {
+            let key = quote! { #t }.to_string();
+            if PRIMITIVES.contains(&key.as_str()) || listed.contains(&key) {
+                continue;
+            }
+            listed.push(key);
+            let d_t = ty_v(&td, Some(&quote! { #t }));
+            let mut preds = one(SCALE, &d_t);
+            preds.push(quote! { #t: [const] ::core::ops::Mul<Output = #t> });
+            let build = ctor(quote! { self * rhs.#member });
+            mixed.extend(quote! {
+                #h_d_prim ::core::ops::Mul<#d_t> for #t where #(#preds,)* {
+                    type Output = #d_t;
+                    fn mul(self, rhs: #d_t) -> #d_t { #build }
+                }
+            });
+        }
+    }
     for (m, n) in &opts.from {
         let (m, n) = (quote! { #m }, quote! { #n });
         let at = |dim: &TokenStream2, num: &TokenStream2| ty_v(dim, Some(num));
@@ -841,7 +863,9 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         );
         let conv = quote! { #n: [const] ::core::convert::From<#m> };
         let up = |x: TokenStream2| quote! { <#n as ::core::convert::From<#m>>::from(#x) };
+        let primitive = |t: &TokenStream2| PRIMITIVES.iter().any(|p| t.to_string() == *p);
         let (up_rhs, up_self) = (up(quote! { rhs.#member }), up(quote! { self.#member }));
+        let up_q = up(quote! { q.#member });
         let num = |tr: &str| {
             let t = syn::Ident::new(tr, Span::call_site());
             quote! { #n: [const] ::core::ops::#t<Output = #n> }
@@ -964,6 +988,26 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
             };
             mixed.extend(call(&n, &d_n, quote! { quantity }));
             mixed.extend(call(&d_n, &n, quote! { value }));
+        }
+        // A dimensionless `M` member is an `N` number, as a dimensionless `N`
+        // member is (the `From` extra), where `N` is a primitive.
+        if primitive(&n) && opts.has("From") {
+            let zero_m = at(&quote! { { #dim_zero } }, &m);
+            mixed.extend(quote! {
+                #h_zero_prim ::core::convert::From<#zero_m> for #n where #conv {
+                    fn from(q: #zero_m) -> #n { #up_q }
+                }
+            });
+        }
+        // `N`'s own member from an `M` one, where std doesn't already convert
+        // the two primitives (the `From` extra writes those).
+        if !(primitive(&m) && primitive(&n)) {
+            let build = ctor(quote! { #up_q });
+            mixed.extend(quote! {
+                #h_d_prim ::core::convert::From<#d_m> for #d_n where #conv {
+                    fn from(q: #d_m) -> #d_n { #build }
+                }
+            });
         }
         // Compared at `N`, either way round.
         let h_d_rt = {

@@ -91,8 +91,8 @@ pub struct KindConfig {
     pub rules: BTreeMap<String, Vec<String>>,
 }
 
-/// One base constant: `pub const METRE: StaticSIQuantity<..> =
-/// StaticSIQuantity(1.0);` in the generated `base` module.
+/// One base constant: `pub const METRE: SIQuantity<..> =
+/// SIQuantity(1.0);` in the generated `base` module.
 #[derive(Deserialize, Debug)]
 pub struct BaseConst {
     /// `METRE`.

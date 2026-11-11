@@ -1,23 +1,26 @@
-use crate::{ISQ, StaticSIQuantity};
+use crate::{Exact, ISQ, SIQuantity, counted};
 use consts::*;
 use yadc::Dimension;
 
-pub type Information = StaticSIQuantity<{ ISQ::DIMENSIONLESS }>;
+pub type Information<N = f64> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
 
-pub type InformationRate = StaticSIQuantity<
+pub type InformationRate<N = f64> = SIQuantity<
     {
         ISQ {
             s: -1,
             ..ISQ::DIMENSIONLESS
         }
     },
+    N,
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined from them - `KILOMETRE`
-/// is `1000.0 * METRE`, a `Length` and a unit of its own (`KILOMETRE.value(d)`).
-/// Quantity arithmetic is `const`, so they compose in `const` items:
-/// `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// (re-exported), then one per multiple, each defined exactly from them -
+/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
+/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
+/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
+/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::SECOND;
@@ -26,103 +29,103 @@ pub mod consts {
     pub use crate::base::ONE;
 
     /// One `Yottabit` (Yb), as an `Information`.
-    pub const YOTTABIT: Information = 1.25e+23 * BYTE;
+    pub const YOTTABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000000000000000000000) * BYTE::<Exact>);
 
     /// One `Zettabit` (Zb), as an `Information`.
-    pub const ZETTABIT: Information = 1.25e+20 * BYTE;
+    pub const ZETTABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000000000000000000) * BYTE::<Exact>);
 
     /// One `Exabit` (Eb), as an `Information`.
-    pub const EXABIT: Information = 1.25e+17 * BYTE;
+    pub const EXABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000000000000000) * BYTE::<Exact>);
 
     /// One `Petabit` (Pb), as an `Information`.
-    pub const PETABIT: Information = 125000000000000.0 * BYTE;
+    pub const PETABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000000000000) * BYTE::<Exact>);
 
     /// One `Terabit` (Tb), as an `Information`.
-    pub const TERABIT: Information = 125000000000.0 * BYTE;
+    pub const TERABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000000000) * BYTE::<Exact>);
 
     /// One `Gigabit` (Gb), as an `Information`.
-    pub const GIGABIT: Information = 125000000.0 * BYTE;
+    pub const GIGABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000000) * BYTE::<Exact>);
 
     /// One `Megabit` (Mb), as an `Information`.
-    pub const MEGABIT: Information = 125000.0 * BYTE;
+    pub const MEGABIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125000) * BYTE::<Exact>);
 
     /// One `Kilobit` (kb), as an `Information`.
-    pub const KILOBIT: Information = 125.0 * BYTE;
+    pub const KILOBIT<N: const From<Exact>>: Information<N> = counted(Exact::int(125) * BYTE::<Exact>);
 
     /// One `Bit` (b), as an `Information`.
-    pub const BIT: Information = 0.125 * BYTE;
+    pub const BIT<N: const From<Exact>>: Information<N> = counted(Exact::dec(125, -3) * BYTE::<Exact>);
 
     /// One `Yottabyte` (YB), as an `Information`.
-    pub const YOTTABYTE: Information = 9.9999999999999998e+23 * BYTE;
+    pub const YOTTABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000000000000000000000) * BYTE::<Exact>);
 
     /// One `Zettabyte` (ZB), as an `Information`.
-    pub const ZETTABYTE: Information = 1e+21 * BYTE;
+    pub const ZETTABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000000000000000000) * BYTE::<Exact>);
 
     /// One `Exabyte` (EB), as an `Information`.
-    pub const EXABYTE: Information = 1e+18 * BYTE;
+    pub const EXABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000000000000000) * BYTE::<Exact>);
 
     /// One `Petabyte` (PB), as an `Information`.
-    pub const PETABYTE: Information = 1000000000000000.0 * BYTE;
+    pub const PETABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000000000000) * BYTE::<Exact>);
 
     /// One `Terabyte` (TB), as an `Information`.
-    pub const TERABYTE: Information = 1000000000000.0 * BYTE;
+    pub const TERABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000000000) * BYTE::<Exact>);
 
     /// One `Gigabyte` (GB), as an `Information`.
-    pub const GIGABYTE: Information = 1000000000.0 * BYTE;
+    pub const GIGABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000000) * BYTE::<Exact>);
 
     /// One `Megabyte` (MB), as an `Information`.
-    pub const MEGABYTE: Information = 1000000.0 * BYTE;
+    pub const MEGABYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000000) * BYTE::<Exact>);
 
     /// One `Kilobyte` (kB), as an `Information`.
-    pub const KILOBYTE: Information = 1000.0 * BYTE;
+    pub const KILOBYTE<N: const From<Exact>>: Information<N> = counted(Exact::int(1000) * BYTE::<Exact>);
 
     /// One `Byte` (B), as an `Information`.
-    pub const BYTE: Information = ONE;
+    pub const BYTE<N: const From<Exact>>: Information<N> = counted(ONE::<Exact>);
 
     /// One `Octet` (o), as an `Information`.
-    pub const OCTET: Information = BYTE;
+    pub const OCTET<N: const From<Exact>>: Information<N> = counted(BYTE::<Exact>);
 
     /// One `Nibble` (nibble), as an `Information`.
-    pub const NIBBLE: Information = 0.5 * BYTE;
+    pub const NIBBLE<N: const From<Exact>>: Information<N> = counted(Exact::dec(5, -1) * BYTE::<Exact>);
 
     /// One `Crumb` (crumb), as an `Information`.
-    pub const CRUMB: Information = 0.25 * BYTE;
+    pub const CRUMB<N: const From<Exact>>: Information<N> = counted(Exact::dec(25, -2) * BYTE::<Exact>);
 
     /// One `Shannon` (Sh), as an `Information`.
-    pub const SHANNON: Information = 0.125 * BYTE;
+    pub const SHANNON<N: const From<Exact>>: Information<N> = counted(Exact::dec(125, -3) * BYTE::<Exact>);
 
     /// One `BitPerSecond` (b/s), as an `InformationRate`.
-    pub const BIT_PER_SECOND: InformationRate = 0.125 * BYTE_PER_SECOND;
+    pub const BIT_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::dec(125, -3) * BYTE_PER_SECOND::<Exact>);
 
     /// One `YottabytePerSecond` (YB/s), as an `InformationRate`.
-    pub const YOTTABYTE_PER_SECOND: InformationRate = 9.9999999999999998e+23 * BYTE_PER_SECOND;
+    pub const YOTTABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000000000000000000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `ZettabytePerSecond` (ZB/s), as an `InformationRate`.
-    pub const ZETTABYTE_PER_SECOND: InformationRate = 1e+21 * BYTE_PER_SECOND;
+    pub const ZETTABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000000000000000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `ExabytePerSecond` (EB/s), as an `InformationRate`.
-    pub const EXABYTE_PER_SECOND: InformationRate = 1e+18 * BYTE_PER_SECOND;
+    pub const EXABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000000000000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `PetabytePerSecond` (PB/s), as an `InformationRate`.
-    pub const PETABYTE_PER_SECOND: InformationRate = 1000000000000000.0 * BYTE_PER_SECOND;
+    pub const PETABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000000000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `TerabytePerSecond` (TB/s), as an `InformationRate`.
-    pub const TERABYTE_PER_SECOND: InformationRate = 1000000000000.0 * BYTE_PER_SECOND;
+    pub const TERABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `GigabytePerSecond` (GB/s), as an `InformationRate`.
-    pub const GIGABYTE_PER_SECOND: InformationRate = 1000000000.0 * BYTE_PER_SECOND;
+    pub const GIGABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `MegabytePerSecond` (MB/s), as an `InformationRate`.
-    pub const MEGABYTE_PER_SECOND: InformationRate = 1000000.0 * BYTE_PER_SECOND;
+    pub const MEGABYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `KilobytePerSecond` (kB/s), as an `InformationRate`.
-    pub const KILOBYTE_PER_SECOND: InformationRate = 1000.0 * BYTE_PER_SECOND;
+    pub const KILOBYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::int(1000) * BYTE_PER_SECOND::<Exact>);
 
     /// One `BytePerSecond` (B/s), as an `InformationRate`.
-    pub const BYTE_PER_SECOND: InformationRate = ONE / SECOND;
+    pub const BYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(ONE::<Exact> / SECOND::<Exact>);
 
     /// One `OctetPerSecond` (o/s), as an `InformationRate`.
-    pub const OCTET_PER_SECOND: InformationRate = BYTE_PER_SECOND;
+    pub const OCTET_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(BYTE_PER_SECOND::<Exact>);
 }
 
 /// The units of `Information`, for a menu, a config file, a parser.
