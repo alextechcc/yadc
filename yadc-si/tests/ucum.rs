@@ -7,11 +7,11 @@
 #![allow(incomplete_features)]
 
 use yadc::Dimension;
-use yadc_si::{ISQ, SIQuantity};
+use yadc_si::{Exact, ISQ, SIQuantity};
 
 /// A static quantity's dimension: its const parameter.
 #[allow(dead_code)]
-fn dim_of<const D: ISQ>(_: SIQuantity<D, f64>) -> ISQ {
+fn dim_of<const D: ISQ>(_: SIQuantity<D, Exact>) -> ISQ {
     D
 }
 

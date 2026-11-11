@@ -1,4 +1,5 @@
-use crate::{Exact, ISQ, SIQuantity, counted};
+use crate::base::{KELVIN, KILOGRAM, METRE, ONE, SECOND};
+use crate::{Exact, ISQ, SIQuantity};
 use consts::*;
 use yadc::Dimension;
 
@@ -172,13 +173,11 @@ pub type InverseAmountOfSubstance<N> = SIQuantity<
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined exactly from them -
-/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
-/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
-/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
-/// one: `KILO * METRE`. They compose in `const` items:
-/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
+/// (re-exported), then one per named unit, each defined exactly from them
+/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
+/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
+/// once, where it is written - in a `const`, by the compiler:
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
 pub mod consts {
     use super::*;
     use crate::base::{KELVIN, KILOGRAM, METRE, ONE, SECOND};
@@ -187,429 +186,300 @@ pub mod consts {
     pub use crate::base::MOLE;
 
     /// One `Particle` (particle), as an `AmountOfSubstance`.
-    pub const PARTICLE<N: const From<Exact>>: AmountOfSubstance<N> = counted((Exact::int(1) / Exact::int(602214076000000000000000)) * MOLE::<Exact>);
-
-    /// One `MolePerCubicMetre` (mol/m³), as a `MolarConcentration`.
-    pub const MOLE_PER_CUBIC_METRE<N: const From<Exact>>: MolarConcentration<N> = counted(MOLE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
-
-    /// One `MolePerLitre` (mol/L), as a `MolarConcentration`.
-    pub const MOLE_PER_LITRE<N: const From<Exact>>: MolarConcentration<N> = counted(Exact::int(1000) * MOLE_PER_CUBIC_METRE::<Exact>);
-
-    /// One `MillimolePerLitre` (mmol/L), as a `MolarConcentration`.
-    pub const MILLIMOLE_PER_LITRE<N: const From<Exact>>: MolarConcentration<N> = counted(MOLE_PER_CUBIC_METRE::<Exact>);
-
-    /// One `ParticlePerCubicMetre` (particle/m³), as a `MolarConcentration`.
-    pub const PARTICLE_PER_CUBIC_METRE<N: const From<Exact>>: MolarConcentration<N> = counted((Exact::int(1) / Exact::int(602214076000000000000000)) * MOLE_PER_CUBIC_METRE::<Exact>);
-
-    /// One `KilogramSquareMetrePerSecondSquaredMole` (kg · m²/(s² · mol)), as a `MolarEnergy`.
-    pub const KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * MOLE::<Exact>));
-
-    /// One `JoulePerMole` (J/mol), as a `MolarEnergy`.
-    pub const JOULE_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `WattHourPerMole` (W · h/mol), as a `MolarEnergy`.
-    pub const WATT_HOUR_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(3600) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `BtuItPerMole` (Btu (IT)/mol), as a `MolarEnergy`.
-    pub const BTU_IT_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::dec(105505585262, -8) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `BtuPerMole` (Btu/mol), as a `MolarEnergy`.
-    pub const BTU_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `CalorieItPerMole` (cal (IT)/mol), as a `MolarEnergy`.
-    pub const CALORIE_IT_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::dec(41868, -4) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `CaloriePerMole` (cal/mol), as a `MolarEnergy`.
-    pub const CALORIE_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::dec(4184, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `CalorieItNutritionPerMole` (Cal (IT)/mol), as a `MolarEnergy`.
-    pub const CALORIE_IT_NUTRITION_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::dec(41868, -1) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `CalorieNutritionPerMole` (Cal/mol), as a `MolarEnergy`.
-    pub const CALORIE_NUTRITION_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(4184) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `ElectronvoltPerMole` (eV/mol), as a `MolarEnergy`.
-    pub const ELECTRONVOLT_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::dec(1602176634, -28) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `ErgPerMole` (erg/mol), as a `MolarEnergy`.
-    pub const ERG_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::dec(1, -7) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `FootPoundalPerMole` (ft · pdl/mol), as a `MolarEnergy`.
-    pub const FOOT_POUNDAL_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(3048, -4)) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `FootPoundForcePerMole` (ft · lbf/mol), as a `MolarEnergy`.
-    pub const FOOT_POUND_FORCE_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `QuadPerMole` (10¹⁵ Btu (IT)/mol), as a `MolarEnergy`.
-    pub const QUAD_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(1055055852620000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `ThermEcPerMole` (thm (EC)/mol), as a `MolarEnergy`.
-    pub const THERM_EC_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(105506000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `ThermUsPerMole` (thm/mol), as a `MolarEnergy`.
-    pub const THERM_US_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(105480400) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `TonTntPerMole` (t of TNT/mol), as a `MolarEnergy`.
-    pub const TON_TNT_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(4184000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `WattSecondPerMole` (W · s/mol), as a `MolarEnergy`.
-    pub const WATT_SECOND_PER_MOLE<N: const From<Exact>>: MolarEnergy<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `JoulePerParticle` (J/particle), as a `MolarEnergy`.
-    pub const JOULE_PER_PARTICLE<N: const From<Exact>>: MolarEnergy<N> = counted(Exact::int(602214076000000000000000) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `ElectronvoltPerParticle` (eV/particle), as a `MolarEnergy`.
-    pub const ELECTRONVOLT_PER_PARTICLE<N: const From<Exact>>: MolarEnergy<N> = counted((Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000)) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE::<Exact>);
-
-    /// One `MolePerSquareMetreSecond` (mol/(m² · s)), as a `MolarFlux`.
-    pub const MOLE_PER_SQUARE_METRE_SECOND<N: const From<Exact>>: MolarFlux<N> = counted(MOLE::<Exact> / (METRE::<Exact> * METRE::<Exact> * SECOND::<Exact>));
-
-    /// One `JoulePerKelvinMole` (J/(K · mol)), as a `MolarHeatCapacity`.
-    pub const JOULE_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact> * MOLE::<Exact>));
-
-    /// One `BtuItPerKelvinMole` (Btu (IT)/(K · mol)), as a `MolarHeatCapacity`.
-    pub const BTU_IT_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::dec(105505585262, -8) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `BtuPerKelvinMole` (Btu/(K · mol)), as a `MolarHeatCapacity`.
-    pub const BTU_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `CalorieItPerKelvinMole` (cal (IT)/(K · mol)), as a `MolarHeatCapacity`.
-    pub const CALORIE_IT_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::dec(41868, -4) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `CaloriePerKelvinMole` (cal/(K · mol)), as a `MolarHeatCapacity`.
-    pub const CALORIE_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::dec(4184, -3) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `CalorieItNutritionPerKelvinMole` (Cal (IT)/(K · mol)), as a `MolarHeatCapacity`.
-    pub const CALORIE_IT_NUTRITION_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::dec(41868, -1) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `CalorieNutritionPerKelvinMole` (Cal/(K · mol)), as a `MolarHeatCapacity`.
-    pub const CALORIE_NUTRITION_PER_KELVIN_MOLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::int(4184) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `JoulePerKelvinParticle` (J/(K · particle)), as a `MolarHeatCapacity`.
-    pub const JOULE_PER_KELVIN_PARTICLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::int(602214076000000000000000) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `ElectronvoltPerKelvinParticle` (eV/(K · particle)), as a `MolarHeatCapacity`.
-    pub const ELECTRONVOLT_PER_KELVIN_PARTICLE<N: const From<Exact>>: MolarHeatCapacity<N> = counted((Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000)) * JOULE_PER_KELVIN_MOLE::<Exact>);
+    pub const PARTICLE: AmountOfSubstance<Exact> =
+        MOLE * (Exact::int(1) / Exact::int(602214076000000000000000));
 
     /// One `MolarGasConstant` (R), as a `MolarHeatCapacity`.
-    pub const MOLAR_GAS_CONSTANT<N: const From<Exact>>: MolarHeatCapacity<N> = counted(Exact::dec(8314462618, -9) * JOULE_PER_KELVIN_MOLE::<Exact>);
-
-    /// One `KilogramPerMole` (kg/mol), as a `MolarMass`.
-    pub const KILOGRAM_PER_MOLE<N: const From<Exact>>: MolarMass<N> = counted(KILOGRAM::<Exact> / MOLE::<Exact>);
-
-    /// One `GramPerMole` (g/mol), as a `MolarMass`.
-    pub const GRAM_PER_MOLE<N: const From<Exact>>: MolarMass<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_MOLE::<Exact>);
-
-    /// One `BecquerelPerMole` (Bq/mol), as a `MolarRadioactivity`.
-    pub const BECQUEREL_PER_MOLE<N: const From<Exact>>: MolarRadioactivity<N> = counted(ONE::<Exact> / (SECOND::<Exact> * MOLE::<Exact>));
-
-    /// One `CuriePerMole` (Ci/mol), as a `MolarRadioactivity`.
-    pub const CURIE_PER_MOLE<N: const From<Exact>>: MolarRadioactivity<N> = counted(Exact::int(37000000000) * BECQUEREL_PER_MOLE::<Exact>);
-
-    /// One `DisintegrationsPerMinutePerMole` (dpm/mol), as a `MolarRadioactivity`.
-    pub const DISINTEGRATIONS_PER_MINUTE_PER_MOLE<N: const From<Exact>>: MolarRadioactivity<N> = counted((Exact::int(1) / Exact::int(60)) * BECQUEREL_PER_MOLE::<Exact>);
-
-    /// One `CubicMetrePerMole` (m³/mol), as a `MolarVolume`.
-    pub const CUBIC_METRE_PER_MOLE<N: const From<Exact>>: MolarVolume<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> / MOLE::<Exact>);
-
-    /// One `CubicMetrePerParticle` (m³/particle), as a `MolarVolume`.
-    pub const CUBIC_METRE_PER_PARTICLE<N: const From<Exact>>: MolarVolume<N> = counted(Exact::int(602214076000000000000000) * CUBIC_METRE_PER_MOLE::<Exact>);
-
-    /// One `MolePerKilogram` (mol/kg), as a `Molality`.
-    pub const MOLE_PER_KILOGRAM<N: const From<Exact>>: Molality<N> = counted(MOLE::<Exact> / KILOGRAM::<Exact>);
-
-    /// One `KilogramPerCubicMetre` (kg/m³), as a `MassConcentration`.
-    pub const KILOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassConcentration<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
-
-    /// One `GramPerCubicMetre` (g/m³), as a `MassConcentration`.
-    pub const GRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassConcentration<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
+    pub const MOLAR_GAS_CONSTANT: MolarHeatCapacity<Exact> =
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::dec(8314462618, -9);
 
     /// One `Katal` (kat), as a `CatalyticActivity`.
-    pub const KATAL<N: const From<Exact>>: CatalyticActivity<N> = counted(MOLE::<Exact> / SECOND::<Exact>);
-
-    /// One `ParticlePerSecond` (particle/s), as a `CatalyticActivity`.
-    pub const PARTICLE_PER_SECOND<N: const From<Exact>>: CatalyticActivity<N> = counted((Exact::int(1) / Exact::int(602214076000000000000000)) * KATAL::<Exact>);
-
-    /// One `MolePerSecond` (mol/s), as a `CatalyticActivity`.
-    pub const MOLE_PER_SECOND<N: const From<Exact>>: CatalyticActivity<N> = counted(KATAL::<Exact>);
-
-    /// One `KatalPerCubicMetre` (kat/m³), as a `CatalyticActivityConcentration`.
-    pub const KATAL_PER_CUBIC_METRE<N: const From<Exact>>: CatalyticActivityConcentration<N> = counted(MOLE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * SECOND::<Exact>));
-
-    /// One `KatalPerLitre` (kat/L), as a `CatalyticActivityConcentration`.
-    pub const KATAL_PER_LITRE<N: const From<Exact>>: CatalyticActivityConcentration<N> = counted(Exact::int(1000) * KATAL_PER_CUBIC_METRE::<Exact>);
-
-    /// One `MillikatalPerLitre` (mkat/L), as a `CatalyticActivityConcentration`.
-    pub const MILLIKATAL_PER_LITRE<N: const From<Exact>>: CatalyticActivityConcentration<N> = counted(KATAL_PER_CUBIC_METRE::<Exact>);
-
-    /// One `ParticlePerSecondCubicMetre` (particle · s⁻¹ · m⁻³), as a `CatalyticActivityConcentration`.
-    pub const PARTICLE_PER_SECOND_CUBIC_METRE<N: const From<Exact>>: CatalyticActivityConcentration<N> = counted((Exact::int(1) / Exact::int(602214076000000000000000)) * KATAL_PER_CUBIC_METRE::<Exact>);
+    pub const KATAL: CatalyticActivity<Exact> = MOLE / SECOND;
 
     /// One `Becquerel` (Bq), as a `Radioactivity`.
-    pub const BECQUEREL<N: const From<Exact>>: Radioactivity<N> = counted(ONE::<Exact> / SECOND::<Exact>);
+    pub const BECQUEREL: Radioactivity<Exact> = ONE / SECOND;
 
     /// One `Curie` (Ci), as a `Radioactivity`.
-    pub const CURIE<N: const From<Exact>>: Radioactivity<N> = counted(Exact::int(37000000000) * BECQUEREL::<Exact>);
+    pub const CURIE: Radioactivity<Exact> = BECQUEREL * Exact::int(37000000000);
 
     /// One `DisintegrationsPerMinute` (dpm), as a `Radioactivity`.
-    pub const DISINTEGRATIONS_PER_MINUTE<N: const From<Exact>>: Radioactivity<N> = counted((Exact::int(1) / Exact::int(60)) * BECQUEREL::<Exact>);
-
-    /// One `BecquerelPerKilogram` (Bq/kg), as a `SpecificRadioactivity`.
-    pub const BECQUEREL_PER_KILOGRAM<N: const From<Exact>>: SpecificRadioactivity<N> = counted(ONE::<Exact> / (KILOGRAM::<Exact> * SECOND::<Exact>));
-
-    /// One `CuriePerKilogram` (Ci/kg), as a `SpecificRadioactivity`.
-    pub const CURIE_PER_KILOGRAM<N: const From<Exact>>: SpecificRadioactivity<N> = counted(Exact::int(37000000000) * BECQUEREL_PER_KILOGRAM::<Exact>);
-
-    /// One `DisintegrationsPerMinutePerKilogram` (dpm/kg), as a `SpecificRadioactivity`.
-    pub const DISINTEGRATIONS_PER_MINUTE_PER_KILOGRAM<N: const From<Exact>>: SpecificRadioactivity<N> = counted((Exact::int(1) / Exact::int(60)) * BECQUEREL_PER_KILOGRAM::<Exact>);
+    pub const DISINTEGRATIONS_PER_MINUTE: Radioactivity<Exact> =
+        BECQUEREL * (Exact::int(1) / Exact::int(60));
 
     /// One `PerMole` (mol⁻¹), as an `InverseAmountOfSubstance`.
-    pub const PER_MOLE<N: const From<Exact>>: InverseAmountOfSubstance<N> = counted(ONE::<Exact> / MOLE::<Exact>);
+    pub const PER_MOLE: InverseAmountOfSubstance<Exact> = ONE / MOLE;
 
     /// One `AvogadroConstant` (N_A), as an `InverseAmountOfSubstance`.
-    pub const AVOGADRO_CONSTANT<N: const From<Exact>>: InverseAmountOfSubstance<N> = counted(Exact::int(602214076000000000000000) * PER_MOLE::<Exact>);
+    pub const AVOGADRO_CONSTANT: InverseAmountOfSubstance<Exact> =
+        PER_MOLE * Exact::int(602214076000000000000000);
 }
 
-/// The units of `AmountOfSubstance`, for a menu, a config file, a parser.
+/// The units of `AmountOfSubstance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AmountOfSubstance<f64>)]
+#[unit(of = AmountOfSubstance<N>, number = N)]
+#[unit(for<N> where AmountOfSubstance<N>: [const] yadc::Unit<AmountOfSubstance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum AmountOfSubstanceUnit {
     #[default]
-    #[unit("mol", "moles", by = MOLE)]
+    #[unit("mol", "moles", by = AmountOfSubstance::<N>::from(MOLE))]
     Mole,
-    #[unit("particle", "particles", by = PARTICLE)]
+    #[unit("particle", "particles", by = AmountOfSubstance::<N>::from(PARTICLE))]
     Particle,
 }
 
-/// The units of `MolarConcentration`, for a menu, a config file, a parser.
+/// The units of `MolarConcentration`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarConcentration<f64>)]
+#[unit(of = MolarConcentration<N>, number = N)]
+#[unit(for<N> where MolarConcentration<N>: [const] yadc::Unit<MolarConcentration<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarConcentrationUnit {
     #[default]
-    #[unit("mol/m³", "moles per cubic metre", by = MOLE_PER_CUBIC_METRE)]
+    #[unit("mol/m³", "moles per cubic metre", by = MolarConcentration::<N>::from(MOLE / (METRE * METRE * METRE)))]
     MolePerCubicMetre,
-    #[unit("mol/L", "moles per litre", by = MOLE_PER_LITRE)]
+    #[unit("mol/L", "moles per litre", by = MolarConcentration::<N>::from((MOLE / (METRE * METRE * METRE)) * Exact::int(1000)))]
     MolePerLitre,
-    #[unit("mmol/L", "millimoles per litre", by = MILLIMOLE_PER_LITRE)]
-    MillimolePerLitre,
-    #[unit("particle/m³", "particles per cubic metre", by = PARTICLE_PER_CUBIC_METRE)]
+    #[unit("particle/m³", "particles per cubic metre", by = MolarConcentration::<N>::from((MOLE / (METRE * METRE * METRE)) * (Exact::int(1) / Exact::int(602214076000000000000000))))]
     ParticlePerCubicMetre,
 }
 
-/// The units of `MolarEnergy`, for a menu, a config file, a parser.
+/// The units of `MolarEnergy`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarEnergy<f64>)]
+#[unit(of = MolarEnergy<N>, number = N)]
+#[unit(for<N> where MolarEnergy<N>: [const] yadc::Unit<MolarEnergy<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarEnergyUnit {
     #[default]
-    #[unit("kg · m²/(s² · mol)", "kilograms square metre per second squared mole", by = KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE)]
+    #[unit("kg · m²/(s² · mol)", "kilograms square metre per second squared mole", by = MolarEnergy::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)))]
     KilogramSquareMetrePerSecondSquaredMole,
-    #[unit("J/mol", "joules per mole", by = JOULE_PER_MOLE)]
+    #[unit("J/mol", "joules per mole", by = MolarEnergy::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)))]
     JoulePerMole,
-    #[unit("W · h/mol", "watt hours per mole", by = WATT_HOUR_PER_MOLE)]
+    #[unit("W · h/mol", "watt hours per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(3600)))]
     WattHourPerMole,
-    #[unit("Btu (IT)/mol", "British thermal units (IT) per mole", by = BTU_IT_PER_MOLE)]
+    #[unit("Btu (IT)/mol", "British thermal units (IT) per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::dec(105505585262, -8)))]
     BtuItPerMole,
-    #[unit("Btu/mol", "British thermal units per mole", by = BTU_PER_MOLE)]
+    #[unit("Btu/mol", "British thermal units per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * (Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1))))]
     BtuPerMole,
-    #[unit("cal (IT)/mol", "calories (IT) per mole", by = CALORIE_IT_PER_MOLE)]
+    #[unit("cal (IT)/mol", "calories (IT) per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::dec(41868, -4)))]
     CalorieItPerMole,
-    #[unit("cal/mol", "calories per mole", by = CALORIE_PER_MOLE)]
+    #[unit("cal/mol", "calories per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::dec(4184, -3)))]
     CaloriePerMole,
-    #[unit("Cal (IT)/mol", "Calories (IT) per mole", by = CALORIE_IT_NUTRITION_PER_MOLE)]
+    #[unit("Cal (IT)/mol", "Calories (IT) per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::dec(41868, -1)))]
     CalorieItNutritionPerMole,
-    #[unit("Cal/mol", "Calories per mole", by = CALORIE_NUTRITION_PER_MOLE)]
+    #[unit("Cal/mol", "Calories per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(4184)))]
     CalorieNutritionPerMole,
-    #[unit("eV/mol", "electronvolts per mole", by = ELECTRONVOLT_PER_MOLE)]
+    #[unit("eV/mol", "electronvolts per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::dec(1602176634, -28)))]
     ElectronvoltPerMole,
-    #[unit("erg/mol", "ergs per mole", by = ERG_PER_MOLE)]
+    #[unit("erg/mol", "ergs per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::dec(1, -7)))]
     ErgPerMole,
-    #[unit("ft · pdl/mol", "foot poundals per mole", by = FOOT_POUNDAL_PER_MOLE)]
+    #[unit("ft · pdl/mol", "foot poundals per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(3048, -4))))]
     FootPoundalPerMole,
-    #[unit("ft · lbf/mol", "foot pounds-force per mole", by = FOOT_POUND_FORCE_PER_MOLE)]
+    #[unit("ft · lbf/mol", "foot pounds-force per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
     FootPoundForcePerMole,
-    #[unit("10¹⁵ Btu (IT)/mol", "quads per mole", by = QUAD_PER_MOLE)]
+    #[unit("10¹⁵ Btu (IT)/mol", "quads per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(1055055852620000000)))]
     QuadPerMole,
-    #[unit("thm (EC)/mol", "therms (EC) per mole", by = THERM_EC_PER_MOLE)]
+    #[unit("thm (EC)/mol", "therms (EC) per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(105506000)))]
     ThermEcPerMole,
-    #[unit("thm/mol", "therms per mole", by = THERM_US_PER_MOLE)]
+    #[unit("thm/mol", "therms per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(105480400)))]
     ThermUsPerMole,
-    #[unit("t of TNT/mol", "tons of TNT per mole", by = TON_TNT_PER_MOLE)]
+    #[unit("t of TNT/mol", "tons of TNT per mole", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(4184000000)))]
     TonTntPerMole,
-    #[unit("W · s/mol", "watt seconds per mole", by = WATT_SECOND_PER_MOLE)]
+    #[unit("W · s/mol", "watt seconds per mole", by = MolarEnergy::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)))]
     WattSecondPerMole,
-    #[unit("J/particle", "joules per particle", by = JOULE_PER_PARTICLE)]
+    #[unit("J/particle", "joules per particle", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * Exact::int(602214076000000000000000)))]
     JoulePerParticle,
-    #[unit("eV/particle", "electronvolts per particle", by = ELECTRONVOLT_PER_PARTICLE)]
+    #[unit("eV/particle", "electronvolts per particle", by = MolarEnergy::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * MOLE)) * (Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000))))]
     ElectronvoltPerParticle,
 }
 
-/// The units of `MolarFlux`, for a menu, a config file, a parser.
+/// The units of `MolarFlux`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarFlux<f64>)]
+#[unit(of = MolarFlux<N>, number = N)]
+#[unit(for<N> where MolarFlux<N>: [const] yadc::Unit<MolarFlux<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarFluxUnit {
     #[default]
-    #[unit("mol/(m² · s)", "moles per square metre second", by = MOLE_PER_SQUARE_METRE_SECOND)]
+    #[unit("mol/(m² · s)", "moles per square metre second", by = MolarFlux::<N>::from(MOLE / (METRE * METRE * SECOND)))]
     MolePerSquareMetreSecond,
 }
 
-/// The units of `MolarHeatCapacity`, for a menu, a config file, a parser.
+/// The units of `MolarHeatCapacity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarHeatCapacity<f64>)]
+#[unit(of = MolarHeatCapacity<N>, number = N)]
+#[unit(for<N> where MolarHeatCapacity<N>: [const] yadc::Unit<MolarHeatCapacity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarHeatCapacityUnit {
     #[default]
-    #[unit("J/(K · mol)", "joules per kelvin mole", by = JOULE_PER_KELVIN_MOLE)]
+    #[unit("J/(K · mol)", "joules per kelvin mole", by = MolarHeatCapacity::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)))]
     JoulePerKelvinMole,
-    #[unit("Btu (IT)/(K · mol)", "British thermal units (IT) per kelvin mole", by = BTU_IT_PER_KELVIN_MOLE)]
+    #[unit("Btu (IT)/(K · mol)", "British thermal units (IT) per kelvin mole", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::dec(105505585262, -8)))]
     BtuItPerKelvinMole,
-    #[unit("Btu/(K · mol)", "British thermal units per kelvin mole", by = BTU_PER_KELVIN_MOLE)]
+    #[unit("Btu/(K · mol)", "British thermal units per kelvin mole", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * (Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1))))]
     BtuPerKelvinMole,
-    #[unit("cal (IT)/(K · mol)", "calories (IT) per kelvin mole", by = CALORIE_IT_PER_KELVIN_MOLE)]
+    #[unit("cal (IT)/(K · mol)", "calories (IT) per kelvin mole", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::dec(41868, -4)))]
     CalorieItPerKelvinMole,
-    #[unit("cal/(K · mol)", "calories per kelvin mole", by = CALORIE_PER_KELVIN_MOLE)]
+    #[unit("cal/(K · mol)", "calories per kelvin mole", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::dec(4184, -3)))]
     CaloriePerKelvinMole,
-    #[unit("Cal (IT)/(K · mol)", "Calories (IT) per kelvin mole", by = CALORIE_IT_NUTRITION_PER_KELVIN_MOLE)]
+    #[unit("Cal (IT)/(K · mol)", "Calories (IT) per kelvin mole", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::dec(41868, -1)))]
     CalorieItNutritionPerKelvinMole,
-    #[unit("Cal/(K · mol)", "Calories per kelvin mole", by = CALORIE_NUTRITION_PER_KELVIN_MOLE)]
+    #[unit("Cal/(K · mol)", "Calories per kelvin mole", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::int(4184)))]
     CalorieNutritionPerKelvinMole,
-    #[unit("J/(K · particle)", "joules per kelvin particle", by = JOULE_PER_KELVIN_PARTICLE)]
+    #[unit("J/(K · particle)", "joules per kelvin particle", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::int(602214076000000000000000)))]
     JoulePerKelvinParticle,
-    #[unit("eV/(K · particle)", "electronvolts per kelvin particle", by = ELECTRONVOLT_PER_KELVIN_PARTICLE)]
+    #[unit("eV/(K · particle)", "electronvolts per kelvin particle", by = MolarHeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * (Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000))))]
     ElectronvoltPerKelvinParticle,
-    #[unit("R", "molar gas constants", by = MOLAR_GAS_CONSTANT)]
+    #[unit("R", "molar gas constants", by = MolarHeatCapacity::<N>::from(MOLAR_GAS_CONSTANT))]
     MolarGasConstant,
 }
 
-/// The units of `MolarMass`, for a menu, a config file, a parser.
+/// The units of `MolarMass`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarMass<f64>)]
+#[unit(of = MolarMass<N>, number = N)]
+#[unit(for<N> where MolarMass<N>: [const] yadc::Unit<MolarMass<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarMassUnit {
     #[default]
-    #[unit("kg/mol", "kilograms per mole", by = KILOGRAM_PER_MOLE)]
+    #[unit("kg/mol", "kilograms per mole", by = MolarMass::<N>::from(KILOGRAM / MOLE))]
     KilogramPerMole,
-    #[unit("g/mol", "grams per mole", by = GRAM_PER_MOLE)]
+    #[unit("g/mol", "grams per mole", by = MolarMass::<N>::from((KILOGRAM / MOLE) * Exact::dec(1, -3)))]
     GramPerMole,
 }
 
-/// The units of `MolarRadioactivity`, for a menu, a config file, a parser.
+/// The units of `MolarRadioactivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarRadioactivity<f64>)]
+#[unit(of = MolarRadioactivity<N>, number = N)]
+#[unit(for<N> where MolarRadioactivity<N>: [const] yadc::Unit<MolarRadioactivity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarRadioactivityUnit {
     #[default]
-    #[unit("Bq/mol", "becquerels per mole", by = BECQUEREL_PER_MOLE)]
+    #[unit("Bq/mol", "becquerels per mole", by = MolarRadioactivity::<N>::from(ONE / (SECOND * MOLE)))]
     BecquerelPerMole,
-    #[unit("Ci/mol", "curies per mole", by = CURIE_PER_MOLE)]
+    #[unit("Ci/mol", "curies per mole", by = MolarRadioactivity::<N>::from((ONE / (SECOND * MOLE)) * Exact::int(37000000000)))]
     CuriePerMole,
-    #[unit("dpm/mol", "disintegrations per minute per mole", by = DISINTEGRATIONS_PER_MINUTE_PER_MOLE)]
+    #[unit("dpm/mol", "disintegrations per minute per mole", by = MolarRadioactivity::<N>::from((ONE / (SECOND * MOLE)) * (Exact::int(1) / Exact::int(60))))]
     DisintegrationsPerMinutePerMole,
 }
 
-/// The units of `MolarVolume`, for a menu, a config file, a parser.
+/// The units of `MolarVolume`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarVolume<f64>)]
+#[unit(of = MolarVolume<N>, number = N)]
+#[unit(for<N> where MolarVolume<N>: [const] yadc::Unit<MolarVolume<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolarVolumeUnit {
     #[default]
-    #[unit("m³/mol", "cubic metres per mole", by = CUBIC_METRE_PER_MOLE)]
+    #[unit("m³/mol", "cubic metres per mole", by = MolarVolume::<N>::from(METRE * METRE * METRE / MOLE))]
     CubicMetrePerMole,
-    #[unit("m³/particle", "cubic metres per particle", by = CUBIC_METRE_PER_PARTICLE)]
+    #[unit("m³/particle", "cubic metres per particle", by = MolarVolume::<N>::from((METRE * METRE * METRE / MOLE) * Exact::int(602214076000000000000000)))]
     CubicMetrePerParticle,
 }
 
-/// The units of `Molality`, for a menu, a config file, a parser.
+/// The units of `Molality`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Molality<f64>)]
+#[unit(of = Molality<N>, number = N)]
+#[unit(for<N> where Molality<N>: [const] yadc::Unit<Molality<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MolalityUnit {
     #[default]
-    #[unit("mol/kg", "moles per kilogram", by = MOLE_PER_KILOGRAM)]
+    #[unit("mol/kg", "moles per kilogram", by = Molality::<N>::from(MOLE / KILOGRAM))]
     MolePerKilogram,
 }
 
-/// The units of `MassConcentration`, for a menu, a config file, a parser.
+/// The units of `MassConcentration`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassConcentration<f64>)]
+#[unit(of = MassConcentration<N>, number = N)]
+#[unit(for<N> where MassConcentration<N>: [const] yadc::Unit<MassConcentration<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MassConcentrationUnit {
     #[default]
-    #[unit("kg/m³", "kilograms per cubic metre", by = KILOGRAM_PER_CUBIC_METRE)]
+    #[unit("kg/m³", "kilograms per cubic metre", by = MassConcentration::<N>::from(KILOGRAM / (METRE * METRE * METRE)))]
     KilogramPerCubicMetre,
-    #[unit("g/m³", "grams per cubic metre", by = GRAM_PER_CUBIC_METRE)]
+    #[unit("g/m³", "grams per cubic metre", by = MassConcentration::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(1, -3)))]
     GramPerCubicMetre,
 }
 
-/// The units of `CatalyticActivity`, for a menu, a config file, a parser.
+/// The units of `CatalyticActivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CatalyticActivity<f64>)]
+#[unit(of = CatalyticActivity<N>, number = N)]
+#[unit(for<N> where CatalyticActivity<N>: [const] yadc::Unit<CatalyticActivity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum CatalyticActivityUnit {
     #[default]
-    #[unit("kat", "katals", by = KATAL)]
+    #[unit("kat", "katals", by = CatalyticActivity::<N>::from(KATAL))]
     Katal,
-    #[unit("particle/s", "particles per second", by = PARTICLE_PER_SECOND)]
+    #[unit("particle/s", "particles per second", by = CatalyticActivity::<N>::from(KATAL * (Exact::int(1) / Exact::int(602214076000000000000000))))]
     ParticlePerSecond,
-    #[unit("mol/s", "moles per second", by = MOLE_PER_SECOND)]
+    #[unit("mol/s", "moles per second", by = CatalyticActivity::<N>::from(KATAL))]
     MolePerSecond,
 }
 
-/// The units of `CatalyticActivityConcentration`, for a menu, a config file, a parser.
+/// The units of `CatalyticActivityConcentration`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CatalyticActivityConcentration<f64>)]
+#[unit(of = CatalyticActivityConcentration<N>, number = N)]
+#[unit(for<N> where CatalyticActivityConcentration<N>: [const] yadc::Unit<CatalyticActivityConcentration<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum CatalyticActivityConcentrationUnit {
     #[default]
-    #[unit("kat/m³", "katals per cubic metre", by = KATAL_PER_CUBIC_METRE)]
+    #[unit("kat/m³", "katals per cubic metre", by = CatalyticActivityConcentration::<N>::from(MOLE / (METRE * METRE * METRE * SECOND)))]
     KatalPerCubicMetre,
-    #[unit("kat/L", "katals per litre", by = KATAL_PER_LITRE)]
+    #[unit("kat/L", "katals per litre", by = CatalyticActivityConcentration::<N>::from((MOLE / (METRE * METRE * METRE * SECOND)) * Exact::int(1000)))]
     KatalPerLitre,
-    #[unit("mkat/L", "millikatals per litre", by = MILLIKATAL_PER_LITRE)]
-    MillikatalPerLitre,
-    #[unit("particle · s⁻¹ · m⁻³", "particles per second cubic metre", by = PARTICLE_PER_SECOND_CUBIC_METRE)]
+    #[unit("particle · s⁻¹ · m⁻³", "particles per second cubic metre", by = CatalyticActivityConcentration::<N>::from((MOLE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / Exact::int(602214076000000000000000))))]
     ParticlePerSecondCubicMetre,
 }
 
-/// The units of `Radioactivity`, for a menu, a config file, a parser.
+/// The units of `Radioactivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Radioactivity<f64>)]
+#[unit(of = Radioactivity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Radioactivity<N>: [const] yadc::Unit<Radioactivity<N>, N> + [const] core::marker::Destruct)]
 pub enum RadioactivityUnit {
     #[default]
-    #[unit("Bq", "becquerels", by = BECQUEREL)]
+    #[unit("Bq", "becquerels", by = Radioactivity::<N>::from(BECQUEREL))]
     Becquerel,
-    #[unit("Ci", "curies", by = CURIE)]
+    #[unit("Ci", "curies", by = Radioactivity::<N>::from(CURIE))]
     Curie,
-    #[unit("dpm", "disintegrations per minute", by = DISINTEGRATIONS_PER_MINUTE)]
+    #[unit("dpm", "disintegrations per minute", by = Radioactivity::<N>::from(DISINTEGRATIONS_PER_MINUTE))]
     DisintegrationsPerMinute,
 }
 
-/// The units of `SpecificRadioactivity`, for a menu, a config file, a parser.
+/// The units of `SpecificRadioactivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificRadioactivity<f64>)]
+#[unit(of = SpecificRadioactivity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SpecificRadioactivity<N>: [const] yadc::Unit<SpecificRadioactivity<N>, N> + [const] core::marker::Destruct)]
 pub enum SpecificRadioactivityUnit {
     #[default]
-    #[unit("Bq/kg", "becquerels per kilogram", by = BECQUEREL_PER_KILOGRAM)]
+    #[unit("Bq/kg", "becquerels per kilogram", by = SpecificRadioactivity::<N>::from(ONE / (KILOGRAM * SECOND)))]
     BecquerelPerKilogram,
-    #[unit("Ci/kg", "curie per kilogram", by = CURIE_PER_KILOGRAM)]
+    #[unit("Ci/kg", "curie per kilogram", by = SpecificRadioactivity::<N>::from((ONE / (KILOGRAM * SECOND)) * Exact::int(37000000000)))]
     CuriePerKilogram,
-    #[unit("dpm/kg", "disintegrations per minute per kilogram", by = DISINTEGRATIONS_PER_MINUTE_PER_KILOGRAM)]
+    #[unit("dpm/kg", "disintegrations per minute per kilogram", by = SpecificRadioactivity::<N>::from((ONE / (KILOGRAM * SECOND)) * (Exact::int(1) / Exact::int(60))))]
     DisintegrationsPerMinutePerKilogram,
 }
 
-/// The units of `InverseAmountOfSubstance`, for a menu, a config file, a parser.
+/// The units of `InverseAmountOfSubstance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InverseAmountOfSubstance<f64>)]
+#[unit(of = InverseAmountOfSubstance<N>, number = N)]
+#[unit(for<N> where InverseAmountOfSubstance<N>: [const] yadc::Unit<InverseAmountOfSubstance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum InverseAmountOfSubstanceUnit {
     #[default]
-    #[unit("mol⁻¹", "per mole", by = PER_MOLE)]
+    #[unit("mol⁻¹", "per mole", by = InverseAmountOfSubstance::<N>::from(PER_MOLE))]
     PerMole,
-    #[unit("N_A", "Avogadro constants", by = AVOGADRO_CONSTANT)]
+    #[unit("N_A", "Avogadro constants", by = InverseAmountOfSubstance::<N>::from(AVOGADRO_CONSTANT))]
     AvogadroConstant,
 }

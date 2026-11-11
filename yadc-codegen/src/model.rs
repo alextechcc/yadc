@@ -193,15 +193,20 @@ pub struct UnitDef {
     /// Long plural name, e.g. `"kilometres"`.
     #[serde(rename = "l")]
     pub long: String,
-    /// The constant's name, when not the variant's in SCREAMING_SNAKE_CASE
-    /// (`DEGREE_FAHRENHEIT` for the `Fahrenheit` step).
+    /// The unit's constant: its name when not the variant's in
+    /// SCREAMING_SNAKE_CASE (`c = "DEGREE_FAHRENHEIT"` for the `Fahrenheit`
+    /// step), or none at all (`c = false`) for a unit written as an expression
+    /// of others (`slug/ft³` is `SLUG / CUBIC_FOOT`): its enum variant
+    /// alone names it, by its size in coherent units.
     #[serde(rename = "c", default)]
-    pub constant: Option<String>,
+    pub constant: Option<ConstName>,
     /// The unit value this unit is, verbatim (no constant of its own).
     #[serde(default)]
     pub by: Option<String>,
-    /// The type the `by` unit value measures, when not this quantity: the
-    /// two convert with std `From` (a level's scale reading a power).
+    /// The quantity the `by` unit value measures, when not this quantity
+    /// (`PowerLevel`, without its number type): the two convert with std
+    /// `From` (a level's scale reading a power), in `f64` - a unit enum with
+    /// such a unit counts in `f64`.
     #[serde(default)]
     pub via: Option<String>,
     /// The unit's own `Unit` impl is not `const` (a level read as a power
@@ -210,10 +215,39 @@ pub struct UnitDef {
     pub non_const: bool,
 }
 
+/// `c = "NAME"` or `c = false`.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum ConstName {
+    Name(String),
+    /// `false`: no constant. (`true` is the default, and refused.)
+    Has(bool),
+}
+
 impl UnitDef {
-    /// A multiple of the coherent unit, with its own constant.
+    /// A multiple of the coherent unit (`m`), not a unit value named in the
+    /// TOML (`by`).
     pub fn is_multiple(&self) -> bool {
         self.by.is_none()
+    }
+
+    /// Whether it has a constant of its own.
+    pub fn has_constant(&self) -> bool {
+        match &self.constant {
+            Some(ConstName::Has(has)) => {
+                assert!(!has, "unit `{}`: `c = true` is the default; write `c = \"NAME\"` or `c = false`", self.variant);
+                false
+            }
+            _ => self.is_multiple(),
+        }
+    }
+
+    /// Its constant's name given in the TOML, if any.
+    pub fn constant_name(&self) -> Option<&str> {
+        match &self.constant {
+            Some(ConstName::Name(n)) => Some(n),
+            _ => None,
+        }
     }
 }
 

@@ -1,4 +1,5 @@
-use crate::{Exact, ISQ, SIQuantity, counted};
+use crate::base::SECOND;
+use crate::{Exact, ISQ, SIQuantity};
 use consts::*;
 use yadc::Dimension;
 
@@ -15,78 +16,70 @@ pub type InformationRate<N> = SIQuantity<
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined exactly from them -
-/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
-/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
-/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
-/// one: `KILO * METRE`. They compose in `const` items:
-/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
+/// (re-exported), then one per named unit, each defined exactly from them
+/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
+/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
+/// once, where it is written - in a `const`, by the compiler:
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
 pub mod consts {
     use super::*;
-    use crate::base::SECOND;
 
     /// The number one: the unit of dimension one.
     pub use crate::base::ONE;
 
     /// One `Bit` (b), as an `Information`.
-    pub const BIT<N: const From<Exact>>: Information<N> = counted(Exact::dec(125, -3) * BYTE::<Exact>);
+    pub const BIT: Information<Exact> = BYTE * Exact::dec(125, -3);
 
     /// One `Byte` (B), as an `Information`.
-    pub const BYTE<N: const From<Exact>>: Information<N> = counted(ONE::<Exact>);
+    pub const BYTE: Information<Exact> = ONE;
 
     /// One `Octet` (o), as an `Information`.
-    pub const OCTET<N: const From<Exact>>: Information<N> = counted(BYTE::<Exact>);
+    pub const OCTET: Information<Exact> = BYTE;
 
     /// One `Nibble` (nibble), as an `Information`.
-    pub const NIBBLE<N: const From<Exact>>: Information<N> = counted(Exact::dec(5, -1) * BYTE::<Exact>);
+    pub const NIBBLE: Information<Exact> = BYTE * Exact::dec(5, -1);
 
     /// One `Crumb` (crumb), as an `Information`.
-    pub const CRUMB<N: const From<Exact>>: Information<N> = counted(Exact::dec(25, -2) * BYTE::<Exact>);
+    pub const CRUMB: Information<Exact> = BYTE * Exact::dec(25, -2);
 
     /// One `Shannon` (Sh), as an `Information`.
-    pub const SHANNON<N: const From<Exact>>: Information<N> = counted(Exact::dec(125, -3) * BYTE::<Exact>);
-
-    /// One `BitPerSecond` (b/s), as an `InformationRate`.
-    pub const BIT_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(Exact::dec(125, -3) * BYTE_PER_SECOND::<Exact>);
-
-    /// One `BytePerSecond` (B/s), as an `InformationRate`.
-    pub const BYTE_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(ONE::<Exact> / SECOND::<Exact>);
-
-    /// One `OctetPerSecond` (o/s), as an `InformationRate`.
-    pub const OCTET_PER_SECOND<N: const From<Exact>>: InformationRate<N> = counted(BYTE_PER_SECOND::<Exact>);
+    pub const SHANNON: Information<Exact> = BYTE * Exact::dec(125, -3);
 }
 
-/// The units of `Information`, for a menu, a config file, a parser.
+/// The units of `Information`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Information<f64>)]
+#[unit(of = Information<N>, number = N)]
+#[unit(for<N> where Information<N>: [const] yadc::Unit<Information<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum InformationUnit {
-    #[unit("b", "bits", by = BIT)]
+    #[unit("b", "bits", by = Information::<N>::from(BIT))]
     Bit,
     #[default]
-    #[unit("B", "bytes", by = BYTE)]
+    #[unit("B", "bytes", by = Information::<N>::from(BYTE))]
     Byte,
-    #[unit("o", "octets", by = OCTET)]
+    #[unit("o", "octets", by = Information::<N>::from(OCTET))]
     Octet,
-    #[unit("nibble", "nibbles", by = NIBBLE)]
+    #[unit("nibble", "nibbles", by = Information::<N>::from(NIBBLE))]
     Nibble,
-    #[unit("crumb", "crumbs", by = CRUMB)]
+    #[unit("crumb", "crumbs", by = Information::<N>::from(CRUMB))]
     Crumb,
-    #[unit("Sh", "shannons", by = SHANNON)]
+    #[unit("Sh", "shannons", by = Information::<N>::from(SHANNON))]
     Shannon,
 }
 
-/// The units of `InformationRate`, for a menu, a config file, a parser.
+/// The units of `InformationRate`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InformationRate<f64>)]
+#[unit(of = InformationRate<N>, number = N)]
+#[unit(for<N> where InformationRate<N>: [const] yadc::Unit<InformationRate<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum InformationRateUnit {
-    #[unit("b/s", "bits per second", by = BIT_PER_SECOND)]
+    #[unit("b/s", "bits per second", by = InformationRate::<N>::from((ONE / SECOND) * Exact::dec(125, -3)))]
     BitPerSecond,
     #[default]
-    #[unit("B/s", "bytes per second", by = BYTE_PER_SECOND)]
+    #[unit("B/s", "bytes per second", by = InformationRate::<N>::from(ONE / SECOND))]
     BytePerSecond,
-    #[unit("o/s", "octets per second", by = OCTET_PER_SECOND)]
+    #[unit("o/s", "octets per second", by = InformationRate::<N>::from(ONE / SECOND))]
     OctetPerSecond,
 }

@@ -86,6 +86,8 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
     // `const` unless `#[unit(non_const)]` says a delegated-to value's impl
     // is not.
     let konst = !top.non_const;
+    let generics = top.generics.clone().unwrap_or_default();
+    let (gen_impl, _, gen_where) = generics.split_for_impl();
     let c = if konst {
         quote! { const }
     } else {
@@ -122,11 +124,12 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
             to_arms.push(quote! { #pat => #to, });
             from_arms.push(quote! { #pat => #from, });
         }
-        // No `where` clause: `Q` and `N` are concrete, so each unit's
-        // description is checked right here.
+        // Concrete `Q` and `N` check each unit's description right here; a
+        // generic impl (`for<N> where ..`) is checked by its bounds, and
+        // each use by its concrete types.
         out.extend(quote! {
             #[allow(unused_variables)]
-            #c impl #tr for #name {
+            #c impl #gen_impl #tr for #name #gen_where {
                 fn quantity(&self, value: #number) -> #q {
                     match self { #(#to_arms)* }
                 }
@@ -153,7 +156,17 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
              called - leave `Fn` out",
         ));
     }
-    if wants("Fn") {
+    // Generic over its numbers, a unit called on an `N` and one called on a
+    // `Q<N>` are two impls that could be one (`N` may be a `Q<M>`): it is
+    // read and built with `value` and `quantity` only.
+    if explicit("Fn") && top.generics.is_some() {
+        return Err(syn::Error::new_spanned(
+            name,
+            "a unit generic over its numbers (`for<N>`) is not called: `N` and `Q<N>` could be \
+             one type - leave `Fn` out and use `quantity` and `value`",
+        ));
+    }
+    if wants("Fn") && top.generics.is_none() {
         let mut directions: Vec<(TokenStream2, TokenStream2, TokenStream2)> = Vec::new();
         // A unit of the numbers themselves has one argument type for both
         // directions, so it is not called.
@@ -178,20 +191,20 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
         }
         for (arg, ret, call) in directions {
             out.extend(quote! {
-                #c impl ::core::ops::FnOnce<(#arg,)> for #name {
+                #c impl #gen_impl ::core::ops::FnOnce<(#arg,)> for #name #gen_where {
                     type Output = #ret;
                     extern "rust-call" fn call_once(self, (x,): (#arg,)) -> #ret {
                         let this = &self;
                         #call
                     }
                 }
-                #c impl ::core::ops::FnMut<(#arg,)> for #name {
+                #c impl #gen_impl ::core::ops::FnMut<(#arg,)> for #name #gen_where {
                     extern "rust-call" fn call_mut(&mut self, (x,): (#arg,)) -> #ret {
                         let this = &*self;
                         #call
                     }
                 }
-                #c impl ::core::ops::Fn<(#arg,)> for #name {
+                #c impl #gen_impl ::core::ops::Fn<(#arg,)> for #name #gen_where {
                     extern "rust-call" fn call(&self, (x,): (#arg,)) -> #ret {
                         let this = self;
                         #call
@@ -306,6 +319,8 @@ struct Spec {
     // Type-level options.
     of: Vec<Type>,
     number: Option<Type>,
+    /// `for<N> where ..`: the impls are generic.
+    generics: Option<syn::Generics>,
     non_const: bool,
     impls: Option<Vec<String>>,
 }
@@ -337,6 +352,20 @@ fn parse_items(input: ParseStream<'_>, spec: &mut Spec, place: Place) -> syn::Re
     while !input.is_empty() {
         if input.peek(syn::LitStr) {
             strings.push(input.parse()?);
+        } else if input.peek(Token![for]) {
+            // `for<N> where ..`: the impls' generics and bounds - the rest of
+            // the attribute, as a where clause takes everything after it.
+            let kw = input.parse::<Token![for]>()?;
+            if place != Place::Type {
+                return Err(syn::Error::new_spanned(kw, "`for<..>` goes on the type"));
+            }
+            let mut generics: syn::Generics = input.parse()?;
+            if input.peek(Token![where]) {
+                generics.where_clause = Some(input.parse()?);
+            }
+            if spec.generics.replace(generics).is_some() {
+                return Err(syn::Error::new_spanned(kw, "`for<..>` given twice"));
+            }
         } else if input.peek(Token![impl]) {
             let kw = input.parse::<Token![impl]>()?;
             if place != Place::Type {
@@ -409,7 +438,8 @@ fn parse_items(input: ParseStream<'_>, spec: &mut Spec, place: Place) -> syn::Re
                         format!(
                             "unknown `#[unit(..)]` item `{other}`; expected the symbol and \
                              name, `by = ..`, `via = ..`, or on the \
-                             type `of = ..`, `number = ..`, `non_const`, `impl(..)`"
+                             type `of = ..`, `number = ..`, `non_const`, `impl(..)`, \
+                             `for<..> where ..`"
                         ),
                     ));
                 }
@@ -490,7 +520,9 @@ impl UnitCase {
         };
         let bare = quote! { #path { .. } };
         let by = match &spec.by {
-            Some(Source::Expr(e)) => quote! { &(#e) },
+            // Evaluated once, at compile time: `by = KILO * METRE` is one
+            // number in the program, not a product on every call.
+            Some(Source::Expr(e)) => quote! { &const { #e } },
             Some(Source::Field) => quote! { __by },
             None => {
                 return Err(syn::Error::new_spanned(

@@ -24,7 +24,8 @@ use core::marker::PhantomData;
 use typenum::Integer;
 use uom::si::{Quantity, Units, marker};
 
-use crate::{DynamicSIQuantity, ISQ, Kind, SIQuantity};
+use crate::dynamic::DynamicSIQuantity;
+use crate::{ISQ, Kind, SIQuantity};
 
 // --- Kind mapping -------------------------------------------------------------
 

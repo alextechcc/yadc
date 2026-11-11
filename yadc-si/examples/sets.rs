@@ -25,9 +25,10 @@ use core::fmt;
 use core::str::FromStr;
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use yadc::{Unit, UnknownUnit};
+use yadc_si::KILO;
+use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::mechanical::consts::{BAR, PASCAL, PSI, STANDARD_ATMOSPHERE};
 use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure};
-use yadc_si::{DynamicSIQuantity, KILO};
 use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
 
 /// What the app measures: a closed set. It converts to and from the open
@@ -47,15 +48,15 @@ enum Quantities {
 #[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
 #[unit(of = Pressure<f64>)]
 enum PressureUnit {
-    #[unit("Pa", "pascals", by = PASCAL)]
+    #[unit("Pa", "pascals", by = Pressure::<f64>::from(PASCAL))]
     Pascal,
-    #[unit("kPa", "kilopascals", by = KILO * PASCAL)]
+    #[unit("kPa", "kilopascals", by = Pressure::<f64>::from(KILO * PASCAL))]
     Kilopascal,
-    #[unit("bar", "bar", by = BAR)]
+    #[unit("bar", "bar", by = Pressure::<f64>::from(BAR))]
     Bar,
-    #[unit("atm", "standard atmospheres", by = STANDARD_ATMOSPHERE)]
+    #[unit("atm", "standard atmospheres", by = Pressure::<f64>::from(STANDARD_ATMOSPHERE))]
     StandardAtmosphere,
-    #[unit("psi", "pounds-force per square inch", by = PSI)]
+    #[unit("psi", "pounds-force per square inch", by = Pressure::<f64>::from(PSI))]
     Psi,
 }
 

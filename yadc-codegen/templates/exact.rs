@@ -1,14 +1,12 @@
-//! The exact number every constant of this system is defined in.
+//! The exact number every constant of this system is counted in.
 //!
 //! A unit's factor is written as its definition - an inch is exactly 0.0254
 //! m, a degree π/180 rad, a pound-force `0.45359237 * 9.80665` N - and kept
-//! exact through every product and quotient the constants are defined by.
-//! Each constant is generic over the number type it is counted in
-//! (`INCH<N: const From<Exact>>`) and rounded once, correctly, to the one
-//! its use asks for: `let d: Length<f64> = INCH;` is the nearest `f64`,
-//! `Length<f32>` the nearest `f32`, and `INCH::<Exact>` the exact value. A
-//! prefix is an exact number too: `KILO * METRE`.
-//! A number type of your own counts constants with a `const From<Exact>`.
+//! exact through every product and quotient: `INCH: Length<Exact>`, and
+//! `SLUG / CUBIC_FOOT` and `KILO * METRE` are exact too. A number type is
+//! chosen where a value is converted, with `From`, rounding once, correctly:
+//! `let d: Length<f64> = INCH.into();` is the nearest `f64`, `Length<i32>`
+//! the nearest integer. In a `const` the compiler does the rounding.
 
 use core::cmp::Ordering;
 use core::ops::{Add, Div, Mul, Neg, Sub};
@@ -163,6 +161,40 @@ impl Exact {
         if negative { -r } else { r }
     }
 
+    /// The nearest integer, ties to even. A power of π rounds its nearest
+    /// `f64`. Panics where it does not fit an `i128` - in a `const`, a
+    /// compile error.
+    pub const fn to_i128(self) -> i128 {
+        if self.num == 0 {
+            return 0;
+        }
+        if self.pi != 0 {
+            let r = self.to_f64().round_ties_even();
+            assert!(r > -1.7e38 && r < 1.7e38, "an exact constant outside the range of i128");
+            return r as i128;
+        }
+        let mut n = Big::from(self.num.unsigned_abs());
+        let mut d = Big::from(self.den as u128);
+        let mut i = 0;
+        while i < self.exp10 {
+            n = n.mul_small(10);
+            i += 1;
+        }
+        while i > self.exp10 {
+            d = d.mul_small(10);
+            i -= 1;
+        }
+        let (q, rest) = n.div_rem(&d);
+        assert!(q.bits() < 127, "an exact constant outside the range of i128");
+        let mut q = (q.0[1] as u128) << 64 | q.0[0] as u128;
+        // Half way or more: compare twice the remainder with the divisor.
+        let twice = rest.shl(1);
+        if twice.ge(&d) && (!d.ge(&twice) || q & 1 == 1) {
+            q += 1;
+        }
+        if self.num < 0 { -(q as i128) } else { q as i128 }
+    }
+
     /// The nearest `f32`, rounded once where there is no π.
     pub const fn to_f32(self) -> f32 {
         if self.num == 0 {
@@ -274,6 +306,23 @@ const impl From<Exact> for f32 {
         x.to_f32()
     }
 }
+
+/// The nearest integer, ties to even; a panic where it does not fit the
+/// type. `KILO * METRE` in `i32` is 1000; an inch in `i32` metres is 0 - the
+/// rounding is yours to choose by the unit you count in.
+macro_rules! to_integer {
+    ($($t:ty),*) => {$(
+        const impl From<Exact> for $t {
+            fn from(x: Exact) -> $t {
+                let v = x.to_i128();
+                let fits = if v < 0 { v >= <$t>::MIN as i128 } else { v as u128 <= <$t>::MAX as u128 };
+                assert!(fits, concat!("an exact constant outside the range of ", stringify!($t)));
+                v as $t
+            }
+        }
+    )*};
+}
+to_integer!(i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
 
 impl yadc::num_traits::Zero for Exact {
     fn zero() -> Exact {

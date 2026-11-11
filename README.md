@@ -63,63 +63,73 @@ What follows from it:
 
 ### Quick Start
 
-Using the ready-made SI system, a crate needs only `#![feature(generic_const_exprs)]`:
+Using the ready-made SI system, a crate needs `#![feature(generic_const_exprs)]`, plus `const_trait_impl` and `const_convert` to convert its units in `const` items:
 
 ```rust
-#![feature(generic_const_exprs)]
+#![feature(generic_const_exprs, const_trait_impl, const_convert)]
 #![allow(incomplete_features)]
 
 use yadc::Unit;
-use yadc_si::mechanical::consts::{
-    DBM, DBW, DECIBEL, HOUR, KILOGRAM, KILOMETRE_PER_HOUR, METRE, METRE_PER_SECOND_SQUARED, MILE,
-    POUND,
-};
-use yadc_si::{DynamicSIQuantity, KILO, Prefixed};
+use yadc_si::mechanical::consts::{DECIBEL, HOUR, KILOGRAM, METRE, METRE_PER_SECOND_SQUARED, POUND};
 use yadc_si::mechanical::*;
-use yadc_si::thermal::consts::{CELSIUS, FAHRENHEIT};
-use yadc_si::thermal::{TemperatureInterval, ThermodynamicTemperature};
+use yadc_si::thermal::{TemperatureInterval, ThermodynamicTemperature, ThermodynamicTemperatureUnit};
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::{KILO, Prefixed};
+
+// Every constant is exact - `POUND` is 0.45359237 kg, `KILO * METRE / HOUR` exactly
+// 1000/3600 m/s. A number type is chosen where a unit is converted, with std `From`:
+// rounded once, here by the compiler.
+const LB: Mass<f64> = POUND.into();
+const KG: Mass<f64> = KILOGRAM.into();
+const KM: Length<f64> = (KILO * METRE).into();          // a prefix is an exact ratio scaling a unit
+const H: Time<f64> = HOUR.into();
+const KMH: Velocity<f64> = (KILO * METRE / HOUR).into();
+const G: Acceleration<f64> = METRE_PER_SECOND_SQUARED.into();
+const DB: Gain<f64> = DECIBEL.into();
 
 // A unit turns a number into a quantity, and a quantity back into a number. There
 // is no other way in or out - and every constant is a unit.
-let m = POUND(10.0);                           // a Mass, stored as 4.5359237 kg
-let kg = KILOGRAM(m);                             // 4.5359237
+let m = LB(10.0);                                       // a Mass, stored as 4.5359237 kg
+let kg = KG(m);                                         // 4.5359237
 println!("{:.1} {}", MassUnit::Kilogram.value(m), MassUnit::Kilogram); // "4.5 kg" ({:#}: "kilograms")
 
-// Maths is on quantities, and the types follow the dimensions. A prefix is an exact
-// number scaling a unit: `KILO * METRE` is the kilometre.
-let v: Velocity<f64> = (KILO * METRE)(90.0) / HOUR(1.0);
-let kmh = KILOMETRE_PER_HOUR(v);                  // 90.0
-let f: Force<f64> = m * METRE_PER_SECOND_SQUARED(9.81);
+// Maths is on quantities, and the types follow the dimensions.
+let v: Velocity<f64> = KM(90.0) / H(1.0);
+let kmh = KMH(v);                                       // 90.0
+let f: Force<f64> = m * G(9.81);
 // let nope = m + v;                                    // error: cannot add: the dimensions differ
 
 // °C is a scale, `Scale(ICE_POINT, KELVIN)`: a zero plus steps of 1 K - the unit's business, not yours.
-let t = CELSIUS.quantity(25.0);                                  // a ThermodynamicTemperature: 298.15 K
-let fahrenheit = FAHRENHEIT.value(t);                         // 77.0, to rounding
-let room = CELSIUS.quantity(20.0);
+// A unit enum names it, in whichever number type it is used with.
+use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
+let t = Celsius.quantity(25.0);                         // a ThermodynamicTemperature: 298.15 K
+let fahrenheit = Fahrenheit.value(t);                   // 77.0, to rounding
+let room = Celsius.quantity(20.0);
 let rise: TemperatureInterval<f64> = t - room;          // T - T = ΔT (5 K)
 // let nope = rise + t;                                 // error: cannot add these in this order (write t + rise)
 let twice: ThermodynamicTemperature<f64> = 2.0 * t;     // a temperature is an amount: 596.3 K
 
 // dBm is a scale too, on the logarithmic line: `Scale(MILLIWATT_LEVEL, DECIBEL)`. It reads a
 // `PowerLevel` - where gains add; the watts are one std `From` away.
-let rx: PowerLevel<f64> = DBM.quantity(30.0);
+use PowerLevelUnit::{DecibelMilliwatt as Dbm, DecibelWatt as Dbw};
+let rx: PowerLevel<f64> = Dbm.quantity(30.0);
 let p = Power::<f64>::from(rx);                         // 1 W
-let dbw = DBW.value(PowerLevel::<f64>::from(p));        // 0.0
-let out = rx - 3.0 * DECIBEL + 13.0 * DECIBEL;          // a link budget: 40 dBm
+let dbw = Dbw.value(PowerLevel::<f64>::from(p));        // 0.0
+let out = rx - 3.0 * DB + 13.0 * DB;                    // a link budget: 40 dBm
 // let nope = out + out;                                // error: cannot add: the labels have no sum (it would be the logarithm of W²)
 
 // When the dimension is only known at run time: the same operators, each returning an
 // Option - a sum of a speed and a time has no result, nor has a product of a level.
-let d = (DynamicSIQuantity::from((KILO * METRE)(90.0)) / DynamicSIQuantity::from(HOUR(2.0))).unwrap();
+let d = (DynamicSIQuantity::from(KM(90.0)) / DynamicSIQuantity::from(H(2.0))).unwrap();
 let v: Velocity<f64> = d.try_into().unwrap();           // Err(d) on a mismatch
-let kmh = KILOMETRE_PER_HOUR(v);                  // 45.0
-assert_eq!(d + DynamicSIQuantity::from(HOUR(1.0)), None); // nonsense has no result
+let kmh = KMH(v);                                       // 45.0
+assert_eq!(d + DynamicSIQuantity::from(H(1.0)), None);  // nonsense has no result
 // so a run-time calculation reads ((a * b)? + c)?
 
 // A unit picked at run time: some unit of length, checked at compile time.
 let km: Prefixed<LengthUnit> = "km".parse().unwrap();   // a prefix and a unit enum's value
 let metric = true;
-let u: &dyn Unit<Length<f64>> = if metric { &km } else { &MILE };
+let u: &dyn Unit<Length<f64>> = if metric { &km } else { &LengthUnit::Mile };
 println!("{:.1} {km}", u.value(u.quantity(12.0)));      // 12.0 km, in whichever unit was picked
 ```
 
@@ -151,6 +161,8 @@ pub enum TemperatureUnit {
 }
 ```
 
+A variant's `by` is a constant expression, evaluated once at compile time: `by = 1609.344 * METRE`, or `yadc-si`'s `by = Length::<f64>::from(INCH)`, is one number in the program, not a computation on every call.
+
 **Levels: decibels.** A decibel counts on a logarithmic line, where multiplying is adding: gains of 3 dB and 10 dB make 13 dB, where the ratios 2 and 10 make 20. That line is two more quantities of yours, stored as plain numbers like any other: a `Gain` (a step on the line, in decibels - gains add) and a `PowerLevel` (a place on it: two levels differ by a gain, a gain moves a level, two levels have no sum). The logarithm itself appears once, in the std `From` between the line and the watts - and a scale on the line measures both:
 
 ```rust
@@ -172,11 +184,11 @@ A level and a gain are both the log kind, told apart by their exponents: a `Powe
 A few consequences worth spelling out:
 
 - **Units never take part in arithmetic.** `MILE(90.0) / HOUR(1.0)` is a velocity; read it with any unit of velocity. (A quantity constant *is* a quantity, so `MILE / HOUR` is a velocity constant too - and a unit of velocity.)
-- **A prefix is a number, not a unit.** `yadc-si` has the 20 SI prefixes as exact numbers - `KILO`, `MILLI`, `MICRO`, ... - and a prefix times a unit is the prefixed unit: `KILO * METRE` is a kilometre, `(KILO * METRE)(3.0)` builds 3 km, `KILO * PASCAL`, `MILLI * WATT`, `KILO * WATT_HOUR`. A prefixed unit has no constant or enum variant of its own; `Prefixed<LengthUnit>` - a unit enum's value with an optional prefix - parses and prints `km`.
+- **A prefix is a number, not a unit.** `yadc-si` has the 20 SI prefixes as exact dimensionless quantities - `KILO`, `MILLI`, `MICRO`, ... (`KILO: Dimensionless<Exact>`) - and a prefix times a unit is the prefixed unit, exactly: `KILO * METRE` is a kilometre, `KILO * PASCAL`, `MILLI * WATT`, `KILO * WATT_HOUR`; converted, it builds and reads values (`const KM: Length<f64> = (KILO * METRE).into();`, then `KM(3.0)` is 3 km). A prefixed unit has no constant of its own, nor, when the prefix leads the symbol, an enum variant: `Prefixed<LengthUnit>` - a unit enum's value with an optional prefix - parses and prints `km`. A unit with a prefix inside its symbol (km/h, N/mm², kW/°C) is a variant without a constant (`VelocityUnit::KilometrePerHour`).
 - **A step, a zero and a scale are different things with different names.** `KELVIN` and `DEGREE_FAHRENHEIT` are steps (temperature differences); `ABSOLUTE_ZERO`, `ICE_POINT` and `FAHRENHEIT_ZERO` are zeros (temperatures); `CELSIUS` and `FAHRENHEIT` are scales (each a zero and a step, reading absolute temperatures).
 - **A scale is a type of yours.** `pub struct Scale<P, S>(pub P, pub S);` with one hand-written `impl Unit` - `n` is `zero + n · step` - is all there is to it; the quantity knows nothing of scales. It is a unit of its zero's type alone: `DBM` measures a `PowerLevel`, and a `Power` is `Power::from(level)`.
 - **How much you know is how much you erase.** `MILE` or `LengthUnit::Mile` is the exact unit; `&dyn Unit<Length>` is some unit of length, still checked at compile time; your enum of unit enums is some unit of some quantity (see "Sets" below).
-- **Units print and parse with std traits.** The derive writes `Display` - `{}` is the symbol, `{:#}` the long name (`format!("{}", LengthUnit::Mile)` is `"mi"`, `{:#}` is `"miles"`) - and `FromStr`, which reads the symbol back: `"mi".parse::<LengthUnit>()`, or `Err(yadc::UnknownUnit)`. `#[unit(impl(..))]` lists which of `Display`, `FromStr` and `Fn` to write (`impl()` for none). In `yadc-si`, `"km".parse::<Prefixed<LengthUnit>>()` reads a prefix too - `Prefixed { prefix: Some(Prefix::Kilo), unit: LengthUnit::Metre }`, printed `km` (`{:#}`: `kilometres`); a unit's own symbol comes first (`Pa` is the pascal, `min` the minute), then any prefix before any of the enum's symbols (`km`, `mPa`, `µm`).
+- **Units print and parse with std traits.** The derive writes `Display` - `{}` is the symbol, `{:#}` the long name (`format!("{}", LengthUnit::Mile)` is `"mi"`, `{:#}` is `"miles"`) - and `FromStr`, which reads the symbol back: `"mi".parse::<LengthUnit>()`, or `Err(yadc::UnknownUnit)`. `#[unit(impl(..))]` lists which of `Display`, `FromStr` and `Fn` to write (`impl()` for none). With `#[unit(for<N> where ..)]` - the last item of its attribute - a unit enum counts in any number type the bounds allow; such a generic unit is not called (`N` and `Q<N>` could be one type), but built and read with `quantity` and `value`. In `yadc-si`, `"km".parse::<Prefixed<LengthUnit>>()` reads a prefix too - `Prefixed { prefix: Some(Prefix::Kilo), unit: LengthUnit::Metre }`, printed `km` (`{:#}`: `kilometres`); a unit's own symbol comes first (`Pa` is the pascal, `min` the minute), then a leading prefix on one of the enum's symbols (`km`, `mPa`, `µm`).
 - **By hand, anything goes.** Implement `Unit<Q>` on a type of yours - the Beaufort scale is `impl Unit<Velocity>` plus a `Display` (see `examples/custom_unit_impl.rs`). A unit's numbers need not be one `f64`: a grid reads a place as `[f64; 3]`, a `Unit<Place, [f64; 3]>`. Another crate may write `impl Unit<its::Len> for yadc_si::mechanical::LengthUnit` for its own quantity: the orphan rule allows it.
 - **A formula that is not a scale** - a road grade read as an angle, the Beaufort scale - is a hand-written `impl Unit`, or a `From` / `TryFrom` between two quantities of yours.
 
@@ -210,7 +222,7 @@ A point is not a `Quantity`. Which zero it was read from is not in its type: `Sc
 
 ### Sets: a quantity chosen at run time
 
-When the *quantity* is the run-time choice - a logger channel measures a pressure or a temperature; a setting says "show this as `[Pressure ▾]` in `[kPa ▾]`" - list the choices as your own enums. yadc gives the statics; the dynamic types and the enum plumbing come from [`dynamickit`](dynamickit/), which knows nothing about quantities. `yadc-si`'s dynamic type, `DynamicSIQuantity`, is one: `#[dynamic(SIQuantity<const D: ISQ> => { dim: D, value: .0 })]` says converting (`From`) moves the number and records `D`, and the way back (`TryFrom`) checks it; `#[dynamic(impl(Mul -> Option<Self>, Add -> Option<Self>, ..))]` lifts each operator from the fields' own, its output stated.
+When the *quantity* is the run-time choice - a logger channel measures a pressure or a temperature; a setting says "show this as `[Pressure ▾]` in `[kPa ▾]`" - list the choices as your own enums. yadc gives the statics; the dynamic types and the enum plumbing come from [`dynamickit`](dynamickit/), which knows nothing about quantities. `yadc-si`'s dynamic type, `DynamicSIQuantity`, is one: `#[dynamic(SIQuantity<const D: ISQ, f64> => { dim: D, value: .0 })]` says converting (`From`) moves the number and records `D`, and the way back (`TryFrom`) checks it; `#[dynamic(impl(Mul -> Option<Self>, Add -> Option<Self>, ..))]` lifts each operator from the fields' own, its output stated.
 
 ```rust
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
@@ -382,7 +394,15 @@ pub const ABOVE_ROOM: TemperatureStep = BOILING - CELSIUS.quantity(20.0);
 pub const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING); // 373.15, read at compile time
 ```
 
-`yadc-si` generates them: its `base` module holds the base constants, and every family module a `consts` module defining the rest from them (`mechanical::consts::NEWTON` is `METRE * KILOGRAM / (SECOND * SECOND)`, `MILE` is `1609.344 * METRE`; `thermal::consts::ICE_POINT`), each defined exactly in `yadc_si::Exact` and generic over the number type it is counted in, rounded once to the one its use asks for: `let d: Length<f64> = MILE;` is the nearest `f64`, `let d: Length<f32> = MILE;` the nearest `f32`, and `MILE::<Exact>` the exact value. Beside a stored value a constant takes that value's type (`trip + MILE`, `MILE(3.0)`); an expression of constants alone names it on one of them (`ELECTRON_MASS::<f64> * SPEED_OF_LIGHT`). A prefixed unit is no constant of its own but a prefix - an exact number, `yadc_si::KILO` - times one, and the product's number type is inferred the same way: `let d: Length<f64> = KILO * METRE;`. **Physical constants are units too** (`SPEED_OF_LIGHT`, `STANDARD_GRAVITY`).
+`yadc-si` generates them: its `base` module holds the base constants, and every family module a `consts` module defining the rest from them, as a standards document does (`mechanical::consts::NEWTON` is `METRE * KILOGRAM / (SECOND * SECOND)`, `INCH` is `METRE * Exact::dec(254, -4)`; `thermal::consts::ICE_POINT`).
+
+- **Every constant is exact.** Its number is a `yadc_si::Exact` (`num/den · 10ⁿ · πᵏ`, with `const` arithmetic): `INCH: Length<Exact>`, `NEWTON: Force<Exact>`, `CELSIUS: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>>`, and the prefixes `KILO: Dimensionless<Exact>`. A bare exact factor scales from the right: `INCH * Exact::int(12) == FOOT`.
+- **Constants compose exactly, at compile time.** `KILO * METRE`, `MILE / HOUR`, `SLUG / CUBIC_FOOT` are exact too, and `INCH * INCH * INCH == CUBIC_INCH` holds exactly. A unit that is an expression of others (km/h, slug/ft³, the foot-pound) has no constant of its own: you write the expression.
+- **Rounding happens where you write a conversion**, with std `From` / `Into`, to `f64`, `f32`, any primitive integer or a number type of yours, for a quantity or a scale (`let c: Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>> = CELSIUS.into();`). A float is the nearest one, rounded once (a power of π rounds once more); an integer is the nearest, ties to even, and a panic where it does not fit. In a `const` the compiler does the whole computation: `const MI: Length<f64> = MILE.into();` is one number in the program, and for an embedded target `const STEP: Length<i32> = (KILO * METRE).into();` is the integer 1000, with no floating point at run time - an integer out of range is a compile error. An integer quantity counts whole coherent units, so `Length::<i32>::from(INCH)` is 0: integers suit converted constants, not unit enums (an enum in `i32` must fit every one of its units, and a light year does not).
+- **A converted constant is a unit of its type's values.** Convert the units a program uses once, then build and read with them: `MI(3.0)` builds, `MI(d)` or `MI.value(d)` reads. Inside an expression `.into()` has no target to infer, so name it: `Length::<f64>::from(INCH)`.
+- **One std `From` per shape.** `From<SIQuantity<D, Exact>> for SIQuantity<D, N>`, and the same for a `Scale`, for every `N: num_traits::Num + From<Exact>` - it does not overlap std's `From<T> for T`, because `Exact` is not `Num`. A number type of your own gets `.into()` by implementing those two.
+- **Unit enums count in any such number type.** `LengthUnit::Foot.quantity(3.0)` builds a `Length<f64>`, `.quantity(3.0f32)` a `Length<f32>`; each variant's `by = Length::<N>::from(FOOT)` is folded at compile time, once per number type. A generic unit is not called: it builds and reads with `quantity` and `value`. `PowerUnit`, whose decibels take a logarithm, counts in `f64`.
+- **Physical constants are units too** (`SPEED_OF_LIGHT`, `STANDARD_GRAVITY`).
 
 **Other number types.** With the number type a parameter (`Qty<const D: Dim, N>(N)`, so every use says it: `Pressure<f64>`, `Pressure<f32>`, or a generic `Pressure<N>`), `p.cast::<f32>()` is the same pressure counted in `f32` (`const`), and std `From` widens where the number converts losslessly: `Pressure::<f64>::from(p32)`. With `#[quantity(from(f32 => f64))]` the operators, units and comparisons also meet across the two, converting with std `From<f32> for f64`, one way only: `p64 + p32` is a `Pressure<f64>`.
 
@@ -441,8 +461,9 @@ Up front, this is a pretty experimental crate and relies on a bunch of fairly un
 
 | What your crate does | Required at crate root |
 |---|---|
-| Just uses already-defined aliases and units (`Mass<f64>`, `POUND(10.0)`, …) | `generic_const_exprs` |
-| … and does quantity arithmetic in `const` items (`const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
+| Just uses already-defined aliases and units (`Mass<f64>`, `MassUnit::Pound.quantity(10.0)`, …) | `generic_const_exprs` |
+| … and converts constants in `const` items (`const MI: Length<f64> = MILE.into();`) | additionally `const_trait_impl`, `const_convert` |
+| … and does quantity arithmetic in `const` items (`const LIMIT: Velocity<f64> = 50.0 * KMH;`) | additionally `const_trait_impl`, `const_ops` |
 | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ … }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and `fn_traits`, `unboxed_closures`, `const_destruct` (the quantity's `Fn` extra, on by default, that makes `MILE(3.0)` callable) |
 | … with a generic number type (`struct Qty<const D: Dim, N>(N)`) | the same: `const_destruct` lets a `const` operator drop a number it knows nothing about |
 | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl`, and `fn_traits`, `unboxed_closures` for its `Fn` extra (on by default) |
@@ -453,10 +474,10 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 - **`generic_const_exprs`** — needed wherever a value's *type* involves a const expression, e.g. `Qty<{ A * B }>` (the `Output` of `Mass * Acceleration`). Every consumer trips this the moment they write `mass * accel`, so every consumer needs the flag.
 - **`min_adt_const_params`** — to write a const generic whose type is a user-defined ADT (`Qty<const D: Dim>(f64)` itself, or a new alias `pub type Foo = Qty<{ Dim { … } }>;`), and for the `#[derive(ConstParamTy)]` your `Dim` and `Kind` need.
 - **`const_trait_impl`** — the derives write `const impl`s: of your dimension's and label's std operators, `PartialPowi` and `PartialRoot`, so the algebra can run inside const-generic bounds, and of the quantity operators, `Quantity` and `Unit`, so quantities and units work in `const` items.
-- **`const_ops`**, **`const_convert`** — those `const impl`s are of core's operators and `From` / `TryFrom` / `Into`, which are not yet stable as const traits. Calling the operators in a `const` item needs `const_ops` too.
+- **`const_ops`**, **`const_convert`** — those `const impl`s are of core's operators and `From` / `TryFrom` / `Into`, which are not yet stable as const traits. Calling the operators in a `const` item needs `const_ops` too, and converting with `From` / `.into()` in one `const_convert`.
 - **`const_cmp`**, **`const_default`** — calling core's const `PartialEq` and `Default` in const context (kind comparison, the zero exponent, the ordinary kind).
 - **`const_try`** — the `Dimension` derive's const `+`, `-` and root use `?` on an `Option`, so a crate defining a `Dim` needs it.
-- **`fn_traits`**, **`unboxed_closures`** — the `Fn` extra of the quantity and unit derives writes the std function traits, so a constant or a unit enum's value is called (`MILE(3.0)`, `FOOT(d)`).
+- **`fn_traits`**, **`unboxed_closures`** — the `Fn` extra of the quantity and unit derives writes the std function traits, so a constant or a unit enum's value is called (`MILE(3.0)`, `FOOT(d)`); a generic unit enum (`for<N>`) is not.
 - **`const_destruct`** — the quantity's `Fn` extra needs it too, and it lets a `const` operator drop a generic number it knows nothing about.
 - **`derive_const`** — `#[derive_const(PartialEq)]` on your `Dim` and `Kind` (and `Default` on a `Kind`), so `==` on them is const-callable.
 
@@ -464,14 +485,15 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 
 - **Const-generic dimensions.** `Qty<const D: Dim>` parameterizes the quantity type by a dimension *value*, so `Mass` and `Force` are genuinely distinct types and `mass + force` doesn't compile. `Length * Length → Area`, `Mass * Acceleration → Force`: the output type's dimension is `A * B`, computed at compile time by your dimension's own `const impl Mul`.
 - **Units are constants.** A unit is a unit *of* `Q` through `impl Unit<Q>` - one per quantity (or point) it measures, in any crate that owns the quantity. Every quantity constant is one (`POUND(10.0)` builds, `KILOGRAM(m)` reads); a scale is a zero and a step (`CELSIUS`, `FEET_AMSL`, and on a logarithmic line `DBM`); anything else a type of yours with two functions.
-- **Prefixes are numbers.** In `yadc-si` the 20 SI prefixes are exact numbers (`KILO`, `MILLI`, ...) that scale a unit of any number type - `KILO * METRE`, `MILLI * WATT` - instead of a constant per prefixed unit, and `Prefixed<U>` parses a prefix before a unit enum's symbols (`"km"`, `"mPa"`).
+- **Exact constants, rounded where you say.** Every `yadc-si` constant is exact (`MILE: Length<Exact>`) and composes exactly (`MILE / HOUR`, `SLUG / CUBIC_FOOT`); std `From` rounds it once to `f64`, `f32` or an integer, in a `const` at compile time (`const MI: Length<f64> = MILE.into();`).
+- **Prefixes are numbers.** In `yadc-si` the 20 SI prefixes are exact dimensionless quantities (`KILO`, `MILLI`, ...) that scale a unit - `KILO * METRE`, `MILLI * WATT` - instead of a constant per prefixed unit, and `Prefixed<U>` parses a leading prefix on a unit enum's symbols (`"km"`, `"mPa"`).
 - **Kinds: amounts, points, logarithms, and labels of yours.** A `#[kind]` field on `Dim` carries your own enum. Its ordinary variant is an amount; a variant marked `#[kind(affine)]` is a point (an altitude, an instant) and one marked `#[kind(log)]` a logarithm (a `PowerLevel`, a `Gain`); any other variant is a label telling apart quantities that share their exponents - `yadc-si`'s `Absolute`, for `ThermodynamicTemperature` vs. `TemperatureInterval` - with its sums as data on the enum: `#[kind(absolute)]` for an amount with a true zero (two differ by an ordinary amount, which moves one), or rules such as `#[kind(add(Rank) = invalid)]`.
 - **Points and levels behave as on the whiteboard.** altitude − altitude = length and altitude ± length = altitude, and nothing that depends on where the zero was put; level − level = gain and level ± gain = level, because adding logarithms multiplies.
 - **Static and dynamic, mixed freely.** yadc is the statics; dynamic types are built with [`dynamickit`](dynamickit/), which knows nothing about quantities. `yadc-si`'s `DynamicSIQuantity` holds any dimension, carried at run time: every operator returns an `Option` (`None` for `kg + m`, or for a product of a level), so a calculation reads `((a * b)? + c)?`.
 - **Units picked at run time.** A unit enum is a run-time choice within one family; `&dyn Unit<Length>` is "some unit of length", still checked at compile time; across quantities, your enum of unit enums is visited with `dynamickit`'s `Visit`, each family naming the quantity it measures in an associated type of yours.
-- **Number types are yours too.** The stored number is whatever the quantity's field is: `f64`, `f32`, a newtype, a generic `N` (`Qty<const D: Dim, N>(N)`, every use naming it - `Pressure<f64>`, `Pressure<f32>` - with `BAR.cast::<f32>()`, a lossless std `From`, and `#[quantity(from(f32 => f64))]` for `f32` and `f64` values that meet). A derived unit enum counts in `f64` unless `#[unit(number = f32)]` says otherwise.
+- **Number types are yours too.** The stored number is whatever the quantity's field is: `f64`, `f32`, a newtype, a generic `N` (`Qty<const D: Dim, N>(N)`, every use naming it - `Pressure<f64>`, `Pressure<f32>` - with `p.cast::<f32>()`, a lossless std `From`, and `#[quantity(from(f32 => f64))]` for `f32` and `f64` values that meet). A derived unit enum counts in `f64` unless `#[unit(number = f32)]` says otherwise, or in any number type with `#[unit(of = Length<N>, number = N)]` and `#[unit(for<N> where ..)]` (`yadc-si`'s enums: `LengthUnit::Foot.quantity(3.0f32)`).
 - **Nothing hidden.** The traits are the whole contract, and the derives write trait impls only; the quantity derive reaches dimensions only through `Dimension`; a derived unit delegates to the unit values you name in its attributes; only the crate that owns a quantity type writes its field.
-- **Compile-time quantities.** Quantity arithmetic, constants and scales as units, and `cast` are `const`, so `const LIMIT: Velocity<f64> = 50.0 * MILE / HOUR;` is checked and evaluated by the compiler.
+- **Compile-time quantities.** Quantity arithmetic, constants and scales as units, and `cast` are `const`, so `const MPH: Velocity<f64> = (MILE / HOUR).into();` and `const LIMIT: Velocity<f64> = 50.0 * MPH;` are checked and evaluated by the compiler.
 - **Optional serde** with a UCUM wire format for dimensions (`"m.kg.s-2"`, `"rad"`, `"K{Absolute}"`, `"1"`) via the `UcumSerialize` / `UcumDeserialize` derives, plus `UcumKind` for the label enum - all behind `yadc`'s `ucum` Cargo feature, which `yadc-si`'s `serde` feature turns on.
 - **`no_std`.** `yadc`, `yadc-math` and `dynamickit` are `no_std`; a root or a level's logarithm reaches float maths through `num_traits`, so enable `yadc/libm` for a build without `std`.
 
@@ -480,7 +502,7 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 | Crate | Purpose |
 |---|---|
 | **[`yadc`](yadc/)** | The statics: the core traits, at the crate root (`yadc::Unit`, `yadc::Quantity`, `yadc::Dimension`, `yadc::PartialPowi`, ...; `yadc::ucum::UcumKind` under the `ucum` feature), `yadc::gates` (the refusals and their messages), `yadc::display` (how the derived `Display`s print), and the derives. |
-| **[`yadc-si`](yadc-si/)** | A ready-made SI system built on `yadc`, generated from [`yadc-codegen/si.toml`](yadc-codegen/si.toml): `SIQuantity`, `DynamicSIQuantity`, the `base` constants, ~120 quantity aliases with their units (~870 constants) in 9 feature-gated families, the 20 SI prefixes as exact numbers (`KILO * METRE`) with `Prefixed` for parsing them, plus optional serde and [`uom`](https://crates.io/crates/uom) bridges. |
+| **[`yadc-si`](yadc-si/)** | A ready-made SI system built on `yadc`, generated from [`yadc-codegen/si.toml`](yadc-codegen/si.toml): `SIQuantity`, `dynamic::DynamicSIQuantity`, the `base` constants, ~120 quantity aliases with their units (~860 units in generic unit enums, ~380 exact constants) in 9 feature-gated families, the 20 SI prefixes as exact quantities (`KILO * METRE`) with `Prefixed` for parsing them, plus optional serde and [`uom`](https://crates.io/crates/uom) bridges. |
 | **[`yadc-derive`](yadc-derive/)** | The proc-macro derives (`Dimension`, `Quantity`, `Unit`, `UcumKind`, `UcumSerialize`, `UcumDeserialize`). Internal — depend on `yadc` instead. |
 | **[`yadc-math`](yadc-math/)** | The generic maths under yadc, knowing nothing about units: `Dimension`, `PartialPowi` / `PartialRoot` (powers and roots that may not exist), `Powi<N>` / `Root<N>` with `PowiAs` / `RootAs` (`x.powi::<2>()`, `x.root::<2>()`), `Cast` / `CastAs`, and `Exponent`. Re-exported at `yadc`'s root. |
 | **[`dynamickit`](dynamickit/)** | Dynamic types and closed sets, knowing nothing about quantities (and depending on nothing): the *dynamic type* (`#[derive(Dynamic)]` on a struct of yours, one mapping per static type it holds - `Bag<F: Fruit> => { fruit: F::KIND, count: .count }` - with std `From` / `TryFrom` both ways and operators and methods lifted field by field, each with its output stated), and *closed sets* (your enums: `Visit` for a value's case - one value or several at once - `Variants` for the variants themselves, `Members` and `Via` for std conversions and operators). |

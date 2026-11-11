@@ -1,4 +1,5 @@
-use crate::{Exact, ISQ, Kind, SIQuantity, Scale, counted};
+use crate::base::{KILOGRAM, METRE, SECOND};
+use crate::{Exact, ISQ, Kind, SIQuantity, Scale};
 use consts::*;
 use yadc::Dimension;
 
@@ -169,13 +170,11 @@ pub type StefanBoltzmannCoefficient<N> = SIQuantity<
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined exactly from them -
-/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
-/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
-/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
-/// one: `KILO * METRE`. They compose in `const` items:
-/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
+/// (re-exported), then one per named unit, each defined exactly from them
+/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
+/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
+/// once, where it is written - in a `const`, by the compiler:
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, ONE, SECOND};
@@ -187,556 +186,322 @@ pub mod consts {
     pub use crate::base::ABSOLUTE_ZERO;
 
     /// 0 °C, the ice point of water: 273.15 K.
-    pub const ICE_POINT<N: const From<Exact>>: ThermodynamicTemperature<N> = counted(ABSOLUTE_ZERO::<Exact> + Exact::dec(27315, -2) * KELVIN::<Exact>);
+    pub const ICE_POINT: ThermodynamicTemperature<Exact> =
+        ABSOLUTE_ZERO + KELVIN * Exact::dec(27315, -2);
 
     /// 0 °F: 32 °F below the ice point.
-    pub const FAHRENHEIT_ZERO<N: const From<Exact>>: ThermodynamicTemperature<N> = counted(ICE_POINT::<Exact> - Exact::int(32) * DEGREE_FAHRENHEIT::<Exact>);
+    pub const FAHRENHEIT_ZERO: ThermodynamicTemperature<Exact> =
+        ICE_POINT - DEGREE_FAHRENHEIT * Exact::int(32);
 
     /// The kelvin scale (K): kelvins from absolute zero.
-    pub const KELVIN_SCALE<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(ABSOLUTE_ZERO, KELVIN);
+    pub const KELVIN_SCALE: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> =
+        Scale(ABSOLUTE_ZERO, KELVIN);
 
     /// The Celsius scale (°C): kelvins from the ice point.
-    pub const CELSIUS<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(ICE_POINT, KELVIN);
+    pub const CELSIUS: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> =
+        Scale(ICE_POINT, KELVIN);
 
     /// The Fahrenheit scale (°F): degrees Fahrenheit from 32 °F below the ice point.
-    pub const FAHRENHEIT<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT);
+    pub const FAHRENHEIT: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> =
+        Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT);
 
     /// The Rankine scale (°R): degrees Fahrenheit from absolute zero.
-    pub const RANKINE<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(ABSOLUTE_ZERO, DEGREE_FAHRENHEIT);
+    pub const RANKINE: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> =
+        Scale(ABSOLUTE_ZERO, DEGREE_FAHRENHEIT);
 
     /// One `Fahrenheit` (°F), as a `TemperatureInterval`.
-    pub const DEGREE_FAHRENHEIT<N: const From<Exact>>: TemperatureInterval<N> = counted((Exact::int(5) / Exact::int(9)) * KELVIN::<Exact>);
+    pub const DEGREE_FAHRENHEIT: TemperatureInterval<Exact> =
+        KELVIN * (Exact::int(5) / Exact::int(9));
 
     /// One `PerKelvin` (K⁻¹), as a `TemperatureCoefficient`.
-    pub const PER_KELVIN<N: const From<Exact>>: TemperatureCoefficient<N> = counted(ONE::<Exact> / KELVIN::<Exact>);
-
-    /// One `PpmPerKelvin` (ppm/K), as a `TemperatureCoefficient`.
-    pub const PPM_PER_KELVIN<N: const From<Exact>>: TemperatureCoefficient<N> = counted(Exact::dec(1, -6) * PER_KELVIN::<Exact>);
-
-    /// One `PpmPerDegreeCelsius` (ppm/°C), as a `TemperatureCoefficient`.
-    pub const PPM_PER_DEGREE_CELSIUS<N: const From<Exact>>: TemperatureCoefficient<N> = counted(Exact::dec(1, -6) * PER_KELVIN::<Exact>);
-
-    /// One `KelvinPerMetre` (K/m), as a `TemperatureGradient`.
-    pub const KELVIN_PER_METRE<N: const From<Exact>>: TemperatureGradient<N> = counted(KELVIN::<Exact> / METRE::<Exact>);
-
-    /// One `KilogramSquareMetrePerSecondSquaredKelvin` (kg · m²/(s² · K)), as a `HeatCapacity`.
-    pub const KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `GramSquareMetrePerSecondSquaredKelvin` (g · m²/(s² · K)), as a `HeatCapacity`.
-    pub const GRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `JoulePerKelvin` (J/K), as a `HeatCapacity`.
-    pub const JOULE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `JoulePerDegreeCelsius` (J/°C), as a `HeatCapacity`.
-    pub const JOULE_PER_DEGREE_CELSIUS<N: const From<Exact>>: HeatCapacity<N> = counted(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuPerDegreeFahrenheit` (Btu/°F), as a `HeatCapacity`.
-    pub const BTU_PER_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatCapacity<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(5) / Exact::int(9))) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuItPerDegreeFahrenheit` (Btu (IT)/°F), as a `HeatCapacity`.
-    pub const BTU_IT_PER_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatCapacity<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(5) / Exact::int(9))) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
+    pub const PER_KELVIN: TemperatureCoefficient<Exact> = ONE / KELVIN;
 
     /// One `BoltzmannConstant` (k), as a `HeatCapacity`.
-    pub const BOLTZMANN_CONSTANT<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(1380649, -29) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `CaloriePerKelvin` (cal/K), as a `HeatCapacity`.
-    pub const CALORIE_PER_KELVIN<N: const From<Exact>>: HeatCapacity<N> = counted(Exact::dec(4184, -3) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `WattPerSquareMetre` (W/m²), as a `HeatFluxDensity`.
-    pub const WATT_PER_SQUARE_METRE<N: const From<Exact>>: HeatFluxDensity<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `KilogramPerSecondCubedKelvin` (kg/(s³ · K)), as a `HeatTransfer`.
-    pub const KILOGRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `GramPerSecondCubedKelvin` (g/(s³ · K)), as a `HeatTransfer`.
-    pub const GRAM_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KilogramPerSecondCubedDegreeCelsius` (kg/(s³ · °C)), as a `HeatTransfer`.
-    pub const KILOGRAM_PER_SECOND_CUBED_DEGREE_CELSIUS<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `WattPerSquareMetreKelvin` (W/(m² · K)), as a `HeatTransfer`.
-    pub const WATT_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `WattPerSquareMetreDegreeCelsius` (W/(m² · °C)), as a `HeatTransfer`.
-    pub const WATT_PER_SQUARE_METRE_DEGREE_CELSIUS<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `JoulePerSecondSquareMetreKelvin` (J/(s · m² · K)), as a `HeatTransfer`.
-    pub const JOULE_PER_SECOND_SQUARE_METRE_KELVIN<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `JoulePerSecondSquareMetreDegreeCelsius` (J/(s · m² · °C)), as a `HeatTransfer`.
-    pub const JOULE_PER_SECOND_SQUARE_METRE_DEGREE_CELSIUS<N: const From<Exact>>: HeatTransfer<N> = counted(KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuItPerHourSquareFootDegreeFahrenheit` (Btu (IT)/(hr · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(3600) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuItPerHourSquareInchDegreeFahrenheit` (Btu (IT)/(hr · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(3600) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuItPerMinuteSquareFootDegreeFahrenheit` (Btu (IT)/(min · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(60) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuItPerMinuteSquareInchDegreeFahrenheit` (Btu (IT)/(min · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(60) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuItPerSecondSquareFootDegreeFahrenheit` (Btu (IT)/(s · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuItPerSecondSquareInchDegreeFahrenheit` (Btu (IT)/(s · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted((Exact::dec(105505585262, -8) / (Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuPerHourSquareFootDegreeFahrenheit` (Btu/(hr · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(3600) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuPerHourSquareInchDegreeFahrenheit` (Btu/(hr · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(3600) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuPerMinuteSquareFootDegreeFahrenheit` (Btu/(min · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(60) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuPerMinuteSquareInchDegreeFahrenheit` (Btu/(min · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(60) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuPerSecondSquareFootDegreeFahrenheit` (Btu/(s · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `BtuPerSecondSquareInchDegreeFahrenheit` (Btu/(s · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT<N: const From<Exact>>: HeatTransfer<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9)))) * KILOGRAM_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `YottagramMetreSquaredPerSecondCubedKelvin` (Yg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const YOTTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `ZettagramMetreSquaredPerSecondCubedKelvin` (Zg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const ZETTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `ExagramMetreSquaredPerSecondCubedKelvin` (Eg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const EXAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `PetagramMetreSquaredPerSecondCubedKelvin` (Pg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const PETAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `TeragramMetreSquaredPerSecondCubedKelvin` (Tg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const TERAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `GigagramMetreSquaredPerSecondCubedKelvin` (Gg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const GIGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `MegagramMetreSquaredPerSecondCubedKelvin` (Mg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const MEGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KilogramMetreSquaredPerSecondCubedKelvin` (kg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `HectogramMetreSquaredPerSecondCubedKelvin` (hg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const HECTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `DecagramMetreSquaredPerSecondCubedKelvin` (dag · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const DECAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `GramMetreSquaredPerSecondCubedKelvin` (g · m/(s³ · K)), as a `ThermalConductance`.
-    pub const GRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `DecigramMetreSquaredPerSecondCubedKelvin` (dg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const DECIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -4) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `CentigramMetreSquaredPerSecondCubedKelvin` (cg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const CENTIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -5) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `MilligramMetreSquaredPerSecondCubedKelvin` (mg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const MILLIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `NanogramMetreSquaredPerSecondCubedKelvin` (ng · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const NANOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `PicogramMetreSquaredPerSecondCubedKelvin` (pg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const PICOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `FemtogramMetreSquaredPerSecondCubedKelvin` (fg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const FEMTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `AttogramMetreSquaredPerSecondCubedKelvin` (ag · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const ATTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `ZeptogramMetreSquaredPerSecondCubedKelvin` (zg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const ZEPTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `YoctogramMetreSquaredPerSecondCubedKelvin` (yg · m²/(s³ · K)), as a `ThermalConductance`.
-    pub const YOCTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -27) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `WattPerKelvin` (W/K), as a `ThermalConductance`.
-    pub const WATT_PER_KELVIN<N: const From<Exact>>: ThermalConductance<N> = counted(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KilogramMetreSquaredPerSecondCubedDegreeCelsius` (kg · m²/(s³ · °C)), as a `ThermalConductance`.
-    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KilowattPerDegreeCelsius` (kW/°C), as a `ThermalConductance`.
-    pub const KILOWATT_PER_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::int(1000) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `WattPerMetreDegreeCelsius` (W/°C), as a `ThermalConductance`.
-    pub const THERMAL_CONDUCTANCE_WATT_PER_METRE_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `MilliwattPerDegreeCelsius` (mW/°C), as a `ThermalConductance`.
-    pub const MILLIWATT_PER_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductance<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KilogramMetrePerSecondCubedKelvin` (kg · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `GramMetrePerSecondCubedKelvin` (g · m/(s³ · K)), as a `ThermalConductivity`.
-    pub const GRAM_METRE_PER_SECOND_CUBED_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `WattPerMetreKelvin` (W/(m · K)), as a `ThermalConductivity`.
-    pub const WATT_PER_METRE_KELVIN<N: const From<Exact>>: ThermalConductivity<N> = counted(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KilogramMetrePerSecondCubedDegreeCelsius` (kg · m/(s³ · °C)), as a `ThermalConductivity`.
-    pub const KILOGRAM_METRE_PER_SECOND_CUBED_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductivity<N> = counted(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `WattPerMetreDegreeCelsius` (W/(m · °C)), as a `ThermalConductivity`.
-    pub const THERMAL_CONDUCTIVITY_WATT_PER_METRE_DEGREE_CELSIUS<N: const From<Exact>>: ThermalConductivity<N> = counted(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN::<Exact>);
-
-    /// One `KelvinPerKilowatt` (K/kw), as a `ThermalResistance`.
-    pub const KELVIN_PER_KILOWATT<N: const From<Exact>>: ThermalResistance<N> = counted(Exact::dec(1, -3) * KELVIN_PER_WATT::<Exact>);
-
-    /// One `KelvinPerWatt` (K/W), as a `ThermalResistance`.
-    pub const KELVIN_PER_WATT<N: const From<Exact>>: ThermalResistance<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact> / (METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
-
-    /// One `SquareMetrePerSecondSquaredKelvin` (m²/(s² · K)), as a `SpecificHeatCapacity`.
-    pub const SQUARE_METRE_PER_SECOND_SQUARED_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(METRE::<Exact> * METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `JoulePerKilogramKelvin` (J/(kg · K)), as a `SpecificHeatCapacity`.
-    pub const JOULE_PER_KILOGRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `JoulePerKilogramDegreeCelsius` (J/(kg · °C)), as a `SpecificHeatCapacity`.
-    pub const JOULE_PER_KILOGRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `JoulePerGramDegreeCelsius` (J/(g · °C)), as a `SpecificHeatCapacity`.
-    pub const JOULE_PER_GRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(1000) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `MillijoulePerGramDegreeCelsius` (mJ/(g · °C)), as a `SpecificHeatCapacity`.
-    pub const MILLIJOULE_PER_GRAM_DEGREE_CELSIUS<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuPerOunceDegreeFahrenheit` (Btu/(oz · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_OUNCE_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted((Exact::int(16) * Exact::int(4184)) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuItPerOunceDegreeFahrenheit` (Btu (IT)/(oz · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted((Exact::int(16) * Exact::dec(41868, -1)) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuPerPoundDegreeFahrenheit` (Btu/(lb · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_POUND_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(4184) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuItPerPoundDegreeFahrenheit` (Btu (IT)/(lb · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_IT_PER_POUND_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::dec(41868, -1) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuPerTonDegreeFahrenheit` (Btu/(t · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_TON_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(1000) * (Exact::int(5) / Exact::int(9)))) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `BtuItPerTonDegreeFahrenheit` (Btu (IT)/(t · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_IT_PER_TON_DEGREE_FAHRENHEIT<N: const From<Exact>>: SpecificHeatCapacity<N> = counted((Exact::dec(105505585262, -8) / (Exact::int(1000) * (Exact::int(5) / Exact::int(9)))) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `CaloriePerGramKelvin` (cal/(g · K)), as a `SpecificHeatCapacity`.
-    pub const CALORIE_PER_GRAM_KELVIN<N: const From<Exact>>: SpecificHeatCapacity<N> = counted(Exact::int(4184) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN::<Exact>);
-
-    /// One `JoulePerSquareMetreKelvin` (J/(m² · K)), as an `ArealHeatCapacity`.
-    pub const JOULE_PER_SQUARE_METRE_KELVIN<N: const From<Exact>>: ArealHeatCapacity<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `JoulePerCubicMetreKelvin` (J/(m³ · K)), as a `VolumetricHeatCapacity`.
-    pub const JOULE_PER_CUBIC_METRE_KELVIN<N: const From<Exact>>: VolumetricHeatCapacity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact>));
-
-    /// One `CaloriePerCubicMetreKelvin` (cal/(m³ · K)), as a `VolumetricHeatCapacity`.
-    pub const CALORIE_PER_CUBIC_METRE_KELVIN<N: const From<Exact>>: VolumetricHeatCapacity<N> = counted(Exact::dec(4184, -3) * JOULE_PER_CUBIC_METRE_KELVIN::<Exact>);
-
-    /// One `WattPerSquareMetreQuarticKelvin` (W/(m² · K⁴)), as a `StefanBoltzmannCoefficient`.
-    pub const WATT_PER_SQUARE_METRE_QUARTIC_KELVIN<N: const From<Exact>>: StefanBoltzmannCoefficient<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * KELVIN::<Exact> * KELVIN::<Exact> * KELVIN::<Exact> * KELVIN::<Exact>));
+    pub const BOLTZMANN_CONSTANT: HeatCapacity<Exact> =
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)) * Exact::dec(1380649, -29);
 
     /// One `StefanBoltzmannConstant` (σ), as a `StefanBoltzmannCoefficient`.
-    pub const STEFAN_BOLTZMANN_CONSTANT<N: const From<Exact>>: StefanBoltzmannCoefficient<N> = counted(Exact::dec(5670374419, -17) * WATT_PER_SQUARE_METRE_QUARTIC_KELVIN::<Exact>);
+    pub const STEFAN_BOLTZMANN_CONSTANT: StefanBoltzmannCoefficient<Exact> = (KILOGRAM
+        / (SECOND * SECOND * SECOND * KELVIN * KELVIN * KELVIN * KELVIN))
+        * Exact::dec(5670374419, -17);
 }
 
-/// The units of `ThermodynamicTemperature`, for a menu, a config file, a parser.
+/// The units of `ThermodynamicTemperature`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermodynamicTemperature<f64>)]
+#[unit(of = ThermodynamicTemperature<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>>: [const] yadc::Unit<ThermodynamicTemperature<N>, N> + [const] core::marker::Destruct)]
 pub enum ThermodynamicTemperatureUnit {
     #[default]
-    #[unit("K", "kelvin", by = KELVIN_SCALE)]
+    #[unit("K", "kelvin", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(KELVIN_SCALE))]
     Kelvin,
-    #[unit("°C", "degrees Celsius", by = CELSIUS)]
+    #[unit("°C", "degrees Celsius", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(CELSIUS))]
     Celsius,
-    #[unit("°F", "degrees Fahrenheit", by = FAHRENHEIT)]
+    #[unit("°F", "degrees Fahrenheit", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(FAHRENHEIT))]
     Fahrenheit,
-    #[unit("°R", "degrees Rankine", by = RANKINE)]
+    #[unit("°R", "degrees Rankine", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(RANKINE))]
     Rankine,
 }
 
-/// The units of `TemperatureInterval`, for a menu, a config file, a parser.
+/// The units of `TemperatureInterval`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureInterval<f64>)]
+#[unit(of = TemperatureInterval<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, TemperatureInterval<N>: [const] yadc::Unit<TemperatureInterval<N>, N> + [const] core::marker::Destruct)]
 pub enum TemperatureIntervalUnit {
     #[default]
-    #[unit("K", "kelvin", by = KELVIN)]
+    #[unit("K", "kelvin", by = TemperatureInterval::<N>::from(KELVIN))]
     Kelvin,
-    #[unit("°C", "degrees Celsius", by = KELVIN)]
+    #[unit("°C", "degrees Celsius", by = TemperatureInterval::<N>::from(KELVIN))]
     Celsius,
-    #[unit("°F", "degrees Fahrenheit", by = DEGREE_FAHRENHEIT)]
+    #[unit("°F", "degrees Fahrenheit", by = TemperatureInterval::<N>::from(DEGREE_FAHRENHEIT))]
     Fahrenheit,
-    #[unit("°R", "degrees Rankine", by = DEGREE_FAHRENHEIT)]
+    #[unit("°R", "degrees Rankine", by = TemperatureInterval::<N>::from(DEGREE_FAHRENHEIT))]
     Rankine,
 }
 
-/// The units of `TemperatureCoefficient`, for a menu, a config file, a parser.
+/// The units of `TemperatureCoefficient`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureCoefficient<f64>)]
+#[unit(of = TemperatureCoefficient<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, TemperatureCoefficient<N>: [const] yadc::Unit<TemperatureCoefficient<N>, N> + [const] core::marker::Destruct)]
 pub enum TemperatureCoefficientUnit {
     #[default]
-    #[unit("K⁻¹", "per kelvin", by = PER_KELVIN)]
+    #[unit("K⁻¹", "per kelvin", by = TemperatureCoefficient::<N>::from(PER_KELVIN))]
     PerKelvin,
-    #[unit("ppm/K", "ppm per kelvin", by = PPM_PER_KELVIN)]
+    #[unit("ppm/K", "ppm per kelvin", by = TemperatureCoefficient::<N>::from(PER_KELVIN * Exact::dec(1, -6)))]
     PpmPerKelvin,
-    #[unit("ppm/°C", "ppm per degree Celsius", by = PPM_PER_DEGREE_CELSIUS)]
+    #[unit("ppm/°C", "ppm per degree Celsius", by = TemperatureCoefficient::<N>::from(PER_KELVIN * Exact::dec(1, -6)))]
     PpmPerDegreeCelsius,
 }
 
-/// The units of `TemperatureGradient`, for a menu, a config file, a parser.
+/// The units of `TemperatureGradient`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureGradient<f64>)]
+#[unit(of = TemperatureGradient<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, TemperatureGradient<N>: [const] yadc::Unit<TemperatureGradient<N>, N> + [const] core::marker::Destruct)]
 pub enum TemperatureGradientUnit {
     #[default]
-    #[unit("K/m", "kelvins per metre", by = KELVIN_PER_METRE)]
+    #[unit("K/m", "kelvins per metre", by = TemperatureGradient::<N>::from(KELVIN / METRE))]
     KelvinPerMetre,
 }
 
-/// The units of `HeatCapacity`, for a menu, a config file, a parser.
+/// The units of `HeatCapacity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatCapacity<f64>)]
+#[unit(of = HeatCapacity<N>, number = N)]
+#[unit(for<N> where HeatCapacity<N>: [const] yadc::Unit<HeatCapacity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum HeatCapacityUnit {
     #[default]
-    #[unit("kg · m²/(s² · K)", "kilogram square metres per second squared kelvin", by = KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
+    #[unit("kg · m²/(s² · K)", "kilogram square metres per second squared kelvin", by = HeatCapacity::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)))]
     KilogramSquareMetrePerSecondSquaredKelvin,
-    #[unit("g · m²/(s² · K)", "gram square metres per second squared kelvin", by = GRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
+    #[unit("g · m²/(s² · K)", "gram square metres per second squared kelvin", by = HeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)) * Exact::dec(1, -3)))]
     GramSquareMetrePerSecondSquaredKelvin,
-    #[unit("J/K", "joules per kelvin", by = JOULE_PER_KELVIN)]
+    #[unit("J/K", "joules per kelvin", by = HeatCapacity::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)))]
     JoulePerKelvin,
-    #[unit("J/°C", "joules per degree celsius", by = JOULE_PER_DEGREE_CELSIUS)]
+    #[unit("J/°C", "joules per degree celsius", by = HeatCapacity::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)))]
     JoulePerDegreeCelsius,
-    #[unit("Btu/°F", "British thermal units per degree Fahrenheit", by = BTU_PER_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/°F", "British thermal units per degree Fahrenheit", by = HeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(5) / Exact::int(9)))))]
     BtuPerDegreeFahrenheit,
-    #[unit("Btu (IT)/°F", "British thermal units (IT) per degree Fahrenheit", by = BTU_IT_PER_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/°F", "British thermal units (IT) per degree Fahrenheit", by = HeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::int(5) / Exact::int(9)))))]
     BtuItPerDegreeFahrenheit,
-    #[unit("k", "Boltzmann constants", by = BOLTZMANN_CONSTANT)]
+    #[unit("k", "Boltzmann constants", by = HeatCapacity::<N>::from(BOLTZMANN_CONSTANT))]
     BoltzmannConstant,
-    #[unit("cal/K", "calories per kelvin", by = CALORIE_PER_KELVIN)]
+    #[unit("cal/K", "calories per kelvin", by = HeatCapacity::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)) * Exact::dec(4184, -3)))]
     CaloriePerKelvin,
 }
 
-/// The units of `HeatFluxDensity`, for a menu, a config file, a parser.
+/// The units of `HeatFluxDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatFluxDensity<f64>)]
+#[unit(of = HeatFluxDensity<N>, number = N)]
+#[unit(for<N> where HeatFluxDensity<N>: [const] yadc::Unit<HeatFluxDensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum HeatFluxDensityUnit {
     #[default]
-    #[unit("W/m²", "watts per square metre", by = WATT_PER_SQUARE_METRE)]
+    #[unit("W/m²", "watts per square metre", by = HeatFluxDensity::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND)))]
     WattPerSquareMetre,
 }
 
-/// The units of `HeatTransfer`, for a menu, a config file, a parser.
+/// The units of `HeatTransfer`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatTransfer<f64>)]
+#[unit(of = HeatTransfer<N>, number = N)]
+#[unit(for<N> where HeatTransfer<N>: [const] yadc::Unit<HeatTransfer<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum HeatTransferUnit {
     #[default]
-    #[unit("kg/(s³ · K)", "kilograms per second cubed kelvin", by = KILOGRAM_PER_SECOND_CUBED_KELVIN)]
+    #[unit("kg/(s³ · K)", "kilograms per second cubed kelvin", by = HeatTransfer::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     KilogramPerSecondCubedKelvin,
-    #[unit("g/(s³ · K)", "grams per second cubed kelvin", by = GRAM_PER_SECOND_CUBED_KELVIN)]
+    #[unit("g/(s³ · K)", "grams per second cubed kelvin", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * Exact::dec(1, -3)))]
     GramPerSecondCubedKelvin,
-    #[unit("kg/(s³ · °C)", "kilograms per second cubed degree celsius", by = KILOGRAM_PER_SECOND_CUBED_DEGREE_CELSIUS)]
+    #[unit("kg/(s³ · °C)", "kilograms per second cubed degree celsius", by = HeatTransfer::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     KilogramPerSecondCubedDegreeCelsius,
-    #[unit("W/(m² · K)", "watts per square metre kelvin", by = WATT_PER_SQUARE_METRE_KELVIN)]
+    #[unit("W/(m² · K)", "watts per square metre kelvin", by = HeatTransfer::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     WattPerSquareMetreKelvin,
-    #[unit("W/(m² · °C)", "watts per square metre degree celsius", by = WATT_PER_SQUARE_METRE_DEGREE_CELSIUS)]
+    #[unit("W/(m² · °C)", "watts per square metre degree celsius", by = HeatTransfer::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     WattPerSquareMetreDegreeCelsius,
-    #[unit("J/(s · m² · K)", "joules per second square metre kelvin", by = JOULE_PER_SECOND_SQUARE_METRE_KELVIN)]
+    #[unit("J/(s · m² · K)", "joules per second square metre kelvin", by = HeatTransfer::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     JoulePerSecondSquareMetreKelvin,
-    #[unit("J/(s · m² · °C)", "joules per second square metre degree celsius", by = JOULE_PER_SECOND_SQUARE_METRE_DEGREE_CELSIUS)]
+    #[unit("J/(s · m² · °C)", "joules per second square metre degree celsius", by = HeatTransfer::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     JoulePerSecondSquareMetreDegreeCelsius,
-    #[unit("Btu (IT)/(hr · ft² · °F)", "British thermal units (IT) per hour square foot degree Fahrenheit", by = BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(hr · ft² · °F)", "British thermal units (IT) per hour square foot degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::int(3600) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerHourSquareFootDegreeFahrenheit,
-    #[unit("Btu (IT)/(hr · in² · °F)", "British thermal units (IT) per hour square inch degree Fahrenheit", by = BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(hr · in² · °F)", "British thermal units (IT) per hour square inch degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::int(3600) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerHourSquareInchDegreeFahrenheit,
-    #[unit("Btu (IT)/(min · ft² · °F)", "British thermal units (IT) per minute square foot degree Fahrenheit", by = BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(min · ft² · °F)", "British thermal units (IT) per minute square foot degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::int(60) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerMinuteSquareFootDegreeFahrenheit,
-    #[unit("Btu (IT)/(min · in² · °F)", "British thermal units (IT) per minute square inch degree Fahrenheit", by = BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(min · in² · °F)", "British thermal units (IT) per minute square inch degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::int(60) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerMinuteSquareInchDegreeFahrenheit,
-    #[unit("Btu (IT)/(s · ft² · °F)", "British thermal units (IT) per second square foot degree Fahrenheit", by = BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(s · ft² · °F)", "British thermal units (IT) per second square foot degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerSecondSquareFootDegreeFahrenheit,
-    #[unit("Btu (IT)/(s · in² · °F)", "British thermal units (IT) per second square inch degree Fahrenheit", by = BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(s · in² · °F)", "British thermal units (IT) per second square inch degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerSecondSquareInchDegreeFahrenheit,
-    #[unit("Btu/(hr · ft² · °F)", "British thermal units per hour square foot degree Fahrenheit", by = BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(hr · ft² · °F)", "British thermal units per hour square foot degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(3600) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerHourSquareFootDegreeFahrenheit,
-    #[unit("Btu/(hr · in² · °F)", "British thermal units per hour square inch degree Fahrenheit", by = BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(hr · in² · °F)", "British thermal units per hour square inch degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(3600) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerHourSquareInchDegreeFahrenheit,
-    #[unit("Btu/(min · ft² · °F)", "British thermal units per minute square foot degree Fahrenheit", by = BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(min · ft² · °F)", "British thermal units per minute square foot degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(60) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerMinuteSquareFootDegreeFahrenheit,
-    #[unit("Btu/(min · in² · °F)", "British thermal units per minute square inch degree Fahrenheit", by = BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(min · in² · °F)", "British thermal units per minute square inch degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(60) * Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerMinuteSquareInchDegreeFahrenheit,
-    #[unit("Btu/(s · ft² · °F)", "British thermal units per second square foot degree Fahrenheit", by = BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(s · ft² · °F)", "British thermal units per second square foot degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerSecondSquareFootDegreeFahrenheit,
-    #[unit("Btu/(s · in² · °F)", "British thermal units per second square inch degree Fahrenheit", by = BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(s · in² · °F)", "British thermal units per second square inch degree Fahrenheit", by = HeatTransfer::<N>::from((KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::dec(254, -4) * Exact::dec(254, -4) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerSecondSquareInchDegreeFahrenheit,
 }
 
-/// The units of `ThermalConductance`, for a menu, a config file, a parser.
+/// The units of `ThermalConductance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalConductance<f64>)]
+#[unit(of = ThermalConductance<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, ThermalConductance<N>: [const] yadc::Unit<ThermalConductance<N>, N> + [const] core::marker::Destruct)]
 pub enum ThermalConductanceUnit {
-    #[unit("Yg · m²/(s³ · K)", "yottagrams metre squared per second cubed kelvin", by = YOTTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    YottagramMetreSquaredPerSecondCubedKelvin,
-    #[unit("Zg · m²/(s³ · K)", "zettagrams metre squared per second cubed kelvin", by = ZETTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    ZettagramMetreSquaredPerSecondCubedKelvin,
-    #[unit("Eg · m²/(s³ · K)", "exagrams metre squared per second cubed kelvin", by = EXAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    ExagramMetreSquaredPerSecondCubedKelvin,
-    #[unit("Pg · m²/(s³ · K)", "petagrams metre squared per second cubed kelvin", by = PETAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    PetagramMetreSquaredPerSecondCubedKelvin,
-    #[unit("Tg · m²/(s³ · K)", "teragrams metre squared per second cubed kelvin", by = TERAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    TeragramMetreSquaredPerSecondCubedKelvin,
-    #[unit("Gg · m²/(s³ · K)", "gigagrams metre squared per second cubed kelvin", by = GIGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    GigagramMetreSquaredPerSecondCubedKelvin,
-    #[unit("Mg · m²/(s³ · K)", "megagrams metre squared per second cubed kelvin", by = MEGAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    MegagramMetreSquaredPerSecondCubedKelvin,
     #[default]
-    #[unit("kg · m²/(s³ · K)", "kilograms metre squared per second cubed kelvin", by = KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
+    #[unit("kg · m²/(s³ · K)", "kilograms metre squared per second cubed kelvin", by = ThermalConductance::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     KilogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("hg · m²/(s³ · K)", "hectograms metre squared per second cubed kelvin", by = HECTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    HectogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("dag · m²/(s³ · K)", "decagrams metre squared per second cubed kelvin", by = DECAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    DecagramMetreSquaredPerSecondCubedKelvin,
-    #[unit("g · m/(s³ · K)", "grams metre squared per second cubed kelvin", by = GRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
+    #[unit("g · m/(s³ · K)", "grams metre squared per second cubed kelvin", by = ThermalConductance::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * Exact::dec(1, -3)))]
     GramMetreSquaredPerSecondCubedKelvin,
-    #[unit("dg · m²/(s³ · K)", "decigrams metre squared per second cubed kelvin", by = DECIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    DecigramMetreSquaredPerSecondCubedKelvin,
-    #[unit("cg · m²/(s³ · K)", "centigrams metre squared per second cubed kelvin", by = CENTIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    CentigramMetreSquaredPerSecondCubedKelvin,
-    #[unit("mg · m²/(s³ · K)", "milligrams metre squared per second cubed kelvin", by = MILLIGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    MilligramMetreSquaredPerSecondCubedKelvin,
-    #[unit("ng · m²/(s³ · K)", "nanograms metre squared per second cubed kelvin", by = NANOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    NanogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("pg · m²/(s³ · K)", "picograms metre squared per second cubed kelvin", by = PICOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    PicogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("fg · m²/(s³ · K)", "femtograms metre squared per second cubed kelvin", by = FEMTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    FemtogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("ag · m²/(s³ · K)", "attograms metre squared per second cubed kelvin", by = ATTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    AttogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("zg · m²/(s³ · K)", "zeptograms metre squared per second cubed kelvin", by = ZEPTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    ZeptogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("yg · m²/(s³ · K)", "yoctograms metre squared per second cubed kelvin", by = YOCTOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
-    YoctogramMetreSquaredPerSecondCubedKelvin,
-    #[unit("W/K", "watts per kelvin", by = WATT_PER_KELVIN)]
+    #[unit("W/K", "watts per kelvin", by = ThermalConductance::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     WattPerKelvin,
-    #[unit("kg · m²/(s³ · °C)", "kilograms metre squared per second cubed degree Celsius", by = KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_DEGREE_CELSIUS)]
+    #[unit("kg · m²/(s³ · °C)", "kilograms metre squared per second cubed degree Celsius", by = ThermalConductance::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     KilogramMetreSquaredPerSecondCubedDegreeCelsius,
-    #[unit("kW/°C", "kilowatts per degree Celsius", by = KILOWATT_PER_DEGREE_CELSIUS)]
-    KilowattPerDegreeCelsius,
-    #[unit("W/°C", "watts per degree Celsius", by = THERMAL_CONDUCTANCE_WATT_PER_METRE_DEGREE_CELSIUS)]
+    #[unit("W/°C", "watts per degree Celsius", by = ThermalConductance::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     WattPerMetreDegreeCelsius,
-    #[unit("mW/°C", "milliwatts per degree Celsius", by = MILLIWATT_PER_DEGREE_CELSIUS)]
+    #[unit("kW/°C", "kilowatts per degree Celsius", by = ThermalConductance::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * Exact::int(1000)))]
+    KilowattPerDegreeCelsius,
+    #[unit("mW/°C", "milliwatts per degree Celsius", by = ThermalConductance::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * Exact::dec(1, -3)))]
     MilliwattPerDegreeCelsius,
 }
 
-/// The units of `ThermalConductivity`, for a menu, a config file, a parser.
+/// The units of `ThermalConductivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalConductivity<f64>)]
+#[unit(of = ThermalConductivity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, ThermalConductivity<N>: [const] yadc::Unit<ThermalConductivity<N>, N> + [const] core::marker::Destruct)]
 pub enum ThermalConductivityUnit {
     #[default]
-    #[unit("kg · m/(s³ · K)", "kilograms metre per second cubed kelvin", by = KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN)]
+    #[unit("kg · m/(s³ · K)", "kilograms metre per second cubed kelvin", by = ThermalConductivity::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     KilogramMetrePerSecondCubedKelvin,
-    #[unit("g · m/(s³ · K)", "grams metre per second cubed kelvin", by = GRAM_METRE_PER_SECOND_CUBED_KELVIN)]
+    #[unit("g · m/(s³ · K)", "grams metre per second cubed kelvin", by = ThermalConductivity::<N>::from((METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)) * Exact::dec(1, -3)))]
     GramMetrePerSecondCubedKelvin,
-    #[unit("W/(m · K)", "watts per metre kelvin", by = WATT_PER_METRE_KELVIN)]
+    #[unit("W/(m · K)", "watts per metre kelvin", by = ThermalConductivity::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     WattPerMetreKelvin,
-    #[unit("kg · m/(s³ · °C)", "kilograms metre per second cubed degree celsius", by = KILOGRAM_METRE_PER_SECOND_CUBED_DEGREE_CELSIUS)]
+    #[unit("kg · m/(s³ · °C)", "kilograms metre per second cubed degree celsius", by = ThermalConductivity::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     KilogramMetrePerSecondCubedDegreeCelsius,
-    #[unit("W/(m · °C)", "watts per metre degree celsius", by = THERMAL_CONDUCTIVITY_WATT_PER_METRE_DEGREE_CELSIUS)]
+    #[unit("W/(m · °C)", "watts per metre degree celsius", by = ThermalConductivity::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * SECOND * KELVIN)))]
     WattPerMetreDegreeCelsius,
 }
 
-/// The units of `ThermalResistance`, for a menu, a config file, a parser.
+/// The units of `ThermalResistance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalResistance<f64>)]
+#[unit(of = ThermalResistance<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, ThermalResistance<N>: [const] yadc::Unit<ThermalResistance<N>, N> + [const] core::marker::Destruct)]
 pub enum ThermalResistanceUnit {
-    #[unit("K/kw", "kelvins per kilowatt", by = KELVIN_PER_KILOWATT)]
-    KelvinPerKilowatt,
     #[default]
-    #[unit("K/W", "kelvins per watt", by = KELVIN_PER_WATT)]
+    #[unit("K/W", "kelvins per watt", by = ThermalResistance::<N>::from(SECOND * SECOND * SECOND * KELVIN / (METRE * METRE * KILOGRAM)))]
     KelvinPerWatt,
+    #[unit("K/kW", "kelvins per kilowatt", by = ThermalResistance::<N>::from((SECOND * SECOND * SECOND * KELVIN / (METRE * METRE * KILOGRAM)) * Exact::dec(1, -3)))]
+    KelvinPerKilowatt,
 }
 
-/// The units of `SpecificHeatCapacity`, for a menu, a config file, a parser.
+/// The units of `SpecificHeatCapacity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificHeatCapacity<f64>)]
+#[unit(of = SpecificHeatCapacity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SpecificHeatCapacity<N>: [const] yadc::Unit<SpecificHeatCapacity<N>, N> + [const] core::marker::Destruct)]
 pub enum SpecificHeatCapacityUnit {
     #[default]
-    #[unit("m²/(s² · K)", "square metres per second squared kelvin", by = SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
+    #[unit("m²/(s² · K)", "square metres per second squared kelvin", by = SpecificHeatCapacity::<N>::from(METRE * METRE / (SECOND * SECOND * KELVIN)))]
     SquareMetrePerSecondSquaredKelvin,
-    #[unit("J/(kg · K)", "joules per kilogram kelvin", by = JOULE_PER_KILOGRAM_KELVIN)]
+    #[unit("J/(kg · K)", "joules per kilogram kelvin", by = SpecificHeatCapacity::<N>::from(METRE * METRE / (SECOND * SECOND * KELVIN)))]
     JoulePerKilogramKelvin,
-    #[unit("J/(kg · °C)", "joules per kilogram degree celsius", by = JOULE_PER_KILOGRAM_DEGREE_CELSIUS)]
+    #[unit("J/(kg · °C)", "joules per kilogram degree celsius", by = SpecificHeatCapacity::<N>::from(METRE * METRE / (SECOND * SECOND * KELVIN)))]
     JoulePerKilogramDegreeCelsius,
-    #[unit("J/(g · °C)", "joules per gram degree celsius", by = JOULE_PER_GRAM_DEGREE_CELSIUS)]
+    #[unit("J/(g · °C)", "joules per gram degree celsius", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * Exact::int(1000)))]
     JoulePerGramDegreeCelsius,
-    #[unit("mJ/(g · °C)", "millijoules per gram degree celsius", by = MILLIJOULE_PER_GRAM_DEGREE_CELSIUS)]
-    MillijoulePerGramDegreeCelsius,
-    #[unit("Btu/(oz · °F)", "British thermal units per ounce degree Fahrenheit", by = BTU_PER_OUNCE_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(oz · °F)", "British thermal units per ounce degree Fahrenheit", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * (Exact::int(16) * Exact::int(4184))))]
     BtuPerOunceDegreeFahrenheit,
-    #[unit("Btu (IT)/(oz · °F)", "British thermal units (IT) per ounce degree Fahrenheit", by = BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(oz · °F)", "British thermal units (IT) per ounce degree Fahrenheit", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * (Exact::int(16) * Exact::dec(41868, -1))))]
     BtuItPerOunceDegreeFahrenheit,
-    #[unit("Btu/(lb · °F)", "British thermal units per pound degree Fahrenheit", by = BTU_PER_POUND_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(lb · °F)", "British thermal units per pound degree Fahrenheit", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * Exact::int(4184)))]
     BtuPerPoundDegreeFahrenheit,
-    #[unit("Btu (IT)/(lb · °F)", "British thermal units (IT) per pound degree Fahrenheit", by = BTU_IT_PER_POUND_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(lb · °F)", "British thermal units (IT) per pound degree Fahrenheit", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * Exact::dec(41868, -1)))]
     BtuItPerPoundDegreeFahrenheit,
-    #[unit("Btu/(t · °F)", "British thermal units per ton degree Fahrenheit", by = BTU_PER_TON_DEGREE_FAHRENHEIT)]
+    #[unit("Btu/(t · °F)", "British thermal units per ton degree Fahrenheit", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * ((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) / (Exact::int(1000) * (Exact::int(5) / Exact::int(9))))))]
     BtuPerTonDegreeFahrenheit,
-    #[unit("Btu (IT)/(t · °F)", "British thermal units (IT) per ton degree Fahrenheit", by = BTU_IT_PER_TON_DEGREE_FAHRENHEIT)]
+    #[unit("Btu (IT)/(t · °F)", "British thermal units (IT) per ton degree Fahrenheit", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * (Exact::dec(105505585262, -8) / (Exact::int(1000) * (Exact::int(5) / Exact::int(9))))))]
     BtuItPerTonDegreeFahrenheit,
-    #[unit("cal/(g · K)", "calories per gram kelvin", by = CALORIE_PER_GRAM_KELVIN)]
+    #[unit("cal/(g · K)", "calories per gram kelvin", by = SpecificHeatCapacity::<N>::from((METRE * METRE / (SECOND * SECOND * KELVIN)) * Exact::int(4184)))]
     CaloriePerGramKelvin,
 }
 
-/// The units of `ArealHeatCapacity`, for a menu, a config file, a parser.
+/// The units of `ArealHeatCapacity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealHeatCapacity<f64>)]
+#[unit(of = ArealHeatCapacity<N>, number = N)]
+#[unit(for<N> where ArealHeatCapacity<N>: [const] yadc::Unit<ArealHeatCapacity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ArealHeatCapacityUnit {
     #[default]
-    #[unit("J/(m² · K)", "joules per square metre kelvin", by = JOULE_PER_SQUARE_METRE_KELVIN)]
+    #[unit("J/(m² · K)", "joules per square metre kelvin", by = ArealHeatCapacity::<N>::from(KILOGRAM / (SECOND * SECOND * KELVIN)))]
     JoulePerSquareMetreKelvin,
 }
 
-/// The units of `VolumetricHeatCapacity`, for a menu, a config file, a parser.
+/// The units of `VolumetricHeatCapacity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricHeatCapacity<f64>)]
+#[unit(of = VolumetricHeatCapacity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, VolumetricHeatCapacity<N>: [const] yadc::Unit<VolumetricHeatCapacity<N>, N> + [const] core::marker::Destruct)]
 pub enum VolumetricHeatCapacityUnit {
     #[default]
-    #[unit("J/(m³ · K)", "joules per cubic metre kelvin", by = JOULE_PER_CUBIC_METRE_KELVIN)]
+    #[unit("J/(m³ · K)", "joules per cubic metre kelvin", by = VolumetricHeatCapacity::<N>::from(KILOGRAM / (METRE * SECOND * SECOND * KELVIN)))]
     JoulePerCubicMetreKelvin,
-    #[unit("cal/(m³ · K)", "calories per cubic metre kelvin", by = CALORIE_PER_CUBIC_METRE_KELVIN)]
+    #[unit("cal/(m³ · K)", "calories per cubic metre kelvin", by = VolumetricHeatCapacity::<N>::from((KILOGRAM / (METRE * SECOND * SECOND * KELVIN)) * Exact::dec(4184, -3)))]
     CaloriePerCubicMetreKelvin,
 }
 
-/// The units of `StefanBoltzmannCoefficient`, for a menu, a config file, a parser.
+/// The units of `StefanBoltzmannCoefficient`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = StefanBoltzmannCoefficient<f64>)]
+#[unit(of = StefanBoltzmannCoefficient<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, StefanBoltzmannCoefficient<N>: [const] yadc::Unit<StefanBoltzmannCoefficient<N>, N> + [const] core::marker::Destruct)]
 pub enum StefanBoltzmannCoefficientUnit {
     #[default]
-    #[unit("W/(m² · K⁴)", "watts per square metre quartic kelvin", by = WATT_PER_SQUARE_METRE_QUARTIC_KELVIN)]
+    #[unit("W/(m² · K⁴)", "watts per square metre quartic kelvin", by = StefanBoltzmannCoefficient::<N>::from(KILOGRAM / (SECOND * SECOND * SECOND * KELVIN * KELVIN * KELVIN * KELVIN)))]
     WattPerSquareMetreQuarticKelvin,
-    #[unit("σ", "Stefan-Boltzmann constants", by = STEFAN_BOLTZMANN_CONSTANT)]
+    #[unit("σ", "Stefan-Boltzmann constants", by = StefanBoltzmannCoefficient::<N>::from(STEFAN_BOLTZMANN_CONSTANT))]
     StefanBoltzmannConstant,
 }

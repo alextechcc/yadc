@@ -13,32 +13,31 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 
-use yadc_si::{DynamicSIQuantity, Unit};
-use yadc_si::electromagnetic::consts::VOLT;
+use yadc_si::Unit;
+use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::electromagnetic::*;
-use yadc_si::mechanical::consts::{KILOGRAM, NEWTON};
 use yadc_si::mechanical::*;
-use yadc_si::thermal::consts::{CELSIUS, FAHRENHEIT, KELVIN};
-use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit::{Celsius, Fahrenheit}};
+use yadc_si::thermal::TemperatureIntervalUnit;
 
 fn main() {
     // 1. Typed Qty<D> -> JSON -> typed Qty<D>. Wire is just the number.
-    // Every constant is a unit, called like a function: `KILOGRAM(1.5)` is
-    // 1.5 kg, and `KILOGRAM(m)` reads a mass back.
+    // A unit builds and reads: `Kilogram.quantity(1.5)` is 1.5 kg, and
+    // `Kilogram.value(m)` reads a mass back.
     use MassUnit::Kilogram;
-    let m = KILOGRAM(1.5);
+    let m = Kilogram.quantity(1.5);
     let s = serde_json::to_string(&m).expect("serialize Mass");
     println!("Mass(1.5 kg) -> {s}");
 
     let parsed: Mass<f64> = serde_json::from_str(&s).expect("round-trip Mass");
-    println!("round-trip:    {} {Kilogram:#}\n", Kilogram(parsed));
+    println!("round-trip:    {} {Kilogram:#}\n", Kilogram.value(parsed));
 
     // 2. DynamicSIQuantity carries its dims at runtime - they're serialized as a UCUM
     //    string via `UcumSerialize`, which extends the string with a `{Name}`
     //    annotation for any kind but the ordinary one (`K{Absolute}`). This lets a
     //    temperature survive a DynamicSIQuantity round-trip. Angles need
     //    no annotation: radians are an axis (`rad`, and `rad2` for steradians).
-    let body = FAHRENHEIT.quantity(98.6);
+    let body = Fahrenheit.quantity(98.6);
     let body = DynamicSIQuantity::from(body);
     let s = serde_json::to_string_pretty(&body).unwrap();
     println!("DynamicSIQuantity(98.6 °F) ->\n{s}\n");
@@ -47,20 +46,21 @@ fn main() {
     let t = ThermodynamicTemperature::try_from(parsed).expect("a temperature");
     println!(
         "round-trip: {:.1} °F ≡ {:.2} °C\n",
-        FAHRENHEIT.value(t),
-        CELSIUS.value(t),
+        Fahrenheit.value(t),
+        Celsius.value(t),
     );
 
     // A temperature step (plain K) serializes without annotation; a
     // temperature gets {Absolute}.
-    let interval = DynamicSIQuantity::from(KELVIN(15.0));
+    let interval = DynamicSIQuantity::from(TemperatureIntervalUnit::Kelvin.quantity(15.0));
     println!(
         "DynamicSIQuantity(a step of 15 K) -> {}\n",
         serde_json::to_string(&interval).unwrap(),
     );
 
     // 3. A more interesting Dim: Force has m*kg*s⁻².
-    let force = DynamicSIQuantity::from(NEWTON(9.81));
+    let newton = ForceUnit::Newton;
+    let force = DynamicSIQuantity::from(newton.quantity(9.81));
     println!(
         "DynamicSIQuantity(9.81 N) -> {}\n",
         serde_json::to_string(&force).unwrap()
@@ -69,7 +69,7 @@ fn main() {
     // A rejected combination (kg + N) is `None`: there is no quantity to
     // serialize, and an `Option<DynamicSIQuantity>` goes out as `null`, which
     // reads back as `None`.
-    let nonsense = DynamicSIQuantity::from(KILOGRAM(1.0)) + force;
+    let nonsense = DynamicSIQuantity::from(Kilogram.quantity(1.0)) + force;
     let s = serde_json::to_string(&nonsense).unwrap();
     println!("DynamicSIQuantity(1 kg + 9.81 N) -> {s}");
     let parsed: Option<DynamicSIQuantity> = serde_json::from_str(&s).unwrap();
@@ -79,10 +79,10 @@ fn main() {
     let parsed: DynamicSIQuantity =
         serde_json::from_str(&serde_json::to_string(&force).unwrap()).unwrap();
     let f = Force::try_from(parsed).expect("still a force");
-    let newton = ForceUnit::Newton;
-    println!("round-trip: {} {newton}\n", newton(f));
+    println!("round-trip: {} {newton}\n", newton.value(f));
 
     // 4. Holding typed quantities in a serde-derived struct.
+    use ElectricPotentialUnit::Volt;
     #[derive(serde::Serialize, serde::Deserialize)]
     struct Reading {
         sensor: String,
@@ -92,8 +92,8 @@ fn main() {
 
     let r = Reading {
         sensor: "thermistor-7".into(),
-        temperature: CELSIUS.quantity(25.0),
-        voltage: VOLT(3.30),
+        temperature: Celsius.quantity(25.0),
+        voltage: Volt.quantity(3.30),
     };
     let s = serde_json::to_string_pretty(&r).unwrap();
     println!("Reading ->\n{s}");
@@ -102,7 +102,7 @@ fn main() {
     println!(
         "read back: {} at {:.1} °C and {:.2} V",
         back.sensor,
-        CELSIUS.value(back.temperature),
-        VOLT(back.voltage),
+        Celsius.value(back.temperature),
+        Volt.value(back.voltage),
     );
 }

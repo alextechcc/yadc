@@ -14,15 +14,18 @@
 //!
 //! Run with: cargo run -p yadc-si --example measurement
 #![feature(generic_const_exprs, const_trait_impl)]
-#![feature(const_convert, const_default, const_destruct)]
+#![feature(const_convert, const_default, const_destruct, const_ops)]
 #![allow(incomplete_features)]
 
 use core::fmt;
 use dynamickit::{Members, Via, Visit, Visitor};
 use yadc::Unit;
-use yadc_si::mechanical::consts::{NEWTON, PASCAL};
-use yadc_si::{DynamicSIQuantity, KILO};
-use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure, PressureUnit};
+use yadc_si::KILO;
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure, PressureUnit, consts};
+
+const PASCAL: Pressure<f64> = consts::PASCAL.into();
+const KILONEWTON: Force<f64> = (KILO * consts::NEWTON).into();
 
 /// A quantity and the unit it is shown in.
 #[derive(Clone, Copy, Debug, Visit, Members, Via)]
@@ -72,10 +75,10 @@ impl fmt::Display for Measurement {
 }
 
 fn main() {
-    // A unit is called on a number to build a quantity.
+    // A unit builds a quantity from a number.
     let (psi, sq_ft) = (PressureUnit::Psi, AreaUnit::SquareFoot);
-    let p = Measurement::Pressure(psi(14.7), psi);
-    let a = Measurement::Area(sq_ft(5.0), sq_ft);
+    let p = Measurement::Pressure(psi.quantity(14.7), psi);
+    let a = Measurement::Area(sq_ft.quantity(5.0), sq_ft);
     println!("p       = {p}  ({p:#})");
     println!("a       = {a:.3}");
 
@@ -88,7 +91,7 @@ fn main() {
     println!("p × p   = {:?}", (p * p).map(|m| m.to_string()));
 
     // From a bare quantity: the default unit.
-    let f = Measurement::from((KILO * NEWTON)(2.0));
+    let f = Measurement::from(KILONEWTON(2.0));
     println!("f       = {f}");
     // Back to the bare quantity, checked.
     println!("as Pa   = {:?}", Pressure::try_from(p).map(PASCAL));

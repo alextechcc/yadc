@@ -82,7 +82,7 @@ error: `Display` needs this unit's symbol and name: `#[unit("km", "kilometres", 
 118 | pub struct NoLabels;
     |            ^^^^^^^^
 
-error: unknown `#[unit(..)]` item `step`; expected the symbol and name, `by = ..`, `via = ..`, or on the type `of = ..`, `number = ..`, `non_const`, `impl(..)`
+error: unknown `#[unit(..)]` item `step`; expected the symbol and name, `by = ..`, `via = ..`, or on the type `of = ..`, `number = ..`, `non_const`, `impl(..)`, `for<..> where ..`
    --> tests/ui/define/derives.rs:122:28
     |
 122 | #[unit("x", "x", of = f64, step = 1.0)]

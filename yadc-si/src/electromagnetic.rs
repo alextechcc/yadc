@@ -1,4 +1,5 @@
-use crate::{Exact, ISQ, SIQuantity, counted};
+use crate::base::{KILOGRAM, METRE, RADIAN, SECOND};
+use crate::{Exact, ISQ, SIQuantity};
 use consts::*;
 use yadc::Dimension;
 
@@ -345,13 +346,11 @@ pub type ReducedGyromagneticRatio<N> = SIQuantity<
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined exactly from them -
-/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
-/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
-/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
-/// one: `KILO * METRE`. They compose in `const` items:
-/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
+/// (re-exported), then one per named unit, each defined exactly from them
+/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
+/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
+/// once, where it is written - in a `const`, by the compiler:
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, RADIAN, SECOND};
@@ -360,773 +359,770 @@ pub mod consts {
     pub use crate::base::AMPERE;
 
     /// One `Coulomb` (C), as an `ElectricCharge`.
-    pub const COULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(SECOND::<Exact> * AMPERE::<Exact>);
-
-    /// One `AmpereHour` (A · h), as an `ElectricCharge`.
-    pub const AMPERE_HOUR<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(3600) * COULOMB::<Exact>);
+    pub const COULOMB: ElectricCharge<Exact> = SECOND * AMPERE;
 
     /// One `ElementaryCharge` (e), as an `ElectricCharge`.
-    pub const ELEMENTARY_CHARGE<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1602176634, -28) * COULOMB::<Exact>);
+    pub const ELEMENTARY_CHARGE: ElectricCharge<Exact> = COULOMB * Exact::dec(1602176634, -28);
 
     /// One `AtomicUnitOfCharge` (a.u. of charge), as an `ElectricCharge`.
-    pub const ATOMIC_UNIT_OF_CHARGE<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::dec(1602176634, -28) * COULOMB::<Exact>);
+    pub const ATOMIC_UNIT_OF_CHARGE: ElectricCharge<Exact> = COULOMB * Exact::dec(1602176634, -28);
 
     /// One `Abcoulomb` (abC), as an `ElectricCharge`.
-    pub const ABCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted(Exact::int(10) * COULOMB::<Exact>);
+    pub const ABCOULOMB: ElectricCharge<Exact> = COULOMB * Exact::int(10);
 
     /// One `Faraday` (F), as an `ElectricCharge`.
-    pub const FARADAY<N: const From<Exact>>: ElectricCharge<N> = counted((Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000)) * COULOMB::<Exact>);
+    pub const FARADAY: ElectricCharge<Exact> =
+        COULOMB * (Exact::dec(1602176634, -28) * Exact::int(602214076000000000000000));
 
     /// One `Franklin` (Fr), as an `ElectricCharge`.
-    pub const FRANKLIN<N: const From<Exact>>: ElectricCharge<N> = counted((Exact::int(1) / Exact::int(2997924580)) * COULOMB::<Exact>);
+    pub const FRANKLIN: ElectricCharge<Exact> = COULOMB * (Exact::int(1) / Exact::int(2997924580));
 
     /// One `Statcoulomb` (statC), as an `ElectricCharge`.
-    pub const STATCOULOMB<N: const From<Exact>>: ElectricCharge<N> = counted((Exact::int(1) / Exact::int(2997924580)) * COULOMB::<Exact>);
-
-    /// One `CoulombPerSquareMetre` (C/m²), as an `ElectricChargeArealDensity`.
-    pub const ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE<N: const From<Exact>>: ElectricChargeArealDensity<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
-
-    /// One `CoulombPerMetre` (C/m), as an `ElectricChargeLinearDensity`.
-    pub const COULOMB_PER_METRE<N: const From<Exact>>: ElectricChargeLinearDensity<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / METRE::<Exact>);
-
-    /// One `CoulombPerCubicMetre` (C/m³), as an `ElectricChargeVolumetricDensity`.
-    pub const COULOMB_PER_CUBIC_METRE<N: const From<Exact>>: ElectricChargeVolumetricDensity<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
-
-    /// One `ElementaryChargePerSecond` (e/s), as an `ElectricCurrent`.
-    pub const ELEMENTARY_CHARGE_PER_SECOND<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1602176634, -28) * AMPERE::<Exact>);
-
-    /// One `AtomicUnitOfChargePerSecond` (a.u. of charge/s), as an `ElectricCurrent`.
-    pub const ATOMIC_UNIT_OF_CHARGE_PER_SECOND<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::dec(1602176634, -28) * AMPERE::<Exact>);
+    pub const STATCOULOMB: ElectricCharge<Exact> =
+        COULOMB * (Exact::int(1) / Exact::int(2997924580));
 
     /// One `Abampere` (abA), as an `ElectricCurrent`.
-    pub const ABAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted(Exact::int(10) * AMPERE::<Exact>);
+    pub const ABAMPERE: ElectricCurrent<Exact> = AMPERE * Exact::int(10);
 
     /// One `Gilbert` (Gi), as an `ElectricCurrent`.
-    pub const GILBERT<N: const From<Exact>>: ElectricCurrent<N> = counted((Exact::int(10) / (Exact::int(4) * Exact::PI)) * AMPERE::<Exact>);
+    pub const GILBERT: ElectricCurrent<Exact> =
+        AMPERE * (Exact::int(10) / (Exact::int(4) * Exact::PI));
 
     /// One `Statampere` (statA), as an `ElectricCurrent`.
-    pub const STATAMPERE<N: const From<Exact>>: ElectricCurrent<N> = counted((Exact::int(1) / Exact::int(2997924580)) * AMPERE::<Exact>);
-
-    /// One `AmperePerSquareMetre` (A/m²), as an `ElectricCurrentDensity`.
-    pub const AMPERE_PER_SQUARE_METRE<N: const From<Exact>>: ElectricCurrentDensity<N> = counted(AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
-
-    /// One `AmperePerMetre` (A/m), as a `SurfaceElectricCurrentDensity`.
-    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE<N: const From<Exact>>: SurfaceElectricCurrentDensity<N> = counted(AMPERE::<Exact> / METRE::<Exact>);
+    pub const STATAMPERE: ElectricCurrent<Exact> =
+        AMPERE * (Exact::int(1) / Exact::int(2997924580));
 
     /// One `Volt` (V), as an `ElectricPotential`.
-    pub const VOLT<N: const From<Exact>>: ElectricPotential<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
+    pub const VOLT: ElectricPotential<Exact> =
+        METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE);
 
     /// One `Abvolt` (abV), as an `ElectricPotential`.
-    pub const ABVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(1, -8) * VOLT::<Exact>);
+    pub const ABVOLT: ElectricPotential<Exact> = VOLT * Exact::dec(1, -8);
 
     /// One `Statvolt` (statV), as an `ElectricPotential`.
-    pub const STATVOLT<N: const From<Exact>>: ElectricPotential<N> = counted(Exact::dec(299792458, -6) * VOLT::<Exact>);
-
-    /// One `VoltPerMetre` (V/m), as an `ElectricField`.
-    pub const VOLT_PER_METRE<N: const From<Exact>>: ElectricField<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
-
-    /// One `VoltPerMil` (V/mil), as an `ElectricField`.
-    pub const VOLT_PER_MIL<N: const From<Exact>>: ElectricField<N> = counted((Exact::int(1) / Exact::dec(254, -7)) * VOLT_PER_METRE::<Exact>);
+    pub const STATVOLT: ElectricPotential<Exact> = VOLT * Exact::dec(299792458, -6);
 
     /// One `AtomicUnitOfElectricField` (a.u. of electric field), as an `ElectricField`.
-    pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD<N: const From<Exact>>: ElectricField<N> = counted((Exact::dec(43597447222071, -31) / (Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22))) * VOLT_PER_METRE::<Exact>);
-
-    /// One `CoulombPerSquareMetre` (C/m²), as an `ElectricDisplacementField`.
-    pub const ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE<N: const From<Exact>>: ElectricDisplacementField<N> = counted(SECOND::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact>));
-
-    /// One `VoltMetre` (V ⋅ m), as an `ElectricFlux`.
-    pub const VOLT_METRE<N: const From<Exact>>: ElectricFlux<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
-
-    /// One `CoulombMetre` (C · m), as an `ElectricDipoleMoment`.
-    pub const COULOMB_METRE<N: const From<Exact>>: ElectricDipoleMoment<N> = counted(METRE::<Exact> * SECOND::<Exact> * AMPERE::<Exact>);
-
-    /// One `AtomicUnitOfChargeCentimetre` (a.u. of charge · cm), as an `ElectricDipoleMoment`.
-    pub const ATOMIC_UNIT_OF_CHARGE_CENTIMETRE<N: const From<Exact>>: ElectricDipoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(1, -2)) * COULOMB_METRE::<Exact>);
-
-    /// One `ElementaryChargeCentimetre` (e · cm), as an `ElectricDipoleMoment`.
-    pub const ELEMENTARY_CHARGE_CENTIMETRE<N: const From<Exact>>: ElectricDipoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(1, -2)) * COULOMB_METRE::<Exact>);
-
-    /// One `AtomicUnitOfElectricDipoleMoment` (e · a₀), as an `ElectricDipoleMoment`.
-    pub const ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT<N: const From<Exact>>: ElectricDipoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22)) * COULOMB_METRE::<Exact>);
-
-    /// One `CoulombSquareMetre` (C · m²), as an `ElectricQuadrupoleMoment`.
-    pub const COULOMB_SQUARE_METRE<N: const From<Exact>>: ElectricQuadrupoleMoment<N> = counted(METRE::<Exact> * METRE::<Exact> * SECOND::<Exact> * AMPERE::<Exact>);
-
-    /// One `ElementaryChargeBarn` (e · b), as an `ElectricQuadrupoleMoment`.
-    pub const ELEMENTARY_CHARGE_BARN<N: const From<Exact>>: ElectricQuadrupoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(1, -28)) * COULOMB_SQUARE_METRE::<Exact>);
-
-    /// One `AtomicUnitOfElectricQuadrupoleMoment` (e · a₀²), as an `ElectricQuadrupoleMoment`.
-    pub const ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT<N: const From<Exact>>: ElectricQuadrupoleMoment<N> = counted((Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22) * Exact::dec(529177210903, -22)) * COULOMB_SQUARE_METRE::<Exact>);
-
-    /// One `FaradPerMetre` (F/m), as an `ElectricPermittivity`.
-    pub const FARAD_PER_METRE<N: const From<Exact>>: ElectricPermittivity<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
+    pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD: ElectricField<Exact> = (METRE * KILOGRAM
+        / (SECOND * SECOND * SECOND * AMPERE))
+        * (Exact::dec(43597447222071, -31)
+            / (Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22)));
 
     /// One `VacuumPermittivity` (ε₀), as an `ElectricPermittivity`.
-    pub const VACUUM_PERMITTIVITY<N: const From<Exact>>: ElectricPermittivity<N> = counted(Exact::dec(88541878128, -22) * FARAD_PER_METRE::<Exact>);
+    pub const VACUUM_PERMITTIVITY: ElectricPermittivity<Exact> =
+        (SECOND * SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * METRE * KILOGRAM))
+            * Exact::dec(88541878128, -22);
 
     /// One `Siemens` (S), as an `ElectricalConductance`.
-    pub const SIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
+    pub const SIEMENS: ElectricalConductance<Exact> =
+        SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * KILOGRAM);
 
     /// One `Mho` (℧), as an `ElectricalConductance`.
-    pub const MHO<N: const From<Exact>>: ElectricalConductance<N> = counted(SIEMENS::<Exact>);
+    pub const MHO: ElectricalConductance<Exact> = SIEMENS;
 
     /// One `Abmho` (abmho), as an `ElectricalConductance`.
-    pub const ABMHO<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000) * SIEMENS::<Exact>);
+    pub const ABMHO: ElectricalConductance<Exact> = SIEMENS * Exact::int(1000000000);
 
     /// One `Absiemens` (abS), as an `ElectricalConductance`.
-    pub const ABSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted(Exact::int(1000000000) * SIEMENS::<Exact>);
+    pub const ABSIEMENS: ElectricalConductance<Exact> = SIEMENS * Exact::int(1000000000);
 
     /// One `Statsiemens` (statS), as an `ElectricalConductance`.
-    pub const STATSIEMENS<N: const From<Exact>>: ElectricalConductance<N> = counted((Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580))) * SIEMENS::<Exact>);
+    pub const STATSIEMENS: ElectricalConductance<Exact> =
+        SIEMENS * (Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580)));
 
     /// One `Statmho` (statmho), as an `ElectricalConductance`.
-    pub const STATMHO<N: const From<Exact>>: ElectricalConductance<N> = counted((Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580))) * SIEMENS::<Exact>);
-
-    /// One `SiemensPerMetre` (S/m), as an `ElectricalConductivity`.
-    pub const SIEMENS_PER_METRE<N: const From<Exact>>: ElectricalConductivity<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
-
-    /// One `SquareMetrePerVoltSecond` (m²/(V · s)), as an `ElectricalMobility`.
-    pub const SQUARE_METRE_PER_VOLT_SECOND<N: const From<Exact>>: ElectricalMobility<N> = counted(SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>);
+    pub const STATMHO: ElectricalConductance<Exact> =
+        SIEMENS * (Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580)));
 
     /// One `Ohm` (Ω), as an `ElectricalResistance`.
-    pub const OHM<N: const From<Exact>>: ElectricalResistance<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
+    pub const OHM: ElectricalResistance<Exact> =
+        METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE);
 
     /// One `Abohm` (abΩ), as an `ElectricalResistance`.
-    pub const ABOHM<N: const From<Exact>>: ElectricalResistance<N> = counted(Exact::dec(1, -9) * OHM::<Exact>);
+    pub const ABOHM: ElectricalResistance<Exact> = OHM * Exact::dec(1, -9);
 
     /// One `Statohm` (statΩ), as an `ElectricalResistance`.
-    pub const STATOHM<N: const From<Exact>>: ElectricalResistance<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580)) * OHM::<Exact>);
-
-    /// One `OhmMetre` (Ω · m), as an `ElectricalResistivity`.
-    pub const OHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
-
-    /// One `AbohmMetre` (abΩ · m), as an `ElectricalResistivity`.
-    pub const ABOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -9) * OHM_METRE::<Exact>);
-
-    /// One `StatohmMetre` (statΩ · m), as an `ElectricalResistivity`.
-    pub const STATOHM_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580)) * OHM_METRE::<Exact>);
-
-    /// One `OhmInch` (Ω · in), as an `ElectricalResistivity`.
-    pub const OHM_INCH<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(254, -4) * OHM_METRE::<Exact>);
-
-    /// One `OhmFoot` (Ω · ft), as an `ElectricalResistivity`.
-    pub const OHM_FOOT<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(3048, -4) * OHM_METRE::<Exact>);
-
-    /// One `OhmYard` (Ω · yd), as an `ElectricalResistivity`.
-    pub const OHM_YARD<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(9144, -4) * OHM_METRE::<Exact>);
-
-    /// One `OhmSquareMillimetrePerMetre` (Ω · mm²/m), as an `ElectricalResistivity`.
-    pub const OHM_SQUARE_MILLIMETRE_PER_METRE<N: const From<Exact>>: ElectricalResistivity<N> = counted(Exact::dec(1, -6) * OHM_METRE::<Exact>);
+    pub const STATOHM: ElectricalResistance<Exact> =
+        OHM * (Exact::dec(299792458, -6) * Exact::int(2997924580));
 
     /// One `Farad` (F), as a `Capacitance`.
-    pub const FARAD<N: const From<Exact>>: Capacitance<N> = counted(SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact> / (METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
+    pub const FARAD: Capacitance<Exact> =
+        SECOND * SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * KILOGRAM);
 
     /// One `Abfarad` (abF), as a `Capacitance`.
-    pub const ABFARAD<N: const From<Exact>>: Capacitance<N> = counted(Exact::int(1000000000) * FARAD::<Exact>);
+    pub const ABFARAD: Capacitance<Exact> = FARAD * Exact::int(1000000000);
 
     /// One `Statfarad` (statF), as a `Capacitance`.
-    pub const STATFARAD<N: const From<Exact>>: Capacitance<N> = counted((Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580))) * FARAD::<Exact>);
+    pub const STATFARAD: Capacitance<Exact> =
+        FARAD * (Exact::int(1) / (Exact::dec(299792458, -6) * Exact::int(2997924580)));
 
     /// One `Henry` (H), as an `Inductance`.
-    pub const HENRY<N: const From<Exact>>: Inductance<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
+    pub const HENRY: Inductance<Exact> =
+        METRE * METRE * KILOGRAM / (SECOND * SECOND * AMPERE * AMPERE);
 
     /// One `Abhenry` (abH), as an `Inductance`.
-    pub const ABHENRY<N: const From<Exact>>: Inductance<N> = counted(Exact::dec(1, -9) * HENRY::<Exact>);
+    pub const ABHENRY: Inductance<Exact> = HENRY * Exact::dec(1, -9);
 
     /// One `Stathenry` (statH), as an `Inductance`.
-    pub const STATHENRY<N: const From<Exact>>: Inductance<N> = counted((Exact::dec(299792458, -6) * Exact::int(2997924580)) * HENRY::<Exact>);
-
-    /// One `AmperePerMetre` (A/m), as a `MagneticFieldStrength`.
-    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE<N: const From<Exact>>: MagneticFieldStrength<N> = counted(AMPERE::<Exact> / METRE::<Exact>);
+    pub const STATHENRY: Inductance<Exact> =
+        HENRY * (Exact::dec(299792458, -6) * Exact::int(2997924580));
 
     /// One `Oersted` (Oe), as a `MagneticFieldStrength`.
-    pub const OERSTED<N: const From<Exact>>: MagneticFieldStrength<N> = counted((Exact::int(1000) / (Exact::int(4) * Exact::PI)) * MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE::<Exact>);
+    pub const OERSTED: MagneticFieldStrength<Exact> =
+        (AMPERE / METRE) * (Exact::int(1000) / (Exact::int(4) * Exact::PI));
 
     /// One `Weber` (Wb), as a `MagneticFlux`.
-    pub const WEBER<N: const From<Exact>>: MagneticFlux<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
+    pub const WEBER: MagneticFlux<Exact> = METRE * METRE * KILOGRAM / (SECOND * SECOND * AMPERE);
 
     /// One `Maxwell` (Mx), as a `MagneticFlux`.
-    pub const MAXWELL<N: const From<Exact>>: MagneticFlux<N> = counted(Exact::dec(1, -8) * WEBER::<Exact>);
+    pub const MAXWELL: MagneticFlux<Exact> = WEBER * Exact::dec(1, -8);
 
     /// One `Tesla` (T), as a `MagneticFluxDensity`.
-    pub const TESLA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact>));
+    pub const TESLA: MagneticFluxDensity<Exact> = KILOGRAM / (SECOND * SECOND * AMPERE);
 
     /// One `Gamma` (γ), as a `MagneticFluxDensity`.
-    pub const GAMMA<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -9) * TESLA::<Exact>);
+    pub const GAMMA: MagneticFluxDensity<Exact> = TESLA * Exact::dec(1, -9);
 
     /// One `Gauss` (G), as a `MagneticFluxDensity`.
-    pub const GAUSS<N: const From<Exact>>: MagneticFluxDensity<N> = counted(Exact::dec(1, -4) * TESLA::<Exact>);
-
-    /// One `AmpereSquareMetre` (A · m²), as a `MagneticMoment`.
-    pub const AMPERE_SQUARE_METRE<N: const From<Exact>>: MagneticMoment<N> = counted(METRE::<Exact> * METRE::<Exact> * AMPERE::<Exact>);
-
-    /// One `JoulePerTesla` (J/T), as a `MagneticMoment`.
-    pub const JOULE_PER_TESLA<N: const From<Exact>>: MagneticMoment<N> = counted(AMPERE_SQUARE_METRE::<Exact>);
-
-    /// One `NewtonMetrePerTesla` (N · m/T), as a `MagneticMoment`.
-    pub const NEWTON_METRE_PER_TESLA<N: const From<Exact>>: MagneticMoment<N> = counted(AMPERE_SQUARE_METRE::<Exact>);
-
-    /// One `ErgPerGauss` (erg/G), as a `MagneticMoment`.
-    pub const ERG_PER_GAUSS<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(1, -3) * AMPERE_SQUARE_METRE::<Exact>);
+    pub const GAUSS: MagneticFluxDensity<Exact> = TESLA * Exact::dec(1, -4);
 
     /// One `BohrMagneton` (µ(Bohr)), as a `MagneticMoment`.
-    pub const BOHR_MAGNETON<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(92740100783, -34) * AMPERE_SQUARE_METRE::<Exact>);
+    pub const BOHR_MAGNETON: MagneticMoment<Exact> =
+        (METRE * METRE * AMPERE) * Exact::dec(92740100783, -34);
 
     /// One `NuclearMagneton` (μ(Nuclear)), as a `MagneticMoment`.
-    pub const NUCLEAR_MAGNETON<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(50507837461, -37) * AMPERE_SQUARE_METRE::<Exact>);
-
-    /// One `AtomicUnitOfMagneticDipoleMoment` (ħ · e/mₑ), as a `MagneticMoment`.
-    pub const ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(185480201566, -34) * AMPERE_SQUARE_METRE::<Exact>);
+    pub const NUCLEAR_MAGNETON: MagneticMoment<Exact> =
+        (METRE * METRE * AMPERE) * Exact::dec(50507837461, -37);
 
     /// One `DeuteronMagneticMoment` (μ(deuteron)), as a `MagneticMoment`.
-    pub const DEUTERON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(4330735094, -36) * AMPERE_SQUARE_METRE::<Exact>);
+    pub const DEUTERON_MAGNETIC_MOMENT: MagneticMoment<Exact> =
+        (METRE * METRE * AMPERE) * Exact::dec(4330735094, -36);
 
     /// One `ProtonMagneticMoment` (μ(proton)), as a `MagneticMoment`.
-    pub const PROTON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(141060679736, -37) * AMPERE_SQUARE_METRE::<Exact>);
+    pub const PROTON_MAGNETIC_MOMENT: MagneticMoment<Exact> =
+        (METRE * METRE * AMPERE) * Exact::dec(141060679736, -37);
 
     /// One `ShieldedProtonMagneticMoment` (μ’(proton)), as a `MagneticMoment`.
-    pub const SHIELDED_PROTON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(141057056, -34) * AMPERE_SQUARE_METRE::<Exact>);
+    pub const SHIELDED_PROTON_MAGNETIC_MOMENT: MagneticMoment<Exact> =
+        (METRE * METRE * AMPERE) * Exact::dec(141057056, -34);
 
     /// One `TritonMagneticMoment` (μ(triton)), as a `MagneticMoment`.
-    pub const TRITON_MAGNETIC_MOMENT<N: const From<Exact>>: MagneticMoment<N> = counted(Exact::dec(15046095202, -36) * AMPERE_SQUARE_METRE::<Exact>);
-
-    /// One `HenryPerMetre` (H/m), as a `MagneticPermeability`.
-    pub const HENRY_PER_METRE<N: const From<Exact>>: MagneticPermeability<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * AMPERE::<Exact> * AMPERE::<Exact>));
+    pub const TRITON_MAGNETIC_MOMENT: MagneticMoment<Exact> =
+        (METRE * METRE * AMPERE) * Exact::dec(15046095202, -36);
 
     /// One `VacuumPermeability` (µ₀), as a `MagneticPermeability`.
-    pub const VACUUM_PERMEABILITY<N: const From<Exact>>: MagneticPermeability<N> = counted(Exact::dec(125663706212, -17) * HENRY_PER_METRE::<Exact>);
-
-    /// One `HertzPerTesla` (Hz/T), as a `GyromagneticRatio`.
-    pub const HERTZ_PER_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(SECOND::<Exact> * AMPERE::<Exact> * RADIAN::<Exact> / KILOGRAM::<Exact>);
-
-    /// One `RadianPerSecondTesla` (rad/(s · T)), as a `GyromagneticRatio`.
-    pub const RADIAN_PER_SECOND_TESLA<N: const From<Exact>>: GyromagneticRatio<N> = counted(HERTZ_PER_TESLA::<Exact>);
+    pub const VACUUM_PERMEABILITY: MagneticPermeability<Exact> =
+        (METRE * KILOGRAM / (SECOND * SECOND * AMPERE * AMPERE)) * Exact::dec(125663706212, -17);
 
     /// One `ProtonGyromagneticRatio` (γₚ), as a `GyromagneticRatio`.
-    pub const PROTON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(26752218708, -2) * HERTZ_PER_TESLA::<Exact>);
+    pub const PROTON_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(26752218708, -2);
 
     /// One `NeutronGyromagneticRatio` (γₙ), as a `GyromagneticRatio`.
-    pub const NEUTRON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(183247174) * HERTZ_PER_TESLA::<Exact>);
+    pub const NEUTRON_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::int(183247174);
 
     /// One `ElectronGyromagneticRatio` (γₑ), as a `GyromagneticRatio`.
-    pub const ELECTRON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(176085962784) * HERTZ_PER_TESLA::<Exact>);
+    pub const ELECTRON_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::int(176085962784);
 
     /// One `ShieldedProtonGyromagneticRatio` (γ'ₚ), as a `GyromagneticRatio`.
-    pub const SHIELDED_PROTON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(2675153194, -1) * HERTZ_PER_TESLA::<Exact>);
+    pub const SHIELDED_PROTON_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(2675153194, -1);
 
     /// One `ShieldedHelionGyromagneticRatio` (γ'ₕ), as a `GyromagneticRatio`.
-    pub const SHIELDED_HELION_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(20378946078, -2) * HERTZ_PER_TESLA::<Exact>);
+    pub const SHIELDED_HELION_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(20378946078, -2);
 
     /// One `DeuteronGyromagneticRatio` (γ₂), as a `GyromagneticRatio`.
-    pub const DEUTERON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(410662888, -1) * HERTZ_PER_TESLA::<Exact>);
+    pub const DEUTERON_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(410662888, -1);
 
     /// One `TritonGyromagneticRatio` (γ₃), as a `GyromagneticRatio`.
-    pub const TRITON_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(285349844) * HERTZ_PER_TESLA::<Exact>);
+    pub const TRITON_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::int(285349844);
 
     /// One `Lithium7GyromagneticRatio` (γ₇), as a `GyromagneticRatio`.
-    pub const LITHIUM7_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(103975264) * HERTZ_PER_TESLA::<Exact>);
+    pub const LITHIUM7_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::int(103975264);
 
     /// One `Boron11GyromagneticRatio` (γ₁₁), as a `GyromagneticRatio`.
-    pub const BORON11_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(858384143, -1) * HERTZ_PER_TESLA::<Exact>);
+    pub const BORON11_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(858384143, -1);
 
     /// One `Carbon13GyromagneticRatio` (γ₁₃), as a `GyromagneticRatio`.
-    pub const CARBON13_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(672787546, -1) * HERTZ_PER_TESLA::<Exact>);
+    pub const CARBON13_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(672787546, -1);
 
     /// One `Nitrogen14GyromagneticRatio` (γ₁₄), as a `GyromagneticRatio`.
-    pub const NITROGEN14_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(193287922, -1) * HERTZ_PER_TESLA::<Exact>);
+    pub const NITROGEN14_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(193287922, -1);
 
     /// One `Flourine19GyromagneticRatio` (γ₁₉), as a `GyromagneticRatio`.
-    pub const FLOURINE19_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(251762483) * HERTZ_PER_TESLA::<Exact>);
+    pub const FLOURINE19_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::int(251762483);
 
     /// One `Sodium23GyromagneticRatio` (γ₂₃), as a `GyromagneticRatio`.
-    pub const SODIUM23_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::dec(708035417, -1) * HERTZ_PER_TESLA::<Exact>);
+    pub const SODIUM23_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::dec(708035417, -1);
 
     /// One `Phosphorus31GyromagneticRatio` (γ₃₁), as a `GyromagneticRatio`.
-    pub const PHOSPHORUS31_GYROMAGNETIC_RATIO<N: const From<Exact>>: GyromagneticRatio<N> = counted(Exact::int(108329419) * HERTZ_PER_TESLA::<Exact>);
+    pub const PHOSPHORUS31_GYROMAGNETIC_RATIO: GyromagneticRatio<Exact> =
+        (SECOND * AMPERE * RADIAN / KILOGRAM) * Exact::int(108329419);
 
     /// One `ProtonReducedGyromagneticRatio` (̅γₚ), as a `ReducedGyromagneticRatio`.
-    pub const PROTON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(42577478461, -3) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const PROTON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(42577478461, -3);
 
     /// One `NeutronReducedGyromagneticRatio` (̅γₙ), as a `ReducedGyromagneticRatio`.
-    pub const NEUTRON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(291646935, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const NEUTRON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(291646935, -1);
 
     /// One `ElectronReducedGyromagneticRatio` (̅γₑ), as a `ReducedGyromagneticRatio`.
-    pub const ELECTRON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(280249513861, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const ELECTRON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(280249513861, -1);
 
     /// One `ShieldedProtonReducedGyromagneticRatio` (γ'ₚ), as a `ReducedGyromagneticRatio`.
-    pub const SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(4257638543, -2) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(4257638543, -2);
 
     /// One `ShieldedHelionReducedGyromagneticRatio` (γ'ₕ), as a `ReducedGyromagneticRatio`.
-    pub const SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(32434100033, -3) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(32434100033, -3);
 
     /// One `DeuteronReducedGyromagneticRatio` (̅γ₂), as a `ReducedGyromagneticRatio`.
-    pub const DEUTERON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(653590285, -2) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const DEUTERON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(653590285, -2);
 
     /// One `TritonReducedGyromagneticRatio` (̅γ₃), as a `ReducedGyromagneticRatio`.
-    pub const TRITON_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(454148381, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const TRITON_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(454148381, -1);
 
     /// One `Lithium7ReducedGyromagneticRatio` (̅γ₇), as a `ReducedGyromagneticRatio`.
-    pub const LITHIUM7_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(165481773, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const LITHIUM7_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(165481773, -1);
 
     /// One `Boron11ReducedGyromagneticRatio` (̅γ₁₁), as a `ReducedGyromagneticRatio`.
-    pub const BORON11_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::int(13661608) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const BORON11_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::int(13661608);
 
     /// One `Carbon13ReducedGyromagneticRatio` (̅γ₁₃), as a `ReducedGyromagneticRatio`.
-    pub const CARBON13_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(107077464, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const CARBON13_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(107077464, -1);
 
     /// One `Nitrogen14ReducedGyromagneticRatio` (̅γ₁₄), as a `ReducedGyromagneticRatio`.
-    pub const NITROGEN14_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(307627281, -2) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const NITROGEN14_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(307627281, -2);
 
     /// One `Flourine19ReducedGyromagneticRatio` (̅γ₁₉), as a `ReducedGyromagneticRatio`.
-    pub const FLOURINE19_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(400692437, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const FLOURINE19_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(400692437, -1);
 
     /// One `Sodium23ReducedGyromagneticRatio` (̅γ₂₃), as a `ReducedGyromagneticRatio`.
-    pub const SODIUM23_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(112687336, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const SODIUM23_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(112687336, -1);
 
     /// One `Phosphorus31ReducedGyromagneticRatio` (̅γ₃₁), as a `ReducedGyromagneticRatio`.
-    pub const PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO<N: const From<Exact>>: ReducedGyromagneticRatio<N> = counted(Exact::dec(172411625, -1) * (SECOND::<Exact> * AMPERE::<Exact> / KILOGRAM::<Exact>));
+    pub const PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO: ReducedGyromagneticRatio<Exact> =
+        (SECOND * AMPERE / KILOGRAM) * Exact::dec(172411625, -1);
 }
 
-/// The units of `ElectricCharge`, for a menu, a config file, a parser.
+/// The units of `ElectricCharge`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCharge<f64>)]
+#[unit(of = ElectricCharge<N>, number = N)]
+#[unit(for<N> where ElectricCharge<N>: [const] yadc::Unit<ElectricCharge<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricChargeUnit {
     #[default]
-    #[unit("C", "coulombs", by = COULOMB)]
+    #[unit("C", "coulombs", by = ElectricCharge::<N>::from(COULOMB))]
     Coulomb,
-    #[unit("A · h", "ampere hours", by = AMPERE_HOUR)]
+    #[unit("A · h", "ampere hours", by = ElectricCharge::<N>::from(COULOMB * Exact::int(3600)))]
     AmpereHour,
-    #[unit("e", "elementary charges", by = ELEMENTARY_CHARGE)]
+    #[unit("e", "elementary charges", by = ElectricCharge::<N>::from(ELEMENTARY_CHARGE))]
     ElementaryCharge,
-    #[unit("a.u. of charge", "atomic units of charge", by = ATOMIC_UNIT_OF_CHARGE)]
+    #[unit("a.u. of charge", "atomic units of charge", by = ElectricCharge::<N>::from(ATOMIC_UNIT_OF_CHARGE))]
     AtomicUnitOfCharge,
-    #[unit("abC", "abcoulombs", by = ABCOULOMB)]
+    #[unit("abC", "abcoulombs", by = ElectricCharge::<N>::from(ABCOULOMB))]
     Abcoulomb,
-    #[unit("F", "faradays", by = FARADAY)]
+    #[unit("F", "faradays", by = ElectricCharge::<N>::from(FARADAY))]
     Faraday,
-    #[unit("Fr", "franklins", by = FRANKLIN)]
+    #[unit("Fr", "franklins", by = ElectricCharge::<N>::from(FRANKLIN))]
     Franklin,
-    #[unit("statC", "statcoulombs", by = STATCOULOMB)]
+    #[unit("statC", "statcoulombs", by = ElectricCharge::<N>::from(STATCOULOMB))]
     Statcoulomb,
 }
 
-/// The units of `ElectricChargeArealDensity`, for a menu, a config file, a parser.
+/// The units of `ElectricChargeArealDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricChargeArealDensity<f64>)]
+#[unit(of = ElectricChargeArealDensity<N>, number = N)]
+#[unit(for<N> where ElectricChargeArealDensity<N>: [const] yadc::Unit<ElectricChargeArealDensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricChargeArealDensityUnit {
     #[default]
-    #[unit("C/m²", "coulombs per square metre", by = ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE)]
+    #[unit("C/m²", "coulombs per square metre", by = ElectricChargeArealDensity::<N>::from(SECOND * AMPERE / (METRE * METRE)))]
     CoulombPerSquareMetre,
 }
 
-/// The units of `ElectricChargeLinearDensity`, for a menu, a config file, a parser.
+/// The units of `ElectricChargeLinearDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricChargeLinearDensity<f64>)]
+#[unit(of = ElectricChargeLinearDensity<N>, number = N)]
+#[unit(for<N> where ElectricChargeLinearDensity<N>: [const] yadc::Unit<ElectricChargeLinearDensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricChargeLinearDensityUnit {
     #[default]
-    #[unit("C/m", "coulombs per metre", by = COULOMB_PER_METRE)]
+    #[unit("C/m", "coulombs per metre", by = ElectricChargeLinearDensity::<N>::from(SECOND * AMPERE / METRE))]
     CoulombPerMetre,
 }
 
-/// The units of `ElectricChargeVolumetricDensity`, for a menu, a config file, a parser.
+/// The units of `ElectricChargeVolumetricDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricChargeVolumetricDensity<f64>)]
+#[unit(of = ElectricChargeVolumetricDensity<N>, number = N)]
+#[unit(for<N> where ElectricChargeVolumetricDensity<N>: [const] yadc::Unit<ElectricChargeVolumetricDensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricChargeVolumetricDensityUnit {
     #[default]
-    #[unit("C/m³", "coulombs per cubic metre", by = COULOMB_PER_CUBIC_METRE)]
+    #[unit("C/m³", "coulombs per cubic metre", by = ElectricChargeVolumetricDensity::<N>::from(SECOND * AMPERE / (METRE * METRE * METRE)))]
     CoulombPerCubicMetre,
 }
 
-/// The units of `ElectricCurrent`, for a menu, a config file, a parser.
+/// The units of `ElectricCurrent`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCurrent<f64>)]
+#[unit(of = ElectricCurrent<N>, number = N)]
+#[unit(for<N> where ElectricCurrent<N>: [const] yadc::Unit<ElectricCurrent<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricCurrentUnit {
     #[default]
-    #[unit("A", "amperes", by = AMPERE)]
+    #[unit("A", "amperes", by = ElectricCurrent::<N>::from(AMPERE))]
     Ampere,
-    #[unit("e/s", "elementary charges per second", by = ELEMENTARY_CHARGE_PER_SECOND)]
+    #[unit("e/s", "elementary charges per second", by = ElectricCurrent::<N>::from(AMPERE * Exact::dec(1602176634, -28)))]
     ElementaryChargePerSecond,
-    #[unit("a.u. of charge/s", "atomic units of charge per second", by = ATOMIC_UNIT_OF_CHARGE_PER_SECOND)]
+    #[unit("a.u. of charge/s", "atomic units of charge per second", by = ElectricCurrent::<N>::from(AMPERE * Exact::dec(1602176634, -28)))]
     AtomicUnitOfChargePerSecond,
-    #[unit("abA", "abamperes", by = ABAMPERE)]
+    #[unit("abA", "abamperes", by = ElectricCurrent::<N>::from(ABAMPERE))]
     Abampere,
-    #[unit("Gi", "gilberts", by = GILBERT)]
+    #[unit("Gi", "gilberts", by = ElectricCurrent::<N>::from(GILBERT))]
     Gilbert,
-    #[unit("statA", "statamperes", by = STATAMPERE)]
+    #[unit("statA", "statamperes", by = ElectricCurrent::<N>::from(STATAMPERE))]
     Statampere,
 }
 
-/// The units of `ElectricCurrentDensity`, for a menu, a config file, a parser.
+/// The units of `ElectricCurrentDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCurrentDensity<f64>)]
+#[unit(of = ElectricCurrentDensity<N>, number = N)]
+#[unit(for<N> where ElectricCurrentDensity<N>: [const] yadc::Unit<ElectricCurrentDensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricCurrentDensityUnit {
     #[default]
-    #[unit("A/m²", "amperes per square metre", by = AMPERE_PER_SQUARE_METRE)]
+    #[unit("A/m²", "amperes per square metre", by = ElectricCurrentDensity::<N>::from(AMPERE / (METRE * METRE)))]
     AmperePerSquareMetre,
 }
 
-/// The units of `SurfaceElectricCurrentDensity`, for a menu, a config file, a parser.
+/// The units of `SurfaceElectricCurrentDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SurfaceElectricCurrentDensity<f64>)]
+#[unit(of = SurfaceElectricCurrentDensity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SurfaceElectricCurrentDensity<N>: [const] yadc::Unit<SurfaceElectricCurrentDensity<N>, N> + [const] core::marker::Destruct)]
 pub enum SurfaceElectricCurrentDensityUnit {
     #[default]
-    #[unit("A/m", "amperes per metre", by = SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE)]
+    #[unit("A/m", "amperes per metre", by = SurfaceElectricCurrentDensity::<N>::from(AMPERE / METRE))]
     AmperePerMetre,
 }
 
-/// The units of `ElectricPotential`, for a menu, a config file, a parser.
+/// The units of `ElectricPotential`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricPotential<f64>)]
+#[unit(of = ElectricPotential<N>, number = N)]
+#[unit(for<N> where ElectricPotential<N>: [const] yadc::Unit<ElectricPotential<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricPotentialUnit {
     #[default]
-    #[unit("V", "volts", by = VOLT)]
+    #[unit("V", "volts", by = ElectricPotential::<N>::from(VOLT))]
     Volt,
-    #[unit("abV", "abvolts", by = ABVOLT)]
+    #[unit("abV", "abvolts", by = ElectricPotential::<N>::from(ABVOLT))]
     Abvolt,
-    #[unit("statV", "statvolts", by = STATVOLT)]
+    #[unit("statV", "statvolts", by = ElectricPotential::<N>::from(STATVOLT))]
     Statvolt,
 }
 
-/// The units of `ElectricField`, for a menu, a config file, a parser.
+/// The units of `ElectricField`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricField<f64>)]
+#[unit(of = ElectricField<N>, number = N)]
+#[unit(for<N> where ElectricField<N>: [const] yadc::Unit<ElectricField<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricFieldUnit {
     #[default]
-    #[unit("V/m", "volts per metre", by = VOLT_PER_METRE)]
+    #[unit("V/m", "volts per metre", by = ElectricField::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE)))]
     VoltPerMetre,
-    #[unit("V/mil", "volts per mil", by = VOLT_PER_MIL)]
+    #[unit("V/mil", "volts per mil", by = ElectricField::<N>::from((METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE)) * (Exact::int(1) / Exact::dec(254, -7))))]
     VoltPerMil,
-    #[unit("a.u. of electric field", "atomic units of electric field", by = ATOMIC_UNIT_OF_ELECTRIC_FIELD)]
+    #[unit("a.u. of electric field", "atomic units of electric field", by = ElectricField::<N>::from(ATOMIC_UNIT_OF_ELECTRIC_FIELD))]
     AtomicUnitOfElectricField,
 }
 
-/// The units of `ElectricDisplacementField`, for a menu, a config file, a parser.
+/// The units of `ElectricDisplacementField`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricDisplacementField<f64>)]
+#[unit(of = ElectricDisplacementField<N>, number = N)]
+#[unit(for<N> where ElectricDisplacementField<N>: [const] yadc::Unit<ElectricDisplacementField<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricDisplacementFieldUnit {
     #[default]
-    #[unit("C/m²", "coulombs per square metre", by = ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE)]
+    #[unit("C/m²", "coulombs per square metre", by = ElectricDisplacementField::<N>::from(SECOND * AMPERE / (METRE * METRE)))]
     CoulombPerSquareMetre,
 }
 
-/// The units of `ElectricFlux`, for a menu, a config file, a parser.
+/// The units of `ElectricFlux`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricFlux<f64>)]
+#[unit(of = ElectricFlux<N>, number = N)]
+#[unit(for<N> where ElectricFlux<N>: [const] yadc::Unit<ElectricFlux<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricFluxUnit {
     #[default]
-    #[unit("V ⋅ m", "volt metres", by = VOLT_METRE)]
+    #[unit("V ⋅ m", "volt metres", by = ElectricFlux::<N>::from(METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE)))]
     VoltMetre,
 }
 
-/// The units of `ElectricDipoleMoment`, for a menu, a config file, a parser.
+/// The units of `ElectricDipoleMoment`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricDipoleMoment<f64>)]
+#[unit(of = ElectricDipoleMoment<N>, number = N)]
+#[unit(for<N> where ElectricDipoleMoment<N>: [const] yadc::Unit<ElectricDipoleMoment<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricDipoleMomentUnit {
     #[default]
-    #[unit("C · m", "coulomb metres", by = COULOMB_METRE)]
+    #[unit("C · m", "coulomb metres", by = ElectricDipoleMoment::<N>::from(METRE * SECOND * AMPERE))]
     CoulombMetre,
-    #[unit("a.u. of charge · cm", "atomic unit of charge centimetres", by = ATOMIC_UNIT_OF_CHARGE_CENTIMETRE)]
-    AtomicUnitOfChargeCentimetre,
-    #[unit("e · cm", "elementary charge centimetres", by = ELEMENTARY_CHARGE_CENTIMETRE)]
-    ElementaryChargeCentimetre,
-    #[unit("e · a₀", "atomic units of electric dipole moment", by = ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT)]
+    #[unit("e · a₀", "atomic units of electric dipole moment", by = ElectricDipoleMoment::<N>::from((METRE * SECOND * AMPERE) * (Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22))))]
     AtomicUnitOfElectricDipoleMoment,
+    #[unit("a.u. of charge · cm", "atomic unit of charge centimetres", by = ElectricDipoleMoment::<N>::from((METRE * SECOND * AMPERE) * (Exact::dec(1602176634, -28) * Exact::dec(1, -2))))]
+    AtomicUnitOfChargeCentimetre,
+    #[unit("e · cm", "elementary charge centimetres", by = ElectricDipoleMoment::<N>::from((METRE * SECOND * AMPERE) * (Exact::dec(1602176634, -28) * Exact::dec(1, -2))))]
+    ElementaryChargeCentimetre,
 }
 
-/// The units of `ElectricQuadrupoleMoment`, for a menu, a config file, a parser.
+/// The units of `ElectricQuadrupoleMoment`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricQuadrupoleMoment<f64>)]
+#[unit(of = ElectricQuadrupoleMoment<N>, number = N)]
+#[unit(for<N> where ElectricQuadrupoleMoment<N>: [const] yadc::Unit<ElectricQuadrupoleMoment<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricQuadrupoleMomentUnit {
     #[default]
-    #[unit("C · m²", "coulomb square metres", by = COULOMB_SQUARE_METRE)]
+    #[unit("C · m²", "coulomb square metres", by = ElectricQuadrupoleMoment::<N>::from(METRE * METRE * SECOND * AMPERE))]
     CoulombSquareMetre,
-    #[unit("e · b", "elementary charge barns", by = ELEMENTARY_CHARGE_BARN)]
+    #[unit("e · b", "elementary charge barns", by = ElectricQuadrupoleMoment::<N>::from((METRE * METRE * SECOND * AMPERE) * (Exact::dec(1602176634, -28) * Exact::dec(1, -28))))]
     ElementaryChargeBarn,
-    #[unit("e · a₀²", "atomic units of electric quadrupole moment", by = ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT)]
+    #[unit("e · a₀²", "atomic units of electric quadrupole moment", by = ElectricQuadrupoleMoment::<N>::from((METRE * METRE * SECOND * AMPERE) * (Exact::dec(1602176634, -28) * Exact::dec(529177210903, -22) * Exact::dec(529177210903, -22))))]
     AtomicUnitOfElectricQuadrupoleMoment,
 }
 
-/// The units of `ElectricPermittivity`, for a menu, a config file, a parser.
+/// The units of `ElectricPermittivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricPermittivity<f64>)]
+#[unit(of = ElectricPermittivity<N>, number = N)]
+#[unit(for<N> where ElectricPermittivity<N>: [const] yadc::Unit<ElectricPermittivity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricPermittivityUnit {
     #[default]
-    #[unit("F/m", "farads per metre", by = FARAD_PER_METRE)]
+    #[unit("F/m", "farads per metre", by = ElectricPermittivity::<N>::from(SECOND * SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * METRE * KILOGRAM)))]
     FaradPerMetre,
-    #[unit("ε₀", "vacuum electric permittivity", by = VACUUM_PERMITTIVITY)]
+    #[unit("ε₀", "vacuum electric permittivity", by = ElectricPermittivity::<N>::from(VACUUM_PERMITTIVITY))]
     VacuumPermittivity,
 }
 
-/// The units of `ElectricalConductance`, for a menu, a config file, a parser.
+/// The units of `ElectricalConductance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalConductance<f64>)]
+#[unit(of = ElectricalConductance<N>, number = N)]
+#[unit(for<N> where ElectricalConductance<N>: [const] yadc::Unit<ElectricalConductance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricalConductanceUnit {
     #[default]
-    #[unit("S", "siemens", by = SIEMENS)]
+    #[unit("S", "siemens", by = ElectricalConductance::<N>::from(SIEMENS))]
     Siemens,
-    #[unit("℧", "mhos", by = MHO)]
+    #[unit("℧", "mhos", by = ElectricalConductance::<N>::from(MHO))]
     Mho,
-    #[unit("abmho", "abmhos", by = ABMHO)]
+    #[unit("abmho", "abmhos", by = ElectricalConductance::<N>::from(ABMHO))]
     Abmho,
-    #[unit("abS", "abmsiemens", by = ABSIEMENS)]
+    #[unit("abS", "abmsiemens", by = ElectricalConductance::<N>::from(ABSIEMENS))]
     Absiemens,
-    #[unit("statS", "statsiemens", by = STATSIEMENS)]
+    #[unit("statS", "statsiemens", by = ElectricalConductance::<N>::from(STATSIEMENS))]
     Statsiemens,
-    #[unit("statmho", "statmhos", by = STATMHO)]
+    #[unit("statmho", "statmhos", by = ElectricalConductance::<N>::from(STATMHO))]
     Statmho,
 }
 
-/// The units of `ElectricalConductivity`, for a menu, a config file, a parser.
+/// The units of `ElectricalConductivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalConductivity<f64>)]
+#[unit(of = ElectricalConductivity<N>, number = N)]
+#[unit(for<N> where ElectricalConductivity<N>: [const] yadc::Unit<ElectricalConductivity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricalConductivityUnit {
     #[default]
-    #[unit("S/m", "siemens per metre", by = SIEMENS_PER_METRE)]
+    #[unit("S/m", "siemens per metre", by = ElectricalConductivity::<N>::from(SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * METRE * KILOGRAM)))]
     SiemensPerMetre,
 }
 
-/// The units of `ElectricalMobility`, for a menu, a config file, a parser.
+/// The units of `ElectricalMobility`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalMobility<f64>)]
+#[unit(of = ElectricalMobility<N>, number = N)]
+#[unit(for<N> where ElectricalMobility<N>: [const] yadc::Unit<ElectricalMobility<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricalMobilityUnit {
     #[default]
-    #[unit("m²/(V · s)", "square metres per volt second", by = SQUARE_METRE_PER_VOLT_SECOND)]
+    #[unit("m²/(V · s)", "square metres per volt second", by = ElectricalMobility::<N>::from(SECOND * SECOND * AMPERE / KILOGRAM))]
     SquareMetrePerVoltSecond,
 }
 
-/// The units of `ElectricalResistance`, for a menu, a config file, a parser.
+/// The units of `ElectricalResistance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalResistance<f64>)]
+#[unit(of = ElectricalResistance<N>, number = N)]
+#[unit(for<N> where ElectricalResistance<N>: [const] yadc::Unit<ElectricalResistance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricalResistanceUnit {
     #[default]
-    #[unit("Ω", "ohms", by = OHM)]
+    #[unit("Ω", "ohms", by = ElectricalResistance::<N>::from(OHM))]
     Ohm,
-    #[unit("abΩ", "abohms", by = ABOHM)]
+    #[unit("abΩ", "abohms", by = ElectricalResistance::<N>::from(ABOHM))]
     Abohm,
-    #[unit("statΩ", "statohms", by = STATOHM)]
+    #[unit("statΩ", "statohms", by = ElectricalResistance::<N>::from(STATOHM))]
     Statohm,
 }
 
-/// The units of `ElectricalResistivity`, for a menu, a config file, a parser.
+/// The units of `ElectricalResistivity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricalResistivity<f64>)]
+#[unit(of = ElectricalResistivity<N>, number = N)]
+#[unit(for<N> where ElectricalResistivity<N>: [const] yadc::Unit<ElectricalResistivity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ElectricalResistivityUnit {
     #[default]
-    #[unit("Ω · m", "ohm metres", by = OHM_METRE)]
+    #[unit("Ω · m", "ohm metres", by = ElectricalResistivity::<N>::from(METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)))]
     OhmMetre,
-    #[unit("abΩ · m", "abohm metres", by = ABOHM_METRE)]
+    #[unit("abΩ · m", "abohm metres", by = ElectricalResistivity::<N>::from((METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)) * Exact::dec(1, -9)))]
     AbohmMetre,
-    #[unit("statΩ · m", "statohm metres", by = STATOHM_METRE)]
+    #[unit("statΩ · m", "statohm metres", by = ElectricalResistivity::<N>::from((METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)) * (Exact::dec(299792458, -6) * Exact::int(2997924580))))]
     StatohmMetre,
-    #[unit("Ω · in", "ohm inches", by = OHM_INCH)]
+    #[unit("Ω · in", "ohm inches", by = ElectricalResistivity::<N>::from((METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)) * Exact::dec(254, -4)))]
     OhmInch,
-    #[unit("Ω · ft", "ohm feet", by = OHM_FOOT)]
+    #[unit("Ω · ft", "ohm feet", by = ElectricalResistivity::<N>::from((METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)) * Exact::dec(3048, -4)))]
     OhmFoot,
-    #[unit("Ω · yd", "ohm yards", by = OHM_YARD)]
+    #[unit("Ω · yd", "ohm yards", by = ElectricalResistivity::<N>::from((METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)) * Exact::dec(9144, -4)))]
     OhmYard,
-    #[unit("Ω · mm²/m", "ohm square millimetres per metre", by = OHM_SQUARE_MILLIMETRE_PER_METRE)]
+    #[unit("Ω · mm²/m", "ohm square millimetres per metre", by = ElectricalResistivity::<N>::from((METRE * METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)) * Exact::dec(1, -6)))]
     OhmSquareMillimetrePerMetre,
 }
 
-/// The units of `Capacitance`, for a menu, a config file, a parser.
+/// The units of `Capacitance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Capacitance<f64>)]
+#[unit(of = Capacitance<N>, number = N)]
+#[unit(for<N> where Capacitance<N>: [const] yadc::Unit<Capacitance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum CapacitanceUnit {
     #[default]
-    #[unit("F", "farads", by = FARAD)]
+    #[unit("F", "farads", by = Capacitance::<N>::from(FARAD))]
     Farad,
-    #[unit("abF", "abfarads", by = ABFARAD)]
+    #[unit("abF", "abfarads", by = Capacitance::<N>::from(ABFARAD))]
     Abfarad,
-    #[unit("statF", "statfarads", by = STATFARAD)]
+    #[unit("statF", "statfarads", by = Capacitance::<N>::from(STATFARAD))]
     Statfarad,
 }
 
-/// The units of `Inductance`, for a menu, a config file, a parser.
+/// The units of `Inductance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Inductance<f64>)]
+#[unit(of = Inductance<N>, number = N)]
+#[unit(for<N> where Inductance<N>: [const] yadc::Unit<Inductance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum InductanceUnit {
     #[default]
-    #[unit("H", "henries", by = HENRY)]
+    #[unit("H", "henries", by = Inductance::<N>::from(HENRY))]
     Henry,
-    #[unit("abH", "abhenries", by = ABHENRY)]
+    #[unit("abH", "abhenries", by = Inductance::<N>::from(ABHENRY))]
     Abhenry,
-    #[unit("statH", "stathenries", by = STATHENRY)]
+    #[unit("statH", "stathenries", by = Inductance::<N>::from(STATHENRY))]
     Stathenry,
 }
 
-/// The units of `MagneticFieldStrength`, for a menu, a config file, a parser.
+/// The units of `MagneticFieldStrength`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFieldStrength<f64>)]
+#[unit(of = MagneticFieldStrength<N>, number = N)]
+#[unit(for<N> where MagneticFieldStrength<N>: [const] yadc::Unit<MagneticFieldStrength<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MagneticFieldStrengthUnit {
     #[default]
-    #[unit("A/m", "amperes per metre", by = MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE)]
+    #[unit("A/m", "amperes per metre", by = MagneticFieldStrength::<N>::from(AMPERE / METRE))]
     AmperePerMetre,
-    #[unit("Oe", "oersteds", by = OERSTED)]
+    #[unit("Oe", "oersteds", by = MagneticFieldStrength::<N>::from(OERSTED))]
     Oersted,
 }
 
-/// The units of `MagneticFlux`, for a menu, a config file, a parser.
+/// The units of `MagneticFlux`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFlux<f64>)]
+#[unit(of = MagneticFlux<N>, number = N)]
+#[unit(for<N> where MagneticFlux<N>: [const] yadc::Unit<MagneticFlux<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MagneticFluxUnit {
     #[default]
-    #[unit("Wb", "webers", by = WEBER)]
+    #[unit("Wb", "webers", by = MagneticFlux::<N>::from(WEBER))]
     Weber,
-    #[unit("Mx", "maxwells", by = MAXWELL)]
+    #[unit("Mx", "maxwells", by = MagneticFlux::<N>::from(MAXWELL))]
     Maxwell,
 }
 
-/// The units of `MagneticFluxDensity`, for a menu, a config file, a parser.
+/// The units of `MagneticFluxDensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFluxDensity<f64>)]
+#[unit(of = MagneticFluxDensity<N>, number = N)]
+#[unit(for<N> where MagneticFluxDensity<N>: [const] yadc::Unit<MagneticFluxDensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MagneticFluxDensityUnit {
     #[default]
-    #[unit("T", "teslas", by = TESLA)]
+    #[unit("T", "teslas", by = MagneticFluxDensity::<N>::from(TESLA))]
     Tesla,
-    #[unit("γ", "gammas", by = GAMMA)]
+    #[unit("γ", "gammas", by = MagneticFluxDensity::<N>::from(GAMMA))]
     Gamma,
-    #[unit("G", "gauss", by = GAUSS)]
+    #[unit("G", "gauss", by = MagneticFluxDensity::<N>::from(GAUSS))]
     Gauss,
 }
 
-/// The units of `MagneticMoment`, for a menu, a config file, a parser.
+/// The units of `MagneticMoment`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticMoment<f64>)]
+#[unit(of = MagneticMoment<N>, number = N)]
+#[unit(for<N> where MagneticMoment<N>: [const] yadc::Unit<MagneticMoment<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MagneticMomentUnit {
     #[default]
-    #[unit("A · m²", "ampere square metres", by = AMPERE_SQUARE_METRE)]
+    #[unit("A · m²", "ampere square metres", by = MagneticMoment::<N>::from(METRE * METRE * AMPERE))]
     AmpereSquareMetre,
-    #[unit("J/T", "joules per tesla", by = JOULE_PER_TESLA)]
+    #[unit("J/T", "joules per tesla", by = MagneticMoment::<N>::from(METRE * METRE * AMPERE))]
     JoulePerTesla,
-    #[unit("N · m/T", "newton metres per tesla", by = NEWTON_METRE_PER_TESLA)]
+    #[unit("N · m/T", "newton metres per tesla", by = MagneticMoment::<N>::from(METRE * METRE * AMPERE))]
     NewtonMetrePerTesla,
-    #[unit("erg/G", "ergs per gauss", by = ERG_PER_GAUSS)]
+    #[unit("erg/G", "ergs per gauss", by = MagneticMoment::<N>::from((METRE * METRE * AMPERE) * Exact::dec(1, -3)))]
     ErgPerGauss,
-    #[unit("µ(Bohr)", "Bohr magnetons", by = BOHR_MAGNETON)]
+    #[unit("µ(Bohr)", "Bohr magnetons", by = MagneticMoment::<N>::from(BOHR_MAGNETON))]
     BohrMagneton,
-    #[unit("μ(Nuclear)", "nuclear magnetons", by = NUCLEAR_MAGNETON)]
+    #[unit("μ(Nuclear)", "nuclear magnetons", by = MagneticMoment::<N>::from(NUCLEAR_MAGNETON))]
     NuclearMagneton,
-    #[unit("ħ · e/mₑ", " atomic units of magnetic dipole moment", by = ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT)]
+    #[unit("ħ · e/mₑ", " atomic units of magnetic dipole moment", by = MagneticMoment::<N>::from((METRE * METRE * AMPERE) * Exact::dec(185480201566, -34)))]
     AtomicUnitOfMagneticDipoleMoment,
-    #[unit("μ(deuteron)", "deuteron magnetic moments", by = DEUTERON_MAGNETIC_MOMENT)]
+    #[unit("μ(deuteron)", "deuteron magnetic moments", by = MagneticMoment::<N>::from(DEUTERON_MAGNETIC_MOMENT))]
     DeuteronMagneticMoment,
-    #[unit("μ(proton)", "proton magnetic moments", by = PROTON_MAGNETIC_MOMENT)]
+    #[unit("μ(proton)", "proton magnetic moments", by = MagneticMoment::<N>::from(PROTON_MAGNETIC_MOMENT))]
     ProtonMagneticMoment,
-    #[unit("μ’(proton)", "shielded proton magnetic moments", by = SHIELDED_PROTON_MAGNETIC_MOMENT)]
+    #[unit("μ’(proton)", "shielded proton magnetic moments", by = MagneticMoment::<N>::from(SHIELDED_PROTON_MAGNETIC_MOMENT))]
     ShieldedProtonMagneticMoment,
-    #[unit("μ(triton)", "triton magnetic moments", by = TRITON_MAGNETIC_MOMENT)]
+    #[unit("μ(triton)", "triton magnetic moments", by = MagneticMoment::<N>::from(TRITON_MAGNETIC_MOMENT))]
     TritonMagneticMoment,
 }
 
-/// The units of `MagneticPermeability`, for a menu, a config file, a parser.
+/// The units of `MagneticPermeability`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticPermeability<f64>)]
+#[unit(of = MagneticPermeability<N>, number = N)]
+#[unit(for<N> where MagneticPermeability<N>: [const] yadc::Unit<MagneticPermeability<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MagneticPermeabilityUnit {
     #[default]
-    #[unit("H/m", "henrys per metre", by = HENRY_PER_METRE)]
+    #[unit("H/m", "henrys per metre", by = MagneticPermeability::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * AMPERE * AMPERE)))]
     HenryPerMetre,
-    #[unit("µ₀", "vacuum magnetic permeability", by = VACUUM_PERMEABILITY)]
+    #[unit("µ₀", "vacuum magnetic permeability", by = MagneticPermeability::<N>::from(VACUUM_PERMEABILITY))]
     VacuumPermeability,
 }
 
-/// The units of `GyromagneticRatio`, for a menu, a config file, a parser.
+/// The units of `GyromagneticRatio`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = GyromagneticRatio<f64>)]
+#[unit(of = GyromagneticRatio<N>, number = N)]
+#[unit(for<N> where GyromagneticRatio<N>: [const] yadc::Unit<GyromagneticRatio<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum GyromagneticRatioUnit {
     #[default]
-    #[unit("Hz/T", "hertz per tesla", by = HERTZ_PER_TESLA)]
+    #[unit("Hz/T", "hertz per tesla", by = GyromagneticRatio::<N>::from(SECOND * AMPERE * RADIAN / KILOGRAM))]
     HertzPerTesla,
-    #[unit("rad/(s · T)", "radians per second tesla", by = RADIAN_PER_SECOND_TESLA)]
+    #[unit("rad/(s · T)", "radians per second tesla", by = GyromagneticRatio::<N>::from(SECOND * AMPERE * RADIAN / KILOGRAM))]
     RadianPerSecondTesla,
-    #[unit("γₚ", "proton gyromagnetic ratio", by = PROTON_GYROMAGNETIC_RATIO)]
+    #[unit("γₚ", "proton gyromagnetic ratio", by = GyromagneticRatio::<N>::from(PROTON_GYROMAGNETIC_RATIO))]
     ProtonGyromagneticRatio,
-    #[unit("γₙ", "neutron gyromagnetic ratio", by = NEUTRON_GYROMAGNETIC_RATIO)]
+    #[unit("γₙ", "neutron gyromagnetic ratio", by = GyromagneticRatio::<N>::from(NEUTRON_GYROMAGNETIC_RATIO))]
     NeutronGyromagneticRatio,
-    #[unit("γₑ", "electron gyromagnetic ratio", by = ELECTRON_GYROMAGNETIC_RATIO)]
+    #[unit("γₑ", "electron gyromagnetic ratio", by = GyromagneticRatio::<N>::from(ELECTRON_GYROMAGNETIC_RATIO))]
     ElectronGyromagneticRatio,
-    #[unit("γ'ₚ", "shielded proton gyromagnetic ratio", by = SHIELDED_PROTON_GYROMAGNETIC_RATIO)]
+    #[unit("γ'ₚ", "shielded proton gyromagnetic ratio", by = GyromagneticRatio::<N>::from(SHIELDED_PROTON_GYROMAGNETIC_RATIO))]
     ShieldedProtonGyromagneticRatio,
-    #[unit("γ'ₕ", "shielded helion gyromagnetic ratio", by = SHIELDED_HELION_GYROMAGNETIC_RATIO)]
+    #[unit("γ'ₕ", "shielded helion gyromagnetic ratio", by = GyromagneticRatio::<N>::from(SHIELDED_HELION_GYROMAGNETIC_RATIO))]
     ShieldedHelionGyromagneticRatio,
-    #[unit("γ₂", "deuteron gyromagnetic ratio", by = DEUTERON_GYROMAGNETIC_RATIO)]
+    #[unit("γ₂", "deuteron gyromagnetic ratio", by = GyromagneticRatio::<N>::from(DEUTERON_GYROMAGNETIC_RATIO))]
     DeuteronGyromagneticRatio,
-    #[unit("γ₃", "triton gyromagnetic ratio", by = TRITON_GYROMAGNETIC_RATIO)]
+    #[unit("γ₃", "triton gyromagnetic ratio", by = GyromagneticRatio::<N>::from(TRITON_GYROMAGNETIC_RATIO))]
     TritonGyromagneticRatio,
-    #[unit("γ₇", "lithium7 gyromagnetic ratio", by = LITHIUM7_GYROMAGNETIC_RATIO)]
+    #[unit("γ₇", "lithium7 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(LITHIUM7_GYROMAGNETIC_RATIO))]
     Lithium7GyromagneticRatio,
-    #[unit("γ₁₁", "boron11 gyromagnetic ratio", by = BORON11_GYROMAGNETIC_RATIO)]
+    #[unit("γ₁₁", "boron11 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(BORON11_GYROMAGNETIC_RATIO))]
     Boron11GyromagneticRatio,
-    #[unit("γ₁₃", "carbon13 gyromagnetic ratio", by = CARBON13_GYROMAGNETIC_RATIO)]
+    #[unit("γ₁₃", "carbon13 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(CARBON13_GYROMAGNETIC_RATIO))]
     Carbon13GyromagneticRatio,
-    #[unit("γ₁₄", "nitrogen14 gyromagnetic ratio", by = NITROGEN14_GYROMAGNETIC_RATIO)]
+    #[unit("γ₁₄", "nitrogen14 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(NITROGEN14_GYROMAGNETIC_RATIO))]
     Nitrogen14GyromagneticRatio,
-    #[unit("γ₁₉", "flourine19 gyromagnetic ratio", by = FLOURINE19_GYROMAGNETIC_RATIO)]
+    #[unit("γ₁₉", "flourine19 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(FLOURINE19_GYROMAGNETIC_RATIO))]
     Flourine19GyromagneticRatio,
-    #[unit("γ₂₃", "sodium23 gyromagnetic ratio", by = SODIUM23_GYROMAGNETIC_RATIO)]
+    #[unit("γ₂₃", "sodium23 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(SODIUM23_GYROMAGNETIC_RATIO))]
     Sodium23GyromagneticRatio,
-    #[unit("γ₃₁", "phosphorus31 gyromagnetic ratio", by = PHOSPHORUS31_GYROMAGNETIC_RATIO)]
+    #[unit("γ₃₁", "phosphorus31 gyromagnetic ratio", by = GyromagneticRatio::<N>::from(PHOSPHORUS31_GYROMAGNETIC_RATIO))]
     Phosphorus31GyromagneticRatio,
 }
 
-/// The units of `ReducedGyromagneticRatio`, for a menu, a config file, a parser.
+/// The units of `ReducedGyromagneticRatio`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ReducedGyromagneticRatio<f64>)]
+#[unit(of = ReducedGyromagneticRatio<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, ReducedGyromagneticRatio<N>: [const] yadc::Unit<ReducedGyromagneticRatio<N>, N> + [const] core::marker::Destruct)]
 pub enum ReducedGyromagneticRatioUnit {
     #[default]
-    #[unit("̅γₚ", "proton reduced gyromagnetic ratio", by = PROTON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γₚ", "proton reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(PROTON_REDUCED_GYROMAGNETIC_RATIO))]
     ProtonReducedGyromagneticRatio,
-    #[unit("̅γₙ", "neutron reduced gyromagnetic ratio", by = NEUTRON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γₙ", "neutron reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(NEUTRON_REDUCED_GYROMAGNETIC_RATIO))]
     NeutronReducedGyromagneticRatio,
-    #[unit("̅γₑ", "electron reduced gyromagnetic ratio", by = ELECTRON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γₑ", "electron reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(ELECTRON_REDUCED_GYROMAGNETIC_RATIO))]
     ElectronReducedGyromagneticRatio,
-    #[unit("γ'ₚ", "shielded proton reduced gyromagnetic ratio", by = SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("γ'ₚ", "shielded proton reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO))]
     ShieldedProtonReducedGyromagneticRatio,
-    #[unit("γ'ₕ", "shielded helion reduced gyromagnetic ratio", by = SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("γ'ₕ", "shielded helion reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO))]
     ShieldedHelionReducedGyromagneticRatio,
-    #[unit("̅γ₂", "deuteron reduced gyromagnetic ratio", by = DEUTERON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₂", "deuteron reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(DEUTERON_REDUCED_GYROMAGNETIC_RATIO))]
     DeuteronReducedGyromagneticRatio,
-    #[unit("̅γ₃", "triton reduced gyromagnetic ratio", by = TRITON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₃", "triton reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(TRITON_REDUCED_GYROMAGNETIC_RATIO))]
     TritonReducedGyromagneticRatio,
-    #[unit("̅γ₇", "lithium7 reduced gyromagnetic ratio", by = LITHIUM7_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₇", "lithium7 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(LITHIUM7_REDUCED_GYROMAGNETIC_RATIO))]
     Lithium7ReducedGyromagneticRatio,
-    #[unit("̅γ₁₁", "boron11 reduced gyromagnetic ratio", by = BORON11_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₁₁", "boron11 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(BORON11_REDUCED_GYROMAGNETIC_RATIO))]
     Boron11ReducedGyromagneticRatio,
-    #[unit("̅γ₁₃", "carbon13 reduced gyromagnetic ratio", by = CARBON13_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₁₃", "carbon13 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(CARBON13_REDUCED_GYROMAGNETIC_RATIO))]
     Carbon13ReducedGyromagneticRatio,
-    #[unit("̅γ₁₄", "nitrogen14 reduced gyromagnetic ratio", by = NITROGEN14_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₁₄", "nitrogen14 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(NITROGEN14_REDUCED_GYROMAGNETIC_RATIO))]
     Nitrogen14ReducedGyromagneticRatio,
-    #[unit("̅γ₁₉", "flourine19 reduced gyromagnetic ratio", by = FLOURINE19_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₁₉", "flourine19 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(FLOURINE19_REDUCED_GYROMAGNETIC_RATIO))]
     Flourine19ReducedGyromagneticRatio,
-    #[unit("̅γ₂₃", "sodium23 reduced gyromagnetic ratio", by = SODIUM23_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₂₃", "sodium23 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(SODIUM23_REDUCED_GYROMAGNETIC_RATIO))]
     Sodium23ReducedGyromagneticRatio,
-    #[unit("̅γ₃₁", "phosphorus31 reduced gyromagnetic ratio", by = PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO)]
+    #[unit("̅γ₃₁", "phosphorus31 reduced gyromagnetic ratio", by = ReducedGyromagneticRatio::<N>::from(PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO))]
     Phosphorus31ReducedGyromagneticRatio,
 }

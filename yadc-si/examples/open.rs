@@ -9,22 +9,35 @@
 //! it is std `From`; back out is std `TryFrom`, which checks the dimension
 //! and hands the value back on a mismatch. Numbers still go in and out
 //! through units, by way of a static quantity: a constant is called on a number
-//! to build (`kilopascal(101.325)`, with `kilopascal` being `KILO * PASCAL`),
-//! and on a quantity to read.
+//! to build (`KILOPASCAL(101.325)`, with `KILOPASCAL` being `KILO * PASCAL`
+//! rounded to `f64`), and on a quantity to read.
 //!
 //! Run with: cargo run -p yadc-si --example open
-#![feature(generic_const_exprs, const_trait_impl)]
+#![feature(generic_const_exprs, const_trait_impl, const_convert, const_ops)]
 #![allow(incomplete_features)]
 
 use yadc::{PartialPowi, PartialRoot, Unit};
-use yadc_si::{DynamicSIQuantity, KILO};
-use yadc_si::mechanical::consts::{
-    BAR, CUBIC_METRE, DBM, DECIBEL, HOUR, METRE, NEWTON, PASCAL,
-    POUND_FORCE_PER_SQUARE_INCH, SQUARE_METRE, UNIX_SECONDS,
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::mechanical::{
+    Area, Force, Gain, Instant, Length, PowerLevel, Pressure, Time, Volume, consts,
 };
-use yadc_si::mechanical::{Area, Force, Instant, Length, PowerLevel, Pressure, Time, Volume};
-use yadc_si::thermal::consts::{CELSIUS, KELVIN};
 use yadc_si::thermal::{TemperatureInterval, ThermodynamicTemperature};
+use yadc_si::{KILO, Scale};
+
+const KILOPASCAL: Pressure<f64> = (KILO * consts::PASCAL).into();
+const BAR: Pressure<f64> = consts::BAR.into();
+const PSI: Pressure<f64> = consts::PSI.into();
+const NEWTON: Force<f64> = consts::NEWTON.into();
+const METRE: Length<f64> = consts::METRE.into();
+const SQUARE_METRE: Area<f64> = consts::SQUARE_METRE.into();
+const CUBIC_METRE: Volume<f64> = consts::CUBIC_METRE.into();
+const HOUR: Time<f64> = consts::HOUR.into();
+const DECIBEL: Gain<f64> = consts::DECIBEL.into();
+const KELVIN: TemperatureInterval<f64> = yadc_si::thermal::consts::KELVIN.into();
+const CELSIUS: Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>> =
+    yadc_si::thermal::consts::CELSIUS.into();
+const DBM: Scale<PowerLevel<f64>, Gain<f64>> = consts::DBM.into();
+const UNIX_SECONDS: Scale<Instant<f64>, Time<f64>> = consts::UNIX_SECONDS.into();
 
 /// Generic over any dynamic version of `T`: in, and back.
 fn round_trip<T, X: From<T>>(t: T) -> Result<T, X>
@@ -35,12 +48,11 @@ where
 }
 
 fn main() {
-    let kilopascal: Pressure<f64> = KILO * PASCAL;
-    let p = DynamicSIQuantity::from(kilopascal(101.325));
+    let p = DynamicSIQuantity::from(KILOPASCAL(101.325));
     let a = DynamicSIQuantity::from(SQUARE_METRE(0.5));
 
     // Numbers come out through a static quantity and a unit, checked.
-    let kpa = |x| Some(kilopascal(Pressure::try_from(x).ok()?));
+    let kpa = |x| Some(KILOPASCAL(Pressure::try_from(x).ok()?));
     let m2 = |x| Some(SQUARE_METRE(Area::try_from(x).ok()?));
 
     // Arithmetic decided at run time: every operator may have no result. An
@@ -78,20 +90,20 @@ fn main() {
     // The way back: std `TryFrom` checks the dimension, and a mismatch hands
     // the value back.
     let back: Pressure<f64> = p.try_into().unwrap();
-    println!("back        = {:.3} kPa", kilopascal(back));
+    println!("back        = {:.3} kPa", KILOPASCAL(back));
     println!("as a length = {:?}", Length::try_from(p).is_ok());
     let kept = round_trip::<Pressure<f64>, DynamicSIQuantity>(back);
-    println!(
-        "round trip  = {:.3?} psi",
-        kept.map(POUND_FORCE_PER_SQUARE_INCH)
-    );
+    println!("round trip  = {:.3?} psi", kept.map(PSI));
     // A temperature is an amount kept apart from its differences: it scales
     // and averages as a temperature, and two differ by an interval.
     let t = DynamicSIQuantity::from(CELSIUS.quantity(25.0));
     let ice = DynamicSIQuantity::from(CELSIUS.quantity(0.0));
     let celsius = |x| Some(CELSIUS.value(ThermodynamicTemperature::try_from(x).ok()?));
     let kelvins = |x| Some(KELVIN(TemperatureInterval::try_from(x).ok()?));
-    println!("(t + ice)/2 = {:.2?} °C", ((t + ice).and_then(|s| s / 2.0)).and_then(celsius));
+    println!(
+        "(t + ice)/2 = {:.2?} °C",
+        ((t + ice).and_then(|s| s / 2.0)).and_then(celsius)
+    );
     println!("t - ice     = {:?} K", (t - ice).and_then(kelvins));
     println!("t × 2       = {:.2?} °C", (t * 2.0).and_then(celsius));
     // A power level is a logarithm: a gain moves it, and it has no products

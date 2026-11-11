@@ -296,8 +296,10 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// On a struct, in its own `#[unit(..)]`; on an enum, on each variant:
 /// `by = U`, where `U` is any unit value - a quantity constant, a scale, a
 /// unit type of yours with a hand-written `impl Unit` - and the unit does
-/// whatever `U` does. Instead of a constant expression, `U` may be a field of
-/// the unit marked `#[unit(by)]`: a unit known only at run time.
+/// whatever `U` does. `U` is a constant expression, evaluated once, at
+/// compile time (`by = KILO * METRE`, `by = Length::<f64>::from(INCH)` are
+/// one number in the program). Instead, `U` may be a field of the unit marked
+/// `#[unit(by)]`: a unit known only at run time.
 ///
 /// `via = P` beside it says `U` measures another type `P`, which the unit's
 /// own type converts to and from with std `From`: a level's scale (a unit of
@@ -322,9 +324,17 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// # On the type
 ///
 /// - `of = Q` (repeatable): one `impl Unit<Q, N>` each, matching on the
-///   variant. That impl *is* the declaration that the unit measures `Q`; it
-///   has no `where` clause, so each `by` is checked here, for each `Q`.
+///   variant. That impl *is* the declaration that the unit measures `Q`;
+///   with concrete types it has no `where` clause, so each `by` is checked
+///   here, for each `Q`.
 /// - `number = f32`: the numbers' type `N`, `f64` by default.
+/// - `for<N> where ..`: the impls are generic, with these bounds - the last
+///   item of its `#[unit(..)]`, as a where clause takes the rest. `of =
+///   Length<N>, number = N` with `for<N> where Length<N>: [const]
+///   Unit<Length<N>, N> + [const] Destruct, ..` counts in any number type
+///   the bounds allow, each `by` still evaluated at compile time, once per
+///   number type. A generic unit is not called (`N` and `Q<N>` could be one
+///   type): it is read and built with `value` and `quantity`.
 /// - `non_const`: an ordinary impl instead of a `const impl`, when a `by = U`
 ///   names a value whose own `Unit` impl is not `const` (the derive cannot
 ///   see that) - a level read as a linear quantity, a hand-written formula.

@@ -11,8 +11,9 @@ use uom::si::f64::{Length, Mass, Velocity};
 use uom::si::length::{kilometer, meter};
 use uom::si::mass::kilogram;
 use uom::si::velocity::meter_per_second;
-use yadc_si::mechanical::consts::{KILOGRAM, METRE_PER_SECOND};
-use yadc_si::{DynamicSIQuantity, Prefix, Prefixed, SIQuantity, mechanical};
+use yadc_si::mechanical::{MassUnit::Kilogram, VelocityUnit::MetrePerSecond};
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::{Prefix, Prefixed, SIQuantity, mechanical};
 use yadc::Unit;
 
 fn main() {
@@ -26,8 +27,8 @@ fn main() {
     );
 
     // -- SIQuantity -> uom (Into, infallible) ----------------------------
-    // Every yadc-si constant is a unit: 25 of `METRE_PER_SECOND`.
-    let yadc_v = METRE_PER_SECOND(25.0);
+    // A unit builds it: 25 of `MetrePerSecond`.
+    let yadc_v = MetrePerSecond.quantity(25.0);
     let uom_v: Velocity = yadc_v.into();
     println!("velocity (to uom): {} m/s", uom_v.get::<meter_per_second>());
 
@@ -39,7 +40,7 @@ fn main() {
     let dyn_mass: DynamicSIQuantity = uom_mass.into();
     println!(
         "mass (dynamic, from uom): {:?}",
-        mechanical::Mass::try_from(dyn_mass).map(|m| KILOGRAM(m))
+        mechanical::Mass::try_from(dyn_mass).map(|m| Kilogram.value(m))
     );
 
     // -- DynamicSIQuantity -> uom (TryFrom, runtime dim check) -----------------
@@ -59,7 +60,7 @@ fn main() {
         Ok(_) => println!("unexpected success"),
         Err(recovered) => println!(
             "dim mismatch recovered mass: {:?}",
-            mechanical::Mass::try_from(recovered).map(|m| KILOGRAM(m))
+            mechanical::Mass::try_from(recovered).map(|m| Kilogram.value(m))
         ),
     }
 }

@@ -1,4 +1,4 @@
-#![feature(generic_const_exprs)]
+#![feature(generic_const_exprs, const_trait_impl, const_convert, const_ops)]
 #![allow(incomplete_features)]
 
 use std::convert::TryFrom;
@@ -13,9 +13,12 @@ use uom::si::solid_angle::steradian;
 use uom::si::velocity::meter_per_second;
 use yadc::Unit;
 use yadc_si::angular::*;
+use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::mechanical::*;
-use yadc_si::mechanical::consts::METRE;
-use yadc_si::{DynamicSIQuantity, KILO, SIQuantity};
+use yadc_si::{KILO, SIQuantity};
+
+const KILOMETRE: yadc_si::mechanical::Length<f64> =
+    (KILO * yadc_si::mechanical::consts::METRE).into();
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -28,7 +31,7 @@ fn static_from_uom_length() {
     let uom = Length::new::<kilometer>(42.195);
     let q: SIQuantity<_, f64> = uom.into();
     close(LengthUnit::Metre.value(q), 42_195.0);
-    close((KILO * METRE).value(q), 42.195);
+    close(KILOMETRE.value(q), 42.195);
 }
 
 #[test]
@@ -41,7 +44,7 @@ fn static_from_uom_mass() {
 
 #[test]
 fn static_into_uom_length() {
-    let q = (KILO * METRE).quantity(5.0);
+    let q = KILOMETRE.quantity(5.0);
     let uom: Length = q.into();
     close(uom.get::<meter>(), 5_000.0);
     close(uom.get::<kilometer>(), 5.0);

@@ -1,20 +1,24 @@
 //! The SI system at work: units build and read quantities, the static
 //! quantities compose with typed operators, the open type
-//! (`DynamicSIQuantity`) decides at run time, and the constants compose in
-//! `const` items.
+//! (`DynamicSIQuantity`) decides at run time, and the exact constants compose
+//! in `const` items and round to `f64` there.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl, const_ops)]
+#![feature(const_convert)]
 #![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use yadc::{Dimension, PartialPowi, PartialRoot, PowiAs, RootAs, Unit};
 use yadc_si::angular::*;
+use yadc_si::chemistry::InverseAmountOfSubstance;
 use yadc_si::dimensionless::*;
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::electromagnetic::{ElectricCharge, ElectricPermittivity, MagneticPermeability};
 use yadc_si::mechanical::*;
 use yadc_si::thermal::*;
-use yadc_si::{CENTI, DynamicSIQuantity, ISQ, KILO, Kind, MILLI, Prefix, Prefixed, SIQuantity};
+use yadc_si::{CENTI, Exact, ISQ, KILO, Kind, MILLI, Prefix, Prefixed, SIQuantity, Scale};
 
 /// A static quantity's dimension: its const parameter.
-fn dim_of<const D: ISQ>(_: SIQuantity<D, f64>) -> ISQ {
+fn dim_of<const D: ISQ, N>(_: SIQuantity<D, N>) -> ISQ {
     D
 }
 
@@ -39,17 +43,16 @@ fn units_build_quantities_and_quantities_compose() {
     use LengthUnit::Metre;
     use TimeUnit::{Hour, Second};
     use VelocityUnit::{KilometrePerHour, MetrePerSecond};
-    let kilometre: Length<f64> = KILO * mech::METRE;
 
     // Units never take part in arithmetic: build quantities, then compute.
-    let v: Velocity<f64> = kilometre.quantity(90.0) / Hour.quantity(1.0);
+    let v: Velocity<f64> = KILOMETRE.quantity(90.0) / Hour.quantity(1.0);
     close(MetrePerSecond.value(v), 25.0);
     close(KilometrePerHour.value(v), 90.0);
     close(
         MetrePerSecond.value(Metre.quantity(1.0) / Second.quantity(1.0)),
         1.0,
     );
-    close(kilometre.value(v * Hour.quantity(1.0)), 90.0);
+    close(KILOMETRE.value(v * Hour.quantity(1.0)), 90.0);
 }
 
 #[test]
@@ -149,7 +152,7 @@ fn angle_is_not_dimensionless() {
 
 #[test]
 fn radians_are_an_exponent_axis() {
-    use yadc_si::angular::consts::RADIAN;
+    const RADIAN: Angle<f64> = yadc_si::angular::consts::RADIAN.into();
     // Torque is J/rad, so torque × angle is energy (the work of a turn).
     let torque = TorqueUnit::NewtonMetre.quantity(10.0);
     let work: Energy<f64> = torque * AngleUnit::Revolution.quantity(1.0);
@@ -246,7 +249,6 @@ fn power_levels_share_the_enum_with_watts() {
 #[test]
 fn gains_are_logarithms_of_ratios() {
     use GainUnit::{Bel, Decibel, Neper};
-    use yadc_si::mechanical::consts::{BEL, DECIBEL, NEPER};
 
     // A gain is a quantity of its own, with plain units: decibels add.
     let g: Gain<f64> = 3.0 * DECIBEL + 7.0 * DECIBEL;
@@ -275,7 +277,7 @@ fn gains_are_logarithms_of_ratios() {
 
 #[test]
 fn power_levels_are_scales_on_the_logarithmic_line() {
-    use yadc_si::mechanical::consts::{DBM, DBW, DECIBEL, MILLIWATT_LEVEL, WATT};
+    const DBW: Scale<PowerLevel<f64>, Gain<f64>> = mech::DBW.into();
 
     // A scale of levels is a unit of `PowerLevel`; the watts are one std
     // `From` away, either way.
@@ -283,9 +285,9 @@ fn power_levels_are_scales_on_the_logarithmic_line() {
     let p = Power::from(level);
     close(WATT(p), 1.0);
     close(DBW.value(level), 0.0);
-    close(DBM.value(PowerLevel::from(100.0 * (MILLI * WATT))), 20.0);
-    close(DBM.value((MILLI * WATT).into()), 0.0);
-    close(DBM.value(MILLIWATT_LEVEL), 0.0);
+    close(DBM.value(PowerLevel::from(100.0 * MILLIWATT)), 20.0);
+    close(DBM.value(MILLIWATT.into()), 0.0);
+    close(DBM.value(PowerLevel::from(mech::MILLIWATT_LEVEL)), 0.0);
 
     // A link budget, in decibels: on the line, multiplying is adding.
     let received = level - 3.0 * DECIBEL + 13.0 * DECIBEL;
@@ -371,11 +373,10 @@ fn static_dynamic_bridge_round_trips_and_keeps_the_original_on_failure() {
 #[test]
 fn dynamic_arithmetic_is_partial() {
     use TimeUnit::Hour;
-    let kilometre: Length<f64> = KILO * mech::METRE;
 
-    let d = DynamicSIQuantity::from(kilometre.quantity(90.0));
+    let d = DynamicSIQuantity::from(KILOMETRE.quantity(90.0));
     let hour = DynamicSIQuantity::from(Hour.quantity(1.0));
-    let km = DynamicSIQuantity::from(kilometre);
+    let km = DynamicSIQuantity::from(KILOMETRE);
     // The open type composes dimensions at run time: every step may have no
     // result.
     let v = (d / (hour * 2.0).unwrap()).unwrap();
@@ -392,7 +393,7 @@ fn dynamic_arithmetic_is_partial() {
     // ... while a well-formed chain goes through.
     let accepted = || -> Option<DynamicSIQuantity> { (((d * d)? / km)? + d)? - d };
     let total = accepted().and_then(|x| Length::try_from(x).ok()).unwrap();
-    close(kilometre.value(total), 8100.0);
+    close(KILOMETRE.value(total), 8100.0);
     // A read of the wrong quantity rejects it.
     assert!(f64::try_from(d).is_err());
     assert!(Length::try_from(v).is_err());
@@ -454,10 +455,13 @@ fn a_temperature_is_an_amount_apart_from_its_differences() {
     close(Celsius.value(middle), 60.0);
     let doubled: ThermodynamicTemperature<f64> = 2.0 * warmer;
     close(Kelvin.value(doubled), 666.3);
-    close(therm::ICE_POINT.value(doubled), 666.3 / 273.15);
+    close(
+        ThermodynamicTemperature::<f64>::from(therm::ICE_POINT).value(doubled),
+        666.3 / 273.15,
+    );
     // It multiplies, and the label drops out of the product: the ideal gas
     // law, p V = n R T, and a fourth power for radiation.
-    let energy = chem::MOLE::<f64> * chem::MOLAR_GAS_CONSTANT * warmer;
+    let energy = HeatCapacity::<f64>::from(chem::MOLE * chem::MOLAR_GAS_CONSTANT) * warmer;
     close(EnergyUnit::Joule.value(energy), 8.314462618 * 333.15);
     let fourth = warmer.powi::<4>();
     assert_eq!(dim_of(fourth).kind, Kind::Linear);
@@ -558,23 +562,22 @@ fn kinds_decide_sums_and_products() {
 
 #[test]
 fn a_gain_per_length_is_a_plain_rate() {
-    let kilometre: Length<f64> = KILO * mech::METRE;
     // An attenuation of 0.2 dB per kilometre: a gain over a length leaves the
     // logarithmic kind, as a label leaves a product - a plain number per
     // metre, counting bels.
     let attenuation: yadc_si::density::LinearNumberDensity<f64> =
-        (0.2 * mech::DECIBEL) / kilometre;
+        (0.2 * DECIBEL) / KILOMETRE;
     // Over 15 km it is a plain number again - of bels; that many bels is the
     // gain.
-    let bels: Dimensionless<f64> = attenuation * kilometre.quantity(15.0);
-    let loss: Gain<f64> = bels * mech::BEL;
-    close(mech::DECIBEL.value(loss), 3.0);
+    let bels: Dimensionless<f64> = attenuation * KILOMETRE.quantity(15.0);
+    let loss: Gain<f64> = bels * BEL;
+    close(DECIBEL.value(loss), 3.0);
     // Launched at 0 dBm, the level after the fibre.
-    let launched: PowerLevel<f64> = mech::DBM.quantity(0.0);
+    let launched: PowerLevel<f64> = DBM.quantity(0.0);
     let received: PowerLevel<f64> = launched - loss;
-    close(mech::DBM.value(received), -3.0);
+    close(DBM.value(received), -3.0);
     let power: Power<f64> = received.into();
-    close((MILLI * mech::WATT).value(power), 10f64.powf(-0.3));
+    close(MILLIWATT.value(power), 10f64.powf(-0.3));
 }
 
 /// Generic code reads and builds a value through any unit it is handed: the
@@ -588,10 +591,17 @@ fn a_gain_per_length_is_a_plain_rate() {
 /// ("cannot add these in this order").
 #[test]
 fn an_instant_is_a_point_in_time() {
-    use yadc_si::mechanical::consts::{
-        DAY, GPS_EPOCH, GPS_SECONDS, HOUR, JULIAN_DATE, MODIFIED_JULIAN_DATE, SECOND, UNIX_EPOCH,
-        UNIX_MILLISECONDS, UNIX_SECONDS,
-    };
+    type InstantScale = Scale<Instant<f64>, Time<f64>>;
+    const DAY: Time<f64> = mech::DAY.into();
+    const HOUR: Time<f64> = mech::HOUR.into();
+    const SECOND: Time<f64> = mech::SECOND.into();
+    const GPS_EPOCH: Instant<f64> = mech::GPS_EPOCH.into();
+    const UNIX_EPOCH: Instant<f64> = mech::UNIX_EPOCH.into();
+    const GPS_SECONDS: InstantScale = mech::GPS_SECONDS.into();
+    const JULIAN_DATE: InstantScale = mech::JULIAN_DATE.into();
+    const MODIFIED_JULIAN_DATE: InstantScale = mech::MODIFIED_JULIAN_DATE.into();
+    const UNIX_MILLISECONDS: InstantScale = mech::UNIX_MILLISECONDS.into();
+    const UNIX_SECONDS: InstantScale = mech::UNIX_SECONDS.into();
 
     // Point algebra.
     let launch: Instant<f64> = UNIX_SECONDS.quantity(1_700_000_000.0);
@@ -625,7 +635,7 @@ fn an_instant_is_a_point_in_time() {
     assert!((UNIX_SECONDS.value(precise) - 1_700_000_000.123).abs() < 1e-6);
     assert!((UNIX_MILLISECONDS.value(precise) - 1_700_000_000_123.0).abs() < 1e-3);
     // A scale made at run time: seconds since launch.
-    let mission = yadc_si::Scale(launch, SECOND);
+    let mission = Scale(launch, SECOND);
     close(mission.value(landing), 7_200.0);
     close(UNIX_SECONDS.value(mission.quantity(60.0)), 1_700_000_060.0);
     const EPOCH_JD: f64 = JULIAN_DATE.value(UNIX_EPOCH);
@@ -731,7 +741,8 @@ fn a_unit_struct_measuring_two_quantities() {
     // its "home" - each is one `Unit` impl. The derive writes the interval's
     // (`by = KELVIN`); the absolute temperature's counts the same steps from
     // absolute zero, another unit value, so it is written by hand.
-    use yadc_si::thermal::consts::{ABSOLUTE_ZERO, KELVIN};
+    const ABSOLUTE_ZERO: ThermodynamicTemperature<f64> = therm::ABSOLUTE_ZERO.into();
+    const KELVIN: TemperatureInterval<f64> = therm::KELVIN.into();
     #[derive(Copy, Clone, yadc::Unit)]
     #[unit("K", "kelvin", of = TemperatureInterval<f64>, by = KELVIN)]
     struct Kelvins;
@@ -773,7 +784,7 @@ fn a_unit_struct_measuring_two_quantities() {
 fn custom_function_units_mix_with_linear_ones() {
     // The Beaufort wind scale is a formula, not a factor: `v = 0.836 B^1.5`,
     // written in quantity terms.
-    use yadc_si::mechanical::consts::METRE_PER_SECOND;
+    const METRE_PER_SECOND: Velocity<f64> = mech::METRE_PER_SECOND.into();
     /// A unit that is a pair of functions: a type of ours.
     #[derive(Copy, Clone)]
     struct Bft;
@@ -883,17 +894,30 @@ fn inv_is_one_over() {
 
 // Each family has a `consts` module: the constants its units are defined
 // from - one per plain unit, including the physical constants, which are
-// units too (as in UCUM), plus the zeros of the scales (`ICE_POINT`).
+// units too (as in UCUM), plus the zeros of the scales (`ICE_POINT`). They
+// are exact: arithmetic among them is exact, and std `From` rounds the
+// result to a stored number type.
 use yadc_si::chemistry::consts as chem;
 use yadc_si::electromagnetic::consts as em;
 use yadc_si::mechanical::consts as mech;
 use yadc_si::thermal::consts as therm;
 
-// Quantity arithmetic is `const`: these compose in `const` items, evaluated
-// by the compiler.
-const LIMIT: Velocity<f64> = 50.0 * (KILO * mech::METRE) / mech::HOUR;
+// The units this file builds and reads `f64` quantities with, each rounded
+// once, by the compiler.
+const METRE: Length<f64> = mech::METRE.into();
+const KILOMETRE: Length<f64> = (KILO * mech::METRE).into();
+const WATT: Power<f64> = mech::WATT.into();
+const MILLIWATT: Power<f64> = (MILLI * mech::WATT).into();
+const BEL: Gain<f64> = mech::BEL.into();
+const DECIBEL: Gain<f64> = mech::DECIBEL.into();
+const NEPER: Gain<f64> = mech::NEPER.into();
+const DBM: Scale<PowerLevel<f64>, Gain<f64>> = mech::DBM.into();
+
+// Exact arithmetic is `const`: these compose in `const` items and round
+// once, evaluated by the compiler.
+const LIMIT: Velocity<f64> = (KILO * mech::METRE * Exact::int(50) / mech::HOUR).into();
 const ELECTRON_REST_ENERGY: Energy<f64> =
-    mech::ELECTRON_MASS::<f64> * mech::SPEED_OF_LIGHT * mech::SPEED_OF_LIGHT;
+    (mech::ELECTRON_MASS * mech::SPEED_OF_LIGHT * mech::SPEED_OF_LIGHT).into();
 // A unit with a step, or a step and a zero, is a `const impl`, so building
 // with it is const too, zero point and all.
 const BOILING: ThermodynamicTemperature<f64> =
@@ -917,42 +941,65 @@ fn unit_constants_are_one_of_the_unit() {
     use yadc_si::fluid::consts as fluid;
     use yadc_si::fluid::{DiffusionCoefficientUnit, KinematicViscosityUnit};
 
-    close(LengthUnit::Metre.value(KILO * mech::METRE), 1000.0);
-    close(MassUnit::Kilogram.value(mech::POUND), 0.45359237); // exact, by the 1959 agreement
-    close(EnergyUnit::Joule.value(KILO * mech::WATT_HOUR), 3.6e6);
-    close(f64::from(dimless::PERCENT), 0.01);
+    close(LengthUnit::Metre.value(KILOMETRE), 1000.0);
+    // Exact, by the 1959 agreement.
+    assert_eq!(mech::KILOGRAM.value(mech::POUND), Exact::dec(45359237, -8));
+    close(
+        MassUnit::Kilogram.value(Mass::from(mech::POUND)),
+        0.45359237,
+    );
+    assert_eq!(
+        mech::JOULE.value(KILO * mech::WATT * mech::HOUR),
+        Exact::int(3_600_000)
+    );
+    close(f64::from(Dimensionless::from(dimless::PERCENT)), 0.01);
     // A unit beside a log unit in its enum is still a constant, and takes a
     // prefix (`KILO * WATT`).
-    close(PowerUnit::Watt.value(KILO * mech::WATT), 1000.0);
+    close(
+        PowerUnit::Watt.value(Power::from(KILO * mech::WATT)),
+        1000.0,
+    );
     // A step (a temperature difference) is an amount, so it has a constant;
     // a scale is a step and a zero (there is no "one °C" reading): °C counts
     // `KELVIN` steps from `ICE_POINT`, °F `DEGREE_FAHRENHEIT` steps from
     // `FAHRENHEIT_ZERO`.
-    let step: TemperatureInterval<f64> = therm::KELVIN;
+    let step: TemperatureInterval<f64> = therm::KELVIN.into();
     close(TemperatureIntervalUnit::Celsius.value(step), 1.0);
-    close(
-        TemperatureIntervalUnit::Celsius.value(therm::DEGREE_FAHRENHEIT),
-        5.0 / 9.0,
+    assert_eq!(
+        therm::KELVIN.value(therm::DEGREE_FAHRENHEIT),
+        Exact::int(5) / Exact::int(9)
+    );
+    assert_eq!(
+        therm::KELVIN_SCALE.value(therm::ICE_POINT),
+        Exact::dec(27315, -2)
+    );
+    assert_eq!(
+        therm::FAHRENHEIT.value(therm::FAHRENHEIT_ZERO),
+        Exact::int(0)
+    );
+    assert_eq!(
+        therm::FAHRENHEIT.value(therm::ABSOLUTE_ZERO),
+        Exact::dec(-45967, -2)
     );
     close(
-        ThermodynamicTemperatureUnit::Kelvin.value(therm::ICE_POINT),
-        273.15,
-    );
-    close(therm::FAHRENHEIT.value(therm::FAHRENHEIT_ZERO), 0.0);
-    close(
-        ThermodynamicTemperatureUnit::Fahrenheit.value(therm::ABSOLUTE_ZERO),
+        ThermodynamicTemperatureUnit::Fahrenheit.value(therm::ABSOLUTE_ZERO.into()),
         -459.67,
     );
     // Modules are namespaces: a minute of time and a minute of arc coexist.
-    close(TimeUnit::Second.value(mech::MINUTE), 60.0);
-    close(AngleUnit::Degree.value(ang::MINUTE), 1.0 / 60.0);
+    assert_eq!(mech::SECOND.value(mech::MINUTE), Exact::int(60));
+    assert_eq!(
+        ang::DEGREE.value(ang::MINUTE),
+        Exact::int(1) / Exact::int(60)
+    );
     // Within one module, a shared name is prefixed with the quantity.
     close(
-        DiffusionCoefficientUnit::SquareMetrePerSecond.value(fluid::DIFFUSION_COEFFICIENT_STOKES),
+        DiffusionCoefficientUnit::SquareMetrePerSecond
+            .value(fluid::DIFFUSION_COEFFICIENT_STOKES.into()),
         1e-4,
     );
     close(
-        KinematicViscosityUnit::SquareMetrePerSecond.value(fluid::KINEMATIC_VISCOSITY_STOKES),
+        KinematicViscosityUnit::SquareMetrePerSecond
+            .value(fluid::KINEMATIC_VISCOSITY_STOKES.into()),
         1e-4,
     );
 }
@@ -960,47 +1007,56 @@ fn unit_constants_are_one_of_the_unit() {
 #[test]
 fn physical_constants_are_units_with_their_quantity_types() {
     // Standard gravity times a mass is a force (a weight).
-    let weight: Force<f64> = mech::STANDARD_GRAVITY * MassUnit::Kilogram.quantity(70.0);
+    let weight: Force<f64> =
+        Acceleration::from(mech::STANDARD_GRAVITY) * MassUnit::Kilogram.quantity(70.0);
     close(ForceUnit::Newton.value(weight), 686.4655);
     // k·T with T an interval is an energy: kT at 300 K ≈ 4.14e-21 J.
-    let kt: Energy<f64> =
-        therm::BOLTZMANN_CONSTANT * TemperatureIntervalUnit::Kelvin.quantity(300.0);
+    let kt: Energy<f64> = HeatCapacity::from(therm::BOLTZMANN_CONSTANT)
+        * TemperatureIntervalUnit::Kelvin.quantity(300.0);
     close(EnergyUnit::Joule.value(kt) * 1e21, 4.141947);
     // R = N_A · k, within the CODATA rounding.
     // (The type annotation is the dimension check: mol⁻¹ · J/K is J/(mol·K).)
     type MolarHeatCapacity = yadc_si::chemistry::MolarHeatCapacity<f64>;
-    let r: MolarHeatCapacity = chem::AVOGADRO_CONSTANT::<f64> * therm::BOLTZMANN_CONSTANT;
+    let r = MolarHeatCapacity::from(chem::AVOGADRO_CONSTANT * therm::BOLTZMANN_CONSTANT);
     // Compare the two numbers, each read in J/(K·mol).
-    let number = |q: MolarHeatCapacity| chem::JOULE_PER_KELVIN_MOLE.value(q);
-    assert!((number(r) - number(chem::MOLAR_GAS_CONSTANT)).abs() < 1e-8);
+    let joule_per_kelvin_mole = MolarHeatCapacity::from(mech::JOULE / (therm::KELVIN * chem::MOLE));
+    let number = |q: MolarHeatCapacity| joule_per_kelvin_mole.value(q);
+    assert!((number(r) - number(chem::MOLAR_GAS_CONSTANT.into())).abs() < 1e-8);
     // ħ = h / 2π rad: an angular momentum (J·s per radian), not an action.
-    let hbar: AngularMomentum<f64> =
-        mech::PLANCK_CONSTANT / (2.0 * std::f64::consts::PI * yadc_si::angular::consts::RADIAN);
+    let hbar = AngularMomentum::<f64>::from(
+        mech::PLANCK_CONSTANT / (yadc_si::angular::consts::RADIAN * (Exact::int(2) * Exact::PI)),
+    );
     assert!((AngularMomentumUnit::ReducedPlanckConstant.value(hbar) - 1.0).abs() < 1e-9);
     // 1 atm in kPa, and the elementary charge in coulombs.
-    close(
+    assert_eq!(
         (KILO * mech::PASCAL).value(mech::STANDARD_ATMOSPHERE),
-        101.325,
+        Exact::dec(101_325, -3)
     );
     close(
-        yadc_si::electromagnetic::ElectricChargeUnit::Coulomb.value(em::ELEMENTARY_CHARGE) * 1e19,
+        yadc_si::electromagnetic::ElectricChargeUnit::Coulomb
+            .value(ElectricCharge::<f64>::from(em::ELEMENTARY_CHARGE))
+            * 1e19,
         1.602176634,
     );
-    // ε₀ μ₀ c² = 1, to the precision of the CODATA values.
-    let one: Dimensionless<f64> = em::VACUUM_PERMITTIVITY::<f64>
-        * em::VACUUM_PERMEABILITY
-        * mech::SPEED_OF_LIGHT
-        * mech::SPEED_OF_LIGHT;
+    // ε₀ μ₀ c² = 1, to the precision of the CODATA values. (Their exact
+    // product has more digits than `Exact` holds: multiply in `f64`.)
+    let c = Velocity::<f64>::from(mech::SPEED_OF_LIGHT);
+    let one: Dimensionless<f64> = ElectricPermittivity::<f64>::from(em::VACUUM_PERMITTIVITY)
+        * MagneticPermeability::<f64>::from(em::VACUUM_PERMEABILITY)
+        * c
+        * c;
     assert!((f64::from(one) - 1.0).abs() < 1e-9);
     // G M / r² at the Earth's surface is about standard gravity.
     let earth_mass = MassUnit::Kilogram.quantity(5.9722e24);
-    let earth_radius = (KILO * mech::METRE).quantity(6371.0);
-    let g: Acceleration<f64> =
-        mech::GRAVITATIONAL_CONSTANT * earth_mass / (earth_radius * earth_radius);
+    let earth_radius = KILOMETRE.quantity(6371.0);
+    let g: Acceleration<f64> = SpecificGravitationalParameter::from(mech::GRAVITATIONAL_CONSTANT)
+        * earth_mass
+        / (earth_radius * earth_radius);
     assert!((AccelerationUnit::StandardGravity.value(g) - 1.0).abs() < 0.01);
     // σ T⁴: a black body at 300 K radiates about 459 W/m².
     let t = TemperatureIntervalUnit::Kelvin.quantity(300.0);
-    let exitance = therm::STEFAN_BOLTZMANN_CONSTANT * t * t * t * t;
+    let exitance =
+        StefanBoltzmannCoefficient::from(therm::STEFAN_BOLTZMANN_CONSTANT) * t * t * t * t;
     let w_per_m2 = PowerUnit::Watt
         .value(exitance * LengthUnit::Metre.quantity(1.0) * LengthUnit::Metre.quantity(1.0));
     assert!((w_per_m2 - 459.3).abs() < 0.1, "got {w_per_m2}");
@@ -1009,7 +1065,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
 #[test]
 fn velocities_read_in_units_of_c() {
     // A physical constant is a unit: read a speed as a fraction of c.
-    let v = (KILO * mech::METRE_PER_SECOND).quantity(29979.2458);
+    let v = Velocity::<f64>::from(KILO * mech::METRE_PER_SECOND).quantity(29979.2458);
     close(VelocityUnit::SpeedOfLight.value(v), 0.1);
     // ... and build one from it.
     let half_c = VelocityUnit::SpeedOfLight.quantity(0.5);
@@ -1017,18 +1073,19 @@ fn velocities_read_in_units_of_c() {
     let c = VelocityUnit::SpeedOfLight;
     assert_eq!(format!("{:.2} {}", c.value(half_c), c), "0.50 c");
     // The Avogadro constant: one mole of things, counted.
-    let per_mole =
-        yadc_si::chemistry::InverseAmountOfSubstanceUnit::PerMole.value(chem::AVOGADRO_CONSTANT);
+    let per_mole = yadc_si::chemistry::InverseAmountOfSubstanceUnit::PerMole.value(
+        InverseAmountOfSubstance::<f64>::from(chem::AVOGADRO_CONSTANT),
+    );
     close(per_mole / 1e23, 6.02214076);
 }
 
 // --- Powers and roots -----------------------------------------------------------
 
-const CUBIC_METRE_BOX: Volume<f64> = mech::METRE.powi::<3>();
+const CUBIC_METRE_BOX: Volume<f64> = METRE.powi::<3>();
 
 #[test]
 fn integer_powers_and_exact_roots() {
-    let centimetre: Length<f64> = CENTI * mech::METRE;
+    let centimetre = Length::<f64>::from(CENTI * mech::METRE);
     let edge = centimetre.quantity(20.0);
     let face: Area<f64> = edge.powi::<2>();
     let cube: Volume<f64> = edge.powi::<3>();
@@ -1040,7 +1097,8 @@ fn integer_powers_and_exact_roots() {
     let side3: Length<f64> = cube.root::<3>();
     close(centimetre.value(side3), 20.0);
     // Negative powers: one over a time is a frequency, one over an area ...
-    let f: Frequency<f64> = TimeUnit::Millisecond.quantity(2.0).powi::<-1>();
+    let millisecond = Time::<f64>::from(MILLI * mech::SECOND);
+    let f: Frequency<f64> = millisecond.quantity(2.0).powi::<-1>();
     close(FrequencyUnit::Hertz.value(f), 500.0);
     let per_area = edge.powi::<-2>();
     close(f64::from(per_area * face), 1.0);
@@ -1062,7 +1120,8 @@ fn powers_and_roots_follow_the_kinds() {
     // An amount has every power, a temperature among them - the label drops
     // out - so σT⁴ reads as written: about 459 W/m² at 300 K.
     let t = ThermodynamicTemperatureUnit::Kelvin.quantity(300.0);
-    let flux: HeatFluxDensity<f64> = therm::STEFAN_BOLTZMANN_CONSTANT * t.powi::<4>();
+    let flux: HeatFluxDensity<f64> =
+        StefanBoltzmannCoefficient::from(therm::STEFAN_BOLTZMANN_CONSTANT) * t.powi::<4>();
     close(
         HeatFluxDensityUnit::WattPerSquareMetre.value(flux),
         5.670374419e-8 * 300f64.powi(4),
@@ -1101,7 +1160,7 @@ fn dynamic_powers_and_roots_are_checked_at_run_time() {
     assert!(f64::try_from((t2 / dt2).unwrap()).is_ok());
     assert_eq!(t.partial_root(2), None);
     // A level has neither.
-    let level = DynamicSIQuantity::from(mech::WATT_LEVEL);
+    let level = DynamicSIQuantity::from(PowerLevel::from(mech::WATT_LEVEL));
     assert_eq!(level.partial_powi(2), None);
     assert_eq!(level.partial_root(2), None);
 }
@@ -1147,23 +1206,39 @@ fn dimension_powers_and_roots_directly() {
 mod unit_values {
     use super::close;
     use yadc::{CastAs, Unit};
-    use yadc_si::mechanical::consts::{
-        DBM, FOOT, METRE, PASCAL, POUND_FORCE_PER_SQUARE_INCH, WATT,
-    };
+    use yadc_si::mechanical::consts as mech;
     use yadc_si::{KILO, MILLI, Scale};
-    use yadc_si::mechanical::{Length, Power, PowerLevel, PowerUnit, Pressure};
-    use yadc_si::thermal::consts::{CELSIUS, FAHRENHEIT, ICE_POINT, KELVIN, KELVIN_SCALE, RANKINE};
+    use yadc_si::mechanical::{Gain, Length, Power, PowerLevel, PowerUnit, Pressure};
+    use yadc_si::thermal::consts as therm;
     use yadc_si::thermal::{
         TemperatureInterval, ThermodynamicTemperature, ThermodynamicTemperatureUnit,
     };
+
+    type TemperatureScale = Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>>;
+
+    /// The exact constants, rounded to `f64` units once.
+    const FOOT: Length<f64> = mech::FOOT.into();
+    const METRE: Length<f64> = mech::METRE.into();
+    const PASCAL: Pressure<f64> = mech::PASCAL.into();
+    const KILOPASCAL: Pressure<f64> = (KILO * mech::PASCAL).into();
+    const PSI: Pressure<f64> = mech::PSI.into();
+    const WATT: Power<f64> = mech::WATT.into();
+    const MILLIWATT: Power<f64> = (MILLI * mech::WATT).into();
+    const DBM: Scale<PowerLevel<f64>, Gain<f64>> = mech::DBM.into();
+    const ICE_POINT: ThermodynamicTemperature<f64> = therm::ICE_POINT.into();
+    const KELVIN: TemperatureInterval<f64> = therm::KELVIN.into();
+    const CELSIUS: TemperatureScale = therm::CELSIUS.into();
+    const FAHRENHEIT: TemperatureScale = therm::FAHRENHEIT.into();
+    const KELVIN_SCALE: TemperatureScale = therm::KELVIN_SCALE.into();
+    const RANKINE: TemperatureScale = therm::RANKINE.into();
 
     /// Quantity constants and scales (a zero and a step) convert at compile
     /// time through `Unit`; a quantity constant is also called like the
     /// function it is.
     const BODY: ThermodynamicTemperature<f64> = CELSIUS.quantity(37.0);
     const BODY_F: f64 = FAHRENHEIT.value(BODY);
-    const ATM_PSI: f64 = POUND_FORCE_PER_SQUARE_INCH.value((KILO * PASCAL).quantity(101.325));
-    const ATM: Pressure<f64> = (KILO * PASCAL)(101.325);
+    const ATM_PSI: f64 = PSI.value(KILOPASCAL.quantity(101.325));
+    const ATM: Pressure<f64> = KILOPASCAL(101.325);
     /// A scale is a constant like any other: so is one of yours.
     const REAUMUR: Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>> =
         Scale(ICE_POINT, 1.25 * KELVIN);
@@ -1183,7 +1258,7 @@ mod unit_values {
         // A level, on the logarithmic line: 30 dBm is a watt.
         let p = Power::from(DBM.quantity(30.0));
         close(WATT.value(p), 1.0);
-        close(DBM.value(PowerLevel::from((MILLI * WATT).quantity(100.0))), 20.0);
+        close(DBM.value(PowerLevel::from(MILLIWATT.quantity(100.0))), 20.0);
         // The unit enum's variant prints: `{}` its symbol and `{:#}` its
         // name.
         use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
@@ -1193,8 +1268,8 @@ mod unit_values {
         );
         // Picked at run time, still checked: any unit of a pressure, of a
         // temperature.
-        let any: [&dyn Unit<Pressure<f64>>; 2] = [&(KILO * PASCAL), &PASCAL];
-        let q = (KILO * PASCAL).quantity(2.0);
+        let any: [&dyn Unit<Pressure<f64>>; 2] = [&KILOPASCAL, &PASCAL];
+        let q = KILOPASCAL.quantity(2.0);
         close(any[0].value(q) * 1000.0, any[1].value(q));
         let scales: [&dyn Unit<ThermodynamicTemperature<f64>>; 3] =
             [&CELSIUS, &FAHRENHEIT, &Celsius];
@@ -1202,24 +1277,26 @@ mod unit_values {
         close(scales[1].value(BODY), 98.6);
     }
 
-    /// A quantity constant and a unit enum's value are called like the
-    /// functions they are: on a number they build, on a quantity they read.
+    /// A quantity constant, and a value of `PowerUnit` (whose number type is
+    /// `f64`), are called like the functions they are: on a number they
+    /// build, on a quantity they read. A unit enum generic over its number
+    /// type builds and reads through `Unit`.
     #[test]
     fn units_are_called() {
         // Quantity constants.
         let d: Length<f64> = FOOT(12.0);
         close(METRE(d), 12.0 * 0.3048);
         close(PASCAL(ATM), 101_325.0);
-        // A unit enum's value: bound to a name, since `Enum::Variant(x)`
-        // reads as a constructor.
+        // A generic unit enum's value.
         let fahrenheit = ThermodynamicTemperatureUnit::Fahrenheit;
-        close(fahrenheit(BODY), 98.6);
-        close(CELSIUS.value(fahrenheit(212.0)), 100.0);
-        // A level in the watts' unit enum: `via` its logarithmic line.
+        close(fahrenheit.value(BODY), 98.6);
+        close(CELSIUS.value(fahrenheit.quantity(212.0)), 100.0);
+        // A level in the watts' unit enum: `via` its logarithmic line. Bound
+        // to a name, since `Enum::Variant(x)` reads as a constructor.
         let dbm = PowerUnit::DecibelMilliwatt;
         let p: Power<f64> = dbm(30.0);
         close(WATT(p), 1.0);
-        close(dbm((MILLI * WATT)(100.0)), 20.0);
+        close(dbm(MILLIWATT(100.0)), 20.0);
         close(DBM.value(PowerLevel::from(p)), 30.0);
         // Generic code asks for the std function traits.
         fn convert<Q>(n: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
@@ -1230,32 +1307,27 @@ mod unit_values {
             ThermodynamicTemperatureUnit::Celsius,
             ThermodynamicTemperatureUnit::Fahrenheit,
         );
-        close(convert(100.0, celsius, fahrenheit), 212.0);
-        close(convert(98.6, fahrenheit, celsius), 37.0);
+        close(
+            convert(100.0, |n| celsius.quantity(n), |t| fahrenheit.value(t)),
+            212.0,
+        );
+        close(
+            convert(98.6, |n| fahrenheit.quantity(n), |t| celsius.value(t)),
+            37.0,
+        );
         close(convert(30.0, dbm, WATT), 1.0);
     }
 
-    /// The number type is a parameter: a constant takes the one it is used
-    /// at, a cast changes it, and std `From` widens it losslessly.
+    /// The number type is a parameter: an exact constant rounds to the one
+    /// it is converted to, a cast changes it, and std `From` widens it
+    /// losslessly.
     #[test]
     fn other_value_types() {
-        use yadc::Dimension;
-        use yadc_si::{ISQ, SIQuantity};
-        const KPA32: SIQuantity<
-            {
-                ISQ {
-                    m: -1,
-                    kg: 1,
-                    s: -2,
-                    ..ISQ::DIMENSIONLESS
-                }
-            },
-            f32,
-        > = KILO * PASCAL;
+        const KPA32: Pressure<f32> = (KILO * mech::PASCAL).into();
         let p32 = KPA32.quantity(2.5f32);
         assert_eq!(KPA32.value(p32), 2.5f32);
         let p: Pressure<f64> = Pressure::from(p32);
-        close((KILO * PASCAL).value(p), 2.5);
+        close(KILOPASCAL.value(p), 2.5);
         assert_eq!(p.cast::<f32>(), p32);
     }
 }

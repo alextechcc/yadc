@@ -10,12 +10,12 @@
 //! itself", that is one bound, `Q: Quantity`. A single function body works
 //! unchanged regardless of which unit system its arguments come from.
 //!
-//! A quantity constant or a unit enum's value is also called like a
-//! function - on a number it builds, on a
+//! A quantity is also called like a function - on a number it builds, on a
 //! quantity it reads - so a generic function may ask for nothing but std:
 //! `impl Fn(f64) -> Q` and `impl Fn(Q) -> f64` (`convert_with` below), which
 //! any closure satisfies too. `Unit<Q>` is the bound to use when both
-//! directions come from one value, or behind `&dyn`.
+//! directions come from one value, behind `&dyn`, and for `yadc-si`'s unit
+//! enums, which are units of any number type and are not called.
 //!
 //! This is the capability no other unit library provides: every other library
 //! exposes only concrete types, so a function using their conversion or
@@ -65,7 +65,7 @@ where
 
 /// The same conversion, asking only for std's function traits: something
 /// that turns a number into a `Q`, and something that reads a `Q` as a
-/// number. Every unit is both; so is a closure.
+/// number. Every quantity is both; so is a closure.
 fn convert_with<Q>(value: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
     to(from(value))
 }
@@ -122,9 +122,13 @@ fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q>]) -> String {
 
 // --- Unit system A: yadc-si --------------------------------------------------
 use yadc_si::mechanical::*;
-use yadc_si::thermal::consts::CELSIUS;
-use yadc_si::thermal::TemperatureIntervalUnit;
+use yadc_si::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
 use yadc_si::KILO;
+
+// Units counted in `f64`: exact constants, rounded by the compiler.
+const KM: Length<f64> = (KILO * consts::METRE).into();
+const KG: Mass<f64> = consts::KILOGRAM.into();
+const LB: Mass<f64> = consts::POUND.into();
 
 // --- Unit system B: custom nautical system -----------------------------------
 // A completely separate Dim / Qty / Unit stack, with no labels (no `#[kind]`
@@ -196,10 +200,10 @@ fn main() {
     println!("Nav  3 nmi          -> {m:.0} m");
 
     // -- convert_with: units as functions --------------------------------------
-    // The units are passed as the functions they are - a unit enum's value, a
-    // constant - and a closure stands in where there is no unit: here, a
+    // The units are passed as the functions they are - quantities, here
+    // constants - and a closure stands in where there is no unit: here, a
     // reading in fathoms (six feet), built with a formula.
-    let lb = convert_with(70.0, MassUnit::Kilogram, MassUnit::Pound);
+    let lb = convert_with(70.0, KG, LB);
     println!("SI   70 kg          -> {lb:.2} lb (by call)");
     let nmi = convert_with(1000.0, |fathoms| 1.8288 * fathoms * METRE, NAUTICAL_MILE);
     println!("Nav  1000 fathoms   -> {nmi:.3} nmi (a closure, then a constant)");
@@ -207,10 +211,9 @@ fn main() {
     // -- table -------------------------------------------------------------------
     // Maths is on quantities: 90 km in an hour is a velocity, shown in every
     // unit of a list picked at run time. A prefix scales an SI unit:
-    // `KILO * METRE` is a kilometre.
+    // `KM` is `KILO * METRE`, a kilometre.
 
-    let kilometre: Length<f64> = KILO * yadc_si::mechanical::consts::METRE;
-    let v = kilometre(90.0) / TimeUnit::Hour(1.0);
+    let v = KM(90.0) / TimeUnit::Hour.quantity(1.0);
     println!(
         "SI   90 km/h        -> {}",
         table(v, &[&VelocityUnit::MetrePerSecond, &VelocityUnit::Knot])
@@ -232,7 +235,7 @@ fn main() {
     let (kg, gram) = (MassUnit::Kilogram, MassUnit::Gram);
     println!(
         "SI   avg(60 kg, 80 kg) in g  = {} {gram}",
-        gram(average(kg(60.0), kg(80.0))),
+        gram.value(average(kg.quantity(60.0), kg.quantity(80.0))),
     );
 
     // Nav: average two distances given in nmi, read in metres (long name)
@@ -245,13 +248,13 @@ fn main() {
     // -- mean and how_many: generic over `Quantity` -----------------------------
 
     let loads = [
-        MassUnit::Kilogram(60.0),
-        MassUnit::Kilogram(80.0),
-        MassUnit::Pound(100.0),
+        KG(60.0),
+        KG(80.0),
+        LB(100.0),
     ];
     println!(
         "SI   mean(60 kg, 80 kg, 100 lb) = {:.2} kg",
-        MassUnit::Kilogram(mean(&loads).unwrap())
+        KG(mean(&loads).unwrap())
     );
     let legs = [
         NavDistUnit::NauticalMile(3.0),
@@ -264,8 +267,8 @@ fn main() {
     println!(
         "SI   a marathon in laps of 400 m = {:.1}",
         how_many(
-            kilometre(42.195),
-            LengthUnit::Metre(400.0)
+            KM(42.195),
+            LengthUnit::Metre.quantity(400.0)
         )
     );
     println!(
@@ -275,8 +278,9 @@ fn main() {
 
     // -- change ----------------------------------------------------------------
 
-    let morning = CELSIUS.quantity(37.0);
-    let evening = CELSIUS.quantity(38.5);
+    let celsius = ThermodynamicTemperatureUnit::Celsius;
+    let morning = celsius.quantity(37.0);
+    let evening = celsius.quantity(38.5);
     let fahrenheit = TemperatureIntervalUnit::Fahrenheit;
     println!(
         "SI   37 °C -> 38.5 °C = {:.1} {fahrenheit}",

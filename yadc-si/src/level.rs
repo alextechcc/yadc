@@ -17,16 +17,19 @@
 //! the watts are one std `From` away - `Power::from(DBM.quantity(30.0))` is one watt,
 //! `DBM.value(PowerLevel::from(p))` reads it back - while `PowerUnit`'s decibel
 //! variants do both steps (`via = PowerLevel`). Both directions read each
-//! quantity's number in a unit - every constant is one - and the float maths
-//! goes through [`Real`], so it works in `no_std` builds with the `libm`
-//! feature.
+//! quantity's number in a unit - the exact constants, rounded to `f64` once,
+//! here - and the float maths goes through [`Real`], so it works in `no_std`
+//! builds with the `libm` feature.
 
-use crate::dimensionless::Dimensionless;
-use crate::dimensionless::consts::RATIO;
-use crate::mechanical::consts::{BEL, WATT, WATT_LEVEL};
-use crate::mechanical::{Gain, Power, PowerLevel};
+use crate::dimensionless::{self, Dimensionless};
+use crate::mechanical::{self, Gain, Power, PowerLevel};
 use yadc::Unit;
 use yadc::num_traits::real::Real;
+
+const RATIO: Dimensionless<f64> = dimensionless::consts::RATIO.into();
+const BEL: Gain<f64> = mechanical::consts::BEL.into();
+const WATT: Power<f64> = mechanical::consts::WATT.into();
+const WATT_LEVEL: PowerLevel<f64> = mechanical::consts::WATT_LEVEL.into();
 
 /// The power at a level: a watt, ten times for every bel above
 /// `WATT_LEVEL`.

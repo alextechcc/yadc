@@ -1,4 +1,5 @@
-use crate::{Exact, ISQ, Kind, SIQuantity, Scale, counted};
+use crate::base::{ONE, RADIAN};
+use crate::{Exact, ISQ, Kind, MILLI, SIQuantity, Scale};
 use consts::*;
 use yadc::Dimension;
 
@@ -348,16 +349,14 @@ pub type SpecificGravitationalParameter<N> = SIQuantity<
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined exactly from them -
-/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
-/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
-/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
-/// one: `KILO * METRE`. They compose in `const` items:
-/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
+/// (re-exported), then one per named unit, each defined exactly from them
+/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
+/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
+/// once, where it is written - in a `const`, by the compiler:
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
 pub mod consts {
     use super::*;
-    use crate::base::{ONE, RADIAN};
+    use crate::base::ONE;
 
     /// The metre, the SI base unit of length.
     pub use crate::base::METRE;
@@ -378,2099 +377,1792 @@ pub mod consts {
     pub use crate::base::WATT_LEVEL;
 
     /// One `Angstrom` (Å), as a `Length`.
-    pub const ANGSTROM<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -10) * METRE::<Exact>);
+    pub const ANGSTROM: Length<Exact> = METRE * Exact::dec(1, -10);
 
     /// One `BohrRadius` (a₀), as a `Length`.
-    pub const BOHR_RADIUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(529177210903, -22) * METRE::<Exact>);
+    pub const BOHR_RADIUS: Length<Exact> = METRE * Exact::dec(529177210903, -22);
 
     /// One `AtomicUnitOfLength` (a.u. of length), as a `Length`.
-    pub const ATOMIC_UNIT_OF_LENGTH<N: const From<Exact>>: Length<N> = counted(Exact::dec(529177210903, -22) * METRE::<Exact>);
+    pub const ATOMIC_UNIT_OF_LENGTH: Length<Exact> = METRE * Exact::dec(529177210903, -22);
 
     /// One `AstronomicalUnit` (ua), as a `Length`.
-    pub const ASTRONOMICAL_UNIT<N: const From<Exact>>: Length<N> = counted(Exact::int(149597870700) * METRE::<Exact>);
+    pub const ASTRONOMICAL_UNIT: Length<Exact> = METRE * Exact::int(149597870700);
 
     /// One `Chain` (ch), as a `Length`.
-    pub const CHAIN<N: const From<Exact>>: Length<N> = counted((Exact::int(66) * Exact::int(1200) / Exact::int(3937)) * METRE::<Exact>);
+    pub const CHAIN: Length<Exact> = METRE * (Exact::int(66) * Exact::int(1200) / Exact::int(3937));
 
     /// One `DataMile` (DM), as a `Length`.
-    pub const DATA_MILE<N: const From<Exact>>: Length<N> = counted(Exact::dec(18288, -1) * METRE::<Exact>);
+    pub const DATA_MILE: Length<Exact> = METRE * Exact::dec(18288, -1);
 
     /// One `Fathom` (fathom), as a `Length`.
-    pub const FATHOM<N: const From<Exact>>: Length<N> = counted((Exact::int(6) * Exact::int(1200) / Exact::int(3937)) * METRE::<Exact>);
+    pub const FATHOM: Length<Exact> = METRE * (Exact::int(6) * Exact::int(1200) / Exact::int(3937));
 
     /// One `Fermi` (fermi), as a `Length`.
-    pub const FERMI<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -15) * METRE::<Exact>);
+    pub const FERMI: Length<Exact> = METRE * Exact::dec(1, -15);
 
     /// One `Foot` (ft), as a `Length`.
-    pub const FOOT<N: const From<Exact>>: Length<N> = counted(Exact::dec(3048, -4) * METRE::<Exact>);
+    pub const FOOT: Length<Exact> = METRE * Exact::dec(3048, -4);
 
     /// One `FootSurvey` (ft (U.S. survey)), as a `Length`.
-    pub const FOOT_SURVEY<N: const From<Exact>>: Length<N> = counted((Exact::int(1200) / Exact::int(3937)) * METRE::<Exact>);
+    pub const FOOT_SURVEY: Length<Exact> = METRE * (Exact::int(1200) / Exact::int(3937));
 
     /// One `Inch` (in), as a `Length`.
-    pub const INCH<N: const From<Exact>>: Length<N> = counted(Exact::dec(254, -4) * METRE::<Exact>);
+    pub const INCH: Length<Exact> = METRE * Exact::dec(254, -4);
 
     /// One `LightYear` (l. y.), as a `Length`.
-    pub const LIGHT_YEAR<N: const From<Exact>>: Length<N> = counted(Exact::int(9460730472580800) * METRE::<Exact>);
+    pub const LIGHT_YEAR: Length<Exact> = METRE * Exact::int(9460730472580800);
 
     /// One `Micron` (μ), as a `Length`.
-    pub const MICRON<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -6) * METRE::<Exact>);
+    pub const MICRON: Length<Exact> = METRE * Exact::dec(1, -6);
 
     /// One `Mil` (0.001 in), as a `Length`.
-    pub const MIL<N: const From<Exact>>: Length<N> = counted(Exact::dec(254, -7) * METRE::<Exact>);
+    pub const MIL: Length<Exact> = METRE * Exact::dec(254, -7);
 
     /// One `Mile` (mi), as a `Length`.
-    pub const MILE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1609344, -3) * METRE::<Exact>);
+    pub const MILE: Length<Exact> = METRE * Exact::dec(1609344, -3);
 
     /// One `MileSurvey` (mi (U.S. survey)), as a `Length`.
-    pub const MILE_SURVEY<N: const From<Exact>>: Length<N> = counted((Exact::int(6336000) / Exact::int(3937)) * METRE::<Exact>);
+    pub const MILE_SURVEY: Length<Exact> = METRE * (Exact::int(6336000) / Exact::int(3937));
 
     /// One `NauticalMile` (M), as a `Length`.
-    pub const NAUTICAL_MILE<N: const From<Exact>>: Length<N> = counted(Exact::int(1852) * METRE::<Exact>);
+    pub const NAUTICAL_MILE: Length<Exact> = METRE * Exact::int(1852);
 
     /// One `Parsec` (pc), as a `Length`.
-    pub const PARSEC<N: const From<Exact>>: Length<N> = counted((Exact::int(149597870700) * Exact::int(648000) / Exact::PI) * METRE::<Exact>);
+    pub const PARSEC: Length<Exact> =
+        METRE * (Exact::int(149597870700) * Exact::int(648000) / Exact::PI);
 
     /// One `PicaComputer` (1/6 in (computer)), as a `Length`.
-    pub const PICA_COMPUTER<N: const From<Exact>>: Length<N> = counted((Exact::dec(254, -4) / Exact::int(6)) * METRE::<Exact>);
+    pub const PICA_COMPUTER: Length<Exact> = METRE * (Exact::dec(254, -4) / Exact::int(6));
 
     /// One `PicaPrinters` (1/6 in), as a `Length`.
-    pub const PICA_PRINTERS<N: const From<Exact>>: Length<N> = counted(Exact::dec(4217518, -9) * METRE::<Exact>);
+    pub const PICA_PRINTERS: Length<Exact> = METRE * Exact::dec(4217518, -9);
 
     /// One `PointComputer` (1/72 in (computer)), as a `Length`.
-    pub const POINT_COMPUTER<N: const From<Exact>>: Length<N> = counted((Exact::dec(254, -4) / Exact::int(72)) * METRE::<Exact>);
+    pub const POINT_COMPUTER: Length<Exact> = METRE * (Exact::dec(254, -4) / Exact::int(72));
 
     /// One `PointPrinters` (1/72 in), as a `Length`.
-    pub const POINT_PRINTERS<N: const From<Exact>>: Length<N> = counted(Exact::dec(3514598, -10) * METRE::<Exact>);
+    pub const POINT_PRINTERS: Length<Exact> = METRE * Exact::dec(3514598, -10);
 
     /// One `Rod` (rd), as a `Length`.
-    pub const ROD<N: const From<Exact>>: Length<N> = counted((Exact::dec(165, -1) * Exact::int(1200) / Exact::int(3937)) * METRE::<Exact>);
+    pub const ROD: Length<Exact> =
+        METRE * (Exact::dec(165, -1) * Exact::int(1200) / Exact::int(3937));
 
     /// One `Yard` (yd), as a `Length`.
-    pub const YARD<N: const From<Exact>>: Length<N> = counted(Exact::dec(9144, -4) * METRE::<Exact>);
+    pub const YARD: Length<Exact> = METRE * Exact::dec(9144, -4);
 
     /// One `Leuga` (leuga), as a `Length`.
-    pub const LEUGA<N: const From<Exact>>: Length<N> = counted(Exact::int(2220) * METRE::<Exact>);
+    pub const LEUGA: Length<Exact> = METRE * Exact::int(2220);
 
     /// One `MillePassus` (mille passus), as a `Length`.
-    pub const MILLE_PASSUS<N: const From<Exact>>: Length<N> = counted(Exact::int(1480) * METRE::<Exact>);
+    pub const MILLE_PASSUS: Length<Exact> = METRE * Exact::int(1480);
 
     /// One `Stadium` (stadium), as a `Length`.
-    pub const STADIUM<N: const From<Exact>>: Length<N> = counted(Exact::int(185) * METRE::<Exact>);
+    pub const STADIUM: Length<Exact> = METRE * Exact::int(185);
 
     /// One `Actus` (actus), as a `Length`.
-    pub const ACTUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(3552, -2) * METRE::<Exact>);
+    pub const ACTUS: Length<Exact> = METRE * Exact::dec(3552, -2);
 
     /// One `Decempeda` (decempeda), as a `Length`.
-    pub const DECEMPEDA<N: const From<Exact>>: Length<N> = counted(Exact::dec(296, -2) * METRE::<Exact>);
+    pub const DECEMPEDA: Length<Exact> = METRE * Exact::dec(296, -2);
 
     /// One `Passus` (passus), as a `Length`.
-    pub const PASSUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(148, -2) * METRE::<Exact>);
+    pub const PASSUS: Length<Exact> = METRE * Exact::dec(148, -2);
 
     /// One `Gradus` (gradus), as a `Length`.
-    pub const GRADUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(74, -2) * METRE::<Exact>);
+    pub const GRADUS: Length<Exact> = METRE * Exact::dec(74, -2);
 
     /// One `Cubitum` (cubitum), as a `Length`.
-    pub const CUBITUM<N: const From<Exact>>: Length<N> = counted(Exact::dec(444, -3) * METRE::<Exact>);
+    pub const CUBITUM: Length<Exact> = METRE * Exact::dec(444, -3);
 
     /// One `Palmipes` (palmipes), as a `Length`.
-    pub const PALMIPES<N: const From<Exact>>: Length<N> = counted(Exact::dec(37, -2) * METRE::<Exact>);
+    pub const PALMIPES: Length<Exact> = METRE * Exact::dec(37, -2);
 
     /// One `Pes` (pes), as a `Length`.
-    pub const PES<N: const From<Exact>>: Length<N> = counted(Exact::dec(296, -3) * METRE::<Exact>);
+    pub const PES: Length<Exact> = METRE * Exact::dec(296, -3);
 
     /// One `PalmusMaior` (palmus maior), as a `Length`.
-    pub const PALMUS_MAIOR<N: const From<Exact>>: Length<N> = counted(Exact::dec(222, -3) * METRE::<Exact>);
+    pub const PALMUS_MAIOR: Length<Exact> = METRE * Exact::dec(222, -3);
 
     /// One `Palmus` (palmus), as a `Length`.
-    pub const PALMUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(74, -3) * METRE::<Exact>);
+    pub const PALMUS: Length<Exact> = METRE * Exact::dec(74, -3);
 
     /// One `Uncia` (uncia), as a `Length`.
-    pub const LENGTH_UNCIA<N: const From<Exact>>: Length<N> = counted((Exact::dec(296, -3) / Exact::int(12)) * METRE::<Exact>);
+    pub const LENGTH_UNCIA: Length<Exact> = METRE * (Exact::dec(296, -3) / Exact::int(12));
 
     /// One `Digitus` (digitus), as a `Length`.
-    pub const DIGITUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(185, -4) * METRE::<Exact>);
+    pub const DIGITUS: Length<Exact> = METRE * Exact::dec(185, -4);
 
     /// One `Gram` (g), as a `Mass`.
-    pub const GRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -3) * KILOGRAM::<Exact>);
+    pub const GRAM: Mass<Exact> = KILOGRAM * Exact::dec(1, -3);
 
     /// One `Carat` (ct), as a `Mass`.
-    pub const CARAT<N: const From<Exact>>: Mass<N> = counted(Exact::dec(2, -4) * KILOGRAM::<Exact>);
+    pub const CARAT: Mass<Exact> = KILOGRAM * Exact::dec(2, -4);
 
     /// One `Dalton` (Da), as a `Mass`.
-    pub const DALTON<N: const From<Exact>>: Mass<N> = counted(Exact::dec(16605390666, -37) * KILOGRAM::<Exact>);
+    pub const DALTON: Mass<Exact> = KILOGRAM * Exact::dec(16605390666, -37);
 
     /// One `ElectronMass` (mₑ), as a `Mass`.
-    pub const ELECTRON_MASS<N: const From<Exact>>: Mass<N> = counted(Exact::dec(91093837015, -41) * KILOGRAM::<Exact>);
+    pub const ELECTRON_MASS: Mass<Exact> = KILOGRAM * Exact::dec(91093837015, -41);
 
     /// One `ProtonMass` (mₚ), as a `Mass`.
-    pub const PROTON_MASS<N: const From<Exact>>: Mass<N> = counted(Exact::dec(167262192369, -38) * KILOGRAM::<Exact>);
+    pub const PROTON_MASS: Mass<Exact> = KILOGRAM * Exact::dec(167262192369, -38);
 
     /// One `Grain` (gr), as a `Mass`.
-    pub const GRAIN<N: const From<Exact>>: Mass<N> = counted(Exact::dec(6479891, -11) * KILOGRAM::<Exact>);
+    pub const GRAIN: Mass<Exact> = KILOGRAM * Exact::dec(6479891, -11);
 
     /// One `HundredweightLong` (cwt long), as a `Mass`.
-    pub const HUNDREDWEIGHT_LONG<N: const From<Exact>>: Mass<N> = counted(Exact::dec(5080234544, -8) * KILOGRAM::<Exact>);
+    pub const HUNDREDWEIGHT_LONG: Mass<Exact> = KILOGRAM * Exact::dec(5080234544, -8);
 
     /// One `HundredweightShort` (cwt short), as a `Mass`.
-    pub const HUNDREDWEIGHT_SHORT<N: const From<Exact>>: Mass<N> = counted(Exact::dec(45359237, -6) * KILOGRAM::<Exact>);
+    pub const HUNDREDWEIGHT_SHORT: Mass<Exact> = KILOGRAM * Exact::dec(45359237, -6);
 
     /// One `Ounce` (oz), as a `Mass`.
-    pub const OUNCE<N: const From<Exact>>: Mass<N> = counted(Exact::dec(28349523125, -12) * KILOGRAM::<Exact>);
+    pub const OUNCE: Mass<Exact> = KILOGRAM * Exact::dec(28349523125, -12);
 
     /// One `OunceTroy` (oz t), as a `Mass`.
-    pub const OUNCE_TROY<N: const From<Exact>>: Mass<N> = counted(Exact::dec(311034768, -10) * KILOGRAM::<Exact>);
+    pub const OUNCE_TROY: Mass<Exact> = KILOGRAM * Exact::dec(311034768, -10);
 
     /// One `Pennyweight` (dwt), as a `Mass`.
-    pub const PENNYWEIGHT<N: const From<Exact>>: Mass<N> = counted(Exact::dec(155517384, -11) * KILOGRAM::<Exact>);
+    pub const PENNYWEIGHT: Mass<Exact> = KILOGRAM * Exact::dec(155517384, -11);
 
     /// One `Pound` (lb), as a `Mass`.
-    pub const POUND<N: const From<Exact>>: Mass<N> = counted(Exact::dec(45359237, -8) * KILOGRAM::<Exact>);
+    pub const POUND: Mass<Exact> = KILOGRAM * Exact::dec(45359237, -8);
 
     /// One `PoundTroy` (lb t), as a `Mass`.
-    pub const POUND_TROY<N: const From<Exact>>: Mass<N> = counted(Exact::dec(3732417216, -10) * KILOGRAM::<Exact>);
+    pub const POUND_TROY: Mass<Exact> = KILOGRAM * Exact::dec(3732417216, -10);
 
     /// One `Slug` (slug), as a `Mass`.
-    pub const SLUG<N: const From<Exact>>: Mass<N> = counted((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * KILOGRAM::<Exact>);
+    pub const SLUG: Mass<Exact> =
+        KILOGRAM * (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4));
 
     /// One `TonAssay` (AT), as a `Mass`.
-    pub const TON_ASSAY<N: const From<Exact>>: Mass<N> = counted((Exact::dec(175, -3) / Exact::int(6)) * KILOGRAM::<Exact>);
+    pub const TON_ASSAY: Mass<Exact> = KILOGRAM * (Exact::dec(175, -3) / Exact::int(6));
 
     /// One `TonLong` (2240 lb), as a `Mass`.
-    pub const TON_LONG<N: const From<Exact>>: Mass<N> = counted(Exact::dec(10160469088, -7) * KILOGRAM::<Exact>);
+    pub const TON_LONG: Mass<Exact> = KILOGRAM * Exact::dec(10160469088, -7);
 
     /// One `TonShort` (2000 lb), as a `Mass`.
-    pub const TON_SHORT<N: const From<Exact>>: Mass<N> = counted(Exact::dec(90718474, -5) * KILOGRAM::<Exact>);
+    pub const TON_SHORT: Mass<Exact> = KILOGRAM * Exact::dec(90718474, -5);
 
     /// One `Ton` (t), as a `Mass`.
-    pub const TON<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000) * KILOGRAM::<Exact>);
+    pub const TON: Mass<Exact> = KILOGRAM * Exact::int(1000);
 
     /// One `Libra` (libra), as a `Mass`.
-    pub const LIBRA<N: const From<Exact>>: Mass<N> = counted(Exact::dec(3289, -4) * KILOGRAM::<Exact>);
+    pub const LIBRA: Mass<Exact> = KILOGRAM * Exact::dec(3289, -4);
 
     /// One `Deunx` (deunx), as a `Mass`.
-    pub const MASS_DEUNX<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) * Exact::int(11) / Exact::int(12)) * KILOGRAM::<Exact>);
+    pub const MASS_DEUNX: Mass<Exact> =
+        KILOGRAM * (Exact::dec(3289, -4) * Exact::int(11) / Exact::int(12));
 
     /// One `Dextans` (dextans), as a `Mass`.
-    pub const MASS_DEXTANS<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) * Exact::int(10) / Exact::int(12)) * KILOGRAM::<Exact>);
+    pub const MASS_DEXTANS: Mass<Exact> =
+        KILOGRAM * (Exact::dec(3289, -4) * Exact::int(10) / Exact::int(12));
 
     /// One `Dodrans` (dodrans), as a `Mass`.
-    pub const MASS_DODRANS<N: const From<Exact>>: Mass<N> = counted(Exact::dec(246675, -6) * KILOGRAM::<Exact>);
+    pub const MASS_DODRANS: Mass<Exact> = KILOGRAM * Exact::dec(246675, -6);
 
     /// One `Bes` (bes), as a `Mass`.
-    pub const MASS_BES<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) * Exact::int(8) / Exact::int(12)) * KILOGRAM::<Exact>);
+    pub const MASS_BES: Mass<Exact> =
+        KILOGRAM * (Exact::dec(3289, -4) * Exact::int(8) / Exact::int(12));
 
     /// One `Septunx` (septunx), as a `Mass`.
-    pub const MASS_SEPTUNX<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) * Exact::int(7) / Exact::int(12)) * KILOGRAM::<Exact>);
+    pub const MASS_SEPTUNX: Mass<Exact> =
+        KILOGRAM * (Exact::dec(3289, -4) * Exact::int(7) / Exact::int(12));
 
     /// One `Semis` (semis), as a `Mass`.
-    pub const MASS_SEMIS<N: const From<Exact>>: Mass<N> = counted(Exact::dec(16445, -5) * KILOGRAM::<Exact>);
+    pub const MASS_SEMIS: Mass<Exact> = KILOGRAM * Exact::dec(16445, -5);
 
     /// One `Quincunx` (quincunx), as a `Mass`.
-    pub const MASS_QUINCUNX<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) * Exact::int(5) / Exact::int(12)) * KILOGRAM::<Exact>);
+    pub const MASS_QUINCUNX: Mass<Exact> =
+        KILOGRAM * (Exact::dec(3289, -4) * Exact::int(5) / Exact::int(12));
 
     /// One `Triens` (triens), as a `Mass`.
-    pub const MASS_TRIENS<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(3)) * KILOGRAM::<Exact>);
+    pub const MASS_TRIENS: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(3));
 
     /// One `QuadransTeruncius` (quadrans teruncius), as a `Mass`.
-    pub const QUADRANS_TERUNCIUS<N: const From<Exact>>: Mass<N> = counted(Exact::dec(82225, -6) * KILOGRAM::<Exact>);
+    pub const QUADRANS_TERUNCIUS: Mass<Exact> = KILOGRAM * Exact::dec(82225, -6);
 
     /// One `Sextans` (sextans), as a `Mass`.
-    pub const MASS_SEXTANS<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(6)) * KILOGRAM::<Exact>);
+    pub const MASS_SEXTANS: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(6));
 
     /// One `Sescuncia` (sescuncia), as a `Mass`.
-    pub const SESCUNCIA<N: const From<Exact>>: Mass<N> = counted(Exact::dec(411125, -7) * KILOGRAM::<Exact>);
+    pub const SESCUNCIA: Mass<Exact> = KILOGRAM * Exact::dec(411125, -7);
 
     /// One `Uncia` (uncia), as a `Mass`.
-    pub const MASS_UNCIA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(12)) * KILOGRAM::<Exact>);
+    pub const MASS_UNCIA: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(12));
 
     /// One `Semuncia` (semuncia), as a `Mass`.
-    pub const SEMUNCIA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(24)) * KILOGRAM::<Exact>);
+    pub const SEMUNCIA: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(24));
 
     /// One `Duella` (duella), as a `Mass`.
-    pub const DUELLA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(36)) * KILOGRAM::<Exact>);
+    pub const DUELLA: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(36));
 
     /// One `Sicilicus` (sicilicus), as a `Mass`.
-    pub const MASS_SICILICUS<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(48)) * KILOGRAM::<Exact>);
+    pub const MASS_SICILICUS: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(48));
 
     /// One `Sextula` (sextula), as a `Mass`.
-    pub const MASS_SEXTULA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(72)) * KILOGRAM::<Exact>);
+    pub const MASS_SEXTULA: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(72));
 
     /// One `Semisextula` (semisextula), as a `Mass`.
-    pub const SEMISEXTULA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(144)) * KILOGRAM::<Exact>);
+    pub const SEMISEXTULA: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(144));
 
     /// One `Scrupulum` (scrupulum), as a `Mass`.
-    pub const MASS_SCRUPULUM<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(288)) * KILOGRAM::<Exact>);
+    pub const MASS_SCRUPULUM: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(288));
 
     /// One `Obolus` (obolus), as a `Mass`.
-    pub const OBOLUS<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(576)) * KILOGRAM::<Exact>);
+    pub const OBOLUS: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(576));
 
     /// One `Siliqua` (siliqua), as a `Mass`.
-    pub const SILIQUA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(1728)) * KILOGRAM::<Exact>);
-
-    /// One `Millisecond` (ms), as a `Time`.
-    pub const MILLISECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -3) * SECOND::<Exact>);
+    pub const SILIQUA: Mass<Exact> = KILOGRAM * (Exact::dec(3289, -4) / Exact::int(1728));
 
     /// One `SecondSidereal` (s (sidereal)), as a `Time`.
-    pub const SECOND_SIDEREAL<N: const From<Exact>>: Time<N> = counted(Exact::dec(9972696, -7) * SECOND::<Exact>);
+    pub const SECOND_SIDEREAL: Time<Exact> = SECOND * Exact::dec(9972696, -7);
 
     /// One `Day` (d), as a `Time`.
-    pub const DAY<N: const From<Exact>>: Time<N> = counted(Exact::int(86400) * SECOND::<Exact>);
+    pub const DAY: Time<Exact> = SECOND * Exact::int(86400);
 
     /// One `DaySidereal` (d (sidereal)), as a `Time`.
-    pub const DAY_SIDEREAL<N: const From<Exact>>: Time<N> = counted(Exact::dec(8616409, -2) * SECOND::<Exact>);
+    pub const DAY_SIDEREAL: Time<Exact> = SECOND * Exact::dec(8616409, -2);
 
     /// One `Hour` (h), as a `Time`.
-    pub const HOUR<N: const From<Exact>>: Time<N> = counted(Exact::int(3600) * SECOND::<Exact>);
+    pub const HOUR: Time<Exact> = SECOND * Exact::int(3600);
 
     /// One `HourSidereal` (h (sidereal)), as a `Time`.
-    pub const HOUR_SIDEREAL<N: const From<Exact>>: Time<N> = counted(Exact::dec(359017, -2) * SECOND::<Exact>);
+    pub const HOUR_SIDEREAL: Time<Exact> = SECOND * Exact::dec(359017, -2);
 
     /// One `Minute` (min), as a `Time`.
-    pub const MINUTE<N: const From<Exact>>: Time<N> = counted(Exact::int(60) * SECOND::<Exact>);
+    pub const MINUTE: Time<Exact> = SECOND * Exact::int(60);
 
     /// One `Shake` (10.0 ns), as a `Time`.
-    pub const SHAKE<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -8) * SECOND::<Exact>);
+    pub const SHAKE: Time<Exact> = SECOND * Exact::dec(1, -8);
 
     /// One `Year` (a), as a `Time`.
-    pub const YEAR<N: const From<Exact>>: Time<N> = counted(Exact::int(31536000) * SECOND::<Exact>);
+    pub const YEAR: Time<Exact> = SECOND * Exact::int(31536000);
 
     /// One `YearSidereal` (a (sidereal)), as a `Time`.
-    pub const YEAR_SIDEREAL<N: const From<Exact>>: Time<N> = counted(Exact::int(31558150) * SECOND::<Exact>);
+    pub const YEAR_SIDEREAL: Time<Exact> = SECOND * Exact::int(31558150);
 
     /// One `YearTropical` (a (tropical)), as a `Time`.
-    pub const YEAR_TROPICAL<N: const From<Exact>>: Time<N> = counted(Exact::int(31556930) * SECOND::<Exact>);
+    pub const YEAR_TROPICAL: Time<Exact> = SECOND * Exact::int(31556930);
 
     /// The GPS epoch, 1980-01-06T00:00:00Z: 3657 days after the Unix epoch.
-    pub const GPS_EPOCH<N: const From<Exact>>: Instant<N> = counted(UNIX_EPOCH::<Exact> + Exact::int(315964800) * SECOND::<Exact>);
+    pub const GPS_EPOCH: Instant<Exact> = UNIX_EPOCH + SECOND * Exact::int(315964800);
 
     /// The zero of the Julian date: noon on 1 January 4713 BC (proleptic Julian), 2 440 587.5 days before the Unix epoch.
-    pub const JULIAN_EPOCH<N: const From<Exact>>: Instant<N> = counted(UNIX_EPOCH::<Exact> - Exact::dec(24405875, -1) * DAY::<Exact>);
+    pub const JULIAN_EPOCH: Instant<Exact> = UNIX_EPOCH - DAY * Exact::dec(24405875, -1);
 
     /// The zero of the modified Julian date, 1858-11-17T00:00:00Z: 40 587 days before the Unix epoch.
-    pub const MODIFIED_JULIAN_EPOCH<N: const From<Exact>>: Instant<N> = counted(UNIX_EPOCH::<Exact> - Exact::int(40587) * DAY::<Exact>);
+    pub const MODIFIED_JULIAN_EPOCH: Instant<Exact> = UNIX_EPOCH - DAY * Exact::int(40587);
 
     /// Unix time: seconds from the Unix epoch.
-    pub const UNIX_SECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(UNIX_EPOCH, SECOND);
+    pub const UNIX_SECONDS: Scale<Instant<Exact>, Time<Exact>> = Scale(UNIX_EPOCH, SECOND);
 
     /// Unix time in milliseconds.
-    pub const UNIX_MILLISECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(UNIX_EPOCH, MILLISECOND);
+    pub const UNIX_MILLISECONDS: Scale<Instant<Exact>, Time<Exact>> =
+        Scale(UNIX_EPOCH, MILLI * SECOND);
 
     /// GPS time: seconds from the GPS epoch.
-    pub const GPS_SECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(GPS_EPOCH, SECOND);
+    pub const GPS_SECONDS: Scale<Instant<Exact>, Time<Exact>> = Scale(GPS_EPOCH, SECOND);
 
     /// The Julian date (JD): days from the Julian epoch.
-    pub const JULIAN_DATE<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(JULIAN_EPOCH, DAY);
+    pub const JULIAN_DATE: Scale<Instant<Exact>, Time<Exact>> = Scale(JULIAN_EPOCH, DAY);
 
     /// The modified Julian date (MJD): days from the modified Julian epoch.
-    pub const MODIFIED_JULIAN_DATE<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(MODIFIED_JULIAN_EPOCH, DAY);
+    pub const MODIFIED_JULIAN_DATE: Scale<Instant<Exact>, Time<Exact>> =
+        Scale(MODIFIED_JULIAN_EPOCH, DAY);
 
     /// One `SquareMetre` (m²), as an `Area`.
-    pub const SQUARE_METRE<N: const From<Exact>>: Area<N> = counted(METRE::<Exact> * METRE::<Exact>);
+    pub const SQUARE_METRE: Area<Exact> = METRE * METRE;
 
     /// One `Acre` (ac), as an `Area`.
-    pub const ACRE<N: const From<Exact>>: Area<N> = counted((Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937))) * SQUARE_METRE::<Exact>);
+    pub const ACRE: Area<Exact> = SQUARE_METRE
+        * (Exact::int(43560)
+            * (Exact::int(1200) / Exact::int(3937))
+            * (Exact::int(1200) / Exact::int(3937)));
 
     /// One `Are` (a), as an `Area`.
-    pub const ARE<N: const From<Exact>>: Area<N> = counted(Exact::int(100) * SQUARE_METRE::<Exact>);
+    pub const ARE: Area<Exact> = SQUARE_METRE * Exact::int(100);
 
     /// One `Barn` (b), as an `Area`.
-    pub const BARN<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -28) * SQUARE_METRE::<Exact>);
+    pub const BARN: Area<Exact> = SQUARE_METRE * Exact::dec(1, -28);
 
     /// One `CircularMil` (cmil), as an `Area`.
-    pub const CIRCULAR_MIL<N: const From<Exact>>: Area<N> = counted((Exact::PI / Exact::int(4) * Exact::dec(254, -7) * Exact::dec(254, -7)) * SQUARE_METRE::<Exact>);
+    pub const CIRCULAR_MIL: Area<Exact> =
+        SQUARE_METRE * (Exact::PI / Exact::int(4) * Exact::dec(254, -7) * Exact::dec(254, -7));
 
     /// One `Hectare` (ha), as an `Area`.
-    pub const HECTARE<N: const From<Exact>>: Area<N> = counted(Exact::int(10000) * SQUARE_METRE::<Exact>);
+    pub const HECTARE: Area<Exact> = SQUARE_METRE * Exact::int(10000);
 
     /// One `SquareFoot` (ft²), as an `Area`.
-    pub const SQUARE_FOOT<N: const From<Exact>>: Area<N> = counted(Exact::dec(9290304, -8) * SQUARE_METRE::<Exact>);
+    pub const SQUARE_FOOT: Area<Exact> = SQUARE_METRE * Exact::dec(9290304, -8);
 
     /// One `SquareInch` (in²), as an `Area`.
-    pub const SQUARE_INCH<N: const From<Exact>>: Area<N> = counted(Exact::dec(64516, -8) * SQUARE_METRE::<Exact>);
+    pub const SQUARE_INCH: Area<Exact> = SQUARE_METRE * Exact::dec(64516, -8);
 
     /// One `SquareMile` (mi²), as an `Area`.
-    pub const SQUARE_MILE<N: const From<Exact>>: Area<N> = counted(Exact::dec(2589988110336, -6) * SQUARE_METRE::<Exact>);
+    pub const SQUARE_MILE: Area<Exact> = SQUARE_METRE * Exact::dec(2589988110336, -6);
 
     /// One `SquareYard` (yd²), as an `Area`.
-    pub const SQUARE_YARD<N: const From<Exact>>: Area<N> = counted(Exact::dec(83612736, -8) * SQUARE_METRE::<Exact>);
+    pub const SQUARE_YARD: Area<Exact> = SQUARE_METRE * Exact::dec(83612736, -8);
 
     /// One `Saltus` (saltus), as an `Area`.
-    pub const SALTUS<N: const From<Exact>>: Area<N> = counted(Exact::dec(201867264, -2) * SQUARE_METRE::<Exact>);
+    pub const SALTUS: Area<Exact> = SQUARE_METRE * Exact::dec(201867264, -2);
 
     /// One `Centuria` (centuria), as an `Area`.
-    pub const CENTURIA<N: const From<Exact>>: Area<N> = counted(Exact::dec(50466816, -2) * SQUARE_METRE::<Exact>);
+    pub const CENTURIA: Area<Exact> = SQUARE_METRE * Exact::dec(50466816, -2);
 
     /// One `Heredium` (heredium), as an `Area`.
-    pub const HEREDIUM<N: const From<Exact>>: Area<N> = counted(Exact::dec(50466816, -4) * SQUARE_METRE::<Exact>);
+    pub const HEREDIUM: Area<Exact> = SQUARE_METRE * Exact::dec(50466816, -4);
 
     /// One `Jugerum` (jugerum), as an `Area`.
-    pub const JUGERUM<N: const From<Exact>>: Area<N> = counted(Exact::dec(25233408, -4) * SQUARE_METRE::<Exact>);
+    pub const JUGERUM: Area<Exact> = SQUARE_METRE * Exact::dec(25233408, -4);
 
     /// One `Deunx` (deunx), as an `Area`.
-    pub const AREA_DEUNX<N: const From<Exact>>: Area<N> = counted(Exact::dec(23130624, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_DEUNX: Area<Exact> = SQUARE_METRE * Exact::dec(23130624, -4);
 
     /// One `Dextans` (dextans), as an `Area`.
-    pub const AREA_DEXTANS<N: const From<Exact>>: Area<N> = counted(Exact::dec(2102784, -3) * SQUARE_METRE::<Exact>);
+    pub const AREA_DEXTANS: Area<Exact> = SQUARE_METRE * Exact::dec(2102784, -3);
 
     /// One `Dodrans` (dodrans), as an `Area`.
-    pub const AREA_DODRANS<N: const From<Exact>>: Area<N> = counted(Exact::dec(18925056, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_DODRANS: Area<Exact> = SQUARE_METRE * Exact::dec(18925056, -4);
 
     /// One `Bes` (bes), as an `Area`.
-    pub const AREA_BES<N: const From<Exact>>: Area<N> = counted(Exact::dec(16822272, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_BES: Area<Exact> = SQUARE_METRE * Exact::dec(16822272, -4);
 
     /// One `Septunx` (septunx), as an `Area`.
-    pub const AREA_SEPTUNX<N: const From<Exact>>: Area<N> = counted(Exact::dec(14719488, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_SEPTUNX: Area<Exact> = SQUARE_METRE * Exact::dec(14719488, -4);
 
     /// One `Semis` (semis), as an `Area`.
-    pub const AREA_SEMIS<N: const From<Exact>>: Area<N> = counted(Exact::dec(12616704, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_SEMIS: Area<Exact> = SQUARE_METRE * Exact::dec(12616704, -4);
 
     /// One `ActusQuadratus` (actus quadratus), as an `Area`.
-    pub const ACTUS_QUADRATUS<N: const From<Exact>>: Area<N> = counted(Exact::dec(12616704, -4) * SQUARE_METRE::<Exact>);
+    pub const ACTUS_QUADRATUS: Area<Exact> = SQUARE_METRE * Exact::dec(12616704, -4);
 
     /// One `Quincunx` (quincunx), as an `Area`.
-    pub const AREA_QUINCUNX<N: const From<Exact>>: Area<N> = counted(Exact::dec(1051392, -3) * SQUARE_METRE::<Exact>);
+    pub const AREA_QUINCUNX: Area<Exact> = SQUARE_METRE * Exact::dec(1051392, -3);
 
     /// One `Triens` (triens), as an `Area`.
-    pub const AREA_TRIENS<N: const From<Exact>>: Area<N> = counted(Exact::dec(8411136, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_TRIENS: Area<Exact> = SQUARE_METRE * Exact::dec(8411136, -4);
 
     /// One `Quadrans` (quadrans), as an `Area`.
-    pub const QUADRANS<N: const From<Exact>>: Area<N> = counted(Exact::dec(6308352, -4) * SQUARE_METRE::<Exact>);
+    pub const QUADRANS: Area<Exact> = SQUARE_METRE * Exact::dec(6308352, -4);
 
     /// One `Sextans` (sextans), as an `Area`.
-    pub const AREA_SEXTANS<N: const From<Exact>>: Area<N> = counted(Exact::dec(4205568, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_SEXTANS: Area<Exact> = SQUARE_METRE * Exact::dec(4205568, -4);
 
     /// One `Clima` (clima), as an `Area`.
-    pub const CLIMA<N: const From<Exact>>: Area<N> = counted(Exact::dec(3154176, -4) * SQUARE_METRE::<Exact>);
+    pub const CLIMA: Area<Exact> = SQUARE_METRE * Exact::dec(3154176, -4);
 
     /// One `Uncia` (uncia), as an `Area`.
-    pub const AREA_UNCIA<N: const From<Exact>>: Area<N> = counted(Exact::dec(2102784, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_UNCIA: Area<Exact> = SQUARE_METRE * Exact::dec(2102784, -4);
 
     /// One `Semiuncia` (semiuncia), as an `Area`.
-    pub const SEMIUNCIA<N: const From<Exact>>: Area<N> = counted(Exact::dec(1051392, -4) * SQUARE_METRE::<Exact>);
+    pub const SEMIUNCIA: Area<Exact> = SQUARE_METRE * Exact::dec(1051392, -4);
 
     /// One `Sicilicus` (sicilicus), as an `Area`.
-    pub const AREA_SICILICUS<N: const From<Exact>>: Area<N> = counted(Exact::dec(525696, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_SICILICUS: Area<Exact> = SQUARE_METRE * Exact::dec(525696, -4);
 
     /// One `ActusSimplex` (actus simplex), as an `Area`.
-    pub const ACTUS_SIMPLEX<N: const From<Exact>>: Area<N> = counted(Exact::dec(4205568, -5) * SQUARE_METRE::<Exact>);
+    pub const ACTUS_SIMPLEX: Area<Exact> = SQUARE_METRE * Exact::dec(4205568, -5);
 
     /// One `Sextula` (sextula), as an `Area`.
-    pub const AREA_SEXTULA<N: const From<Exact>>: Area<N> = counted(Exact::dec(350464, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_SEXTULA: Area<Exact> = SQUARE_METRE * Exact::dec(350464, -4);
 
     /// One `DuoScrupulum` (duo scrupulum), as an `Area`.
-    pub const DUO_SCRUPULUM<N: const From<Exact>>: Area<N> = counted(Exact::dec(175232, -4) * SQUARE_METRE::<Exact>);
+    pub const DUO_SCRUPULUM: Area<Exact> = SQUARE_METRE * Exact::dec(175232, -4);
 
     /// One `Scrupulum` (scrupulum), as an `Area`.
-    pub const AREA_SCRUPULUM<N: const From<Exact>>: Area<N> = counted(Exact::dec(87616, -4) * SQUARE_METRE::<Exact>);
+    pub const AREA_SCRUPULUM: Area<Exact> = SQUARE_METRE * Exact::dec(87616, -4);
 
     /// One `DimidiumScrupulum` (dimidium scrupulum), as an `Area`.
-    pub const DIMIDIUM_SCRUPULUM<N: const From<Exact>>: Area<N> = counted(Exact::dec(43808, -4) * SQUARE_METRE::<Exact>);
+    pub const DIMIDIUM_SCRUPULUM: Area<Exact> = SQUARE_METRE * Exact::dec(43808, -4);
 
     /// One `PesQuadratus` (pes quadratus), as an `Area`.
-    pub const PES_QUADRATUS<N: const From<Exact>>: Area<N> = counted(Exact::dec(87616, -6) * SQUARE_METRE::<Exact>);
+    pub const PES_QUADRATUS: Area<Exact> = SQUARE_METRE * Exact::dec(87616, -6);
 
     /// One `CubicMetre` (m³), as a `Volume`.
-    pub const CUBIC_METRE<N: const From<Exact>>: Volume<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact>);
-
-    /// One `AcreFoot` (ac · ft), as a `Volume`.
-    pub const ACRE_FOOT<N: const From<Exact>>: Volume<N> = counted((Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937))) * CUBIC_METRE::<Exact>);
+    pub const CUBIC_METRE: Volume<Exact> = METRE * METRE * METRE;
 
     /// One `Barrel` (bbl), as a `Volume`.
-    pub const BARREL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(158987294928, -12) * CUBIC_METRE::<Exact>);
+    pub const BARREL: Volume<Exact> = CUBIC_METRE * Exact::dec(158987294928, -12);
 
     /// One `Bushel` (bu), as a `Volume`.
-    pub const BUSHEL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(3523907016688, -14) * CUBIC_METRE::<Exact>);
+    pub const BUSHEL: Volume<Exact> = CUBIC_METRE * Exact::dec(3523907016688, -14);
 
     /// One `Cord` (cords), as a `Volume`.
-    pub const CORD<N: const From<Exact>>: Volume<N> = counted((Exact::int(128) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) * CUBIC_METRE::<Exact>);
+    pub const CORD: Volume<Exact> = CUBIC_METRE
+        * (Exact::int(128) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4));
 
     /// One `CubicFoot` (ft³), as a `Volume`.
-    pub const CUBIC_FOOT<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) * CUBIC_METRE::<Exact>);
+    pub const CUBIC_FOOT: Volume<Exact> =
+        CUBIC_METRE * (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4));
 
     /// One `CubicInch` (in³), as a `Volume`.
-    pub const CUBIC_INCH<N: const From<Exact>>: Volume<N> = counted((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)) * CUBIC_METRE::<Exact>);
+    pub const CUBIC_INCH: Volume<Exact> =
+        CUBIC_METRE * (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4));
 
     /// One `CubicMile` (mi³), as a `Volume`.
-    pub const CUBIC_MILE<N: const From<Exact>>: Volume<N> = counted((Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3)) * CUBIC_METRE::<Exact>);
+    pub const CUBIC_MILE: Volume<Exact> =
+        CUBIC_METRE * (Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3));
 
     /// One `CubicYard` (yd³), as a `Volume`.
-    pub const CUBIC_YARD<N: const From<Exact>>: Volume<N> = counted((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) * CUBIC_METRE::<Exact>);
+    pub const CUBIC_YARD: Volume<Exact> =
+        CUBIC_METRE * (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4));
 
     /// One `Cup` (cup), as a `Volume`.
-    pub const CUP<N: const From<Exact>>: Volume<N> = counted(Exact::dec(2365882365, -13) * CUBIC_METRE::<Exact>);
+    pub const CUP: Volume<Exact> = CUBIC_METRE * Exact::dec(2365882365, -13);
 
     /// One `FluidOunce` (fl oz), as a `Volume`.
-    pub const FLUID_OUNCE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(295735295625, -16) * CUBIC_METRE::<Exact>);
+    pub const FLUID_OUNCE: Volume<Exact> = CUBIC_METRE * Exact::dec(295735295625, -16);
 
     /// One `FluidOunceImperial` (fl oz (UK)), as a `Volume`.
-    pub const FLUID_OUNCE_IMPERIAL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(284130625, -13) * CUBIC_METRE::<Exact>);
+    pub const FLUID_OUNCE_IMPERIAL: Volume<Exact> = CUBIC_METRE * Exact::dec(284130625, -13);
 
     /// One `GallonImperial` (gal (UK)), as a `Volume`.
-    pub const GALLON_IMPERIAL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(454609, -8) * CUBIC_METRE::<Exact>);
+    pub const GALLON_IMPERIAL: Volume<Exact> = CUBIC_METRE * Exact::dec(454609, -8);
 
     /// One `Gallon` (gal), as a `Volume`.
-    pub const GALLON<N: const From<Exact>>: Volume<N> = counted(Exact::dec(3785411784, -12) * CUBIC_METRE::<Exact>);
+    pub const GALLON: Volume<Exact> = CUBIC_METRE * Exact::dec(3785411784, -12);
 
     /// One `GillImperial` (gi (UK)), as a `Volume`.
-    pub const GILL_IMPERIAL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1420653125, -13) * CUBIC_METRE::<Exact>);
+    pub const GILL_IMPERIAL: Volume<Exact> = CUBIC_METRE * Exact::dec(1420653125, -13);
 
     /// One `Gill` (gi), as a `Volume`.
-    pub const GILL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(11829411825, -14) * CUBIC_METRE::<Exact>);
-
-    /// One `Kilolitre` (kL), as a `Volume`.
-    pub const KILOLITRE<N: const From<Exact>>: Volume<N> = counted(CUBIC_METRE::<Exact>);
+    pub const GILL: Volume<Exact> = CUBIC_METRE * Exact::dec(11829411825, -14);
 
     /// One `Litre` (L), as a `Volume`.
-    pub const LITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -3) * CUBIC_METRE::<Exact>);
+    pub const LITRE: Volume<Exact> = CUBIC_METRE * Exact::dec(1, -3);
 
     /// One `Peck` (pk), as a `Volume`.
-    pub const PECK<N: const From<Exact>>: Volume<N> = counted(Exact::dec(880976754172, -14) * CUBIC_METRE::<Exact>);
+    pub const PECK: Volume<Exact> = CUBIC_METRE * Exact::dec(880976754172, -14);
 
     /// One `PintDry` (dry pt), as a `Volume`.
-    pub const PINT_DRY<N: const From<Exact>>: Volume<N> = counted(Exact::dec(5506104713575, -16) * CUBIC_METRE::<Exact>);
+    pub const PINT_DRY: Volume<Exact> = CUBIC_METRE * Exact::dec(5506104713575, -16);
 
     /// One `PintLiquid` (liq pt), as a `Volume`.
-    pub const PINT_LIQUID<N: const From<Exact>>: Volume<N> = counted(Exact::dec(473176473, -12) * CUBIC_METRE::<Exact>);
+    pub const PINT_LIQUID: Volume<Exact> = CUBIC_METRE * Exact::dec(473176473, -12);
 
     /// One `QuartDry` (dry qt), as a `Volume`.
-    pub const QUART_DRY<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1101220942715, -15) * CUBIC_METRE::<Exact>);
+    pub const QUART_DRY: Volume<Exact> = CUBIC_METRE * Exact::dec(1101220942715, -15);
 
     /// One `QuartLiquid` (liq qt), as a `Volume`.
-    pub const QUART_LIQUID<N: const From<Exact>>: Volume<N> = counted(Exact::dec(946352946, -12) * CUBIC_METRE::<Exact>);
+    pub const QUART_LIQUID: Volume<Exact> = CUBIC_METRE * Exact::dec(946352946, -12);
 
     /// One `Stere` (st), as a `Volume`.
-    pub const STERE<N: const From<Exact>>: Volume<N> = counted(CUBIC_METRE::<Exact>);
+    pub const STERE: Volume<Exact> = CUBIC_METRE;
 
     /// One `Tablespoon` (tbsp), as a `Volume`.
-    pub const TABLESPOON<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1478676478125, -17) * CUBIC_METRE::<Exact>);
+    pub const TABLESPOON: Volume<Exact> = CUBIC_METRE * Exact::dec(1478676478125, -17);
 
     /// One `Teaspoon` (tsp), as a `Volume`.
-    pub const TEASPOON<N: const From<Exact>>: Volume<N> = counted(Exact::dec(492892159375, -17) * CUBIC_METRE::<Exact>);
+    pub const TEASPOON: Volume<Exact> = CUBIC_METRE * Exact::dec(492892159375, -17);
 
     /// One `RegisterTon` (RT), as a `Volume`.
-    pub const REGISTER_TON<N: const From<Exact>>: Volume<N> = counted((Exact::int(100) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) * CUBIC_METRE::<Exact>);
+    pub const REGISTER_TON: Volume<Exact> = CUBIC_METRE
+        * (Exact::int(100) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4));
 
     /// One `Culeus` (culeus), as a `Volume`.
-    pub const CULEUS<N: const From<Exact>>: Volume<N> = counted(Exact::dec(51868672, -8) * CUBIC_METRE::<Exact>);
+    pub const CULEUS: Volume<Exact> = CUBIC_METRE * Exact::dec(51868672, -8);
 
     /// One `AmphoraQuadrantal` (amphora quadrantal), as a `Volume`.
-    pub const AMPHORA_QUADRANTAL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(25934336, -9) * CUBIC_METRE::<Exact>);
+    pub const AMPHORA_QUADRANTAL: Volume<Exact> = CUBIC_METRE * Exact::dec(25934336, -9);
 
     /// One `Urna` (urna), as a `Volume`.
-    pub const URNA<N: const From<Exact>>: Volume<N> = counted(Exact::dec(12967168, -9) * CUBIC_METRE::<Exact>);
+    pub const URNA: Volume<Exact> = CUBIC_METRE * Exact::dec(12967168, -9);
 
     /// One `ModiusCastrensis` (modius castrensis), as a `Volume`.
-    pub const MODIUS_CASTRENSIS<N: const From<Exact>>: Volume<N> = counted(Exact::dec(12967168, -9) * CUBIC_METRE::<Exact>);
+    pub const MODIUS_CASTRENSIS: Volume<Exact> = CUBIC_METRE * Exact::dec(12967168, -9);
 
     /// One `Modius` (modius), as a `Volume`.
-    pub const MODIUS<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) * Exact::int(16) / Exact::int(6)) * CUBIC_METRE::<Exact>);
+    pub const MODIUS: Volume<Exact> =
+        CUBIC_METRE * (Exact::dec(3241792, -9) * Exact::int(16) / Exact::int(6));
 
     /// One `Semimodius` (semimodius), as a `Volume`.
-    pub const SEMIMODIUS<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) * Exact::int(8) / Exact::int(6)) * CUBIC_METRE::<Exact>);
+    pub const SEMIMODIUS: Volume<Exact> =
+        CUBIC_METRE * (Exact::dec(3241792, -9) * Exact::int(8) / Exact::int(6));
 
     /// One `Congius` (congius), as a `Volume`.
-    pub const CONGIUS<N: const From<Exact>>: Volume<N> = counted(Exact::dec(3241792, -9) * CUBIC_METRE::<Exact>);
+    pub const CONGIUS: Volume<Exact> = CUBIC_METRE * Exact::dec(3241792, -9);
 
     /// One `Sextarius` (sextarius), as a `Volume`.
-    pub const SEXTARIUS<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(6)) * CUBIC_METRE::<Exact>);
+    pub const SEXTARIUS: Volume<Exact> = CUBIC_METRE * (Exact::dec(3241792, -9) / Exact::int(6));
 
     /// One `Hemina` (hemina), as a `Volume`.
-    pub const HEMINA<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(12)) * CUBIC_METRE::<Exact>);
+    pub const HEMINA: Volume<Exact> = CUBIC_METRE * (Exact::dec(3241792, -9) / Exact::int(12));
 
     /// One `Quartarius` (quartarius), as a `Volume`.
-    pub const QUARTARIUS<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(24)) * CUBIC_METRE::<Exact>);
+    pub const QUARTARIUS: Volume<Exact> = CUBIC_METRE * (Exact::dec(3241792, -9) / Exact::int(24));
 
     /// One `Acetabulum` (acetabulum), as a `Volume`.
-    pub const ACETABULUM<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(48)) * CUBIC_METRE::<Exact>);
+    pub const ACETABULUM: Volume<Exact> = CUBIC_METRE * (Exact::dec(3241792, -9) / Exact::int(48));
 
     /// One `Cyathus` (cyathus), as a `Volume`.
-    pub const CYATHUS<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(72)) * CUBIC_METRE::<Exact>);
+    pub const CYATHUS: Volume<Exact> = CUBIC_METRE * (Exact::dec(3241792, -9) / Exact::int(72));
 
     /// One `Ligula` (ligula), as a `Volume`.
-    pub const LIGULA<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(288)) * CUBIC_METRE::<Exact>);
+    pub const LIGULA: Volume<Exact> = CUBIC_METRE * (Exact::dec(3241792, -9) / Exact::int(288));
 
     /// One `MetrePerSecond` (m/s), as a `Velocity`.
-    pub const METRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(METRE::<Exact> / SECOND::<Exact>);
-
-    /// One `FootPerHour` (ft/h), as a `Velocity`.
-    pub const FOOT_PER_HOUR<N: const From<Exact>>: Velocity<N> = counted((Exact::dec(3048, -4) / Exact::int(3600)) * METRE_PER_SECOND::<Exact>);
-
-    /// One `FootPerMinute` (ft/min), as a `Velocity`.
-    pub const FOOT_PER_MINUTE<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(508, -5) * METRE_PER_SECOND::<Exact>);
-
-    /// One `FootPerSecond` (ft/s), as a `Velocity`.
-    pub const FOOT_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(3048, -4) * METRE_PER_SECOND::<Exact>);
-
-    /// One `InchPerSecond` (in/s), as a `Velocity`.
-    pub const INCH_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(254, -4) * METRE_PER_SECOND::<Exact>);
-
-    /// One `InchPerMinute` (in/min), as a `Velocity`.
-    pub const INCH_PER_MINUTE<N: const From<Exact>>: Velocity<N> = counted((Exact::dec(254, -4) / Exact::int(60)) * METRE_PER_SECOND::<Exact>);
-
-    /// One `KilometrePerHour` (km/h), as a `Velocity`.
-    pub const KILOMETRE_PER_HOUR<N: const From<Exact>>: Velocity<N> = counted((Exact::int(1000) / Exact::int(3600)) * METRE_PER_SECOND::<Exact>);
+    pub const METRE_PER_SECOND: Velocity<Exact> = METRE / SECOND;
 
     /// One `Knot` (kn), as a `Velocity`.
-    pub const KNOT<N: const From<Exact>>: Velocity<N> = counted((Exact::int(1852) / Exact::int(3600)) * METRE_PER_SECOND::<Exact>);
+    pub const KNOT: Velocity<Exact> = METRE_PER_SECOND * (Exact::int(1852) / Exact::int(3600));
 
     /// One `MilePerHour` (mi/h), as a `Velocity`.
-    pub const MILE_PER_HOUR<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(44704, -5) * METRE_PER_SECOND::<Exact>);
-
-    /// One `MilePerMinute` (mi/min), as a `Velocity`.
-    pub const MILE_PER_MINUTE<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(268224, -4) * METRE_PER_SECOND::<Exact>);
-
-    /// One `MilePerSecond` (mi/s), as a `Velocity`.
-    pub const MILE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1609344, -3) * METRE_PER_SECOND::<Exact>);
-
-    /// One `MillimetrePerMinute` (mm/min), as a `Velocity`.
-    pub const MILLIMETRE_PER_MINUTE<N: const From<Exact>>: Velocity<N> = counted((Exact::dec(1, -3) / Exact::int(60)) * METRE_PER_SECOND::<Exact>);
-
-    /// One `AtomicUnitOfVelocity` (a₀ · Eₕ/ħ), as a `Velocity`.
-    pub const ATOMIC_UNIT_OF_VELOCITY<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(218769126364, -5) * METRE_PER_SECOND::<Exact>);
+    pub const MILE_PER_HOUR: Velocity<Exact> = METRE_PER_SECOND * Exact::dec(44704, -5);
 
     /// One `NaturalUnitOfVelocity` (c), as a `Velocity`.
-    pub const NATURAL_UNIT_OF_VELOCITY<N: const From<Exact>>: Velocity<N> = counted(Exact::int(299792458) * METRE_PER_SECOND::<Exact>);
+    pub const NATURAL_UNIT_OF_VELOCITY: Velocity<Exact> = METRE_PER_SECOND * Exact::int(299792458);
 
     /// One `SpeedOfLight` (c), as a `Velocity`.
-    pub const SPEED_OF_LIGHT<N: const From<Exact>>: Velocity<N> = counted(Exact::int(299792458) * METRE_PER_SECOND::<Exact>);
+    pub const SPEED_OF_LIGHT: Velocity<Exact> = METRE_PER_SECOND * Exact::int(299792458);
 
     /// One `MetrePerSecondSquared` (m/s²), as an `Acceleration`.
-    pub const METRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `FootPerSecondSquared` (ft/s²), as an `Acceleration`.
-    pub const FOOT_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(3048, -4) * METRE_PER_SECOND_SQUARED::<Exact>);
+    pub const METRE_PER_SECOND_SQUARED: Acceleration<Exact> = METRE / (SECOND * SECOND);
 
     /// One `Galileo` (Gal), as an `Acceleration`.
-    pub const GALILEO<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -2) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `InchPerSecondSquared` (in/s²), as an `Acceleration`.
-    pub const INCH_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(254, -4) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `MillimetrePerMinuteSquared` (mm/min²), as an `Acceleration`.
-    pub const MILLIMETRE_PER_MINUTE_SQUARED<N: const From<Exact>>: Acceleration<N> = counted((Exact::dec(1, -3) / (Exact::int(60) * Exact::int(60))) * METRE_PER_SECOND_SQUARED::<Exact>);
+    pub const GALILEO: Acceleration<Exact> = METRE_PER_SECOND_SQUARED * Exact::dec(1, -2);
 
     /// One `StandardGravity` (g₀), as an `Acceleration`.
-    pub const STANDARD_GRAVITY<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(980665, -5) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `MetrePerSecondCubed` (m/s³), as a `Jerk`.
-    pub const METRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `FootPerSecondCubed` (ft/s³), as a `Jerk`.
-    pub const FOOT_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(3048, -4) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `InchPerSecondCubed` (in/s³), as a `Jerk`.
-    pub const INCH_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(254, -4) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `KilometrePerMinuteCubed` (km/min³), as a `Jerk`.
-    pub const KILOMETRE_PER_MINUTE_CUBED<N: const From<Exact>>: Jerk<N> = counted((Exact::int(1000) / (Exact::int(60) * Exact::int(60) * Exact::int(60))) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `MetreSecond` (m · s), as an `Absement`.
-    pub const METRE_SECOND<N: const From<Exact>>: Absement<N> = counted(METRE::<Exact> * SECOND::<Exact>);
-
-    /// One `FootSecond` (ft · s), as an `Absement`.
-    pub const FOOT_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(3048, -4) * METRE_SECOND::<Exact>);
-
-    /// One `InchSecond` (in · s), as an `Absement`.
-    pub const INCH_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(254, -4) * METRE_SECOND::<Exact>);
-
-    /// One `KilometreHour` (km · h), as an `Absement`.
-    pub const KILOMETRE_HOUR<N: const From<Exact>>: Absement<N> = counted(Exact::int(3600000) * METRE_SECOND::<Exact>);
-
-    /// One `SecondPerMetre` (s/m), as an `InverseVelocity`.
-    pub const SECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(SECOND::<Exact> / METRE::<Exact>);
-
-    /// One `HourPerFoot` (h/ft), as an `InverseVelocity`.
-    pub const HOUR_PER_FOOT<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(3600) / Exact::dec(3048, -4)) * SECOND_PER_METRE::<Exact>);
-
-    /// One `MinutePerFoot` (min/ft), as an `InverseVelocity`.
-    pub const MINUTE_PER_FOOT<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(60) / Exact::dec(3048, -4)) * SECOND_PER_METRE::<Exact>);
-
-    /// One `SecondPerFoot` (s/ft), as an `InverseVelocity`.
-    pub const SECOND_PER_FOOT<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(1) / Exact::dec(3048, -4)) * SECOND_PER_METRE::<Exact>);
-
-    /// One `SecondPerInch` (s/in), as an `InverseVelocity`.
-    pub const SECOND_PER_INCH<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(1) / Exact::dec(254, -4)) * SECOND_PER_METRE::<Exact>);
-
-    /// One `MinutePerKilometre` (min/km), as an `InverseVelocity`.
-    pub const MINUTE_PER_KILOMETRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(6, -2) * SECOND_PER_METRE::<Exact>);
-
-    /// One `HourPerKilometre` (h/km), as an `InverseVelocity`.
-    pub const HOUR_PER_KILOMETRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(36, -1) * SECOND_PER_METRE::<Exact>);
-
-    /// One `HourPerMile` (h/mi), as an `InverseVelocity`.
-    pub const HOUR_PER_MILE<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(3600) / Exact::dec(1609344, -3)) * SECOND_PER_METRE::<Exact>);
-
-    /// One `MinutePerMile` (min/mi), as an `InverseVelocity`.
-    pub const MINUTE_PER_MILE<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(60) / Exact::dec(1609344, -3)) * SECOND_PER_METRE::<Exact>);
-
-    /// One `SecondPerMile` (s/mi), as an `InverseVelocity`.
-    pub const SECOND_PER_MILE<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(1) / Exact::dec(1609344, -3)) * SECOND_PER_METRE::<Exact>);
+    pub const STANDARD_GRAVITY: Acceleration<Exact> =
+        METRE_PER_SECOND_SQUARED * Exact::dec(980665, -5);
 
     /// One `Newton` (N), as a `Force`.
-    pub const NEWTON<N: const From<Exact>>: Force<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
+    pub const NEWTON: Force<Exact> = METRE * KILOGRAM / (SECOND * SECOND);
 
     /// One `Dyne` (dyn), as a `Force`.
-    pub const DYNE<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -5) * NEWTON::<Exact>);
+    pub const DYNE: Force<Exact> = NEWTON * Exact::dec(1, -5);
 
     /// One `KilogramForce` (kgf), as a `Force`.
-    pub const KILOGRAM_FORCE<N: const From<Exact>>: Force<N> = counted(Exact::dec(980665, -5) * NEWTON::<Exact>);
+    pub const KILOGRAM_FORCE: Force<Exact> = NEWTON * Exact::dec(980665, -5);
 
     /// One `Kip` (kip), as a `Force`.
-    pub const KIP<N: const From<Exact>>: Force<N> = counted((Exact::int(1000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * NEWTON::<Exact>);
+    pub const KIP: Force<Exact> =
+        NEWTON * (Exact::int(1000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5));
 
     /// One `OunceForce` (ozf), as a `Force`.
-    pub const OUNCE_FORCE<N: const From<Exact>>: Force<N> = counted((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16)) * NEWTON::<Exact>);
+    pub const OUNCE_FORCE: Force<Exact> =
+        NEWTON * (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16));
 
     /// One `Poundal` (pdl), as a `Force`.
-    pub const POUNDAL<N: const From<Exact>>: Force<N> = counted((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) * NEWTON::<Exact>);
+    pub const POUNDAL: Force<Exact> = NEWTON * (Exact::dec(45359237, -8) * Exact::dec(3048, -4));
 
     /// One `PoundForce` (lbf), as a `Force`.
-    pub const POUND_FORCE<N: const From<Exact>>: Force<N> = counted((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * NEWTON::<Exact>);
+    pub const POUND_FORCE: Force<Exact> =
+        NEWTON * (Exact::dec(45359237, -8) * Exact::dec(980665, -5));
 
     /// One `TonForce` (2000 lbf), as a `Force`.
-    pub const TON_FORCE<N: const From<Exact>>: Force<N> = counted((Exact::int(2000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * NEWTON::<Exact>);
-
-    /// One `KilogramMetrePerSecond` (kg · m/s), as a `Momentum`.
-    pub const KILOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / SECOND::<Exact>);
-
-    /// One `GramMetrePerSecond` (g · m/s), as a `Momentum`.
-    pub const GRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `TonMetrePerSecond` (t · m/s), as a `Momentum`.
-    pub const TON_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramMetrePerMinute` (kg · m/min), as a `Momentum`.
-    pub const KILOGRAM_METRE_PER_MINUTE<N: const From<Exact>>: Momentum<N> = counted((Exact::int(1) / Exact::int(60)) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramMetrePerHour` (kg · m/h), as a `Momentum`.
-    pub const KILOGRAM_METRE_PER_HOUR<N: const From<Exact>>: Momentum<N> = counted((Exact::int(1) / Exact::int(3600)) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramMetrePerDay` (kg · m/d), as a `Momentum`.
-    pub const KILOGRAM_METRE_PER_DAY<N: const From<Exact>>: Momentum<N> = counted((Exact::int(1) / Exact::int(86400)) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `SlugFootPerSecond` (slug · ft/s), as a `Momentum`.
-    pub const SLUG_FOOT_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * Exact::dec(3048, -4)) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `SlugInchPerSecond` (slug · in/s), as a `Momentum`.
-    pub const SLUG_INCH_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * Exact::dec(254, -4)) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `PoundFootPerSecond` (lb · ft/s), as a `Momentum`.
-    pub const POUND_FOOT_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(138254954376, -12) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `PoundInchPerSecond` (lb · in/s), as a `Momentum`.
-    pub const POUND_INCH_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(11521246198, -12) * KILOGRAM_METRE_PER_SECOND::<Exact>);
+    pub const TON_FORCE: Force<Exact> =
+        NEWTON * (Exact::int(2000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5));
 
     /// One `Joule` (J), as an `Energy`.
-    pub const JOULE<N: const From<Exact>>: Energy<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `WattHour` (W · h), as an `Energy`.
-    pub const WATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600) * JOULE::<Exact>);
+    pub const JOULE: Energy<Exact> = METRE * METRE * KILOGRAM / (SECOND * SECOND);
 
     /// One `Electronvolt` (eV), as an `Energy`.
-    pub const ELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -28) * JOULE::<Exact>);
+    pub const ELECTRONVOLT: Energy<Exact> = JOULE * Exact::dec(1602176634, -28);
 
     /// One `Hartree` (Eₕ), as an `Energy`.
-    pub const HARTREE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(43597447222071, -31) * JOULE::<Exact>);
+    pub const HARTREE: Energy<Exact> = JOULE * Exact::dec(43597447222071, -31);
 
     /// One `BtuIt` (Btu (IT)), as an `Energy`.
-    pub const BTU_IT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(105505585262, -8) * JOULE::<Exact>);
+    pub const BTU_IT: Energy<Exact> = JOULE * Exact::dec(105505585262, -8);
 
     /// One `Btu` (Btu), as an `Energy`.
-    pub const BTU<N: const From<Exact>>: Energy<N> = counted((Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1)) * JOULE::<Exact>);
+    pub const BTU: Energy<Exact> =
+        JOULE * (Exact::int(4184) * Exact::dec(45359237, -8) / Exact::dec(18, -1));
 
     /// One `CalorieIt` (cal (IT)), as an `Energy`.
-    pub const CALORIE_IT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(41868, -4) * JOULE::<Exact>);
+    pub const CALORIE_IT: Energy<Exact> = JOULE * Exact::dec(41868, -4);
 
     /// One `Calorie` (cal), as an `Energy`.
-    pub const CALORIE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(4184, -3) * JOULE::<Exact>);
+    pub const CALORIE: Energy<Exact> = JOULE * Exact::dec(4184, -3);
 
     /// One `CalorieItNutrition` (Cal (IT)), as an `Energy`.
-    pub const CALORIE_IT_NUTRITION<N: const From<Exact>>: Energy<N> = counted(Exact::dec(41868, -1) * JOULE::<Exact>);
+    pub const CALORIE_IT_NUTRITION: Energy<Exact> = JOULE * Exact::dec(41868, -1);
 
     /// One `CalorieNutrition` (Cal), as an `Energy`.
-    pub const CALORIE_NUTRITION<N: const From<Exact>>: Energy<N> = counted(Exact::int(4184) * JOULE::<Exact>);
+    pub const CALORIE_NUTRITION: Energy<Exact> = JOULE * Exact::int(4184);
 
     /// One `Erg` (erg), as an `Energy`.
-    pub const ERG<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -7) * JOULE::<Exact>);
-
-    /// One `FootPoundal` (ft · pdl), as an `Energy`.
-    pub const FOOT_POUNDAL<N: const From<Exact>>: Energy<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(3048, -4)) * JOULE::<Exact>);
-
-    /// One `FootPound` (ft · lbf), as an `Energy`.
-    pub const FOOT_POUND<N: const From<Exact>>: Energy<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * JOULE::<Exact>);
+    pub const ERG: Energy<Exact> = JOULE * Exact::dec(1, -7);
 
     /// One `Quad` (10¹⁵ Btu (IT)), as an `Energy`.
-    pub const QUAD<N: const From<Exact>>: Energy<N> = counted(Exact::int(1055055852620000000) * JOULE::<Exact>);
+    pub const QUAD: Energy<Exact> = JOULE * Exact::int(1055055852620000000);
 
     /// One `ThermEc` (thm (EC)), as an `Energy`.
-    pub const THERM_EC<N: const From<Exact>>: Energy<N> = counted(Exact::int(105506000) * JOULE::<Exact>);
+    pub const THERM_EC: Energy<Exact> = JOULE * Exact::int(105506000);
 
     /// One `ThermUs` (thm), as an `Energy`.
-    pub const THERM_US<N: const From<Exact>>: Energy<N> = counted(Exact::int(105480400) * JOULE::<Exact>);
+    pub const THERM_US: Energy<Exact> = JOULE * Exact::int(105480400);
 
     /// One `TonTnt` (t of TNT), as an `Energy`.
-    pub const TON_TNT<N: const From<Exact>>: Energy<N> = counted(Exact::int(4184000000) * JOULE::<Exact>);
-
-    /// One `WattSecond` (W · s), as an `Energy`.
-    pub const WATT_SECOND<N: const From<Exact>>: Energy<N> = counted(JOULE::<Exact>);
-
-    /// One `JoulePerKilogram` (J/kg), as an `AvailableEnergy`.
-    pub const JOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(METRE::<Exact> * METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `JoulePerGram` (J/g), as an `AvailableEnergy`.
-    pub const JOULE_PER_GRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `BtuItPerPound` (Btu (IT)/lb), as an `AvailableEnergy`.
-    pub const BTU_IT_PER_POUND<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(2326) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `BtuPerPound` (Btu/lb), as an `AvailableEnergy`.
-    pub const BTU_PER_POUND<N: const From<Exact>>: AvailableEnergy<N> = counted((Exact::int(4184) / Exact::dec(18, -1)) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `CalorieItPerGram` (cal (IT)/g), as an `AvailableEnergy`.
-    pub const CALORIE_IT_PER_GRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(41868, -1) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `CaloriePerGram` (cal/g), as an `AvailableEnergy`.
-    pub const CALORIE_PER_GRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(4184) * JOULE_PER_KILOGRAM::<Exact>);
+    pub const TON_TNT: Energy<Exact> = JOULE * Exact::int(4184000000);
 
     /// One `Watt` (W), as a `Power`.
-    pub const WATT<N: const From<Exact>>: Power<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `ErgPerSecond` (erg/s), as a `Power`.
-    pub const ERG_PER_SECOND<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -7) * WATT::<Exact>);
-
-    /// One `FootPoundPerHour` (ft · lbf/h), as a `Power`.
-    pub const FOOT_POUND_PER_HOUR<N: const From<Exact>>: Power<N> = counted(((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::int(3600)) * WATT::<Exact>);
-
-    /// One `FootPoundPerMinute` (ft · lbf/min), as a `Power`.
-    pub const FOOT_POUND_PER_MINUTE<N: const From<Exact>>: Power<N> = counted(((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::int(60)) * WATT::<Exact>);
-
-    /// One `FootPoundPerSecond` (ft · lbf/s), as a `Power`.
-    pub const FOOT_POUND_PER_SECOND<N: const From<Exact>>: Power<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * WATT::<Exact>);
+    pub const WATT: Power<Exact> = METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND);
 
     /// One `Horsepower` (hp), as a `Power`.
-    pub const HORSEPOWER<N: const From<Exact>>: Power<N> = counted((Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * WATT::<Exact>);
+    pub const HORSEPOWER: Power<Exact> = WATT
+        * (Exact::int(550)
+            * Exact::dec(3048, -4)
+            * Exact::dec(45359237, -8)
+            * Exact::dec(980665, -5));
 
     /// One `HorsepowerBoiler` (hp (S)), as a `Power`.
-    pub const HORSEPOWER_BOILER<N: const From<Exact>>: Power<N> = counted(Exact::dec(98095, -1) * WATT::<Exact>);
+    pub const HORSEPOWER_BOILER: Power<Exact> = WATT * Exact::dec(98095, -1);
 
     /// One `HorsepowerElectric` (hp (E)), as a `Power`.
-    pub const HORSEPOWER_ELECTRIC<N: const From<Exact>>: Power<N> = counted(Exact::int(746) * WATT::<Exact>);
+    pub const HORSEPOWER_ELECTRIC: Power<Exact> = WATT * Exact::int(746);
 
     /// One `HorsepowerMetric` (hp (M)), as a `Power`.
-    pub const HORSEPOWER_METRIC<N: const From<Exact>>: Power<N> = counted((Exact::int(75) * Exact::dec(980665, -5)) * WATT::<Exact>);
+    pub const HORSEPOWER_METRIC: Power<Exact> = WATT * (Exact::int(75) * Exact::dec(980665, -5));
 
     /// One `HorsepowerImperial` (hp (I)), as a `Power`.
-    pub const HORSEPOWER_IMPERIAL<N: const From<Exact>>: Power<N> = counted(Exact::dec(7457, -1) * WATT::<Exact>);
+    pub const HORSEPOWER_IMPERIAL: Power<Exact> = WATT * Exact::dec(7457, -1);
 
     /// One `HydraulicHorsepower` (hp (hydraulic)), as a `Power`.
-    pub const HYDRAULIC_HORSEPOWER<N: const From<Exact>>: Power<N> = counted(Exact::dec(746043, -3) * WATT::<Exact>);
+    pub const HYDRAULIC_HORSEPOWER: Power<Exact> = WATT * Exact::dec(746043, -3);
 
     /// One `Decibel` (dB), as a `Gain`.
-    pub const DECIBEL<N: const From<Exact>>: Gain<N> = counted(Exact::dec(1, -1) * BEL::<Exact>);
+    pub const DECIBEL: Gain<Exact> = BEL * Exact::dec(1, -1);
 
     /// One `Neper` (Np), as a `Gain`.
-    pub const NEPER<N: const From<Exact>>: Gain<N> = counted(Exact::dec(8685889638065036, -16) * BEL::<Exact>);
+    pub const NEPER: Gain<Exact> = BEL * Exact::dec(8685889638065036, -16);
 
     /// The level of one milliwatt, 0 dBm: 30 dB below a watt.
-    pub const MILLIWATT_LEVEL<N: const From<Exact>>: PowerLevel<N> = counted(WATT_LEVEL::<Exact> - Exact::int(30) * DECIBEL::<Exact>);
+    pub const MILLIWATT_LEVEL: PowerLevel<Exact> = WATT_LEVEL - DECIBEL * Exact::int(30);
 
     /// Decibels-watt (dBW): decibels from one watt. A unit of `PowerLevel`; the watts are `Power::from` away.
-    pub const DBW<N: const From<Exact>>: Scale<PowerLevel<N>, Gain<N>> = Scale(WATT_LEVEL, DECIBEL);
+    pub const DBW: Scale<PowerLevel<Exact>, Gain<Exact>> = Scale(WATT_LEVEL, DECIBEL);
 
     /// Decibels-milliwatt (dBm): decibels from one milliwatt. A unit of `PowerLevel`; the watts are `Power::from` away.
-    pub const DBM<N: const From<Exact>>: Scale<PowerLevel<N>, Gain<N>> = Scale(MILLIWATT_LEVEL, DECIBEL);
-
-    /// One `WattPerSecond` (W/s), as a `PowerRate`.
-    pub const WATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `ErgPerSecondSquared` (erg/s²), as a `PowerRate`.
-    pub const ERG_PER_SECOND_SQUARED<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -7) * WATT_PER_SECOND::<Exact>);
-
-    /// One `FootPoundPerSecondSquared` (ft · lbf/s²), as a `PowerRate`.
-    pub const FOOT_POUND_PER_SECOND_SQUARED<N: const From<Exact>>: PowerRate<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HorsepowerPerSecond` (hp/s), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted((Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HorsepowerPerSecondBoiler` (hp/s (S)), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND_BOILER<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(98095, -1) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HorsepowerPerSecondElectric` (hp/s (E)), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND_ELECTRIC<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(746) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HorsepowerPerSecondMetric` (hp/s (M)), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND_METRIC<N: const From<Exact>>: PowerRate<N> = counted((Exact::int(75) * Exact::dec(980665, -5)) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HorsepowerPerSecondImperial` (hp/s (I)), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND_IMPERIAL<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(7457, -1) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HydraulicHorsepowerPerSecond` (hp/s (hydraulic)), as a `PowerRate`.
-    pub const HYDRAULIC_HORSEPOWER_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(746043, -3) * WATT_PER_SECOND::<Exact>);
-
-    /// One `JouleSecond` (J · s), as an `Action`.
-    pub const JOULE_SECOND<N: const From<Exact>>: Action<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / SECOND::<Exact>);
+    pub const DBM: Scale<PowerLevel<Exact>, Gain<Exact>> = Scale(MILLIWATT_LEVEL, DECIBEL);
 
     /// One `AtomicUnitOfAction` (ħ), as an `Action`.
-    pub const ATOMIC_UNIT_OF_ACTION<N: const From<Exact>>: Action<N> = counted((Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI)) * JOULE_SECOND::<Exact>);
+    pub const ATOMIC_UNIT_OF_ACTION: Action<Exact> = (METRE * METRE * KILOGRAM / SECOND)
+        * (Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI));
 
     /// One `PlanckConstant` (h), as an `Action`.
-    pub const PLANCK_CONSTANT<N: const From<Exact>>: Action<N> = counted(Exact::dec(662607015, -42) * JOULE_SECOND::<Exact>);
-
-    /// One `ErgSecond` (erg · s), as an `Action`.
-    pub const ERG_SECOND<N: const From<Exact>>: Action<N> = counted(Exact::dec(1, -7) * JOULE_SECOND::<Exact>);
-
-    /// One `ElectronvoltSecond` (eV · s), as an `Action`.
-    pub const ELECTRONVOLT_SECOND<N: const From<Exact>>: Action<N> = counted(Exact::dec(1602176634, -28) * JOULE_SECOND::<Exact>);
-
-    /// One `NewtonMetre` (N · m), as a `Torque`.
-    pub const NEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * RADIAN::<Exact>));
-
-    /// One `DyneMetre` (dyn · m), as a `Torque`.
-    pub const DYNE_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -5) * NEWTON_METRE::<Exact>);
-
-    /// One `KilogramForceMetre` (kgf · m), as a `Torque`.
-    pub const KILOGRAM_FORCE_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(980665, -5) * NEWTON_METRE::<Exact>);
-
-    /// One `OunceForceInch` (ozf · in), as a `Torque`.
-    pub const OUNCE_FORCE_INCH<N: const From<Exact>>: Torque<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16)) * Exact::dec(254, -4)) * NEWTON_METRE::<Exact>);
-
-    /// One `PoundForceFoot` (lbf · ft), as a `Torque`.
-    pub const POUND_FORCE_FOOT<N: const From<Exact>>: Torque<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * Exact::dec(3048, -4)) * NEWTON_METRE::<Exact>);
-
-    /// One `PoundForceInch` (lbf · in), as a `Torque`.
-    pub const POUND_FORCE_INCH<N: const From<Exact>>: Torque<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * Exact::dec(254, -4)) * NEWTON_METRE::<Exact>);
-
-    /// One `KilogramSquareMetre` (kg · m²), as a `MomentOfInertia`.
-    pub const KILOGRAM_SQUARE_METRE<N: const From<Exact>>: MomentOfInertia<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (RADIAN::<Exact> * RADIAN::<Exact>));
-
-    /// One `DaltonSquareAngstrom` (Da · Å²), as a `MomentOfInertia`.
-    pub const DALTON_SQUARE_ANGSTROM<N: const From<Exact>>: MomentOfInertia<N> = counted(Exact::dec(16605390666, -57) * KILOGRAM_SQUARE_METRE::<Exact>);
+    pub const PLANCK_CONSTANT: Action<Exact> =
+        (METRE * METRE * KILOGRAM / SECOND) * Exact::dec(662607015, -42);
 
     /// One `Pascal` (Pa), as a `Pressure`.
-    pub const PASCAL<N: const From<Exact>>: Pressure<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
+    pub const PASCAL: Pressure<Exact> = KILOGRAM / (METRE * SECOND * SECOND);
 
     /// One `StandardAtmosphere` (atm), as a `Pressure`.
-    pub const STANDARD_ATMOSPHERE<N: const From<Exact>>: Pressure<N> = counted(Exact::int(101325) * PASCAL::<Exact>);
+    pub const STANDARD_ATMOSPHERE: Pressure<Exact> = PASCAL * Exact::int(101325);
 
     /// One `AtmosphereTechnical` (at), as a `Pressure`.
-    pub const ATMOSPHERE_TECHNICAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(980665, -1) * PASCAL::<Exact>);
+    pub const ATMOSPHERE_TECHNICAL: Pressure<Exact> = PASCAL * Exact::dec(980665, -1);
 
     /// One `Bar` (bar), as a `Pressure`.
-    pub const BAR<N: const From<Exact>>: Pressure<N> = counted(Exact::int(100000) * PASCAL::<Exact>);
+    pub const BAR: Pressure<Exact> = PASCAL * Exact::int(100000);
 
     /// One `CentimetreOfMercury` (cm Hg), as a `Pressure`.
-    pub const CENTIMETRE_OF_MERCURY<N: const From<Exact>>: Pressure<N> = counted((Exact::dec(133322387415, -9) * Exact::int(10)) * PASCAL::<Exact>);
+    pub const CENTIMETRE_OF_MERCURY: Pressure<Exact> =
+        PASCAL * (Exact::dec(133322387415, -9) * Exact::int(10));
 
     /// One `CentimetreOfWater` (cm H₂O), as a `Pressure`.
-    pub const CENTIMETRE_OF_WATER<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(980665, -4) * PASCAL::<Exact>);
-
-    /// One `DynePerSquareCentimetre` (dyn/cm²), as a `Pressure`.
-    pub const DYNE_PER_SQUARE_CENTIMETRE<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -1) * PASCAL::<Exact>);
+    pub const CENTIMETRE_OF_WATER: Pressure<Exact> = PASCAL * Exact::dec(980665, -4);
 
     /// One `FootOfMercury` (ft Hg), as a `Pressure`.
-    pub const FOOT_OF_MERCURY<N: const From<Exact>>: Pressure<N> = counted((Exact::dec(133322387415, -9) * Exact::dec(3048, -1)) * PASCAL::<Exact>);
+    pub const FOOT_OF_MERCURY: Pressure<Exact> =
+        PASCAL * (Exact::dec(133322387415, -9) * Exact::dec(3048, -1));
 
     /// One `FootOfWater` (ft H₂O), as a `Pressure`.
-    pub const FOOT_OF_WATER<N: const From<Exact>>: Pressure<N> = counted((Exact::dec(980665, -5) * Exact::dec(3048, -1)) * PASCAL::<Exact>);
+    pub const FOOT_OF_WATER: Pressure<Exact> =
+        PASCAL * (Exact::dec(980665, -5) * Exact::dec(3048, -1));
 
     /// One `InchOfMercury` (in Hg), as a `Pressure`.
-    pub const INCH_OF_MERCURY<N: const From<Exact>>: Pressure<N> = counted((Exact::dec(133322387415, -9) * Exact::dec(254, -1)) * PASCAL::<Exact>);
+    pub const INCH_OF_MERCURY: Pressure<Exact> =
+        PASCAL * (Exact::dec(133322387415, -9) * Exact::dec(254, -1));
 
     /// One `InchOfWater` (in H₂O), as a `Pressure`.
-    pub const INCH_OF_WATER<N: const From<Exact>>: Pressure<N> = counted((Exact::dec(980665, -5) * Exact::dec(254, -1)) * PASCAL::<Exact>);
-
-    /// One `NewtonPerSquareMillimetre` (N/mm²), as a `Pressure`.
-    pub const NEWTON_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000) * PASCAL::<Exact>);
-
-    /// One `KipPerSquareInch` (kip/in²), as a `Pressure`.
-    pub const KIP_PER_SQUARE_INCH<N: const From<Exact>>: Pressure<N> = counted(((Exact::int(1000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * PASCAL::<Exact>);
+    pub const INCH_OF_WATER: Pressure<Exact> =
+        PASCAL * (Exact::dec(980665, -5) * Exact::dec(254, -1));
 
     /// One `MillimetreOfMercury` (mm Hg), as a `Pressure`.
-    pub const MILLIMETRE_OF_MERCURY<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(133322387415, -9) * PASCAL::<Exact>);
+    pub const MILLIMETRE_OF_MERCURY: Pressure<Exact> = PASCAL * Exact::dec(133322387415, -9);
 
     /// One `MillimetreOfWater` (mm H₂O), as a `Pressure`.
-    pub const MILLIMETRE_OF_WATER<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(980665, -5) * PASCAL::<Exact>);
-
-    /// One `PoundalPerSquareFoot` (pdl/ft²), as a `Pressure`.
-    pub const POUNDAL_PER_SQUARE_FOOT<N: const From<Exact>>: Pressure<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PASCAL::<Exact>);
-
-    /// One `PoundForcePerSquareFoot` (lbf/ft²), as a `Pressure`.
-    pub const POUND_FORCE_PER_SQUARE_FOOT<N: const From<Exact>>: Pressure<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PASCAL::<Exact>);
-
-    /// One `PoundForcePerSquareInch` (lbf/in²), as a `Pressure`.
-    pub const POUND_FORCE_PER_SQUARE_INCH<N: const From<Exact>>: Pressure<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * PASCAL::<Exact>);
+    pub const MILLIMETRE_OF_WATER: Pressure<Exact> = PASCAL * Exact::dec(980665, -5);
 
     /// One `Psi` (psi), as a `Pressure`.
-    pub const PSI<N: const From<Exact>>: Pressure<N> = counted((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * PASCAL::<Exact>);
+    pub const PSI: Pressure<Exact> = PASCAL
+        * (Exact::dec(45359237, -8) * Exact::dec(980665, -5)
+            / (Exact::dec(254, -4) * Exact::dec(254, -4)));
 
     /// One `Torr` (Torr), as a `Pressure`.
-    pub const TORR<N: const From<Exact>>: Pressure<N> = counted((Exact::int(101325) / Exact::int(760)) * PASCAL::<Exact>);
+    pub const TORR: Pressure<Exact> = PASCAL * (Exact::int(101325) / Exact::int(760));
 
     /// One `Hertz` (Hz), as a `Frequency`.
-    pub const HERTZ<N: const From<Exact>>: Frequency<N> = counted(ONE::<Exact> / SECOND::<Exact>);
-
-    /// One `CyclePerDay` (1/d), as a `Frequency`.
-    pub const CYCLE_PER_DAY<N: const From<Exact>>: Frequency<N> = counted((Exact::int(1) / Exact::int(86400)) * HERTZ::<Exact>);
-
-    /// One `CyclePerHour` (1/h), as a `Frequency`.
-    pub const CYCLE_PER_HOUR<N: const From<Exact>>: Frequency<N> = counted((Exact::int(1) / Exact::int(3600)) * HERTZ::<Exact>);
-
-    /// One `CyclePerMinute` (1/min), as a `Frequency`.
-    pub const CYCLE_PER_MINUTE<N: const From<Exact>>: Frequency<N> = counted((Exact::int(1) / Exact::int(60)) * HERTZ::<Exact>);
+    pub const HERTZ: Frequency<Exact> = ONE / SECOND;
 
     /// One `CyclePerShake` (100 MHz), as a `Frequency`.
-    pub const CYCLE_PER_SHAKE<N: const From<Exact>>: Frequency<N> = counted(Exact::int(100000000) * HERTZ::<Exact>);
-
-    /// One `CyclePerYear` (1/a), as a `Frequency`.
-    pub const CYCLE_PER_YEAR<N: const From<Exact>>: Frequency<N> = counted((Exact::int(1) / Exact::int(31536000)) * HERTZ::<Exact>);
-
-    /// One `HertzPerSecond` (Hz/s), as a `FrequencyDrift`.
-    pub const HERTZ_PER_SECOND<N: const From<Exact>>: FrequencyDrift<N> = counted(ONE::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
+    pub const CYCLE_PER_SHAKE: Frequency<Exact> = HERTZ * Exact::int(100000000);
 
     /// One `ReciprocalMetre` (m⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_METRE<N: const From<Exact>>: ReciprocalLength<N> = counted(ONE::<Exact> / METRE::<Exact>);
+    pub const RECIPROCAL_METRE: ReciprocalLength<Exact> = ONE / METRE;
 
     /// One `ReciprocalAngstrom` (Å⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_ANGSTROM<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(10000000000) * RECIPROCAL_METRE::<Exact>);
+    pub const RECIPROCAL_ANGSTROM: ReciprocalLength<Exact> =
+        RECIPROCAL_METRE * Exact::int(10000000000);
 
     /// One `Diopter` (dpt), as a `ReciprocalLength`.
-    pub const DIOPTER<N: const From<Exact>>: ReciprocalLength<N> = counted(RECIPROCAL_METRE::<Exact>);
+    pub const DIOPTER: ReciprocalLength<Exact> = RECIPROCAL_METRE;
 
     /// One `RydbergConstant` (R∞), as a `ReciprocalLength`.
-    pub const RYDBERG_CONSTANT<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::dec(1097373156816, -5) * RECIPROCAL_METRE::<Exact>);
-
-    /// One `RadianPerMetre` (rad/m), as a `Curvature`.
-    pub const RADIAN_PER_METRE<N: const From<Exact>>: Curvature<N> = counted(RADIAN::<Exact> / METRE::<Exact>);
-
-    /// One `DegreePerMetre` (°/m), as a `Curvature`.
-    pub const DEGREE_PER_METRE<N: const From<Exact>>: Curvature<N> = counted((Exact::PI / Exact::int(180)) * RADIAN_PER_METRE::<Exact>);
-
-    /// One `SquareMetrePerKilogram` (m²/kg), as a `SpecificArea`.
-    pub const SQUARE_METRE_PER_KILOGRAM<N: const From<Exact>>: SpecificArea<N> = counted(METRE::<Exact> * METRE::<Exact> / KILOGRAM::<Exact>);
-
-    /// One `SquareMetrePerGram` (m²/g), as a `SpecificArea`.
-    pub const SQUARE_METRE_PER_GRAM<N: const From<Exact>>: SpecificArea<N> = counted(Exact::int(1000) * SQUARE_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerKilogram` (m³/kg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_KILOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> / KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerGram` (m³/g), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_GRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerCarat` (m³/ct), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_CARAT<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(5000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerGrain` (m³/gr), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_GRAIN<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(6479891, -11)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerHundredweightLong` (m³/cwt long), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_HUNDREDWEIGHT_LONG<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(5080234544, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerHundredweightShort` (m³/cwt short), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_HUNDREDWEIGHT_SHORT<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(45359237, -6)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerOunce` (m³/oz), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_OUNCE<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(28349523125, -12)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerOunceTroy` (m³/oz t), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_OUNCE_TROY<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(311034768, -10)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerPennyweight` (m³/dwt), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_PENNYWEIGHT<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(155517384, -11)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerPound` (m³/lb), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_POUND<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(45359237, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerPoundTroy` (m³/lb t), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_POUND_TROY<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(3732417216, -10)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerSlug` (m³/slug), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_SLUG<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4))) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerTonAssay` (m³/AT), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_TON_ASSAY<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / (Exact::dec(175, -3) / Exact::int(6))) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerTonLong` (m³/2240 lb), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_TON_LONG<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(10160469088, -7)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerTonShort` (m³/2000 lb), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_TON_SHORT<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::int(1) / Exact::dec(90718474, -5)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerTon` (m³/t), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_TON<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -3) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `GallonPerGrain` (gal/gr), as a `SpecificVolume`.
-    pub const GALLON_PER_GRAIN<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(3785411784, -12) / Exact::dec(6479891, -11)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicInchPerOunce` (in³/oz), as a `SpecificVolume`.
-    pub const CUBIC_INCH_PER_OUNCE<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4) / Exact::dec(28349523125, -12)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `GallonImperialPerOunce` (gal (UK)/oz), as a `SpecificVolume`.
-    pub const GALLON_IMPERIAL_PER_OUNCE<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(454609, -8) / Exact::dec(28349523125, -12)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `GallonPerOunce` (gal/oz), as a `SpecificVolume`.
-    pub const GALLON_PER_OUNCE<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(3785411784, -12) / Exact::dec(28349523125, -12)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicFootPerPound` (ft³/lb), as a `SpecificVolume`.
-    pub const CUBIC_FOOT_PER_POUND<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(45359237, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicInchPerPound` (in³/lb), as a `SpecificVolume`.
-    pub const CUBIC_INCH_PER_POUND<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)) / Exact::dec(45359237, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicYardPerPound` (yd³/lb), as a `SpecificVolume`.
-    pub const CUBIC_YARD_PER_POUND<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(45359237, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `GallonImperialPerPound` (gal (UK)/lb), as a `SpecificVolume`.
-    pub const GALLON_IMPERIAL_PER_POUND<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(454609, -8) / Exact::dec(45359237, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `GallonPerPound` (gal/lb), as a `SpecificVolume`.
-    pub const GALLON_PER_POUND<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(3785411784, -12) / Exact::dec(45359237, -8)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicFootPerSlug` (ft³/slug), as a `SpecificVolume`.
-    pub const CUBIC_FOOT_PER_SLUG<N: const From<Exact>>: SpecificVolume<N> = counted((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4) / (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4))) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicYardPerTonLong` (yd³/2240 lb), as a `SpecificVolume`.
-    pub const CUBIC_YARD_PER_TON_LONG<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(10160469088, -7)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicYardPerTonShort` (yd³/2000 lb), as a `SpecificVolume`.
-    pub const CUBIC_YARD_PER_TON_SHORT<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(90718474, -5)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicFootPerTonLong` (ft³/2240 lb), as a `SpecificVolume`.
-    pub const CUBIC_FOOT_PER_TON_LONG<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(10160469088, -7)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicFootPerTonShort` (ft³/2000 lb), as a `SpecificVolume`.
-    pub const CUBIC_FOOT_PER_TON_SHORT<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(90718474, -5)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `WattPerKilogram` (W/kg), as a `SpecificPower`.
-    pub const WATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(METRE::<Exact> * METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `SquareMetrePerCubicSecond` (m² · s⁻³), as a `SpecificPower`.
-    pub const SQUARE_METRE_PER_CUBIC_SECOND<N: const From<Exact>>: SpecificPower<N> = counted(WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `ErgPerSecondPerKilogram` ((erg/s)/kg), as a `SpecificPower`.
-    pub const ERG_PER_SECOND_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -7) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `FootPoundPerHourPerPound` ((ft · lbf/h)/lb), as a `SpecificPower`.
-    pub const FOOT_POUND_PER_HOUR_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted(((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::int(3600) * Exact::dec(45359237, -8))) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `FootPoundPerMinutePerPound` ((ft · lbf/min)/lb), as a `SpecificPower`.
-    pub const FOOT_POUND_PER_MINUTE_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted(((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::int(60) * Exact::dec(45359237, -8))) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `FootPoundPerSecondPerPound` ((ft · lbf/s)/lb), as a `SpecificPower`.
-    pub const FOOT_POUND_PER_SECOND_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted(((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HorsepowerPerPound` (hp/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted(((Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HorsepowerBoilerPerPound` ((hp (S))/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_BOILER_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted((Exact::dec(98095, -1) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HorsepowerElectricPerPound` ((hp (E))/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_ELECTRIC_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted((Exact::int(746) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HorsepowerMetricPerPound` ((hp (M))/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_METRIC_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted(((Exact::int(75) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HorsepowerImperialPerPound` ((hp (I))/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_IMPERIAL_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted((Exact::dec(7457, -1) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HydraulicHorsepowerPerPound` ((hp (hydraulic))/lb), as a `SpecificPower`.
-    pub const HYDRAULIC_HORSEPOWER_PER_POUND<N: const From<Exact>>: SpecificPower<N> = counted((Exact::dec(746043, -3) / Exact::dec(45359237, -8)) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerKilogramSecondSquared` (m³/(kg · s²)), as a `SpecificGravitationalParameter`.
-    pub const CUBIC_METRE_PER_KILOGRAM_SECOND_SQUARED<N: const From<Exact>>: SpecificGravitationalParameter<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> / (KILOGRAM::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
+    pub const RYDBERG_CONSTANT: ReciprocalLength<Exact> =
+        RECIPROCAL_METRE * Exact::dec(1097373156816, -5);
 
     /// One `GravitationalConstant` (G), as a `SpecificGravitationalParameter`.
-    pub const GRAVITATIONAL_CONSTANT<N: const From<Exact>>: SpecificGravitationalParameter<N> = counted(Exact::dec(66743, -15) * CUBIC_METRE_PER_KILOGRAM_SECOND_SQUARED::<Exact>);
+    pub const GRAVITATIONAL_CONSTANT: SpecificGravitationalParameter<Exact> =
+        (METRE * METRE * METRE / (KILOGRAM * SECOND * SECOND)) * Exact::dec(66743, -15);
 }
 
-/// The units of `Length`, for a menu, a config file, a parser.
+/// The units of `Length`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Length<f64>)]
+#[unit(of = Length<N>, number = N)]
+#[unit(for<N> where Length<N>: [const] yadc::Unit<Length<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum LengthUnit {
     #[default]
-    #[unit("m", "metres", by = METRE)]
+    #[unit("m", "metres", by = Length::<N>::from(METRE))]
     Metre,
-    #[unit("Å", "ångströms", by = ANGSTROM)]
+    #[unit("Å", "ångströms", by = Length::<N>::from(ANGSTROM))]
     Angstrom,
-    #[unit("a₀", "bohr radiuses", by = BOHR_RADIUS)]
+    #[unit("a₀", "bohr radiuses", by = Length::<N>::from(BOHR_RADIUS))]
     BohrRadius,
-    #[unit("a.u. of length", "atomic units of length", by = ATOMIC_UNIT_OF_LENGTH)]
+    #[unit("a.u. of length", "atomic units of length", by = Length::<N>::from(ATOMIC_UNIT_OF_LENGTH))]
     AtomicUnitOfLength,
-    #[unit("ua", "astronomical units", by = ASTRONOMICAL_UNIT)]
+    #[unit("ua", "astronomical units", by = Length::<N>::from(ASTRONOMICAL_UNIT))]
     AstronomicalUnit,
-    #[unit("ch", "chains", by = CHAIN)]
+    #[unit("ch", "chains", by = Length::<N>::from(CHAIN))]
     Chain,
-    #[unit("DM", "data miles", by = DATA_MILE)]
+    #[unit("DM", "data miles", by = Length::<N>::from(DATA_MILE))]
     DataMile,
-    #[unit("fathom", "fathoms", by = FATHOM)]
+    #[unit("fathom", "fathoms", by = Length::<N>::from(FATHOM))]
     Fathom,
-    #[unit("fermi", "fermis", by = FERMI)]
+    #[unit("fermi", "fermis", by = Length::<N>::from(FERMI))]
     Fermi,
-    #[unit("ft", "feet", by = FOOT)]
+    #[unit("ft", "feet", by = Length::<N>::from(FOOT))]
     Foot,
-    #[unit("ft (U.S. survey)", "feet (U.S. survey)", by = FOOT_SURVEY)]
+    #[unit("ft (U.S. survey)", "feet (U.S. survey)", by = Length::<N>::from(FOOT_SURVEY))]
     FootSurvey,
-    #[unit("in", "inches", by = INCH)]
+    #[unit("in", "inches", by = Length::<N>::from(INCH))]
     Inch,
-    #[unit("l. y.", "light years", by = LIGHT_YEAR)]
+    #[unit("l. y.", "light years", by = Length::<N>::from(LIGHT_YEAR))]
     LightYear,
-    #[unit("μ", "microns", by = MICRON)]
+    #[unit("μ", "microns", by = Length::<N>::from(MICRON))]
     Micron,
-    #[unit("0.001 in", "mils", by = MIL)]
+    #[unit("0.001 in", "mils", by = Length::<N>::from(MIL))]
     Mil,
-    #[unit("mi", "miles", by = MILE)]
+    #[unit("mi", "miles", by = Length::<N>::from(MILE))]
     Mile,
-    #[unit("mi (U.S. survey)", "miles (U.S. survey)", by = MILE_SURVEY)]
+    #[unit("mi (U.S. survey)", "miles (U.S. survey)", by = Length::<N>::from(MILE_SURVEY))]
     MileSurvey,
-    #[unit("M", "nautical miles", by = NAUTICAL_MILE)]
+    #[unit("M", "nautical miles", by = Length::<N>::from(NAUTICAL_MILE))]
     NauticalMile,
-    #[unit("pc", "parsecs", by = PARSEC)]
+    #[unit("pc", "parsecs", by = Length::<N>::from(PARSEC))]
     Parsec,
-    #[unit("1/6 in (computer)", "picas (computer)", by = PICA_COMPUTER)]
+    #[unit("1/6 in (computer)", "picas (computer)", by = Length::<N>::from(PICA_COMPUTER))]
     PicaComputer,
-    #[unit("1/6 in", "picas (printer's)", by = PICA_PRINTERS)]
+    #[unit("1/6 in", "picas (printer's)", by = Length::<N>::from(PICA_PRINTERS))]
     PicaPrinters,
-    #[unit("1/72 in (computer)", "points (computer)", by = POINT_COMPUTER)]
+    #[unit("1/72 in (computer)", "points (computer)", by = Length::<N>::from(POINT_COMPUTER))]
     PointComputer,
-    #[unit("1/72 in", "points (printer's)", by = POINT_PRINTERS)]
+    #[unit("1/72 in", "points (printer's)", by = Length::<N>::from(POINT_PRINTERS))]
     PointPrinters,
-    #[unit("rd", "rods", by = ROD)]
+    #[unit("rd", "rods", by = Length::<N>::from(ROD))]
     Rod,
-    #[unit("yd", "yards", by = YARD)]
+    #[unit("yd", "yards", by = Length::<N>::from(YARD))]
     Yard,
-    #[unit("leuga", "leugae", by = LEUGA)]
+    #[unit("leuga", "leugae", by = Length::<N>::from(LEUGA))]
     Leuga,
-    #[unit("mille passus", "mille passa", by = MILLE_PASSUS)]
+    #[unit("mille passus", "mille passa", by = Length::<N>::from(MILLE_PASSUS))]
     MillePassus,
-    #[unit("stadium", "stadia", by = STADIUM)]
+    #[unit("stadium", "stadia", by = Length::<N>::from(STADIUM))]
     Stadium,
-    #[unit("actus", "acta", by = ACTUS)]
+    #[unit("actus", "acta", by = Length::<N>::from(ACTUS))]
     Actus,
-    #[unit("decempeda", "decempedae", by = DECEMPEDA)]
+    #[unit("decempeda", "decempedae", by = Length::<N>::from(DECEMPEDA))]
     Decempeda,
-    #[unit("passus", "passa", by = PASSUS)]
+    #[unit("passus", "passa", by = Length::<N>::from(PASSUS))]
     Passus,
-    #[unit("gradus", "gradus", by = GRADUS)]
+    #[unit("gradus", "gradus", by = Length::<N>::from(GRADUS))]
     Gradus,
-    #[unit("cubitum", "cubita", by = CUBITUM)]
+    #[unit("cubitum", "cubita", by = Length::<N>::from(CUBITUM))]
     Cubitum,
-    #[unit("palmipes", "palmipedes", by = PALMIPES)]
+    #[unit("palmipes", "palmipedes", by = Length::<N>::from(PALMIPES))]
     Palmipes,
-    #[unit("pes", "pedes", by = PES)]
+    #[unit("pes", "pedes", by = Length::<N>::from(PES))]
     Pes,
-    #[unit("palmus maior", "palmas maior", by = PALMUS_MAIOR)]
+    #[unit("palmus maior", "palmas maior", by = Length::<N>::from(PALMUS_MAIOR))]
     PalmusMaior,
-    #[unit("palmus", "palmas", by = PALMUS)]
+    #[unit("palmus", "palmas", by = Length::<N>::from(PALMUS))]
     Palmus,
-    #[unit("uncia", "unciae", by = LENGTH_UNCIA)]
+    #[unit("uncia", "unciae", by = Length::<N>::from(LENGTH_UNCIA))]
     Uncia,
-    #[unit("digitus", "digiti", by = DIGITUS)]
+    #[unit("digitus", "digiti", by = Length::<N>::from(DIGITUS))]
     Digitus,
 }
 
-/// The units of `Mass`, for a menu, a config file, a parser.
+/// The units of `Mass`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Mass<f64>)]
+#[unit(of = Mass<N>, number = N)]
+#[unit(for<N> where Mass<N>: [const] yadc::Unit<Mass<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MassUnit {
     #[default]
-    #[unit("kg", "kilograms", by = KILOGRAM)]
+    #[unit("kg", "kilograms", by = Mass::<N>::from(KILOGRAM))]
     Kilogram,
-    #[unit("g", "grams", by = GRAM)]
+    #[unit("g", "grams", by = Mass::<N>::from(GRAM))]
     Gram,
-    #[unit("ct", "carats", by = CARAT)]
+    #[unit("ct", "carats", by = Mass::<N>::from(CARAT))]
     Carat,
-    #[unit("Da", "daltons", by = DALTON)]
+    #[unit("Da", "daltons", by = Mass::<N>::from(DALTON))]
     Dalton,
-    #[unit("mₑ", "electron masses", by = ELECTRON_MASS)]
+    #[unit("mₑ", "electron masses", by = Mass::<N>::from(ELECTRON_MASS))]
     ElectronMass,
-    #[unit("mₚ", "proton masses", by = PROTON_MASS)]
+    #[unit("mₚ", "proton masses", by = Mass::<N>::from(PROTON_MASS))]
     ProtonMass,
-    #[unit("gr", "grains", by = GRAIN)]
+    #[unit("gr", "grains", by = Mass::<N>::from(GRAIN))]
     Grain,
-    #[unit("cwt long", "hundredweight (long)", by = HUNDREDWEIGHT_LONG)]
+    #[unit("cwt long", "hundredweight (long)", by = Mass::<N>::from(HUNDREDWEIGHT_LONG))]
     HundredweightLong,
-    #[unit("cwt short", "hundredweight (short)", by = HUNDREDWEIGHT_SHORT)]
+    #[unit("cwt short", "hundredweight (short)", by = Mass::<N>::from(HUNDREDWEIGHT_SHORT))]
     HundredweightShort,
-    #[unit("oz", "ounces", by = OUNCE)]
+    #[unit("oz", "ounces", by = Mass::<N>::from(OUNCE))]
     Ounce,
-    #[unit("oz t", "troy ounces", by = OUNCE_TROY)]
+    #[unit("oz t", "troy ounces", by = Mass::<N>::from(OUNCE_TROY))]
     OunceTroy,
-    #[unit("dwt", "pennyweight", by = PENNYWEIGHT)]
+    #[unit("dwt", "pennyweight", by = Mass::<N>::from(PENNYWEIGHT))]
     Pennyweight,
-    #[unit("lb", "pounds", by = POUND)]
+    #[unit("lb", "pounds", by = Mass::<N>::from(POUND))]
     Pound,
-    #[unit("lb t", "troy pounds", by = POUND_TROY)]
+    #[unit("lb t", "troy pounds", by = Mass::<N>::from(POUND_TROY))]
     PoundTroy,
-    #[unit("slug", "slugs", by = SLUG)]
+    #[unit("slug", "slugs", by = Mass::<N>::from(SLUG))]
     Slug,
-    #[unit("AT", "assay tons", by = TON_ASSAY)]
+    #[unit("AT", "assay tons", by = Mass::<N>::from(TON_ASSAY))]
     TonAssay,
-    #[unit("2240 lb", "long tons", by = TON_LONG)]
+    #[unit("2240 lb", "long tons", by = Mass::<N>::from(TON_LONG))]
     TonLong,
-    #[unit("2000 lb", "short tons", by = TON_SHORT)]
+    #[unit("2000 lb", "short tons", by = Mass::<N>::from(TON_SHORT))]
     TonShort,
-    #[unit("t", "tons", by = TON)]
+    #[unit("t", "tons", by = Mass::<N>::from(TON))]
     Ton,
-    #[unit("libra", "librae", by = LIBRA)]
+    #[unit("libra", "librae", by = Mass::<N>::from(LIBRA))]
     Libra,
-    #[unit("deunx", "deunces", by = MASS_DEUNX)]
+    #[unit("deunx", "deunces", by = Mass::<N>::from(MASS_DEUNX))]
     Deunx,
-    #[unit("dextans", "dextantes", by = MASS_DEXTANS)]
+    #[unit("dextans", "dextantes", by = Mass::<N>::from(MASS_DEXTANS))]
     Dextans,
-    #[unit("dodrans", "dodrantes", by = MASS_DODRANS)]
+    #[unit("dodrans", "dodrantes", by = Mass::<N>::from(MASS_DODRANS))]
     Dodrans,
-    #[unit("bes", "bessis", by = MASS_BES)]
+    #[unit("bes", "bessis", by = Mass::<N>::from(MASS_BES))]
     Bes,
-    #[unit("septunx", "septunces", by = MASS_SEPTUNX)]
+    #[unit("septunx", "septunces", by = Mass::<N>::from(MASS_SEPTUNX))]
     Septunx,
-    #[unit("semis", "semisses", by = MASS_SEMIS)]
+    #[unit("semis", "semisses", by = Mass::<N>::from(MASS_SEMIS))]
     Semis,
-    #[unit("quincunx", "quincunx", by = MASS_QUINCUNX)]
+    #[unit("quincunx", "quincunx", by = Mass::<N>::from(MASS_QUINCUNX))]
     Quincunx,
-    #[unit("triens", "trientes", by = MASS_TRIENS)]
+    #[unit("triens", "trientes", by = Mass::<N>::from(MASS_TRIENS))]
     Triens,
-    #[unit("quadrans teruncius", "quadrantes teruncius", by = QUADRANS_TERUNCIUS)]
+    #[unit("quadrans teruncius", "quadrantes teruncius", by = Mass::<N>::from(QUADRANS_TERUNCIUS))]
     QuadransTeruncius,
-    #[unit("sextans", "sextantes", by = MASS_SEXTANS)]
+    #[unit("sextans", "sextantes", by = Mass::<N>::from(MASS_SEXTANS))]
     Sextans,
-    #[unit("sescuncia", "sescunciae", by = SESCUNCIA)]
+    #[unit("sescuncia", "sescunciae", by = Mass::<N>::from(SESCUNCIA))]
     Sescuncia,
-    #[unit("uncia", "unciae", by = MASS_UNCIA)]
+    #[unit("uncia", "unciae", by = Mass::<N>::from(MASS_UNCIA))]
     Uncia,
-    #[unit("semuncia", "semunciae", by = SEMUNCIA)]
+    #[unit("semuncia", "semunciae", by = Mass::<N>::from(SEMUNCIA))]
     Semuncia,
-    #[unit("duella", "duella", by = DUELLA)]
+    #[unit("duella", "duella", by = Mass::<N>::from(DUELLA))]
     Duella,
-    #[unit("sicilicus", "scilici", by = MASS_SICILICUS)]
+    #[unit("sicilicus", "scilici", by = Mass::<N>::from(MASS_SICILICUS))]
     Sicilicus,
-    #[unit("sextula", "sextulae", by = MASS_SEXTULA)]
+    #[unit("sextula", "sextulae", by = Mass::<N>::from(MASS_SEXTULA))]
     Sextula,
-    #[unit("semisextula", "semisextulae", by = SEMISEXTULA)]
+    #[unit("semisextula", "semisextulae", by = Mass::<N>::from(SEMISEXTULA))]
     Semisextula,
-    #[unit("scrupulum", "scrupula", by = MASS_SCRUPULUM)]
+    #[unit("scrupulum", "scrupula", by = Mass::<N>::from(MASS_SCRUPULUM))]
     Scrupulum,
-    #[unit("obolus", "oboli", by = OBOLUS)]
+    #[unit("obolus", "oboli", by = Mass::<N>::from(OBOLUS))]
     Obolus,
-    #[unit("siliqua", "siliquae", by = SILIQUA)]
+    #[unit("siliqua", "siliquae", by = Mass::<N>::from(SILIQUA))]
     Siliqua,
 }
 
-/// The units of `Time`, for a menu, a config file, a parser.
+/// The units of `Time`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Time<f64>)]
+#[unit(of = Time<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Time<N>: [const] yadc::Unit<Time<N>, N> + [const] core::marker::Destruct)]
 pub enum TimeUnit {
     #[default]
-    #[unit("s", "seconds", by = SECOND)]
+    #[unit("s", "seconds", by = Time::<N>::from(SECOND))]
     Second,
-    #[unit("ms", "milliseconds", by = MILLISECOND)]
-    Millisecond,
-    #[unit("s (sidereal)", "seconds (sidereal)", by = SECOND_SIDEREAL)]
+    #[unit("s (sidereal)", "seconds (sidereal)", by = Time::<N>::from(SECOND_SIDEREAL))]
     SecondSidereal,
-    #[unit("d", "days", by = DAY)]
+    #[unit("d", "days", by = Time::<N>::from(DAY))]
     Day,
-    #[unit("d (sidereal)", "days (sidereal)", by = DAY_SIDEREAL)]
+    #[unit("d (sidereal)", "days (sidereal)", by = Time::<N>::from(DAY_SIDEREAL))]
     DaySidereal,
-    #[unit("h", "hours", by = HOUR)]
+    #[unit("h", "hours", by = Time::<N>::from(HOUR))]
     Hour,
-    #[unit("h (sidereal)", "hours (sidereal)", by = HOUR_SIDEREAL)]
+    #[unit("h (sidereal)", "hours (sidereal)", by = Time::<N>::from(HOUR_SIDEREAL))]
     HourSidereal,
-    #[unit("min", "minutes", by = MINUTE)]
+    #[unit("min", "minutes", by = Time::<N>::from(MINUTE))]
     Minute,
-    #[unit("10.0 ns", "shakes", by = SHAKE)]
+    #[unit("10.0 ns", "shakes", by = Time::<N>::from(SHAKE))]
     Shake,
-    #[unit("a", "years", by = YEAR)]
+    #[unit("a", "years", by = Time::<N>::from(YEAR))]
     Year,
-    #[unit("a (sidereal)", "years (sidereal)", by = YEAR_SIDEREAL)]
+    #[unit("a (sidereal)", "years (sidereal)", by = Time::<N>::from(YEAR_SIDEREAL))]
     YearSidereal,
-    #[unit("a (tropical)", "years (tropical)", by = YEAR_TROPICAL)]
+    #[unit("a (tropical)", "years (tropical)", by = Time::<N>::from(YEAR_TROPICAL))]
     YearTropical,
 }
 
-/// The units of `Instant`, for a menu, a config file, a parser.
+/// The units of `Instant`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Instant<f64>)]
+#[unit(of = Instant<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Scale<Instant<N>, Time<N>>: [const] yadc::Unit<Instant<N>, N> + [const] core::marker::Destruct)]
 pub enum InstantUnit {
     #[default]
-    #[unit("s Unix", "seconds of Unix time", by = UNIX_SECONDS)]
+    #[unit("s Unix", "seconds of Unix time", by = Scale::<Instant<N>, Time<N>>::from(UNIX_SECONDS))]
     UnixSecond,
-    #[unit("ms Unix", "milliseconds of Unix time", by = UNIX_MILLISECONDS)]
+    #[unit("ms Unix", "milliseconds of Unix time", by = Scale::<Instant<N>, Time<N>>::from(UNIX_MILLISECONDS))]
     UnixMillisecond,
-    #[unit("s GPS", "seconds of GPS time", by = GPS_SECONDS)]
+    #[unit("s GPS", "seconds of GPS time", by = Scale::<Instant<N>, Time<N>>::from(GPS_SECONDS))]
     GpsSecond,
-    #[unit("JD", "Julian date", by = JULIAN_DATE)]
+    #[unit("JD", "Julian date", by = Scale::<Instant<N>, Time<N>>::from(JULIAN_DATE))]
     JulianDate,
-    #[unit("MJD", "modified Julian date", by = MODIFIED_JULIAN_DATE)]
+    #[unit("MJD", "modified Julian date", by = Scale::<Instant<N>, Time<N>>::from(MODIFIED_JULIAN_DATE))]
     ModifiedJulianDate,
 }
 
-/// The units of `Area`, for a menu, a config file, a parser.
+/// The units of `Area`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Area<f64>)]
+#[unit(of = Area<N>, number = N)]
+#[unit(for<N> where Area<N>: [const] yadc::Unit<Area<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum AreaUnit {
     #[default]
-    #[unit("m²", "square metres", by = SQUARE_METRE)]
+    #[unit("m²", "square metres", by = Area::<N>::from(SQUARE_METRE))]
     SquareMetre,
-    #[unit("ac", "acres", by = ACRE)]
+    #[unit("ac", "acres", by = Area::<N>::from(ACRE))]
     Acre,
-    #[unit("a", "ares", by = ARE)]
+    #[unit("a", "ares", by = Area::<N>::from(ARE))]
     Are,
-    #[unit("b", "barns", by = BARN)]
+    #[unit("b", "barns", by = Area::<N>::from(BARN))]
     Barn,
-    #[unit("cmil", "circular mils", by = CIRCULAR_MIL)]
+    #[unit("cmil", "circular mils", by = Area::<N>::from(CIRCULAR_MIL))]
     CircularMil,
-    #[unit("ha", "hectares", by = HECTARE)]
+    #[unit("ha", "hectares", by = Area::<N>::from(HECTARE))]
     Hectare,
-    #[unit("ft²", "square feet", by = SQUARE_FOOT)]
+    #[unit("ft²", "square feet", by = Area::<N>::from(SQUARE_FOOT))]
     SquareFoot,
-    #[unit("in²", "square inches", by = SQUARE_INCH)]
+    #[unit("in²", "square inches", by = Area::<N>::from(SQUARE_INCH))]
     SquareInch,
-    #[unit("mi²", "square miles", by = SQUARE_MILE)]
+    #[unit("mi²", "square miles", by = Area::<N>::from(SQUARE_MILE))]
     SquareMile,
-    #[unit("yd²", "square yards", by = SQUARE_YARD)]
+    #[unit("yd²", "square yards", by = Area::<N>::from(SQUARE_YARD))]
     SquareYard,
-    #[unit("saltus", "saltus", by = SALTUS)]
+    #[unit("saltus", "saltus", by = Area::<N>::from(SALTUS))]
     Saltus,
-    #[unit("centuria", "centuriae", by = CENTURIA)]
+    #[unit("centuria", "centuriae", by = Area::<N>::from(CENTURIA))]
     Centuria,
-    #[unit("heredium", "heredia", by = HEREDIUM)]
+    #[unit("heredium", "heredia", by = Area::<N>::from(HEREDIUM))]
     Heredium,
-    #[unit("jugerum", "jugera", by = JUGERUM)]
+    #[unit("jugerum", "jugera", by = Area::<N>::from(JUGERUM))]
     Jugerum,
-    #[unit("deunx", "deunces", by = AREA_DEUNX)]
+    #[unit("deunx", "deunces", by = Area::<N>::from(AREA_DEUNX))]
     Deunx,
-    #[unit("dextans", "dextantes", by = AREA_DEXTANS)]
+    #[unit("dextans", "dextantes", by = Area::<N>::from(AREA_DEXTANS))]
     Dextans,
-    #[unit("dodrans", "dodrantes", by = AREA_DODRANS)]
+    #[unit("dodrans", "dodrantes", by = Area::<N>::from(AREA_DODRANS))]
     Dodrans,
-    #[unit("bes", "besses", by = AREA_BES)]
+    #[unit("bes", "besses", by = Area::<N>::from(AREA_BES))]
     Bes,
-    #[unit("septunx", "septunces", by = AREA_SEPTUNX)]
+    #[unit("septunx", "septunces", by = Area::<N>::from(AREA_SEPTUNX))]
     Septunx,
-    #[unit("semis", "semisses", by = AREA_SEMIS)]
+    #[unit("semis", "semisses", by = Area::<N>::from(AREA_SEMIS))]
     Semis,
-    #[unit("actus quadratus", "acta quadratus", by = ACTUS_QUADRATUS)]
+    #[unit("actus quadratus", "acta quadratus", by = Area::<N>::from(ACTUS_QUADRATUS))]
     ActusQuadratus,
-    #[unit("quincunx", "quincunces", by = AREA_QUINCUNX)]
+    #[unit("quincunx", "quincunces", by = Area::<N>::from(AREA_QUINCUNX))]
     Quincunx,
-    #[unit("triens", "trientes", by = AREA_TRIENS)]
+    #[unit("triens", "trientes", by = Area::<N>::from(AREA_TRIENS))]
     Triens,
-    #[unit("quadrans", "quadrantes", by = QUADRANS)]
+    #[unit("quadrans", "quadrantes", by = Area::<N>::from(QUADRANS))]
     Quadrans,
-    #[unit("sextans", "sextantes", by = AREA_SEXTANS)]
+    #[unit("sextans", "sextantes", by = Area::<N>::from(AREA_SEXTANS))]
     Sextans,
-    #[unit("clima", "climata", by = CLIMA)]
+    #[unit("clima", "climata", by = Area::<N>::from(CLIMA))]
     Clima,
-    #[unit("uncia", "unciae", by = AREA_UNCIA)]
+    #[unit("uncia", "unciae", by = Area::<N>::from(AREA_UNCIA))]
     Uncia,
-    #[unit("semiuncia", "semiunciae", by = SEMIUNCIA)]
+    #[unit("semiuncia", "semiunciae", by = Area::<N>::from(SEMIUNCIA))]
     Semiuncia,
-    #[unit("sicilicus", "siculi", by = AREA_SICILICUS)]
+    #[unit("sicilicus", "siculi", by = Area::<N>::from(AREA_SICILICUS))]
     Sicilicus,
-    #[unit("actus simplex", "acta simplex", by = ACTUS_SIMPLEX)]
+    #[unit("actus simplex", "acta simplex", by = Area::<N>::from(ACTUS_SIMPLEX))]
     ActusSimplex,
-    #[unit("sextula", "sextulae", by = AREA_SEXTULA)]
+    #[unit("sextula", "sextulae", by = Area::<N>::from(AREA_SEXTULA))]
     Sextula,
-    #[unit("duo scrupulum", "duo scrupula", by = DUO_SCRUPULUM)]
+    #[unit("duo scrupulum", "duo scrupula", by = Area::<N>::from(DUO_SCRUPULUM))]
     DuoScrupulum,
-    #[unit("scrupulum", "scrupula", by = AREA_SCRUPULUM)]
+    #[unit("scrupulum", "scrupula", by = Area::<N>::from(AREA_SCRUPULUM))]
     Scrupulum,
-    #[unit("dimidium scrupulum", "dimidium scupula", by = DIMIDIUM_SCRUPULUM)]
+    #[unit("dimidium scrupulum", "dimidium scupula", by = Area::<N>::from(DIMIDIUM_SCRUPULUM))]
     DimidiumScrupulum,
-    #[unit("pes quadratus", "pedes quadratus", by = PES_QUADRATUS)]
+    #[unit("pes quadratus", "pedes quadratus", by = Area::<N>::from(PES_QUADRATUS))]
     PesQuadratus,
 }
 
-/// The units of `Volume`, for a menu, a config file, a parser.
+/// The units of `Volume`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Volume<f64>)]
+#[unit(of = Volume<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Volume<N>: [const] yadc::Unit<Volume<N>, N> + [const] core::marker::Destruct)]
 pub enum VolumeUnit {
     #[default]
-    #[unit("m³", "cubic metres", by = CUBIC_METRE)]
+    #[unit("m³", "cubic metres", by = Volume::<N>::from(CUBIC_METRE))]
     CubicMetre,
-    #[unit("ac · ft", "acre-feet", by = ACRE_FOOT)]
+    #[unit("ac · ft", "acre-feet", by = Volume::<N>::from(CUBIC_METRE * (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)))))]
     AcreFoot,
-    #[unit("bbl", "barrels", by = BARREL)]
+    #[unit("bbl", "barrels", by = Volume::<N>::from(BARREL))]
     Barrel,
-    #[unit("bu", "bushels", by = BUSHEL)]
+    #[unit("bu", "bushels", by = Volume::<N>::from(BUSHEL))]
     Bushel,
-    #[unit("cords", "cords", by = CORD)]
+    #[unit("cords", "cords", by = Volume::<N>::from(CORD))]
     Cord,
-    #[unit("ft³", "cubic feet", by = CUBIC_FOOT)]
+    #[unit("ft³", "cubic feet", by = Volume::<N>::from(CUBIC_FOOT))]
     CubicFoot,
-    #[unit("in³", "cubic inches", by = CUBIC_INCH)]
+    #[unit("in³", "cubic inches", by = Volume::<N>::from(CUBIC_INCH))]
     CubicInch,
-    #[unit("mi³", "cubic miles", by = CUBIC_MILE)]
+    #[unit("mi³", "cubic miles", by = Volume::<N>::from(CUBIC_MILE))]
     CubicMile,
-    #[unit("yd³", "cubic yards", by = CUBIC_YARD)]
+    #[unit("yd³", "cubic yards", by = Volume::<N>::from(CUBIC_YARD))]
     CubicYard,
-    #[unit("cup", "cups", by = CUP)]
+    #[unit("cup", "cups", by = Volume::<N>::from(CUP))]
     Cup,
-    #[unit("fl oz", "fluid ounces", by = FLUID_OUNCE)]
+    #[unit("fl oz", "fluid ounces", by = Volume::<N>::from(FLUID_OUNCE))]
     FluidOunce,
-    #[unit("fl oz (UK)", "Imperial fluid ounces", by = FLUID_OUNCE_IMPERIAL)]
+    #[unit("fl oz (UK)", "Imperial fluid ounces", by = Volume::<N>::from(FLUID_OUNCE_IMPERIAL))]
     FluidOunceImperial,
-    #[unit("gal (UK)", "Imperial gallons", by = GALLON_IMPERIAL)]
+    #[unit("gal (UK)", "Imperial gallons", by = Volume::<N>::from(GALLON_IMPERIAL))]
     GallonImperial,
-    #[unit("gal", "gallons", by = GALLON)]
+    #[unit("gal", "gallons", by = Volume::<N>::from(GALLON))]
     Gallon,
-    #[unit("gi (UK)", "Imperial gills", by = GILL_IMPERIAL)]
+    #[unit("gi (UK)", "Imperial gills", by = Volume::<N>::from(GILL_IMPERIAL))]
     GillImperial,
-    #[unit("gi", "gills", by = GILL)]
+    #[unit("gi", "gills", by = Volume::<N>::from(GILL))]
     Gill,
-    #[unit("kL", "kilolitres", by = KILOLITRE)]
-    Kilolitre,
-    #[unit("L", "litres", by = LITRE)]
+    #[unit("L", "litres", by = Volume::<N>::from(LITRE))]
     Litre,
-    #[unit("pk", "pecks", by = PECK)]
+    #[unit("pk", "pecks", by = Volume::<N>::from(PECK))]
     Peck,
-    #[unit("dry pt", "dry pints", by = PINT_DRY)]
+    #[unit("dry pt", "dry pints", by = Volume::<N>::from(PINT_DRY))]
     PintDry,
-    #[unit("liq pt", "liquid pints", by = PINT_LIQUID)]
+    #[unit("liq pt", "liquid pints", by = Volume::<N>::from(PINT_LIQUID))]
     PintLiquid,
-    #[unit("dry qt", "dry quarts", by = QUART_DRY)]
+    #[unit("dry qt", "dry quarts", by = Volume::<N>::from(QUART_DRY))]
     QuartDry,
-    #[unit("liq qt", "liquid quarts", by = QUART_LIQUID)]
+    #[unit("liq qt", "liquid quarts", by = Volume::<N>::from(QUART_LIQUID))]
     QuartLiquid,
-    #[unit("st", "steres", by = STERE)]
+    #[unit("st", "steres", by = Volume::<N>::from(STERE))]
     Stere,
-    #[unit("tbsp", "tablespoons", by = TABLESPOON)]
+    #[unit("tbsp", "tablespoons", by = Volume::<N>::from(TABLESPOON))]
     Tablespoon,
-    #[unit("tsp", "teaspoons", by = TEASPOON)]
+    #[unit("tsp", "teaspoons", by = Volume::<N>::from(TEASPOON))]
     Teaspoon,
-    #[unit("RT", "register tons", by = REGISTER_TON)]
+    #[unit("RT", "register tons", by = Volume::<N>::from(REGISTER_TON))]
     RegisterTon,
-    #[unit("culeus", "culei", by = CULEUS)]
+    #[unit("culeus", "culei", by = Volume::<N>::from(CULEUS))]
     Culeus,
-    #[unit("amphora quadrantal", "amphora quadrantal", by = AMPHORA_QUADRANTAL)]
+    #[unit("amphora quadrantal", "amphora quadrantal", by = Volume::<N>::from(AMPHORA_QUADRANTAL))]
     AmphoraQuadrantal,
-    #[unit("urna", "urnae", by = URNA)]
+    #[unit("urna", "urnae", by = Volume::<N>::from(URNA))]
     Urna,
-    #[unit("modius castrensis", "modii castrensis", by = MODIUS_CASTRENSIS)]
+    #[unit("modius castrensis", "modii castrensis", by = Volume::<N>::from(MODIUS_CASTRENSIS))]
     ModiusCastrensis,
-    #[unit("modius", "modii", by = MODIUS)]
+    #[unit("modius", "modii", by = Volume::<N>::from(MODIUS))]
     Modius,
-    #[unit("semimodius", "semimodii", by = SEMIMODIUS)]
+    #[unit("semimodius", "semimodii", by = Volume::<N>::from(SEMIMODIUS))]
     Semimodius,
-    #[unit("congius", "congii", by = CONGIUS)]
+    #[unit("congius", "congii", by = Volume::<N>::from(CONGIUS))]
     Congius,
-    #[unit("sextarius", "sextarii", by = SEXTARIUS)]
+    #[unit("sextarius", "sextarii", by = Volume::<N>::from(SEXTARIUS))]
     Sextarius,
-    #[unit("hemina", "heminae", by = HEMINA)]
+    #[unit("hemina", "heminae", by = Volume::<N>::from(HEMINA))]
     Hemina,
-    #[unit("quartarius", "quartarii", by = QUARTARIUS)]
+    #[unit("quartarius", "quartarii", by = Volume::<N>::from(QUARTARIUS))]
     Quartarius,
-    #[unit("acetabulum", "acetabula", by = ACETABULUM)]
+    #[unit("acetabulum", "acetabula", by = Volume::<N>::from(ACETABULUM))]
     Acetabulum,
-    #[unit("cyathus", "cyathi", by = CYATHUS)]
+    #[unit("cyathus", "cyathi", by = Volume::<N>::from(CYATHUS))]
     Cyathus,
-    #[unit("ligula", "ligula", by = LIGULA)]
+    #[unit("ligula", "ligula", by = Volume::<N>::from(LIGULA))]
     Ligula,
 }
 
-/// The units of `Velocity`, for a menu, a config file, a parser.
+/// The units of `Velocity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Velocity<f64>)]
+#[unit(of = Velocity<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Velocity<N>: [const] yadc::Unit<Velocity<N>, N> + [const] core::marker::Destruct)]
 pub enum VelocityUnit {
     #[default]
-    #[unit("m/s", "metres per second", by = METRE_PER_SECOND)]
+    #[unit("m/s", "metres per second", by = Velocity::<N>::from(METRE_PER_SECOND))]
     MetrePerSecond,
-    #[unit("ft/h", "feet per hour", by = FOOT_PER_HOUR)]
+    #[unit("ft/h", "feet per hour", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::dec(3048, -4) / Exact::int(3600))))]
     FootPerHour,
-    #[unit("ft/min", "feet per minute", by = FOOT_PER_MINUTE)]
+    #[unit("ft/min", "feet per minute", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(508, -5)))]
     FootPerMinute,
-    #[unit("ft/s", "feet per second", by = FOOT_PER_SECOND)]
+    #[unit("ft/s", "feet per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(3048, -4)))]
     FootPerSecond,
-    #[unit("in/s", "inches per second", by = INCH_PER_SECOND)]
+    #[unit("in/s", "inches per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(254, -4)))]
     InchPerSecond,
-    #[unit("in/min", "inches per minute", by = INCH_PER_MINUTE)]
+    #[unit("in/min", "inches per minute", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::dec(254, -4) / Exact::int(60))))]
     InchPerMinute,
-    #[unit("km/h", "kilometres per hour", by = KILOMETRE_PER_HOUR)]
-    KilometrePerHour,
-    #[unit("kn", "knots", by = KNOT)]
+    #[unit("kn", "knots", by = Velocity::<N>::from(KNOT))]
     Knot,
-    #[unit("mi/h", "miles per hour", by = MILE_PER_HOUR)]
+    #[unit("mi/h", "miles per hour", by = Velocity::<N>::from(MILE_PER_HOUR))]
     MilePerHour,
-    #[unit("mi/min", "miles per minute", by = MILE_PER_MINUTE)]
+    #[unit("mi/min", "miles per minute", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(268224, -4)))]
     MilePerMinute,
-    #[unit("mi/s", "miles per second", by = MILE_PER_SECOND)]
+    #[unit("mi/s", "miles per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(1609344, -3)))]
     MilePerSecond,
-    #[unit("mm/min", "millimetres per minute", by = MILLIMETRE_PER_MINUTE)]
-    MillimetrePerMinute,
-    #[unit("a₀ · Eₕ/ħ", "atomic units of velocity", by = ATOMIC_UNIT_OF_VELOCITY)]
+    #[unit("a₀ · Eₕ/ħ", "atomic units of velocity", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(218769126364, -5)))]
     AtomicUnitOfVelocity,
-    #[unit("c", "natural units of velocity", by = NATURAL_UNIT_OF_VELOCITY)]
+    #[unit("c", "natural units of velocity", by = Velocity::<N>::from(NATURAL_UNIT_OF_VELOCITY))]
     NaturalUnitOfVelocity,
-    #[unit("c", "speeds of light in vacuum", by = SPEED_OF_LIGHT)]
+    #[unit("c", "speeds of light in vacuum", by = Velocity::<N>::from(SPEED_OF_LIGHT))]
     SpeedOfLight,
+    #[unit("km/h", "kilometres per hour", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::int(1000) / Exact::int(3600))))]
+    KilometrePerHour,
+    #[unit("mm/min", "millimetres per minute", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::dec(1, -3) / Exact::int(60))))]
+    MillimetrePerMinute,
 }
 
-/// The units of `Acceleration`, for a menu, a config file, a parser.
+/// The units of `Acceleration`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Acceleration<f64>)]
+#[unit(of = Acceleration<N>, number = N)]
+#[unit(for<N> where Acceleration<N>: [const] yadc::Unit<Acceleration<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum AccelerationUnit {
     #[default]
-    #[unit("m/s²", "metres per second squared", by = METRE_PER_SECOND_SQUARED)]
+    #[unit("m/s²", "metres per second squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED))]
     MetrePerSecondSquared,
-    #[unit("ft/s²", "feet per second squared", by = FOOT_PER_SECOND_SQUARED)]
+    #[unit("ft/s²", "feet per second squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED * Exact::dec(3048, -4)))]
     FootPerSecondSquared,
-    #[unit("Gal", "galileos", by = GALILEO)]
+    #[unit("Gal", "galileos", by = Acceleration::<N>::from(GALILEO))]
     Galileo,
-    #[unit("in/s²", "inches per second squared", by = INCH_PER_SECOND_SQUARED)]
+    #[unit("in/s²", "inches per second squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED * Exact::dec(254, -4)))]
     InchPerSecondSquared,
-    #[unit("mm/min²", "millimetres per minute squared", by = MILLIMETRE_PER_MINUTE_SQUARED)]
-    MillimetrePerMinuteSquared,
-    #[unit("g₀", "standard accelerations of gravity", by = STANDARD_GRAVITY)]
+    #[unit("g₀", "standard accelerations of gravity", by = Acceleration::<N>::from(STANDARD_GRAVITY))]
     StandardGravity,
+    #[unit("mm/min²", "millimetres per minute squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED * (Exact::dec(1, -3) / (Exact::int(60) * Exact::int(60)))))]
+    MillimetrePerMinuteSquared,
 }
 
-/// The units of `Jerk`, for a menu, a config file, a parser.
+/// The units of `Jerk`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Jerk<f64>)]
+#[unit(of = Jerk<N>, number = N)]
+#[unit(for<N> where Jerk<N>: [const] yadc::Unit<Jerk<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum JerkUnit {
     #[default]
-    #[unit("m/s³", "metres per second cubed", by = METRE_PER_SECOND_CUBED)]
+    #[unit("m/s³", "metres per second cubed", by = Jerk::<N>::from(METRE / (SECOND * SECOND * SECOND)))]
     MetrePerSecondCubed,
-    #[unit("ft/s³", "feet per second cubed", by = FOOT_PER_SECOND_CUBED)]
+    #[unit("ft/s³", "feet per second cubed", by = Jerk::<N>::from((METRE / (SECOND * SECOND * SECOND)) * Exact::dec(3048, -4)))]
     FootPerSecondCubed,
-    #[unit("in/s³", "inches per second cubed", by = INCH_PER_SECOND_CUBED)]
+    #[unit("in/s³", "inches per second cubed", by = Jerk::<N>::from((METRE / (SECOND * SECOND * SECOND)) * Exact::dec(254, -4)))]
     InchPerSecondCubed,
-    #[unit("km/min³", "kilometres per minute cubed", by = KILOMETRE_PER_MINUTE_CUBED)]
+    #[unit("km/min³", "kilometres per minute cubed", by = Jerk::<N>::from((METRE / (SECOND * SECOND * SECOND)) * (Exact::int(1000) / (Exact::int(60) * Exact::int(60) * Exact::int(60)))))]
     KilometrePerMinuteCubed,
 }
 
-/// The units of `Absement`, for a menu, a config file, a parser.
+/// The units of `Absement`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Absement<f64>)]
+#[unit(of = Absement<N>, number = N)]
+#[unit(for<N> where Absement<N>: [const] yadc::Unit<Absement<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum AbsementUnit {
     #[default]
-    #[unit("m · s", "metre seconds", by = METRE_SECOND)]
+    #[unit("m · s", "metre seconds", by = Absement::<N>::from(METRE * SECOND))]
     MetreSecond,
-    #[unit("ft · s", "foot seconds", by = FOOT_SECOND)]
+    #[unit("ft · s", "foot seconds", by = Absement::<N>::from((METRE * SECOND) * Exact::dec(3048, -4)))]
     FootSecond,
-    #[unit("in · s", "inch seconds", by = INCH_SECOND)]
+    #[unit("in · s", "inch seconds", by = Absement::<N>::from((METRE * SECOND) * Exact::dec(254, -4)))]
     InchSecond,
-    #[unit("km · h", "kilometre hours", by = KILOMETRE_HOUR)]
+    #[unit("km · h", "kilometre hours", by = Absement::<N>::from((METRE * SECOND) * Exact::int(3600000)))]
     KilometreHour,
 }
 
-/// The units of `InverseVelocity`, for a menu, a config file, a parser.
+/// The units of `InverseVelocity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InverseVelocity<f64>)]
+#[unit(of = InverseVelocity<N>, number = N)]
+#[unit(for<N> where InverseVelocity<N>: [const] yadc::Unit<InverseVelocity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum InverseVelocityUnit {
     #[default]
-    #[unit("s/m", "seconds per metre", by = SECOND_PER_METRE)]
+    #[unit("s/m", "seconds per metre", by = InverseVelocity::<N>::from(SECOND / METRE))]
     SecondPerMetre,
-    #[unit("h/ft", "hours per foot", by = HOUR_PER_FOOT)]
+    #[unit("h/ft", "hours per foot", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(3600) / Exact::dec(3048, -4))))]
     HourPerFoot,
-    #[unit("min/ft", "minutes per foot", by = MINUTE_PER_FOOT)]
+    #[unit("min/ft", "minutes per foot", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(60) / Exact::dec(3048, -4))))]
     MinutePerFoot,
-    #[unit("s/ft", "seconds per foot", by = SECOND_PER_FOOT)]
+    #[unit("s/ft", "seconds per foot", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(1) / Exact::dec(3048, -4))))]
     SecondPerFoot,
-    #[unit("s/in", "seconds per inch", by = SECOND_PER_INCH)]
+    #[unit("s/in", "seconds per inch", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(1) / Exact::dec(254, -4))))]
     SecondPerInch,
-    #[unit("min/km", "minutes per kilometre", by = MINUTE_PER_KILOMETRE)]
-    MinutePerKilometre,
-    #[unit("h/km", "hours per kilometre", by = HOUR_PER_KILOMETRE)]
-    HourPerKilometre,
-    #[unit("h/mi", "hours per mile", by = HOUR_PER_MILE)]
+    #[unit("h/mi", "hours per mile", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(3600) / Exact::dec(1609344, -3))))]
     HourPerMile,
-    #[unit("min/mi", "minutes per mile", by = MINUTE_PER_MILE)]
+    #[unit("min/mi", "minutes per mile", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(60) / Exact::dec(1609344, -3))))]
     MinutePerMile,
-    #[unit("s/mi", "seconds per mile", by = SECOND_PER_MILE)]
+    #[unit("s/mi", "seconds per mile", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(1) / Exact::dec(1609344, -3))))]
     SecondPerMile,
+    #[unit("min/km", "minutes per kilometre", by = InverseVelocity::<N>::from((SECOND / METRE) * Exact::dec(6, -2)))]
+    MinutePerKilometre,
+    #[unit("h/km", "hours per kilometre", by = InverseVelocity::<N>::from((SECOND / METRE) * Exact::dec(36, -1)))]
+    HourPerKilometre,
 }
 
-/// The units of `Force`, for a menu, a config file, a parser.
+/// The units of `Force`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Force<f64>)]
+#[unit(of = Force<N>, number = N)]
+#[unit(for<N> where Force<N>: [const] yadc::Unit<Force<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ForceUnit {
     #[default]
-    #[unit("N", "newtons", by = NEWTON)]
+    #[unit("N", "newtons", by = Force::<N>::from(NEWTON))]
     Newton,
-    #[unit("dyn", "dynes", by = DYNE)]
+    #[unit("dyn", "dynes", by = Force::<N>::from(DYNE))]
     Dyne,
-    #[unit("kgf", "kilograms-force", by = KILOGRAM_FORCE)]
+    #[unit("kgf", "kilograms-force", by = Force::<N>::from(KILOGRAM_FORCE))]
     KilogramForce,
-    #[unit("kip", "kips", by = KIP)]
+    #[unit("kip", "kips", by = Force::<N>::from(KIP))]
     Kip,
-    #[unit("ozf", "ounces-force", by = OUNCE_FORCE)]
+    #[unit("ozf", "ounces-force", by = Force::<N>::from(OUNCE_FORCE))]
     OunceForce,
-    #[unit("pdl", "poundals", by = POUNDAL)]
+    #[unit("pdl", "poundals", by = Force::<N>::from(POUNDAL))]
     Poundal,
-    #[unit("lbf", "pounds-force", by = POUND_FORCE)]
+    #[unit("lbf", "pounds-force", by = Force::<N>::from(POUND_FORCE))]
     PoundForce,
-    #[unit("2000 lbf", "tons-force", by = TON_FORCE)]
+    #[unit("2000 lbf", "tons-force", by = Force::<N>::from(TON_FORCE))]
     TonForce,
 }
 
-/// The units of `Momentum`, for a menu, a config file, a parser.
+/// The units of `Momentum`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Momentum<f64>)]
+#[unit(of = Momentum<N>, number = N)]
+#[unit(for<N> where Momentum<N>: [const] yadc::Unit<Momentum<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MomentumUnit {
     #[default]
-    #[unit("kg · m/s", "kilogram metres per second", by = KILOGRAM_METRE_PER_SECOND)]
+    #[unit("kg · m/s", "kilogram metres per second", by = Momentum::<N>::from(METRE * KILOGRAM / SECOND))]
     KilogramMetrePerSecond,
-    #[unit("g · m/s", "gram metres per second", by = GRAM_METRE_PER_SECOND)]
+    #[unit("g · m/s", "gram metres per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::dec(1, -3)))]
     GramMetrePerSecond,
-    #[unit("t · m/s", "ton metres per second", by = TON_METRE_PER_SECOND)]
+    #[unit("t · m/s", "ton metres per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::int(1000)))]
     TonMetrePerSecond,
-    #[unit("kg · m/min", "kilogram metres per minute", by = KILOGRAM_METRE_PER_MINUTE)]
+    #[unit("kg · m/min", "kilogram metres per minute", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * (Exact::int(1) / Exact::int(60))))]
     KilogramMetrePerMinute,
-    #[unit("kg · m/h", "kilogram metres per hour", by = KILOGRAM_METRE_PER_HOUR)]
+    #[unit("kg · m/h", "kilogram metres per hour", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * (Exact::int(1) / Exact::int(3600))))]
     KilogramMetrePerHour,
-    #[unit("kg · m/d", "kilogram metres per day", by = KILOGRAM_METRE_PER_DAY)]
+    #[unit("kg · m/d", "kilogram metres per day", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * (Exact::int(1) / Exact::int(86400))))]
     KilogramMetrePerDay,
-    #[unit("slug · ft/s", "slug feet per second", by = SLUG_FOOT_PER_SECOND)]
+    #[unit("slug · ft/s", "slug feet per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * Exact::dec(3048, -4))))]
     SlugFootPerSecond,
-    #[unit("slug · in/s", "slug inches per second", by = SLUG_INCH_PER_SECOND)]
+    #[unit("slug · in/s", "slug inches per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * Exact::dec(254, -4))))]
     SlugInchPerSecond,
-    #[unit("lb · ft/s", "pound feet per second", by = POUND_FOOT_PER_SECOND)]
+    #[unit("lb · ft/s", "pound feet per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::dec(138254954376, -12)))]
     PoundFootPerSecond,
-    #[unit("lb · in/s", "pound inches per second", by = POUND_INCH_PER_SECOND)]
+    #[unit("lb · in/s", "pound inches per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::dec(11521246198, -12)))]
     PoundInchPerSecond,
 }
 
-/// The units of `Energy`, for a menu, a config file, a parser.
+/// The units of `Energy`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Energy<f64>)]
+#[unit(of = Energy<N>, number = N)]
+#[unit(for<N> where Energy<N>: [const] yadc::Unit<Energy<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum EnergyUnit {
     #[default]
-    #[unit("J", "joules", by = JOULE)]
+    #[unit("J", "joules", by = Energy::<N>::from(JOULE))]
     Joule,
-    #[unit("W · h", "watt hours", by = WATT_HOUR)]
+    #[unit("W · h", "watt hours", by = Energy::<N>::from(JOULE * Exact::int(3600)))]
     WattHour,
-    #[unit("eV", "electronvolts", by = ELECTRONVOLT)]
+    #[unit("eV", "electronvolts", by = Energy::<N>::from(ELECTRONVOLT))]
     Electronvolt,
-    #[unit("Eₕ", "hartrees", by = HARTREE)]
+    #[unit("Eₕ", "hartrees", by = Energy::<N>::from(HARTREE))]
     Hartree,
-    #[unit("Btu (IT)", "British thermal units (IT)", by = BTU_IT)]
+    #[unit("Btu (IT)", "British thermal units (IT)", by = Energy::<N>::from(BTU_IT))]
     BtuIt,
-    #[unit("Btu", "British thermal units", by = BTU)]
+    #[unit("Btu", "British thermal units", by = Energy::<N>::from(BTU))]
     Btu,
-    #[unit("cal (IT)", "calories (IT)", by = CALORIE_IT)]
+    #[unit("cal (IT)", "calories (IT)", by = Energy::<N>::from(CALORIE_IT))]
     CalorieIt,
-    #[unit("cal", "calories", by = CALORIE)]
+    #[unit("cal", "calories", by = Energy::<N>::from(CALORIE))]
     Calorie,
-    #[unit("Cal (IT)", "Calories (IT)", by = CALORIE_IT_NUTRITION)]
+    #[unit("Cal (IT)", "Calories (IT)", by = Energy::<N>::from(CALORIE_IT_NUTRITION))]
     CalorieItNutrition,
-    #[unit("Cal", "Calories", by = CALORIE_NUTRITION)]
+    #[unit("Cal", "Calories", by = Energy::<N>::from(CALORIE_NUTRITION))]
     CalorieNutrition,
-    #[unit("erg", "ergs", by = ERG)]
+    #[unit("erg", "ergs", by = Energy::<N>::from(ERG))]
     Erg,
-    #[unit("ft · pdl", "foot poundals", by = FOOT_POUNDAL)]
+    #[unit("ft · pdl", "foot poundals", by = Energy::<N>::from(JOULE * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(3048, -4))))]
     FootPoundal,
-    #[unit("ft · lbf", "foot pounds-force", by = FOOT_POUND)]
+    #[unit("ft · lbf", "foot pounds-force", by = Energy::<N>::from(JOULE * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
     FootPound,
-    #[unit("10¹⁵ Btu (IT)", "quads", by = QUAD)]
+    #[unit("10¹⁵ Btu (IT)", "quads", by = Energy::<N>::from(QUAD))]
     Quad,
-    #[unit("thm (EC)", "therms (EC)", by = THERM_EC)]
+    #[unit("thm (EC)", "therms (EC)", by = Energy::<N>::from(THERM_EC))]
     ThermEc,
-    #[unit("thm", "therms", by = THERM_US)]
+    #[unit("thm", "therms", by = Energy::<N>::from(THERM_US))]
     ThermUs,
-    #[unit("t of TNT", "tons of TNT", by = TON_TNT)]
+    #[unit("t of TNT", "tons of TNT", by = Energy::<N>::from(TON_TNT))]
     TonTnt,
-    #[unit("W · s", "watt seconds", by = WATT_SECOND)]
+    #[unit("W · s", "watt seconds", by = Energy::<N>::from(JOULE))]
     WattSecond,
 }
 
-/// The units of `AvailableEnergy`, for a menu, a config file, a parser.
+/// The units of `AvailableEnergy`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AvailableEnergy<f64>)]
+#[unit(of = AvailableEnergy<N>, number = N)]
+#[unit(for<N> where AvailableEnergy<N>: [const] yadc::Unit<AvailableEnergy<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum AvailableEnergyUnit {
     #[default]
-    #[unit("J/kg", "joules per kilogram", by = JOULE_PER_KILOGRAM)]
+    #[unit("J/kg", "joules per kilogram", by = AvailableEnergy::<N>::from(METRE * METRE / (SECOND * SECOND)))]
     JoulePerKilogram,
-    #[unit("J/g", "joules per gram", by = JOULE_PER_GRAM)]
+    #[unit("J/g", "joules per gram", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::int(1000)))]
     JoulePerGram,
-    #[unit("Btu (IT)/lb", "British thermal units (IT) per pound", by = BTU_IT_PER_POUND)]
+    #[unit("Btu (IT)/lb", "British thermal units (IT) per pound", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::int(2326)))]
     BtuItPerPound,
-    #[unit("Btu/lb", "British thermal units per pound", by = BTU_PER_POUND)]
+    #[unit("Btu/lb", "British thermal units per pound", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * (Exact::int(4184) / Exact::dec(18, -1))))]
     BtuPerPound,
-    #[unit("cal (IT)/g", "calories (IT) per gram", by = CALORIE_IT_PER_GRAM)]
+    #[unit("cal (IT)/g", "calories (IT) per gram", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::dec(41868, -1)))]
     CalorieItPerGram,
-    #[unit("cal/g", "calories per gram", by = CALORIE_PER_GRAM)]
+    #[unit("cal/g", "calories per gram", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::int(4184)))]
     CaloriePerGram,
 }
 
-/// The units of `Power`, for a menu, a config file, a parser.
+/// The units of `Power`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Power<f64>, non_const)]
 pub enum PowerUnit {
     #[default]
-    #[unit("W", "watts", by = WATT)]
+    #[unit("W", "watts", by = Power::<f64>::from(WATT))]
     Watt,
-    #[unit("dBW", "decibels-watt", by = DBW, via = PowerLevel<f64>)]
+    #[unit("dBW", "decibels-watt", by = Scale::<PowerLevel<f64>, Gain<f64>>::from(DBW), via = PowerLevel<f64>)]
     DecibelWatt,
-    #[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel<f64>)]
+    #[unit("dBm", "decibels-milliwatt", by = Scale::<PowerLevel<f64>, Gain<f64>>::from(DBM), via = PowerLevel<f64>)]
     DecibelMilliwatt,
-    #[unit("erg/s", "ergs per second", by = ERG_PER_SECOND)]
+    #[unit("erg/s", "ergs per second", by = Power::<f64>::from(WATT * Exact::dec(1, -7)))]
     ErgPerSecond,
-    #[unit("ft · lbf/h", "foot pounds-force per hour", by = FOOT_POUND_PER_HOUR)]
+    #[unit("ft · lbf/h", "foot pounds-force per hour", by = Power::<f64>::from(WATT * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::int(3600))))]
     FootPoundPerHour,
-    #[unit("ft · lbf/min", "foot pounds-force per minute", by = FOOT_POUND_PER_MINUTE)]
+    #[unit("ft · lbf/min", "foot pounds-force per minute", by = Power::<f64>::from(WATT * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::int(60))))]
     FootPoundPerMinute,
-    #[unit("ft · lbf/s", "foot pounds-force per second", by = FOOT_POUND_PER_SECOND)]
+    #[unit("ft · lbf/s", "foot pounds-force per second", by = Power::<f64>::from(WATT * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
     FootPoundPerSecond,
-    #[unit("hp", "horsepower", by = HORSEPOWER)]
+    #[unit("hp", "horsepower", by = Power::<f64>::from(HORSEPOWER))]
     Horsepower,
-    #[unit("hp (S)", "horsepower (boiler)", by = HORSEPOWER_BOILER)]
+    #[unit("hp (S)", "horsepower (boiler)", by = Power::<f64>::from(HORSEPOWER_BOILER))]
     HorsepowerBoiler,
-    #[unit("hp (E)", "horsepower (electric)", by = HORSEPOWER_ELECTRIC)]
+    #[unit("hp (E)", "horsepower (electric)", by = Power::<f64>::from(HORSEPOWER_ELECTRIC))]
     HorsepowerElectric,
-    #[unit("hp (M)", "metric horsepower", by = HORSEPOWER_METRIC)]
+    #[unit("hp (M)", "metric horsepower", by = Power::<f64>::from(HORSEPOWER_METRIC))]
     HorsepowerMetric,
-    #[unit("hp (I)", "horsepower (Imperial)", by = HORSEPOWER_IMPERIAL)]
+    #[unit("hp (I)", "horsepower (Imperial)", by = Power::<f64>::from(HORSEPOWER_IMPERIAL))]
     HorsepowerImperial,
-    #[unit("hp (hydraulic)", "hydraulic horsepower", by = HYDRAULIC_HORSEPOWER)]
+    #[unit("hp (hydraulic)", "hydraulic horsepower", by = Power::<f64>::from(HYDRAULIC_HORSEPOWER))]
     HydraulicHorsepower,
 }
 
-/// The units of `Gain`, for a menu, a config file, a parser.
+/// The units of `Gain`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Gain<f64>)]
+#[unit(of = Gain<N>, number = N)]
+#[unit(for<N> where Gain<N>: [const] yadc::Unit<Gain<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum GainUnit {
     #[default]
-    #[unit("B", "bels", by = BEL)]
+    #[unit("B", "bels", by = Gain::<N>::from(BEL))]
     Bel,
-    #[unit("dB", "decibels", by = DECIBEL)]
+    #[unit("dB", "decibels", by = Gain::<N>::from(DECIBEL))]
     Decibel,
-    #[unit("Np", "nepers", by = NEPER)]
+    #[unit("Np", "nepers", by = Gain::<N>::from(NEPER))]
     Neper,
 }
 
-/// The units of `PowerLevel`, for a menu, a config file, a parser.
+/// The units of `PowerLevel`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = PowerLevel<f64>)]
+#[unit(of = PowerLevel<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Scale<PowerLevel<N>, Gain<N>>: [const] yadc::Unit<PowerLevel<N>, N> + [const] core::marker::Destruct)]
 pub enum PowerLevelUnit {
     #[default]
-    #[unit("dBW", "decibels-watt", by = DBW)]
+    #[unit("dBW", "decibels-watt", by = Scale::<PowerLevel<N>, Gain<N>>::from(DBW))]
     DecibelWatt,
-    #[unit("dBm", "decibels-milliwatt", by = DBM)]
+    #[unit("dBm", "decibels-milliwatt", by = Scale::<PowerLevel<N>, Gain<N>>::from(DBM))]
     DecibelMilliwatt,
 }
 
-/// The units of `PowerRate`, for a menu, a config file, a parser.
+/// The units of `PowerRate`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = PowerRate<f64>)]
+#[unit(of = PowerRate<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, PowerRate<N>: [const] yadc::Unit<PowerRate<N>, N> + [const] core::marker::Destruct)]
 pub enum PowerRateUnit {
     #[default]
-    #[unit("W/s", "watts per second", by = WATT_PER_SECOND)]
+    #[unit("W/s", "watts per second", by = PowerRate::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)))]
     WattPerSecond,
-    #[unit("erg/s²", "ergs per second squared", by = ERG_PER_SECOND_SQUARED)]
+    #[unit("erg/s²", "ergs per second squared", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(1, -7)))]
     ErgPerSecondSquared,
-    #[unit("ft · lbf/s²", "foot pounds-force per second squared", by = FOOT_POUND_PER_SECOND_SQUARED)]
+    #[unit("ft · lbf/s²", "foot pounds-force per second squared", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
     FootPoundPerSecondSquared,
-    #[unit("hp/s", "horsepower per second", by = HORSEPOWER_PER_SECOND)]
+    #[unit("hp/s", "horsepower per second", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * (Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
     HorsepowerPerSecond,
-    #[unit("hp/s (S)", "horsepower per second (boiler)", by = HORSEPOWER_PER_SECOND_BOILER)]
+    #[unit("hp/s (S)", "horsepower per second (boiler)", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(98095, -1)))]
     HorsepowerPerSecondBoiler,
-    #[unit("hp/s (E)", "horsepower per second (electric)", by = HORSEPOWER_PER_SECOND_ELECTRIC)]
+    #[unit("hp/s (E)", "horsepower per second (electric)", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::int(746)))]
     HorsepowerPerSecondElectric,
-    #[unit("hp/s (M)", "metric horsepower per second", by = HORSEPOWER_PER_SECOND_METRIC)]
+    #[unit("hp/s (M)", "metric horsepower per second", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * (Exact::int(75) * Exact::dec(980665, -5))))]
     HorsepowerPerSecondMetric,
-    #[unit("hp/s (I)", "horsepower per second (Imperial)", by = HORSEPOWER_PER_SECOND_IMPERIAL)]
+    #[unit("hp/s (I)", "horsepower per second (Imperial)", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(7457, -1)))]
     HorsepowerPerSecondImperial,
-    #[unit("hp/s (hydraulic)", "hydraulic horsepower per second", by = HYDRAULIC_HORSEPOWER_PER_SECOND)]
+    #[unit("hp/s (hydraulic)", "hydraulic horsepower per second", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(746043, -3)))]
     HydraulicHorsepowerPerSecond,
 }
 
-/// The units of `Action`, for a menu, a config file, a parser.
+/// The units of `Action`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Action<f64>)]
+#[unit(of = Action<N>, number = N)]
+#[unit(for<N> where Action<N>: [const] yadc::Unit<Action<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum ActionUnit {
     #[default]
-    #[unit("J · s", "joule seconds", by = JOULE_SECOND)]
+    #[unit("J · s", "joule seconds", by = Action::<N>::from(METRE * METRE * KILOGRAM / SECOND))]
     JouleSecond,
-    #[unit("ħ", "atomic units of action", by = ATOMIC_UNIT_OF_ACTION)]
+    #[unit("ħ", "atomic units of action", by = Action::<N>::from(ATOMIC_UNIT_OF_ACTION))]
     AtomicUnitOfAction,
-    #[unit("h", "Planck constants", by = PLANCK_CONSTANT)]
+    #[unit("h", "Planck constants", by = Action::<N>::from(PLANCK_CONSTANT))]
     PlanckConstant,
-    #[unit("erg · s", "erg seconds", by = ERG_SECOND)]
+    #[unit("erg · s", "erg seconds", by = Action::<N>::from((METRE * METRE * KILOGRAM / SECOND) * Exact::dec(1, -7)))]
     ErgSecond,
-    #[unit("eV · s", "electronvolt seconds", by = ELECTRONVOLT_SECOND)]
+    #[unit("eV · s", "electronvolt seconds", by = Action::<N>::from((METRE * METRE * KILOGRAM / SECOND) * Exact::dec(1602176634, -28)))]
     ElectronvoltSecond,
 }
 
-/// The units of `Torque`, for a menu, a config file, a parser.
+/// The units of `Torque`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Torque<f64>)]
+#[unit(of = Torque<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Torque<N>: [const] yadc::Unit<Torque<N>, N> + [const] core::marker::Destruct)]
 pub enum TorqueUnit {
     #[default]
-    #[unit("N · m", "newton metres", by = NEWTON_METRE)]
+    #[unit("N · m", "newton metres", by = Torque::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)))]
     NewtonMetre,
-    #[unit("dyn · m", "dyne metres", by = DYNE_METRE)]
+    #[unit("dyn · m", "dyne metres", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * Exact::dec(1, -5)))]
     DyneMetre,
-    #[unit("kgf · m", "kilogram-force metres", by = KILOGRAM_FORCE_METRE)]
+    #[unit("kgf · m", "kilogram-force metres", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * Exact::dec(980665, -5)))]
     KilogramForceMetre,
-    #[unit("ozf · in", "ounces-force inches", by = OUNCE_FORCE_INCH)]
+    #[unit("ozf · in", "ounces-force inches", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16)) * Exact::dec(254, -4))))]
     OunceForceInch,
-    #[unit("lbf · ft", "pounds-force feet", by = POUND_FORCE_FOOT)]
+    #[unit("lbf · ft", "pounds-force feet", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * Exact::dec(3048, -4))))]
     PoundForceFoot,
-    #[unit("lbf · in", "pounds-force inches", by = POUND_FORCE_INCH)]
+    #[unit("lbf · in", "pounds-force inches", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * Exact::dec(254, -4))))]
     PoundForceInch,
 }
 
-/// The units of `MomentOfInertia`, for a menu, a config file, a parser.
+/// The units of `MomentOfInertia`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MomentOfInertia<f64>)]
+#[unit(of = MomentOfInertia<N>, number = N)]
+#[unit(for<N> where MomentOfInertia<N>: [const] yadc::Unit<MomentOfInertia<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum MomentOfInertiaUnit {
     #[default]
-    #[unit("kg · m²", "kilogram square metres", by = KILOGRAM_SQUARE_METRE)]
+    #[unit("kg · m²", "kilogram square metres", by = MomentOfInertia::<N>::from(METRE * METRE * KILOGRAM / (RADIAN * RADIAN)))]
     KilogramSquareMetre,
-    #[unit("Da · Å²", "dalton square ångströms", by = DALTON_SQUARE_ANGSTROM)]
+    #[unit("Da · Å²", "dalton square ångströms", by = MomentOfInertia::<N>::from((METRE * METRE * KILOGRAM / (RADIAN * RADIAN)) * Exact::dec(16605390666, -57)))]
     DaltonSquareAngstrom,
 }
 
-/// The units of `Pressure`, for a menu, a config file, a parser.
+/// The units of `Pressure`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Pressure<f64>)]
+#[unit(of = Pressure<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Pressure<N>: [const] yadc::Unit<Pressure<N>, N> + [const] core::marker::Destruct)]
 pub enum PressureUnit {
     #[default]
-    #[unit("Pa", "pascals", by = PASCAL)]
+    #[unit("Pa", "pascals", by = Pressure::<N>::from(PASCAL))]
     Pascal,
-    #[unit("atm", "standard atmospheres", by = STANDARD_ATMOSPHERE)]
+    #[unit("atm", "standard atmospheres", by = Pressure::<N>::from(STANDARD_ATMOSPHERE))]
     StandardAtmosphere,
-    #[unit("at", "atmospheres (technical)", by = ATMOSPHERE_TECHNICAL)]
+    #[unit("at", "atmospheres (technical)", by = Pressure::<N>::from(ATMOSPHERE_TECHNICAL))]
     AtmosphereTechnical,
-    #[unit("bar", "bar", by = BAR)]
+    #[unit("bar", "bar", by = Pressure::<N>::from(BAR))]
     Bar,
-    #[unit("cm Hg", "centimetres of mercury", by = CENTIMETRE_OF_MERCURY)]
+    #[unit("cm Hg", "centimetres of mercury", by = Pressure::<N>::from(CENTIMETRE_OF_MERCURY))]
     CentimetreOfMercury,
-    #[unit("cm H₂O", "centimetres of water", by = CENTIMETRE_OF_WATER)]
+    #[unit("cm H₂O", "centimetres of water", by = Pressure::<N>::from(CENTIMETRE_OF_WATER))]
     CentimetreOfWater,
-    #[unit("dyn/cm²", "dynes per square centimetre", by = DYNE_PER_SQUARE_CENTIMETRE)]
-    DynePerSquareCentimetre,
-    #[unit("ft Hg", "feet of mercury", by = FOOT_OF_MERCURY)]
+    #[unit("ft Hg", "feet of mercury", by = Pressure::<N>::from(FOOT_OF_MERCURY))]
     FootOfMercury,
-    #[unit("ft H₂O", "feet of water", by = FOOT_OF_WATER)]
+    #[unit("ft H₂O", "feet of water", by = Pressure::<N>::from(FOOT_OF_WATER))]
     FootOfWater,
-    #[unit("in Hg", "inches of mercury", by = INCH_OF_MERCURY)]
+    #[unit("in Hg", "inches of mercury", by = Pressure::<N>::from(INCH_OF_MERCURY))]
     InchOfMercury,
-    #[unit("in H₂O", "inches of water", by = INCH_OF_WATER)]
+    #[unit("in H₂O", "inches of water", by = Pressure::<N>::from(INCH_OF_WATER))]
     InchOfWater,
-    #[unit("N/mm²", "newtons per square millimetre", by = NEWTON_PER_SQUARE_MILLIMETRE)]
-    NewtonPerSquareMillimetre,
-    #[unit("kip/in²", "kips per square inch", by = KIP_PER_SQUARE_INCH)]
+    #[unit("kip/in²", "kips per square inch", by = Pressure::<N>::from(PASCAL * ((Exact::int(1000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
     KipPerSquareInch,
-    #[unit("mm Hg", "millimetres of mercury", by = MILLIMETRE_OF_MERCURY)]
+    #[unit("mm Hg", "millimetres of mercury", by = Pressure::<N>::from(MILLIMETRE_OF_MERCURY))]
     MillimetreOfMercury,
-    #[unit("mm H₂O", "millimetres of water", by = MILLIMETRE_OF_WATER)]
+    #[unit("mm H₂O", "millimetres of water", by = Pressure::<N>::from(MILLIMETRE_OF_WATER))]
     MillimetreOfWater,
-    #[unit("pdl/ft²", "poundals per square foot", by = POUNDAL_PER_SQUARE_FOOT)]
+    #[unit("pdl/ft²", "poundals per square foot", by = Pressure::<N>::from(PASCAL * ((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
     PoundalPerSquareFoot,
-    #[unit("lbf/ft²", "pounds-force per square foot", by = POUND_FORCE_PER_SQUARE_FOOT)]
+    #[unit("lbf/ft²", "pounds-force per square foot", by = Pressure::<N>::from(PASCAL * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
     PoundForcePerSquareFoot,
-    #[unit("lbf/in²", "pounds-force per square inch", by = POUND_FORCE_PER_SQUARE_INCH)]
+    #[unit("lbf/in²", "pounds-force per square inch", by = Pressure::<N>::from(PASCAL * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
     PoundForcePerSquareInch,
-    #[unit("psi", "pounds-force per square inch", by = PSI)]
+    #[unit("psi", "pounds-force per square inch", by = Pressure::<N>::from(PSI))]
     Psi,
-    #[unit("Torr", "torr", by = TORR)]
+    #[unit("Torr", "torr", by = Pressure::<N>::from(TORR))]
     Torr,
+    #[unit("dyn/cm²", "dynes per square centimetre", by = Pressure::<N>::from(PASCAL * Exact::dec(1, -1)))]
+    DynePerSquareCentimetre,
+    #[unit("N/mm²", "newtons per square millimetre", by = Pressure::<N>::from(PASCAL * Exact::int(1000000)))]
+    NewtonPerSquareMillimetre,
 }
 
-/// The units of `Frequency`, for a menu, a config file, a parser.
+/// The units of `Frequency`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Frequency<f64>)]
+#[unit(of = Frequency<N>, number = N)]
+#[unit(for<N> where Frequency<N>: [const] yadc::Unit<Frequency<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum FrequencyUnit {
     #[default]
-    #[unit("Hz", "hertz", by = HERTZ)]
+    #[unit("Hz", "hertz", by = Frequency::<N>::from(HERTZ))]
     Hertz,
-    #[unit("1/d", "cycles per day", by = CYCLE_PER_DAY)]
+    #[unit("1/d", "cycles per day", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(86400))))]
     CyclePerDay,
-    #[unit("1/h", "cycles per hour", by = CYCLE_PER_HOUR)]
+    #[unit("1/h", "cycles per hour", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(3600))))]
     CyclePerHour,
-    #[unit("1/min", "cycles per minute", by = CYCLE_PER_MINUTE)]
+    #[unit("1/min", "cycles per minute", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(60))))]
     CyclePerMinute,
-    #[unit("100 MHz", "cycles per shake", by = CYCLE_PER_SHAKE)]
+    #[unit("100 MHz", "cycles per shake", by = Frequency::<N>::from(CYCLE_PER_SHAKE))]
     CyclePerShake,
-    #[unit("1/a", "cycles per year", by = CYCLE_PER_YEAR)]
+    #[unit("1/a", "cycles per year", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(31536000))))]
     CyclePerYear,
 }
 
-/// The units of `FrequencyDrift`, for a menu, a config file, a parser.
+/// The units of `FrequencyDrift`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = FrequencyDrift<f64>)]
+#[unit(of = FrequencyDrift<N>, number = N)]
+#[unit(for<N> where FrequencyDrift<N>: [const] yadc::Unit<FrequencyDrift<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum FrequencyDriftUnit {
     #[default]
-    #[unit("Hz/s", "hertz per second", by = HERTZ_PER_SECOND)]
+    #[unit("Hz/s", "hertz per second", by = FrequencyDrift::<N>::from(ONE / (SECOND * SECOND)))]
     HertzPerSecond,
 }
 
-/// The units of `ReciprocalLength`, for a menu, a config file, a parser.
+/// The units of `ReciprocalLength`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ReciprocalLength<f64>)]
+#[unit(of = ReciprocalLength<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, ReciprocalLength<N>: [const] yadc::Unit<ReciprocalLength<N>, N> + [const] core::marker::Destruct)]
 pub enum ReciprocalLengthUnit {
     #[default]
-    #[unit("m⁻¹", "reciprocal metres", by = RECIPROCAL_METRE)]
+    #[unit("m⁻¹", "reciprocal metres", by = ReciprocalLength::<N>::from(RECIPROCAL_METRE))]
     ReciprocalMetre,
-    #[unit("Å⁻¹", "reciprocal ångströms", by = RECIPROCAL_ANGSTROM)]
+    #[unit("Å⁻¹", "reciprocal ångströms", by = ReciprocalLength::<N>::from(RECIPROCAL_ANGSTROM))]
     ReciprocalAngstrom,
-    #[unit("dpt", "diopters", by = DIOPTER)]
+    #[unit("dpt", "diopters", by = ReciprocalLength::<N>::from(DIOPTER))]
     Diopter,
-    #[unit("R∞", "Rydberg constants", by = RYDBERG_CONSTANT)]
+    #[unit("R∞", "Rydberg constants", by = ReciprocalLength::<N>::from(RYDBERG_CONSTANT))]
     RydbergConstant,
 }
 
-/// The units of `Curvature`, for a menu, a config file, a parser.
+/// The units of `Curvature`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Curvature<f64>)]
+#[unit(of = Curvature<N>, number = N)]
+#[unit(for<N> where Curvature<N>: [const] yadc::Unit<Curvature<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum CurvatureUnit {
     #[default]
-    #[unit("rad/m", "radians per metre", by = RADIAN_PER_METRE)]
+    #[unit("rad/m", "radians per metre", by = Curvature::<N>::from(RADIAN / METRE))]
     RadianPerMetre,
-    #[unit("°/m", "degrees per metre", by = DEGREE_PER_METRE)]
+    #[unit("°/m", "degrees per metre", by = Curvature::<N>::from((RADIAN / METRE) * (Exact::PI / Exact::int(180))))]
     DegreePerMetre,
 }
 
-/// The units of `SpecificArea`, for a menu, a config file, a parser.
+/// The units of `SpecificArea`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificArea<f64>)]
+#[unit(of = SpecificArea<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SpecificArea<N>: [const] yadc::Unit<SpecificArea<N>, N> + [const] core::marker::Destruct)]
 pub enum SpecificAreaUnit {
     #[default]
-    #[unit("m²/kg", "square metres per kilogram", by = SQUARE_METRE_PER_KILOGRAM)]
+    #[unit("m²/kg", "square metres per kilogram", by = SpecificArea::<N>::from(METRE * METRE / KILOGRAM))]
     SquareMetrePerKilogram,
-    #[unit("m²/g", "square metres per gram", by = SQUARE_METRE_PER_GRAM)]
+    #[unit("m²/g", "square metres per gram", by = SpecificArea::<N>::from((METRE * METRE / KILOGRAM) * Exact::int(1000)))]
     SquareMetrePerGram,
 }
 
-/// The units of `SpecificVolume`, for a menu, a config file, a parser.
+/// The units of `SpecificVolume`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificVolume<f64>)]
+#[unit(of = SpecificVolume<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SpecificVolume<N>: [const] yadc::Unit<SpecificVolume<N>, N> + [const] core::marker::Destruct)]
 pub enum SpecificVolumeUnit {
     #[default]
-    #[unit("m³/kg", "cubic metres per kilogram", by = CUBIC_METRE_PER_KILOGRAM)]
+    #[unit("m³/kg", "cubic metres per kilogram", by = SpecificVolume::<N>::from(METRE * METRE * METRE / KILOGRAM))]
     CubicMetrePerKilogram,
-    #[unit("m³/g", "cubic metres per gram", by = CUBIC_METRE_PER_GRAM)]
+    #[unit("m³/g", "cubic metres per gram", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * Exact::int(1000)))]
     CubicMetrePerGram,
-    #[unit("m³/ct", "cubic metres per carat", by = CUBIC_METRE_PER_CARAT)]
+    #[unit("m³/ct", "cubic metres per carat", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * Exact::int(5000)))]
     CubicMetrePerCarat,
-    #[unit("m³/gr", "cubic metres per grain", by = CUBIC_METRE_PER_GRAIN)]
+    #[unit("m³/gr", "cubic metres per grain", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(6479891, -11))))]
     CubicMetrePerGrain,
-    #[unit("m³/cwt long", "cubic metres per hundredweight (long)", by = CUBIC_METRE_PER_HUNDREDWEIGHT_LONG)]
+    #[unit("m³/cwt long", "cubic metres per hundredweight (long)", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(5080234544, -8))))]
     CubicMetrePerHundredweightLong,
-    #[unit("m³/cwt short", "cubic metres per hundredweight (short)", by = CUBIC_METRE_PER_HUNDREDWEIGHT_SHORT)]
+    #[unit("m³/cwt short", "cubic metres per hundredweight (short)", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(45359237, -6))))]
     CubicMetrePerHundredweightShort,
-    #[unit("m³/oz", "cubic metres per ounce", by = CUBIC_METRE_PER_OUNCE)]
+    #[unit("m³/oz", "cubic metres per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(28349523125, -12))))]
     CubicMetrePerOunce,
-    #[unit("m³/oz t", "cubic metres per troy ounce", by = CUBIC_METRE_PER_OUNCE_TROY)]
+    #[unit("m³/oz t", "cubic metres per troy ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(311034768, -10))))]
     CubicMetrePerOunceTroy,
-    #[unit("m³/dwt", "cubic metres per pennyweight", by = CUBIC_METRE_PER_PENNYWEIGHT)]
+    #[unit("m³/dwt", "cubic metres per pennyweight", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(155517384, -11))))]
     CubicMetrePerPennyweight,
-    #[unit("m³/lb", "cubic metres per pound", by = CUBIC_METRE_PER_POUND)]
+    #[unit("m³/lb", "cubic metres per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(45359237, -8))))]
     CubicMetrePerPound,
-    #[unit("m³/lb t", "cubic metres per troy pound", by = CUBIC_METRE_PER_POUND_TROY)]
+    #[unit("m³/lb t", "cubic metres per troy pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(3732417216, -10))))]
     CubicMetrePerPoundTroy,
-    #[unit("m³/slug", "cubic metres per slug", by = CUBIC_METRE_PER_SLUG)]
+    #[unit("m³/slug", "cubic metres per slug", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)))))]
     CubicMetrePerSlug,
-    #[unit("m³/AT", "cubic metres per assay ton", by = CUBIC_METRE_PER_TON_ASSAY)]
+    #[unit("m³/AT", "cubic metres per assay ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / (Exact::dec(175, -3) / Exact::int(6)))))]
     CubicMetrePerTonAssay,
-    #[unit("m³/2240 lb", "cubic metres per long ton", by = CUBIC_METRE_PER_TON_LONG)]
+    #[unit("m³/2240 lb", "cubic metres per long ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(10160469088, -7))))]
     CubicMetrePerTonLong,
-    #[unit("m³/2000 lb", "cubic metres per short ton", by = CUBIC_METRE_PER_TON_SHORT)]
+    #[unit("m³/2000 lb", "cubic metres per short ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(90718474, -5))))]
     CubicMetrePerTonShort,
-    #[unit("m³/t", "cubic metres per ton", by = CUBIC_METRE_PER_TON)]
+    #[unit("m³/t", "cubic metres per ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * Exact::dec(1, -3)))]
     CubicMetrePerTon,
-    #[unit("gal/gr", "gallons per grain", by = GALLON_PER_GRAIN)]
+    #[unit("gal/gr", "gallons per grain", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3785411784, -12) / Exact::dec(6479891, -11))))]
     GallonPerGrain,
-    #[unit("in³/oz", "cubic inches per ounce", by = CUBIC_INCH_PER_OUNCE)]
+    #[unit("in³/oz", "cubic inches per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4) / Exact::dec(28349523125, -12))))]
     CubicInchPerOunce,
-    #[unit("gal (UK)/oz", "Imperial gallons per ounce", by = GALLON_IMPERIAL_PER_OUNCE)]
+    #[unit("gal (UK)/oz", "Imperial gallons per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(454609, -8) / Exact::dec(28349523125, -12))))]
     GallonImperialPerOunce,
-    #[unit("gal/oz", "gallons per ounce", by = GALLON_PER_OUNCE)]
+    #[unit("gal/oz", "gallons per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3785411784, -12) / Exact::dec(28349523125, -12))))]
     GallonPerOunce,
-    #[unit("ft³/lb", "cubic feet per pound", by = CUBIC_FOOT_PER_POUND)]
+    #[unit("ft³/lb", "cubic feet per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(45359237, -8))))]
     CubicFootPerPound,
-    #[unit("in³/lb", "cubic inches per pound", by = CUBIC_INCH_PER_POUND)]
+    #[unit("in³/lb", "cubic inches per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)) / Exact::dec(45359237, -8))))]
     CubicInchPerPound,
-    #[unit("yd³/lb", "cubic yards per pound", by = CUBIC_YARD_PER_POUND)]
+    #[unit("yd³/lb", "cubic yards per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(45359237, -8))))]
     CubicYardPerPound,
-    #[unit("gal (UK)/lb", "Imperial gallons per pound", by = GALLON_IMPERIAL_PER_POUND)]
+    #[unit("gal (UK)/lb", "Imperial gallons per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(454609, -8) / Exact::dec(45359237, -8))))]
     GallonImperialPerPound,
-    #[unit("gal/lb", "gallons per pound", by = GALLON_PER_POUND)]
+    #[unit("gal/lb", "gallons per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3785411784, -12) / Exact::dec(45359237, -8))))]
     GallonPerPound,
-    #[unit("ft³/slug", "cubic feett per slug", by = CUBIC_FOOT_PER_SLUG)]
+    #[unit("ft³/slug", "cubic feett per slug", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4) / (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)))))]
     CubicFootPerSlug,
-    #[unit("yd³/2240 lb", "cubic yards per long ton", by = CUBIC_YARD_PER_TON_LONG)]
+    #[unit("yd³/2240 lb", "cubic yards per long ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(10160469088, -7))))]
     CubicYardPerTonLong,
-    #[unit("yd³/2000 lb", "cubic yards per short ton", by = CUBIC_YARD_PER_TON_SHORT)]
+    #[unit("yd³/2000 lb", "cubic yards per short ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(90718474, -5))))]
     CubicYardPerTonShort,
-    #[unit("ft³/2240 lb", "cubic feet per long ton", by = CUBIC_FOOT_PER_TON_LONG)]
+    #[unit("ft³/2240 lb", "cubic feet per long ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(10160469088, -7))))]
     CubicFootPerTonLong,
-    #[unit("ft³/2000 lb", "cubic feet per short ton", by = CUBIC_FOOT_PER_TON_SHORT)]
+    #[unit("ft³/2000 lb", "cubic feet per short ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(90718474, -5))))]
     CubicFootPerTonShort,
 }
 
-/// The units of `SpecificPower`, for a menu, a config file, a parser.
+/// The units of `SpecificPower`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificPower<f64>)]
+#[unit(of = SpecificPower<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SpecificPower<N>: [const] yadc::Unit<SpecificPower<N>, N> + [const] core::marker::Destruct)]
 pub enum SpecificPowerUnit {
     #[default]
-    #[unit("W/kg", "watts per kilogram", by = WATT_PER_KILOGRAM)]
+    #[unit("W/kg", "watts per kilogram", by = SpecificPower::<N>::from(METRE * METRE / (SECOND * SECOND * SECOND)))]
     WattPerKilogram,
-    #[unit("m² · s⁻³", "square metres per cubic second", by = SQUARE_METRE_PER_CUBIC_SECOND)]
+    #[unit("m² · s⁻³", "square metres per cubic second", by = SpecificPower::<N>::from(METRE * METRE / (SECOND * SECOND * SECOND)))]
     SquareMetrePerCubicSecond,
-    #[unit("(erg/s)/kg", "ergs per second per kilogram", by = ERG_PER_SECOND_PER_KILOGRAM)]
+    #[unit("(erg/s)/kg", "ergs per second per kilogram", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * Exact::dec(1, -7)))]
     ErgPerSecondPerKilogram,
-    #[unit("(ft · lbf/h)/lb", "foot pounds-force per hour per pound", by = FOOT_POUND_PER_HOUR_PER_POUND)]
+    #[unit("(ft · lbf/h)/lb", "foot pounds-force per hour per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::int(3600) * Exact::dec(45359237, -8)))))]
     FootPoundPerHourPerPound,
-    #[unit("(ft · lbf/min)/lb", "foot pounds-force per minute per pound", by = FOOT_POUND_PER_MINUTE_PER_POUND)]
+    #[unit("(ft · lbf/min)/lb", "foot pounds-force per minute per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::int(60) * Exact::dec(45359237, -8)))))]
     FootPoundPerMinutePerPound,
-    #[unit("(ft · lbf/s)/lb", "foot pounds-force per second per pound", by = FOOT_POUND_PER_SECOND_PER_POUND)]
+    #[unit("(ft · lbf/s)/lb", "foot pounds-force per second per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8))))]
     FootPoundPerSecondPerPound,
-    #[unit("hp/lb", "horsepower per pound", by = HORSEPOWER_PER_POUND)]
+    #[unit("hp/lb", "horsepower per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8))))]
     HorsepowerPerPound,
-    #[unit("(hp (S))/lb", "horsepower (boiler) per pound", by = HORSEPOWER_BOILER_PER_POUND)]
+    #[unit("(hp (S))/lb", "horsepower (boiler) per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::dec(98095, -1) / Exact::dec(45359237, -8))))]
     HorsepowerBoilerPerPound,
-    #[unit("(hp (E))/lb", "horsepower (electric) per pound", by = HORSEPOWER_ELECTRIC_PER_POUND)]
+    #[unit("(hp (E))/lb", "horsepower (electric) per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::int(746) / Exact::dec(45359237, -8))))]
     HorsepowerElectricPerPound,
-    #[unit("(hp (M))/lb", "metric horsepower per pound", by = HORSEPOWER_METRIC_PER_POUND)]
+    #[unit("(hp (M))/lb", "metric horsepower per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::int(75) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8))))]
     HorsepowerMetricPerPound,
-    #[unit("(hp (I))/lb", "horsepower (Imperial) per pound", by = HORSEPOWER_IMPERIAL_PER_POUND)]
+    #[unit("(hp (I))/lb", "horsepower (Imperial) per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::dec(7457, -1) / Exact::dec(45359237, -8))))]
     HorsepowerImperialPerPound,
-    #[unit("(hp (hydraulic))/lb", "hydraulic horsepower per pound", by = HYDRAULIC_HORSEPOWER_PER_POUND)]
+    #[unit("(hp (hydraulic))/lb", "hydraulic horsepower per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::dec(746043, -3) / Exact::dec(45359237, -8))))]
     HydraulicHorsepowerPerPound,
 }
 
-/// The units of `SpecificGravitationalParameter`, for a menu, a config file, a parser.
+/// The units of `SpecificGravitationalParameter`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificGravitationalParameter<f64>)]
+#[unit(of = SpecificGravitationalParameter<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, SpecificGravitationalParameter<N>: [const] yadc::Unit<SpecificGravitationalParameter<N>, N> + [const] core::marker::Destruct)]
 pub enum SpecificGravitationalParameterUnit {
     #[default]
-    #[unit("m³/(kg · s²)", "cubic metres per kilogram second squared", by = CUBIC_METRE_PER_KILOGRAM_SECOND_SQUARED)]
+    #[unit("m³/(kg · s²)", "cubic metres per kilogram second squared", by = SpecificGravitationalParameter::<N>::from(METRE * METRE * METRE / (KILOGRAM * SECOND * SECOND)))]
     CubicMetrePerKilogramSecondSquared,
-    #[unit("G", "Newtonian constants of gravitation", by = GRAVITATIONAL_CONSTANT)]
+    #[unit("G", "Newtonian constants of gravitation", by = SpecificGravitationalParameter::<N>::from(GRAVITATIONAL_CONSTANT))]
     GravitationalConstant,
 }

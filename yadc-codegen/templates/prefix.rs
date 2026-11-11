@@ -1,7 +1,9 @@
-//! The SI prefixes, once: exact numbers that scale a unit (`KILO * METRE`),
-//! and a unit enum's prefixed values (`"km".parse::<Prefixed<LengthUnit>>()`).
+//! The SI prefixes, once: exact plain quantities that scale a unit (`KILO *
+//! METRE` is a quantity times a quantity), and a unit enum's prefixed values
+//! (`"km".parse::<Prefixed<LengthUnit>>()`).
 
-use crate::Exact;
+use crate::dimensionless::Dimensionless;
+use crate::{Exact, __QTY__};
 use core::fmt;
 use core::str::FromStr;
 use yadc::{Unit, UnknownUnit};
@@ -164,45 +166,45 @@ const SYMBOLS: [&str; 20] = {
 };
 
 /// 10²⁴.
-pub const YOTTA: Exact = Prefix::Yotta.factor();
+pub const YOTTA: Dimensionless<Exact> = __QTY__(Prefix::Yotta.factor());
 /// 10²¹.
-pub const ZETTA: Exact = Prefix::Zetta.factor();
+pub const ZETTA: Dimensionless<Exact> = __QTY__(Prefix::Zetta.factor());
 /// 10¹⁸.
-pub const EXA: Exact = Prefix::Exa.factor();
+pub const EXA: Dimensionless<Exact> = __QTY__(Prefix::Exa.factor());
 /// 10¹⁵.
-pub const PETA: Exact = Prefix::Peta.factor();
+pub const PETA: Dimensionless<Exact> = __QTY__(Prefix::Peta.factor());
 /// 10¹².
-pub const TERA: Exact = Prefix::Tera.factor();
+pub const TERA: Dimensionless<Exact> = __QTY__(Prefix::Tera.factor());
 /// 10⁹.
-pub const GIGA: Exact = Prefix::Giga.factor();
+pub const GIGA: Dimensionless<Exact> = __QTY__(Prefix::Giga.factor());
 /// 10⁶.
-pub const MEGA: Exact = Prefix::Mega.factor();
+pub const MEGA: Dimensionless<Exact> = __QTY__(Prefix::Mega.factor());
 /// 10³.
-pub const KILO: Exact = Prefix::Kilo.factor();
+pub const KILO: Dimensionless<Exact> = __QTY__(Prefix::Kilo.factor());
 /// 10².
-pub const HECTO: Exact = Prefix::Hecto.factor();
+pub const HECTO: Dimensionless<Exact> = __QTY__(Prefix::Hecto.factor());
 /// 10.
-pub const DECA: Exact = Prefix::Deca.factor();
+pub const DECA: Dimensionless<Exact> = __QTY__(Prefix::Deca.factor());
 /// 10⁻¹.
-pub const DECI: Exact = Prefix::Deci.factor();
+pub const DECI: Dimensionless<Exact> = __QTY__(Prefix::Deci.factor());
 /// 10⁻².
-pub const CENTI: Exact = Prefix::Centi.factor();
+pub const CENTI: Dimensionless<Exact> = __QTY__(Prefix::Centi.factor());
 /// 10⁻³.
-pub const MILLI: Exact = Prefix::Milli.factor();
+pub const MILLI: Dimensionless<Exact> = __QTY__(Prefix::Milli.factor());
 /// 10⁻⁶.
-pub const MICRO: Exact = Prefix::Micro.factor();
+pub const MICRO: Dimensionless<Exact> = __QTY__(Prefix::Micro.factor());
 /// 10⁻⁹.
-pub const NANO: Exact = Prefix::Nano.factor();
+pub const NANO: Dimensionless<Exact> = __QTY__(Prefix::Nano.factor());
 /// 10⁻¹².
-pub const PICO: Exact = Prefix::Pico.factor();
+pub const PICO: Dimensionless<Exact> = __QTY__(Prefix::Pico.factor());
 /// 10⁻¹⁵.
-pub const FEMTO: Exact = Prefix::Femto.factor();
+pub const FEMTO: Dimensionless<Exact> = __QTY__(Prefix::Femto.factor());
 /// 10⁻¹⁸.
-pub const ATTO: Exact = Prefix::Atto.factor();
+pub const ATTO: Dimensionless<Exact> = __QTY__(Prefix::Atto.factor());
 /// 10⁻²¹.
-pub const ZEPTO: Exact = Prefix::Zepto.factor();
+pub const ZEPTO: Dimensionless<Exact> = __QTY__(Prefix::Zepto.factor());
 /// 10⁻²⁴.
-pub const YOCTO: Exact = Prefix::Yocto.factor();
+pub const YOCTO: Dimensionless<Exact> = __QTY__(Prefix::Yocto.factor());
 
 /// A unit enum's value with an optional prefix: `km` is `Prefixed { prefix:
 /// Some(Prefix::Kilo), unit: LengthUnit::Metre }`. The prefix scales the

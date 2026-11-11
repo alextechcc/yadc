@@ -15,9 +15,10 @@
 
 use core::marker::ConstParamTy;
 use yadc::{Dimension, PartialPowi, PowiAs, RootAs, Unit, UnknownUnit};
-use yadc_si::mechanical::consts::METRE;
-use yadc_si::mechanical::{Length, LengthUnit, MassUnit, TimeUnit};
+use yadc_si::mechanical::{Length, LengthUnit, MassUnit, TimeUnit, consts};
 use yadc_si::{KILO, Prefix, Prefixed};
+
+const METRE: Length<f64> = consts::METRE.into();
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -82,7 +83,7 @@ fn units_parse_from_their_symbol() {
 enum Distance {
     #[unit("m", "metres", by = METRE)]
     Metre,
-    #[unit("km", "kilometres", by = KILO * METRE)]
+    #[unit("km", "kilometres", by = Length::<f64>::from(KILO * consts::METRE))]
     Kilometre,
 }
 

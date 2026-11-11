@@ -1,4 +1,5 @@
-use crate::{Exact, ISQ, SIQuantity, counted};
+use crate::base::{KILOGRAM, METRE, SECOND};
+use crate::{Exact, ISQ, SIQuantity};
 use consts::*;
 use yadc::Dimension;
 
@@ -47,111 +48,102 @@ pub type RadiantExposure<N> = SIQuantity<
 >;
 
 /// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per multiple, each defined exactly from them -
-/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
-/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
-/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
-/// one: `KILO * METRE`. They compose in `const` items:
-/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
+/// (re-exported), then one per named unit, each defined exactly from them
+/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
+/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
+/// once, where it is written - in a `const`, by the compiler:
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
 pub mod consts {
     use super::*;
-    use crate::base::{KILOGRAM, METRE, RADIAN, SECOND};
+    use crate::base::{METRE, RADIAN};
 
     /// The candela, the SI base unit of luminous intensity.
     pub use crate::base::CANDELA;
 
-    /// One `CandelaPerSquareMetre` (cd/m²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_METRE<N: const From<Exact>>: Luminance<N> = counted(CANDELA::<Exact> / (METRE::<Exact> * METRE::<Exact>));
-
-    /// One `CandelaPerSquareInch` (cd/in²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_INCH<N: const From<Exact>>: Luminance<N> = counted((Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * CANDELA_PER_SQUARE_METRE::<Exact>);
-
-    /// One `CandelaPerSquareFoot` (cd/ft²), as a `Luminance`.
-    pub const CANDELA_PER_SQUARE_FOOT<N: const From<Exact>>: Luminance<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * CANDELA_PER_SQUARE_METRE::<Exact>);
-
     /// One `Footlambert` (fl), as a `Luminance`.
-    pub const FOOTLAMBERT<N: const From<Exact>>: Luminance<N> = counted((Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4))) * CANDELA_PER_SQUARE_METRE::<Exact>);
+    pub const FOOTLAMBERT: Luminance<Exact> = (CANDELA / (METRE * METRE))
+        * (Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4)));
 
     /// One `Lambert` (la), as a `Luminance`.
-    pub const LAMBERT<N: const From<Exact>>: Luminance<N> = counted((Exact::int(10000) / Exact::PI) * CANDELA_PER_SQUARE_METRE::<Exact>);
+    pub const LAMBERT: Luminance<Exact> =
+        (CANDELA / (METRE * METRE)) * (Exact::int(10000) / Exact::PI);
 
     /// One `Stilb` (sb), as a `Luminance`.
-    pub const STILB<N: const From<Exact>>: Luminance<N> = counted(Exact::int(10000) * CANDELA_PER_SQUARE_METRE::<Exact>);
+    pub const STILB: Luminance<Exact> = (CANDELA / (METRE * METRE)) * Exact::int(10000);
 
     /// One `Lux` (lx), as an `Illuminance`.
-    pub const LUX<N: const From<Exact>>: Illuminance<N> = counted(CANDELA::<Exact> * RADIAN::<Exact> * RADIAN::<Exact> / (METRE::<Exact> * METRE::<Exact>));
+    pub const LUX: Illuminance<Exact> = CANDELA * RADIAN * RADIAN / (METRE * METRE);
 
     /// One `Phot` (ph), as an `Illuminance`.
-    pub const PHOT<N: const From<Exact>>: Illuminance<N> = counted(Exact::int(10000) * LUX::<Exact>);
+    pub const PHOT: Illuminance<Exact> = LUX * Exact::int(10000);
 
     /// One `Footcandle` (fc), as an `Illuminance`.
-    pub const FOOTCANDLE<N: const From<Exact>>: Illuminance<N> = counted((Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * LUX::<Exact>);
-
-    /// One `JoulePerSquareMetre` (J/m²), as a `RadiantExposure`.
-    pub const JOULE_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `WattHourPerSquareMetre` (W · h/m²), as a `RadiantExposure`.
-    pub const WATT_HOUR_PER_SQUARE_METRE<N: const From<Exact>>: RadiantExposure<N> = counted(Exact::int(3600) * JOULE_PER_SQUARE_METRE::<Exact>);
-
-    /// One `MicrojoulePerSquareMillimetre` (µJ/mm²), as a `RadiantExposure`.
-    pub const MICROJOULE_PER_SQUARE_MILLIMETRE<N: const From<Exact>>: RadiantExposure<N> = counted(JOULE_PER_SQUARE_METRE::<Exact>);
+    pub const FOOTCANDLE: Illuminance<Exact> =
+        LUX * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)));
 }
 
-/// The units of `Luminance`, for a menu, a config file, a parser.
+/// The units of `Luminance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Luminance<f64>)]
+#[unit(of = Luminance<N>, number = N)]
+#[unit(for<N> where Luminance<N>: [const] yadc::Unit<Luminance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum LuminanceUnit {
     #[default]
-    #[unit("cd/m²", "candelas per square metre", by = CANDELA_PER_SQUARE_METRE)]
+    #[unit("cd/m²", "candelas per square metre", by = Luminance::<N>::from(CANDELA / (METRE * METRE)))]
     CandelaPerSquareMetre,
-    #[unit("cd/in²", "candelas per square inch", by = CANDELA_PER_SQUARE_INCH)]
+    #[unit("cd/in²", "candelas per square inch", by = Luminance::<N>::from((CANDELA / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
     CandelaPerSquareInch,
-    #[unit("cd/ft²", "candelas per square foot", by = CANDELA_PER_SQUARE_FOOT)]
+    #[unit("cd/ft²", "candelas per square foot", by = Luminance::<N>::from((CANDELA / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
     CandelaPerSquareFoot,
-    #[unit("fl", "footlamberts", by = FOOTLAMBERT)]
+    #[unit("fl", "footlamberts", by = Luminance::<N>::from(FOOTLAMBERT))]
     Footlambert,
-    #[unit("la", "lamberts", by = LAMBERT)]
+    #[unit("la", "lamberts", by = Luminance::<N>::from(LAMBERT))]
     Lambert,
-    #[unit("sb", "stilbs", by = STILB)]
+    #[unit("sb", "stilbs", by = Luminance::<N>::from(STILB))]
     Stilb,
 }
 
-/// The units of `LuminousIntensity`, for a menu, a config file, a parser.
+/// The units of `LuminousIntensity`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LuminousIntensity<f64>)]
+#[unit(of = LuminousIntensity<N>, number = N)]
+#[unit(for<N> where LuminousIntensity<N>: [const] yadc::Unit<LuminousIntensity<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum LuminousIntensityUnit {
     #[default]
-    #[unit("cd", "candelas", by = CANDELA)]
+    #[unit("cd", "candelas", by = LuminousIntensity::<N>::from(CANDELA))]
     Candela,
 }
 
-/// The units of `Illuminance`, for a menu, a config file, a parser.
+/// The units of `Illuminance`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Illuminance<f64>)]
+#[unit(of = Illuminance<N>, number = N)]
+#[unit(for<N> where Illuminance<N>: [const] yadc::Unit<Illuminance<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
 pub enum IlluminanceUnit {
     #[default]
-    #[unit("lx", "lux", by = LUX)]
+    #[unit("lx", "lux", by = Illuminance::<N>::from(LUX))]
     Lux,
-    #[unit("ph", "phot", by = PHOT)]
+    #[unit("ph", "phot", by = Illuminance::<N>::from(PHOT))]
     Phot,
-    #[unit("fc", "footcandles", by = FOOTCANDLE)]
+    #[unit("fc", "footcandles", by = Illuminance::<N>::from(FOOTCANDLE))]
     Footcandle,
 }
 
-/// The units of `RadiantExposure`, for a menu, a config file, a parser.
+/// The units of `RadiantExposure`, for a menu, a config file, a parser: in any number
+/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = RadiantExposure<f64>)]
+#[unit(of = RadiantExposure<N>, number = N)]
+#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, RadiantExposure<N>: [const] yadc::Unit<RadiantExposure<N>, N> + [const] core::marker::Destruct)]
 pub enum RadiantExposureUnit {
     #[default]
-    #[unit("J/m²", "joules per square metre", by = JOULE_PER_SQUARE_METRE)]
+    #[unit("J/m²", "joules per square metre", by = RadiantExposure::<N>::from(KILOGRAM / (SECOND * SECOND)))]
     JoulePerSquareMetre,
-    #[unit("W · h/m²", "watt hours per square metre", by = WATT_HOUR_PER_SQUARE_METRE)]
+    #[unit("W · h/m²", "watt hours per square metre", by = RadiantExposure::<N>::from((KILOGRAM / (SECOND * SECOND)) * Exact::int(3600)))]
     WattHourPerSquareMetre,
-    #[unit("µJ/mm²", "microjoules per square millimetre", by = MICROJOULE_PER_SQUARE_MILLIMETRE)]
+    #[unit("µJ/mm²", "microjoules per square millimetre", by = RadiantExposure::<N>::from(KILOGRAM / (SECOND * SECOND)))]
     MicrojoulePerSquareMillimetre,
 }

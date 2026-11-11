@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, HashMap};
 use super::parse::{UcumEssence, Unit};
 use super::resolve::{DimVec, Resolved};
 use crate::model::{
-    BaseConst, DimConfig, DimensionlessDef, ExtraConst, FamilyDef, KindConfig, QuantityDef,
+    BaseConst, ConstName, DimConfig, DimensionlessDef, ExtraConst, FamilyDef, KindConfig, QuantityDef,
     SystemConfig, UnitDef, UnitSystem,
 };
 
@@ -82,15 +82,28 @@ fn multiple(variant: &str, m: &str, symbol: &str, long: &str) -> UnitDef {
     }
 }
 
-/// A scale: `step`s counted from `zero`, `Scale(zero, step)`.
-fn scale(variant: &str, symbol: &str, long: &str, step: &str, zero: &str) -> UnitDef {
+/// A scale, `step`s counted from `zero`: its constant `name = Scale(zero,
+/// step)`, and the unit naming it.
+fn scale(
+    variant: &str,
+    symbol: &str,
+    long: &str,
+    (name, zero, step): (&str, &str, &str),
+    consts: &mut Vec<ExtraConst>,
+) -> UnitDef {
+    consts.push(ExtraConst {
+        name: name.into(),
+        ty: Some("Scale<ThermodynamicTemperature, TemperatureInterval>".into()),
+        value: format!("Scale({zero}, {step})"),
+        doc: format!("The {long} scale: {step} counted from {zero}."),
+    });
     UnitDef {
         variant: variant.into(),
         multiplier: None,
         symbol: symbol.into(),
         long: long.into(),
         constant: None,
-        by: Some(format!("Scale({zero}, {step})")),
+        by: Some(name.into()),
         via: None,
         non_const: false,
     }
@@ -105,50 +118,46 @@ fn scale(variant: &str, symbol: &str, long: &str, step: &str, zero: &str) -> Uni
 fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
     let k_dim: BTreeMap<String, i64> = [("K".to_string(), 1i64)].into();
     let mut fahrenheit = multiple("DegreeFahrenheit", "5.0 / 9.0", "°F", "degrees Fahrenheit");
-    fahrenheit.constant = Some("DEGREE_FAHRENHEIT".into());
+    fahrenheit.constant = Some(ConstName::Name("DEGREE_FAHRENHEIT".into()));
+    let mut consts = vec![
+        ExtraConst {
+            name: "ICE_POINT".into(),
+            ty: None,
+            value: "ABSOLUTE_ZERO + KELVIN * 273.15".into(),
+            doc: "0 °C, the ice point of water: 273.15 K.".into(),
+        },
+        ExtraConst {
+            name: "FAHRENHEIT_ZERO".into(),
+            ty: None,
+            value: "ICE_POINT - DEGREE_FAHRENHEIT * 32.0".into(),
+            doc: "0 °F: 32 °F below the ice point.".into(),
+        },
+    ];
+    let units = vec![
+        scale("Kelvin", "K", "kelvin", ("KELVIN_SCALE", "ABSOLUTE_ZERO", "KELVIN"), &mut consts),
+        scale("DegreeCelsius", "°C", "degrees Celsius", ("CELSIUS", "ICE_POINT", "KELVIN"), &mut consts),
+        scale(
+            "DegreeFahrenheit",
+            "°F",
+            "degrees Fahrenheit",
+            ("FAHRENHEIT", "FAHRENHEIT_ZERO", "DEGREE_FAHRENHEIT"),
+            &mut consts,
+        ),
+        scale(
+            "DegreeRankine",
+            "°R",
+            "degrees Rankine",
+            ("RANKINE", "ABSOLUTE_ZERO", "DEGREE_FAHRENHEIT"),
+            &mut consts,
+        ),
+    ];
     vec![
         QuantityDef {
             name: "ThermodynamicTemperature".to_string(),
             dims: k_dim.clone(),
             kind: Some(kind.to_string()),
-            consts: vec![
-                ExtraConst {
-                    name: "ICE_POINT".into(),
-                    ty: None,
-                    value: "ABSOLUTE_ZERO + 273.15 * KELVIN".into(),
-                    doc: "0 °C, the ice point of water: 273.15 K.".into(),
-                },
-                ExtraConst {
-                    name: "FAHRENHEIT_ZERO".into(),
-                    ty: None,
-                    value: "ICE_POINT - 32.0 * DEGREE_FAHRENHEIT".into(),
-                    doc: "0 °F: 32 °F below the ice point.".into(),
-                },
-            ],
-            units: vec![
-                scale("Kelvin", "K", "kelvin", "KELVIN", "ABSOLUTE_ZERO"),
-                scale(
-                    "DegreeCelsius",
-                    "°C",
-                    "degrees Celsius",
-                    "KELVIN",
-                    "ICE_POINT",
-                ),
-                scale(
-                    "DegreeFahrenheit",
-                    "°F",
-                    "degrees Fahrenheit",
-                    "DEGREE_FAHRENHEIT",
-                    "FAHRENHEIT_ZERO",
-                ),
-                scale(
-                    "DegreeRankine",
-                    "°R",
-                    "degrees Rankine",
-                    "DEGREE_FAHRENHEIT",
-                    "ABSOLUTE_ZERO",
-                ),
-            ],
+            consts,
+            units,
         },
         QuantityDef {
             name: "TemperatureInterval".to_string(),
