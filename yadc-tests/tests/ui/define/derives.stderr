@@ -10,46 +10,52 @@ error: `mul` is not a rule: a label declares its sums, `add(..)` and `sub(..)` (
 24 |     #[kind(mul(Plain) = Plain)]
    |            ^^^
 
-error: `Affine` is not a rule: a label declares its sums, `add(Other) = Result` and `sub(Other) = Result`; the affine and the logarithmic kind are named on the dimension's field, `#[kind(affine = .., log = ..)]`
+error: `Affine` is not a rule: a label declares its sums, `add(Other) = Result` and `sub(Other) = Result`, or the behaviour it has, `affine` (a point) or `log` (a level or a gain)
   --> tests/ui/define/derives.rs:34:12
    |
 34 |     #[kind(Affine)]
    |            ^^^^^^
 
-error: on the kind field, `#[kind(..)]` names the label values with a behaviour of their own: `affine = Kind::Affine` (points) and `log = Kind::Log` (levels and gains)
-  --> tests/ui/define/derives.rs:43:12
+error: only one variant can be `#[kind(affine)]`
+  --> tests/ui/define/derives.rs:46:12
    |
-43 |     #[kind(point = MulRule::Other)]
-   |            ^^^^^
+46 |     #[kind(affine)]
+   |            ^^^^^^
+
+error: the kind field is marked `#[kind]` alone; which of its values is a point and which a logarithm is said on the label enum's variants: `#[kind(affine)] Affine`, `#[kind(log)] Log`
+  --> tests/ui/define/derives.rs:55:5
+   |
+55 |     #[kind(affine = MulRule::Other)]
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: `Zero` is not an extra of `#[derive(Quantity)]`; expected one of Display, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Powi, Root, Inv, Sum, Cast, From, Fn
-  --> tests/ui/define/derives.rs:49:22
+  --> tests/ui/define/derives.rs:61:22
    |
-49 | #[quantity(impl(Neg, Zero))]
+61 | #[quantity(impl(Neg, Zero))]
    |                      ^^^^
 
 error: say what this unit measures: `#[unit(of = Q)]` (repeatable)
-  --> tests/ui/define/derives.rs:55:12
+  --> tests/ui/define/derives.rs:67:12
    |
-55 | pub struct NoTarget;
+67 | pub struct NoTarget;
    |            ^^^^^^^^
 
 error: say which unit value this is: `by = U` - a constant (`by = KILOMETRE`, a scale `by = CELSIUS`), or a field marked `#[unit(by)]`
-  --> tests/ui/define/derives.rs:60:12
+  --> tests/ui/define/derives.rs:72:12
    |
-60 | pub struct NoForm;
+72 | pub struct NoForm;
    |            ^^^^^^
 
 error: `Display` needs this unit's symbol and name: `#[unit("km", "kilometres", ..)]` - or leave `Display` out with `#[unit(impl(..))]`
-  --> tests/ui/define/derives.rs:65:12
+  --> tests/ui/define/derives.rs:77:12
    |
-65 | pub struct NoLabels;
+77 | pub struct NoLabels;
    |            ^^^^^^^^
 
 error: unknown `#[unit(..)]` item `step`; expected the symbol and name, `by = ..`, `via = ..`, or on the type `of = ..`, `number = ..`, `non_const`, `impl(..)`
-  --> tests/ui/define/derives.rs:69:28
+  --> tests/ui/define/derives.rs:81:28
    |
-69 | #[unit("x", "x", of = f64, step = 1.0)]
+81 | #[unit("x", "x", of = f64, step = 1.0)]
    |                            ^^^^
 
 warning: unused import: `yadc::Dimension`

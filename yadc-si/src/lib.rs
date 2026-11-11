@@ -21,10 +21,10 @@ pub use yadc::{Dimension, Quantity, Unit};
 
 /// The kinds: how a quantity behaves under `+` and `-`, beside its
 /// exponents. The `#[default]` one is an ordinary amount.
-/// `Affine` is the affine kind, named on the dimension's kind field: a
+/// `Affine` is the affine kind, `#[kind(affine)]`: a
 /// point, measured from a zero somebody chose - two differ by an amount,
 /// and an amount moves one.
-/// `Log` is the logarithmic kind, named on the dimension's kind field: a
+/// `Log` is the logarithmic kind, `#[kind(log)]`: a
 /// level or a gain, where adding is multiplying what it is the logarithm
 /// of.
 /// Any other is a label of this system's own, telling apart quantities of
@@ -45,7 +45,9 @@ pub enum Kind {
     Linear,
     #[kind(sub(Absolute) = Linear, add(Linear) = Absolute, sub(Linear) = Absolute)]
     Absolute,
+    #[kind(affine)]
     Affine,
+    #[kind(log)]
     Log,
 }
 
@@ -64,7 +66,7 @@ pub struct ISQ {
     pub mol: i8,
     pub cd: i8,
     pub rad: i8,
-    #[kind(affine = Kind::Affine, log = Kind::Log)]
+    #[kind]
     pub kind: Kind,
 }
 

@@ -124,6 +124,7 @@ impl yadc::num_traits::ConstOne for MyF64 {
 pub enum Kind {
     #[default]
     Linear,
+    #[kind(affine)]
     Affine,
 }
 
@@ -132,7 +133,7 @@ pub enum Kind {
 pub struct Dim {
     pub m: i8,
     pub k: i8,
-    #[kind(affine = Kind::Affine)]
+    #[kind]
     pub kind: Kind,
 }
 

@@ -184,11 +184,11 @@ An altitude, an instant, the voltage at a node: each is measured from a zero som
 ```rust
 #[derive_const(PartialEq, Default)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
-pub enum Kind { #[default] Linear, Affine, Log }
+pub enum Kind { #[default] Linear, #[kind(affine)] Affine, #[kind(log)] Log }
 
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
-pub struct Dim { pub m: i8, pub s: i8, #[kind(affine = Kind::Affine, log = Kind::Log)] pub kind: Kind }
+pub struct Dim { pub m: i8, pub s: i8, #[kind] pub kind: Kind }
 
 pub type Altitude = Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>;
 pub const SEA_LEVEL: Altitude = Qty(0.0);                                  // a base constant

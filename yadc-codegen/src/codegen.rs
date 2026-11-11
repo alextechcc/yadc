@@ -339,12 +339,12 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "/// The kinds: how a quantity behaves under `+` and `-`, beside its\n";
     s += "/// exponents. The `#[default]` one is an ordinary amount.\n";
     if let Some(affine) = &system.kind.affine {
-        s += &format!("/// `{affine}` is the affine kind, named on the dimension's kind field: a\n");
+        s += &format!("/// `{affine}` is the affine kind, `#[kind(affine)]`: a\n");
         s += "/// point, measured from a zero somebody chose - two differ by an amount,\n";
         s += "/// and an amount moves one.\n";
     }
     if let Some(log) = &system.kind.log {
-        s += &format!("/// `{log}` is the logarithmic kind, named on the dimension's kind field: a\n");
+        s += &format!("/// `{log}` is the logarithmic kind, `#[kind(log)]`: a\n");
         s += "/// level or a gain, where adding is multiplying what it is the logarithm\n";
         s += "/// of.\n";
     }
@@ -366,10 +366,18 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
         if *v == system.kind.default {
             s += "    #[default]\n";
         }
-        if let Some(rules) = system.kind.rules.get(v)
-            && !rules.is_empty()
-        {
-            s += &format!("    #[kind({})]\n", rules.join(", "));
+        let mut items: Vec<String> = Vec::new();
+        if system.kind.affine.as_ref() == Some(v) {
+            items.push("affine".into());
+        }
+        if system.kind.log.as_ref() == Some(v) {
+            items.push("log".into());
+        }
+        if let Some(rules) = system.kind.rules.get(v) {
+            items.extend(rules.iter().cloned());
+        }
+        if !items.is_empty() {
+            s += &format!("    #[kind({})]\n", items.join(", "));
         }
         s += &format!("    {v},\n");
     }
@@ -385,15 +393,7 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     for field in &system.dim.fields {
         s += &format!("    pub {field}: i8,\n");
     }
-    let named: Vec<String> = [("affine", &system.kind.affine), ("log", &system.kind.log)]
-        .into_iter()
-        .filter_map(|(key, v)| v.as_ref().map(|v| format!("{key} = Kind::{v}")))
-        .collect();
-    if named.is_empty() {
-        s += "    #[kind]\n";
-    } else {
-        s += &format!("    #[kind({})]\n", named.join(", "));
-    }
+    s += "    #[kind]\n";
     s += "    pub kind: Kind,\n";
     s += "}\n\n";
 
@@ -417,22 +417,21 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "pub struct Scale<P, S>(pub P, pub S);\n\n";
     s += &SCALE_IMPLS.replace("@DIM@", dim).replace("@QTY@", qty);
 
-    // Naming an affine or a logarithmic kind makes the dimension's products
-    // partial, and the dynamic type's with them.
-    let products = if named.is_empty() {
-        "Self"
-    } else {
-        "Option<Self>"
-    };
-    let without_product = match (&system.kind.affine, &system.kind.log) {
-        (Some(_), Some(_)) => "a point or a level",
-        (Some(_), None) => "a point",
-        _ => "a level",
-    };
-    let products_doc = if named.is_empty() {
-        "A product or quotient always exists; a sum or a scaling\n/// may not (`None` where the dimensions don't combine), so a calculation reads\n/// `((a * b + c)? * 2.0)?`.".to_string()
-    } else {
-        format!("Any of them may have no result - `None` where the dimensions don't combine:\n/// a sum of two dimensions, a product with {without_product} - so a calculation reads\n/// `(((a * b)? + c)? * 2.0)?`.")
+    // A dimension with a kind field has partial products - a point or a
+    // level has none - and the dynamic type's with them.
+    let products = "Option<Self>";
+    let products_doc = match (&system.kind.affine, &system.kind.log) {
+        (None, None) => "A product or quotient always exists (`Some`); a sum or a\n/// scaling may not (`None` where the dimensions don't combine), so a calculation\n/// reads `(((a * b)? + c)? * 2.0)?`.".to_string(),
+        (affine, log) => {
+            let without = match (affine, log) {
+                (Some(_), Some(_)) => "a point or a level",
+                (Some(_), None) => "a point",
+                _ => "a level",
+            };
+            format!(
+                "Any of them may have no result - `None` where the dimensions don't combine:\n/// a sum of two dimensions, a product with {without} - so a calculation reads\n/// `(((a * b)? + c)? * 2.0)?`."
+            )
+        }
     };
     s += &DYNAMIC
         .replace("__PRODUCTS_DOC__", &products_doc)
@@ -562,8 +561,8 @@ fn validate_kind(kind: &KindConfig) {
             let Some((lhs, result)) = rule.split_once('=') else {
                 panic!(
                     "[kind] rule `{rule}` is not `op(Operand) = Result`: a label declares its \
-                     sums; the affine and the logarithmic kind are named with `affine = ..` and \
-                     `log = ..`"
+                     sums; the affine and the logarithmic kind are said with `affine = ..` and \
+                     `log = ..` in [kind]"
                 );
             };
             let (op, operand) = lhs
@@ -1515,12 +1514,11 @@ units = [
     #[test]
     fn generated_lib() {
         let out = gen_lib_rs(&system(THERMAL));
-        assert!(out.contains("pub enum Kind {\n    #[default]\n    Linear,\n    Affine,\n    Log,\n    #[kind(add(Rank) = invalid)]\n    Rank,\n}\n"));
-        // The dimension's kind field names the affine and the logarithmic
-        // kind; its products are then partial, and the dynamic type's too.
-        assert!(
-            out.contains("    #[kind(affine = Kind::Affine, log = Kind::Log)]\n    pub kind: Kind,\n")
-        );
+        assert!(out.contains("pub enum Kind {\n    #[default]\n    Linear,\n    #[kind(affine)]\n    Affine,\n    #[kind(log)]\n    Log,\n    #[kind(add(Rank) = invalid)]\n    Rank,\n}\n"));
+        // The kind's variants say which is affine and which logarithmic;
+        // the field is marked alone, its products partial, and the dynamic
+        // type's too.
+        assert!(out.contains("    #[kind]\n    pub kind: Kind,\n"));
         assert!(out.contains("    Mul -> Option<Self>,\n    Div -> Option<Self>,\n    Add -> Option<Self>,\n"));
         assert!(out.contains("#[dynamic(Qty<const D: Dim> => { dim: D, value: .0 })]\n"));
         assert!(
@@ -1582,10 +1580,10 @@ units = [
         );
     }
 
-    /// Without an affine or a logarithmic kind every product exists: a plain
-    /// `#[kind]` field, and total products on the dynamic type.
+    /// Without an affine or a logarithmic kind no variant is marked; the
+    /// products stay partial, as for any dimension with a kind field.
     #[test]
-    fn labels_alone_keep_products_total() {
+    fn labels_alone_mark_no_variant() {
         let sys: UnitSystem = toml::from_str(
             &BASE
                 .replace("affine = \"Affine\"\nlog = \"Log\"\n", "")
@@ -1594,7 +1592,8 @@ units = [
         .unwrap();
         let out = gen_lib_rs(&sys);
         assert!(out.contains("    #[kind]\n    pub kind: Kind,\n"));
-        assert!(out.contains("    Mul -> Self,\n    Div -> Self,\n    Add -> Option<Self>,\n"));
+        assert!(!out.contains("#[kind(affine)]"));
+        assert!(out.contains("    Mul -> Option<Self>,\n    Div -> Option<Self>,\n"));
     }
 
     #[test]

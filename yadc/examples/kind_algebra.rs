@@ -64,8 +64,10 @@ pub enum Kind {
     #[default]
     Linear,
     /// A point: a temperature.
+    #[kind(affine)]
     Affine,
     /// A logarithm: a level, a gain.
+    #[kind(log)]
     Log,
     /// Apparent power: volt-amperes, kept apart from watts.
     Apparent,
@@ -89,7 +91,7 @@ pub struct Dim {
     pub s: i8,
     pub k: i8,
     pub rad: i8,
-    #[kind(affine = Kind::Affine, log = Kind::Log)]
+    #[kind]
     pub kind: Kind,
 }
 

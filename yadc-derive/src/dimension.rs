@@ -1,6 +1,7 @@
 //! `#[derive(Dimension)]` on a struct: the dimension algebra over exponent
-//! axes, plus an optional label (`#[kind]`), two of whose values may be named
-//! as the affine kind (points) and the logarithmic kind (levels and gains).
+//! axes, plus an optional label (`#[kind]`), whose values may include the
+//! affine kind (points) and the logarithmic kind (levels and gains) - which,
+//! the label enum says (`yadc::Label`).
 //! On an enum - a label - it is `crate::kind`.
 
 use crate::paths::Paths;
@@ -34,38 +35,25 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
 
     // Partition fields into "numeric" (i8/i16/.. exponents) and "kind" (marked
     // with #[kind] - at most one). The kind field's type is reached only through
-    // its `Dimension` impl (a kind is a dimension with no exponents) and its
-    // operators - and through the two values `#[kind(affine = .., log = ..)]`
-    // may name, compared with `==`.
+    // its `Dimension` impl (a kind is a dimension with no exponents), its
+    // operators, and `yadc::Label` - which of its values is a point and which
+    // a logarithm.
     let mut numeric_fields: Vec<&syn::Field> = Vec::new();
     let mut kind_field: Option<&syn::Field> = None;
-    let mut affine: Option<syn::Expr> = None;
-    let mut log: Option<syn::Expr> = None;
     for f in fields.iter() {
         if let Some(attr) = f.attrs.iter().find(|a| a.path().is_ident("kind")) {
             if kind_field.is_some() {
                 return Err(syn::Error::new_spanned(f, "only one #[kind] field allowed"));
             }
-            kind_field = Some(f);
             if !matches!(attr.meta, syn::Meta::Path(_)) {
-                attr.parse_nested_meta(|m| {
-                    let slot = if m.path.is_ident("affine") {
-                        &mut affine
-                    } else if m.path.is_ident("log") {
-                        &mut log
-                    } else {
-                        return Err(m.error(
-                            "on the kind field, `#[kind(..)]` names the label values with a \
-                             behaviour of their own: `affine = Kind::Affine` (points) and \
-                             `log = Kind::Log` (levels and gains)",
-                        ));
-                    };
-                    if slot.replace(m.value()?.parse()?).is_some() {
-                        return Err(m.error("given twice"));
-                    }
-                    Ok(())
-                })?;
+                return Err(syn::Error::new_spanned(
+                    attr,
+                    "the kind field is marked `#[kind]` alone; which of its values is a point \
+                     and which a logarithm is said on the label enum's variants: \
+                     `#[kind(affine)] Affine`, `#[kind(log)] Log`",
+                ));
             }
+            kind_field = Some(f);
         } else {
             numeric_fields.push(f);
         }
@@ -151,8 +139,9 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
 
     // The `#[kind]` field is optional: a label telling apart quantities of the
     // same exponents (an absolute temperature from a temperature difference).
-    // It decides `+` / `-`; `*` / `/` are total. With none, no kind code is
-    // emitted and every combination of matching exponents is allowed.
+    // It decides `+` / `-`, and makes `*` / `/` partial (a point or a level
+    // has no products). With none, no kind code is emitted, products are
+    // total and every combination of matching exponents is allowed.
     // The kind is reached only through `Dimension` and its operators, which
     // return `Option` - never a variant, never an inherent method. Every step
     // is `?`: a rejected kind makes the whole result `None`.
@@ -175,7 +164,7 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     // number - every exponent zero and the plain kind - and is dropped by
     // anything with units: 2 × T is still an absolute temperature, R × T is
     // just J/mol. The kind alone can't tell `2` from `2 m`; the dimension can,
-    // so the rule lives here and `*` / `/` stay total.
+    // so the rule lives here.
     let (kind_mul, kind_div) = match kind_field {
         Some(kf) => {
             let k = kf.ident.as_ref().unwrap();
@@ -233,7 +222,7 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     // logarithm adds to it; beside a plain number it survives a product, a
     // gain (no exponents) leaves any other product as a label does, and a
     // level (with exponents) has none.
-    let special = affine.is_some() || log.is_some();
+    let special = kind_field.is_some();
     let (is_aff, is_log, kname, kplain): (
         Box<dyn Fn(TokenStream2) -> TokenStream2>,
         Box<dyn Fn(TokenStream2) -> TokenStream2>,
@@ -244,16 +233,12 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
             let k = kf.ident.clone().unwrap();
             let kty = kf.ty.clone();
             let (k1, k2) = (k.clone(), k.clone());
-            let (a, l) = (affine.clone(), log.clone());
+            let (t1, t2) = (kty.clone(), kty.clone());
+            let y1 = yadc.clone();
+            let y2 = yadc.clone();
             (
-                Box::new(move |x| match &a {
-                    Some(e) => quote! { (#x.#k1 == #e) },
-                    None => quote! { false },
-                }),
-                Box::new(move |x| match &l {
-                    Some(e) => quote! { (#x.#k2 == #e) },
-                    None => quote! { false },
-                }),
+                Box::new(move |x| quote! { <#t1 as #y1::Label>::is_affine(#x.#k1) }),
+                Box::new(move |x| quote! { <#t2 as #y2::Label>::is_log(#x.#k2) }),
                 quote! { #k },
                 quote! { <#kty as #yadc::Dimension>::DIMENSIONLESS },
             )
@@ -280,17 +265,15 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
         (quote! { Self }, quote! {})
     };
     let (mul_head, div_head, add_head, sub_head, root_head) = if special {
-        let log_e = log.clone();
-        let log_sum = |inits: &[TokenStream2]| match &log_e {
-            Some(e) => quote! {
+        let log_sum = |inits: &[TokenStream2]| {
+            quote! {
                 if #log_a || #log_b {
                     if !(#log_a && #log_b) {
                         return #none;
                     }
-                    return #some(#name { #(#inits,)* #kname: #e });
+                    return #some(#name { #(#inits,)* #kname: a.#kname });
                 }
-            },
-            None => quote! {},
+            }
         };
         (
             quote! {
@@ -372,7 +355,7 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     };
     // A logarithm's sum adds exponents, so `+` and `-` then ask the exponent
     // types for what `*` and `/` ask.
-    let (add_bounds, sub_bounds) = if log.is_some() {
+    let (add_bounds, sub_bounds) = if special {
         (mul_bounds.clone(), div_bounds.clone())
     } else {
         (quote! {}, quote! {})

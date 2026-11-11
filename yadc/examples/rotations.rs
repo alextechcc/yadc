@@ -78,6 +78,7 @@ use yadc::{Dimension, Root, RootAs, Unit};
 pub enum Kind {
     #[default]
     Linear,
+    #[kind(affine)]
     Affine,
 }
 
@@ -89,7 +90,7 @@ pub struct Dim {
     pub kg: i8,
     pub s: i8,
     pub rad: i8,
-    #[kind(affine = Kind::Affine)]
+    #[kind]
     pub kind: Kind,
 }
 

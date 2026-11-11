@@ -52,11 +52,11 @@ impl syn::parse::Parse for KindRef {
 }
 
 /// One item inside a variant's `#[kind(..)]`: `add(Other) = Result` - one
-/// algebra entry.
-struct KindItem {
-    op: Op,
-    other: KindRef,
-    result: KindRef,
+/// algebra entry - or `affine` / `log`, the behaviour the variant has.
+enum KindItem {
+    Rule { op: Op, other: KindRef, result: KindRef },
+    Affine(syn::Ident),
+    Log(syn::Ident),
 }
 
 /// A parsed label enum: its variants, which of them is the plain label, and
@@ -66,6 +66,10 @@ struct KindModel<'a> {
     zero: usize,
     /// `(owner variant, op, other, result)` from `#[kind(op(..) = ..)]`.
     rules: Vec<(usize, Op, KindRef, KindRef)>,
+    /// The variant marked `#[kind(affine)]`: a point.
+    affine: Option<usize>,
+    /// The variant marked `#[kind(log)]`: a logarithm.
+    log: Option<usize>,
     /// Per-variant `#[ucum(prefix = ..)]`: outer `None` = not declared,
     /// inner `None` = declared as `none`.
     prefixes: Vec<Option<Option<String>>>,
@@ -89,8 +93,8 @@ impl KindModel<'_> {
 /// Every variant must be a unit variant. Nothing depends on a variant's
 /// name: the plain label is the one marked `#[default]`, and every other
 /// variant is a label with the defaults - declare its sums with
-/// `#[kind(add(..) = ..)]` / `sub(..)`. (Which label is the affine kind and
-/// which the logarithmic one is said on the dimension's `#[kind(..)]` field.)
+/// `#[kind(add(..) = ..)]` / `sub(..)`. One variant may be marked
+/// `#[kind(affine)]` (points) and one `#[kind(log)]` (levels and gains).
 fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
     let name = &input.ident;
     let variants = match &input.data {
@@ -107,6 +111,8 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
     let mut rules: Vec<(usize, Op, KindRef, KindRef)> = Vec::new();
     let mut prefixes: Vec<Option<Option<String>>> = Vec::new();
     let mut zero: Option<usize> = None;
+    let mut affine: Option<usize> = None;
+    let mut log: Option<usize> = None;
 
     for (i, variant) in variants.iter().enumerate() {
         if !matches!(variant.fields, Fields::Unit) {
@@ -133,8 +139,25 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
             if !attr.path().is_ident("kind") {
                 continue;
             }
-            for KindItem { op, other, result } in parse_kind_items(attr)? {
-                rules.push((i, op, other, result));
+            for item in parse_kind_items(attr)? {
+                match item {
+                    KindItem::Rule { op, other, result } => rules.push((i, op, other, result)),
+                    KindItem::Affine(id) | KindItem::Log(id) => {
+                        let slot = if id == "affine" { &mut affine } else { &mut log };
+                        if slot.replace(i).is_some() {
+                            return Err(syn::Error::new_spanned(
+                                &id,
+                                format!("only one variant can be `#[kind({id})]`"),
+                            ));
+                        }
+                        if affine == Some(i) && log == Some(i) {
+                            return Err(syn::Error::new_spanned(
+                                &id,
+                                "a variant is a point or a logarithm, not both",
+                            ));
+                        }
+                    }
+                }
             }
         }
     }
@@ -150,6 +173,8 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
         variants: idents,
         zero,
         rules,
+        affine,
+        log,
         prefixes,
     })
 }
@@ -222,14 +247,18 @@ fn parse_kind_items(attr: &syn::Attribute) -> syn::Result<Vec<KindItem>> {
                 }
                 input.parse::<Token![=]>()?;
                 let result: KindRef = input.parse()?;
-                items.push(KindItem { op, other, result });
+                items.push(KindItem::Rule { op, other, result });
+            } else if id == "affine" {
+                items.push(KindItem::Affine(id));
+            } else if id == "log" {
+                items.push(KindItem::Log(id));
             } else {
                 return Err(syn::Error::new_spanned(
                     &id,
                     format!(
                         "`{id}` is not a rule: a label declares its sums, `add(Other) = Result` \
-                         and `sub(Other) = Result`; the affine and the logarithmic kind are \
-                         named on the dimension's field, `#[kind(affine = .., log = ..)]`"
+                         and `sub(Other) = Result`, or the behaviour it has, `affine` (a point) \
+                         or `log` (a level or a gain)"
                     ),
                 ));
             }
@@ -313,6 +342,14 @@ pub(crate) fn expand_label(input: &DeriveInput) -> syn::Result<TokenStream2> {
 
     let variants = &model.variants;
     let v_zero = variants[zero];
+    let is = |v: Option<usize>| match v {
+        Some(i) => {
+            let v = variants[i];
+            quote! { ::core::matches!(self, #name::#v) }
+        }
+        None => quote! { false },
+    };
+    let (is_affine, is_log) = (is(model.affine), is(model.log));
     let all_variants = variants.iter();
     let n_variants = variants.len();
 
@@ -390,6 +427,10 @@ pub(crate) fn expand_label(input: &DeriveInput) -> syn::Result<TokenStream2> {
         const impl #yadc::Dimension for #name {
             const DIMENSIONLESS: Self = #name::#v_zero;
             fn plain(self) -> Self { #name::#v_zero }
+        }
+        const impl #yadc::Label for #name {
+            fn is_affine(self) -> bool { #is_affine }
+            fn is_log(self) -> bool { #is_log }
         }
         const impl ::core::ops::Mul for #name {
             type Output = Self;

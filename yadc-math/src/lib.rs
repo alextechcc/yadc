@@ -384,6 +384,18 @@ pub const trait Dimension:
     }
 }
 
+/// A dimension's kind field - an enum of labels, yadc's `#[derive(Dimension)]`
+/// on an enum - saying which of its values behave as more than a label: the
+/// affine kind (a point: an altitude, an instant) and the logarithmic kind
+/// (a level, a gain). Every other value is a label, which matters to `+` and
+/// `-` only. The rules each follows are [`Dimension`]'s.
+pub const trait Label: Dimension {
+    /// A point: measured from a zero somebody chose.
+    fn is_affine(self) -> bool;
+    /// A logarithm: a level or a gain.
+    fn is_log(self) -> bool;
+}
+
 /// A change of number type, `as` in Rust: `2.5f64` to `2.5f32`, `7u8` to
 /// `7.0f64`. On the whiteboard, the inclusion (or rounding) of one number set
 /// into another.

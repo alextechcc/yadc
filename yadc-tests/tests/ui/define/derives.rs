@@ -25,7 +25,7 @@ pub enum MulRule {
     Other,
 }
 
-/// A variant says its sums; which label is affine is said on the dimension.
+/// A variant says its sums, or its behaviour: `affine` or `log`.
 #[derive_const(PartialEq, Default)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 pub enum NotARule {
@@ -35,12 +35,24 @@ pub enum NotARule {
     Other,
 }
 
-/// The kind field names only the affine and the logarithmic kind.
+/// One variant is the point.
+#[derive_const(PartialEq, Default)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
+pub enum TwoPoints {
+    #[default]
+    Plain,
+    #[kind(affine)]
+    Altitude,
+    #[kind(affine)]
+    Instant,
+}
+
+/// The kind field is marked alone: its variants say which is a point.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 pub struct BadField {
     pub m: i8,
-    #[kind(point = MulRule::Other)]
+    #[kind(affine = MulRule::Other)]
     pub kind: MulRule,
 }
 

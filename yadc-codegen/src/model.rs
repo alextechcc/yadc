@@ -69,13 +69,13 @@ pub struct KindConfig {
     pub default: String,
     /// The affine kind: the variant whose quantities are points - two differ
     /// by a plain amount, a plain amount moves one, and one has no sum with
-    /// another, no scaling and no products. Named on the dimension's kind
-    /// field, `#[kind(affine = Kind::..)]`.
+    /// another, no scaling and no products. Marked on its variant,
+    /// `#[kind(affine)]`.
     #[serde(default)]
     pub affine: Option<String>,
     /// The logarithmic kind: the variant whose quantities are logarithms -
     /// levels and gains, whose `+` and `-` add and subtract the exponents.
-    /// Named on the dimension's kind field, `#[kind(log = Kind::..)]`.
+    /// Marked on its variant, `#[kind(log)]`.
     #[serde(default)]
     pub log: Option<String>,
     /// The sums of a label of the system's own, emitted verbatim as that

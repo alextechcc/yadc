@@ -30,10 +30,11 @@ fmt-clean files.
 
 - `src/lib.rs` -
   - the label enum `Kind` (`#[derive(Dimension)]`, the `[kind] default`
-    variant marked `#[default]`, each variant's `rules` as its `#[kind(..)]`);
+    variant marked `#[default]`, the `[kind] affine` and `log` variants
+    `#[kind(affine)]` and `#[kind(log)]`, each variant's `rules` in its
+    `#[kind(..)]`);
   - the dimension struct (`#[derive(Dimension)]`: one `i8` per `[dim]` field
-    and a `#[kind]` field, naming the `[kind] affine` and `log` variants where
-    the system has them: `#[kind(affine = Kind::Affine, log = Kind::Log)]`);
+    and a `#[kind]` field);
   - the static quantity `Qty<const D: Dim, N = f64>(N)` (`#[derive(Quantity)]`:
     its operators, `Quantity` - every constant a unit - and the
     extras, `Display` and `Fn` among them, so a constant is called to build

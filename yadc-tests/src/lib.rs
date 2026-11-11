@@ -27,7 +27,9 @@ use yadc::{Dimension, Unit};
 pub enum Kind {
     #[default]
     Linear,
+    #[kind(affine)]
     Affine,
+    #[kind(log)]
     Log,
     #[kind(add(Rank) = invalid)]
     Rank,
@@ -42,7 +44,7 @@ pub struct Dim {
     pub m: i8,
     pub s: i8,
     pub k: i8,
-    #[kind(affine = Kind::Affine, log = Kind::Log)]
+    #[kind]
     pub kind: Kind,
 }
 

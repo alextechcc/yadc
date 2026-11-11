@@ -116,9 +116,9 @@
 //! ```ignore
 //! #[derive_const(PartialEq, Default)]
 //! #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
-//! pub enum Kind { #[default] Linear, Affine, Log }
+//! pub enum Kind { #[default] Linear, #[kind(affine)] Affine, #[kind(log)] Log }
 //!
-//! pub struct Dim { pub m: i8, .., #[kind(affine = Kind::Affine, log = Kind::Log)] pub kind: Kind }
+//! pub struct Dim { pub m: i8, .., #[kind] pub kind: Kind }
 //!
 //! pub type Altitude = Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>;
 //! pub const SEA_LEVEL: Altitude = Qty(0.0);
@@ -156,7 +156,7 @@
 //!
 //! | Trait | On the whiteboard | It asks for |
 //! |---|---|---|
-//! | [`Dimension`] | exponents that add under `*`, plus optionally a kind - an amount, a point, a logarithm, or a label of yours: a product and a quotient (total among amounts and labels, partial where a point or a logarithm is involved; not associative with labels), a sum that may not exist and keeps its left operand (an action, not a commutative sum) | std `*` `/` (`Output: Into<Option<Self>>`), `+` `-` returning `Option`, a power and a root ([`PartialPowi`], [`PartialRoot`]), `DIMENSIONLESS` (dimension one); `plain` (the label forgotten) is provided |
+//! | [`Dimension`] | exponents that add under `*`, plus optionally a kind - an amount, a point, a logarithm, or a label of yours: a product and a quotient (total for exponents alone, partial with a kind - a point or a logarithm has none; not associative with labels), a sum that may not exist and keeps its left operand (an action, not a commutative sum) | std `*` `/` (`Output: Into<Option<Self>>`), `+` `-` returning `Option`, a power and a root ([`PartialPowi`], [`PartialRoot`]), `DIMENSIONLESS` (dimension one); `plain` (the label forgotten) is provided |
 //! | [`Quantity`] | a value you can add, scale and compare, with itself as a unit | `Copy`, `PartialOrd`, `+`, scaling by its [`Number`](Quantity::Number)s, [`Unit<Self>`](Unit) |
 //! | [`Unit<Q, N>`] | two inverse functions between numbers and `Q` (a coordinate chart) | `quantity`, `value` |
 //!
@@ -186,7 +186,7 @@
 //!
 //! | Trait | Role |
 //! |---|---|
-//! | std `Mul` / `Div` with `Output: Into<Option<Self>>` | a dimension's product and quotient: `Self` (total) for amounts and labels, `Option<Self>` (`None` where a point or a level has no product) once a dimension names an affine or a logarithmic kind |
+//! | std `Mul` / `Div` with `Output: Into<Option<Self>>` | a dimension's product and quotient: `Self` (total) for exponents alone, `Option<Self>` (`None` where a point or a level has no product) for a dimension with a kind |
 //! | std `Add` / `Sub` with `Output = Option<Self>` | a partial operation: `None` where there is no result; const, so it runs inside type checks, and chains with `?` |
 //! | [`PartialPowi`] / [`PartialRoot`] | an integer power / n-th root that may not exist: repeated `*` (none for a point); exact division for an integer exponent, the root label for a label; for `f32` / `f64` `powi` / `powf` |
 //! | [`Dimension`] | the above operators, `PartialPowi` and `PartialRoot`, plus `DIMENSIONLESS` (dimension one: the empty product, what `x / x` gives); `plain` provided; implemented by `#[derive(Dimension)]` on a struct (a dimension) or on an enum (a label). A reciprocal is `DIMENSIONLESS / d` |
@@ -294,8 +294,8 @@ pub use num_traits;
 pub use quantity::Quantity;
 pub use unit::{Unit, UnknownUnit};
 pub use yadc_math::{
-    Cast, CastAs, Dimension, Exponent, ParseExponentError, PartialPowi, PartialRoot, Powi, PowiAs,
-    Root, RootAs,
+    Cast, CastAs, Dimension, Exponent, Label, ParseExponentError, PartialPowi, PartialRoot, Powi,
+    PowiAs, Root, RootAs,
 };
 // The `UcumKind` *trait* lives at `yadc::ucum::UcumKind`, so a downstream
 // `pub enum Kind` never collides with anything re-exported here.

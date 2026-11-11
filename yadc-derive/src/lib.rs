@@ -35,7 +35,7 @@ use unit::expand_unit;
 /// #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 /// pub struct Dim {
 ///     pub m: i8, pub kg: i8, pub s: i8, pub k: i8,
-///     #[kind(affine = Kind::Affine, log = Kind::Log)]   // optional: the kind
+///     #[kind]                           // optional: the kind
 ///     pub kind: Kind,
 /// }
 /// ```
@@ -55,8 +55,10 @@ use unit::expand_unit;
 ///
 /// The `#[kind]` field holds an enum of yours (with this derive: see below).
 /// Its `#[default]` variant is the ordinary kind - an amount, which adds to
-/// its like, scales and multiplies. `#[kind(affine = .., log = ..)]` names
-/// up to two more of its values, each a different piece of mathematics:
+/// its like, scales and multiplies. `#[kind(affine)]` and `#[kind(log)]` on
+/// the enum's variants mark up to two more, each a different piece of
+/// mathematics (the derive on the enum writes `yadc::Label`, which says
+/// which; this derive asks it):
 ///
 /// - **affine: a point.** Measured from a zero somebody chose - an altitude,
 ///   an instant, a temperature. Two points of one dimension differ by an
@@ -86,10 +88,11 @@ use unit::expand_unit;
 ///
 /// - `*` and `/`: exponents add / subtract; a label survives only beside a
 ///   plain number (every exponent zero and the ordinary kind), so `2.0 * x`
-///   keeps `x`'s label and any other product is ordinary. With neither an
-///   affine nor a log kind named they are total, `Output = Self`; with one
-///   they are partial, `Output = Option<Self>`, `None` where the rules above
-///   give no product. An exponent that does not fit its type (`m^100 *
+///   keeps `x`'s label and any other product is ordinary. Without a
+///   `#[kind]` field they are total, `Output = Self`; with one they are
+///   partial, `Output = Option<Self>`, `None` where the rules above give no
+///   product (the derive cannot see which variants are points or levels, so
+///   the type is the same for every kind). An exponent that does not fit its type (`m^100 *
 ///   m^100` in `i8`) panics - at compile time, where the product is a type
 ///   (at run time with an integer axis, std's overflow rules apply).
 /// - `+` and `-`, `Output = Option<Self>`: equal exponents, then the kind
