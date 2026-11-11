@@ -17,6 +17,9 @@ pub enum Kind {
     Affine,
     #[kind(log)]
     Log,
+    /// A label whose two differ by an amount, like a point, but which is not one.
+    #[kind(add(Rated) = invalid, sub(Rated) = Linear, add(Linear) = Rated, sub(Linear) = Rated)]
+    Rated,
 }
 
 #[derive_const(PartialEq)]
@@ -47,6 +50,8 @@ pub const ABSOLUTE_ZERO: Temperature = Qty(0.0);
 pub const SEA_LEVEL: Altitude = Qty(0.0);
 pub const BEL: Gain = Qty(1.0);
 pub const METRE_LEVEL: LengthLevel = Qty(0.0);
+pub type RatedLength = Qty<{ Dim { m: 1, kind: Kind::Rated, ..Dim::DIMENSIONLESS } }>;
+pub const RATED_METRE: RatedLength = Qty(1.0);
 
 // Refused in `const` items too.
 const _: () = {
@@ -54,6 +59,9 @@ const _: () = {
 };
 
 fn main() {
+    // Every sum and difference the dimension refuses is refused, whatever the kinds.
+    let _ = METRE_LEVEL + SEA_LEVEL;
+    let _ = SEA_LEVEL - RATED_METRE;
     let _ = METRE + SECOND;
     let _ = SEA_LEVEL + SEA_LEVEL;
     let _ = METRE + SEA_LEVEL;

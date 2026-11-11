@@ -245,12 +245,16 @@ pub const fn add_in_order<D: [const] Dimension>(a: D, b: D) -> bool {
     sum_is_left(a, b) || !sum_is_left(b, a)
 }
 
-/// `a + b`: not refused for the labels.
+/// `a + b`: not refused for the labels. It refuses every sum the other
+/// refusals leave, so `+` compiles exactly where `a + b` is `a`.
 pub const fn add_labels<D: [const] Dimension>(a: D, b: D) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    sum_is_left(a, b) || !same_dimension(a, b) || is_point(b) || sum_is_left(b, a)
+    sum_is_left(a, b)
+        || sum_is_left(b, a)
+        || !same_dimension(a, b)
+        || (is_point(a) && is_point(b))
 }
 
 /// `a - b`: not refused for differing dimensions.
@@ -269,12 +273,13 @@ where
     (a - b).is_some() || !same_dimension(a, b) || is_point(a) || !is_point(b)
 }
 
-/// `a - b`: not refused for the labels.
+/// `a - b`: not refused for the labels. It refuses every difference the
+/// other refusals leave, so `-` compiles exactly where `a - b` exists.
 pub const fn sub_labels<D: [const] Dimension>(a: D, b: D) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    (a - b).is_some() || !same_dimension(a, b) || is_point(b)
+    (a - b).is_some() || !same_dimension(a, b) || (!is_point(a) && is_point(b))
 }
 
 /// `a -= b`: the difference, where there is one, is `a` again.

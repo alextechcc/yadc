@@ -169,7 +169,7 @@
 //!
 //! | module | what | |
 //! |---|---|---|
-//! | (root) | `Dimension`, `Label`, `PartialPowi`, `PartialRoot`, `Exponent` / `ParseExponentError`, `Powi` / `PowiAs`, `Root` / `RootAs`, `Cast` / `CastAs` | the generic maths, from the `yadc-math` crate, re-exported |
+//! | (root) | `Dimension`, `Label`, `Axis`, `PartialPowi`, `PartialRoot`, `Exponent` / `ParseExponentError`, `Powi` / `PowiAs`, `Root` / `RootAs`, `Cast` / `CastAs` | the generic maths, from the `yadc-math` crate, re-exported |
 //! | [`quantity`] | `Quantity` | a value you can add, scale and measure with |
 //! | [`unit`](mod@unit) | `Unit`, `UnknownUnit` | turning numbers into quantities and points and back; parsing |
 //! | [`display`] | `write_dimension`, `write_quantity` | how the derived `Display` impls print |
@@ -295,7 +295,7 @@ pub use num_traits;
 pub use quantity::Quantity;
 pub use unit::{Unit, UnknownUnit};
 pub use yadc_math::{
-    Cast, CastAs, Dimension, Exponent, Label, ParseExponentError, PartialPowi, PartialRoot, Powi,
+    Axis, Cast, CastAs, Dimension, Exponent, Label, ParseExponentError, PartialPowi, PartialRoot, Powi,
     PowiAs, Root, RootAs,
 };
 // The `UcumKind` *trait* lives at `yadc::ucum::UcumKind`, so a downstream

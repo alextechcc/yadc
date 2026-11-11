@@ -42,12 +42,12 @@ use unit::expand_unit;
 ///
 /// Every field not marked is an exponent axis. Nothing about an axis type is
 /// assumed beyond what the operators use: const `PartialEq` and `Default`
-/// (the zero exponent - no literal `0` is written), const `Add` / `Sub`
-/// whose `Output` converts `Into<Option<Self>>` (an integer's sum is itself,
-/// a checked sum an `Option`), and `yadc::PartialRoot` - nothing is matched
-/// by name. Every signed integer qualifies (an exponent may be negative); a
-/// rational type of yours with those
-/// operators gives fractional powers (`m^½`, `V/√Hz`), and `yadc::Exponent`
+/// (the zero exponent - no literal `0` is written), `yadc::Axis` (a sum and
+/// difference that are `None` where they do not fit: a product with an
+/// exponent out of range has no result, or panics without a `#[kind]`
+/// field) and `yadc::PartialRoot` - nothing is matched by name. Every signed
+/// integer qualifies (an exponent may be negative); a rational type of yours
+/// with those gives fractional powers (`m^½`, `V/√Hz`), and `yadc::Exponent`
 /// is one such type, ready-made. There may be any number of axes, of
 /// different types. Each axis may also carry `#[ucum("kg")]` for the serde
 /// derives (see [`UcumSerialize`](macro@UcumSerialize)); it is ignored here.

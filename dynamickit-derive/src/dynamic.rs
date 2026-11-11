@@ -790,6 +790,10 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
     };
     // The pairs that can hold the same facts, one of them `shared`.
     let mut coincide: Vec<(usize, usize)> = Vec::new();
+    // Pairs with a `shared` mapping told apart only by plain constants:
+    // whether those constants are equal is known at compile time, not here
+    // (`ONE` and `Dim(0)` may be the same value). `(i, j, condition)`.
+    let mut maybe: Vec<(usize, usize, TokenStream2)> = Vec::new();
     for j in 0..maps.len() {
         for i in 0..j {
             let (a, b) = (&maps[i], &maps[j]);
@@ -926,6 +930,7 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
                  their constants must differ"
             );
             match sides.as_slice() {
+                [] if shared => maybe.push((i, j, quote! { (#(#conds)&&*) })),
                 [] => apart.global.extend(quote_spanned! { b.span=>
                     const _: () = ::core::assert!(!(#(#conds)&&*), #msg);
                 }),
@@ -955,6 +960,8 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
     // A `shared` mapping is the same value as exactly one other: it may hold
     // that one's facts, and is told apart from every other.
     for (k, m) in maps.iter().enumerate().filter(|(_, m)| m.shared) {
+        let mine: Vec<&(usize, usize, TokenStream2)> =
+            maybe.iter().filter(|(i, j, _)| *i == k || *j == k).collect();
         let with: Vec<String> = coincide
             .iter()
             .filter_map(|&(i, j)| match (i == k, j == k) {
@@ -965,6 +972,21 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
             .map(|n| format!("`{n}`"))
             .collect();
         match with.len() {
+            // Partners decided by constants: exactly one pair's constants
+            // must be equal, checked when compiling.
+            0 | 1 if !mine.is_empty() => {
+                let known = with.len();
+                let conds = mine.iter().map(|(_, _, c)| quote! { (#c as usize) });
+                let msg = format!(
+                    "`{}` is `shared`: it must hold the same facts as exactly one other mapping \
+                     (the constants telling them apart must be equal for one and differ for \
+                     the rest)",
+                    m.name()
+                );
+                apart.global.extend(quote_spanned! { m.span=>
+                    const _: () = ::core::assert!(#known #(+ #conds)* == 1, #msg);
+                });
+            }
             1 => {}
             0 => {
                 return Err(syn::Error::new(

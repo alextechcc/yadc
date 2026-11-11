@@ -611,3 +611,29 @@ fn raw_identifiers() {
     assert_eq!(Kinded::<2>::try_from(-a), Ok(Kinded { r#type: -1.5 }));
     assert_eq!(Kinded::<3>::try_from(a), Err(a));
 }
+
+/// A `shared` mapping whose partner is decided by constants written two
+/// ways (`UNIT` and `Unit(0)`): equal when compiled, so they are partners.
+mod shared_by_constants {
+    #[derive_const(PartialEq)]
+    #[derive(Copy, Clone, Debug, Eq)]
+    pub struct Unit(i8);
+    pub const UNIT: Unit = Unit(0);
+    #[derive(Copy, Clone, PartialEq, Debug)]
+    pub struct Ratio(pub f64);
+
+    #[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
+    #[dynamic(shared f64 => { unit: UNIT, value: self })]
+    #[dynamic(Ratio => { unit: Unit(0), value: .0 })]
+    pub struct AnyRatio {
+        unit: Unit,
+        value: f64,
+    }
+
+    #[test]
+    fn partners_by_value() {
+        let r = AnyRatio::from(2.0);
+        assert_eq!(Ratio::try_from(r), Ok(Ratio(2.0)));
+        assert_eq!(f64::try_from(AnyRatio::from(Ratio(3.0))), Ok(3.0));
+    }
+}

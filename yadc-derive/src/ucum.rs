@@ -195,7 +195,13 @@ pub(crate) fn expand_ucum_deserialize(input: &DeriveInput) -> syn::Result<TokenS
                                 __yadc_alloc::format!("bad exponent in `{}`", __tok),
                             )
                         })?;
-                    __out.#ident = __exp;
+                    // A repeated symbol multiplies: `m.m` is m², `m2.m-2` is m⁰.
+                    __out.#ident = <#ty as #yadc::Axis>::checked_add(__out.#ident, __exp)
+                        .ok_or_else(|| {
+                            <__D::Error as #serde::de::Error>::custom(
+                                __yadc_alloc::format!("exponent out of range in `{}`", __tok),
+                            )
+                        })?;
                 }
             }
         },

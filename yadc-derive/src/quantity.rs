@@ -698,13 +698,21 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
             quote! { #qv: #yadc::num_traits::real::Real },
         ]);
         let w = wher_rt(&preds);
-        let build = ctor(quote! {
-            #yadc::num_traits::real::Real::powf(
-                self.#member,
+        // `powf` of a negative number is NaN, so an odd root takes the
+        // root of the magnitude and keeps the sign: ∛(-8 m³) is -2 m.
+        let build = ctor(quote! {{
+            let __x = self.#member;
+            let __r = #yadc::num_traits::real::Real::powf(
+                #yadc::num_traits::real::Real::abs(__x),
                 <#v as #yadc::num_traits::One>::one()
                     / <#v as #yadc::num_traits::NumCast>::from(__N).unwrap(),
-            )
-        });
+            );
+            if __N % 2 != 0 && #yadc::num_traits::real::Real::is_sign_negative(__x) {
+                -__r
+            } else {
+                __r
+            }
+        }});
         extras.extend(quote! {
             #h_dn_rt #yadc::Root<__N> for #self_d #w {
                 type Output = #root_ty;

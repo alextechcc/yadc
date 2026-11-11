@@ -152,3 +152,15 @@ fn dimensionless_serializes_as_one() {
     let back = ISQ::deserialize(StrDeserializer::<Error>::new(&wire)).unwrap();
     assert_eq!(back, ISQ::DIMENSIONLESS);
 }
+
+/// A repeated symbol multiplies, as UCUM reads it: `m.m` is m², `m2.m-2` is
+/// a plain number.
+#[test]
+fn repeated_symbols_multiply() {
+    use serde::Deserialize;
+    use serde::de::value::{Error, StrDeserializer};
+
+    let read = |s: &str| ISQ::deserialize(StrDeserializer::<Error>::new(s)).unwrap();
+    assert_eq!(read("m.m"), read("m2"));
+    assert_eq!(read("m2.m-2"), ISQ::DIMENSIONLESS);
+}

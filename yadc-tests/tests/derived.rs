@@ -45,7 +45,8 @@ const _: () = assert!(matches!(LENGTH.partial_powi(-2), Some(d) if d.m == -2));
 // a plain amount moves one.
 const _: () = assert!((ALTITUDE * LENGTH).is_none() && (LENGTH / ALTITUDE).is_none());
 const _: () = assert!((ALTITUDE * Dim::DIMENSIONLESS).is_none());
-const _: () = assert!(ALTITUDE.partial_powi(2).is_none() && ALTITUDE.partial_root(1).is_none());
+const _: () = assert!(ALTITUDE.partial_powi(2).is_none() && ALTITUDE.partial_root(2).is_none());
+const _: () = assert!(ALTITUDE.partial_powi(1).is_none() && ALTITUDE.partial_root(1).is_none());
 const _: () = assert!(is(ALTITUDE - ALTITUDE, LENGTH) && is(ALTITUDE + LENGTH, ALTITUDE));
 const _: () = assert!(is(ALTITUDE - LENGTH, ALTITUDE));
 const _: () = assert!((ALTITUDE + ALTITUDE).is_none() && (LENGTH + ALTITUDE).is_none());
@@ -66,7 +67,10 @@ const _: () = assert!((LEVEL * Dim::DIMENSIONLESS).is_none() && (LEVEL / Dim::DI
 const _: () = assert!((RANK * Dim::DIMENSIONLESS).is_none() && is(LENGTH * Dim::DIMENSIONLESS, LENGTH));
 const _: () = assert!(matches!(GAIN / LENGTH, Some(d) if d.m == -1 && d.kind == Kind::Linear));
 const _: () = assert!((LEVEL * LENGTH).is_none() && (GAIN * GAIN).is_none() && (LENGTH / LEVEL).is_none());
-const _: () = assert!(GAIN.partial_root(2).is_none());
+const _: () = assert!(GAIN.partial_root(2).is_none() && matches!(GAIN.partial_root(1), Some(d) if d == GAIN));
+// An exponent that does not fit its type has no product.
+const BIG: Dim = Dim { m: 100, ..Dim::DIMENSIONLESS };
+const _: () = assert!((BIG * BIG).is_none() && (LENGTH.partial_powi(-128)).is_none());
 const _: () = assert!(matches!(Kind::Rank * Kind::Linear, Kind::Rank));
 const BODY: Temperature = CELSIUS.quantity(37.0); // a scale, in `const`
 const _: () = assert!(TemperatureUnit::Kelvin.value(BODY) > 310.0);
@@ -199,4 +203,16 @@ fn points_have_no_products_but_move() {
     let a: Altitude = SEA_LEVEL + 10.0 * METRE;
     let d: Length = a - SEA_LEVEL;
     assert!(close(METRE.value(d), 10.0));
+}
+
+/// An odd root keeps the sign: ∛(-8 m³) is -2 m, in the static type and in
+/// a dimension-free float root alike; an even root of a negative is NaN.
+#[test]
+fn odd_roots_keep_the_sign() {
+    use yadc::RootAs;
+    let cube = METRE * METRE * METRE * -8.0;
+    let side: Length = cube.root::<3>();
+    assert!(close(METRE.value(side), -2.0));
+    assert!(close((-8.0f64).partial_root(3).unwrap(), -2.0));
+    assert!((-4.0f64).partial_root(2).unwrap().is_nan());
 }

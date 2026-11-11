@@ -1,366 +1,406 @@
 error[E0277]: cannot multiply: these have no product
-  --> tests/ui/define/refusals.rs:53:23
+  --> tests/ui/define/refusals.rs:58:23
    |
-53 |     let _ = SEA_LEVEL * METRE;
+58 |     let _ = SEA_LEVEL * METRE;
    |                       ^ no product
    |
 help: the trait `MulExists<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Mul<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Mul<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Mul<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0277]: cannot add: the dimensions differ
-  --> tests/ui/define/refusals.rs:57:19
+error[E0277]: cannot add: the labels have no sum
+  --> tests/ui/define/refusals.rs:63:25
    |
-57 |     let _ = METRE + SECOND;
+63 |     let _ = METRE_LEVEL + SEA_LEVEL;
+   |                         ^ these labels do not add
+   |
+help: the trait `AddLabels<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>`
+  --> tests/ui/define/refusals.rs:36:1
+   |
+36 | pub struct Qty<const D: Dim>(f64);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: a sum keeps its left operand's type, and the labels' rules decide what may be added to it - here there is none (a label's sums are declared on the kind enum: `#[kind(add(X) = Y)]`); two levels sum to the level of a product, another dimension: add the quantities they are the levels of
+note: required for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>` to implement `Add<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
+  --> tests/ui/define/refusals.rs:35:53
+   |
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+   |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
+   = help: consider manually implementing `Add<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
+   = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: cannot subtract: the labels have no difference
+  --> tests/ui/define/refusals.rs:64:23
+   |
+64 |     let _ = SEA_LEVEL - RATED_METRE;
+   |                       ^ these labels do not subtract
+   |
+help: the trait `SubLabels<Qty<{ Dim { m: 1, kind: Kind::Rated, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
+  --> tests/ui/define/refusals.rs:36:1
+   |
+36 | pub struct Qty<const D: Dim>(f64);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: the labels' rules decide what may be subtracted - here there is none (a label's differences are declared on the kind enum: `#[kind(sub(X) = Y)]`)
+note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Sub<Qty<{ Dim { m: 1, kind: Kind::Rated, ..Dim::DIMENSIONLESS } }>>`
+  --> tests/ui/define/refusals.rs:35:53
+   |
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+   |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Sub<Qty<{ Dim { m: 1, kind: Kind::Rated, ..Dim::DIMENSIONLESS } }>>`
+   = help: consider manually implementing `Sub<Qty<{ Dim { m: 1, kind: Kind::Rated, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
+   = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: cannot add: the dimensions differ
+  --> tests/ui/define/refusals.rs:65:19
+   |
+65 |     let _ = METRE + SECOND;
    |                   ^ the dimensions differ
    |
 help: the trait `AddSameDimension<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: only values of one dimension add: a length to a length, a time to a time
 note: required for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>` to implement `Add<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Add<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot add a point to a point
-  --> tests/ui/define/refusals.rs:58:23
+  --> tests/ui/define/refusals.rs:66:23
    |
-58 |     let _ = SEA_LEVEL + SEA_LEVEL;
+66 |     let _ = SEA_LEVEL + SEA_LEVEL;
    |                       ^ a point cannot be added to a point
    |
 help: the trait `AddNotTwoPoints<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: a point's zero is a convention, so a sum of two would depend on it: subtract them instead (`point - point` is an amount), or move one by an amount (`point + amount`)
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Add`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add`
    = help: consider manually implementing `Add` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot add these in this order
-  --> tests/ui/define/refusals.rs:59:19
+  --> tests/ui/define/refusals.rs:67:19
    |
-59 |     let _ = METRE + SEA_LEVEL;
+67 |     let _ = METRE + SEA_LEVEL;
    |                   ^ write the other operand first
    |
 help: the trait `AddInOrder<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: a sum keeps its left operand's type: an amount moves a point (`point + amount`), a gain moves a level (`level + gain`), so the point or the level goes on the left
 note: required for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>` to implement `Add<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Add<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot add these in this order
-  --> tests/ui/define/refusals.rs:60:20
+  --> tests/ui/define/refusals.rs:68:20
    |
-60 |     let _ = KELVIN + ABSOLUTE_ZERO;
+68 |     let _ = KELVIN + ABSOLUTE_ZERO;
    |                    ^ write the other operand first
    |
 help: the trait `AddInOrder<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { k: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: a sum keeps its left operand's type: an amount moves a point (`point + amount`), a gain moves a level (`level + gain`), so the point or the level goes on the left
 note: required for `Qty<{ Dim { k: 1, ..Dim::DIMENSIONLESS } }>` to implement `Add<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Add<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract: the dimensions differ
-  --> tests/ui/define/refusals.rs:61:19
+  --> tests/ui/define/refusals.rs:69:19
    |
-61 |     let _ = METRE - SECOND;
+69 |     let _ = METRE - SECOND;
    |                   ^ the dimensions differ
    |
 help: the trait `SubSameDimension<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: only values of one dimension subtract: a length from a length, a time from a time
 note: required for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>` to implement `Sub<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Sub<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Sub<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract a point from an amount
-  --> tests/ui/define/refusals.rs:62:19
+  --> tests/ui/define/refusals.rs:70:19
    |
-62 |     let _ = METRE - SEA_LEVEL;
+70 |     let _ = METRE - SEA_LEVEL;
    |                   ^ a point cannot be subtracted from an amount
    |
 help: the trait `SubNotFromAmount<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: an amount minus a point would depend on where the point's zero was put: subtract two points (`point - point` is an amount), or move a point by an amount (`point - amount`)
 note: required for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>` to implement `Sub<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Sub<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Sub<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract: the dimensions differ
-  --> tests/ui/define/refusals.rs:63:23
+  --> tests/ui/define/refusals.rs:71:23
    |
-63 |     let _ = SEA_LEVEL - ABSOLUTE_ZERO;
+71 |     let _ = SEA_LEVEL - ABSOLUTE_ZERO;
    |                       ^ the dimensions differ
    |
 help: the trait `SubSameDimension<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: only values of one dimension subtract: a length from a length, a time from a time
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Sub<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Sub<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Sub<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot add: the labels have no sum
-  --> tests/ui/define/refusals.rs:64:25
+  --> tests/ui/define/refusals.rs:72:25
    |
-64 |     let _ = METRE_LEVEL + METRE_LEVEL;
+72 |     let _ = METRE_LEVEL + METRE_LEVEL;
    |                         ^ these labels do not add
    |
 help: the trait `AddLabels<Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: a sum keeps its left operand's type, and the labels' rules decide what may be added to it - here there is none (a label's sums are declared on the kind enum: `#[kind(add(X) = Y)]`); two levels sum to the level of a product, another dimension: add the quantities they are the levels of
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>` to implement `Add`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add`
    = help: consider manually implementing `Add` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot add these in this order
-  --> tests/ui/define/refusals.rs:65:17
+  --> tests/ui/define/refusals.rs:73:17
    |
-65 |     let _ = BEL + METRE_LEVEL;
+73 |     let _ = BEL + METRE_LEVEL;
    |                 ^ write the other operand first
    |
 help: the trait `AddInOrder<Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { kind: Kind::Log, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: a sum keeps its left operand's type: an amount moves a point (`point + amount`), a gain moves a level (`level + gain`), so the point or the level goes on the left
 note: required for `Qty<{ Dim { kind: Kind::Log, ..Dim::DIMENSIONLESS } }>` to implement `Add<Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Add<Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Add<Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot scale: this label cannot be added to itself
-  --> tests/ui/define/refusals.rs:66:25
+  --> tests/ui/define/refusals.rs:74:25
    |
-66 |     let _ = METRE_LEVEL * 2.0;
+74 |     let _ = METRE_LEVEL * 2.0;
    |                         ^ this label cannot be scaled
    |
 help: the trait `ScaleLabel` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: scaling is repeated addition, and this dimension has no sum with itself that is itself - its label declares none, or it is a level, whose double is the level of a square: it is not a `Quantity` nor a unit of itself
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>` to implement `Mul<f64>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Mul<f64>`
    = help: consider manually implementing `Mul<f64>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot multiply: these have no product
-  --> tests/ui/define/refusals.rs:67:25
+  --> tests/ui/define/refusals.rs:75:25
    |
-67 |     let _ = METRE_LEVEL * METRE;
+75 |     let _ = METRE_LEVEL * METRE;
    |                         ^ no product
    |
 help: the trait `MulExists<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>` to implement `Mul<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Mul<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Mul<Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract a point from an amount
-  --> tests/ui/define/refusals.rs:68:20
+  --> tests/ui/define/refusals.rs:76:20
    |
-68 |     let _ = KELVIN - ABSOLUTE_ZERO;
+76 |     let _ = KELVIN - ABSOLUTE_ZERO;
    |                    ^ a point cannot be subtracted from an amount
    |
 help: the trait `SubNotFromAmount<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { k: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: an amount minus a point would depend on where the point's zero was put: subtract two points (`point - point` is an amount), or move a point by an amount (`point - amount`)
 note: required for `Qty<{ Dim { k: 1, ..Dim::DIMENSIONLESS } }>` to implement `Sub<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Sub<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Sub<Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: a point cannot be scaled
-  --> tests/ui/define/refusals.rs:69:23
+  --> tests/ui/define/refusals.rs:77:23
    |
-69 |     let _ = SEA_LEVEL * 2.0;
+77 |     let _ = SEA_LEVEL * 2.0;
    |                       ^ a point cannot be scaled
    |
 help: the trait `ScaleNotPoint` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Mul<f64>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Mul<f64>`
    = help: consider manually implementing `Mul<f64>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot divide: these have no quotient
-  --> tests/ui/define/refusals.rs:70:23
+  --> tests/ui/define/refusals.rs:78:23
    |
-70 |     let _ = SEA_LEVEL / SECOND;
+78 |     let _ = SEA_LEVEL / SECOND;
    |                       ^ no quotient
    |
 help: the trait `DivExists<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: the dimension's own `/` has no result here. A point's zero is a convention, so its quotients would depend on it: divide the amount `point - zero` instead. A level is a logarithm, and subtracting levels is what divides: divide the quantity it is the level of
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Div<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Div<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>`
    = help: consider manually implementing `Div<Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: this power has no dimension
-  --> tests/ui/define/refusals.rs:71:23
+  --> tests/ui/define/refusals.rs:79:23
    |
-71 |     let _ = SEA_LEVEL.powi::<2>();
+79 |     let _ = SEA_LEVEL.powi::<2>();
    |                       ^^^^ no dimension is this power
    |
 help: the trait `PowiExists<2>` is not implemented for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: a power is repeated `*`, and a point or a logarithm has no square
 help: the trait `Powi<__N>` is implemented for `Qty<D>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Powi<2>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Powi<2>`
    = help: consider manually implementing `Powi<2>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: this root has no dimension
-  --> tests/ui/define/refusals.rs:72:19
+  --> tests/ui/define/refusals.rs:80:19
    |
-72 |     let _ = METRE.root::<2>();
+80 |     let _ = METRE.root::<2>();
    |                   ^^^^ no dimension is this root
    |
 help: the trait `RootExact<2>` is not implemented for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>`
-  --> tests/ui/define/refusals.rs:33:1
+  --> tests/ui/define/refusals.rs:36:1
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: with integer exponents only exact roots exist (√m² is m, √m is none); a dimension with rational exponents (`yadc::Exponent`) has every root
 help: the trait `Root<__N>` is implemented for `Qty<D>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^
 note: required for `Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>` to implement `Root<2>`
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Root<2>`
    = help: consider manually implementing `Root<2>` to avoid undesired bounds
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: a point cannot be scaled
-  --> tests/ui/define/refusals.rs:73:23
+  --> tests/ui/define/refusals.rs:81:23
    |
-33 | pub struct Qty<const D: Dim>(f64);
+36 | pub struct Qty<const D: Dim>(f64);
    | ---------------------------- method `value` not found for this struct because it doesn't satisfy `_: ScaleNotPoint` or `_: Unit<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
 ...
-73 |     let _ = SEA_LEVEL.value(SEA_LEVEL);
+81 |     let _ = SEA_LEVEL.value(SEA_LEVEL);
    |                       ^^^^^ a point cannot be scaled
    |
 note: trait bound `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>: ScaleNotPoint` was not satisfied
-  --> tests/ui/define/refusals.rs:32:53
+  --> tests/ui/define/refusals.rs:35:53
    |
-32 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+35 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Unit`
    = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
 note: the trait `ScaleNotPoint` must be implemented

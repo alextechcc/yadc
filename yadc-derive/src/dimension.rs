@@ -59,11 +59,9 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
         }
     }
 
-    // Axis arithmetic is core's own `Add` / `Sub` / `PartialEq` and the zero
-    // exponent is `Default::default()` - all const-callable on nightly - so no
-    // literal `0` and no bespoke trait is needed. Any axis type with those
-    // const impls and `PartialRoot` works: every integer, or `yadc::Exponent`
-    // giving `m^½`.
+    // An axis type provides `yadc::Axis` (a checked sum and difference),
+    // const `PartialEq`, `Default` (the zero exponent - no literal `0`) and
+    // `PartialRoot`: every signed integer, or `yadc::Exponent` giving `m^½`.
     let axes: Vec<(&syn::Ident, &Type)> = numeric_fields
         .iter()
         .filter_map(|f| f.ident.as_ref().map(|i| (i, &f.ty)))
@@ -74,25 +72,27 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     // Add/Sub: exponents copied from the left operand, kinds add/subtract -
     // and `None` when the operands' exponents differ, so a mismatch (Mass +
     // Force) is rejected just like an illegal kind combination.
-    // An exponent is combined with its type's own `+` / `-`, whose `Output`
-    // only has to convert `Into<Option<_>>`: an integer's sum is itself
-    // (`Some`), `yadc::Exponent`'s is already an `Option`. An exponent that
-    // does not fit its type has no value to be, so the product panics with a
-    // message saying so (at compile time, where the product is a type).
+    // Exponents combine through `yadc::Axis`, whose sum and difference are
+    // `None` where they do not fit the type. With a `#[kind]` field the
+    // product is partial anyway, so an exponent out of range is `None`;
+    // without one the product panics saying so (at compile time, where the
+    // product is a type).
+    let partial = kind_field.is_some();
     let checked = |f: &syn::Ident, ty: &Type, add: bool| {
-        let op = if add {
-            quote! { + }
-        } else {
-            quote! { - }
-        };
+        let m = syn::Ident::new(if add { "checked_add" } else { "checked_sub" }, Span::call_site());
         let msg = format!(
             "the exponent `{f}` of this {} does not fit in its type",
             if add { "product" } else { "quotient" }
         );
+        let overflow = if partial {
+            quote! { return ::core::option::Option::None }
+        } else {
+            quote! { ::core::panic!(#msg) }
+        };
         quote! {
-            #f: match ::core::convert::Into::<::core::option::Option<#ty>>::into(a.#f #op b.#f) {
+            #f: match <#ty as #yadc::Axis>::#m(a.#f, b.#f) {
                 ::core::option::Option::Some(e) => e,
-                ::core::option::Option::None => ::core::panic!(#msg),
+                ::core::option::Option::None => #overflow,
             }
         }
     };
@@ -105,18 +105,12 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
             axis_types.push(ty);
         }
     }
-    let axis_bounds = |tr: &str| -> TokenStream2 {
-        let t = syn::Ident::new(tr, Span::call_site());
-        let preds = axis_types.iter().map(|ty| {
-            quote! {
-                #ty: [const] ::core::ops::#t,
-                <#ty as ::core::ops::#t>::Output: [const] ::core::convert::Into<::core::option::Option<#ty>>,
-            }
-        });
+    let axis_bound = {
+        let preds = axis_types.iter().map(|ty| quote! { #ty: [const] #yadc::Axis, });
         quote! { where #(#preds)* }
     };
-    let mul_bounds = axis_bounds("Add");
-    let div_bounds = axis_bounds("Sub");
+    let mul_bounds = axis_bound.clone();
+    let div_bounds = axis_bound;
     let mul_inits: Vec<_> = axes.iter().map(|(f, ty)| checked(f, ty, true)).collect();
     let div_inits: Vec<_> = axes.iter().map(|(f, ty)| checked(f, ty, false)).collect();
     let copy_inits: Vec<_> = axes.iter().map(|(f, _)| quote! { #f: a.#f }).collect();
@@ -346,6 +340,12 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
             {
                 let (aff_s, log_s) = (is_aff(s_.clone()), is_log(s_.clone()));
                 quote! {
+                    // The first root is the first power: `self` beside a plain
+                    // number, where that has a product (a gain's does, a
+                    // point's and a level's do not).
+                    if n == 1 {
+                        return <Self as ::core::ops::Mul>::mul(self, #one);
+                    }
                     if #aff_s || #log_s {
                         return #none;
                     }

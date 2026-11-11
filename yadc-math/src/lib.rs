@@ -76,6 +76,8 @@ macro_rules! float_powi {
 float_powi!(f32, f64);
 
 /// A float's n-th root, `powf(1 / n)`: from std, or from libm in `no_std`.
+/// An odd root of a negative number is the negated root of its magnitude
+/// (∛-8 is -2); an even one is NaN.
 macro_rules! float_root {
     ($($t:ty: $libm:ident),*) => {$(
         #[cfg(any(feature = "std", feature = "libm"))]
@@ -85,11 +87,13 @@ macro_rules! float_root {
                     return None;
                 }
                 let e = 1.0 / n as $t;
+                let odd_negative = n % 2 != 0 && self < 0.0;
+                let x = if odd_negative { -self } else { self };
                 #[cfg(feature = "std")]
-                let r = self.powf(e);
+                let r = x.powf(e);
                 #[cfg(all(not(feature = "std"), feature = "libm"))]
-                let r = libm::$libm(self, e);
-                Some(r)
+                let r = libm::$libm(x, e);
+                Some(if odd_negative { -r } else { r })
             }
         }
     )*};
@@ -112,6 +116,39 @@ macro_rules! exponent_root {
     )*};
 }
 exponent_root!(i8, i16, i32, i64, i128, isize);
+
+/// An exponent type: the type of a dimension's axes (`m: i8`). A product
+/// adds exponents and a quotient subtracts them, and the result may not fit
+/// the type - `None` then, where integer `+` would wrap or panic.
+pub const trait Axis: Sized {
+    /// `self + rhs`, `None` where it does not fit.
+    fn checked_add(self, rhs: Self) -> Option<Self>;
+    /// `self - rhs`, `None` where it does not fit.
+    fn checked_sub(self, rhs: Self) -> Option<Self>;
+}
+
+macro_rules! integer_axis {
+    ($($t:ty),*) => {$(
+        const impl Axis for $t {
+            fn checked_add(self, rhs: Self) -> Option<Self> {
+                <$t>::checked_add(self, rhs)
+            }
+            fn checked_sub(self, rhs: Self) -> Option<Self> {
+                <$t>::checked_sub(self, rhs)
+            }
+        }
+    )*};
+}
+integer_axis!(i8, i16, i32, i64, i128, isize);
+
+const impl Axis for Exponent {
+    fn checked_add(self, rhs: Self) -> Option<Self> {
+        self + rhs
+    }
+    fn checked_sub(self, rhs: Self) -> Option<Self> {
+        self - rhs
+    }
+}
 
 /// A rational exponent, for systems with fractional powers: `V/√Hz` noise
 /// density, fracture toughness in `MPa·√m`, or CGS-Gaussian units, whose
