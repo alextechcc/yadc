@@ -463,7 +463,7 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 In [`yadc/examples/`](yadc/examples/):
 
 - **`basic_use.rs`** — a tour of `yadc-si`: building and reading quantities with units (every constant is one), derived quantities, temperature scales (`CELSIUS`), power levels (`DBM`), `cast` and lossless `From`, printing, `DynamicSIQuantity`, units picked at run time, and `const` items built from the `consts` modules.
-- **`define_unit_system.rs`** — a unit system from scratch, without `yadc-si`: `Kind`, `Dim`, `Qty`, base constants and everything defined from them (`PSI = POUND * STANDARD_GRAVITY / (INCH * INCH)`), and units of every shape - quantity constants, scales, levels in decibels and a type of yours (Beaufort), `f32` units, `&dyn` unit choices, units parsed from strings.
+- **`define_unit_system.rs`** — a small unit system from scratch, without `yadc-si`: `Kind`, `Dim`, `Qty`, four base constants and a few defined from them, a scale (°C) and a unit enum parsed from a string.
 - **`generic_fns.rs`** — unit-system-agnostic functions bounded on `Q: Quantity`, `U: Unit<Q>` and the standard operators, called with SI and with a custom nautical system defined in the file.
 - **`custom_unit_impl.rs`** — a unit written by hand (a run-time-calibrated sensor step): `impl Unit<Length>` counting in a `Length` field, plus `Display`, mixing with the derived SI units behind `&dyn Unit<Length>`.
 - **`custom_value_type.rs`** — a custom number type with `const` operators, its constants, and units counting in it (`#[unit(number = ..)]`).

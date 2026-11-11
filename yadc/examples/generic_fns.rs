@@ -69,17 +69,13 @@ fn convert_with<Q>(value: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -
     to(from(value))
 }
 
-/// Average two values given in `in_unit` and read the result in
-/// `out_unit`, which may be a unit of another enum (or another system's
-/// hand-written unit), as long as it is a unit of the same `Q`. No SI
-/// knowledge here.
-fn average<Q, U, D>(a: f64, b: f64, in_unit: U, out_unit: D) -> f64
+/// The average of two values: a value of the same quantity. No unit and no
+/// SI knowledge here - the caller reads the result in whatever unit it likes.
+fn average<Q>(a: Q, b: Q) -> Q
 where
     Q: Add<Output = Q> + Div<f64, Output = Q>,
-    U: Unit<Q>,
-    D: Unit<Q>,
 {
-    out_unit.value((in_unit.quantity(a) + in_unit.quantity(b)) / 2.0)
+    (a + b) / 2.0
 }
 
 /// The difference between two readings, in `unit`. The difference of two
@@ -93,19 +89,13 @@ where
     unit.value(to - from)
 }
 
-/// The mean of some quantities, read in `unit`. `Quantity` says the values
-/// add and divide by their numbers; with `Number = f64`, the numbers are
-/// `f64`s.
-fn mean<Q, U>(values: &[Q], unit: U) -> f64
-where
-    Q: Quantity<Number = f64>,
-    U: Unit<Q>,
-{
-    let mut sum = values[0];
-    for v in &values[1..] {
-        sum = sum + *v;
-    }
-    unit.value(sum / values.len() as f64)
+/// The mean of some quantities: a quantity of the same kind, `None` for
+/// none. `Quantity` says the values add and divide by their numbers; with
+/// `Number = f64`, the numbers are `f64`s.
+fn mean<Q: Quantity<Number = f64>>(values: &[Q]) -> Option<Q> {
+    let (first, rest) = values.split_first()?;
+    let sum = rest.iter().fold(*first, |sum, v| sum + *v);
+    Some(sum / values.len() as f64)
 }
 
 /// How many times `step` goes into `q`: every quantity is a unit of its own
@@ -234,18 +224,18 @@ fn main() {
 
     // -- average ---------------------------------------------------------------
 
-    // SI: average two masses in kg, display result in grams
-    let gram = MassUnit::Gram;
+    // SI: average two masses given in kg, read in grams
+    let (kg, gram) = (MassUnit::Kilogram, MassUnit::Gram);
     println!(
         "SI   avg(60 kg, 80 kg) in g  = {} {gram}",
-        average(60.0, 80.0, MassUnit::Kilogram, gram),
+        gram(average(kg(60.0), kg(80.0))),
     );
 
-    // Nav: average two distances in nmi, display result in metres (long name)
-    let metre = NavDistUnit::Metre;
+    // Nav: average two distances given in nmi, read in metres (long name)
+    let (nmi, metre) = (NavDistUnit::NauticalMile, NavDistUnit::Metre);
     println!(
         "Nav  avg(10 nmi, 50 nmi) in m = {} {metre:#}",
-        average(10.0, 50.0, NavDistUnit::NauticalMile, metre),
+        metre(average(nmi(10.0), nmi(50.0))),
     );
 
     // -- mean and how_many: generic over `Quantity` -----------------------------
@@ -257,7 +247,7 @@ fn main() {
     ];
     println!(
         "SI   mean(60 kg, 80 kg, 100 lb) = {:.2} kg",
-        mean(&loads, MassUnit::Kilogram)
+        MassUnit::Kilogram(mean(&loads).unwrap())
     );
     let legs = [
         NavDistUnit::NauticalMile(3.0),
@@ -265,7 +255,7 @@ fn main() {
     ];
     println!(
         "Nav  mean(3 nmi, 500 m)         = {:.3} nmi",
-        mean(&legs, NavDistUnit::NauticalMile)
+        NavDistUnit::NauticalMile(mean(&legs).unwrap())
     );
     println!(
         "SI   a marathon in laps of 400 m = {:.1}",
