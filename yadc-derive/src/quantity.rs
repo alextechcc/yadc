@@ -6,7 +6,8 @@ use crate::paths::Paths;
 use crate::util::{has_attr, is_phantom, member_of, param_decl};
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::quote;
-use syn::{Data, DeriveInput, GenericParam, Type};
+use syn::parse::Parse;
+use syn::{Data, DeriveInput, GenericParam, Token, Type};
 
 /// A static family: a struct with a dimension const parameter.
 pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> {
@@ -811,6 +812,186 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         }
     }
 
+    // `#[quantity(from(M => N, ..))]`: a member counted in `M` meets one
+    // counted in `N`, and the result is counted in `N`, the `M` side
+    // converted with std `From<M> for N`. The operators and their refusals
+    // are the same-type ones', read at `N`.
+    let mut mixed = TokenStream2::new();
+    if !opts.from.is_empty() && v_ident.is_none() {
+        return Err(syn::Error::new_spanned(
+            &input.ident,
+            "`from(M => N)` mixes number types, so the family needs one as a parameter: \
+             `struct Qty<const D: Dim, N = f64>(N)`",
+        ));
+    }
+    let h_ab_prim = head_prim(&p_ab);
+    for (m, n) in &opts.from {
+        let (m, n) = (quote! { #m }, quote! { #n });
+        let at = |dim: &TokenStream2, num: &TokenStream2| ty_v(dim, Some(num));
+        let (a_m, a_n, b_m, b_n) = (at(&ta, &m), at(&ta, &n), at(&tb, &m), at(&tb, &n));
+        let (d_m, d_n) = (at(&td, &m), at(&td, &n));
+        let dim_of = |f: &str| {
+            let e = dim_fn(f, quote! { #qa, #qb });
+            at(&quote! { { #e } }, &n)
+        };
+        let (mul_n, div_n, sub_n) = (
+            dim_of("product_or_one"),
+            dim_of("quotient_or_one"),
+            dim_of("difference_or_one"),
+        );
+        let conv = quote! { #n: [const] ::core::convert::From<#m> };
+        let up = |x: TokenStream2| quote! { <#n as ::core::convert::From<#m>>::from(#x) };
+        let (up_rhs, up_self) = (up(quote! { rhs.#member }), up(quote! { self.#member }));
+        let num = |tr: &str| {
+            let t = syn::Ident::new(tr, Span::call_site());
+            quote! { #n: [const] ::core::ops::#t<Output = #n> }
+        };
+        // `self` is `left`, the right operand `right`; `body` builds the
+        // result from the two numbers, both already counted in `N`.
+        let op = |left: &TokenStream2, right: &TokenStream2, tr: &str, out: &TokenStream2,
+                  refusals: Vec<TokenStream2>, left_up: bool, sym: TokenStream2| {
+            let t = syn::Ident::new(tr, Span::call_site());
+            let f = syn::Ident::new(&tr.to_lowercase(), Span::call_site());
+            let (l, r) = if left_up {
+                (up(quote! { self.#member }), quote! { rhs.#member })
+            } else {
+                (quote! { self.#member }, up(quote! { rhs.#member }))
+            };
+            let build = ctor(quote! { #l #sym #r });
+            let mut preds = vec![quote! { #out: ::core::marker::Sized }, conv.clone(), num(tr)];
+            preds.extend(refusals);
+            quote! {
+                #h_ab_prim ::core::ops::#t<#right> for #left where #(#preds,)* {
+                    type Output = #out;
+                    fn #f(self, rhs: #right) -> #out { #build }
+                }
+            }
+        };
+        let mul_r = pair(&["MulExists"], &a_n, &b_n);
+        let div_r = pair(&["DivExists"], &a_n, &b_n);
+        let add_r = pair(ADD, &a_n, &b_n);
+        let sub_r = pair(SUB, &a_n, &b_n);
+        for (left, right, left_up) in [(&a_m, &b_n, true), (&a_n, &b_m, false)] {
+            mixed.extend(op(left, right, "Mul", &mul_n, mul_r.clone(), left_up, quote! { * }));
+            mixed.extend(op(left, right, "Div", &div_n, div_r.clone(), left_up, quote! { / }));
+            // A sum keeps its left operand's dimension, counted in `N`.
+            mixed.extend(op(left, right, "Add", &a_n, add_r.clone(), left_up, quote! { + }));
+            mixed.extend(op(left, right, "Sub", &sub_n, sub_r.clone(), left_up, quote! { - }));
+        }
+        // In place, into the `N` side.
+        if opts.has("AddAssign") {
+            let mut preds = vec![conv.clone(), quote! { #n: [const] ::core::ops::AddAssign }];
+            preds.extend(add_r.clone());
+            mixed.extend(quote! {
+                #h_ab_prim ::core::ops::AddAssign<#b_m> for #a_n where #(#preds,)* {
+                    fn add_assign(&mut self, rhs: #b_m) { self.#member += #up_rhs; }
+                }
+            });
+        }
+        if opts.has("SubAssign") {
+            let mut preds = vec![conv.clone(), quote! { #n: [const] ::core::ops::SubAssign }];
+            preds.extend(pair(&[SUB, &["SubInPlace"]].concat(), &a_n, &b_n));
+            mixed.extend(quote! {
+                #h_ab_prim ::core::ops::SubAssign<#b_m> for #a_n where #(#preds,)* {
+                    fn sub_assign(&mut self, rhs: #b_m) { self.#member -= #up_rhs; }
+                }
+            });
+        }
+        // Scaling an `M` member by an `N` number, from either side; and the
+        // `M` member as a unit of `N` members, called like one.
+        let scale = one(SCALE, &d_n);
+        let w_scale = |extra: TokenStream2| {
+            let mut p = scale.clone();
+            p.push(conv.clone());
+            p.push(extra);
+            quote! { where #(#p,)* }
+        };
+        let (w_mul, w_div) = (w_scale(num("Mul")), w_scale(num("Div")));
+        let (sm, sd) = (
+            ctor(quote! { #up_self * rhs }),
+            ctor(quote! { #up_self / rhs }),
+        );
+        let sl = ctor(quote! { self * #up_rhs });
+        let unit_build = ctor(quote! { #up_self * value });
+        let unit_read = quote! { quantity.#member / #up_self };
+        mixed.extend(quote! {
+            #h_d_prim ::core::ops::Mul<#n> for #d_m #w_mul {
+                type Output = #d_n;
+                fn mul(self, rhs: #n) -> #d_n { #sm }
+            }
+            #h_d_prim ::core::ops::Div<#n> for #d_m #w_div {
+                type Output = #d_n;
+                fn div(self, rhs: #n) -> #d_n { #sd }
+            }
+            #h_d_prim ::core::ops::Mul<#d_m> for #n #w_mul {
+                type Output = #d_n;
+                fn mul(self, rhs: #d_m) -> #d_n { #sl }
+            }
+        });
+        let w_unit = {
+            let mut p = scale.clone();
+            p.extend([conv.clone(), num("Mul"), num("Div"), quote! { #m: ::core::marker::Copy }]);
+            quote! { where #(#p,)* }
+        };
+        mixed.extend(quote! {
+            #h_d_prim #yadc::Unit<#d_n, #n> for #d_m #w_unit {
+                fn quantity(&self, value: #n) -> #d_n { #unit_build }
+                fn value(&self, quantity: #d_n) -> #n { #unit_read }
+            }
+        });
+        if opts.has("Fn") {
+            let unit = quote! { #yadc::Unit<#d_n, #n> };
+            let w = quote! { where #d_m: [const] #unit + [const] ::core::marker::Destruct };
+            let call = |arg: &TokenStream2, out: &TokenStream2, how: TokenStream2| {
+                quote! {
+                    #h_d_prim ::core::ops::FnOnce<(#arg,)> for #d_m #w {
+                        type Output = #out;
+                        extern "rust-call" fn call_once(self, (x,): (#arg,)) -> #out {
+                            <#d_m as #unit>::#how(&self, x)
+                        }
+                    }
+                    #h_d_prim ::core::ops::FnMut<(#arg,)> for #d_m #w {
+                        extern "rust-call" fn call_mut(&mut self, (x,): (#arg,)) -> #out {
+                            <#d_m as #unit>::#how(&*self, x)
+                        }
+                    }
+                    #h_d_prim ::core::ops::Fn<(#arg,)> for #d_m #w {
+                        extern "rust-call" fn call(&self, (x,): (#arg,)) -> #out {
+                            <#d_m as #unit>::#how(self, x)
+                        }
+                    }
+                }
+            };
+            mixed.extend(call(&n, &d_n, quote! { quantity }));
+            mixed.extend(call(&d_n, &n, quote! { value }));
+        }
+        // Compared at `N`, either way round.
+        let h_d_rt = {
+            let ps: Vec<&TokenStream2> = others_prim.iter().chain(std::iter::once(&p_d)).collect();
+            quote! { impl<#(#ps),*> }
+        };
+        let w_cmp = quote! { where #n: ::core::cmp::PartialOrd + ::core::convert::From<#m>, #m: ::core::marker::Copy };
+        let (us, them) = (up(quote! { other.#member }), up(quote! { self.#member }));
+        mixed.extend(quote! {
+            #h_d_rt ::core::cmp::PartialEq<#d_m> for #d_n #w_cmp {
+                fn eq(&self, other: &#d_m) -> bool { self.#member == #us }
+            }
+            #h_d_rt ::core::cmp::PartialEq<#d_n> for #d_m #w_cmp {
+                fn eq(&self, other: &#d_n) -> bool { #them == other.#member }
+            }
+            #h_d_rt ::core::cmp::PartialOrd<#d_m> for #d_n #w_cmp {
+                fn partial_cmp(&self, other: &#d_m) -> ::core::option::Option<::core::cmp::Ordering> {
+                    self.#member.partial_cmp(&#us)
+                }
+            }
+            #h_d_rt ::core::cmp::PartialOrd<#d_n> for #d_m #w_cmp {
+                fn partial_cmp(&self, other: &#d_n) -> ::core::option::Option<::core::cmp::Ordering> {
+                    #them.partial_cmp(&other.#member)
+                }
+            }
+        });
+    }
+
     Ok(quote! {
         #refusals
         #quantity
@@ -820,6 +1001,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         #scalar_ops
         #left_scalar
         #extras
+        #mixed
     })
 }
 
@@ -898,6 +1080,9 @@ const EXTRAS: &[&str] = &[
 /// `#[quantity(impl(..))]`: which extras to write.
 struct Options {
     extras: Option<Vec<String>>,
+    /// `#[quantity(from(M => N, ..))]`: number types `M` that meet `N`, the
+    /// pair converting with std `From<M> for N`.
+    from: Vec<(Type, Type)>,
 }
 
 impl Options {
@@ -915,6 +1100,7 @@ impl Options {
 
     fn parse(input: &DeriveInput) -> syn::Result<Self> {
         let mut extras: Option<Vec<String>> = None;
+        let mut from: Vec<(Type, Type)> = Vec::new();
         for attr in &input.attrs {
             if !attr.path().is_ident("quantity") {
                 continue;
@@ -937,12 +1123,42 @@ impl Options {
                         list.push(name);
                         Ok(())
                     })
+                } else if meta.path.is_ident("from") {
+                    let content;
+                    syn::parenthesized!(content in meta.input);
+                    let source: Type = content.parse()?;
+                    content.parse::<Token![=>]>()?;
+                    let targets = content.parse_terminated(Type::parse, Token![,])?;
+                    let key = |t: &Type| quote! { #t }.to_string();
+                    for target in targets {
+                        if key(&source) == key(&target) {
+                            return Err(syn::Error::new_spanned(
+                                &target,
+                                "a number type meets itself already: list other types",
+                            ));
+                        }
+                        if from.iter().any(|(m, n)| key(m) == key(&target) && key(n) == key(&source)) {
+                            return Err(syn::Error::new_spanned(
+                                &target,
+                                "`from` runs one way: a pair listed both ways would give two \
+                                 results for one sum",
+                            ));
+                        }
+                        if from.iter().any(|(m, n)| key(m) == key(&source) && key(n) == key(&target)) {
+                            return Err(syn::Error::new_spanned(&target, "listed twice"));
+                        }
+                        from.push((source.clone(), target));
+                    }
+                    Ok(())
                 } else {
-                    Err(meta.error("expected `impl(..)`: `#[quantity(impl(Neg, Powi, ..))]`"))
+                    Err(meta.error(
+                        "expected `impl(..)` (`#[quantity(impl(Neg, Powi, ..))]`) or `from(M => \
+                         N, ..)` (number types that meet, converting with `From<M> for N`)",
+                    ))
                 }
             })?;
         }
-        Ok(Options { extras })
+        Ok(Options { extras, from })
     }
 }
 

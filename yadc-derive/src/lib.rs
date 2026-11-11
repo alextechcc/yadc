@@ -410,6 +410,35 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// pub struct Qty<const D: Dim>(f64);
 /// ```
 ///
+/// # Number types that meet: `#[quantity(from(M => N, ..))]`
+///
+/// For a family with a number type parameter, lists number types `M` whose
+/// members meet members counted in `N`; the result is counted in `N`, the
+/// `M` side converted with std `From<M> for N` (`const` where that is). For
+/// each pair it writes:
+///
+/// - `* / + -` between an `M` and an `N` member, either way round, with the
+///   same refusals as the same-type operators (a sum keeps its left
+///   operand's dimension); `+=` and `-=` into the `N` side (with the
+///   `AddAssign` / `SubAssign` extras);
+/// - scaling an `M` member by an `N` number, from either side;
+/// - every `M` member as a `Unit` of `N` members (`KILOMETRE_32.value(d)`),
+///   called like one with the `Fn` extra (`KILOMETRE_32(3.0)`);
+/// - `==` and `<` either way round.
+///
+/// It runs one way: listing a pair both ways is an error, since `f32 + f64`
+/// would then have two results. So a system's constants can be counted in
+/// an exact number type of its own and meet values in whatever type stores
+/// them: `#[quantity(from(Exact => f32, f64))]`.
+///
+/// ```ignore
+/// #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+/// #[quantity(from(f32 => f64), from(i32 => f64))]
+/// pub struct Qty<const D: Dim, N = f64>(N);
+///
+/// const LIMIT: Velocity = 50.0 * KILOMETRE_32 / HOUR_I32;   // f32 and i32 constants, f64 result
+/// ```
+///
 /// # Shape
 ///
 /// Nothing positional is assumed. The **dimension** is the const generic
