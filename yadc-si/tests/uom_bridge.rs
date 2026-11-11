@@ -26,21 +26,21 @@ fn close(a: f64, b: f64) {
 fn static_from_uom_length() {
     let uom = Length::new::<kilometer>(42.195);
     let q: StaticSIQuantity<_> = uom.into();
-    close(LengthUnit::Meter.from_quantity(q), 42_195.0);
-    close(LengthUnit::Kilometer.from_quantity(q), 42.195);
+    close(LengthUnit::Metre.value(q), 42_195.0);
+    close(LengthUnit::Kilometre.value(q), 42.195);
 }
 
 #[test]
 fn static_from_uom_mass() {
     let uom = Mass::new::<kilogram>(70.0);
     let q: StaticSIQuantity<_> = uom.into();
-    close(MassUnit::Kilogram.from_quantity(q), 70.0);
-    close(MassUnit::Gram.from_quantity(q), 70_000.0);
+    close(MassUnit::Kilogram.value(q), 70.0);
+    close(MassUnit::Gram.value(q), 70_000.0);
 }
 
 #[test]
 fn static_into_uom_length() {
-    let q = LengthUnit::Kilometer.quantity(5.0);
+    let q = LengthUnit::Kilometre.quantity(5.0);
     let uom: Length = q.into();
     close(uom.get::<meter>(), 5_000.0);
     close(uom.get::<kilometer>(), 5.0);
@@ -58,7 +58,7 @@ fn static_round_trip_uom_to_yadc_to_uom() {
 fn static_derived_quantity_velocity() {
     let uom = Velocity::new::<meter_per_second>(25.0);
     let q: StaticSIQuantity<_> = uom.into();
-    close(VelocityUnit::MeterPerSecond.from_quantity(q), 25.0);
+    close(VelocityUnit::MetrePerSecond.value(q), 25.0);
     let back: Velocity = q.into();
     close(back.get::<meter_per_second>(), 25.0);
 }
@@ -67,7 +67,7 @@ fn static_derived_quantity_velocity() {
 fn static_derived_quantity_force() {
     let uom = Force::new::<newton>(9.81);
     let q: StaticSIQuantity<_> = uom.into();
-    close(ForceUnit::Newton.from_quantity(q), 9.81);
+    close(ForceUnit::Newton.value(q), 9.81);
     let back: Force = q.into();
     close(back.get::<newton>(), 9.81);
 }
@@ -78,33 +78,43 @@ fn static_derived_quantity_force() {
 fn dynamic_from_uom_length() {
     let uom = Length::new::<meter>(500.0);
     let dq: DynamicSIQuantity = uom.into();
-    assert_eq!(LengthUnit::Meter.try_from_quantity(dq), Some(500.0));
-    assert_eq!(MassUnit::Kilogram.try_from_quantity(dq), None);
+    close(
+        LengthUnit::Metre.value(yadc_si::mechanical::Length::try_from(dq).unwrap()),
+        500.0,
+    );
+    assert!(yadc_si::mechanical::Mass::try_from(dq).is_err());
 }
 
 #[test]
 fn dynamic_from_uom_mass() {
     let uom = Mass::new::<kilogram>(70.0);
     let dq: DynamicSIQuantity = uom.into();
-    assert_eq!(MassUnit::Kilogram.try_from_quantity(dq), Some(70.0));
+    close(
+        MassUnit::Kilogram.value(yadc_si::mechanical::Mass::try_from(dq).unwrap()),
+        70.0,
+    );
 }
 
 #[test]
 fn dynamic_from_derived_velocity() {
     let uom = Velocity::new::<meter_per_second>(10.0);
     let dq: DynamicSIQuantity = uom.into();
-    assert_eq!(VelocityUnit::MeterPerSecond.try_from_quantity(dq), Some(10.0));
-    // velocity dim doesn't match force - None
-    assert_eq!(ForceUnit::Newton.try_from_quantity(dq), None);
+    close(
+        VelocityUnit::MetrePerSecond.value(yadc_si::mechanical::Velocity::try_from(dq).unwrap()),
+        10.0,
+    );
+    // velocity dim doesn't match force
+    assert!(yadc_si::mechanical::Force::try_from(dq).is_err());
 }
 
 #[test]
 fn dynamic_from_derived_acceleration() {
     let uom = Acceleration::new::<meter_per_second_squared>(9.81);
     let dq: DynamicSIQuantity = uom.into();
-    assert_eq!(
-        AccelerationUnit::MeterPerSecondSquared.try_from_quantity(dq),
-        Some(9.81)
+    close(
+        AccelerationUnit::MetrePerSecondSquared
+            .value(yadc_si::mechanical::Acceleration::try_from(dq).unwrap()),
+        9.81,
     );
 }
 
@@ -120,7 +130,10 @@ fn dynamic_try_from_wrong_dim_returns_original() {
     let dq: DynamicSIQuantity = Mass::new::<kilogram>(5.0).into();
     let err = Length::try_from(dq).unwrap_err();
     // The original DynamicSIQuantity is returned so the caller can recover it.
-    assert_eq!(MassUnit::Kilogram.try_from_quantity(err), Some(5.0));
+    close(
+        MassUnit::Kilogram.value(yadc_si::mechanical::Mass::try_from(err).unwrap()),
+        5.0,
+    );
 }
 
 #[test]
@@ -137,34 +150,39 @@ fn dynamic_arithmetic_after_uom_conversion() {
     // in runtime dim algebra.
     let mass: DynamicSIQuantity = Mass::new::<kilogram>(2.0).into();
     let accel: DynamicSIQuantity = Acceleration::new::<meter_per_second_squared>(3.0).into();
-    // DynamicSIQuantity `*` returns `Option` (`None` only on an invalid kind);
-    // mass x acceleration composes to a valid Force.
+    // A product of two amounts exists: mass x acceleration composes to a
+    // Force.
     let force = (mass * accel).unwrap();
-    assert_eq!(ForceUnit::Newton.try_from_quantity(force), Some(6.0));
+    close(
+        ForceUnit::Newton.value(yadc_si::mechanical::Force::try_from(force).unwrap()),
+        6.0,
+    );
 }
 
 // --- Kind mapping -------------------------------------------------------------
+// uom tells angles apart from plain ratios with a kind; yadc-si counts them on
+// its `rad` axis. uom's temperature kind is yadc-si's `Absolute` label.
 
 #[test]
-fn static_angle_from_uom_has_angle_kind() {
-    let uom = Angle::new::<radian>(1.5707963);
+fn static_angle_from_uom_is_one_radian_axis() {
+    let uom = Angle::new::<radian>(std::f64::consts::FRAC_PI_2);
     let q: StaticSIQuantity<_> = uom.into();
-    close(AngleUnit::Radian.from_quantity(q), 1.5707963);
+    close(AngleUnit::Radian.value(q), std::f64::consts::FRAC_PI_2);
 }
 
 #[test]
 fn static_angle_round_trip() {
-    let original = Angle::new::<radian>(3.14159);
+    let original = Angle::new::<radian>(std::f64::consts::PI);
     let q: StaticSIQuantity<_> = original.into();
     let back: Angle = q.into();
-    close(back.get::<radian>(), 3.14159);
+    close(back.get::<radian>(), std::f64::consts::PI);
 }
 
 #[test]
 fn static_solid_angle_round_trip() {
     let original = SolidAngle::new::<steradian>(4.0);
     let q: StaticSIQuantity<_> = original.into();
-    close(SolidAngleUnit::Steradian.from_quantity(q), 4.0);
+    close(SolidAngleUnit::Steradian.value(q), 4.0);
     let back: SolidAngle = q.into();
     close(back.get::<steradian>(), 4.0);
 }
@@ -172,19 +190,22 @@ fn static_solid_angle_round_trip() {
 #[test]
 fn dynamic_angle_kind_preserved() {
     let dq: DynamicSIQuantity = Angle::new::<radian>(1.0).into();
-    assert_eq!(AngleUnit::Radian.try_from_quantity(dq), Some(1.0));
-    // Must not match a dimensionless (Kind::Linear) unit
-    assert_eq!(
-        yadc_si::dimensionless::DimensionlessUnit::Ratio.try_from_quantity(dq),
-        None
+    close(
+        AngleUnit::Radian.value(yadc_si::angular::Angle::try_from(dq).unwrap()),
+        1.0,
     );
+    // Must not match a plain dimensionless quantity (no radians).
+    assert!(yadc_si::dimensionless::Dimensionless::try_from(dq).is_err());
 }
 
 #[test]
 fn dynamic_solid_angle_kind_preserved() {
     let dq: DynamicSIQuantity = SolidAngle::new::<steradian>(2.5).into();
-    assert_eq!(SolidAngleUnit::Steradian.try_from_quantity(dq), Some(2.5));
-    assert_eq!(AngleUnit::Radian.try_from_quantity(dq), None);
+    close(
+        SolidAngleUnit::Steradian.value(yadc_si::angular::SolidAngle::try_from(dq).unwrap()),
+        2.5,
+    );
+    assert!(yadc_si::angular::Angle::try_from(dq).is_err());
 }
 
 #[test]
@@ -196,9 +217,40 @@ fn dynamic_try_from_angle_succeeds() {
 
 #[test]
 fn dynamic_try_from_angle_rejects_dimensionless() {
-    // A DynamicSIQuantity with Kind::Angle must not convert to a uom kind-less quantity.
+    // An angle (rad¹) must not convert to a uom quantity of another dimension;
+    // the original comes back.
     let dq: DynamicSIQuantity = Angle::new::<radian>(1.0).into();
-    // Mass has kind dyn uom::Kind (Linear) but different dimensions - just confirm it fails
     let err = Mass::try_from(dq).unwrap_err();
-    assert_eq!(AngleUnit::Radian.try_from_quantity(err), Some(1.0));
+    close(
+        AngleUnit::Radian.value(yadc_si::angular::Angle::try_from(err).unwrap()),
+        1.0,
+    );
+}
+
+#[test]
+fn uom_torque_is_joules_per_radian() {
+    use uom::si::f64::Torque;
+    use uom::si::torque::newton_meter;
+    // uom marks torque with its angle kind; in yadc-si that is rad⁻¹, so the
+    // conversion lands on `Torque` (J/rad) and torque × angle is energy.
+    let q: yadc_si::mechanical::Torque = Torque::new::<newton_meter>(5.0).into();
+    close(TorqueUnit::NewtonMetre.value(q), 5.0);
+    let work: Energy = q * AngleUnit::Radian.quantity(2.0);
+    close(EnergyUnit::Joule.value(work), 10.0);
+}
+
+#[test]
+fn uom_temperature_kind_is_absolute() {
+    use uom::si::f64::ThermodynamicTemperature;
+    use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
+    use yadc_si::thermal::ThermodynamicTemperatureUnit;
+    let t: yadc_si::thermal::ThermodynamicTemperature =
+        ThermodynamicTemperature::new::<degree_celsius>(25.0).into();
+    close(ThermodynamicTemperatureUnit::Kelvin.value(t), 298.15);
+    let dq: DynamicSIQuantity = ThermodynamicTemperature::new::<kelvin>(300.0).into();
+    // A temperature, not an interval.
+    assert!(yadc_si::thermal::ThermodynamicTemperature::try_from(dq).is_ok());
+    assert!(yadc_si::thermal::TemperatureInterval::try_from(dq).is_err());
+    let back = ThermodynamicTemperature::try_from(dq).unwrap();
+    close(back.get::<kelvin>(), 300.0);
 }

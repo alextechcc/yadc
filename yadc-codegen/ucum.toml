@@ -3,11 +3,10 @@
 # The [ucum] table triggers UCUM-driven generation: families and quantities
 # come from ucum-essence.xml rather than [[family]] sections in this file.
 #
-# To use UCUM-native dimensions instead of ISQ (keeping `rad` as a real
-# dimension field, `g` as grams, `C` as coulombs):
-#   1. Change [dim].fields to ["m", "g", "s", "C", "K", "cd", "rad"]
-#   2. Remove or remap the [[ucum.base]] entries for g, C, rad, sr
-#   3. Remove "Angle" and "SolidAngle" from [kind].variants if desired
+# Angles are a real exponent axis (`rad`, so sr = rad2), as in yadc-si.
+# To use UCUM-native dimensions instead of ISQ (`g` as grams, `C` as
+# coulombs): change [dim].fields to ["m", "g", "s", "C", "K", "cd", "rad"] and
+# remove or remap the [[ucum.base]] entries for g and C.
 
 [system]
 crate_name   = "yadc-ucum"
@@ -18,12 +17,74 @@ family_order = [
 unit_derives = ["Copy", "Clone"]
 
 [kind]
-variants = ["Linear", "Affine", "Angle", "SolidAngle", "Invalid"]
+# `Absolute`: a temperature - an amount with a true zero that scales with
+# other zeros also read. Two differ by a linear step, and a step moves one.
+variants = ["Linear", "Absolute"]
+default = "Linear"
+rules = { Absolute = ["sub(Absolute) = Linear", "add(Linear) = Absolute", "sub(Linear) = Absolute"] }
 
 # ISQ dimension fields.  Change this list (and the [[ucum.base]] overrides
 # below) to switch to a different basis, e.g. native UCUM dimensions.
 [dim]
-fields = ["m", "kg", "s", "A", "K", "mol", "cd"]
+fields = ["m", "kg", "s", "A", "K", "mol", "cd", "rad"]
+
+# The base constants: the only raw numbers of the generated crate (its `base`
+# module). One per axis - the unit of that axis, exponent 1 - plus the number
+# one (the unit of dimension one: `HERTZ = ONE / SECOND`) and the zero of
+# absolute temperature. Every other constant is defined from them: a coherent
+# unit as their product (`NEWTON = METRE * KILOGRAM / (SECOND * SECOND)`), a
+# multiple as `m * COHERENT` (`KILOMETRE = 1000.0 * METRE`).
+
+[[base]]
+name = "ONE"
+doc = "The number one: the unit of dimension one."
+
+[[base]]
+name = "METRE"
+dims = {m = 1}
+doc = "The metre, the SI base unit of length."
+
+[[base]]
+name = "KILOGRAM"
+dims = {kg = 1}
+doc = "The kilogram, the SI base unit of mass."
+
+[[base]]
+name = "SECOND"
+dims = {s = 1}
+doc = "The second, the SI base unit of time."
+
+[[base]]
+name = "AMPERE"
+dims = {A = 1}
+doc = "The ampere, the SI base unit of electric current."
+
+[[base]]
+name = "KELVIN"
+dims = {K = 1}
+doc = "The kelvin as a step: a temperature difference of 1 K (the same as 1 °C of difference)."
+
+[[base]]
+name = "MOLE"
+dims = {mol = 1}
+doc = "The mole, the SI base unit of amount of substance."
+
+[[base]]
+name = "CANDELA"
+dims = {cd = 1}
+doc = "The candela, the SI base unit of luminous intensity."
+
+[[base]]
+name = "RADIAN"
+dims = {rad = 1}
+doc = "The radian: an exponent axis here, so an angle never mixes with a plain ratio."
+
+[[base]]
+name = "ABSOLUTE_ZERO"
+dims = {K = 1}
+kind = "Absolute"
+value = "0.0"
+doc = "Absolute zero, 0 K: the zero of thermodynamic temperature."
 
 [dimensionless]
 units = [
@@ -64,19 +125,6 @@ dims       = { A = 1, s = 1 }
 multiplier = 1.0
 
 [[ucum.base]]
-# radian -> dimensionless with Angle kind
-# In ISQ, plane angle is dimensionless (rad = m/m).  The Angle kind
-# preserves the type distinction against bare ratios and lets the resolver
-# propagate Angle x Angle = SolidAngle automatically.
-#
-# To use rad as a real dimension instead: remove this entry, add "rad" to
-# [dim].fields, and remove "Angle"/"SolidAngle" from [kind].variants.
-code       = "rad"
-dims       = {}
-kind       = "Angle"
-multiplier = 1.0
-
-[[ucum.base]]
 # mole - override UCUM's Avogadro-count interpretation and treat as ISQ base.
 # UCUM defines mol = 6.022x10^2^3 (a dimensionless count); this entry promotes
 # it to a proper SI base dimension, consistent with ISQ/SI.
@@ -84,12 +132,3 @@ code       = "mol"
 dims       = { mol = 1 }
 multiplier = 1.0
 
-[[ucum.base]]
-# steradian -> dimensionless with SolidAngle kind
-# Consistent with rad above: sr = rad^2, so in ISQ it is also dimensionless.
-# The SolidAngle kind is generated automatically for rad^2 expressions;
-# this entry ensures the sr code itself resolves the same way.
-code       = "sr"
-dims       = {}
-kind       = "SolidAngle"
-multiplier = 1.0

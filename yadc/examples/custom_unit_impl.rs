@@ -1,76 +1,118 @@
-//! Implementing the `Unit` trait by hand.
+//! Writing a unit by hand: `impl Unit<Velocity>`, plus `Display` if it should
+//! print.
 //!
-//! Conversion lives entirely on the `Unit` trait (`quantity` / `from_quantity`),
-//! so a unit does not have to come from `#[derive(Unit)]`. Here we hand-write
-//! `impl Unit` for a unit whose conversion factor is only known at *runtime* - a
-//! calibrated sensor gain - which the derive (compile-time expressions) cannot
-//! express. It interoperates with the derived `yadc-si` units for free.
+//! What makes a type a unit *of* something is one impl, `Unit<Q>`, with two
+//! methods: `quantity` turns a number into a `Q`, `value` reads a `Q` back as
+//! a number. Most units are constants: a quantity (`KILOMETRE`), or a scale
+//! - a zero and a step (°C is `Scale(ICE_POINT, KELVIN)`, dBm the same on
+//! the logarithmic line). Anything else is two functions on a type of yours.
 //!
-//! Run with: cargo run --example custom_unit_impl --manifest-path yadc/Cargo.toml
-
+//! The Beaufort wind scale is such a unit: force `B` is a wind speed of
+//! `0.836 · B^1.5` metres per second - not a multiple, not a scale. A
+//! hand-written impl is a first-class peer of the constants and of a derived
+//! unit enum: it mixes with the `yadc-si` units, including behind `&dyn`.
+//!
+//! The constants and the derived units are also called like functions
+//! (`kmh(20.0)`, `kmh(gale)`). That is the three std function traits, once
+//! per direction, each a line over `Unit` - written out here for `Beaufort`,
+//! so `Beaufort(8.0)` works too. It needs two nightly features in the crate
+//! that writes the impls, and none in a crate that only calls.
+//!
+//! Run with: cargo run -p yadc --example custom_unit_impl
 #![feature(generic_const_exprs)]
+#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
-use yadc::{Format, Unit};
-use yadc_si::mechanical::{Length, LengthUnit};
+use std::fmt;
 
-/// A length unit whose scale is a runtime calibration factor: one encoder
-/// "tick" equals `meters_per_tick` meters. An enum + `#[derive(Unit)]` cannot
-/// capture this - the factor is a value, not a compile-time constant.
+use yadc::Unit;
+use yadc_si::DynamicSIQuantity;
+use yadc_si::mechanical::consts::METRE_PER_SECOND;
+use yadc_si::mechanical::{MassUnit, Velocity, VelocityUnit};
+
+/// The Beaufort scale: a zero-sized type of ours.
 #[derive(Copy, Clone)]
-struct SensorTicks {
-    meters_per_tick: f64,
-}
+struct Beaufort;
 
-impl Unit for SensorTicks {
-    type Quantity = Length;
-
-    fn quantity(self, value: f64) -> Length {
-        // Convert ticks -> meters, then lift the scalar into the typed quantity.
-        // `Length::from_canonical` is the sanctioned constructor: no private field
-        // is touched, and it bypasses the kind-gated scalar `Mul`.
-        let meters = value * self.meters_per_tick;
-        Length::from_canonical(meters)
+// The whole conversion, both directions written in quantity terms: the
+// formula counts metres per second, and `METRE_PER_SECOND` - a constant, so
+// a unit - turns those numbers into a speed and back.
+impl Unit<Velocity> for Beaufort {
+    fn quantity(&self, force: f64) -> Velocity {
+        METRE_PER_SECOND(0.836 * force.powf(1.5))
     }
-
-    fn from_quantity(self, q: Length) -> f64 {
-        // Divide out the unit to recover the dimensionless SI magnitude.
-        let meters: f64 = (q / Length::from_canonical(1.0)).into();
-        meters / self.meters_per_tick
-    }
-
-    fn symbol(self) -> &'static str {
-        "tick"
-    }
-    fn long(self) -> &'static str {
-        "sensor ticks"
+    fn value(&self, speed: Velocity) -> f64 {
+        (METRE_PER_SECOND(speed) / 0.836).powf(2.0 / 3.0)
     }
 }
+
+// How it prints: `{}` is the symbol, `{:#}` the name. Optional - a unit need
+// not print. `pad` lets width and alignment apply, as for a `str`.
+impl fmt::Display for Beaufort {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(if f.alternate() { "Beaufort" } else { "Bft" })
+    }
+}
+
+// Called like a function: `FnOnce`, `FnMut` and `Fn` for each direction -
+// a number in, a speed out; a speed in, a number out. The argument's type
+// picks the direction.
+macro_rules! called {
+    ($unit:ty: $arg:ty => $out:ty, $method:ident) => {
+        impl FnOnce<($arg,)> for $unit {
+            type Output = $out;
+            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
+                Unit::<Velocity>::$method(&self, x)
+            }
+        }
+        impl FnMut<($arg,)> for $unit {
+            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
+                Unit::<Velocity>::$method(self, x)
+            }
+        }
+        impl Fn<($arg,)> for $unit {
+            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
+                Unit::<Velocity>::$method(self, x)
+            }
+        }
+    };
+}
+called!(Beaufort: f64 => Velocity, quantity);
+called!(Beaufort: Velocity => f64, value);
+
+/// Some unit of `Q` that also prints. `Unit<Q>` alone need not print, so a
+/// list of printable units is a trait of your own, with a blanket impl.
+trait ShownUnit<Q>: Unit<Q> + fmt::Display {}
+impl<Q, U: Unit<Q> + fmt::Display> ShownUnit<Q> for U {}
 
 fn main() {
-    let encoder = SensorTicks {
-        meters_per_tick: 0.0125, // 12.5 mm per tick
-    };
+    // Force 8, a gale: a real `Velocity`, readable in any unit of velocity.
+    let gale = Beaufort(8.0);
+    let kmh = VelocityUnit::KilometrePerHour;
+    println!("force 8 = {:.1} {kmh}", kmh(gale));
 
-    // 800 ticks -> a real `Length`, readable in any derived unit.
-    let travel = encoder.quantity(800.0);
-    println!(
-        "800 ticks = {}",
-        LengthUnit::Meter.format_quantity(travel, Format::Long)
-    );
-    println!(
-        "          = {}",
-        LengthUnit::Kilometer.format_quantity(travel, Format::Short)
-    );
+    // ... and read back in its own unit.
+    println!("        = {:.1} {Beaufort:#}", Beaufort(gale));
 
-    // `format_quantity` (a provided method) works for the hand impl too.
-    println!("round-trip: {}", encoder.format_quantity(travel, Format::Long));
+    // Built by a derived unit, read by ours.
+    let breeze = kmh(20.0);
+    println!("20 km/h = force {:.1}", Beaufort(breeze));
 
-    // The custom unit composes with derived ones: build from km, read as ticks.
-    let one_km = LengthUnit::Kilometer.quantity(1.0);
-    println!("1 km = {} ticks", encoder.from_quantity(one_km));
+    // Maths is on quantities, whatever unit built them.
+    let gusts = gale * 1.5;
+    println!("gusts   = force {:.1}", Beaufort(gusts));
 
-    // A different calibration is just a different value of the same unit type.
-    let coarse = SensorTicks { meters_per_tick: 1.0 };
-    println!("1 km = {} coarse ticks", coarse.from_quantity(one_km));
+    // Picked at run time: some unit of velocity, still checked at compile
+    // time (a mass unit does not fit here). With `Display` too, it prints.
+    // Behind `&dyn` a unit is its two methods.
+    let choices: [&dyn ShownUnit<Velocity>; 3] = [&VelocityUnit::MetrePerSecond, &kmh, &Beaufort];
+    for unit in choices {
+        println!("{unit:>#18}: {:.1} {unit}", unit.value(gale));
+    }
+
+    // A quantity decided at run time: the open type is read through the
+    // static `Velocity`, checked. A mass is not a speed, so it is handed back.
+    let reading = DynamicSIQuantity::from(MassUnit::Kilogram(1.0));
+    let force = Velocity::try_from(reading).map(Beaufort);
+    println!("1 kg in Bft: {:?}", force.map_err(|_| "not a velocity"));
 }

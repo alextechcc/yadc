@@ -6,12 +6,16 @@ license = "MIT OR BSD-3-Clause"
 
 [dependencies]
 yadc-derive = { path = "../yadc-derive" }
+yadc-math = { path = "../yadc-math", default-features = false }
 num-traits = { version = "0.2", default-features = false }
 
 [features]
 default = ["std"]
-std = ["num-traits/std"]
-libm = ["num-traits/libm"]
+std = ["num-traits/std", "yadc-math/std"]
+libm = ["num-traits/libm", "yadc-math/libm"]
+# The UCUM string form of a dimension's kind (`yadc::ucum::UcumKind`) and the
+# `UcumKind` / `UcumSerialize` / `UcumDeserialize` derives - the serde add-on.
+ucum = []
 
 [dev-dependencies]
 serde = { version = "1.0.228", features = ["derive"] }

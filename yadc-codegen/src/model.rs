@@ -7,6 +7,11 @@ pub struct UnitSystem {
     pub system: SystemConfig,
     pub kind: KindConfig,
     pub dim: DimConfig,
+    /// The base constants: the only raw numbers of the generated crate, in
+    /// its always-present `base` module. Every other constant is defined
+    /// from them.
+    #[serde(default)]
+    pub base: Vec<BaseConst>,
     /// Units to place in the always-present `Dimensionless` type alias.
     pub dimensionless: DimensionlessDef,
     /// One entry per quantity family (absent when `[ucum]` drives generation).
@@ -56,8 +61,51 @@ pub struct ExtraModule {
 
 #[derive(Deserialize, Debug)]
 pub struct KindConfig {
-    /// Variant names for the `Kind` enum, in declaration order.
+    /// Variant names for the `Kind` label enum, in declaration order.
     pub variants: Vec<String>,
+    /// The plain label: the variant marked `#[default]` (dimension one's
+    /// label, what `*` and `/` leave beside anything but a plain number) -
+    /// the kind of an ordinary, linear amount.
+    pub default: String,
+    /// The affine kind: the variant whose quantities are points - two differ
+    /// by a plain amount, a plain amount moves one, and one has no sum with
+    /// another, no scaling and no products. Named on the dimension's kind
+    /// field, `#[kind(affine = Kind::..)]`.
+    #[serde(default)]
+    pub affine: Option<String>,
+    /// The logarithmic kind: the variant whose quantities are logarithms -
+    /// levels and gains, whose `+` and `-` add and subtract the exponents.
+    /// Named on the dimension's kind field, `#[kind(log = Kind::..)]`.
+    #[serde(default)]
+    pub log: Option<String>,
+    /// The sums of a label of the system's own, emitted verbatim as that
+    /// variant's `#[kind(..)]`: `Rank = ["add(Rank) = invalid"]`. Labels: `*`
+    /// and `/` are fixed, so a rule is an `add(..)` or `sub(..)` entry, its
+    /// result a variant or `invalid` (`None`).
+    #[serde(default)]
+    pub rules: BTreeMap<String, Vec<String>>,
+}
+
+/// One base constant: `pub const METRE: StaticSIQuantity<..> =
+/// StaticSIQuantity(1.0);` in the generated `base` module.
+#[derive(Deserialize, Debug)]
+pub struct BaseConst {
+    /// `METRE`.
+    pub name: String,
+    /// Its dimension's exponents; absent fields are 0.
+    #[serde(default)]
+    pub dims: BTreeMap<String, i64>,
+    /// Its label, a `[kind]` variant; none for the plain label.
+    pub kind: Option<String>,
+    /// The number, `"1.0"` unless said otherwise (`"0.0"` for a zero).
+    #[serde(default = "one")]
+    pub value: String,
+    /// Its doc comment.
+    pub doc: String,
+}
+
+fn one() -> String {
+    "1.0".into()
 }
 
 #[derive(Deserialize, Debug)]
@@ -87,39 +135,81 @@ pub struct QuantityDef {
     #[serde(default)]
     pub dims: BTreeMap<String, i64>,
     /// Optional kind variant name (without `Kind::` prefix).
-    /// `None` means the default Linear kind from `Dim::ZERO`.
+    /// `None` means the plain label of `Dim::DIMENSIONLESS`.
     pub kind: Option<String>,
+    /// Constants of this module defined by an expression of other constants,
+    /// verbatim: a zero point (`ICE_POINT = ABSOLUTE_ZERO + 273.15 * KELVIN`),
+    /// or - with a `ty` - a scale (`CELSIUS: Scale<ThermodynamicTemperature,
+    /// TemperatureInterval> = Scale(ICE_POINT, KELVIN)`).
+    #[serde(default)]
+    pub consts: Vec<ExtraConst>,
     pub units: Vec<UnitDef>,
 }
 
+/// `{ name = "ICE_POINT", value = "ABSOLUTE_ZERO + 273.15 * KELVIN", doc = ".." }`.
+#[derive(Deserialize, Debug, Clone)]
+pub struct ExtraConst {
+    pub name: String,
+    /// Its type, when not the quantity it is listed under: a scale's
+    /// `Scale<Zero, Step>`.
+    #[serde(default)]
+    pub ty: Option<String>,
+    pub value: String,
+    pub doc: String,
+}
+
 /// One row in a `units = [...]` inline array.
-/// Field names are abbreviated (`v`/`m`/`s`/`l`/`o`) to keep each TOML line compact.
-#[derive(Deserialize, Debug)]
+/// Field names are abbreviated (`v`/`m`/`s`/`l`/`c`) to keep each TOML line compact.
+///
+/// A unit is one of:
+///
+/// - **a multiple** (`m`): its constant, `m * COHERENT` - `pub const KILOMETRE:
+///   Length = 1000.0 * METRE;` - where `COHERENT` is the quantity's coherent
+///   unit (the first with `m = "1.0"`, itself the product of base constants:
+///   `NEWTON = METRE * KILOGRAM / (SECOND * SECOND)`); the enum variant reads
+///   `#[unit("km", "kilometres", by = KILOMETRE)]`;
+/// - **a unit value named in the TOML** (`by`), verbatim, with no constant of
+///   its own: another constant (`by = "KELVIN"` for the degree Celsius of a
+///   temperature step), a scale (`by = "CELSIUS"`, a constant of the
+///   quantity's `consts`), or a path into a hand-written module.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct UnitDef {
-    /// PascalCase enum variant name, e.g. `"Kilometer"`.
+    /// PascalCase enum variant name, e.g. `"Kilometre"`.
     #[serde(rename = "v")]
     pub variant: String,
-    /// Rust expression for the multiplier; stored verbatim, e.g. `"1000.0"` or `"5.0 / 9.0"`.
-    #[serde(rename = "m")]
-    pub multiplier: String,
+    /// Rust expression for the multiplier - the unit's size in coherent
+    /// units, verbatim: `"1000.0"`, `"5.0 / 9.0"`.
+    #[serde(rename = "m", default)]
+    pub multiplier: Option<String>,
     /// Short symbol string, e.g. `"km"`.
     #[serde(rename = "s")]
     pub symbol: String,
-    /// Long plural name, e.g. `"kilometers"`.
+    /// Long plural name, e.g. `"kilometres"`.
     #[serde(rename = "l")]
     pub long: String,
-    /// Affine offset (absolute base-unit reference point), e.g. `273.15` for Celsius.
-    #[serde(rename = "o")]
-    pub offset: Option<f64>,
-    /// Nonlinear scale function: `pow10` | `exp` | `pow2` | `neglog10` | `tan`.
-    /// When set, `m` is reinterpreted as the SI `reference` and `coeff` shapes
-    /// the function. Emitted as a `#[log(base, coeff, reference)]` attribute
-    /// (base 10/e/2, `neglog10` negating coeff) or `#[tan(coeff, reference)]`.
+    /// The constant's name, when not the variant's in SCREAMING_SNAKE_CASE
+    /// (`DEGREE_FAHRENHEIT` for the `Fahrenheit` step).
+    #[serde(rename = "c", default)]
+    pub constant: Option<String>,
+    /// The unit value this unit is, verbatim (no constant of its own).
     #[serde(default)]
-    pub scale: Option<String>,
-    /// Coefficient expression for a nonlinear `scale` (Rust float expr, verbatim).
+    pub by: Option<String>,
+    /// The type the `by` unit value measures, when not this quantity: the
+    /// two convert with std `From` (a level's scale reading a power).
     #[serde(default)]
-    pub coeff: Option<String>,
+    pub via: Option<String>,
+    /// The unit's own `Unit` impl is not `const` (a level read as a power
+    /// converts through a logarithm), so neither is the enum's.
+    #[serde(default)]
+    pub non_const: bool,
+}
+
+impl UnitDef {
+    /// A multiple of the coherent unit, with its own constant.
+    pub fn is_multiple(&self) -> bool {
+        self.by.is_none()
+    }
 }
 
 // --- UCUM-mode config ---------------------------------------------------------
@@ -162,4 +252,6 @@ pub struct UcumBaseMap {
     pub kind: Option<String>,
 }
 
-fn default_multiplier() -> f64 { 1.0 }
+fn default_multiplier() -> f64 {
+    1.0
+}

@@ -5,27 +5,27 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use super::parse::{UcumEssence, Unit};
 use super::resolve::{DimVec, Resolved};
 use crate::model::{
-    DimConfig, DimensionlessDef, FamilyDef, KindConfig, QuantityDef, SystemConfig,
-    UnitDef, UnitSystem,
+    BaseConst, DimConfig, DimensionlessDef, ExtraConst, FamilyDef, KindConfig, QuantityDef,
+    SystemConfig, UnitDef, UnitSystem,
 };
 
 // Metric prefix set applied to isMetric=yes units.
 // (ucum_code, scale_factor, print_symbol, name)
 const METRIC_PREFIXES: &[(&str, f64, &str, &str)] = &[
-    ("T",  1e12,  "T",  "tera"),
-    ("G",  1e9,   "G",  "giga"),
-    ("M",  1e6,   "M",  "mega"),
-    ("k",  1e3,   "k",  "kilo"),
-    ("h",  1e2,   "h",  "hecto"),
-    ("da", 1e1,   "da", "deca"),
-    ("d",  1e-1,  "d",  "deci"),
-    ("c",  1e-2,  "c",  "centi"),
-    ("m",  1e-3,  "m",  "milli"),
-    ("u",  1e-6,  "µ",  "micro"),
-    ("n",  1e-9,  "n",  "nano"),
-    ("p",  1e-12, "p",  "pico"),
-    ("f",  1e-15, "f",  "femto"),
-    ("a",  1e-18, "a",  "atto"),
+    ("T", 1e12, "T", "tera"),
+    ("G", 1e9, "G", "giga"),
+    ("M", 1e6, "M", "mega"),
+    ("k", 1e3, "k", "kilo"),
+    ("h", 1e2, "h", "hecto"),
+    ("da", 1e1, "da", "deca"),
+    ("d", 1e-1, "d", "deci"),
+    ("c", 1e-2, "c", "centi"),
+    ("m", 1e-3, "m", "milli"),
+    ("u", 1e-6, "µ", "micro"),
+    ("n", 1e-9, "n", "nano"),
+    ("p", 1e-12, "p", "pico"),
+    ("f", 1e-15, "f", "femto"),
+    ("a", 1e-18, "a", "atto"),
 ];
 
 fn class_to_family(class: &str) -> &'static str {
@@ -48,13 +48,26 @@ fn class_to_family(class: &str) -> &'static str {
 
 fn pfx_pascal(name: &str) -> &'static str {
     match name {
-        "yotta" => "Yotta", "zetta" => "Zetta", "exa"  => "Exa",
-        "peta"  => "Peta",  "tera"  => "Tera",  "giga" => "Giga",
-        "mega"  => "Mega",  "kilo"  => "Kilo",  "hecto"=> "Hecto",
-        "deca"  => "Deca",  "deci"  => "Deci",  "centi"=> "Centi",
-        "milli" => "Milli", "micro" => "Micro", "nano" => "Nano",
-        "pico"  => "Pico",  "femto" => "Femto", "atto" => "Atto",
-        "zepto" => "Zepto", "yocto" => "Yocto",
+        "yotta" => "Yotta",
+        "zetta" => "Zetta",
+        "exa" => "Exa",
+        "peta" => "Peta",
+        "tera" => "Tera",
+        "giga" => "Giga",
+        "mega" => "Mega",
+        "kilo" => "Kilo",
+        "hecto" => "Hecto",
+        "deca" => "Deca",
+        "deci" => "Deci",
+        "centi" => "Centi",
+        "milli" => "Milli",
+        "micro" => "Micro",
+        "nano" => "Nano",
+        "pico" => "Pico",
+        "femto" => "Femto",
+        "atto" => "Atto",
+        "zepto" => "Zepto",
+        "yocto" => "Yocto",
         _ => "Unknown",
     }
 }
@@ -62,11 +75,14 @@ fn pfx_pascal(name: &str) -> &'static str {
 /// Convert a UCUM property or name string to a PascalCase Rust identifier.
 pub fn to_pascal(s: &str) -> String {
     let s = s
-        .replace('è', "e").replace('é', "e").replace('ê', "e").replace('ë', "e")
-        .replace('à', "a").replace('â', "a").replace('ä', "a")
-        .replace('ô', "o").replace('ö', "o").replace('û', "u").replace('ü', "u")
-        .replace('î', "i").replace('ï', "i").replace('ç', "c")
-        .replace('µ', "u").replace('Å', "A").replace('°', "Degree");
+        .replace(['è', 'é', 'ê', 'ë'], "e")
+        .replace(['à', 'â', 'ä'], "a")
+        .replace(['ô', 'ö'], "o")
+        .replace(['û', 'ü', 'µ'], "u")
+        .replace(['î', 'ï'], "i")
+        .replace('ç', "c")
+        .replace('Å', "A")
+        .replace('°', "Degree");
 
     s.split(|c: char| !c.is_alphanumeric())
         .filter(|w| !w.is_empty())
@@ -81,9 +97,15 @@ pub fn to_pascal(s: &str) -> String {
 }
 
 fn fmt_mult(v: f64) -> String {
-    if v == 1.0 { return "1.0".to_string(); }
+    if v == 1.0 {
+        return "1.0".to_string();
+    }
     let s = format!("{v}");
-    if s.contains('.') || s.contains('e') || s.contains('E') { s } else { format!("{s}.0") }
+    if s.contains('.') || s.contains('e') || s.contains('E') {
+        s
+    } else {
+        format!("{s}.0")
+    }
 }
 
 /// Convert DimVec (i32 exponents) to the BTreeMap<String, i64> used by QuantityDef.
@@ -91,29 +113,104 @@ fn to_qty_dims(dim: &DimVec) -> BTreeMap<String, i64> {
     dim.iter().map(|(k, v)| (k.clone(), *v as i64)).collect()
 }
 
-/// Hardcoded temperature quantities - Celsius/Fahrenheit are isSpecial in UCUM.
-fn temperature_quantities() -> Vec<QuantityDef> {
+/// A plain multiple: `m` times the quantity's coherent unit.
+fn multiple(variant: &str, m: &str, symbol: &str, long: &str) -> UnitDef {
+    UnitDef {
+        variant: variant.into(),
+        multiplier: Some(m.into()),
+        symbol: symbol.into(),
+        long: long.into(),
+        constant: None,
+        by: None,
+        via: None,
+        non_const: false,
+    }
+}
+
+/// A scale: `step`s counted from `zero`, `Scale(zero, step)`.
+fn scale(variant: &str, symbol: &str, long: &str, step: &str, zero: &str) -> UnitDef {
+    UnitDef {
+        variant: variant.into(),
+        multiplier: None,
+        symbol: symbol.into(),
+        long: long.into(),
+        constant: None,
+        by: Some(format!("Scale({zero}, {step})")),
+        via: None,
+        non_const: false,
+    }
+}
+
+/// Hardcoded temperature quantities - Celsius/Fahrenheit are isSpecial in
+/// UCUM. An absolute temperature has the kind of the config's `ABSOLUTE_ZERO`
+/// base constant - a label with rules, or the affine kind - and is read on
+/// scales (a step and a zero); a temperature step is a multiple of the
+/// kelvin. The zeros are defined from the `ABSOLUTE_ZERO` and `KELVIN` base
+/// constants.
+fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
     let k_dim: BTreeMap<String, i64> = [("K".to_string(), 1i64)].into();
+    let mut fahrenheit = multiple("DegreeFahrenheit", "5.0 / 9.0", "°F", "degrees Fahrenheit");
+    fahrenheit.constant = Some("DEGREE_FAHRENHEIT".into());
     vec![
         QuantityDef {
             name: "ThermodynamicTemperature".to_string(),
             dims: k_dim.clone(),
-            kind: Some("Affine".to_string()),
+            kind: Some(kind.to_string()),
+            consts: vec![
+                ExtraConst {
+                    name: "ICE_POINT".into(),
+                    ty: None,
+                    value: "ABSOLUTE_ZERO + 273.15 * KELVIN".into(),
+                    doc: "0 °C, the ice point of water: 273.15 K.".into(),
+                },
+                ExtraConst {
+                    name: "FAHRENHEIT_ZERO".into(),
+                    ty: None,
+                    value: "ICE_POINT - 32.0 * DEGREE_FAHRENHEIT".into(),
+                    doc: "0 °F: 32 °F below the ice point.".into(),
+                },
+            ],
             units: vec![
-                UnitDef { variant: "Kelvin".into(),           multiplier: "1.0".into(),       symbol: "K".into(),  long: "kelvin".into(),             offset: None, scale: None, coeff: None },
-                UnitDef { variant: "DegreeCelsius".into(),    multiplier: "1.0".into(),       symbol: "°C".into(), long: "degree Celsius".into(),      offset: Some(273.15), scale: None, coeff: None },
-                UnitDef { variant: "DegreeFahrenheit".into(), multiplier: "5.0 / 9.0".into(), symbol: "°F".into(), long: "degree Fahrenheit".into(),   offset: Some(459.67), scale: None, coeff: None },
-                UnitDef { variant: "DegreeRankine".into(),    multiplier: "5.0 / 9.0".into(), symbol: "°R".into(), long: "degree Rankine".into(),      offset: None, scale: None, coeff: None },
+                scale(
+                    "Kelvin",
+                    "K",
+                    "kelvin",
+                    "KELVIN",
+                    "ABSOLUTE_ZERO",
+                ),
+                scale(
+                    "DegreeCelsius",
+                    "°C",
+                    "degrees Celsius",
+                    "KELVIN",
+                    "ICE_POINT",
+                ),
+                scale(
+                    "DegreeFahrenheit",
+                    "°F",
+                    "degrees Fahrenheit",
+                    "DEGREE_FAHRENHEIT",
+                    "FAHRENHEIT_ZERO",
+                ),
+                scale(
+                    "DegreeRankine",
+                    "°R",
+                    "degrees Rankine",
+                    "DEGREE_FAHRENHEIT",
+                    "ABSOLUTE_ZERO",
+                ),
             ],
         },
         QuantityDef {
             name: "TemperatureInterval".to_string(),
             dims: k_dim,
             kind: None,
+            consts: Vec::new(),
             units: vec![
-                UnitDef { variant: "Kelvin".into(),      multiplier: "1.0".into(),   symbol: "K".into(),  long: "kelvin".into(),      offset: None, scale: None, coeff: None },
-                UnitDef { variant: "Millikelvin".into(), multiplier: "0.001".into(), symbol: "mK".into(), long: "millikelvin".into(), offset: None, scale: None, coeff: None },
-                UnitDef { variant: "Microkelvin".into(), multiplier: "1e-6".into(),  symbol: "µK".into(), long: "microkelvin".into(), offset: None, scale: None, coeff: None },
+                multiple("Kelvin", "1.0", "K", "kelvin"),
+                multiple("Millikelvin", "0.001", "mK", "millikelvin"),
+                multiple("Microkelvin", "1e-6", "µK", "microkelvin"),
+                fahrenheit,
             ],
         },
     ]
@@ -133,58 +230,81 @@ pub fn to_unit_system(
     system_cfg: SystemConfig,
     kind_cfg: KindConfig,
     dim_cfg: DimConfig,
+    base: Vec<BaseConst>,
     dimless: DimensionlessDef,
 ) -> UnitSystem {
     let mut groups: HashMap<GroupKey, (String, Vec<UnitDef>)> = HashMap::new();
     let mut dimless_units: Vec<UnitDef> = dimless.units;
 
-    let all_codes: HashSet<String> = essence.units.iter()
+    let all_codes: HashSet<String> = essence
+        .units
+        .iter()
         .map(|u| u.code.clone())
         .chain(essence.base_units.iter().map(|b| b.code.clone()))
         .collect();
 
     // Process UCUM base units (m, s, g, rad, K, C, cd)
     for base in &essence.base_units {
-        let Some(r) = resolved.get(&base.code) else { continue; };
-        if base.property.contains("temperature") { continue; }
+        let Some(r) = resolved.get(&base.code) else {
+            continue;
+        };
+        if base.property.contains("temperature") {
+            continue;
+        }
 
-        let key = GroupKey { dim: r.dim.clone(), kind: r.kind.clone(), family: "si".to_string() };
-        let (_, units_vec) = groups.entry(key.clone())
+        let key = GroupKey {
+            dim: r.dim.clone(),
+            kind: r.kind.clone(),
+            family: "si".to_string(),
+        };
+        let (_, units_vec) = groups
+            .entry(key.clone())
             .or_insert_with(|| (base.property.clone(), Vec::new()));
         units_vec.push(UnitDef {
             variant: to_pascal(&base.name),
-            multiplier: fmt_mult(r.multiplier),
+            multiplier: Some(fmt_mult(r.multiplier)),
             symbol: base.print_symbol.clone(),
             long: base.name.clone(),
-            offset: None,
-            scale: None,
-            coeff: None,
+            constant: None,
+            by: None,
+            via: None,
+            non_const: false,
         });
         for &(pfx_code, pfx_val, pfx_sym, pfx_name) in METRIC_PREFIXES {
             let prefixed_code = format!("{pfx_code}{}", base.code);
-            if all_codes.contains(&prefixed_code) { continue; }
+            if all_codes.contains(&prefixed_code) {
+                continue;
+            }
             let mult = fmt_mult(r.multiplier * pfx_val);
             let entry = groups.get_mut(&key).unwrap();
             entry.1.push(UnitDef {
                 variant: format!("{}{}", pfx_pascal(pfx_name), to_pascal(&base.name)),
-                multiplier: mult,
+                multiplier: Some(mult),
                 symbol: format!("{pfx_sym}{}", base.print_symbol),
                 long: format!("{pfx_name}{}", base.name),
-                offset: None,
-                scale: None,
-                coeff: None,
+                constant: None,
+                by: None,
+                via: None,
+                non_const: false,
             });
         }
     }
 
     for unit in &essence.units {
-        if unit.is_arbitrary || unit.is_special { continue; }
-        let Some(r) = resolved.get(&unit.code) else { continue; };
-        if unit.property.contains("temperature") { continue; }
+        if unit.is_arbitrary || unit.is_special {
+            continue;
+        }
+        let Some(r) = resolved.get(&unit.code) else {
+            continue;
+        };
+        if unit.property.contains("temperature") {
+            continue;
+        }
 
         let family = class_to_family(&unit.class);
 
-        if r.dim.is_empty() && r.kind.is_none()
+        if r.dim.is_empty()
+            && r.kind.is_none()
             && !matches!(unit.class.as_str(), "si" | "iso1000" | "intl")
         {
             if family == "dimless" {
@@ -193,7 +313,11 @@ pub fn to_unit_system(
             continue;
         }
 
-        let key = GroupKey { dim: r.dim.clone(), kind: r.kind.clone(), family: family.to_string() };
+        let key = GroupKey {
+            dim: r.dim.clone(),
+            kind: r.kind.clone(),
+            family: family.to_string(),
+        };
         let (_, units_vec) = groups
             .entry(key.clone())
             .or_insert_with(|| (unit.property.clone(), Vec::new()));
@@ -202,17 +326,20 @@ pub fn to_unit_system(
         if unit.is_metric {
             for &(pfx_code, pfx_val, pfx_sym, pfx_name) in METRIC_PREFIXES {
                 let prefixed_code = format!("{pfx_code}{}", unit.code);
-                if all_codes.contains(&prefixed_code) { continue; }
+                if all_codes.contains(&prefixed_code) {
+                    continue;
+                }
                 let mult = fmt_mult(r.multiplier * pfx_val);
                 let entry = groups.get_mut(&key).unwrap();
                 entry.1.push(UnitDef {
                     variant: format!("{}{}", pfx_pascal(pfx_name), to_pascal(&unit.name)),
-                    multiplier: mult,
+                    multiplier: Some(mult),
                     symbol: format!("{pfx_sym}{}", unit.print_symbol),
                     long: format!("{pfx_name}{}", unit.name),
-                    offset: None,
-                    scale: None,
-                    coeff: None,
+                    constant: None,
+                    by: None,
+                    via: None,
+                    non_const: false,
                 });
             }
         }
@@ -221,17 +348,24 @@ pub fn to_unit_system(
     let mut family_qtys: HashMap<String, HashMap<String, QuantityDef>> = HashMap::new();
 
     for (GroupKey { dim, kind, family }, (property, units_vec)) in groups {
-        if units_vec.is_empty() { continue; }
+        if units_vec.is_empty() {
+            continue;
+        }
         let qty_name = to_pascal(&property);
-        if qty_name.is_empty() { continue; }
+        if qty_name.is_empty() {
+            continue;
+        }
 
         let fam_map = family_qtys.entry(family).or_default();
-        let entry = fam_map.entry(qty_name.clone()).or_insert_with(|| QuantityDef {
-            name: qty_name,
-            dims: to_qty_dims(&dim),
-            kind,
-            units: Vec::new(),
-        });
+        let entry = fam_map
+            .entry(qty_name.clone())
+            .or_insert_with(|| QuantityDef {
+                name: qty_name,
+                dims: to_qty_dims(&dim),
+                kind,
+                consts: Vec::new(),
+                units: Vec::new(),
+            });
         let existing: HashSet<String> = entry.units.iter().map(|u| u.variant.clone()).collect();
         for u in units_vec {
             if !existing.contains(&u.variant) {
@@ -242,7 +376,16 @@ pub fn to_unit_system(
 
     // Insert hardcoded temperature quantities into "heat" family
     let heat_map = family_qtys.entry("heat".to_string()).or_default();
-    for qty in temperature_quantities() {
+    let absolute = base
+        .iter()
+        .find(|b| b.name == "ABSOLUTE_ZERO")
+        .and_then(|b| b.kind.clone())
+        .expect(
+            "UCUM's absolute temperatures are counted from an `ABSOLUTE_ZERO` base constant with \
+             a kind of its own: add `[[base]] name = \"ABSOLUTE_ZERO\"` with `kind = \"..\"` \
+             (a `[kind]` variant: a label with rules, or the affine kind)",
+        );
+    for qty in temperature_quantities(&absolute) {
         heat_map.insert(qty.name.clone(), qty);
     }
 
@@ -252,7 +395,10 @@ pub fn to_unit_system(
             let mut qtys: Vec<QuantityDef> = qty_map.into_values().collect();
             qtys.sort_by(|a, b| a.name.cmp(&b.name));
             if !qtys.is_empty() {
-                families.push(FamilyDef { name: fam_name.clone(), quantity: qtys });
+                families.push(FamilyDef {
+                    name: fam_name.clone(),
+                    quantity: qtys,
+                });
             }
         }
     }
@@ -263,7 +409,10 @@ pub fn to_unit_system(
         let mut qtys: Vec<QuantityDef> = qty_map.into_values().collect();
         qtys.sort_by(|a, b| a.name.cmp(&b.name));
         if !qtys.is_empty() {
-            families.push(FamilyDef { name, quantity: qtys });
+            families.push(FamilyDef {
+                name,
+                quantity: qtys,
+            });
         }
     }
 
@@ -271,7 +420,10 @@ pub fn to_unit_system(
         system: system_cfg,
         kind: kind_cfg,
         dim: dim_cfg,
-        dimensionless: DimensionlessDef { units: dimless_units },
+        base,
+        dimensionless: DimensionlessDef {
+            units: dimless_units,
+        },
         family: families,
         ucum: None,
     }
@@ -280,11 +432,12 @@ pub fn to_unit_system(
 fn make_unit_def(unit: &Unit, multiplier: f64) -> UnitDef {
     UnitDef {
         variant: to_pascal(&unit.name),
-        multiplier: fmt_mult(multiplier),
+        multiplier: Some(fmt_mult(multiplier)),
         symbol: unit.print_symbol.clone(),
         long: unit.name.clone(),
-        offset: None,
-        scale: None,
-        coeff: None,
+        constant: None,
+        by: None,
+        via: None,
+        non_const: false,
     }
 }

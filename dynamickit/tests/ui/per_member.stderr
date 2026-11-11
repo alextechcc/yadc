@@ -1,0 +1,13 @@
+error[E0080]: evaluation panicked: `Money<C>` and `GiftCard` have the same facts, so the way back could not tell them apart: their constants must differ (checked for each member of `Money<C>`)
+  --> tests/ui/per_member.rs:28:10
+   |
+28 | #[derive(dynamickit::Dynamic)]
+   |          ^^^^^^^^^^^^^^^^^^^ evaluation of `<AnyMoney as std::convert::From<Money<Fake>>>::from::{constant#0}` failed here
+
+note: erroneous constant encountered
+  --> tests/ui/per_member.rs:28:10
+   |
+28 | #[derive(dynamickit::Dynamic)]
+   |          ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this note originates in the derive macro `dynamickit::Dynamic` (in Nightly builds, run with -Z macro-backtrace for more info)

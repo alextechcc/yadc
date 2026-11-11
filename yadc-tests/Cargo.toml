@@ -1,0 +1,13 @@
+[package]
+name = "yadc-tests"
+version = "0.0.0"
+edition = "2024"
+license = "MIT OR BSD-3-Clause"
+publish = false
+description = "Tests for yadc's derives: every refused operator and the message it fails with (trybuild), and the derived impls at run time."
+
+[dependencies]
+yadc = { path = "../yadc" }
+
+[dev-dependencies]
+trybuild = "1"

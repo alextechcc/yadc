@@ -1,0 +1,5 @@
+error: `Qty<D>` and `Instant` can have the same facts, so the way back could not tell them apart: give them a fact whose constants differ (a field filled with a different constant in each, e.g. a tag) - or, if one is the same value as the other (a bare number and a dimensionless quantity), mark it `shared`
+  --> tests/ui/indistinguishable.rs:19:11
+   |
+19 | #[dynamic(Instant { since: Qty<TIME> } => { dim: TIME, value: .since.0 })]
+   |           ^^^^^^^

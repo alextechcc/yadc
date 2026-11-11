@@ -29,22 +29,68 @@ use crate::{DynamicSIQuantity, ISQ, Kind, StaticSIQuantity};
 // --- Kind mapping -------------------------------------------------------------
 
 /// Maps a uom kind marker (as a `dyn` trait object type) to the corresponding
-/// yadc [`Kind`] variant.
+/// yadc [`Kind`] variant, and says how the kind stands for radians.
+///
+/// uom follows the SI: angles are dimensionless, told apart by a kind. yadc-si
+/// counts radians on an exponent axis instead, so a uom angle kind becomes a
+/// `rad` exponent - which one depends on the quantity (see [`rad_of`]).
 pub trait UomKindMapping {
     const YADC_KIND: Kind;
+    /// How this kind stands for radians.
+    const RADIANS: Radians = Radians::None;
+}
+
+/// How a uom kind stands for radians, which yadc-si counts on its `rad` axis.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Radians {
+    /// The kind says nothing about angles.
+    None,
+    /// uom's angle kind: rad¹ on an angle and its rates, rad⁻¹ on torque and
+    /// angular momentum (uom marks those with the angle kind to tell them from
+    /// energy and action).
+    Angle,
+    /// A kind that stands for rad² (the steradian): solid angle, and
+    /// illuminance (lux = cd·sr/m²).
+    Squared,
+}
+
+/// The `rad` exponent of a uom quantity, from its exponents and its kind.
+/// Moment of inertia is the one plain-kind quantity with radians: kg·m²/rad²,
+/// so that E = ½·I·ω² is in joules.
+#[allow(clippy::too_many_arguments)]
+pub const fn rad_of(m: i8, kg: i8, s: i8, a: i8, k: i8, mol: i8, cd: i8, radians: Radians) -> i8 {
+    match radians {
+        Radians::Angle => {
+            if m == 0 && kg == 0 {
+                1
+            } else {
+                -1
+            }
+        }
+        Radians::Squared => 2,
+        Radians::None => {
+            if m == 2 && kg == 1 && s == 0 && a == 0 && k == 0 && mol == 0 && cd == 0 {
+                -2
+            } else {
+                0
+            }
+        }
+    }
 }
 
 impl UomKindMapping for dyn uom::Kind {
     const YADC_KIND: Kind = Kind::Linear;
 }
 impl UomKindMapping for dyn marker::AngleKind {
-    const YADC_KIND: Kind = Kind::Angle;
+    const YADC_KIND: Kind = Kind::Linear;
+    const RADIANS: Radians = Radians::Angle;
 }
 impl UomKindMapping for dyn marker::SolidAngleKind {
-    const YADC_KIND: Kind = Kind::SolidAngle;
+    const YADC_KIND: Kind = Kind::Linear;
+    const RADIANS: Radians = Radians::Squared;
 }
 impl UomKindMapping for dyn marker::TemperatureKind {
-    const YADC_KIND: Kind = Kind::Affine;
+    const YADC_KIND: Kind = Kind::Absolute;
 }
 impl UomKindMapping for dyn marker::InformationKind {
     const YADC_KIND: Kind = Kind::Linear;
@@ -60,14 +106,25 @@ impl UomKindMapping for dyn marker::KinematicViscosityKind {
 }
 impl UomKindMapping for dyn marker::IlluminanceKind {
     const YADC_KIND: Kind = Kind::Linear;
+    const RADIANS: Radians = Radians::Squared;
 }
 
 // --- Const-generic helper -----------------------------------------------------
 
 // Direct struct literals are not yet supported in generic-const positions
 // (rustc: "overly complex generic constant"), but const-fn calls are.
-#[allow(non_snake_case)]
-const fn isq_of(m: i8, kg: i8, s: i8, a: i8, k: i8, mol: i8, cd: i8, kind: Kind) -> ISQ {
+#[allow(non_snake_case, clippy::too_many_arguments)]
+const fn isq_of(
+    m: i8,
+    kg: i8,
+    s: i8,
+    a: i8,
+    k: i8,
+    mol: i8,
+    cd: i8,
+    kind: Kind,
+    radians: Radians,
+) -> ISQ {
     ISQ {
         m,
         kg,
@@ -76,6 +133,7 @@ const fn isq_of(m: i8, kg: i8, s: i8, a: i8, k: i8, mol: i8, cd: i8, kind: Kind)
         K: k,
         mol,
         cd,
+        rad: rad_of(m, kg, s, a, k, mol, cd, radians),
         kind,
     }
 }
@@ -95,6 +153,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
                 <Nd as Integer>::I8,
                 <Jd as Integer>::I8,
                 <Kd as UomKindMapping>::YADC_KIND,
+                <Kd as UomKindMapping>::RADIANS,
             )
         },
     >
@@ -110,6 +169,9 @@ where
     U: Units<f64> + ?Sized,
 {
     fn from(q: Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>) -> Self {
+        // This crate owns `StaticSIQuantity`, so it may build one directly:
+        // generic over every uom dimension, where no unit constant applies.
+        // Both store the coherent SI number, so it simply moves.
         StaticSIQuantity(q.value)
     }
 }
@@ -129,6 +191,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>
                     <Nd as Integer>::I8,
                     <Jd as Integer>::I8,
                     <Kd as UomKindMapping>::YADC_KIND,
+                    <Kd as UomKindMapping>::RADIANS,
                 )
             },
         >,
@@ -155,6 +218,7 @@ where
                     <Nd as Integer>::I8,
                     <Jd as Integer>::I8,
                     <Kd as UomKindMapping>::YADC_KIND,
+                    <Kd as UomKindMapping>::RADIANS,
                 )
             },
         >,
@@ -186,16 +250,17 @@ where
     fn from(q: Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>) -> Self {
         DynamicSIQuantity {
             value: q.value,
-            dim: ISQ {
-                m: Ld::I8,
-                kg: Md::I8,
-                s: Td::I8,
-                A: Id::I8,
-                K: Thd::I8,
-                mol: Nd::I8,
-                cd: Jd::I8,
-                kind: <Kd as UomKindMapping>::YADC_KIND,
-            },
+            dim: isq_of(
+                Ld::I8,
+                Md::I8,
+                Td::I8,
+                Id::I8,
+                Thd::I8,
+                Nd::I8,
+                Jd::I8,
+                <Kd as UomKindMapping>::YADC_KIND,
+                <Kd as UomKindMapping>::RADIANS,
+            ),
         }
     }
 }
@@ -219,16 +284,17 @@ where
     type Error = DynamicSIQuantity;
 
     fn try_from(dq: DynamicSIQuantity) -> Result<Self, DynamicSIQuantity> {
-        let expected = ISQ {
-            m: Ld::I8,
-            kg: Md::I8,
-            s: Td::I8,
-            A: Id::I8,
-            K: Thd::I8,
-            mol: Nd::I8,
-            cd: Jd::I8,
-            kind: <Kd as UomKindMapping>::YADC_KIND,
-        };
+        let expected = isq_of(
+            Ld::I8,
+            Md::I8,
+            Td::I8,
+            Id::I8,
+            Thd::I8,
+            Nd::I8,
+            Jd::I8,
+            <Kd as UomKindMapping>::YADC_KIND,
+            <Kd as UomKindMapping>::RADIANS,
+        );
         if dq.dim == expected {
             Ok(Quantity {
                 value: dq.value,
@@ -263,12 +329,12 @@ mod tests {
     #[test]
     fn static_uom_to_yadc_preserves_si_base_value() {
         let q: StaticSIQuantity<_> = Length::new::<kilometer>(1.0).into();
-        close(LengthUnit::Meter.from_quantity(q), 1_000.0);
+        close(LengthUnit::Metre.value(q), 1_000.0);
     }
 
     #[test]
     fn static_yadc_to_uom_preserves_si_base_value() {
-        let q = LengthUnit::Kilometer.quantity(2.5);
+        let q = LengthUnit::Kilometre.quantity(2.5);
         let uom: Length = q.into();
         close(uom.get::<meter>(), 2_500.0);
     }
@@ -291,48 +357,51 @@ mod tests {
 
     #[test]
     fn static_angle_round_trip() {
-        let original = Angle::new::<radian>(1.5707963);
+        let original = Angle::new::<radian>(core::f64::consts::FRAC_PI_2);
         let q: StaticSIQuantity<_> = original.into();
-        close(AngleUnit::Radian.from_quantity(q), 1.5707963);
+        close(AngleUnit::Radian.value(q), core::f64::consts::FRAC_PI_2);
         let back: Angle = q.into();
-        close(back.get::<radian>(), 1.5707963);
+        close(back.get::<radian>(), core::f64::consts::FRAC_PI_2);
     }
 
     #[test]
     fn static_solid_angle_round_trip() {
         let original = SolidAngle::new::<steradian>(2.5);
         let q: StaticSIQuantity<_> = original.into();
-        close(SolidAngleUnit::Steradian.from_quantity(q), 2.5);
+        close(SolidAngleUnit::Steradian.value(q), 2.5);
         let back: SolidAngle = q.into();
         close(back.get::<steradian>(), 2.5);
     }
 
     #[test]
     fn dynamic_from_uom_dim_is_correct() {
-        use yadc::Unit;
         let dq: DynamicSIQuantity = Length::new::<meter>(42.0).into();
-        assert_eq!(LengthUnit::Meter.try_from_quantity(dq), Some(42.0));
-        assert_eq!(MassUnit::Kilogram.try_from_quantity(dq), None);
+        close(
+            LengthUnit::Metre.value(crate::mechanical::Length::try_from(dq).unwrap()),
+            42.0,
+        );
+        assert!(crate::mechanical::Mass::try_from(dq).is_err());
     }
 
     #[test]
     fn dynamic_angle_kind_is_preserved() {
-        use yadc::Unit;
         let dq: DynamicSIQuantity = Angle::new::<radian>(1.0).into();
-        assert_eq!(AngleUnit::Radian.try_from_quantity(dq), Some(1.0));
-        // Dimensionless (Kind::Linear) does not match Kind::Angle
-        assert_eq!(
-            crate::dimensionless::DimensionlessUnit::Ratio.try_from_quantity(dq),
-            None
+        close(
+            AngleUnit::Radian.value(crate::angular::Angle::try_from(dq).unwrap()),
+            1.0,
         );
+        // A plain dimensionless quantity has no radians: no match.
+        assert!(crate::dimensionless::Dimensionless::try_from(dq).is_err());
     }
 
     #[test]
     fn dynamic_solid_angle_kind_is_preserved() {
-        use yadc::Unit;
         let dq: DynamicSIQuantity = SolidAngle::new::<steradian>(4.0).into();
-        assert_eq!(SolidAngleUnit::Steradian.try_from_quantity(dq), Some(4.0));
-        assert_eq!(AngleUnit::Radian.try_from_quantity(dq), None);
+        close(
+            SolidAngleUnit::Steradian.value(crate::angular::SolidAngle::try_from(dq).unwrap()),
+            4.0,
+        );
+        assert!(crate::angular::Angle::try_from(dq).is_err());
     }
 
     #[test]
@@ -346,8 +415,10 @@ mod tests {
     fn dynamic_try_from_failure_returns_original() {
         let dq: DynamicSIQuantity = Mass::new::<kilogram>(3.0).into();
         let err = Length::try_from(dq).unwrap_err();
-        use yadc::Unit;
-        assert_eq!(MassUnit::Kilogram.try_from_quantity(err), Some(3.0));
+        close(
+            MassUnit::Kilogram.value(crate::mechanical::Mass::try_from(err).unwrap()),
+            3.0,
+        );
     }
 
     #[test]
@@ -359,14 +430,14 @@ mod tests {
 
     #[test]
     fn dynamic_try_from_angle_rejects_dimensionless() {
-        use yadc::Unit;
-        // A dimensionless (Kind::Linear) quantity should not match the Angle (Kind::Angle) uom type.
+        // A plain dimensionless quantity (no radians) should not match uom's Angle.
         let dimensionless =
             DynamicSIQuantity::from(crate::dimensionless::DimensionlessUnit::Ratio.quantity(1.0));
         let err = Angle::try_from(dimensionless).unwrap_err();
-        assert_eq!(
-            crate::dimensionless::DimensionlessUnit::Ratio.try_from_quantity(err),
-            Some(1.0)
+        close(
+            crate::dimensionless::DimensionlessUnit::Ratio
+                .value(crate::dimensionless::Dimensionless::try_from(err).unwrap()),
+            1.0,
         );
     }
 }

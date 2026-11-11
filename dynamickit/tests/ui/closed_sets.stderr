@@ -1,0 +1,17 @@
+error: `convert(..)` builds every variant from its member: mark this variant's other fields `#[members(default)]`
+  --> tests/ui/closed_sets.rs:16:5
+   |
+16 |     Pounds(#[members(member)] u32, u8),
+   |     ^^^^^^
+
+error: `#[via(X, ..)]` lists the operators to borrow from `X` after it: `Add`, `Sub`, `Mul`, `Div`, `Rem` (`Self ∘ Self -> Option<Self>`, through `X`), and scalings `Mul<K>`, `Div<K>` (on the member, `-> Self`)
+  --> tests/ui/closed_sets.rs:20:10
+   |
+20 | #[via(Any)]
+   |          ^
+
+error: `kind` is `same`: two values that differ in it have no `Add`, so state `Add -> Option<Self>`
+  --> tests/ui/closed_sets.rs:32:5
+   |
+32 |     kind: u8,
+   |     ^^^^

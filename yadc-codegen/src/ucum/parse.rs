@@ -66,7 +66,12 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                     }
                 }
                 if !code.is_empty() {
-                    essence.prefixes.push(Prefix { code, value, name, print_symbol });
+                    essence.prefixes.push(Prefix {
+                        code,
+                        value,
+                        name,
+                        print_symbol,
+                    });
                 }
             }
             "base-unit" => {
@@ -83,7 +88,12 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                     }
                 }
                 if !code.is_empty() {
-                    essence.base_units.push(BaseUnit { code, name, print_symbol, property });
+                    essence.base_units.push(BaseUnit {
+                        code,
+                        name,
+                        print_symbol,
+                        property,
+                    });
                 }
             }
             "unit" => {
@@ -115,9 +125,16 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                 }
                 if !code.is_empty() {
                     essence.units.push(Unit {
-                        code, name, print_symbol, property, class,
-                        is_metric, is_special, is_arbitrary,
-                        value_unit, value_number,
+                        code,
+                        name,
+                        print_symbol,
+                        property,
+                        class,
+                        is_metric,
+                        is_special,
+                        is_arbitrary,
+                        value_unit,
+                        value_number,
                     });
                 }
             }

@@ -5,8 +5,9 @@ edition = "2024"
 license = "MIT OR BSD-3-Clause"
 
 [dependencies]
-yadc = { path = "../yadc" }
-serde = { version = "1", features = ["derive"], optional = true }
+yadc = { path = "../yadc", default-features = false }
+dynamickit = { path = "../dynamickit" }
+serde = { version = "1", default-features = false, features = ["derive"], optional = true }
 uom = { version = "0.38.0", features = ["si", "f64"], optional = true }
 typenum = { version = "1", optional = true }
 
@@ -23,7 +24,10 @@ default = [
     "photometric",
     "information",
 ]
-std = []
+std = ["yadc/std", "serde?/std"]
+# Software float math for a `no_std` build: `Real` (and so the nonlinear
+# unit conversions) needs either this or `std`.
+libm = ["yadc/libm"]
 mechanical = []
 angular = []
 electromagnetic = []
@@ -33,9 +37,40 @@ density = []
 chemistry = []
 photometric = []
 information = []
-serde = ["dep:serde"]
+# `alloc`: the UCUM (de)serializers build owned `String`s.
+serde = ["dep:serde", "serde/alloc", "yadc/ucum"]
 uom = ["dep:uom", "dep:typenum"]
 
 [[test]]
 name = "uom_bridge"
-required-features = ["uom"]
+required-features = ["uom", "mechanical", "angular", "thermal"]
+
+# The integration tests use most families.
+[[test]]
+name = "integration"
+required-features = ["mechanical", "angular", "electromagnetic", "thermal", "fluid", "chemistry"]
+
+# Unit `Display` / `FromStr`, a kindless dimension, a generic value type.
+[[test]]
+name = "units"
+required-features = ["mechanical"]
+
+[[test]]
+name = "sets"
+required-features = ["mechanical", "thermal"]
+
+# A settings menu: a closed set of quantities and the set of their units,
+# visited and listed with `dynamickit`.
+[[example]]
+name = "sets"
+required-features = ["mechanical", "thermal"]
+
+# The open type: `DynamicSIQuantity` arithmetic decided at run time.
+[[example]]
+name = "open"
+required-features = ["mechanical", "thermal"]
+
+# A reading that keeps its unit: a closed set of (quantity, unit) pairs.
+[[example]]
+name = "measurement"
+required-features = ["mechanical"]

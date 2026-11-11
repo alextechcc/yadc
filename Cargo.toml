@@ -1,7 +1,11 @@
 [workspace]
 members = [
+    "dynamickit",
+    "dynamickit-derive",
+    "yadc-math",
     "yadc",
     "yadc-derive",
+    "yadc-tests",
     "yadc-si",
     "yadc-codegen",
 ]

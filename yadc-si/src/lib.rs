@@ -1,41 +1,60 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(generic_const_exprs)]
-#![feature(adt_const_params)]
-#![feature(unsized_const_params)]
+#![feature(min_adt_const_params)]
 #![feature(const_trait_impl)]
-#![feature(const_ops)]
 #![feature(const_cmp)]
-#![feature(structural_match)]
+#![feature(const_default)]
+#![feature(derive_const)]
+#![feature(const_try)]
+#![feature(const_ops)]
+#![feature(const_convert)]
+#![feature(const_destruct)]
+#![feature(fn_traits)]
+#![feature(unboxed_closures)]
 #![allow(incomplete_features)]
 #![allow(clippy::excessive_precision)]
 #![allow(clippy::approx_constant)]
 
-pub use yadc::{Dimension, DynamicQuantity, Format, Quantity, StaticQuantity, Unit};
+use core::marker::ConstParamTy;
 
-// The Kind enum tags non-numeric "kind" of a quantity. It's mutually exclusive
-// with the seven SI numeric axes, and lets the type system distinguish quantities
-// that share the same base dimension (Angle vs Dimensionless, T vs delta-T, etc.).
-//
-// `#[derive(Kind)]` generates ConstParamTy_, ZERO/INVALID consts, impl const
-// PartialEq/Eq, and impl const Mul/Div/Add/Sub.
-// Variant names match the standard roles; rename with `#[kind(<Role>)]` to use
-// custom variant identifiers.
-#[derive(Copy, Clone, Debug, yadc::Kind)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize, yadc::UcumKind))]
-pub enum Kind {
-    Linear,
-    Affine,
-    Angle,
-    SolidAngle,
-    Invalid,
-}
+pub use yadc::{Dimension, Quantity, Unit};
 
-#[derive(Copy, Clone, Debug, Dimension)]
-#[allow(non_snake_case)]
+/// The kinds: how a quantity behaves under `+` and `-`, beside its
+/// exponents. The `#[default]` one is an ordinary amount.
+/// `Affine` is the affine kind, named on the dimension's kind field: a
+/// point, measured from a zero somebody chose - two differ by an amount,
+/// and an amount moves one.
+/// `Log` is the logarithmic kind, named on the dimension's kind field: a
+/// level or a gain, where adding is multiplying what it is the logarithm
+/// of.
+/// Any other is a label of this system's own, telling apart quantities of
+/// the same exponents, with its sums as `#[kind(..)]` rules. Angles are not
+/// a kind but an exponent axis of the dimension (`rad`).
+///
+/// `#[derive(Dimension)]` on the enum writes the label algebra: `*` and `/`
+/// keep a label only beside a plain number; `+` and `-` work within one
+/// label, plus each variant's rules. A sum with no result is `None`.
+#[derive_const(PartialEq, Default)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 #[cfg_attr(
     feature = "serde",
-    derive(yadc::UcumSerialize, yadc::UcumDeserialize)
+    derive(serde::Serialize, serde::Deserialize, yadc::UcumKind)
 )]
+pub enum Kind {
+    #[default]
+    Linear,
+    #[kind(sub(Absolute) = Linear, add(Linear) = Absolute, sub(Linear) = Absolute)]
+    Absolute,
+    Affine,
+    Log,
+}
+
+/// The dimension: an exponent per base unit, and a label. It prints as the
+/// product of its axes (`m·kg·s⁻²`), a label that is not plain in braces.
+#[derive_const(PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
+#[allow(non_snake_case)]
+#[cfg_attr(feature = "serde", derive(yadc::UcumSerialize, yadc::UcumDeserialize))]
 pub struct ISQ {
     pub m: i8,
     pub kg: i8,
@@ -44,28 +63,261 @@ pub struct ISQ {
     pub K: i8,
     pub mol: i8,
     pub cd: i8,
-    #[kind]
+    pub rad: i8,
+    #[kind(affine = Kind::Affine, log = Kind::Log)]
     pub kind: Kind,
 }
 
-// StaticSIQuantity serializes transparently as just `f64` (its only field). The dimension
-// `D` is determined by the deserialization target - schema-trusted, no dim
-// metadata on the wire. If you need the dim recorded too, hand-roll a custom
-// impl on `StaticSIQuantity` (the inner f64 is reachable from this module).
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, StaticQuantity)]
+/// A quantity whose dimension is in its type, counted in `N` (`f64` unless
+/// you say otherwise: `KILOPASCAL.cast::<f32>()`). Its number is private to
+/// this crate: the base constants (`base::METRE`) are the only raw numbers,
+/// and everyone else builds and reads through units - every constant is one
+/// (`KILOMETRE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero
+/// and a step, and every unit enum's value (`LengthUnit::Mile.value(d)`).
+///
+/// It serializes transparently as just its number: the dimension `D` is the
+/// deserialization target's - schema-trusted, nothing on the wire.
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct StaticSIQuantity<const D: ISQ>(f64);
+pub struct StaticSIQuantity<const D: ISQ, N = f64>(N);
 
-#[derive(Copy, Clone, PartialEq, Debug, DynamicQuantity)]
-#[static_quantity(StaticSIQuantity)]
+/// A scale: a zero and a step, `Scale(zero, step)`. A unit of its zero's type:
+/// `n` is `zero + n · step`, and a value reads `(value - zero) / step`. °C is
+/// `Scale(ICE_POINT, KELVIN)`; a scale made at run time is the same expression.
+/// Called like any unit: `CELSIUS(25.0)` builds, `CELSIUS(t)` reads.
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct Scale<P, S>(pub P, pub S);
+
+impl<P, S, N> const Unit<P, N> for Scale<P, S>
+where
+    P: Copy
+        + [const] core::ops::Sub
+        + [const] core::ops::Add<<P as core::ops::Sub>::Output, Output = P>,
+    S: [const] Unit<<P as core::ops::Sub>::Output, N>,
+{
+    fn quantity(&self, value: N) -> P {
+        self.0 + self.1.quantity(value)
+    }
+    fn value(&self, quantity: P) -> N {
+        self.1.value(quantity - self.0)
+    }
+}
+
+// A scale is called like any unit: on a number it builds, on a value it
+// reads. Std's three function traits, once for each direction.
+macro_rules! scale_is_called {
+    ($arg:ty => $out:ty, $way:ident) => {
+        impl<const D: ISQ, N, S> const FnOnce<($arg,)> for Scale<StaticSIQuantity<D, N>, S>
+        where
+            Self: [const] Unit<StaticSIQuantity<D, N>, N> + [const] core::marker::Destruct,
+            N: [const] core::marker::Destruct,
+        {
+            type Output = $out;
+            extern "rust-call" fn call_once(self, (x,): ($arg,)) -> $out {
+                Unit::$way(&self, x)
+            }
+        }
+        impl<const D: ISQ, N, S> const FnMut<($arg,)> for Scale<StaticSIQuantity<D, N>, S>
+        where
+            Self: [const] Unit<StaticSIQuantity<D, N>, N> + [const] core::marker::Destruct,
+            N: [const] core::marker::Destruct,
+        {
+            extern "rust-call" fn call_mut(&mut self, (x,): ($arg,)) -> $out {
+                Unit::$way(&*self, x)
+            }
+        }
+        impl<const D: ISQ, N, S> const Fn<($arg,)> for Scale<StaticSIQuantity<D, N>, S>
+        where
+            Self: [const] Unit<StaticSIQuantity<D, N>, N> + [const] core::marker::Destruct,
+            N: [const] core::marker::Destruct,
+        {
+            extern "rust-call" fn call(&self, (x,): ($arg,)) -> $out {
+                Unit::$way(self, x)
+            }
+        }
+    };
+}
+scale_is_called!(N => StaticSIQuantity<D, N>, quantity);
+scale_is_called!(StaticSIQuantity<D, N> => N, value);
+
+/// A quantity of any dimension, decided at run time: the dynamic version of
+/// `StaticSIQuantity<D>`, built with dynamickit. Converting (`From`) moves the number into
+/// `value` and records `D` in `dim`; `TryFrom<DynamicSIQuantity> for StaticSIQuantity<D>` is the
+/// checked way back (the error hands the original back). A bare `f64` is the
+/// same value as a dimensionless quantity (`shared`). Numbers still go through
+/// units, by way of the static quantity: `DynamicSIQuantity::from(KILOMETRE.quantity(3.0))`,
+/// then `Mass::try_from(d).map(|m| KILOGRAM.value(m))`.
+///
+/// Its arithmetic is every field's own: the dimension's operator on `dim`, the
+/// number's on `value`. Any of them may have no result - `None` where the dimensions don't combine:
+/// a sum of two dimensions, a product with a point or a level - so a calculation reads
+/// `(((a * b)? + c)? * 2.0)?`. Values of one dimension are ordered by number,
+/// `None` otherwise. A root or power with a run-time exponent is the
+/// dimension's and the number's (`None` where the dimension has none).
+/// Scaling by a number is the dimension's own too: its `* f64` and `/ f64`,
+/// which `#[derive(Dimension)]` writes.
+#[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
+#[dynamic(StaticSIQuantity<const D: ISQ> => { dim: D, value: .0 })]
+#[dynamic(shared f64 => { dim: ISQ::DIMENSIONLESS, value: self })]
+#[dynamic(impl(
+    TryFrom,
+    Mul -> Option<Self>,
+    Div -> Option<Self>,
+    Add -> Option<Self>,
+    Sub -> Option<Self>,
+    Mul<f64> -> Option<Self>,
+    Div<f64> -> Option<Self>,
+    PartialOrd,
+    yadc::PartialRoot::partial_root(self, n: i8) -> Option<Self>,
+    yadc::PartialPowi::partial_powi(self, n: i8) -> Option<Self>,
+))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DynamicSIQuantity {
-    value: f64,
     dim: ISQ,
+    value: f64,
+}
+
+/// The base constants: one per base unit, and the zeros - the only raw
+/// numbers in this crate. Every other constant is defined from them with
+/// the quantities' own `const` operators, and re-exported by the module of
+/// its quantity (`mechanical::consts::METRE`).
+pub mod base {
+    use crate::{ISQ, Kind, StaticSIQuantity};
+    use yadc::Dimension;
+
+    /// The number one: the unit of dimension one.
+    pub const ONE: StaticSIQuantity<{ ISQ::DIMENSIONLESS }> = StaticSIQuantity(1.0);
+
+    /// The metre, the SI base unit of length.
+    pub const METRE: StaticSIQuantity<
+        {
+            ISQ {
+                m: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The kilogram, the SI base unit of mass.
+    pub const KILOGRAM: StaticSIQuantity<
+        {
+            ISQ {
+                kg: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The second, the SI base unit of time.
+    pub const SECOND: StaticSIQuantity<
+        {
+            ISQ {
+                s: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The ampere, the SI base unit of electric current.
+    pub const AMPERE: StaticSIQuantity<
+        {
+            ISQ {
+                A: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The kelvin as a step: a temperature difference of 1 K (the same as 1 °C of difference).
+    pub const KELVIN: StaticSIQuantity<
+        {
+            ISQ {
+                K: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The mole, the SI base unit of amount of substance.
+    pub const MOLE: StaticSIQuantity<
+        {
+            ISQ {
+                mol: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The candela, the SI base unit of luminous intensity.
+    pub const CANDELA: StaticSIQuantity<
+        {
+            ISQ {
+                cd: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The radian: an exponent axis here, so an angle never mixes with a plain ratio.
+    pub const RADIAN: StaticSIQuantity<
+        {
+            ISQ {
+                rad: 1,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// Absolute zero, 0 K: the zero of thermodynamic temperature.
+    pub const ABSOLUTE_ZERO: StaticSIQuantity<
+        {
+            ISQ {
+                K: 1,
+                kind: Kind::Absolute,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(0.0);
+
+    /// The bel: a gain of ten times in power. The unit of the logarithmic line.
+    pub const BEL: StaticSIQuantity<
+        {
+            ISQ {
+                kind: Kind::Log,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(1.0);
+
+    /// The Unix epoch, 1970-01-01T00:00:00Z: the base zero of `Instant`. An instant is stored, printed and serialized as seconds from here; every other zero of the line is defined from it.
+    pub const UNIX_EPOCH: StaticSIQuantity<
+        {
+            ISQ {
+                s: 1,
+                kind: Kind::Affine,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(0.0);
+
+    /// The level of one watt, 0 dBW: where the numbers of a power level start.
+    pub const WATT_LEVEL: StaticSIQuantity<
+        {
+            ISQ {
+                m: 2,
+                kg: 1,
+                s: -3,
+                kind: Kind::Log,
+                ..ISQ::DIMENSIONLESS
+            }
+        },
+    > = StaticSIQuantity(0.0);
 }
 
 pub mod dimensionless;
 
+#[cfg(feature = "mechanical")]
+pub mod level;
 #[cfg(feature = "uom")]
 pub mod uom_bridge;
 

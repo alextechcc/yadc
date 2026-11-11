@@ -1,0 +1,112 @@
+error[E0277]: cannot add-assign `Qty<yadc_tests::::Time::{constant#0}>` to `Qty<yadc_tests::::Length::{constant#0}>`
+ --> tests/ui/use/assign.rs:8:12
+  |
+8 |     length += SECOND; // AddSameDimension
+  |            ^^ no implementation for `Qty<yadc_tests::::Length::{constant#0}> += Qty<yadc_tests::::Time::{constant#0}>`
+  |
+  = help: the trait `yadc::gates::AddSameDimension<Qty<yadc_tests::::Time::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Length::{constant#0}>`
+  = note: required for `Qty<yadc_tests::::Length::{constant#0}>` to implement `AddAssign<Qty<yadc_tests::::Time::{constant#0}>>`
+
+error[E0277]: cannot add-assign `Qty<yadc_tests::::Altitude::{constant#0}>` to `Qty<yadc_tests::::Altitude::{constant#0}>`
+ --> tests/ui/use/assign.rs:9:14
+  |
+9 |     altitude += altitude; // AddNotTwoPoints
+  |              ^^ no implementation for `Qty<yadc_tests::::Altitude::{constant#0}> += Qty<yadc_tests::::Altitude::{constant#0}>`
+  |
+  = help: the trait `yadc::gates::AddNotTwoPoints<Qty<yadc_tests::::Altitude::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
+  = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `AddAssign`
+
+error[E0277]: cannot subtract-assign `Qty<yadc_tests::::Altitude::{constant#0}>` from `Qty<yadc_tests::::Altitude::{constant#0}>`
+  --> tests/ui/use/assign.rs:10:14
+   |
+10 |     altitude -= altitude; // SubInPlace: the difference is a length
+   |              ^^ no implementation for `Qty<yadc_tests::::Altitude::{constant#0}> -= Qty<yadc_tests::::Altitude::{constant#0}>`
+   |
+   = help: the trait `yadc::gates::SubInPlace<Qty<yadc_tests::::Altitude::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `SubAssign`
+
+error[E0277]: cannot subtract-assign `Qty<yadc_tests::::Time::{constant#0}>` from `Qty<yadc_tests::::Length::{constant#0}>`
+  --> tests/ui/use/assign.rs:11:12
+   |
+11 |     length -= SECOND; // SubSameDimension
+   |            ^^ no implementation for `Qty<yadc_tests::::Length::{constant#0}> -= Qty<yadc_tests::::Time::{constant#0}>`
+   |
+   = help: the trait `yadc::gates::SubSameDimension<Qty<yadc_tests::::Time::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Length::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Length::{constant#0}>` to implement `SubAssign<Qty<yadc_tests::::Time::{constant#0}>>`
+
+error[E0277]: cannot multiply-assign `Qty<yadc_tests::::Altitude::{constant#0}>` by `f64`
+  --> tests/ui/use/assign.rs:12:14
+   |
+12 |     altitude *= 2.0; // ScaleNotPoint
+   |              ^^ no implementation for `Qty<yadc_tests::::Altitude::{constant#0}> *= f64`
+   |
+   = help: the trait `yadc::gates::ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `MulAssign<f64>`
+
+error[E0277]: cannot divide-assign `Qty<yadc_tests::::Altitude::{constant#0}>` by `f64`
+  --> tests/ui/use/assign.rs:13:14
+   |
+13 |     altitude /= 2.0;
+   |              ^^ no implementation for `Qty<yadc_tests::::Altitude::{constant#0}> /= f64`
+   |
+   = help: the trait `yadc::gates::ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `DivAssign<f64>`
+
+error[E0277]: cannot multiply-assign `Qty<yadc_tests::::Length::{constant#0}>` by `Qty<yadc_tests::::Length::{constant#0}>`
+  --> tests/ui/use/assign.rs:14:12
+   |
+14 |     length *= METRE; // MulInPlace: the product is an area
+   |            ^^ no implementation for `Qty<yadc_tests::::Length::{constant#0}> *= Qty<yadc_tests::::Length::{constant#0}>`
+   |
+   = help: the trait `yadc::gates::MulInPlace<Qty<yadc_tests::::Length::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Length::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Length::{constant#0}>` to implement `MulAssign`
+
+error[E0277]: cannot divide-assign `Qty<yadc_tests::::Length::{constant#0}>` by `Qty<yadc_tests::::Time::{constant#0}>`
+  --> tests/ui/use/assign.rs:15:12
+   |
+15 |     length /= SECOND; // DivInPlace
+   |            ^^ no implementation for `Qty<yadc_tests::::Length::{constant#0}> /= Qty<yadc_tests::::Time::{constant#0}>`
+   |
+   = help: the trait `yadc::gates::DivInPlace<Qty<yadc_tests::::Time::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Length::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Length::{constant#0}>` to implement `DivAssign<Qty<yadc_tests::::Time::{constant#0}>>`
+
+error[E0600]: cannot apply unary operator `-` to type `Qty<yadc_tests::::Altitude::{constant#0}>`
+  --> tests/ui/use/assign.rs:17:13
+   |
+17 |     let _ = -altitude; // `-` of a point: rustc reports no reason for a unary operator
+   |             ^^^^^^^^^ cannot apply unary operator `-`
+
+error[E0277]: cannot multiply-assign `Qty<yadc_tests::::Altitude::{constant#0}>` by `Qty<yadc_tests::::Number::{constant#0}>`
+  --> tests/ui/use/assign.rs:16:14
+   |
+16 |     altitude *= ONE; // MulExists: a point has no products
+   |              ^^ no implementation for `Qty<yadc_tests::::Altitude::{constant#0}> *= Qty<yadc_tests::::Number::{constant#0}>`
+   |
+   = help: the trait `yadc::gates::MulExists<Qty<yadc_tests::::Number::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
+   = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `MulAssign<Qty<yadc_tests::::Number::{constant#0}>>`
+
+error[E0277]: a value of type `Qty<yadc_tests::::Altitude::{constant#0}>` cannot be made by summing an iterator over elements of type `Qty<yadc_tests::::Altitude::{constant#0}>`
+  --> tests/ui/use/assign.rs:18:23
+   |
+18 |     let _: Altitude = [altitude].into_iter().sum(); // `Sum` of points: AddNotTwoPoints
+   |                       ^^^^^^^^^^^^^^^^^^^^^^ value of type `Qty<yadc_tests::::Altitude::{constant#0}>` cannot be made by summing a `std::iter::Iterator<Item=Qty<yadc_tests::::Altitude::{constant#0}>>`
+   |
+   = help: the trait `yadc::gates::AddNotTwoPoints<Qty<yadc_tests::::Altitude::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
+help: `Qty<D>` implements trait `Sum<A>`
+  --> src/lib.rs
+   |
+   | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+   |                                                     ^^^^^^^^^^^^^^
+   |                                                     |
+   |                                                     `Sum<&Qty<D>>`
+   |                                                     `Sum`
+   = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `Sum`
+note: required by a bound in `std::iter::Iterator::sum`
+  --> $RUST/core/src/iter/traits/iterator.rs
+   |
+   |     fn sum<S>(self) -> S
+   |        --- required by a bound in this associated function
+...
+   |         S: [const] Sum<Self::Item>,
+   |            ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Iterator::sum`
+   = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -38,33 +38,61 @@ fn main() {
         process::exit(1);
     });
 
-    let UnitSystem { system, kind, dim, dimensionless, family, ucum } =
-        toml::from_str::<UnitSystem>(&toml_str).unwrap_or_else(|e| {
-            eprintln!("error: failed to parse {}: {e}", input.display());
-            process::exit(1);
-        });
+    let UnitSystem {
+        system,
+        kind,
+        dim,
+        base,
+        dimensionless,
+        family,
+        ucum,
+    } = toml::from_str::<UnitSystem>(&toml_str).unwrap_or_else(|e| {
+        eprintln!("error: failed to parse {}: {e}", input.display());
+        process::exit(1);
+    });
 
     let output_dir = output_dir.unwrap_or_else(|| PathBuf::from(&system.crate_name));
     eprintln!("writing to {} ...", output_dir.display());
 
     if let Some(ucum_section) = ucum {
-        ucum::run(&ucum_section, system, kind, dim, dimensionless, &output_dir)
-            .unwrap_or_else(|e| {
-                eprintln!("error: {e}");
-                process::exit(1);
-            });
+        ucum::run(
+            &ucum_section,
+            system,
+            kind,
+            dim,
+            base,
+            dimensionless,
+            &output_dir,
+        )
+        .unwrap_or_else(|e| {
+            eprintln!("error: {e}");
+            process::exit(1);
+        });
         eprintln!("done.");
     } else {
-        let system = UnitSystem { system, kind, dim, dimensionless, family, ucum: None };
+        let system = UnitSystem {
+            system,
+            kind,
+            dim,
+            base,
+            dimensionless,
+            family,
+            ucum: None,
+        };
 
         codegen::write_crate(&system, &output_dir).unwrap_or_else(|e| {
             eprintln!("error: {e}");
             process::exit(1);
         });
 
-        let nonempty: Vec<&str> = system.system.family_order.iter()
+        let nonempty: Vec<&str> = system
+            .system
+            .family_order
+            .iter()
             .filter_map(|name| {
-                system.family.iter()
+                system
+                    .family
+                    .iter()
                     .find(|f| &f.name == name)
                     .filter(|f| !f.quantity.is_empty())
                     .map(|_| name.as_str())
@@ -74,10 +102,15 @@ fn main() {
         eprintln!("wrote {}/src/lib.rs", output_dir.display());
         eprintln!("wrote {}/Cargo.toml", output_dir.display());
         for fam in &nonempty {
-            let qty_count = system.family.iter()
+            let qty_count = system
+                .family
+                .iter()
                 .find(|f| f.name == *fam)
                 .map_or(0, |f| f.quantity.len());
-            eprintln!("wrote {}/src/{fam}.rs  ({qty_count} quantities)", output_dir.display());
+            eprintln!(
+                "wrote {}/src/{fam}.rs  ({qty_count} quantities)",
+                output_dir.display()
+            );
         }
     }
 }

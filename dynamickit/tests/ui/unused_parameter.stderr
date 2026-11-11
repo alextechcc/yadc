@@ -1,0 +1,5 @@
+error: `U` is in no fact: two `Tagged` differing only in `U` would come back as each other - fill a field with it
+ --> tests/ui/unused_parameter.rs:8:37
+  |
+8 | #[dynamic(Tagged<const T: u8, const U: u8> => { tag: T, value: .0 })]
+  |                                     ^

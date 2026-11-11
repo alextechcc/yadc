@@ -1,0 +1,5 @@
+error[E0080]: evaluation panicked: `Celsius` and `Kelvin` have the same facts, so the way back could not tell them apart: their constants must differ
+  --> tests/ui/same_constants.rs:12:11
+   |
+12 | #[dynamic(Kelvin => { tag: K, value: .0 })]
+   |           ^^^^^^ evaluation of `_` failed here
