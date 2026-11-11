@@ -14,7 +14,8 @@ use uom::si::velocity::meter_per_second;
 use yadc::Unit;
 use yadc_si::angular::*;
 use yadc_si::mechanical::*;
-use yadc_si::{DynamicSIQuantity, SIQuantity};
+use yadc_si::mechanical::consts::METRE;
+use yadc_si::{DynamicSIQuantity, KILO, SIQuantity};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -27,7 +28,7 @@ fn static_from_uom_length() {
     let uom = Length::new::<kilometer>(42.195);
     let q: SIQuantity<_, f64> = uom.into();
     close(LengthUnit::Metre.value(q), 42_195.0);
-    close(LengthUnit::Kilometre.value(q), 42.195);
+    close((KILO * METRE).value(q), 42.195);
 }
 
 #[test]
@@ -40,7 +41,7 @@ fn static_from_uom_mass() {
 
 #[test]
 fn static_into_uom_length() {
-    let q = LengthUnit::Kilometre.quantity(5.0);
+    let q = (KILO * METRE).quantity(5.0);
     let uom: Length = q.into();
     close(uom.get::<meter>(), 5_000.0);
     close(uom.get::<kilometer>(), 5.0);

@@ -15,11 +15,12 @@ use yadc_si::mechanical::consts::*;
 use yadc_si::mechanical::*;
 use yadc_si::thermal::consts::{CELSIUS, FAHRENHEIT, KELVIN, KELVIN_SCALE};
 use yadc_si::thermal::*;
-use yadc_si::{DynamicSIQuantity, Scale};
+use yadc_si::electromagnetic::consts::AMPERE;
+use yadc_si::{DynamicSIQuantity, KILO, MILLI, Prefix, Prefixed, Scale};
 
 // Compile-time quantities: unit and physical constants compose in `const`
 // items, because quantity arithmetic is `const`.
-const SPEED_LIMIT: Velocity<f64> = 50.0 * KILOMETRE / HOUR;
+const SPEED_LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;
 const ELECTRON_REST_ENERGY: Energy<f64> = ELECTRON_MASS::<f64> * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // E = mc²
 // A unit defined the way a standards document writes it: a pound-force per
 // square inch is a pound under standard gravity, on a square inch.
@@ -57,17 +58,18 @@ fn main() {
     // them, and read the result in whichever unit you like: 90 km in 1 h is a
     // `Velocity`, read in km/h or m/s.
 
-    use LengthUnit::Kilometre;
+    // A prefix scales a unit: `KILO * METRE` is a kilometre.
+    let kilometre: Length<f64> = KILO * METRE;
     use TimeUnit::Hour;
     use VelocityUnit::{KilometrePerHour, MetrePerSecond};
-    let v: Velocity<f64> = Kilometre(90.0) / Hour(1.0);
+    let v: Velocity<f64> = kilometre(90.0) / Hour(1.0);
     let kmh = KilometrePerHour(v);
     let mps = MetrePerSecond(v);
     println!("v     = {kmh} km/h = {mps} m/s");
 
     let t = Hour(2.5);
     let trip: Length<f64> = v * t;
-    println!("2.5 h at {kmh} km/h = {} km", KILOMETRE(trip));
+    println!("2.5 h at {kmh} km/h = {} km", kilometre(trip));
 
     // --- 3. Mul / Div compose dimensions ------------------------------------
     // `mass * accel` is type-checked to be Force.
@@ -79,10 +81,10 @@ fn main() {
         ForceUnit::Newton
     );
 
-    use ElectricCurrentUnit::Milliampere;
     use ElectricPotentialUnit::Volt;
+    let milliampere: ElectricCurrent<f64> = MILLI * AMPERE;
     let voltage = Volt(12.0);
-    let current = Milliampere(500.0);
+    let current = milliampere(500.0);
     let power: Power<f64> = voltage * current;
     let resistance: ElectricalResistance<f64> = voltage / current;
     let (watt, ohm) = (PowerUnit::Watt, ElectricalResistanceUnit::Ohm);
@@ -240,8 +242,9 @@ fn main() {
 
     // --- 11. Constants, at compile time -------------------------------------
     // Units are named constants: every family has a `consts` module with the
-    // constants its units count in - `mechanical::consts::KILOMETRE` is one
-    // kilometre, as a `Length`, and `LengthUnit::Kilometre` names it. The
+    // constants its units count in - `mechanical::consts::METRE` is one
+    // metre, as a `Length`, and `LengthUnit::Metre` names it; a prefix scales
+    // one (`KILO * METRE`), and `Prefixed` names that (`km`). The
     // physical constants are units too (as in UCUM), so they are there as
     // well: `SPEED_OF_LIGHT`, `ELECTRON_MASS`, `STANDARD_GRAVITY`. Quantity
     // arithmetic is `const`, so they compose in `const` items (see the top of
@@ -251,11 +254,12 @@ fn main() {
         KilometrePerHour(SPEED_LIMIT),
         KilometrePerHour
     );
-    let (joule, mev) = (EnergyUnit::Joule, EnergyUnit::Megaelectronvolt);
+    let joule = EnergyUnit::Joule;
+    let mev = Prefixed { prefix: Some(Prefix::Mega), unit: EnergyUnit::Electronvolt };
     println!(
         "electron rest energy = {:.4e} {joule} = {:.4} {mev}",
         joule(ELECTRON_REST_ENERGY),
-        mev(ELECTRON_REST_ENERGY),
+        mev.value(ELECTRON_REST_ENERGY),
     );
     // A weight is standard gravity times a mass.
     let weight: Force<f64> = STANDARD_GRAVITY * mass;
@@ -268,12 +272,12 @@ fn main() {
         psi(PSI)
     );
     // A constant is a unit, so speeds read in units of c.
-    let probe = VelocityUnit::KilometrePerSecond(17.0);
+    let probe = (KILO * METRE_PER_SECOND)(17.0);
     println!("17 km/s = {:.3e} c", SPEED_OF_LIGHT(probe));
 
     // --- 12. Another number type --------------------------------------------
-    // `SIQuantity` is generic over its number type (`f64` unless you say
-    // otherwise). `cast` changes it - for a compact record, say. A constant
+    // `SIQuantity` is generic over its number type (`Mass<f64>`, `Mass<f32>`).
+    // `cast` changes it - for a compact record, say. A constant
     // is exact and takes the number type it is used at, so `KILOGRAM` bound
     // as a `Mass<f32>` is a unit counting in `f32`. Widening `f32` to `f64`
     // loses nothing, so it is also a plain `From`.

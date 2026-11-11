@@ -11,8 +11,8 @@
 /// A unit is a value - a constant - of types that are yours:
 ///
 /// - **a quantity constant**: every [`Quantity`](crate::Quantity) is a unit
-///   of itself (`#[derive(Quantity)]` writes it) - `KILOPASCAL.quantity(n)`
-///   is `KILOPASCAL * n`, `KILOPASCAL.value(q)` is `q / KILOPASCAL`;
+///   of itself (`#[derive(Quantity)]` writes it) - `BAR.quantity(n)` is
+///   `BAR * n`, `BAR.value(q)` is `q / BAR`;
 /// - **a type of yours with a hand-written `impl Unit`**: two functions. A
 ///   scale is one such type, a zero and a step in a tuple struct - `n` is
 ///   `zero + n · step`, a value reads `(value - zero) / step` - so that °C is
@@ -28,8 +28,8 @@
 ///
 /// let t = CELSIUS.quantity(25.0);                         // build: 298.15 K
 /// let f = FAHRENHEIT.value(t);                             // read: 77.0
-/// let v = KILOMETRE(90.0) / HOUR(1.0);                     // a constant is also called
-/// let any: &dyn Unit<Pressure> = &KILOPASCAL;              // picked at run time
+/// let v = MILE(60.0) / HOUR(1.0);                          // a constant is also called
+/// let any: &dyn Unit<Pressure> = &BAR;                     // picked at run time
 /// let u = TemperatureUnit::Celsius;
 /// println!("{:.1} {u}", u.value(t));                       // "25.0 °C": the enum's `Display`
 /// ```
@@ -88,7 +88,7 @@ const impl<Q, N, U: [const] Unit<Q, N> + ?Sized> Unit<Q, N> for &U {
     }
 }
 
-/// The error of parsing a unit from its symbol (`"km".parse::<LengthUnit>()`):
+/// The error of parsing a unit from its symbol (`"mi".parse::<LengthUnit>()`):
 /// no unit of that type has this symbol.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct UnknownUnit;

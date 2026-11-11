@@ -12,16 +12,17 @@ use uom::si::length::{kilometer, meter};
 use uom::si::mass::kilogram;
 use uom::si::velocity::meter_per_second;
 use yadc_si::mechanical::consts::{KILOGRAM, METRE_PER_SECOND};
-use yadc_si::{DynamicSIQuantity, SIQuantity, mechanical};
+use yadc_si::{DynamicSIQuantity, Prefix, Prefixed, SIQuantity, mechanical};
+use yadc::Unit;
 
 fn main() {
     // -- uom -> SIQuantity (From, infallible) -----------------------------
     let uom_dist = Length::new::<kilometer>(42.195);
     let static_dist: SIQuantity<_, f64> = uom_dist.into();
-    let km = mechanical::LengthUnit::Kilometre;
+    let km = Prefixed { prefix: Some(Prefix::Kilo), unit: mechanical::LengthUnit::Metre };
     println!(
         "marathon (static, from uom): {} {km}",
-        km(static_dist)
+        km.value(static_dist)
     );
 
     // -- SIQuantity -> uom (Into, infallible) ----------------------------

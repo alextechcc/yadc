@@ -15,8 +15,9 @@
 
 use core::marker::ConstParamTy;
 use yadc::{Dimension, PartialPowi, PowiAs, RootAs, Unit, UnknownUnit};
-use yadc_si::mechanical::consts::{KILOMETRE, METRE};
+use yadc_si::mechanical::consts::METRE;
 use yadc_si::mechanical::{Length, LengthUnit, MassUnit, TimeUnit};
+use yadc_si::{KILO, Prefix, Prefixed};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -27,20 +28,25 @@ fn close(a: f64, b: f64) {
 #[test]
 fn units_print_their_symbol_and_long_name() {
     // `{}` is the symbol, `{:#}` the long name: the unit's own `Display`.
-    assert_eq!(format!("{}", LengthUnit::Kilometre), "km");
-    assert_eq!(format!("{:#}", LengthUnit::Kilometre), "kilometres");
-    assert_eq!(LengthUnit::Kilometre.to_string(), "km");
+    assert_eq!(format!("{}", LengthUnit::Mile), "mi");
+    assert_eq!(format!("{:#}", LengthUnit::Mile), "miles");
+    assert_eq!(LengthUnit::Mile.to_string(), "mi");
+    // A prefixed unit prints the prefix's symbol or name before the unit's.
+    let km = Prefixed { prefix: Some(Prefix::Kilo), unit: LengthUnit::Metre };
+    assert_eq!(format!("{}", km), "km");
+    assert_eq!(format!("{:#}", km), "kilometres");
+    assert_eq!(km.to_string(), "km");
     // Width, fill and alignment apply, as for `str`.
-    assert_eq!(format!("{:>6}", LengthUnit::Kilometre), "    km");
-    assert_eq!(format!("{:-<#11}", LengthUnit::Kilometre), "kilometres-");
+    assert_eq!(format!("{:>6}", LengthUnit::Mile), "    mi");
+    assert_eq!(format!("{:-<#8}", LengthUnit::Mile), "miles---");
     assert_eq!(
         format!("{} / {:#}", MassUnit::Kilogram, MassUnit::Kilogram),
         "kg / kilograms"
     );
     // A quantity shown in a unit: the number the unit reads, with its own
     // flags, then the unit.
-    let d = LengthUnit::Kilometre.quantity(1.5);
-    let (km, m) = (LengthUnit::Kilometre, LengthUnit::Metre);
+    let d = km.quantity(1.5);
+    let m = LengthUnit::Metre;
     assert_eq!(format!("{:.2} {}", km.value(d), km), "1.50 km");
     assert_eq!(format!("{} {:#}", m.value(d), m), "1500 metres");
     assert_eq!(format!("{:e} {}", m.value(d), m), "1.5e3 m");
@@ -50,7 +56,7 @@ fn units_print_their_symbol_and_long_name() {
 
 #[test]
 fn units_parse_from_their_symbol() {
-    let km: LengthUnit = "km".parse().unwrap();
+    let km: Prefixed<LengthUnit> = "km".parse().unwrap();
     assert_eq!(km.to_string(), "km");
     close(km.value(LengthUnit::Metre.quantity(2500.0)), 2.5);
     // Every unit round-trips through its symbol.
@@ -76,7 +82,7 @@ fn units_parse_from_their_symbol() {
 enum Distance {
     #[unit("m", "metres", by = METRE)]
     Metre,
-    #[unit("km", "kilometres", by = KILOMETRE)]
+    #[unit("km", "kilometres", by = KILO * METRE)]
     Kilometre,
 }
 

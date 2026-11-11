@@ -8,11 +8,12 @@ pub type Dimensionless<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
 
 /// The constants of this module: the base constants of its quantities
 /// (re-exported), then one per multiple, each defined exactly from them -
-/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
-/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
-/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
-/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
+/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
+/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
+/// one: `KILO * METRE`. They compose in `const` items:
+/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
 pub mod consts {
     use super::*;
 

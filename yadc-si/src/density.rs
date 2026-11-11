@@ -160,77 +160,21 @@ pub type VolumetricPowerDensity<N> = SIQuantity<
 
 /// The constants of this module: the base constants of its quantities
 /// (re-exported), then one per multiple, each defined exactly from them -
-/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
-/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
-/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
-/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
+/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
+/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
+/// one: `KILO * METRE`. They compose in `const` items:
+/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, ONE, SECOND};
 
-    /// One `YottagramPerCubicMetre` (Yg/m³), as a `MassDensity`.
-    pub const YOTTAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `ZettagramPerCubicMetre` (Zg/m³), as a `MassDensity`.
-    pub const ZETTAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `ExagramPerCubicMetre` (Eg/m³), as a `MassDensity`.
-    pub const EXAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `PetagramPerCubicMetre` (Pg/m³), as a `MassDensity`.
-    pub const PETAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `TeragramPerCubicMetre` (Tg/m³), as a `MassDensity`.
-    pub const TERAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `GigagramPerCubicMetre` (Gg/m³), as a `MassDensity`.
-    pub const GIGAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `MegagramPerCubicMetre` (Mg/m³), as a `MassDensity`.
-    pub const MEGAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
     /// One `KilogramPerCubicMetre` (kg/m³), as a `MassDensity`.
     pub const KILOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact>));
 
-    /// One `HectogramPerCubicMetre` (hg/m³), as a `MassDensity`.
-    pub const HECTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -1) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `DecagramPerCubicMetre` (dag/m³), as a `MassDensity`.
-    pub const DECAGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -2) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
     /// One `GramPerCubicMetre` (g/m³), as a `MassDensity`.
     pub const GRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -3) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `DecigramPerCubicMetre` (dg/m³), as a `MassDensity`.
-    pub const DECIGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -4) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `CentigramPerCubicMetre` (cg/m³), as a `MassDensity`.
-    pub const CENTIGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -5) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `MilligramPerCubicMetre` (mg/m³), as a `MassDensity`.
-    pub const MILLIGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -6) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `MicrogramPerCubicMetre` (µg/m³), as a `MassDensity`.
-    pub const MICROGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -9) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `NanogramPerCubicMetre` (ng/m³), as a `MassDensity`.
-    pub const NANOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -12) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `PicogramPerCubicMetre` (pg/m³), as a `MassDensity`.
-    pub const PICOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -15) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `FemtogramPerCubicMetre` (fg/m³), as a `MassDensity`.
-    pub const FEMTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -18) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `AttogramPerCubicMetre` (ag/m³), as a `MassDensity`.
-    pub const ATTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -21) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `ZeptogramPerCubicMetre` (zg/m³), as a `MassDensity`.
-    pub const ZEPTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -24) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `YoctogramPerCubicMetre` (yg/m³), as a `MassDensity`.
-    pub const YOCTOGRAM_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(1, -27) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `CaratPerCubicMetre` (ct/m³), as a `MassDensity`.
     pub const CARAT_PER_CUBIC_METRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::dec(2, -4) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
@@ -276,9 +220,6 @@ pub mod consts {
 
     /// One `GrainPerGallon` (gr/gal), as a `MassDensity`.
     pub const GRAIN_PER_GALLON<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(6479891, -11) / Exact::dec(3785411784, -12)) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
-
-    /// One `GramPerCubicCentimetre` (g/cm³), as a `MassDensity`.
-    pub const GRAM_PER_CUBIC_CENTIMETRE<N: const From<Exact>>: MassDensity<N> = counted(Exact::int(1000) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
 
     /// One `OuncePerCubicInch` (oz/in³), as a `MassDensity`.
     pub const OUNCE_PER_CUBIC_INCH<N: const From<Exact>>: MassDensity<N> = counted((Exact::dec(28349523125, -12) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4))) * KILOGRAM_PER_CUBIC_METRE::<Exact>);
@@ -352,20 +293,8 @@ pub mod consts {
     /// One `OuncePerSquareFoot` (oz/ft²), as an `ArealMassDensity`.
     pub const OUNCE_PER_SQUARE_FOOT<N: const From<Exact>>: ArealMassDensity<N> = counted((Exact::dec(28349523125, -12) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * KILOGRAM_PER_SQUARE_METRE::<Exact>);
 
-    /// One `PerKilometre` (km⁻¹), as a `LinearNumberDensity`.
-    pub const PER_KILOMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::dec(1, -3) * PER_METRE::<Exact>);
-
     /// One `PerMetre` (m⁻¹), as a `LinearNumberDensity`.
     pub const PER_METRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(ONE::<Exact> / METRE::<Exact>);
-
-    /// One `PerDecimetre` (dm⁻¹), as a `LinearNumberDensity`.
-    pub const PER_DECIMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::int(10) * PER_METRE::<Exact>);
-
-    /// One `PerCentimetre` (cm⁻¹), as a `LinearNumberDensity`.
-    pub const PER_CENTIMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::int(100) * PER_METRE::<Exact>);
-
-    /// One `PerMillimetre` (mm⁻¹), as a `LinearNumberDensity`.
-    pub const PER_MILLIMETRE<N: const From<Exact>>: LinearNumberDensity<N> = counted(Exact::int(1000) * PER_METRE::<Exact>);
 
     /// One `PerFoot` (ft⁻¹), as a `LinearNumberDensity`.
     pub const PER_FOOT<N: const From<Exact>>: LinearNumberDensity<N> = counted((Exact::int(1) / Exact::dec(3048, -4)) * PER_METRE::<Exact>);
@@ -448,17 +377,8 @@ pub mod consts {
     /// One `PerLitre` (L⁻¹), as a `VolumetricNumberDensity`.
     pub const PER_LITRE<N: const From<Exact>>: VolumetricNumberDensity<N> = counted(Exact::int(1000) * PER_CUBIC_METRE::<Exact>);
 
-    /// One `PerKilometreSecond` (km⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_KILOMETRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(Exact::dec(1, -3) * PER_METRE_SECOND::<Exact>);
-
     /// One `PerMetreSecond` (m⁻¹ · s⁻¹), as a `LinearNumberRate`.
     pub const PER_METRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(ONE::<Exact> / (METRE::<Exact> * SECOND::<Exact>));
-
-    /// One `PerCentimetreSecond` (cm⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_CENTIMETRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(Exact::int(100) * PER_METRE_SECOND::<Exact>);
-
-    /// One `PerMillimetreSecond` (mm⁻¹ · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_MILLIMETRE_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted(Exact::int(1000) * PER_METRE_SECOND::<Exact>);
 
     /// One `PerFootSecond` (ft⁻¹ · s⁻¹), as a `LinearNumberRate`.
     pub const PER_FOOT_SECOND<N: const From<Exact>>: LinearNumberRate<N> = counted((Exact::int(1) / Exact::dec(3048, -4)) * PER_METRE_SECOND::<Exact>);
@@ -550,9 +470,6 @@ pub mod consts {
     /// One `StatePerMetreJoule` (1/(m · J)), as a `LinearDensityOfStates`.
     pub const STATE_PER_METRE_JOULE<N: const From<Exact>>: LinearDensityOfStates<N> = counted(SECOND::<Exact> * SECOND::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
-    /// One `StatePerCentimetreJoule` (1/(cm · J)), as a `LinearDensityOfStates`.
-    pub const STATE_PER_CENTIMETRE_JOULE<N: const From<Exact>>: LinearDensityOfStates<N> = counted(Exact::int(100) * STATE_PER_METRE_JOULE::<Exact>);
-
     /// One `StatePerSquareMetreJoule` (1/(m² · J)), as an `ArealDensityOfStates`.
     pub const STATE_PER_SQUARE_METRE_JOULE<N: const From<Exact>>: ArealDensityOfStates<N> = counted(SECOND::<Exact> * SECOND::<Exact> / (METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact>));
 
@@ -561,12 +478,6 @@ pub mod consts {
 
     /// One `WattPerMetre` (W/m), as a `LinearPowerDensity`.
     pub const WATT_PER_METRE<N: const From<Exact>>: LinearPowerDensity<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `WattPerCentimetre` (W/cm), as a `LinearPowerDensity`.
-    pub const WATT_PER_CENTIMETRE<N: const From<Exact>>: LinearPowerDensity<N> = counted(Exact::int(100) * WATT_PER_METRE::<Exact>);
-
-    /// One `WattPerMillimetre` (W/mm), as a `LinearPowerDensity`.
-    pub const WATT_PER_MILLIMETRE<N: const From<Exact>>: LinearPowerDensity<N> = counted(Exact::int(1000) * WATT_PER_METRE::<Exact>);
 
     /// One `WattPerCubicMetre` (W/m³), as a `VolumetricPowerDensity`.
     pub const WATT_PER_CUBIC_METRE<N: const From<Exact>>: VolumetricPowerDensity<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
@@ -577,49 +488,11 @@ pub mod consts {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = MassDensity<f64>)]
 pub enum MassDensityUnit {
-    #[unit("Yg/m³", "yottagrams per cubic metre", by = YOTTAGRAM_PER_CUBIC_METRE)]
-    YottagramPerCubicMetre,
-    #[unit("Zg/m³", "zettagrams per cubic metre", by = ZETTAGRAM_PER_CUBIC_METRE)]
-    ZettagramPerCubicMetre,
-    #[unit("Eg/m³", "exagrams per cubic metre", by = EXAGRAM_PER_CUBIC_METRE)]
-    ExagramPerCubicMetre,
-    #[unit("Pg/m³", "petagrams per cubic metre", by = PETAGRAM_PER_CUBIC_METRE)]
-    PetagramPerCubicMetre,
-    #[unit("Tg/m³", "teragrams per cubic metre", by = TERAGRAM_PER_CUBIC_METRE)]
-    TeragramPerCubicMetre,
-    #[unit("Gg/m³", "gigagrams per cubic metre", by = GIGAGRAM_PER_CUBIC_METRE)]
-    GigagramPerCubicMetre,
-    #[unit("Mg/m³", "megagrams per cubic metre", by = MEGAGRAM_PER_CUBIC_METRE)]
-    MegagramPerCubicMetre,
     #[default]
     #[unit("kg/m³", "kilograms per cubic metre", by = KILOGRAM_PER_CUBIC_METRE)]
     KilogramPerCubicMetre,
-    #[unit("hg/m³", "hectograms per cubic metre", by = HECTOGRAM_PER_CUBIC_METRE)]
-    HectogramPerCubicMetre,
-    #[unit("dag/m³", "decagrams per cubic metre", by = DECAGRAM_PER_CUBIC_METRE)]
-    DecagramPerCubicMetre,
     #[unit("g/m³", "grams per cubic metre", by = GRAM_PER_CUBIC_METRE)]
     GramPerCubicMetre,
-    #[unit("dg/m³", "decigrams per cubic metre", by = DECIGRAM_PER_CUBIC_METRE)]
-    DecigramPerCubicMetre,
-    #[unit("cg/m³", "centigrams per cubic metre", by = CENTIGRAM_PER_CUBIC_METRE)]
-    CentigramPerCubicMetre,
-    #[unit("mg/m³", "milligrams per cubic metre", by = MILLIGRAM_PER_CUBIC_METRE)]
-    MilligramPerCubicMetre,
-    #[unit("µg/m³", "micrograms per cubic metre", by = MICROGRAM_PER_CUBIC_METRE)]
-    MicrogramPerCubicMetre,
-    #[unit("ng/m³", "nanograms per cubic metre", by = NANOGRAM_PER_CUBIC_METRE)]
-    NanogramPerCubicMetre,
-    #[unit("pg/m³", "picograms per cubic metre", by = PICOGRAM_PER_CUBIC_METRE)]
-    PicogramPerCubicMetre,
-    #[unit("fg/m³", "femtograms per cubic metre", by = FEMTOGRAM_PER_CUBIC_METRE)]
-    FemtogramPerCubicMetre,
-    #[unit("ag/m³", "attograms per cubic metre", by = ATTOGRAM_PER_CUBIC_METRE)]
-    AttogramPerCubicMetre,
-    #[unit("zg/m³", "zeptograms per cubic metre", by = ZEPTOGRAM_PER_CUBIC_METRE)]
-    ZeptogramPerCubicMetre,
-    #[unit("yg/m³", "yoctograms per cubic metre", by = YOCTOGRAM_PER_CUBIC_METRE)]
-    YoctogramPerCubicMetre,
     #[unit("ct/m³", "carats per cubic metre", by = CARAT_PER_CUBIC_METRE)]
     CaratPerCubicMetre,
     #[unit("gr/m³", "grains per cubic metre", by = GRAIN_PER_CUBIC_METRE)]
@@ -650,8 +523,6 @@ pub enum MassDensityUnit {
     TonPerCubicMetre,
     #[unit("gr/gal", "grains per gallon", by = GRAIN_PER_GALLON)]
     GrainPerGallon,
-    #[unit("g/cm³", "grams per cubic centimetre", by = GRAM_PER_CUBIC_CENTIMETRE)]
-    GramPerCubicCentimetre,
     #[unit("oz/in³", "ounces per cubic inch", by = OUNCE_PER_CUBIC_INCH)]
     OuncePerCubicInch,
     #[unit("oz/gal (UK)", "ounces per Imperial gallon", by = OUNCE_PER_GALLON_IMPERIAL)]
@@ -723,17 +594,9 @@ pub enum ArealMassDensityUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = LinearNumberDensity<f64>)]
 pub enum LinearNumberDensityUnit {
-    #[unit("km⁻¹", "per kilometre", by = PER_KILOMETRE)]
-    PerKilometre,
     #[default]
     #[unit("m⁻¹", "per metre", by = PER_METRE)]
     PerMetre,
-    #[unit("dm⁻¹", "per decimetre", by = PER_DECIMETRE)]
-    PerDecimetre,
-    #[unit("cm⁻¹", "per centimetre", by = PER_CENTIMETRE)]
-    PerCentimetre,
-    #[unit("mm⁻¹", "per millimetre", by = PER_MILLIMETRE)]
-    PerMillimetre,
     #[unit("ft⁻¹", "per foot", by = PER_FOOT)]
     PerFoot,
     #[unit("ft (U.S. survey)", "foot (U.S. survey)", by = PER_FOOT_SURVEY)]
@@ -811,15 +674,9 @@ pub enum VolumetricNumberDensityUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = LinearNumberRate<f64>)]
 pub enum LinearNumberRateUnit {
-    #[unit("km⁻¹ · s⁻¹", "per kilometre second", by = PER_KILOMETRE_SECOND)]
-    PerKilometreSecond,
     #[default]
     #[unit("m⁻¹ · s⁻¹", "per metre second", by = PER_METRE_SECOND)]
     PerMetreSecond,
-    #[unit("cm⁻¹ · s⁻¹", "per centimetre second", by = PER_CENTIMETRE_SECOND)]
-    PerCentimetreSecond,
-    #[unit("mm⁻¹ · s⁻¹", "per millimetre second", by = PER_MILLIMETRE_SECOND)]
-    PerMillimetreSecond,
     #[unit("ft⁻¹ · s⁻¹", "per foot second", by = PER_FOOT_SECOND)]
     PerFootSecond,
     #[unit("ft⁻¹ (U.S. survey) · s⁻¹", "per foot (U.S. survey) second", by = PER_FOOT_SURVEY_SECOND)]
@@ -904,8 +761,6 @@ pub enum LinearDensityOfStatesUnit {
     #[default]
     #[unit("1/(m · J)", "states per metre joule", by = STATE_PER_METRE_JOULE)]
     StatePerMetreJoule,
-    #[unit("1/(cm · J)", "states per centimetre joule", by = STATE_PER_CENTIMETRE_JOULE)]
-    StatePerCentimetreJoule,
 }
 
 /// The units of `ArealDensityOfStates`, for a menu, a config file, a parser.
@@ -936,10 +791,6 @@ pub enum LinearPowerDensityUnit {
     #[default]
     #[unit("W/m", "watts per metre", by = WATT_PER_METRE)]
     WattPerMetre,
-    #[unit("W/cm", "watts per centimetre", by = WATT_PER_CENTIMETRE)]
-    WattPerCentimetre,
-    #[unit("W/mm", "watts per millimetre", by = WATT_PER_MILLIMETRE)]
-    WattPerMillimetre,
 }
 
 /// The units of `VolumetricPowerDensity`, for a menu, a config file, a parser.

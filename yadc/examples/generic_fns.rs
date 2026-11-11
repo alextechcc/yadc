@@ -124,6 +124,7 @@ fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q>]) -> String {
 use yadc_si::mechanical::*;
 use yadc_si::thermal::consts::CELSIUS;
 use yadc_si::thermal::TemperatureIntervalUnit;
+use yadc_si::KILO;
 
 // --- Unit system B: custom nautical system -----------------------------------
 // A completely separate Dim / Qty / Unit stack, with no labels (no `#[kind]`
@@ -205,9 +206,11 @@ fn main() {
 
     // -- table -------------------------------------------------------------------
     // Maths is on quantities: 90 km in an hour is a velocity, shown in every
-    // unit of a list picked at run time.
+    // unit of a list picked at run time. A prefix scales an SI unit:
+    // `KILO * METRE` is a kilometre.
 
-    let v = LengthUnit::Kilometre(90.0) / TimeUnit::Hour(1.0);
+    let kilometre: Length<f64> = KILO * yadc_si::mechanical::consts::METRE;
+    let v = kilometre(90.0) / TimeUnit::Hour(1.0);
     println!(
         "SI   90 km/h        -> {}",
         table(v, &[&VelocityUnit::MetrePerSecond, &VelocityUnit::Knot])
@@ -261,7 +264,7 @@ fn main() {
     println!(
         "SI   a marathon in laps of 400 m = {:.1}",
         how_many(
-            LengthUnit::Kilometre(42.195),
+            kilometre(42.195),
             LengthUnit::Metre(400.0)
         )
     );

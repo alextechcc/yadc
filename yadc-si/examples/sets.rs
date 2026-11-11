@@ -17,15 +17,17 @@
 //!
 //! Run with: cargo run -p yadc-si --example sets
 #![feature(generic_const_exprs, const_trait_impl)]
-#![feature(const_convert, const_destruct)]
+#![feature(const_convert, const_destruct, const_ops)]
+#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use core::fmt;
 use core::str::FromStr;
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use yadc::{Unit, UnknownUnit};
-use yadc_si::DynamicSIQuantity;
-use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure, PressureUnit};
+use yadc_si::mechanical::consts::{BAR, PASCAL, PSI, STANDARD_ATMOSPHERE};
+use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure};
+use yadc_si::{DynamicSIQuantity, KILO};
 use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
 
 /// What the app measures: a closed set. It converts to and from the open
@@ -38,6 +40,23 @@ enum Quantities {
     Temperature(ThermodynamicTemperature<f64>),
     Area(Area<f64>),
     Force(Force<f64>),
+}
+
+/// The units of pressure the app offers: a family of your own, a prefixed
+/// unit among them.
+#[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
+#[unit(of = Pressure<f64>)]
+enum PressureUnit {
+    #[unit("Pa", "pascals", by = PASCAL)]
+    Pascal,
+    #[unit("kPa", "kilopascals", by = KILO * PASCAL)]
+    Kilopascal,
+    #[unit("bar", "bar", by = BAR)]
+    Bar,
+    #[unit("atm", "standard atmospheres", by = STANDARD_ATMOSPHERE)]
+    StandardAtmosphere,
+    #[unit("psi", "pounds-force per square inch", by = PSI)]
+    Psi,
 }
 
 /// The setting: which quantity, shown in which unit.

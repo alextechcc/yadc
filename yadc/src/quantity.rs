@@ -9,8 +9,8 @@ use core::ops::{Add, Div, Mul};
 /// On the whiteboard, exactly the operations listed: `a + b` is a quantity
 /// of the same kind, `a * n` and `a / n` scale it by its
 /// [`Number`](Self::Number)s, quantities of one kind are ordered, and any
-/// non-zero quantity measures the others - `KILOPASCAL.value(p)` is how many
-/// kilopascals `p` is, `KILOPASCAL.quantity(2.0)` two of them. `Copy` like a
+/// non-zero quantity measures the others - `BAR.value(p)` is how many
+/// bars `p` is, `BAR.quantity(2.0)` two of them. `Copy` like a
 /// number.
 ///
 /// It is not a vector space and asks for no more than that: there is no zero

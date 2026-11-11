@@ -255,7 +255,7 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// `FromStr` from each unit's symbol and name. Trait impls only - no inherent
 /// items.
 ///
-/// A unit itself is a constant: a quantity constant (`KILOMETRE`), or a
+/// A unit itself is a constant: a quantity constant (`MILE`), or a
 /// scale, a zero and a step (`pub const CELSIUS: Scale<Temperature,
 /// TemperatureStep> = Scale(ICE_POINT, KELVIN);`). The derive gives a choice
 /// of them a type, labels and a parser:
@@ -351,8 +351,8 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// # Always
 ///
 /// - `yadc::Quantity` (`type Number = N`) and its supertrait
-///   `Unit<Self, N>` (`KILOPASCAL.quantity(2.0)` is `KILOPASCAL * 2.0`,
-///   `KILOPASCAL.value(q)` is `q / KILOPASCAL`, so every amount constant is a
+///   `Unit<Self, N>` (`BAR.quantity(2.0)` is `BAR * 2.0`,
+///   `BAR.value(q)` is `q / BAR`, so every amount constant is a
 ///   unit), for every member that can be scaled.
 /// - The cross-type operators, between any two members, wherever the
 ///   dimension's own operator has a result: `+` (the result keeps the left
@@ -391,10 +391,10 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// - `Inv`: `num_traits::Inv`, `x.inv()` is `1 / x`.
 /// - `Sum`: `Sum<Qty<D>>` / `Sum<&Qty<D>>`, seeded with `num_traits::Zero`.
 /// - `Cast` (a generic number type only): `yadc::Cast<W>` -
-///   `KILOPASCAL.cast::<f32>()` is the same pressure counted in `f32`,
+///   `BAR.cast::<f32>()` is the same pressure counted in `f32`,
 ///   `const` - for every `N: Cast<W>`.
 /// - `Fn`: std's three function traits, so a unit is called like the function
-///   it is - on a number it builds, on a quantity it reads: `KILOMETRE(3.0)`,
+///   it is - on a number it builds, on a quantity it reads: `MILE(3.0)`,
 ///   `FOOT(d)`. For every member that is a unit of itself; `const`. Needs `#![feature(fn_traits,
 ///   unboxed_closures, const_destruct)]` in the crate that derives; a crate
 ///   that only calls needs nothing.
@@ -422,8 +422,8 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///   operand's dimension); `+=` and `-=` into the `N` side (with the
 ///   `AddAssign` / `SubAssign` extras);
 /// - scaling an `M` member by an `N` number, from either side;
-/// - every `M` member as a `Unit` of `N` members (`KILOMETRE_32.value(d)`),
-///   called like one with the `Fn` extra (`KILOMETRE_32(3.0)`);
+/// - every `M` member as a `Unit` of `N` members (`MILE_32.value(d)`),
+///   called like one with the `Fn` extra (`MILE_32(3.0)`);
 /// - `==` and `<` either way round.
 ///
 /// It runs one way: listing a pair both ways is an error, since `f32 + f64`
@@ -436,7 +436,7 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// #[quantity(from(f32 => f64), from(i32 => f64))]
 /// pub struct Qty<const D: Dim, N>(N);
 ///
-/// const LIMIT: Velocity<f64> = 50.0 * KILOMETRE_32 / HOUR_I32;   // f32 and i32 constants, f64 result
+/// const LIMIT: Velocity<f64> = 50.0 * MILE_32 / HOUR_I32;   // f32 and i32 constants, f64 result
 /// ```
 ///
 /// # Shape

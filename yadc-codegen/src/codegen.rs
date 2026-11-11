@@ -30,6 +30,8 @@ pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()
     std::fs::write(&written[0], gen_lib_rs(system))?;
     std::fs::write(&written[1], gen_dimensionless_rs(system))?;
     std::fs::write(&written[2], EXACT)?;
+    written.push(src.join("prefix.rs"));
+    std::fs::write(&written[3], PREFIX)?;
     std::fs::write(output_dir.join("Cargo.toml"), gen_cargo_toml(system))?;
 
     for fam in &system.family {
@@ -265,6 +267,9 @@ fn dim_value(
 /// The exact number every constant is counted in, written as `src/exact.rs`.
 const EXACT: &str = include_str!("../templates/exact.rs");
 
+/// The SI prefixes and `Prefixed`, written as `src/prefix.rs`.
+const PREFIX: &str = include_str!("../templates/prefix.rs");
+
 /// The scale type's one impl: a unit of its zero's type.
 const SCALE_IMPLS: &str = r#"const impl<P, S, N> Unit<P, N> for Scale<P, S>
 where
@@ -294,7 +299,8 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "//! - `";
     s += qty;
     s += "<D, N>`: a quantity whose dimension is in its type, counted in `N`; every constant\n";
-    s += "//!   is a unit (`KILOMETRE(3.0)` builds, `MILE(d)` reads).\n";
+    s += "//!   is a unit (`MILE(3.0)` builds, `MILE(d)` reads), and a prefix scales one\n";
+    s += "//!   (`KILO * METRE`).\n";
     s += "//! - `";
     s += dyn_;
     s += "`: a quantity whose dimension is decided at run time.\n";
@@ -339,22 +345,25 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "\n";
     s += "pub mod exact;\n";
     s += "pub use exact::Exact;\n";
+    s += "pub mod prefix;\n";
+    s += "pub use prefix::*;\n";
     s += "\n";
     s += "/// An exactly defined constant, counted in `N`: its value rounded once\n";
-    s += "/// (`KILOMETRE<f32>` is the nearest `f32` to 1000 m).\n";
+    s += "/// (`INCH<f32>` is the nearest `f32` to 0.0254 m).\n";
     s += &format!(
         "pub(crate) const fn counted<const D: {dim}, N: [const] From<Exact>>(q: {qty}<D, Exact>) -> {qty}<D, N> {{\n"
     );
     s += &format!("    {qty}(N::from(q.0))\n");
     s += "}\n";
     s += "\n";
-    s += "/// An exact number scaling an exact quantity from the left, as a primitive\n";
-    s += "/// does (`Exact::int(1000) * METRE::<Exact>`), with the scaling refusals.\n";
+    s += "/// An exact number scaling a quantity counted in any number type: the factor\n";
+    s += "/// converted to it once, then multiplied - `KILO * METRE`, `Exact::int(1000) *\n";
+    s += "/// METRE`. With the scaling refusals, as for a number scaling from the left.\n";
     s += &format!(
-        "const impl<const D: {dim}> core::ops::Mul<{qty}<D, Exact>> for Exact\nwhere\n    {qty}<D, Exact>: yadc::gates::ScaleNotPoint + yadc::gates::ScaleLabel,\n{{\n"
+        "const impl<const D: {dim}, N> core::ops::Mul<{qty}<D, N>> for Exact\nwhere\n    N: [const] From<Exact> + [const] core::ops::Mul<Output = N> + [const] core::marker::Destruct,\n    {qty}<D, N>: yadc::gates::ScaleNotPoint + yadc::gates::ScaleLabel,\n{{\n"
     );
-    s += &format!("    type Output = {qty}<D, Exact>;\n");
-    s += &format!("    fn mul(self, q: {qty}<D, Exact>) -> {qty}<D, Exact> {{\n        {qty}(self * q.0)\n    }}\n}}\n");
+    s += &format!("    type Output = {qty}<D, N>;\n");
+    s += &format!("    fn mul(self, q: {qty}<D, N>) -> {qty}<D, N> {{\n        {qty}(N::from(self) * q.0)\n    }}\n}}\n");
     s += "\n";
 
     validate_kind(&system.kind);
@@ -430,7 +439,7 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "/// says which (`Pressure<f64>`, `Pressure<f32>`). Its number is private to\n";
     s += "/// this crate: the base constants (`base::METRE`) are the only raw numbers,\n";
     s += "/// and everyone else builds and reads through units - every constant is one\n";
-    s += "/// (`KILOMETRE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero\n";
+    s += "/// (`MILE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero\n";
     s += "/// and a step (`CELSIUS.quantity(25.0)`), and every unit enum's value.\n";
     s += "///\n";
     s += "/// It serializes transparently as just its number: the dimension `D` is the\n";
@@ -515,7 +524,7 @@ const DYNAMIC: &str = r#"/// A quantity of any dimension, decided at run time: t
 /// `value` and records `D` in `dim`; `TryFrom<__DYN__> for __QTY__<D, f64>` is the
 /// checked way back (the error hands the original back). A bare `f64` is the
 /// same value as a dimensionless quantity (`shared`). Numbers still go through
-/// units, by way of the static quantity: `__DYN__::from(KILOMETRE.quantity(3.0))`,
+/// units, by way of the static quantity: `__DYN__::from(MILE.quantity(3.0))`,
 /// then `Mass::<f64>::try_from(d).map(|m| KILOGRAM.value(m))`.
 ///
 /// Its arithmetic is every field's own: the dimension's operator on `dim`, the
@@ -626,8 +635,8 @@ fn validate_kind(kind: &KindConfig) {
 
 // --- Unit constants -------------------------------------------------------------
 //
-// A module's `consts` holds a constant per multiple (`KILOMETRE = 1000.0 *
-// METRE`), the quantities' extra constants (`ICE_POINT`, and a scale,
+// A module's `consts` holds a constant per multiple (`INCH = 0.0254 * METRE`),
+// the quantities' extra constants (`ICE_POINT`, and a scale,
 // `CELSIUS = Scale(ICE_POINT, KELVIN)`), and re-exports the base constants of
 // its quantities. The unit enums below name them.
 
@@ -670,10 +679,7 @@ impl<'a> QuantityRef<'a> {
         units: &'a [UnitDef],
     ) -> Self {
         let mut seen = HashSet::new();
-        let units = units
-            .iter()
-            .filter(|u| seen.insert(u.variant.as_str()))
-            .collect();
+        let units = units.iter().filter(|u| seen.insert(u.variant.as_str())).collect();
         QuantityRef {
             name,
             kind,
@@ -829,16 +835,15 @@ fn generic_ty(ty: &str, quantities: &[QuantityRef<'_>]) -> String {
 }
 
 /// A constant's definition, evaluated exactly and rounded once to `N`: every
-/// constant it names is taken at `Exact` (`METRE::<Exact>`), and the result
-/// is `counted` - for a scale, its zero and its step.
+/// constant it names is taken at `Exact` (`METRE::<Exact>`) and the result is
+/// `counted`. The body is typed at `Exact`, a concrete type, so its dimensions
+/// are checked where they are written; over a generic `N` they could not be.
+/// A scale names its zero and step as they are, each already counted in `N`.
 fn generic_body(expr: &str) -> String {
-    match expr.trim().strip_prefix("Scale(").and_then(|t| t.strip_suffix(')')) {
-        Some(inner) => {
-            let parts: Vec<String> =
-                inner.split(',').map(|p| format!("counted({})", at_exact(p.trim()))).collect();
-            format!("Scale({})", parts.join(", "))
-        }
-        None => format!("counted({})", at_exact(expr)),
+    if expr.trim().starts_with("Scale(") {
+        expr.trim().to_string()
+    } else {
+        format!("counted({})", at_exact(expr))
     }
 }
 
@@ -1134,11 +1139,12 @@ fn gen_consts_mod(
     let mut s = String::new();
     s += "/// The constants of this module: the base constants of its quantities\n";
     s += "/// (re-exported), then one per multiple, each defined exactly from them -\n";
-    s += "/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use\n";
-    s += "/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,\n";
-    s += "/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is\n";
-    s += "/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in\n";
-    s += "/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.\n";
+    s += "/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks\n";
+    s += "/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,\n";
+    s += "/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a\n";
+    s += "/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times\n";
+    s += "/// one: `KILO * METRE`. They compose in `const` items:\n";
+    s += "/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.\n";
     s += "pub mod consts {\n";
     s += "    use super::*;\n";
     let local: BTreeSet<&str> = plan.names.iter().map(String::as_str).collect();
@@ -1272,7 +1278,13 @@ fn gen_module(
     // What the module names, imported: read off its aliases, constants
     // and enums.
     let body = format!("{aliases}{}{enums}", rendered.consts);
-    let named = idents(&body);
+    // What the code names, its doc comments left out.
+    let code: String = body
+        .lines()
+        .filter(|l| !l.trim_start().starts_with("//"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let named = idents(&code);
     let mut names: Vec<&str> = [dim, qty, "Kind", "Scale", "Exact", "counted"]
         .into_iter()
         .filter(|n| named.contains(*n))
@@ -1623,7 +1635,7 @@ units = [
         let out = family();
         assert!(out.contains("use crate::{Dim, Exact, Kind, Qty, Scale, counted};\n"));
         assert!(out.contains(
-            "    pub const CELSIUS<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(counted(ICE_POINT::<Exact>), counted(KELVIN::<Exact>));\n"
+            "    pub const CELSIUS<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(ICE_POINT, KELVIN);\n"
         ));
         assert!(
             out.contains("    #[unit(\"°C\", \"degrees Celsius\", by = CELSIUS)]\n    Celsius,\n")

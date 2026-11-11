@@ -20,8 +20,8 @@
 use core::fmt;
 use dynamickit::{Members, Via, Visit, Visitor};
 use yadc::Unit;
-use yadc_si::DynamicSIQuantity;
-use yadc_si::mechanical::consts::{KILONEWTON, PASCAL};
+use yadc_si::mechanical::consts::{NEWTON, PASCAL};
+use yadc_si::{DynamicSIQuantity, KILO};
 use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure, PressureUnit};
 
 /// A quantity and the unit it is shown in.
@@ -73,8 +73,8 @@ impl fmt::Display for Measurement {
 
 fn main() {
     // A unit is called on a number to build a quantity.
-    let (kpa, sq_ft) = (PressureUnit::Kilopascal, AreaUnit::SquareFoot);
-    let p = Measurement::Pressure(kpa(101.325), kpa);
+    let (psi, sq_ft) = (PressureUnit::Psi, AreaUnit::SquareFoot);
+    let p = Measurement::Pressure(psi(14.7), psi);
     let a = Measurement::Area(sq_ft(5.0), sq_ft);
     println!("p       = {p}  ({p:#})");
     println!("a       = {a:.3}");
@@ -88,7 +88,7 @@ fn main() {
     println!("p × p   = {:?}", (p * p).map(|m| m.to_string()));
 
     // From a bare quantity: the default unit.
-    let f = Measurement::from(KILONEWTON(2.0));
+    let f = Measurement::from((KILO * NEWTON)(2.0));
     println!("f       = {f}");
     // Back to the bare quantity, checked.
     println!("as Pa   = {:?}", Pressure::try_from(p).map(PASCAL));

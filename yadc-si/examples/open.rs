@@ -9,16 +9,17 @@
 //! it is std `From`; back out is std `TryFrom`, which checks the dimension
 //! and hands the value back on a mismatch. Numbers still go in and out
 //! through units, by way of a static quantity: a constant is called on a number
-//! to build (`KILOPASCAL(101.325)`), and on a quantity to read.
+//! to build (`kilopascal(101.325)`, with `kilopascal` being `KILO * PASCAL`),
+//! and on a quantity to read.
 //!
 //! Run with: cargo run -p yadc-si --example open
 #![feature(generic_const_exprs, const_trait_impl)]
 #![allow(incomplete_features)]
 
 use yadc::{PartialPowi, PartialRoot, Unit};
-use yadc_si::DynamicSIQuantity;
+use yadc_si::{DynamicSIQuantity, KILO};
 use yadc_si::mechanical::consts::{
-    BAR, CUBIC_METRE, DBM, DECIBEL, HOUR, KILOPASCAL, METRE, NEWTON,
+    BAR, CUBIC_METRE, DBM, DECIBEL, HOUR, METRE, NEWTON, PASCAL,
     POUND_FORCE_PER_SQUARE_INCH, SQUARE_METRE, UNIX_SECONDS,
 };
 use yadc_si::mechanical::{Area, Force, Instant, Length, PowerLevel, Pressure, Time, Volume};
@@ -34,11 +35,12 @@ where
 }
 
 fn main() {
-    let p = DynamicSIQuantity::from(KILOPASCAL(101.325));
+    let kilopascal: Pressure<f64> = KILO * PASCAL;
+    let p = DynamicSIQuantity::from(kilopascal(101.325));
     let a = DynamicSIQuantity::from(SQUARE_METRE(0.5));
 
     // Numbers come out through a static quantity and a unit, checked.
-    let kpa = |x| Some(KILOPASCAL(Pressure::try_from(x).ok()?));
+    let kpa = |x| Some(kilopascal(Pressure::try_from(x).ok()?));
     let m2 = |x| Some(SQUARE_METRE(Area::try_from(x).ok()?));
 
     // Arithmetic decided at run time: every operator may have no result. An
@@ -76,7 +78,7 @@ fn main() {
     // The way back: std `TryFrom` checks the dimension, and a mismatch hands
     // the value back.
     let back: Pressure<f64> = p.try_into().unwrap();
-    println!("back        = {:.3} kPa", KILOPASCAL(back));
+    println!("back        = {:.3} kPa", kilopascal(back));
     println!("as a length = {:?}", Length::try_from(p).is_ok());
     let kept = round_trip::<Pressure<f64>, DynamicSIQuantity>(back);
     println!(

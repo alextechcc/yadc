@@ -38,7 +38,7 @@ fmt-clean files.
   - the static quantity `Qty<const D: Dim, N>(N)` (`#[derive(Quantity)]`:
     its operators, `Quantity` - every constant a unit - and the
     extras, `Display` and `Fn` among them, so a constant is called to build
-    and to read, `KILOMETRE(3.0)`; the field is private to the crate, so the
+    and to read, `MILE(3.0)`; the field is private to the crate, so the
     base constants are the only raw numbers);
   - the scale type, `pub struct Scale<P, S>(pub P, pub S);`, with its
     `impl Unit` written out (`n` is `zero + n · step`): `Scale(zero, step)` is
@@ -90,21 +90,29 @@ pub mod consts {
     /// The metre, the SI base unit of length.
     pub use crate::base::METRE;
 
-    /// One `Kilometre` (km), as a `Length`.
-    pub const KILOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000) * METRE::<Exact>);
+    /// One `Inch` (in), as a `Length`.
+    pub const INCH<N: const From<Exact>>: Length<N> = counted(Exact::dec(254, -4) * METRE::<Exact>);
 }
 
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]
 #[unit(of = Length<f64>)]
 pub enum LengthUnit {
-    #[unit("km", "kilometres", by = KILOMETRE)]
-    Kilometre,
     #[default]
     #[unit("m", "metres", by = METRE)]
     Metre,
+    #[unit("in", "inches", by = INCH)]
+    Inch,
 }
 ```
+
+- `src/prefix.rs` (written from `templates/prefix.rs`, beside `src/exact.rs`) -
+  the 20 SI prefixes as exact numbers, `YOTTA` … `KILO`, `HECTO`, `DECA`,
+  `DECI`, `CENTI`, `MILLI`, `MICRO`, `NANO` … `YOCTO`, re-exported at the
+  crate root, and `Prefixed<U>`, a unit enum's value with an optional
+  `Prefix`, which parses `km` as the kilo of `LengthUnit::Metre`. A prefixed
+  unit has no constant and no variant of its own (see
+  [below](#prefixed-units)).
 
 - `Cargo.toml` - a starting manifest: one feature per family (all on by
   default), `std`, `libm` and `serde`. It knows nothing about the
@@ -116,16 +124,18 @@ The generated crate root needs the features a crate *defining* a system
 needs (see yadc's README), plus `generic_const_items` for its constants. A
 crate that only uses the generated one needs `generic_const_exprs` alone.
 
-`src/lib.rs` also holds `Exact` (written from `templates/exact.rs`), the
-exact number every constant is defined in, and `counted`, which rounds an exact constant
-once to the number type its use asks for.
+`src/exact.rs` (written from `templates/exact.rs`) holds `Exact`, the exact
+number every constant is defined in and every prefix is; `src/lib.rs` holds
+`counted`, which rounds an exact constant once to the number type its use
+asks for, and `Exact * Qty<D, N>`, an exact number scaling a quantity of any
+number type (`KILO * METRE`, `(KILO * METRE)(3.0)`).
 
 ### The `consts` modules
 
 The base constants are the only raw numbers; every other constant is an
 expression of them, written the way a standards document writes it and
 evaluated exactly: each constant is generic over its number type,
-`KILOMETRE<N: const From<Exact>>`, its definition taken at `Exact`
+`INCH<N: const From<Exact>>`, its definition taken at `Exact`
 (`METRE::<Exact>`) and rounded once to `N`. A unit's `m` is therefore its
 exact definition - `"0.0254"`, `"1000.0 / 3600.0"`, `"core::f64::consts::PI / 180.0"`
 (numbers, `+ - * /`, parentheses and π) - never a rounded result:
@@ -135,7 +145,7 @@ exact definition - `"0.0254"`, `"1000.0 / 3600.0"`, `"core::f64::consts::PI / 18
   `NEWTON = METRE * KILOGRAM / (SECOND * SECOND)`, `HERTZ = ONE / SECOND`;
   where a base constant *is* the coherent unit (`METRE`, or `BEL` for a
   quantity with a kind), it is re-exported;
-- **a multiple** is `m * COHERENT` - `KILOMETRE = 1000 * METRE`,
+- **a multiple** is `m * COHERENT` - `INCH = 0.0254 * METRE`,
   `DEGREE_FAHRENHEIT = (5.0 / 9.0) * KELVIN` - or `m * (product)` for a
   quantity with no coherent unit of its own;
 - **a quantity's `consts`** are written verbatim: `ICE_POINT = ABSOLUTE_ZERO + 273.15 * KELVIN`;
@@ -143,8 +153,8 @@ exact definition - `"0.0254"`, `"1000.0 / 3600.0"`, `"core::f64::consts::PI / 18
   "Scale<ThermodynamicTemperature, TemperatureInterval>"` and `value =
   "Scale(ICE_POINT, KELVIN)"` give `CELSIUS<N: const From<Exact>>:
   Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> =
-  Scale(counted(ICE_POINT::<Exact>), counted(KELVIN::<Exact>))`, generic over
-  its number type like every constant.
+  Scale(ICE_POINT, KELVIN)`, generic over its number type like every
+  constant: its zero and its step are constants already counted in `N`.
 
 Each family's `consts` module also re-exports the base constants of its
 quantities (`mechanical::consts::METRE`, `thermal::consts::ABSOLUTE_ZERO`),
@@ -153,6 +163,15 @@ variant in SCREAMING_SNAKE_CASE (or `c`); a name two quantities of one module
 share is prefixed with the quantity (`TIME_MINUTE`, `ANGLE_MINUTE`); a base
 constant a module constant shadows (the angular `SECOND` of arc) is named by
 its path, `crate::base::SECOND`.
+
+### Prefixed units
+
+The input lists no prefixed units: a prefix is an exact number of its own
+(`KILO * METRE`, `MEGA * SQUARE_METRE` for km²), and `Prefixed<LengthUnit>`
+parses `km` and `km²`. The generator emits exactly the units its input lists;
+`si.toml` lists ~870, the units with no SI prefix in them, plus those that
+keep one in their name: a coherent unit (`Kilogram`), a unit a definition
+names (`Decibel`, in `MILLIWATT_LEVEL`), and a scale (`by`).
 
 ### How units map to unit enums
 
@@ -164,7 +183,8 @@ Each variant names the unit value it is:
 
 | Unit | Variant | Also |
 |---|---|---|
-| a multiple (`m`) | `#[unit("km", "kilometres", by = KILOMETRE)]` | its constant |
+| a multiple (`m`) | `#[unit("in", "inches", by = INCH)]` | its constant |
+| a prefixed multiple (`Kilometre`) | none: `Prefixed<LengthUnit>` parses `km` | nothing |
 | a unit value (`by`) | `#[unit("°C", "degrees Celsius", by = CELSIUS)]` | nothing: `by` is written verbatim |
 | a unit value of another type (`by`, `via`) | `#[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel<f64>)]` | nothing |
 
@@ -323,8 +343,8 @@ name = "mechanical"           # a Cargo feature and a module
 name = "Length"
 dims = {m = 1}                # non-zero exponents; absent axes are 0
 units = [
-    {v = "Kilometre", m = "1000.0", s = "km", l = "kilometres"},
-    {v = "Metre",     m = "1.0",    s = "m",  l = "metres"},
+    {v = "Metre", m = "1.0",    s = "m",  l = "metres"},
+    {v = "Inch",  m = "0.0254", s = "in", l = "inches"},
 ]
 ```
 
@@ -551,20 +571,20 @@ a dimensionless unit of another class stays in its family:
 
 | Family | UCUM classes | Contents |
 |--------|-------------|----------|
-| `si` | `si` | SI base and derived quantities with full metric-prefix expansion |
+| `si` | `si` | SI base and derived quantities |
 | `heat` | `heat` | Thermal energy units + `ThermodynamicTemperature` / `TemperatureInterval` |
 | `iso1000` | `iso1000` | ISO 1000 units (litre, tonne, bar, …) |
 | `intcust` | `intcust` | International customary units |
 | `cgs` | `cgs` | Centimetre-gram-second units |
-| `infotech` | `infotech` | Bit, byte and baud, with metric-prefixed variants |
+| `infotech` | `infotech` | Bit, byte and baud |
 | `us` | `us-lengths`, `us-volumes`, `avoirdupois`, `troy`, `apoth` | US customary and apothecary units |
 | `british` | `brit-length`, `brit-volumes` | British imperial units |
 | `clinical` | `clinical`, `chemical` | Clinical and chemical units |
 | `constants` | `const` | Physical constants used as unit scales |
 | `misc` | `misc` | Remaining units |
 
-For every `isMetric="yes"` unit the generator also emits metric-prefixed variants
-(tera- through atto-), skipping any the UCUM file already defines explicitly.
+A unit gets no prefixed variants: `KILO * METRE` and `Prefixed<..Unit>`
+cover them, as in `yadc-si`. UCUM's own prefixed units (`kg`) are kept.
 
 ### What is skipped
 

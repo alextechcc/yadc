@@ -4,9 +4,10 @@
 //! m, a degree π/180 rad, a pound-force `0.45359237 * 9.80665` N - and kept
 //! exact through every product and quotient the constants are defined by.
 //! Each constant is generic over the number type it is counted in
-//! (`KILOMETRE<N: const From<Exact>>`) and rounded once, correctly, to the one
-//! its use asks for: `let d: Length = KILOMETRE;` is the nearest `f64`,
-//! `Length<f32>` the nearest `f32`, and `KILOMETRE::<Exact>` the exact value.
+//! (`INCH<N: const From<Exact>>`) and rounded once, correctly, to the one
+//! its use asks for: `let d: Length<f64> = INCH;` is the nearest `f64`,
+//! `Length<f32>` the nearest `f32`, and `INCH::<Exact>` the exact value. A
+//! prefix is an exact number too: `KILO * METRE`.
 //! A number type of your own counts constants with a `const From<Exact>`.
 
 use core::cmp::Ordering;

@@ -1,6 +1,6 @@
 //! Convert resolved UCUM data into a `model::UnitSystem`.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
 use super::parse::{UcumEssence, Unit};
 use super::resolve::{DimVec, Resolved};
@@ -8,25 +8,6 @@ use crate::model::{
     BaseConst, DimConfig, DimensionlessDef, ExtraConst, FamilyDef, KindConfig, QuantityDef,
     SystemConfig, UnitDef, UnitSystem,
 };
-
-// Metric prefix set applied to isMetric=yes units.
-// (ucum_code, scale_factor, print_symbol, name)
-const METRIC_PREFIXES: &[(&str, f64, &str, &str)] = &[
-    ("T", 1e12, "T", "tera"),
-    ("G", 1e9, "G", "giga"),
-    ("M", 1e6, "M", "mega"),
-    ("k", 1e3, "k", "kilo"),
-    ("h", 1e2, "h", "hecto"),
-    ("da", 1e1, "da", "deca"),
-    ("d", 1e-1, "d", "deci"),
-    ("c", 1e-2, "c", "centi"),
-    ("m", 1e-3, "m", "milli"),
-    ("u", 1e-6, "µ", "micro"),
-    ("n", 1e-9, "n", "nano"),
-    ("p", 1e-12, "p", "pico"),
-    ("f", 1e-15, "f", "femto"),
-    ("a", 1e-18, "a", "atto"),
-];
 
 fn class_to_family(class: &str) -> &'static str {
     match class {
@@ -43,32 +24,6 @@ fn class_to_family(class: &str) -> &'static str {
         "clinical" | "chemical" => "clinical",
         "const" => "constants",
         _ => "misc",
-    }
-}
-
-fn pfx_pascal(name: &str) -> &'static str {
-    match name {
-        "yotta" => "Yotta",
-        "zetta" => "Zetta",
-        "exa" => "Exa",
-        "peta" => "Peta",
-        "tera" => "Tera",
-        "giga" => "Giga",
-        "mega" => "Mega",
-        "kilo" => "Kilo",
-        "hecto" => "Hecto",
-        "deca" => "Deca",
-        "deci" => "Deci",
-        "centi" => "Centi",
-        "milli" => "Milli",
-        "micro" => "Micro",
-        "nano" => "Nano",
-        "pico" => "Pico",
-        "femto" => "Femto",
-        "atto" => "Atto",
-        "zepto" => "Zepto",
-        "yocto" => "Yocto",
-        _ => "Unknown",
     }
 }
 
@@ -228,30 +183,6 @@ fn push_unit(groups: &mut BTreeMap<GroupKey, Vec<UnitDef>>, key: &GroupKey, unit
     }
 }
 
-/// The metric-prefixed multiples of a unit, skipping the ones UCUM defines
-/// itself.
-fn prefixed(
-    code: &str,
-    name: &str,
-    print_symbol: &str,
-    multiplier: f64,
-    all_codes: &HashSet<String>,
-) -> impl Iterator<Item = UnitDef> {
-    METRIC_PREFIXES
-        .iter()
-        .filter(move |(pfx_code, ..)| !all_codes.contains(&format!("{pfx_code}{code}")))
-        .map(move |&(_, pfx_val, pfx_sym, pfx_name)| UnitDef {
-            variant: format!("{}{}", pfx_pascal(pfx_name), to_pascal(name)),
-            multiplier: Some(fmt_mult(multiplier * pfx_val)),
-            symbol: format!("{pfx_sym}{print_symbol}"),
-            long: format!("{pfx_name}{name}"),
-            constant: None,
-            by: None,
-            via: None,
-            non_const: false,
-        })
-}
-
 /// A name suffix that tells apart quantities of one property by their
 /// dimension and kind, its axes in `[dim]` order: `KgPerM3`, `PerS`, `One`
 /// for dimension one.
@@ -295,13 +226,6 @@ pub fn to_unit_system(
     let mut groups: BTreeMap<GroupKey, Vec<UnitDef>> = BTreeMap::new();
     let mut dimless_units: Vec<UnitDef> = dimless.units;
 
-    let all_codes: HashSet<String> = essence
-        .units
-        .iter()
-        .map(|u| u.code.clone())
-        .chain(essence.base_units.iter().map(|b| b.code.clone()))
-        .collect();
-
     // Process UCUM base units (m, s, g, rad, K, C, cd)
     for base in &essence.base_units {
         let Some(r) = resolved.get(&base.code) else {
@@ -332,15 +256,6 @@ pub fn to_unit_system(
                 non_const: false,
             },
         );
-        for u in prefixed(
-            &base.code,
-            &base.name,
-            &base.print_symbol,
-            r.multiplier,
-            &all_codes,
-        ) {
-            push_unit(&mut groups, &key, u);
-        }
     }
 
     for unit in &essence.units {
@@ -375,17 +290,6 @@ pub fn to_unit_system(
             kind: r.kind.clone(),
         };
         push_unit(&mut groups, &key, make_unit_def(unit, r.multiplier));
-        if unit.is_metric {
-            for u in prefixed(
-                &unit.code,
-                &unit.name,
-                &unit.print_symbol,
-                r.multiplier,
-                &all_codes,
-            ) {
-                push_unit(&mut groups, &key, u);
-            }
-        }
     }
 
     // A property name shared by groups of different dimensions or kinds in

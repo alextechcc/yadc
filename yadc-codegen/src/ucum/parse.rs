@@ -34,7 +34,6 @@ pub struct Unit {
     pub print_symbol: String,
     pub property: String,
     pub class: String,
-    pub is_metric: bool,
     pub is_special: bool,
     pub is_arbitrary: bool,
     pub value_unit: String,
@@ -98,7 +97,6 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
             }
             "unit" => {
                 let code = child.attribute("Code").unwrap_or("").to_string();
-                let is_metric = child.attribute("isMetric").unwrap_or("no") == "yes";
                 let is_special = child.attribute("isSpecial").unwrap_or("no") == "yes";
                 let is_arbitrary = child.attribute("isArbitrary").unwrap_or("no") == "yes";
                 let class = child.attribute("class").unwrap_or("").to_string();
@@ -130,7 +128,6 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                         print_symbol,
                         property,
                         class,
-                        is_metric,
                         is_special,
                         is_arbitrary,
                         value_unit,

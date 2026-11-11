@@ -48,9 +48,9 @@
 //! implementing [`Unit`]. A unit is a constant, and it is called like the
 //! function it is - on a number it builds, on a quantity it reads:
 //!
-//! - **every quantity constant** is a unit of its own kind: `KILOPASCAL(2.0)`
-//!   is two kilopascals, `PSI(p)` is how many psi `p` is, and `&KILOPASCAL`
-//!   is a `&dyn Unit<Pressure>`;
+//! - **every quantity constant** is a unit of its own kind: `BAR(2.0)` is
+//!   two bars, `PSI(p)` is how many psi `p` is, and `&BAR` is a
+//!   `&dyn Unit<Pressure>`;
 //! - **a scale** is two of them, a zero and a step, in a tuple struct of
 //!   yours with an `impl Unit` of yours (`n` is `zero + n · step`): °C is
 //!   `Scale(ICE_POINT, KELVIN)` - start at the ice point, count kelvins -
@@ -65,7 +65,7 @@
 //! Every unit has [`Unit`]'s two methods, `quantity` (build) and `value`
 //! (read) - which is what generic code and `&dyn Unit<Q>` use; a quantity
 //! constant and a derived unit enum's value are also called, std's `Fn` over
-//! those two (`KILOMETRE(3.0)`, `MILE(d)`).
+//! those two (`MILE(3.0)`, `FOOT(d)`).
 //!
 //! The base constants are the only raw numbers in a system - one per base
 //! unit, written where the field is visible. They are where numbers enter and
@@ -95,7 +95,7 @@
 //! pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
 //!
 //! let p = PSI(14.7);                                     // build
-//! let kpa = KILOPASCAL(p);                               // read
+//! let bar = BAR(p);                                      // read
 //! let t = CELSIUS.quantity(25.0);                       // 298.15 K: the zero point is the unit's business
 //! let c = CELSIUS.value(t);                              // 25.0
 //! ```
@@ -173,7 +173,7 @@
 //! | [`Quantity`] | a value you can add, scale and compare, with itself as a unit | `Copy`, `PartialOrd`, `+`, scaling by its [`Number`](Quantity::Number)s, [`Unit<Self>`](Unit) |
 //! | [`Unit<Q, N>`] | two inverse functions between numbers and `Q` (a coordinate chart) | `quantity`, `value` |
 //!
-//! [`Cast<T>`] is a change of number type (`KILOPASCAL.cast::<f32>()`). A
+//! [`Cast<T>`] is a change of number type (`BAR.cast::<f32>()`). A
 //! kind is given by a constant that has it: a plain number of bels times the
 //! bel is a gain, `n * BEL`.
 //!
@@ -238,7 +238,7 @@
 //! | a typed power or root | `q.powi::<2>()`, `q.root::<2>()` | [`PowiAs`] / [`RootAs`] (in scope), over [`Powi<N>`] / [`Root<N>`] |
 //! | a dimension's power or root with a run-time exponent | `d.partial_powi(n)`, `d.partial_root(n)` | [`PartialPowi`], [`PartialRoot`] |
 //! | a dimension's reciprocal | `Dim::DIMENSIONLESS / d` | std `Div` |
-//! | a quantity's number in a unit | `KILOPASCAL.value(q)` | [`Unit`] |
+//! | a quantity's number in a unit | `BAR.value(q)` | [`Unit`] |
 //! | another number type | `q.cast::<f32>()` | [`CastAs`] over [`Cast<T>`] |
 //!
 //! # Nightly features required in downstream crates
@@ -250,8 +250,8 @@
 //! | What your crate does | Required at crate root |
 //! |---|---|
 //! | Just uses already-defined aliases (`Mass`, `Force`, ...) | `#![feature(generic_const_exprs)]` |
-//! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
-//! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and for the default `Fn` extra (a constant is called: `KILOMETRE(3.0)`) `fn_traits`, `unboxed_closures`, `const_destruct` |
+//! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity = 50.0 * MILE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
+//! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and for the default `Fn` extra (a constant is called: `MILE(3.0)`) `fn_traits`, `unboxed_closures`, `const_destruct` |
 //! | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl`, and for the default `Fn` extra `fn_traits`, `unboxed_closures` |
 //!
 //! Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs`

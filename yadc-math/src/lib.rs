@@ -453,7 +453,7 @@ pub const trait Cast<T> {
 
 /// `x.cast::<T>()` for every type: method syntax for [`Cast<T>`], whose `T`
 /// sits on the trait where a method call cannot name it.
-/// `const F: Pressure<f32> = KILOPASCAL.cast::<f32>();` works.
+/// `const F: Pressure<f32> = BAR.cast::<f32>();` works.
 pub const trait CastAs: Sized {
     /// `self` with its numbers changed to `T`: [`Cast::cast_into`].
     fn cast<T>(self) -> <Self as Cast<T>>::Output

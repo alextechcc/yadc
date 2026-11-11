@@ -7,19 +7,45 @@
 //! measures is an associated type of a trait written here, read by visitors
 //! written once for every family.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(const_convert, const_default, const_destruct)]
+#![feature(const_convert, const_default, const_destruct, const_ops, derive_const)]
+#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use core::fmt;
 use core::str::FromStr;
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use yadc::{Unit, UnknownUnit};
-use yadc_si::mechanical::consts::{METRE, PASCAL};
-use yadc_si::mechanical::{
-    Area, AreaUnit, Force, ForceUnit, Length, LengthUnit, MassUnit, Pressure, PressureUnit,
-};
+use yadc_si::mechanical::consts::{BAR, METRE, PASCAL};
+use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Length, MassUnit, Pressure};
 use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
-use yadc_si::{DynamicSIQuantity, ISQ, SIQuantity};
+use yadc_si::{DynamicSIQuantity, ISQ, KILO, SIQuantity};
+
+/// The units of pressure the app offers: a family of your own, prefixed
+/// units among them. The first is the default.
+#[derive_const(Default)]
+#[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
+#[unit(of = Pressure<f64>)]
+enum PressureUnit {
+    #[default]
+    #[unit("Pa", "pascals", by = PASCAL)]
+    Pascal,
+    #[unit("kPa", "kilopascals", by = KILO * PASCAL)]
+    Kilopascal,
+    #[unit("bar", "bar", by = BAR)]
+    Bar,
+}
+
+/// The units of length the app offers.
+#[derive_const(Default)]
+#[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
+#[unit(of = Length<f64>)]
+enum LengthUnit {
+    #[default]
+    #[unit("m", "metres", by = METRE)]
+    Metre,
+    #[unit("km", "kilometres", by = KILO * METRE)]
+    Kilometre,
+}
 
 /// What the app measures. Its arithmetic runs through the open type.
 #[derive(Clone, Copy, PartialEq, Debug, Visit, Members, Via)]

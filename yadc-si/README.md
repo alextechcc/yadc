@@ -9,12 +9,14 @@ What it defines, in `lib.rs`:
 - `SIQuantity<const D: ISQ, N>(N)` - the compile-time-checked quantity (`#[derive(Quantity)]`), stored in coherent SI units (kilograms, metres, kelvin, radians, watts, ...), counted in the number type `N`. Each quantity's alias takes the number type, and every use says which, or stays generic over it: `pub type Length<N> = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }, N>`, used as `Length<f64>`, `Length<f32>` or `fn f<N>(d: Length<N>)`. Its field is private to this crate: the base constants are the only raw numbers, and everyone else builds and reads through units. It prints as its number and dimension (`9.81 m·s⁻²`).
 - `DynamicSIQuantity` - the same with the dimension carried at run time, as `dim: ISQ`, built with [`dynamickit`](../dynamickit/)'s `#[derive(Dynamic)]`: `SIQuantity<const D: ISQ, f64> => { dim: D, value: .0 }` (converting moves the number in and records `D`; `TryFrom` checks it on the way back, handing the value back on a mismatch), and `shared f64 => { dim: ISQ::DIMENSIONLESS, value: self }` (a bare number is the same value as a dimensionless quantity). Its operators and methods are every field's own, each with its output stated: `*`, `/`, `+`, `-`, scaling by an `f64`, `partial_powi` and `partial_root` return an `Option` (`None` where the dimensions don't combine: a sum of two dimensions, a product with a point or a level, a scaled point or level), so a calculation reads `((a * b)? + c)?`; values of one dimension are ordered. No impl on it is hand-written.
 - `base` - the base constants, the only raw numbers in the crate: `ONE`, `METRE`, `KILOGRAM`, `SECOND`, `AMPERE`, `KELVIN` (a step: a temperature difference of 1 K), `MOLE`, `CANDELA`, `RADIAN`, `ABSOLUTE_ZERO` (a temperature), `UNIX_EPOCH` (the base zero of `Instant`: what an instant is stored, printed and serialized from), `BEL` (a gain of ten times) and `WATT_LEVEL` (the level of one watt).
-- `Exact` - the exact number every constant is defined in: `num/den · 10ⁿ · πᵏ`, with `const` arithmetic, rounded once and correctly to `f64` or `f32` (`From<Exact>`).
+- `Exact` - the exact number every constant is defined in: `num/den · 10ⁿ · πᵏ`, with `const` arithmetic, rounded once and correctly to `f64` or `f32` (`From<Exact>`). An `Exact` scales a quantity of any number type: `Exact * SIQuantity<D, N>` is a `SIQuantity<D, N>`.
+- The SI prefixes, exact numbers: `YOTTA`, `ZETTA`, `EXA`, `PETA`, `TERA`, `GIGA`, `MEGA`, `KILO`, `HECTO`, `DECA`, `DECI`, `CENTI`, `MILLI`, `MICRO`, `NANO`, `PICO`, `FEMTO`, `ATTO`, `ZEPTO`, `YOCTO`. A prefix times a unit is the prefixed unit: `KILO * METRE` is a kilometre, `MILLI * WATT` a milliwatt, `KILO * WATT_HOUR` a kilowatt hour.
+- `Prefix` - the same 20 as an enum (`Prefix::Kilo`), with `symbol()` (`k`), `name()` (`kilo`) and `factor()` (`KILO`); and `Prefixed<U>` - a unit enum's value with an optional prefix, `Prefixed { prefix: Some(Prefix::Kilo), unit: LengthUnit::Metre }`: a unit of what `U` measures, which prints `km` (`{:#}`: `kilometres`) and parses back.
 - `Scale<P, S>(pub P, pub S)` - a scale: a zero and a step. A unit of its zero's type - `Scale(ICE_POINT, KELVIN)` counts kelvins from the ice point - made as a constant or at run time.
 
-The crate root re-exports `yadc`'s `Dimension`, `Quantity` and `Unit`. Its one point is the `Instant`; a system with altitudes or positions gives them the affine kind the same way (see [`yadc-tests/src/lib.rs`](../yadc-tests/src/lib.rs)).
+The crate root re-exports `yadc`'s `Dimension`, `Quantity` and `Unit`, and holds the prefixes, `Prefix` and `Prefixed`. Its one point is the `Instant`; a system with altitudes or positions gives them the affine kind the same way (see [`yadc-tests/src/lib.rs`](../yadc-tests/src/lib.rs)).
 
-and ~120 quantity aliases (`pub type Length<N> = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }, N>;`), each with a `<Q>Unit` enum naming its units in `f64` (`#[unit(of = Length<f64>)]`; `PowerUnit` holds W, kW, dBW and dBm), organized into 9 feature-gated families:
+and ~120 quantity aliases (`pub type Length<N> = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }, N>;`), each with a `<Q>Unit` enum naming its units in `f64` (`#[unit(of = Length<f64>)]`; `PowerUnit` holds W, dBW and dBm; a prefixed unit, kW, is `Prefixed<PowerUnit>`), organized into 9 feature-gated families:
 
 | Feature | Examples |
 |---|---|
@@ -58,15 +60,16 @@ A unit turns a number into a quantity and a quantity back into a number, and is 
 ```rust
 use yadc::Unit;
 use yadc_si::mechanical::consts::{
-    HOUR, KILOGRAM, KILOMETRE, KILOMETRE_PER_HOUR, METRE_PER_SECOND_SQUARED, NEWTON, POUND,
+    HOUR, KILOGRAM, KILOMETRE_PER_HOUR, METRE, METRE_PER_SECOND_SQUARED, NEWTON, POUND,
 };
 use yadc_si::mechanical::*;
+use yadc_si::{KILO, Prefix, Prefixed};
 
 let mass = KILOGRAM(70.0);                              // every constant is a unit: called to build
 let force: Force<f64> = mass * METRE_PER_SECOND_SQUARED(9.81);
 let newtons = NEWTON(force);                            // ... and called to read: 686.7
 let lb = POUND(mass);                                   // 154.32...
-let v: Velocity<f64> = KILOMETRE(90.0) / HOUR(1.0);
+let v: Velocity<f64> = (KILO * METRE)(90.0) / HOUR(1.0); // a prefix times a unit: the kilometre
 let kmh = KILOMETRE_PER_HOUR(v);                        // 90.0
 let ratio = f64::from(force / force);                   // Dimensionless is a plain number
 println!("{force:.1}");                                 // 686.7 m·kg·s⁻²: a quantity prints itself
@@ -79,6 +82,12 @@ println!("{:.1} {n:#}", n(force));                      // 686.7 newtons
 let unit: MassUnit = "lb".parse().unwrap();             // Err(yadc::UnknownUnit) for an unknown symbol
 let m: Mass<f64> = unit(10.0);
 
+// A prefix before a unit's symbol: `Prefixed<U>`, a unit enum's value with an optional prefix.
+let km: Prefixed<LengthUnit> = "km".parse().unwrap();
+assert_eq!(km, Prefixed { prefix: Some(Prefix::Kilo), unit: LengthUnit::Metre });
+let d: Length<f64> = km.quantity(3.0);                  // 3000 m
+println!("{:.1} {km} ({km:#})", km.value(d));           // 3.0 km (kilometres)
+
 // The same two functions by name, through the `Unit` trait - what generic code
 // (`U: Unit<Q>`) and `&dyn Unit<Q>` use.
 let also = POUND.quantity(10.0);
@@ -89,7 +98,7 @@ let pounds: Vec<f64> = [mass, also].into_iter().map(POUND).collect();
 
 ### Temperatures
 
-`ThermodynamicTemperature` is an amount measured from absolute zero, with the `Absolute` label; `TemperatureInterval` is a difference, a *step*: an ordinary amount. A step, a zero and a scale are different things with different names: the steps are `KELVIN` and `DEGREE_FAHRENHEIT`; the zeros `ABSOLUTE_ZERO`, `ICE_POINT` (`ABSOLUTE_ZERO + 273.15 * KELVIN`) and `FAHRENHEIT_ZERO`; the scales - steps counted from a zero - are constants too, `Scale(zero, step)`: `KELVIN_SCALE`, `CELSIUS`, `FAHRENHEIT` and `RANKINE` (`pub const CELSIUS<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(counted(ICE_POINT::<Exact>), counted(KELVIN::<Exact>));`), generic over their number type like every constant: `CELSIUS.quantity(25.0)` is a `ThermodynamicTemperature<f64>`. A scale of your own is another, made at compile time or at run time: `Scale(this_morning, KELVIN)`.
+`ThermodynamicTemperature` is an amount measured from absolute zero, with the `Absolute` label; `TemperatureInterval` is a difference, a *step*: an ordinary amount. A step, a zero and a scale are different things with different names: the steps are `KELVIN` and `DEGREE_FAHRENHEIT`; the zeros `ABSOLUTE_ZERO`, `ICE_POINT` (`ABSOLUTE_ZERO + 273.15 * KELVIN`) and `FAHRENHEIT_ZERO`; the scales - steps counted from a zero - are constants too, `Scale(zero, step)`: `KELVIN_SCALE`, `CELSIUS`, `FAHRENHEIT` and `RANKINE` (`pub const CELSIUS<N: const From<Exact>>: Scale<ThermodynamicTemperature<N>, TemperatureInterval<N>> = Scale(ICE_POINT, KELVIN);`), generic over their number type like every constant: `CELSIUS.quantity(25.0)` is a `ThermodynamicTemperature<f64>`. A scale of your own is another, made at compile time or at run time: `Scale(this_morning, KELVIN)`.
 
 ```rust
 use yadc_si::Scale;
@@ -151,8 +160,8 @@ let watts = Power::<f64>::from(received);               // 10 W
 A gain scales (`3.0 * DECIBEL`) and, like a label, leaves a product: an attenuation in dB per kilometre is a plain per-length number, and over a length it is a number of bels again.
 
 ```rust
-let attenuation = DECIBEL(0.2) / KILOMETRE;             // per metre, counting bels
-let loss: Gain<f64> = (attenuation * KILOMETRE(15.0)) * BEL; // 3 dB
+let attenuation = DECIBEL(0.2) / (KILO * METRE);        // per metre, counting bels
+let loss: Gain<f64> = (attenuation * (KILO * METRE)(15.0)) * BEL; // 3 dB
 let after = sent - loss;                                // 27 dBm
 ```
 
@@ -187,7 +196,7 @@ use yadc::PartialRoot;
 use yadc_si::DynamicSIQuantity;
 use yadc_si::mechanical::consts::{SQUARE_METRE, WATT_LEVEL};
 
-let d = (DynamicSIQuantity::from(KILOMETRE(90.0)) / DynamicSIQuantity::from(HOUR(2.0))).unwrap();
+let d = (DynamicSIQuantity::from((KILO * METRE)(90.0)) / DynamicSIQuantity::from(HOUR(2.0))).unwrap();
 let v: Velocity<f64> = d.try_into().unwrap();            // Err(d) on a mismatch
 let kmh = KILOMETRE_PER_HOUR(v);                         // 45.0
 assert_eq!(d + DynamicSIQuantity::from(HOUR(1.0)), None); // km/h + h: no result
@@ -205,7 +214,7 @@ assert_eq!(t0 * 2.0, None);                              // a point cannot be sc
 For a unit picked at run time, `&dyn Unit<Length<f64>>` is some unit of length, checked at compile time:
 
 ```rust
-let lengths: [&dyn Unit<Length<f64>>; 2] = [&KILOMETRE, &LengthUnit::Mile];
+let lengths: [&dyn Unit<Length<f64>>; 2] = [&km, &LengthUnit::Mile]; // km: a `Prefixed<LengthUnit>`
 for u in lengths {
     println!("{:.1}", u.value(v * HOUR(1.0)));           // 45.0, 28.0
 }
@@ -223,20 +232,23 @@ Every family module has a generated `consts` module: the base constants of its q
 
 ```rust
 pub const NEWTON<N: const From<Exact>>: Force<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-pub const KILOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000) * METRE::<Exact>);
+pub const MILE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1609344, -3) * METRE::<Exact>);
 pub const INCH<N: const From<Exact>>: Length<N> = counted(Exact::dec(254, -4) * METRE::<Exact>);
 pub const ICE_POINT<N: const From<Exact>>: ThermodynamicTemperature<N> = counted(ABSOLUTE_ZERO::<Exact> + Exact::dec(27315, -2) * KELVIN::<Exact>);
 ```
 
-So a constant is whatever its use needs, with nothing to write: `let d: Length<f64> = KILOMETRE;` is the nearest `f64` to 1000 m, `let d: Length<f32> = KILOMETRE;` the nearest `f32` (rounded once, not through `f64`), and `KILOMETRE::<Exact>` the exact value - `INCH::<Exact> * INCH::<Exact> * INCH::<Exact> == CUBIC_INCH::<Exact>` holds exactly. Beside a stored value it takes that value's type (`trip + KILOMETRE`, `KILOMETRE(3.0)`, `MILE.value(d)`); an expression of constants alone names the number type on one of them (`KILOMETRE::<f64> / HOUR`: an operator's result does not fix its operands'). Using the constants needs no feature beyond `generic_const_exprs`; the generated crate itself uses `generic_const_items`.
+So a constant is whatever its use needs, with nothing to write: `let d: Length<f64> = MILE;` is the nearest `f64` to 1609.344 m, `let d: Length<f32> = MILE;` the nearest `f32` (rounded once, not through `f64`), and `MILE::<Exact>` the exact value - `INCH::<Exact> * INCH::<Exact> * INCH::<Exact> == CUBIC_INCH::<Exact>` holds exactly. Beside a stored value it takes that value's type (`trip + MILE`, `MILE(3.0)`, `MILE.value(d)`); an expression of constants alone names the number type on one of them (`MILE::<f64> / HOUR`: an operator's result does not fix its operands'). Using the constants needs no feature beyond `generic_const_exprs`; the generated crate itself uses `generic_const_items`.
+
+A prefixed unit is not a constant: it is a prefix, an exact number at the crate root, times a unit - `KILO * METRE`, `KILO * PASCAL`, `MILLI * WATT`, `KILO * WATT_HOUR`. The prefix scales a quantity of any number type, so the product is a constant too, its number type inferred like any other's: `let d: Length<f64> = KILO * METRE;`, `(KILO * METRE)(3.0)` builds 3 km and `(KILO * METRE)(d)` reads one. A prefix multiplies a unit, not a number (`50.0 * KILO` doesn't compile: write `50.0 * (KILO * METRE)`).
 
 Quantity arithmetic is `const`, so they compose in your `const` items too:
 
 ```rust
-use yadc_si::mechanical::consts::*;            // KILOMETRE, HOUR, SPEED_OF_LIGHT, ...
+use yadc_si::KILO;
+use yadc_si::mechanical::consts::*;            // METRE, HOUR, SPEED_OF_LIGHT, ...
 use yadc_si::thermal::consts::CELSIUS;
 
-const LIMIT: Velocity<f64> = 50.0 * KILOMETRE / HOUR;         // 50 km/h
+const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;    // 50 km/h
 const REST_ENERGY: Energy<f64> = ELECTRON_MASS::<f64> * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // 8.187e-14 J: constants alone name their number type
 const BOILING: ThermodynamicTemperature<f64> = CELSIUS.quantity(100.0); // scales are const too
 const PSI: Pressure<f64> = POUND::<f64> * STANDARD_GRAVITY / (INCH::<f64> * INCH); // a unit, defined as a standard writes it
@@ -244,7 +256,9 @@ let weight: Force<f64> = STANDARD_GRAVITY * mass;
 let beta = SPEED_OF_LIGHT(v);                         // a constant is a unit: v in units of c
 ```
 
-- **Unit constants.** Every multiple (`#[unit("km", "kilometres", by = KILOMETRE)]`) names `pub const <SCREAMING_SNAKE variant><N: const From<Exact>>: <Quantity><N>` in its family's `consts`: `mechanical::consts::KILOMETRE`, `POUND`, `KILOWATT_HOUR`, `dimensionless::consts::PERCENT`. A name two quantities of one module share is prefixed with the quantity (`TIME_MINUTE`, `ANGLE_MINUTE`).
+- **Unit constants.** Every multiple (`#[unit("mi", "miles", by = MILE)]`) names `pub const <SCREAMING_SNAKE variant><N: const From<Exact>>: <Quantity><N>` in its family's `consts`: `mechanical::consts::MILE`, `POUND`, `WATT_HOUR`, `KILOMETRE_PER_HOUR`, `dimensionless::consts::PERCENT` - about 870 in all. A name two quantities of one module share is prefixed with the quantity (`TIME_MINUTE`, `ANGLE_MINUTE`).
+- **Prefixes are numbers, not units.** A unit that is an SI prefix on another unit of the same quantity - the prefix anywhere in its name: the kilometre, the millipascal, the kilowatt hour, the kilometre per second, the ampere per square kilometre - has no constant and no unit-enum variant: it is `KILO * METRE`, `MILLI * PASCAL`, `KILO * WATT_HOUR`, and `Prefixed<LengthUnit>` parses `km`. A unit keeps its own name when it is coherent (`KILOGRAM`), when another definition uses it (`DECIBEL`, in `MILLIWATT_LEVEL`), when it is a scale, and when it is not the prefix on a unit of the same quantity (`KILOMETRE_PER_HOUR`: there is no metre per hour).
+- **Parsing a prefix.** `"km".parse::<Prefixed<LengthUnit>>()` reads a unit's own symbol first - `Pa` is the pascal, `min` the minute, `M` the nautical mile - then a prefix before any of the enum's symbols: `km`, `mPa`, and `µm`, `μm` or `um` for micro. It is `Err(yadc::UnknownUnit)` when neither reads.
 - **Physical constants are units**, as in UCUM: each is a unit of the quantity it measures (exact, or CODATA 2018), so it gets a constant like any unit and a quantity reads in it.
 
   | Constant | Unit | Quantity |

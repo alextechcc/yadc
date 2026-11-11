@@ -2,7 +2,8 @@
 //!
 //! - `Kind` and `ISQ`: the kinds and the dimension (an exponent per base unit, and a kind).
 //! - `SIQuantity<D, N>`: a quantity whose dimension is in its type, counted in `N`; every constant
-//!   is a unit (`KILOMETRE(3.0)` builds, `MILE(d)` reads).
+//!   is a unit (`MILE(3.0)` builds, `MILE(d)` reads), and a prefix scales one
+//!   (`KILO * METRE`).
 //! - `DynamicSIQuantity`: a quantity whose dimension is decided at run time.
 //! - `Scale`: a zero and a step, a unit counted from a chosen zero
 //!   (`CELSIUS.quantity(25.0)`, `DBM`, `UNIX_SECONDS`).
@@ -33,24 +34,28 @@ pub use yadc::{Dimension, Quantity, Unit};
 
 pub mod exact;
 pub use exact::Exact;
+pub mod prefix;
+pub use prefix::*;
 
 /// An exactly defined constant, counted in `N`: its value rounded once
-/// (`KILOMETRE<f32>` is the nearest `f32` to 1000 m).
+/// (`INCH<f32>` is the nearest `f32` to 0.0254 m).
 pub(crate) const fn counted<const D: ISQ, N: [const] From<Exact>>(
     q: SIQuantity<D, Exact>,
 ) -> SIQuantity<D, N> {
     SIQuantity(N::from(q.0))
 }
 
-/// An exact number scaling an exact quantity from the left, as a primitive
-/// does (`Exact::int(1000) * METRE::<Exact>`), with the scaling refusals.
-impl<const D: ISQ> const core::ops::Mul<SIQuantity<D, Exact>> for Exact
+/// An exact number scaling a quantity counted in any number type: the factor
+/// converted to it once, then multiplied - `KILO * METRE`, `Exact::int(1000) *
+/// METRE`. With the scaling refusals, as for a number scaling from the left.
+impl<const D: ISQ, N> const core::ops::Mul<SIQuantity<D, N>> for Exact
 where
-    SIQuantity<D, Exact>: yadc::gates::ScaleNotPoint + yadc::gates::ScaleLabel,
+    N: [const] From<Exact> + [const] core::ops::Mul<Output = N> + [const] core::marker::Destruct,
+    SIQuantity<D, N>: yadc::gates::ScaleNotPoint + yadc::gates::ScaleLabel,
 {
-    type Output = SIQuantity<D, Exact>;
-    fn mul(self, q: SIQuantity<D, Exact>) -> SIQuantity<D, Exact> {
-        SIQuantity(self * q.0)
+    type Output = SIQuantity<D, N>;
+    fn mul(self, q: SIQuantity<D, N>) -> SIQuantity<D, N> {
+        SIQuantity(N::from(self) * q.0)
     }
 }
 
@@ -109,7 +114,7 @@ pub struct ISQ {
 /// says which (`Pressure<f64>`, `Pressure<f32>`). Its number is private to
 /// this crate: the base constants (`base::METRE`) are the only raw numbers,
 /// and everyone else builds and reads through units - every constant is one
-/// (`KILOMETRE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero
+/// (`MILE(3.0)` builds, `MILE(d)` reads), and so is every scale, a zero
 /// and a step (`CELSIUS.quantity(25.0)`), and every unit enum's value.
 ///
 /// It serializes transparently as just its number: the dimension `D` is the
@@ -143,7 +148,7 @@ where
 /// `value` and records `D` in `dim`; `TryFrom<DynamicSIQuantity> for SIQuantity<D, f64>` is the
 /// checked way back (the error hands the original back). A bare `f64` is the
 /// same value as a dimensionless quantity (`shared`). Numbers still go through
-/// units, by way of the static quantity: `DynamicSIQuantity::from(KILOMETRE.quantity(3.0))`,
+/// units, by way of the static quantity: `DynamicSIQuantity::from(MILE.quantity(3.0))`,
 /// then `Mass::<f64>::try_from(d).map(|m| KILOGRAM.value(m))`.
 ///
 /// Its arithmetic is every field's own: the dimension's operator on `dim`, the

@@ -349,11 +349,12 @@ pub type SpecificGravitationalParameter<N> = SIQuantity<
 
 /// The constants of this module: the base constants of its quantities
 /// (re-exported), then one per multiple, each defined exactly from them -
-/// `KILOMETRE` is `1000 * METRE` - and counted in the number type its use
-/// asks for, rounded once: `let d: Length = KILOMETRE;` is an `f64` length,
-/// `Length<f32>` an `f32` one, `KILOMETRE::<Exact>` the exact value. Each is
-/// a unit (`KILOMETRE(3.0)`, `KILOMETRE.value(d)`), and they compose in
-/// `const` items: `const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`.
+/// `INCH` is `0.0254 * METRE` - and counted in the number type its use asks
+/// for, rounded once: `let d: Length<f64> = INCH;` is an `f64` length,
+/// `Length<f32>` an `f32` one, `INCH::<Exact>` the exact value. Each is a
+/// unit (`INCH(3.0)`, `INCH.value(d)`). A prefixed unit is a prefix times
+/// one: `KILO * METRE`. They compose in `const` items:
+/// `const LIMIT: Velocity<f64> = 50.0 * (KILO * METRE) / HOUR;`.
 pub mod consts {
     use super::*;
     use crate::base::{ONE, RADIAN};
@@ -375,66 +376,6 @@ pub mod consts {
 
     /// The level of one watt, 0 dBW: where the numbers of a power level start.
     pub use crate::base::WATT_LEVEL;
-
-    /// One `Yottametre` (Ym), as a `Length`.
-    pub const YOTTAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000000000000000000000) * METRE::<Exact>);
-
-    /// One `Zettametre` (Zm), as a `Length`.
-    pub const ZETTAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000000000000000000) * METRE::<Exact>);
-
-    /// One `Exametre` (Em), as a `Length`.
-    pub const EXAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000000000000000) * METRE::<Exact>);
-
-    /// One `Petametre` (Pm), as a `Length`.
-    pub const PETAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000000000000) * METRE::<Exact>);
-
-    /// One `Terametre` (Tm), as a `Length`.
-    pub const TERAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000000000) * METRE::<Exact>);
-
-    /// One `Gigametre` (Gm), as a `Length`.
-    pub const GIGAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000000) * METRE::<Exact>);
-
-    /// One `Megametre` (Mm), as a `Length`.
-    pub const MEGAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000000) * METRE::<Exact>);
-
-    /// One `Kilometre` (km), as a `Length`.
-    pub const KILOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(1000) * METRE::<Exact>);
-
-    /// One `Hectometre` (hm), as a `Length`.
-    pub const HECTOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(100) * METRE::<Exact>);
-
-    /// One `Decametre` (dam), as a `Length`.
-    pub const DECAMETRE<N: const From<Exact>>: Length<N> = counted(Exact::int(10) * METRE::<Exact>);
-
-    /// One `Decimetre` (dm), as a `Length`.
-    pub const DECIMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -1) * METRE::<Exact>);
-
-    /// One `Centimetre` (cm), as a `Length`.
-    pub const CENTIMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -2) * METRE::<Exact>);
-
-    /// One `Millimetre` (mm), as a `Length`.
-    pub const MILLIMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -3) * METRE::<Exact>);
-
-    /// One `Micrometre` (µm), as a `Length`.
-    pub const MICROMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -6) * METRE::<Exact>);
-
-    /// One `Nanometre` (nm), as a `Length`.
-    pub const NANOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -9) * METRE::<Exact>);
-
-    /// One `Picometre` (pm), as a `Length`.
-    pub const PICOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -12) * METRE::<Exact>);
-
-    /// One `Femtometre` (fm), as a `Length`.
-    pub const FEMTOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -15) * METRE::<Exact>);
-
-    /// One `Attometre` (am), as a `Length`.
-    pub const ATTOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -18) * METRE::<Exact>);
-
-    /// One `Zeptometre` (zm), as a `Length`.
-    pub const ZEPTOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -21) * METRE::<Exact>);
-
-    /// One `Yoctometre` (ym), as a `Length`.
-    pub const YOCTOMETRE<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -24) * METRE::<Exact>);
 
     /// One `Angstrom` (Å), as a `Length`.
     pub const ANGSTROM<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -10) * METRE::<Exact>);
@@ -471,9 +412,6 @@ pub mod consts {
 
     /// One `LightYear` (l. y.), as a `Length`.
     pub const LIGHT_YEAR<N: const From<Exact>>: Length<N> = counted(Exact::int(9460730472580800) * METRE::<Exact>);
-
-    /// One `Microinch` (μin), as a `Length`.
-    pub const MICROINCH<N: const From<Exact>>: Length<N> = counted(Exact::dec(254, -10) * METRE::<Exact>);
 
     /// One `Micron` (μ), as a `Length`.
     pub const MICRON<N: const From<Exact>>: Length<N> = counted(Exact::dec(1, -6) * METRE::<Exact>);
@@ -553,65 +491,8 @@ pub mod consts {
     /// One `Digitus` (digitus), as a `Length`.
     pub const DIGITUS<N: const From<Exact>>: Length<N> = counted(Exact::dec(185, -4) * METRE::<Exact>);
 
-    /// One `Yottagram` (Yg), as a `Mass`.
-    pub const YOTTAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM::<Exact>);
-
-    /// One `Zettagram` (Zg), as a `Mass`.
-    pub const ZETTAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000000000000000000) * KILOGRAM::<Exact>);
-
-    /// One `Exagram` (Eg), as a `Mass`.
-    pub const EXAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000000000000000) * KILOGRAM::<Exact>);
-
-    /// One `Petagram` (Pg), as a `Mass`.
-    pub const PETAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000000000000) * KILOGRAM::<Exact>);
-
-    /// One `Teragram` (Tg), as a `Mass`.
-    pub const TERAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000000000) * KILOGRAM::<Exact>);
-
-    /// One `Gigagram` (Gg), as a `Mass`.
-    pub const GIGAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000000) * KILOGRAM::<Exact>);
-
-    /// One `Megagram` (Mg), as a `Mass`.
-    pub const MEGAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::int(1000) * KILOGRAM::<Exact>);
-
-    /// One `Hectogram` (hg), as a `Mass`.
-    pub const HECTOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -1) * KILOGRAM::<Exact>);
-
-    /// One `Decagram` (dag), as a `Mass`.
-    pub const DECAGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -2) * KILOGRAM::<Exact>);
-
     /// One `Gram` (g), as a `Mass`.
     pub const GRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -3) * KILOGRAM::<Exact>);
-
-    /// One `Decigram` (dg), as a `Mass`.
-    pub const DECIGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -4) * KILOGRAM::<Exact>);
-
-    /// One `Centigram` (cg), as a `Mass`.
-    pub const CENTIGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -5) * KILOGRAM::<Exact>);
-
-    /// One `Milligram` (mg), as a `Mass`.
-    pub const MILLIGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -6) * KILOGRAM::<Exact>);
-
-    /// One `Microgram` (µg), as a `Mass`.
-    pub const MICROGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -9) * KILOGRAM::<Exact>);
-
-    /// One `Nanogram` (ng), as a `Mass`.
-    pub const NANOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -12) * KILOGRAM::<Exact>);
-
-    /// One `Picogram` (pg), as a `Mass`.
-    pub const PICOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -15) * KILOGRAM::<Exact>);
-
-    /// One `Femtogram` (fg), as a `Mass`.
-    pub const FEMTOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -18) * KILOGRAM::<Exact>);
-
-    /// One `Attogram` (ag), as a `Mass`.
-    pub const ATTOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -21) * KILOGRAM::<Exact>);
-
-    /// One `Zeptogram` (zg), as a `Mass`.
-    pub const ZEPTOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -24) * KILOGRAM::<Exact>);
-
-    /// One `Yoctogram` (yg), as a `Mass`.
-    pub const YOCTOGRAM<N: const From<Exact>>: Mass<N> = counted(Exact::dec(1, -27) * KILOGRAM::<Exact>);
 
     /// One `Carat` (ct), as a `Mass`.
     pub const CARAT<N: const From<Exact>>: Mass<N> = counted(Exact::dec(2, -4) * KILOGRAM::<Exact>);
@@ -727,65 +608,8 @@ pub mod consts {
     /// One `Siliqua` (siliqua), as a `Mass`.
     pub const SILIQUA<N: const From<Exact>>: Mass<N> = counted((Exact::dec(3289, -4) / Exact::int(1728)) * KILOGRAM::<Exact>);
 
-    /// One `Yottasecond` (Ys), as a `Time`.
-    pub const YOTTASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000000000000000000000) * SECOND::<Exact>);
-
-    /// One `Zettasecond` (Zs), as a `Time`.
-    pub const ZETTASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000000000000000000) * SECOND::<Exact>);
-
-    /// One `Exasecond` (Es), as a `Time`.
-    pub const EXASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000000000000000) * SECOND::<Exact>);
-
-    /// One `Petasecond` (Ps), as a `Time`.
-    pub const PETASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000000000000) * SECOND::<Exact>);
-
-    /// One `Terasecond` (Ts), as a `Time`.
-    pub const TERASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000000000) * SECOND::<Exact>);
-
-    /// One `Gigasecond` (Gs), as a `Time`.
-    pub const GIGASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000000) * SECOND::<Exact>);
-
-    /// One `Megasecond` (Ms), as a `Time`.
-    pub const MEGASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000000) * SECOND::<Exact>);
-
-    /// One `Kilosecond` (ks), as a `Time`.
-    pub const KILOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(1000) * SECOND::<Exact>);
-
-    /// One `Hectosecond` (hs), as a `Time`.
-    pub const HECTOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(100) * SECOND::<Exact>);
-
-    /// One `Decasecond` (das), as a `Time`.
-    pub const DECASECOND<N: const From<Exact>>: Time<N> = counted(Exact::int(10) * SECOND::<Exact>);
-
-    /// One `Decisecond` (ds), as a `Time`.
-    pub const DECISECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -1) * SECOND::<Exact>);
-
-    /// One `Centisecond` (cs), as a `Time`.
-    pub const CENTISECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -2) * SECOND::<Exact>);
-
     /// One `Millisecond` (ms), as a `Time`.
     pub const MILLISECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -3) * SECOND::<Exact>);
-
-    /// One `Microsecond` (µs), as a `Time`.
-    pub const MICROSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -6) * SECOND::<Exact>);
-
-    /// One `Nanosecond` (ns), as a `Time`.
-    pub const NANOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -9) * SECOND::<Exact>);
-
-    /// One `Picosecond` (ps), as a `Time`.
-    pub const PICOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -12) * SECOND::<Exact>);
-
-    /// One `Femtosecond` (fs), as a `Time`.
-    pub const FEMTOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -15) * SECOND::<Exact>);
-
-    /// One `Attosecond` (as), as a `Time`.
-    pub const ATTOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -18) * SECOND::<Exact>);
-
-    /// One `Zeptosecond` (zs), as a `Time`.
-    pub const ZEPTOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -21) * SECOND::<Exact>);
-
-    /// One `Yoctosecond` (ys), as a `Time`.
-    pub const YOCTOSECOND<N: const From<Exact>>: Time<N> = counted(Exact::dec(1, -24) * SECOND::<Exact>);
 
     /// One `SecondSidereal` (s (sidereal)), as a `Time`.
     pub const SECOND_SIDEREAL<N: const From<Exact>>: Time<N> = counted(Exact::dec(9972696, -7) * SECOND::<Exact>);
@@ -827,82 +651,22 @@ pub mod consts {
     pub const MODIFIED_JULIAN_EPOCH<N: const From<Exact>>: Instant<N> = counted(UNIX_EPOCH::<Exact> - Exact::int(40587) * DAY::<Exact>);
 
     /// Unix time: seconds from the Unix epoch.
-    pub const UNIX_SECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(counted(UNIX_EPOCH::<Exact>), counted(SECOND::<Exact>));
+    pub const UNIX_SECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(UNIX_EPOCH, SECOND);
 
     /// Unix time in milliseconds.
-    pub const UNIX_MILLISECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(counted(UNIX_EPOCH::<Exact>), counted(MILLISECOND::<Exact>));
+    pub const UNIX_MILLISECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(UNIX_EPOCH, MILLISECOND);
 
     /// GPS time: seconds from the GPS epoch.
-    pub const GPS_SECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(counted(GPS_EPOCH::<Exact>), counted(SECOND::<Exact>));
+    pub const GPS_SECONDS<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(GPS_EPOCH, SECOND);
 
     /// The Julian date (JD): days from the Julian epoch.
-    pub const JULIAN_DATE<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(counted(JULIAN_EPOCH::<Exact>), counted(DAY::<Exact>));
+    pub const JULIAN_DATE<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(JULIAN_EPOCH, DAY);
 
     /// The modified Julian date (MJD): days from the modified Julian epoch.
-    pub const MODIFIED_JULIAN_DATE<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(counted(MODIFIED_JULIAN_EPOCH::<Exact>), counted(DAY::<Exact>));
-
-    /// One `SquareYottametre` (Ym²), as an `Area`.
-    pub const SQUARE_YOTTAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, 48) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareZettametre` (Zm²), as an `Area`.
-    pub const SQUARE_ZETTAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, 42) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareExametre` (Em²), as an `Area`.
-    pub const SQUARE_EXAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, 36) * SQUARE_METRE::<Exact>);
-
-    /// One `SquarePetametre` (Pm²), as an `Area`.
-    pub const SQUARE_PETAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, 30) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareTerametre` (Tm²), as an `Area`.
-    pub const SQUARE_TERAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::int(1000000000000000000000000) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareGigametre` (Gm²), as an `Area`.
-    pub const SQUARE_GIGAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::int(1000000000000000000) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareMegametre` (Mm²), as an `Area`.
-    pub const SQUARE_MEGAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::int(1000000000000) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareKilometre` (km²), as an `Area`.
-    pub const SQUARE_KILOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::int(1000000) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareHectometre` (hm²), as an `Area`.
-    pub const SQUARE_HECTOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::int(10000) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareDecametre` (dam²), as an `Area`.
-    pub const SQUARE_DECAMETRE<N: const From<Exact>>: Area<N> = counted(Exact::int(100) * SQUARE_METRE::<Exact>);
+    pub const MODIFIED_JULIAN_DATE<N: const From<Exact>>: Scale<Instant<N>, Time<N>> = Scale(MODIFIED_JULIAN_EPOCH, DAY);
 
     /// One `SquareMetre` (m²), as an `Area`.
     pub const SQUARE_METRE<N: const From<Exact>>: Area<N> = counted(METRE::<Exact> * METRE::<Exact>);
-
-    /// One `SquareDecimetre` (dm²), as an `Area`.
-    pub const SQUARE_DECIMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -2) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareCentimetre` (cm²), as an `Area`.
-    pub const SQUARE_CENTIMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -4) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareMillimetre` (mm²), as an `Area`.
-    pub const SQUARE_MILLIMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -6) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareMicrometre` (µm²), as an `Area`.
-    pub const SQUARE_MICROMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -12) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareNanometre` (nm²), as an `Area`.
-    pub const SQUARE_NANOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -18) * SQUARE_METRE::<Exact>);
-
-    /// One `SquarePicometre` (pm²), as an `Area`.
-    pub const SQUARE_PICOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -24) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareFemtometre` (fm²), as an `Area`.
-    pub const SQUARE_FEMTOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -30) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareAttometre` (am²), as an `Area`.
-    pub const SQUARE_ATTOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -36) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareZeptometre` (zm²), as an `Area`.
-    pub const SQUARE_ZEPTOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -42) * SQUARE_METRE::<Exact>);
-
-    /// One `SquareYoctometre` (ym²), as an `Area`.
-    pub const SQUARE_YOCTOMETRE<N: const From<Exact>>: Area<N> = counted(Exact::dec(1, -48) * SQUARE_METRE::<Exact>);
 
     /// One `Acre` (ac), as an `Area`.
     pub const ACRE<N: const From<Exact>>: Area<N> = counted((Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937))) * SQUARE_METRE::<Exact>);
@@ -1054,68 +818,11 @@ pub mod consts {
     /// One `Gill` (gi), as a `Volume`.
     pub const GILL<N: const From<Exact>>: Volume<N> = counted(Exact::dec(11829411825, -14) * CUBIC_METRE::<Exact>);
 
-    /// One `Yottalitre` (YL), as a `Volume`.
-    pub const YOTTALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000000000000000000000) * CUBIC_METRE::<Exact>);
-
-    /// One `Zettalitre` (ZL), as a `Volume`.
-    pub const ZETTALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000000000000000000) * CUBIC_METRE::<Exact>);
-
-    /// One `Exalitre` (EL), as a `Volume`.
-    pub const EXALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000000000000000) * CUBIC_METRE::<Exact>);
-
-    /// One `Petalitre` (PL), as a `Volume`.
-    pub const PETALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000000000000) * CUBIC_METRE::<Exact>);
-
-    /// One `Teralitre` (TL), as a `Volume`.
-    pub const TERALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000000000) * CUBIC_METRE::<Exact>);
-
-    /// One `Gigalitre` (GL), as a `Volume`.
-    pub const GIGALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000000) * CUBIC_METRE::<Exact>);
-
-    /// One `Megalitre` (ML), as a `Volume`.
-    pub const MEGALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::int(1000) * CUBIC_METRE::<Exact>);
-
     /// One `Kilolitre` (kL), as a `Volume`.
     pub const KILOLITRE<N: const From<Exact>>: Volume<N> = counted(CUBIC_METRE::<Exact>);
 
-    /// One `Hectolitre` (hL), as a `Volume`.
-    pub const HECTOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -1) * CUBIC_METRE::<Exact>);
-
-    /// One `Decalitre` (daL), as a `Volume`.
-    pub const DECALITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -2) * CUBIC_METRE::<Exact>);
-
     /// One `Litre` (L), as a `Volume`.
     pub const LITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -3) * CUBIC_METRE::<Exact>);
-
-    /// One `Decilitre` (dL), as a `Volume`.
-    pub const DECILITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -4) * CUBIC_METRE::<Exact>);
-
-    /// One `Centilitre` (cL), as a `Volume`.
-    pub const CENTILITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -5) * CUBIC_METRE::<Exact>);
-
-    /// One `Millilitre` (mL), as a `Volume`.
-    pub const MILLILITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -6) * CUBIC_METRE::<Exact>);
-
-    /// One `Microlitre` (µL), as a `Volume`.
-    pub const MICROLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -9) * CUBIC_METRE::<Exact>);
-
-    /// One `Nanolitre` (nL), as a `Volume`.
-    pub const NANOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -12) * CUBIC_METRE::<Exact>);
-
-    /// One `Picolitre` (pL), as a `Volume`.
-    pub const PICOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -15) * CUBIC_METRE::<Exact>);
-
-    /// One `Femtolitre` (fL), as a `Volume`.
-    pub const FEMTOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -18) * CUBIC_METRE::<Exact>);
-
-    /// One `Attolitre` (aL), as a `Volume`.
-    pub const ATTOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -21) * CUBIC_METRE::<Exact>);
-
-    /// One `Zeptolitre` (zL), as a `Volume`.
-    pub const ZEPTOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -24) * CUBIC_METRE::<Exact>);
-
-    /// One `Yoctolitre` (yL), as a `Volume`.
-    pub const YOCTOLITRE<N: const From<Exact>>: Volume<N> = counted(Exact::dec(1, -27) * CUBIC_METRE::<Exact>);
 
     /// One `Peck` (pk), as a `Volume`.
     pub const PECK<N: const From<Exact>>: Volume<N> = counted(Exact::dec(880976754172, -14) * CUBIC_METRE::<Exact>);
@@ -1183,68 +890,8 @@ pub mod consts {
     /// One `Ligula` (ligula), as a `Volume`.
     pub const LIGULA<N: const From<Exact>>: Volume<N> = counted((Exact::dec(3241792, -9) / Exact::int(288)) * CUBIC_METRE::<Exact>);
 
-    /// One `YottametrePerSecond` (Ym/s), as a `Velocity`.
-    pub const YOTTAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000000000000000000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `ZettametrePerSecond` (Zm/s), as a `Velocity`.
-    pub const ZETTAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000000000000000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `ExametrePerSecond` (Em/s), as a `Velocity`.
-    pub const EXAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000000000000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `PetametrePerSecond` (Pm/s), as a `Velocity`.
-    pub const PETAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000000000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `TerametrePerSecond` (Tm/s), as a `Velocity`.
-    pub const TERAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `GigametrePerSecond` (Gm/s), as a `Velocity`.
-    pub const GIGAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `MegametrePerSecond` (Mm/s), as a `Velocity`.
-    pub const MEGAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `KilometrePerSecond` (km/s), as a `Velocity`.
-    pub const KILOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(1000) * METRE_PER_SECOND::<Exact>);
-
-    /// One `HectometrePerSecond` (hm/s), as a `Velocity`.
-    pub const HECTOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(100) * METRE_PER_SECOND::<Exact>);
-
-    /// One `DecametrePerSecond` (dam/s), as a `Velocity`.
-    pub const DECAMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::int(10) * METRE_PER_SECOND::<Exact>);
-
     /// One `MetrePerSecond` (m/s), as a `Velocity`.
     pub const METRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(METRE::<Exact> / SECOND::<Exact>);
-
-    /// One `DecimetrePerSecond` (dm/s), as a `Velocity`.
-    pub const DECIMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -1) * METRE_PER_SECOND::<Exact>);
-
-    /// One `CentimetrePerSecond` (cm/s), as a `Velocity`.
-    pub const CENTIMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -2) * METRE_PER_SECOND::<Exact>);
-
-    /// One `MillimetrePerSecond` (mm/s), as a `Velocity`.
-    pub const MILLIMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -3) * METRE_PER_SECOND::<Exact>);
-
-    /// One `MicrometrePerSecond` (µm/s), as a `Velocity`.
-    pub const MICROMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -6) * METRE_PER_SECOND::<Exact>);
-
-    /// One `NanometrePerSecond` (nm/s), as a `Velocity`.
-    pub const NANOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -9) * METRE_PER_SECOND::<Exact>);
-
-    /// One `PicometrePerSecond` (pm/s), as a `Velocity`.
-    pub const PICOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -12) * METRE_PER_SECOND::<Exact>);
-
-    /// One `FemtometrePerSecond` (fm/s), as a `Velocity`.
-    pub const FEMTOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -15) * METRE_PER_SECOND::<Exact>);
-
-    /// One `AttometrePerSecond` (am/s), as a `Velocity`.
-    pub const ATTOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -18) * METRE_PER_SECOND::<Exact>);
-
-    /// One `ZeptometrePerSecond` (zm/s), as a `Velocity`.
-    pub const ZEPTOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -21) * METRE_PER_SECOND::<Exact>);
-
-    /// One `YoctometrePerSecond` (ym/s), as a `Velocity`.
-    pub const YOCTOMETRE_PER_SECOND<N: const From<Exact>>: Velocity<N> = counted(Exact::dec(1, -24) * METRE_PER_SECOND::<Exact>);
 
     /// One `FootPerHour` (ft/h), as a `Velocity`.
     pub const FOOT_PER_HOUR<N: const From<Exact>>: Velocity<N> = counted((Exact::dec(3048, -4) / Exact::int(3600)) * METRE_PER_SECOND::<Exact>);
@@ -1288,68 +935,8 @@ pub mod consts {
     /// One `SpeedOfLight` (c), as a `Velocity`.
     pub const SPEED_OF_LIGHT<N: const From<Exact>>: Velocity<N> = counted(Exact::int(299792458) * METRE_PER_SECOND::<Exact>);
 
-    /// One `YottametrePerSecondSquared` (Ym/s²), as an `Acceleration`.
-    pub const YOTTAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000000000000000000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `ZettametrePerSecondSquared` (Zm/s²), as an `Acceleration`.
-    pub const ZETTAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000000000000000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `ExametrePerSecondSquared` (Em/s²), as an `Acceleration`.
-    pub const EXAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000000000000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `PetametrePerSecondSquared` (Pm/s²), as an `Acceleration`.
-    pub const PETAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000000000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `TerametrePerSecondSquared` (Tm/s²), as an `Acceleration`.
-    pub const TERAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `GigametrePerSecondSquared` (Gm/s²), as an `Acceleration`.
-    pub const GIGAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `MegametrePerSecondSquared` (Mm/s²), as an `Acceleration`.
-    pub const MEGAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `KilometrePerSecondSquared` (km/s²), as an `Acceleration`.
-    pub const KILOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(1000) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `HectometrePerSecondSquared` (hm/s²), as an `Acceleration`.
-    pub const HECTOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(100) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `DecametrePerSecondSquared` (dam/s²), as an `Acceleration`.
-    pub const DECAMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::int(10) * METRE_PER_SECOND_SQUARED::<Exact>);
-
     /// One `MetrePerSecondSquared` (m/s²), as an `Acceleration`.
     pub const METRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `DecimetrePerSecondSquared` (dm/s²), as an `Acceleration`.
-    pub const DECIMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -1) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `CentimetrePerSecondSquared` (cm/s²), as an `Acceleration`.
-    pub const CENTIMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -2) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `MillimetrePerSecondSquared` (mm/s²), as an `Acceleration`.
-    pub const MILLIMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -3) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `MicrometrePerSecondSquared` (µm/s²), as an `Acceleration`.
-    pub const MICROMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -6) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `NanometrePerSecondSquared` (nm/s²), as an `Acceleration`.
-    pub const NANOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -9) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `PicometrePerSecondSquared` (pm/s²), as an `Acceleration`.
-    pub const PICOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -12) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `FemtometrePerSecondSquared` (fm/s²), as an `Acceleration`.
-    pub const FEMTOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -15) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `AttometrePerSecondSquared` (am/s²), as an `Acceleration`.
-    pub const ATTOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -18) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `ZeptometrePerSecondSquared` (zm/s²), as an `Acceleration`.
-    pub const ZEPTOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -21) * METRE_PER_SECOND_SQUARED::<Exact>);
-
-    /// One `YoctometrePerSecondSquared` (ym/s²), as an `Acceleration`.
-    pub const YOCTOMETRE_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(1, -24) * METRE_PER_SECOND_SQUARED::<Exact>);
 
     /// One `FootPerSecondSquared` (ft/s²), as an `Acceleration`.
     pub const FOOT_PER_SECOND_SQUARED<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(3048, -4) * METRE_PER_SECOND_SQUARED::<Exact>);
@@ -1366,68 +953,8 @@ pub mod consts {
     /// One `StandardGravity` (g₀), as an `Acceleration`.
     pub const STANDARD_GRAVITY<N: const From<Exact>>: Acceleration<N> = counted(Exact::dec(980665, -5) * METRE_PER_SECOND_SQUARED::<Exact>);
 
-    /// One `YottametrePerSecondCubed` (Ym/s³), as a `Jerk`.
-    pub const YOTTAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000000000000000000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `ZettametrePerSecondCubed` (Zm/s³), as a `Jerk`.
-    pub const ZETTAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000000000000000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `ExametrePerSecondCubed` (Em/s³), as a `Jerk`.
-    pub const EXAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000000000000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `PetametrePerSecondCubed` (Pm/s³), as a `Jerk`.
-    pub const PETAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000000000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `TerametrePerSecondCubed` (Tm/s³), as a `Jerk`.
-    pub const TERAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `GigametrePerSecondCubed` (Gm/s³), as a `Jerk`.
-    pub const GIGAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `MegametrePerSecondCubed` (Mm/s³), as a `Jerk`.
-    pub const MEGAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `KilometrePerSecondCubed` (km/s³), as a `Jerk`.
-    pub const KILOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(1000) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `HectometrePerSecondCubed` (hm/s³), as a `Jerk`.
-    pub const HECTOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(100) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `DecametrePerSecondCubed` (dam/s³), as a `Jerk`.
-    pub const DECAMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::int(10) * METRE_PER_SECOND_CUBED::<Exact>);
-
     /// One `MetrePerSecondCubed` (m/s³), as a `Jerk`.
     pub const METRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `DecimetrePerSecondCubed` (dm/s³), as a `Jerk`.
-    pub const DECIMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -1) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `CentimetrePerSecondCubed` (cm/s³), as a `Jerk`.
-    pub const CENTIMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -2) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `MillimetrePerSecondCubed` (mm/s³), as a `Jerk`.
-    pub const MILLIMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -3) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `MicrometrePerSecondCubed` (µm/s³), as a `Jerk`.
-    pub const MICROMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -6) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `NanometrePerSecondCubed` (nm/s³), as a `Jerk`.
-    pub const NANOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -9) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `PicometrePerSecondCubed` (pm/s³), as a `Jerk`.
-    pub const PICOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -12) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `FemtometrePerSecondCubed` (fm/s³), as a `Jerk`.
-    pub const FEMTOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -15) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `AttometrePerSecondCubed` (am/s³), as a `Jerk`.
-    pub const ATTOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -18) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `ZeptometrePerSecondCubed` (zm/s³), as a `Jerk`.
-    pub const ZEPTOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -21) * METRE_PER_SECOND_CUBED::<Exact>);
-
-    /// One `YoctometrePerSecondCubed` (ym/s³), as a `Jerk`.
-    pub const YOCTOMETRE_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(1, -24) * METRE_PER_SECOND_CUBED::<Exact>);
 
     /// One `FootPerSecondCubed` (ft/s³), as a `Jerk`.
     pub const FOOT_PER_SECOND_CUBED<N: const From<Exact>>: Jerk<N> = counted(Exact::dec(3048, -4) * METRE_PER_SECOND_CUBED::<Exact>);
@@ -1438,68 +965,8 @@ pub mod consts {
     /// One `KilometrePerMinuteCubed` (km/min³), as a `Jerk`.
     pub const KILOMETRE_PER_MINUTE_CUBED<N: const From<Exact>>: Jerk<N> = counted((Exact::int(1000) / (Exact::int(60) * Exact::int(60) * Exact::int(60))) * METRE_PER_SECOND_CUBED::<Exact>);
 
-    /// One `YottametreSecond` (Ym · s), as an `Absement`.
-    pub const YOTTAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000000000000000000000) * METRE_SECOND::<Exact>);
-
-    /// One `ZettametreSecond` (Zm · s), as an `Absement`.
-    pub const ZETTAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000000000000000000) * METRE_SECOND::<Exact>);
-
-    /// One `ExametreSecond` (Em · s), as an `Absement`.
-    pub const EXAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000000000000000) * METRE_SECOND::<Exact>);
-
-    /// One `PetametreSecond` (Pm · s), as an `Absement`.
-    pub const PETAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000000000000) * METRE_SECOND::<Exact>);
-
-    /// One `TerametreSecond` (Tm · s), as an `Absement`.
-    pub const TERAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000000000) * METRE_SECOND::<Exact>);
-
-    /// One `GigametreSecond` (Gm · s), as an `Absement`.
-    pub const GIGAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000000) * METRE_SECOND::<Exact>);
-
-    /// One `MegametreSecond` (Mm · s), as an `Absement`.
-    pub const MEGAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000000) * METRE_SECOND::<Exact>);
-
-    /// One `KilometreSecond` (km · s), as an `Absement`.
-    pub const KILOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(1000) * METRE_SECOND::<Exact>);
-
-    /// One `HectometreSecond` (hm · s), as an `Absement`.
-    pub const HECTOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(100) * METRE_SECOND::<Exact>);
-
-    /// One `DecametreSecond` (dam · s), as an `Absement`.
-    pub const DECAMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::int(10) * METRE_SECOND::<Exact>);
-
     /// One `MetreSecond` (m · s), as an `Absement`.
     pub const METRE_SECOND<N: const From<Exact>>: Absement<N> = counted(METRE::<Exact> * SECOND::<Exact>);
-
-    /// One `DecimetreSecond` (dm · s), as an `Absement`.
-    pub const DECIMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -1) * METRE_SECOND::<Exact>);
-
-    /// One `CentimetreSecond` (cm · s), as an `Absement`.
-    pub const CENTIMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -2) * METRE_SECOND::<Exact>);
-
-    /// One `MillimetreSecond` (mm · s), as an `Absement`.
-    pub const MILLIMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -3) * METRE_SECOND::<Exact>);
-
-    /// One `MicrometreSecond` (µm · s), as an `Absement`.
-    pub const MICROMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -6) * METRE_SECOND::<Exact>);
-
-    /// One `NanometreSecond` (nm · s), as an `Absement`.
-    pub const NANOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -9) * METRE_SECOND::<Exact>);
-
-    /// One `PicometreSecond` (pm · s), as an `Absement`.
-    pub const PICOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -12) * METRE_SECOND::<Exact>);
-
-    /// One `FemtometreSecond` (fm · s), as an `Absement`.
-    pub const FEMTOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -15) * METRE_SECOND::<Exact>);
-
-    /// One `AttometreSecond` (am · s), as an `Absement`.
-    pub const ATTOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -18) * METRE_SECOND::<Exact>);
-
-    /// One `ZeptometreSecond` (zm · s), as an `Absement`.
-    pub const ZEPTOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -21) * METRE_SECOND::<Exact>);
-
-    /// One `YoctometreSecond` (ym · s), as an `Absement`.
-    pub const YOCTOMETRE_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(1, -24) * METRE_SECOND::<Exact>);
 
     /// One `FootSecond` (ft · s), as an `Absement`.
     pub const FOOT_SECOND<N: const From<Exact>>: Absement<N> = counted(Exact::dec(3048, -4) * METRE_SECOND::<Exact>);
@@ -1510,68 +977,8 @@ pub mod consts {
     /// One `KilometreHour` (km · h), as an `Absement`.
     pub const KILOMETRE_HOUR<N: const From<Exact>>: Absement<N> = counted(Exact::int(3600000) * METRE_SECOND::<Exact>);
 
-    /// One `YottasecondPerMetre` (Ys/m), as an `InverseVelocity`.
-    pub const YOTTASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000000000000000000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `ZettasecondPerMetre` (Zs/m), as an `InverseVelocity`.
-    pub const ZETTASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000000000000000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `ExasecondPerMetre` (Es/m), as an `InverseVelocity`.
-    pub const EXASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000000000000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `PetasecondPerMetre` (Ps/m), as an `InverseVelocity`.
-    pub const PETASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000000000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `TerasecondPerMetre` (Ts/m), as an `InverseVelocity`.
-    pub const TERASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `GigasecondPerMetre` (Gs/m), as an `InverseVelocity`.
-    pub const GIGASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `MegasecondPerMetre` (Ms/m), as an `InverseVelocity`.
-    pub const MEGASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `KilosecondPerMetre` (ks/m), as an `InverseVelocity`.
-    pub const KILOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(1000) * SECOND_PER_METRE::<Exact>);
-
-    /// One `HectosecondPerMetre` (hs/m), as an `InverseVelocity`.
-    pub const HECTOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(100) * SECOND_PER_METRE::<Exact>);
-
-    /// One `DecasecondPerMetre` (das/m), as an `InverseVelocity`.
-    pub const DECASECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::int(10) * SECOND_PER_METRE::<Exact>);
-
     /// One `SecondPerMetre` (s/m), as an `InverseVelocity`.
     pub const SECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(SECOND::<Exact> / METRE::<Exact>);
-
-    /// One `DecisecondPerMetre` (ds/m), as an `InverseVelocity`.
-    pub const DECISECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -1) * SECOND_PER_METRE::<Exact>);
-
-    /// One `CentisecondPerMetre` (cs/m), as an `InverseVelocity`.
-    pub const CENTISECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -2) * SECOND_PER_METRE::<Exact>);
-
-    /// One `MillisecondPerMetre` (ms/m), as an `InverseVelocity`.
-    pub const MILLISECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -3) * SECOND_PER_METRE::<Exact>);
-
-    /// One `MicrosecondPerMetre` (µs/m), as an `InverseVelocity`.
-    pub const MICROSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -6) * SECOND_PER_METRE::<Exact>);
-
-    /// One `NanosecondPerMetre` (ns/m), as an `InverseVelocity`.
-    pub const NANOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -9) * SECOND_PER_METRE::<Exact>);
-
-    /// One `PicosecondPerMetre` (ps/m), as an `InverseVelocity`.
-    pub const PICOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -12) * SECOND_PER_METRE::<Exact>);
-
-    /// One `FemtosecondPerMetre` (fs/m), as an `InverseVelocity`.
-    pub const FEMTOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -15) * SECOND_PER_METRE::<Exact>);
-
-    /// One `AttosecondPerMetre` (as/m), as an `InverseVelocity`.
-    pub const ATTOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -18) * SECOND_PER_METRE::<Exact>);
-
-    /// One `ZeptosecondPerMetre` (zs/m), as an `InverseVelocity`.
-    pub const ZEPTOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -21) * SECOND_PER_METRE::<Exact>);
-
-    /// One `YoctosecondPerMetre` (ys/m), as an `InverseVelocity`.
-    pub const YOCTOSECOND_PER_METRE<N: const From<Exact>>: InverseVelocity<N> = counted(Exact::dec(1, -24) * SECOND_PER_METRE::<Exact>);
 
     /// One `HourPerFoot` (h/ft), as an `InverseVelocity`.
     pub const HOUR_PER_FOOT<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(3600) / Exact::dec(3048, -4)) * SECOND_PER_METRE::<Exact>);
@@ -1600,68 +1007,8 @@ pub mod consts {
     /// One `SecondPerMile` (s/mi), as an `InverseVelocity`.
     pub const SECOND_PER_MILE<N: const From<Exact>>: InverseVelocity<N> = counted((Exact::int(1) / Exact::dec(1609344, -3)) * SECOND_PER_METRE::<Exact>);
 
-    /// One `Yottanewton` (YN), as a `Force`.
-    pub const YOTTANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000000000000000000000) * NEWTON::<Exact>);
-
-    /// One `Zettanewton` (ZN), as a `Force`.
-    pub const ZETTANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000000000000000000) * NEWTON::<Exact>);
-
-    /// One `Exanewton` (EN), as a `Force`.
-    pub const EXANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000000000000000) * NEWTON::<Exact>);
-
-    /// One `Petanewton` (PN), as a `Force`.
-    pub const PETANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000000000000) * NEWTON::<Exact>);
-
-    /// One `Teranewton` (TN), as a `Force`.
-    pub const TERANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000000000) * NEWTON::<Exact>);
-
-    /// One `Giganewton` (GN), as a `Force`.
-    pub const GIGANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000000) * NEWTON::<Exact>);
-
-    /// One `Meganewton` (MN), as a `Force`.
-    pub const MEGANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000000) * NEWTON::<Exact>);
-
-    /// One `Kilonewton` (kN), as a `Force`.
-    pub const KILONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(1000) * NEWTON::<Exact>);
-
-    /// One `Hectonewton` (hN), as a `Force`.
-    pub const HECTONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(100) * NEWTON::<Exact>);
-
-    /// One `Decanewton` (daN), as a `Force`.
-    pub const DECANEWTON<N: const From<Exact>>: Force<N> = counted(Exact::int(10) * NEWTON::<Exact>);
-
     /// One `Newton` (N), as a `Force`.
     pub const NEWTON<N: const From<Exact>>: Force<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `Decinewton` (dN), as a `Force`.
-    pub const DECINEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -1) * NEWTON::<Exact>);
-
-    /// One `Centinewton` (cN), as a `Force`.
-    pub const CENTINEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -2) * NEWTON::<Exact>);
-
-    /// One `Millinewton` (mN), as a `Force`.
-    pub const MILLINEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -3) * NEWTON::<Exact>);
-
-    /// One `Micronewton` (µN), as a `Force`.
-    pub const MICRONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -6) * NEWTON::<Exact>);
-
-    /// One `Nanonewton` (nN), as a `Force`.
-    pub const NANONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -9) * NEWTON::<Exact>);
-
-    /// One `Piconewton` (pN), as a `Force`.
-    pub const PICONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -12) * NEWTON::<Exact>);
-
-    /// One `Femtonewton` (fN), as a `Force`.
-    pub const FEMTONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -15) * NEWTON::<Exact>);
-
-    /// One `Attonewton` (aN), as a `Force`.
-    pub const ATTONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -18) * NEWTON::<Exact>);
-
-    /// One `Zeptonewton` (zN), as a `Force`.
-    pub const ZEPTONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -21) * NEWTON::<Exact>);
-
-    /// One `Yoctonewton` (yN), as a `Force`.
-    pub const YOCTONEWTON<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -24) * NEWTON::<Exact>);
 
     /// One `Dyne` (dyn), as a `Force`.
     pub const DYNE<N: const From<Exact>>: Force<N> = counted(Exact::dec(1, -5) * NEWTON::<Exact>);
@@ -1684,128 +1031,11 @@ pub mod consts {
     /// One `TonForce` (2000 lbf), as a `Force`.
     pub const TON_FORCE<N: const From<Exact>>: Force<N> = counted((Exact::int(2000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * NEWTON::<Exact>);
 
-    /// One `YottagramMetrePerSecond` (Yg · m/s), as a `Momentum`.
-    pub const YOTTAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `ZettagramMetrePerSecond` (Zg · m/s), as a `Momentum`.
-    pub const ZETTAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `ExagramMetrePerSecond` (Eg · m/s), as a `Momentum`.
-    pub const EXAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `PetagramMetrePerSecond` (Pg · m/s), as a `Momentum`.
-    pub const PETAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `TeragramMetrePerSecond` (Tg · m/s), as a `Momentum`.
-    pub const TERAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `GigagramMetrePerSecond` (Gg · m/s), as a `Momentum`.
-    pub const GIGAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `MegagramMetrePerSecond` (Mg · m/s), as a `Momentum`.
-    pub const MEGAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
     /// One `KilogramMetrePerSecond` (kg · m/s), as a `Momentum`.
     pub const KILOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(METRE::<Exact> * KILOGRAM::<Exact> / SECOND::<Exact>);
 
-    /// One `HectogramMetrePerSecond` (hg · m/s), as a `Momentum`.
-    pub const HECTOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `DecagramMetrePerSecond` (dag · m/s), as a `Momentum`.
-    pub const DECAGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
     /// One `GramMetrePerSecond` (g · m/s), as a `Momentum`.
     pub const GRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `DecigramMetrePerSecond` (dg · m/s), as a `Momentum`.
-    pub const DECIGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -4) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `CentigramMetrePerSecond` (cg · m/s), as a `Momentum`.
-    pub const CENTIGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -5) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `MilligramMetrePerSecond` (mg · m/s), as a `Momentum`.
-    pub const MILLIGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `MicrogramMetrePerSecond` (µg · m/s), as a `Momentum`.
-    pub const MICROGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -9) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `NanogramMetrePerSecond` (ng · m/s), as a `Momentum`.
-    pub const NANOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `PicogramMetrePerSecond` (pg · m/s), as a `Momentum`.
-    pub const PICOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `FemtogramMetrePerSecond` (fg · m/s), as a `Momentum`.
-    pub const FEMTOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `AttogramMetrePerSecond` (ag · m/s), as a `Momentum`.
-    pub const ATTOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `ZeptogramMetrePerSecond` (zg · m/s), as a `Momentum`.
-    pub const ZEPTOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `YoctogramMetrePerSecond` (yg · m/s), as a `Momentum`.
-    pub const YOCTOGRAM_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -27) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramYottametrePerSecond` (kg · Ym/s), as a `Momentum`.
-    pub const KILOGRAM_YOTTAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramZettametrePerSecond` (kg · Zm/s), as a `Momentum`.
-    pub const KILOGRAM_ZETTAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramExametrePerSecond` (kg · Em/s), as a `Momentum`.
-    pub const KILOGRAM_EXAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramPetametrePerSecond` (kg · Pm/s), as a `Momentum`.
-    pub const KILOGRAM_PETAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramTerametrePerSecond` (kg · Tm/s), as a `Momentum`.
-    pub const KILOGRAM_TERAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramGigametrePerSecond` (kg · Gm/s), as a `Momentum`.
-    pub const KILOGRAM_GIGAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramMegametrePerSecond` (kg · Mm/s), as a `Momentum`.
-    pub const KILOGRAM_MEGAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramKilometrePerSecond` (kg · km/s), as a `Momentum`.
-    pub const KILOGRAM_KILOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramHectometrePerSecond` (kg · hm/s), as a `Momentum`.
-    pub const KILOGRAM_HECTOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(100) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramDecametrePerSecond` (kg · dam/s), as a `Momentum`.
-    pub const KILOGRAM_DECAMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(10) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramDecimetrePerSecond` (kg · dm/s), as a `Momentum`.
-    pub const KILOGRAM_DECIMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -1) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramCentimetrePerSecond` (kg · cm/s), as a `Momentum`.
-    pub const KILOGRAM_CENTIMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -2) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramMillimetrePerSecond` (kg · mm/s), as a `Momentum`.
-    pub const KILOGRAM_MILLIMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -3) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramMicrometrePerSecond` (kg · µm/s), as a `Momentum`.
-    pub const KILOGRAM_MICROMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -6) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramNanometrePerSecond` (kg · nm/s), as a `Momentum`.
-    pub const KILOGRAM_NANOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -9) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramPicometrePerSecond` (kg · pm/s), as a `Momentum`.
-    pub const KILOGRAM_PICOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -12) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramFemtometrePerSecond` (kg · fm/s), as a `Momentum`.
-    pub const KILOGRAM_FEMTOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -15) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramAttometrePerSecond` (kg · am/s), as a `Momentum`.
-    pub const KILOGRAM_ATTOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -18) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramZeptometrePerSecond` (kg · zm/s), as a `Momentum`.
-    pub const KILOGRAM_ZEPTOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -21) * KILOGRAM_METRE_PER_SECOND::<Exact>);
-
-    /// One `KilogramYoctometrePerSecond` (kg · ym/s), as a `Momentum`.
-    pub const KILOGRAM_YOCTOMETRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(1, -24) * KILOGRAM_METRE_PER_SECOND::<Exact>);
 
     /// One `TonMetrePerSecond` (t · m/s), as a `Momentum`.
     pub const TON_METRE_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::int(1000) * KILOGRAM_METRE_PER_SECOND::<Exact>);
@@ -1831,119 +1061,11 @@ pub mod consts {
     /// One `PoundInchPerSecond` (lb · in/s), as a `Momentum`.
     pub const POUND_INCH_PER_SECOND<N: const From<Exact>>: Momentum<N> = counted(Exact::dec(11521246198, -12) * KILOGRAM_METRE_PER_SECOND::<Exact>);
 
-    /// One `Yottajoule` (YJ), as an `Energy`.
-    pub const YOTTAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000000000000000000000) * JOULE::<Exact>);
-
-    /// One `Zettajoule` (ZJ), as an `Energy`.
-    pub const ZETTAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000000000000000000) * JOULE::<Exact>);
-
-    /// One `Exajoule` (EJ), as an `Energy`.
-    pub const EXAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000000000000000) * JOULE::<Exact>);
-
-    /// One `Petajoule` (PJ), as an `Energy`.
-    pub const PETAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000000000000) * JOULE::<Exact>);
-
-    /// One `Terajoule` (TJ), as an `Energy`.
-    pub const TERAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000000000) * JOULE::<Exact>);
-
-    /// One `Gigajoule` (GJ), as an `Energy`.
-    pub const GIGAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000000) * JOULE::<Exact>);
-
-    /// One `Megajoule` (MJ), as an `Energy`.
-    pub const MEGAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000000) * JOULE::<Exact>);
-
-    /// One `Kilojoule` (kJ), as an `Energy`.
-    pub const KILOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(1000) * JOULE::<Exact>);
-
-    /// One `Hectojoule` (hJ), as an `Energy`.
-    pub const HECTOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(100) * JOULE::<Exact>);
-
-    /// One `Decajoule` (daJ), as an `Energy`.
-    pub const DECAJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::int(10) * JOULE::<Exact>);
-
     /// One `Joule` (J), as an `Energy`.
     pub const JOULE<N: const From<Exact>>: Energy<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
 
-    /// One `Decijoule` (dJ), as an `Energy`.
-    pub const DECIJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -1) * JOULE::<Exact>);
-
-    /// One `Centijoule` (cJ), as an `Energy`.
-    pub const CENTIJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -2) * JOULE::<Exact>);
-
-    /// One `Millijoule` (mJ), as an `Energy`.
-    pub const MILLIJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -3) * JOULE::<Exact>);
-
-    /// One `Microjoule` (µJ), as an `Energy`.
-    pub const MICROJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -6) * JOULE::<Exact>);
-
-    /// One `Nanojoule` (nJ), as an `Energy`.
-    pub const NANOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -9) * JOULE::<Exact>);
-
-    /// One `Picojoule` (pJ), as an `Energy`.
-    pub const PICOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -12) * JOULE::<Exact>);
-
-    /// One `Femtojoule` (fJ), as an `Energy`.
-    pub const FEMTOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -15) * JOULE::<Exact>);
-
-    /// One `Attojoule` (aJ), as an `Energy`.
-    pub const ATTOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -18) * JOULE::<Exact>);
-
-    /// One `Zeptojoule` (zJ), as an `Energy`.
-    pub const ZEPTOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -21) * JOULE::<Exact>);
-
-    /// One `Yoctojoule` (yJ), as an `Energy`.
-    pub const YOCTOJOULE<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1, -24) * JOULE::<Exact>);
-
-    /// One `PetawattHour` (PW · h), as an `Energy`.
-    pub const PETAWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600000000000000000) * JOULE::<Exact>);
-
-    /// One `TerawattHour` (TW · h), as an `Energy`.
-    pub const TERAWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600000000000000) * JOULE::<Exact>);
-
-    /// One `GigawattHour` (GW · h), as an `Energy`.
-    pub const GIGAWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600000000000) * JOULE::<Exact>);
-
-    /// One `MegawattHour` (MW · h), as an `Energy`.
-    pub const MEGAWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600000000) * JOULE::<Exact>);
-
-    /// One `KilowattHour` (kW · h), as an `Energy`.
-    pub const KILOWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600000) * JOULE::<Exact>);
-
-    /// One `HectowattHour` (hW · h), as an `Energy`.
-    pub const HECTOWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(360000) * JOULE::<Exact>);
-
-    /// One `DecawattHour` (daW · h), as an `Energy`.
-    pub const DECAWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(36000) * JOULE::<Exact>);
-
     /// One `WattHour` (W · h), as an `Energy`.
     pub const WATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::int(3600) * JOULE::<Exact>);
-
-    /// One `MilliwattHour` (mW · h), as an `Energy`.
-    pub const MILLIWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::dec(36, -1) * JOULE::<Exact>);
-
-    /// One `MicrowattHour` (µW · h), as an `Energy`.
-    pub const MICROWATT_HOUR<N: const From<Exact>>: Energy<N> = counted(Exact::dec(36, -4) * JOULE::<Exact>);
-
-    /// One `Petaelectronvolt` (PeV), as an `Energy`.
-    pub const PETAELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -13) * JOULE::<Exact>);
-
-    /// One `Teraelectronvolt` (TeV), as an `Energy`.
-    pub const TERAELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -16) * JOULE::<Exact>);
-
-    /// One `Gigaelectronvolt` (GeV), as an `Energy`.
-    pub const GIGAELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -19) * JOULE::<Exact>);
-
-    /// One `Megaelectronvolt` (MeV), as an `Energy`.
-    pub const MEGAELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -22) * JOULE::<Exact>);
-
-    /// One `Kiloelectronvolt` (keV), as an `Energy`.
-    pub const KILOELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -25) * JOULE::<Exact>);
-
-    /// One `Hectoelectronvolt` (heV), as an `Energy`.
-    pub const HECTOELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -26) * JOULE::<Exact>);
-
-    /// One `Decaelectronvolt` (daeV), as an `Energy`.
-    pub const DECAELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -27) * JOULE::<Exact>);
 
     /// One `Electronvolt` (eV), as an `Energy`.
     pub const ELECTRONVOLT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(1602176634, -28) * JOULE::<Exact>);
@@ -1978,12 +1100,6 @@ pub mod consts {
     /// One `FootPound` (ft · lbf), as an `Energy`.
     pub const FOOT_POUND<N: const From<Exact>>: Energy<N> = counted((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * JOULE::<Exact>);
 
-    /// One `KilocalorieIt` (kcal (IT)), as an `Energy`.
-    pub const KILOCALORIE_IT<N: const From<Exact>>: Energy<N> = counted(Exact::dec(41868, -1) * JOULE::<Exact>);
-
-    /// One `Kilocalorie` (kcal), as an `Energy`.
-    pub const KILOCALORIE<N: const From<Exact>>: Energy<N> = counted(Exact::int(4184) * JOULE::<Exact>);
-
     /// One `Quad` (10¹⁵ Btu (IT)), as an `Energy`.
     pub const QUAD<N: const From<Exact>>: Energy<N> = counted(Exact::int(1055055852620000000) * JOULE::<Exact>);
 
@@ -1999,113 +1115,11 @@ pub mod consts {
     /// One `WattSecond` (W · s), as an `Energy`.
     pub const WATT_SECOND<N: const From<Exact>>: Energy<N> = counted(JOULE::<Exact>);
 
-    /// One `YottajoulePerKilogram` (YJ/kg), as an `AvailableEnergy`.
-    pub const YOTTAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `ZettajoulePerKilogram` (ZJ/kg), as an `AvailableEnergy`.
-    pub const ZETTAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `ExajoulePerKilogram` (EJ/kg), as an `AvailableEnergy`.
-    pub const EXAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `PetajoulePerKilogram` (PJ/kg), as an `AvailableEnergy`.
-    pub const PETAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `TerajoulePerKilogram` (TJ/kg), as an `AvailableEnergy`.
-    pub const TERAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `GigajoulePerKilogram` (GJ/kg), as an `AvailableEnergy`.
-    pub const GIGAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `MegajoulePerKilogram` (MJ/kg), as an `AvailableEnergy`.
-    pub const MEGAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `KilojoulePerKilogram` (kJ/kg), as an `AvailableEnergy`.
-    pub const KILOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `HectojoulePerKilogram` (hJ/kg), as an `AvailableEnergy`.
-    pub const HECTOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(100) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `DecajoulePerKilogram` (daJ/kg), as an `AvailableEnergy`.
-    pub const DECAJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(10) * JOULE_PER_KILOGRAM::<Exact>);
-
     /// One `JoulePerKilogram` (J/kg), as an `AvailableEnergy`.
     pub const JOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(METRE::<Exact> * METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
 
-    /// One `DecijoulePerKilogram` (dJ/kg), as an `AvailableEnergy`.
-    pub const DECIJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -1) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `CentijoulePerKilogram` (cJ/kg), as an `AvailableEnergy`.
-    pub const CENTIJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -2) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `MillijoulePerKilogram` (mJ/kg), as an `AvailableEnergy`.
-    pub const MILLIJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -3) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `MicrojoulePerKilogram` (µJ/kg), as an `AvailableEnergy`.
-    pub const MICROJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -6) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `NanojoulePerKilogram` (nJ/kg), as an `AvailableEnergy`.
-    pub const NANOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -9) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `PicojoulePerKilogram` (pJ/kg), as an `AvailableEnergy`.
-    pub const PICOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -12) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `FemtojoulePerKilogram` (fJ/kg), as an `AvailableEnergy`.
-    pub const FEMTOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -15) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `AttojoulePerKilogram` (aJ/kg), as an `AvailableEnergy`.
-    pub const ATTOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -18) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `ZeptojoulePerKilogram` (zJ/kg), as an `AvailableEnergy`.
-    pub const ZEPTOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -21) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `YoctojoulePerKilogram` (yJ/kg), as an `AvailableEnergy`.
-    pub const YOCTOJOULE_PER_KILOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -24) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerZeptogram` (J/zg), as an `AvailableEnergy`.
-    pub const JOULE_PER_ZEPTOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerAttogram` (J/ag), as an `AvailableEnergy`.
-    pub const JOULE_PER_ATTOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerFemtogram` (J/fg), as an `AvailableEnergy`.
-    pub const JOULE_PER_FEMTOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerPicogram` (J/pg), as an `AvailableEnergy`.
-    pub const JOULE_PER_PICOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerNanogram` (J/ng), as an `AvailableEnergy`.
-    pub const JOULE_PER_NANOGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerMicrogram` (J/µg), as an `AvailableEnergy`.
-    pub const JOULE_PER_MICROGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerMilligram` (J/mg), as an `AvailableEnergy`.
-    pub const JOULE_PER_MILLIGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000000) * JOULE_PER_KILOGRAM::<Exact>);
-
     /// One `JoulePerGram` (J/g), as an `AvailableEnergy`.
     pub const JOULE_PER_GRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(1000) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerMegagram` (J/Mg), as an `AvailableEnergy`.
-    pub const JOULE_PER_MEGAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -3) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerGigagram` (J/Gg), as an `AvailableEnergy`.
-    pub const JOULE_PER_GIGAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -6) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerTeragram` (J/Tg), as an `AvailableEnergy`.
-    pub const JOULE_PER_TERAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -9) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerPetagram` (J/Pg), as an `AvailableEnergy`.
-    pub const JOULE_PER_PETAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -12) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerExagram` (J/Eg), as an `AvailableEnergy`.
-    pub const JOULE_PER_EXAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -15) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerZettagram` (J/Zg), as an `AvailableEnergy`.
-    pub const JOULE_PER_ZETTAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -18) * JOULE_PER_KILOGRAM::<Exact>);
-
-    /// One `JoulePerYottagram` (J/Yg), as an `AvailableEnergy`.
-    pub const JOULE_PER_YOTTAGRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::dec(1, -21) * JOULE_PER_KILOGRAM::<Exact>);
 
     /// One `BtuItPerPound` (Btu (IT)/lb), as an `AvailableEnergy`.
     pub const BTU_IT_PER_POUND<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(2326) * JOULE_PER_KILOGRAM::<Exact>);
@@ -2119,68 +1133,8 @@ pub mod consts {
     /// One `CaloriePerGram` (cal/g), as an `AvailableEnergy`.
     pub const CALORIE_PER_GRAM<N: const From<Exact>>: AvailableEnergy<N> = counted(Exact::int(4184) * JOULE_PER_KILOGRAM::<Exact>);
 
-    /// One `Yottawatt` (YW), as a `Power`.
-    pub const YOTTAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000000000000000000000) * WATT::<Exact>);
-
-    /// One `Zettawatt` (ZW), as a `Power`.
-    pub const ZETTAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000000000000000000) * WATT::<Exact>);
-
-    /// One `Exawatt` (EW), as a `Power`.
-    pub const EXAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000000000000000) * WATT::<Exact>);
-
-    /// One `Petawatt` (PW), as a `Power`.
-    pub const PETAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000000000000) * WATT::<Exact>);
-
-    /// One `Terawatt` (TW), as a `Power`.
-    pub const TERAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000000000) * WATT::<Exact>);
-
-    /// One `Gigawatt` (GW), as a `Power`.
-    pub const GIGAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000000) * WATT::<Exact>);
-
-    /// One `Megawatt` (MW), as a `Power`.
-    pub const MEGAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000000) * WATT::<Exact>);
-
-    /// One `Kilowatt` (kW), as a `Power`.
-    pub const KILOWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(1000) * WATT::<Exact>);
-
-    /// One `Hectowatt` (hW), as a `Power`.
-    pub const HECTOWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(100) * WATT::<Exact>);
-
-    /// One `Decawatt` (daW), as a `Power`.
-    pub const DECAWATT<N: const From<Exact>>: Power<N> = counted(Exact::int(10) * WATT::<Exact>);
-
     /// One `Watt` (W), as a `Power`.
     pub const WATT<N: const From<Exact>>: Power<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `Deciwatt` (dW), as a `Power`.
-    pub const DECIWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -1) * WATT::<Exact>);
-
-    /// One `Centiwatt` (cW), as a `Power`.
-    pub const CENTIWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -2) * WATT::<Exact>);
-
-    /// One `Milliwatt` (mW), as a `Power`.
-    pub const MILLIWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -3) * WATT::<Exact>);
-
-    /// One `Microwatt` (µW), as a `Power`.
-    pub const MICROWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -6) * WATT::<Exact>);
-
-    /// One `Nanowatt` (nW), as a `Power`.
-    pub const NANOWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -9) * WATT::<Exact>);
-
-    /// One `Picowatt` (pW), as a `Power`.
-    pub const PICOWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -12) * WATT::<Exact>);
-
-    /// One `Femtowatt` (fW), as a `Power`.
-    pub const FEMTOWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -15) * WATT::<Exact>);
-
-    /// One `Attowatt` (aW), as a `Power`.
-    pub const ATTOWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -18) * WATT::<Exact>);
-
-    /// One `Zeptowatt` (zW), as a `Power`.
-    pub const ZEPTOWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -21) * WATT::<Exact>);
-
-    /// One `Yoctowatt` (yW), as a `Power`.
-    pub const YOCTOWATT<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -24) * WATT::<Exact>);
 
     /// One `ErgPerSecond` (erg/s), as a `Power`.
     pub const ERG_PER_SECOND<N: const From<Exact>>: Power<N> = counted(Exact::dec(1, -7) * WATT::<Exact>);
@@ -2222,73 +1176,13 @@ pub mod consts {
     pub const MILLIWATT_LEVEL<N: const From<Exact>>: PowerLevel<N> = counted(WATT_LEVEL::<Exact> - Exact::int(30) * DECIBEL::<Exact>);
 
     /// Decibels-watt (dBW): decibels from one watt. A unit of `PowerLevel`; the watts are `Power::from` away.
-    pub const DBW<N: const From<Exact>>: Scale<PowerLevel<N>, Gain<N>> = Scale(counted(WATT_LEVEL::<Exact>), counted(DECIBEL::<Exact>));
+    pub const DBW<N: const From<Exact>>: Scale<PowerLevel<N>, Gain<N>> = Scale(WATT_LEVEL, DECIBEL);
 
     /// Decibels-milliwatt (dBm): decibels from one milliwatt. A unit of `PowerLevel`; the watts are `Power::from` away.
-    pub const DBM<N: const From<Exact>>: Scale<PowerLevel<N>, Gain<N>> = Scale(counted(MILLIWATT_LEVEL::<Exact>), counted(DECIBEL::<Exact>));
-
-    /// One `YottawattPerSecond` (YW/s), as a `PowerRate`.
-    pub const YOTTAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000000000000000000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `ZettawattPerSecond` (ZW/s), as a `PowerRate`.
-    pub const ZETTAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000000000000000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `ExawattPerSecond` (EW/s), as a `PowerRate`.
-    pub const EXAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000000000000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `PetawattPerSecond` (PW/s), as a `PowerRate`.
-    pub const PETAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000000000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `TerawattPerSecond` (TW/s), as a `PowerRate`.
-    pub const TERAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `GigawattPerSecond` (GW/s), as a `PowerRate`.
-    pub const GIGAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `MegawattPerSecond` (MW/s), as a `PowerRate`.
-    pub const MEGAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `KilowattPerSecond` (kW/s), as a `PowerRate`.
-    pub const KILOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(1000) * WATT_PER_SECOND::<Exact>);
-
-    /// One `HectowattPerSecond` (hW/s), as a `PowerRate`.
-    pub const HECTOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(100) * WATT_PER_SECOND::<Exact>);
-
-    /// One `DecawattPerSecond` (daW/s), as a `PowerRate`.
-    pub const DECAWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::int(10) * WATT_PER_SECOND::<Exact>);
+    pub const DBM<N: const From<Exact>>: Scale<PowerLevel<N>, Gain<N>> = Scale(MILLIWATT_LEVEL, DECIBEL);
 
     /// One `WattPerSecond` (W/s), as a `PowerRate`.
     pub const WATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `DeciwattPerSecond` (dW/s), as a `PowerRate`.
-    pub const DECIWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -1) * WATT_PER_SECOND::<Exact>);
-
-    /// One `CentiwattPerSecond` (cW/s), as a `PowerRate`.
-    pub const CENTIWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -2) * WATT_PER_SECOND::<Exact>);
-
-    /// One `MilliwattPerSecond` (mW/s), as a `PowerRate`.
-    pub const MILLIWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -3) * WATT_PER_SECOND::<Exact>);
-
-    /// One `MicrowattPerSecond` (µW/s), as a `PowerRate`.
-    pub const MICROWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -6) * WATT_PER_SECOND::<Exact>);
-
-    /// One `NanowattPerSecond` (nW/s), as a `PowerRate`.
-    pub const NANOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -9) * WATT_PER_SECOND::<Exact>);
-
-    /// One `PicowattPerSecond` (pW/s), as a `PowerRate`.
-    pub const PICOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -12) * WATT_PER_SECOND::<Exact>);
-
-    /// One `FemtowattPerSecond` (fW/s), as a `PowerRate`.
-    pub const FEMTOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -15) * WATT_PER_SECOND::<Exact>);
-
-    /// One `AttowattPerSecond` (aW/s), as a `PowerRate`.
-    pub const ATTOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -18) * WATT_PER_SECOND::<Exact>);
-
-    /// One `ZeptowattPerSecond` (zW/s), as a `PowerRate`.
-    pub const ZEPTOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -21) * WATT_PER_SECOND::<Exact>);
-
-    /// One `YoctowattPerSecond` (yW/s), as a `PowerRate`.
-    pub const YOCTOWATT_PER_SECOND<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -24) * WATT_PER_SECOND::<Exact>);
 
     /// One `ErgPerSecondSquared` (erg/s²), as a `PowerRate`.
     pub const ERG_PER_SECOND_SQUARED<N: const From<Exact>>: PowerRate<N> = counted(Exact::dec(1, -7) * WATT_PER_SECOND::<Exact>);
@@ -2329,134 +1223,11 @@ pub mod consts {
     /// One `ElectronvoltSecond` (eV · s), as an `Action`.
     pub const ELECTRONVOLT_SECOND<N: const From<Exact>>: Action<N> = counted(Exact::dec(1602176634, -28) * JOULE_SECOND::<Exact>);
 
-    /// One `YottanewtonMetre` (YN · m), as a `Torque`.
-    pub const YOTTANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `ZettanewtonMetre` (ZN · m), as a `Torque`.
-    pub const ZETTANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `ExanewtonMetre` (EN · m), as a `Torque`.
-    pub const EXANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `PetanewtonMetre` (PN · m), as a `Torque`.
-    pub const PETANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `TeranewtonMetre` (TN · m), as a `Torque`.
-    pub const TERANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `GiganewtonMetre` (GN · m), as a `Torque`.
-    pub const GIGANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `MeganewtonMetre` (MN · m), as a `Torque`.
-    pub const MEGANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000) * NEWTON_METRE::<Exact>);
-
-    /// One `KilonewtonMetre` (kN · m), as a `Torque`.
-    pub const KILONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000) * NEWTON_METRE::<Exact>);
-
-    /// One `HectonewtonMetre` (hN · m), as a `Torque`.
-    pub const HECTONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(100) * NEWTON_METRE::<Exact>);
-
-    /// One `DecanewtonMetre` (daN · m), as a `Torque`.
-    pub const DECANEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(10) * NEWTON_METRE::<Exact>);
-
     /// One `NewtonMetre` (N · m), as a `Torque`.
     pub const NEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(METRE::<Exact> * METRE::<Exact> * KILOGRAM::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * RADIAN::<Exact>));
 
-    /// One `DecinewtonMetre` (dN · m), as a `Torque`.
-    pub const DECINEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -1) * NEWTON_METRE::<Exact>);
-
-    /// One `CentinewtonMetre` (cN · m), as a `Torque`.
-    pub const CENTINEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -2) * NEWTON_METRE::<Exact>);
-
-    /// One `MillinewtonMetre` (mN · m), as a `Torque`.
-    pub const MILLINEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -3) * NEWTON_METRE::<Exact>);
-
-    /// One `MicronewtonMetre` (µN · m), as a `Torque`.
-    pub const MICRONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -6) * NEWTON_METRE::<Exact>);
-
-    /// One `NanonewtonMetre` (nN · m), as a `Torque`.
-    pub const NANONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -9) * NEWTON_METRE::<Exact>);
-
-    /// One `PiconewtonMetre` (pN · m), as a `Torque`.
-    pub const PICONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -12) * NEWTON_METRE::<Exact>);
-
-    /// One `FemtonewtonMetre` (fN · m), as a `Torque`.
-    pub const FEMTONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -15) * NEWTON_METRE::<Exact>);
-
-    /// One `AttonewtonMetre` (aN · m), as a `Torque`.
-    pub const ATTONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -18) * NEWTON_METRE::<Exact>);
-
-    /// One `ZeptonewtonMetre` (zN · m), as a `Torque`.
-    pub const ZEPTONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -21) * NEWTON_METRE::<Exact>);
-
-    /// One `YoctonewtonMetre` (yN · m), as a `Torque`.
-    pub const YOCTONEWTON_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -24) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonYottametre` (N · Ym), as a `Torque`.
-    pub const NEWTON_YOTTAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonZettametre` (N · Zm), as a `Torque`.
-    pub const NEWTON_ZETTAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonExametre` (N · Em), as a `Torque`.
-    pub const NEWTON_EXAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonPetametre` (N · Pm), as a `Torque`.
-    pub const NEWTON_PETAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonTerametre` (N · Tm), as a `Torque`.
-    pub const NEWTON_TERAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonGigametre` (N · Gm), as a `Torque`.
-    pub const NEWTON_GIGAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonMegametre` (N · Mm), as a `Torque`.
-    pub const NEWTON_MEGAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonKilometre` (N · km), as a `Torque`.
-    pub const NEWTON_KILOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(1000) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonHectometre` (N · hm), as a `Torque`.
-    pub const NEWTON_HECTOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(100) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonDecametre` (N · dam), as a `Torque`.
-    pub const NEWTON_DECAMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::int(10) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonDecimetre` (N · dm), as a `Torque`.
-    pub const NEWTON_DECIMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -1) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonCentimetre` (N · cm), as a `Torque`.
-    pub const NEWTON_CENTIMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -2) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonMillimetre` (N · mm), as a `Torque`.
-    pub const NEWTON_MILLIMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -3) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonMicrometre` (N · µm), as a `Torque`.
-    pub const NEWTON_MICROMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -6) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonNanometre` (N · nm), as a `Torque`.
-    pub const NEWTON_NANOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -9) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonPicometre` (N · pm), as a `Torque`.
-    pub const NEWTON_PICOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -12) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonFemtometre` (N · fm), as a `Torque`.
-    pub const NEWTON_FEMTOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -15) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonAttometre` (N · am), as a `Torque`.
-    pub const NEWTON_ATTOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -18) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonZeptometre` (N · zm), as a `Torque`.
-    pub const NEWTON_ZEPTOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -21) * NEWTON_METRE::<Exact>);
-
-    /// One `NewtonYoctometre` (N · ym), as a `Torque`.
-    pub const NEWTON_YOCTOMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -24) * NEWTON_METRE::<Exact>);
-
     /// One `DyneMetre` (dyn · m), as a `Torque`.
     pub const DYNE_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -5) * NEWTON_METRE::<Exact>);
-
-    /// One `DyneCentimetre` (dyn · cm), as a `Torque`.
-    pub const DYNE_CENTIMETRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(1, -7) * NEWTON_METRE::<Exact>);
 
     /// One `KilogramForceMetre` (kgf · m), as a `Torque`.
     pub const KILOGRAM_FORCE_METRE<N: const From<Exact>>: Torque<N> = counted(Exact::dec(980665, -5) * NEWTON_METRE::<Exact>);
@@ -2476,68 +1247,8 @@ pub mod consts {
     /// One `DaltonSquareAngstrom` (Da · Å²), as a `MomentOfInertia`.
     pub const DALTON_SQUARE_ANGSTROM<N: const From<Exact>>: MomentOfInertia<N> = counted(Exact::dec(16605390666, -57) * KILOGRAM_SQUARE_METRE::<Exact>);
 
-    /// One `Yottapascal` (YPa), as a `Pressure`.
-    pub const YOTTAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000000000000000000000) * PASCAL::<Exact>);
-
-    /// One `Zettapascal` (ZPa), as a `Pressure`.
-    pub const ZETTAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000000000000000000) * PASCAL::<Exact>);
-
-    /// One `Exapascal` (EPa), as a `Pressure`.
-    pub const EXAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000000000000000) * PASCAL::<Exact>);
-
-    /// One `Petapascal` (PPa), as a `Pressure`.
-    pub const PETAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000000000000) * PASCAL::<Exact>);
-
-    /// One `Terapascal` (TPa), as a `Pressure`.
-    pub const TERAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000000000) * PASCAL::<Exact>);
-
-    /// One `Gigapascal` (GPa), as a `Pressure`.
-    pub const GIGAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000000) * PASCAL::<Exact>);
-
-    /// One `Megapascal` (MPa), as a `Pressure`.
-    pub const MEGAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000000) * PASCAL::<Exact>);
-
-    /// One `Kilopascal` (kPa), as a `Pressure`.
-    pub const KILOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(1000) * PASCAL::<Exact>);
-
-    /// One `Hectopascal` (hPa), as a `Pressure`.
-    pub const HECTOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(100) * PASCAL::<Exact>);
-
-    /// One `Decapascal` (daPa), as a `Pressure`.
-    pub const DECAPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::int(10) * PASCAL::<Exact>);
-
     /// One `Pascal` (Pa), as a `Pressure`.
     pub const PASCAL<N: const From<Exact>>: Pressure<N> = counted(KILOGRAM::<Exact> / (METRE::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `Decipascal` (dPa), as a `Pressure`.
-    pub const DECIPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -1) * PASCAL::<Exact>);
-
-    /// One `Centipascal` (cPa), as a `Pressure`.
-    pub const CENTIPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -2) * PASCAL::<Exact>);
-
-    /// One `Millipascal` (mPa), as a `Pressure`.
-    pub const MILLIPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -3) * PASCAL::<Exact>);
-
-    /// One `Micropascal` (µPa), as a `Pressure`.
-    pub const MICROPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -6) * PASCAL::<Exact>);
-
-    /// One `Nanopascal` (nPa), as a `Pressure`.
-    pub const NANOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -9) * PASCAL::<Exact>);
-
-    /// One `Picopascal` (pPa), as a `Pressure`.
-    pub const PICOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -12) * PASCAL::<Exact>);
-
-    /// One `Femtopascal` (fPa), as a `Pressure`.
-    pub const FEMTOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -15) * PASCAL::<Exact>);
-
-    /// One `Attopascal` (aPa), as a `Pressure`.
-    pub const ATTOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -18) * PASCAL::<Exact>);
-
-    /// One `Zeptopascal` (zPa), as a `Pressure`.
-    pub const ZEPTOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -21) * PASCAL::<Exact>);
-
-    /// One `Yoctopascal` (yPa), as a `Pressure`.
-    pub const YOCTOPASCAL<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(1, -24) * PASCAL::<Exact>);
 
     /// One `StandardAtmosphere` (atm), as a `Pressure`.
     pub const STANDARD_ATMOSPHERE<N: const From<Exact>>: Pressure<N> = counted(Exact::int(101325) * PASCAL::<Exact>);
@@ -2575,17 +1286,11 @@ pub mod consts {
     /// One `KipPerSquareInch` (kip/in²), as a `Pressure`.
     pub const KIP_PER_SQUARE_INCH<N: const From<Exact>>: Pressure<N> = counted(((Exact::int(1000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4))) * PASCAL::<Exact>);
 
-    /// One `Millibar` (mbar), as a `Pressure`.
-    pub const MILLIBAR<N: const From<Exact>>: Pressure<N> = counted(Exact::int(100) * PASCAL::<Exact>);
-
     /// One `MillimetreOfMercury` (mm Hg), as a `Pressure`.
     pub const MILLIMETRE_OF_MERCURY<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(133322387415, -9) * PASCAL::<Exact>);
 
     /// One `MillimetreOfWater` (mm H₂O), as a `Pressure`.
     pub const MILLIMETRE_OF_WATER<N: const From<Exact>>: Pressure<N> = counted(Exact::dec(980665, -5) * PASCAL::<Exact>);
-
-    /// One `Millitorr` (mTorr), as a `Pressure`.
-    pub const MILLITORR<N: const From<Exact>>: Pressure<N> = counted((Exact::int(101325) / Exact::int(760000)) * PASCAL::<Exact>);
 
     /// One `PoundalPerSquareFoot` (pdl/ft²), as a `Pressure`.
     pub const POUNDAL_PER_SQUARE_FOOT<N: const From<Exact>>: Pressure<N> = counted(((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4))) * PASCAL::<Exact>);
@@ -2602,68 +1307,8 @@ pub mod consts {
     /// One `Torr` (Torr), as a `Pressure`.
     pub const TORR<N: const From<Exact>>: Pressure<N> = counted((Exact::int(101325) / Exact::int(760)) * PASCAL::<Exact>);
 
-    /// One `Yottahertz` (YHz), as a `Frequency`.
-    pub const YOTTAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000000000000000000000) * HERTZ::<Exact>);
-
-    /// One `Zettahertz` (ZHz), as a `Frequency`.
-    pub const ZETTAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000000000000000000) * HERTZ::<Exact>);
-
-    /// One `Exahertz` (EHz), as a `Frequency`.
-    pub const EXAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000000000000000) * HERTZ::<Exact>);
-
-    /// One `Petahertz` (PHz), as a `Frequency`.
-    pub const PETAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000000000000) * HERTZ::<Exact>);
-
-    /// One `Terahertz` (THz), as a `Frequency`.
-    pub const TERAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000000000) * HERTZ::<Exact>);
-
-    /// One `Gigahertz` (GHz), as a `Frequency`.
-    pub const GIGAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000000) * HERTZ::<Exact>);
-
-    /// One `Megahertz` (MHz), as a `Frequency`.
-    pub const MEGAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000000) * HERTZ::<Exact>);
-
-    /// One `Kilohertz` (kHz), as a `Frequency`.
-    pub const KILOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(1000) * HERTZ::<Exact>);
-
-    /// One `Hectohertz` (hHz), as a `Frequency`.
-    pub const HECTOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(100) * HERTZ::<Exact>);
-
-    /// One `Decahertz` (daHz), as a `Frequency`.
-    pub const DECAHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::int(10) * HERTZ::<Exact>);
-
     /// One `Hertz` (Hz), as a `Frequency`.
     pub const HERTZ<N: const From<Exact>>: Frequency<N> = counted(ONE::<Exact> / SECOND::<Exact>);
-
-    /// One `Decihertz` (dHz), as a `Frequency`.
-    pub const DECIHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -1) * HERTZ::<Exact>);
-
-    /// One `Centihertz` (cHz), as a `Frequency`.
-    pub const CENTIHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -2) * HERTZ::<Exact>);
-
-    /// One `Millihertz` (mHz), as a `Frequency`.
-    pub const MILLIHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -3) * HERTZ::<Exact>);
-
-    /// One `Microhertz` (µHz), as a `Frequency`.
-    pub const MICROHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -6) * HERTZ::<Exact>);
-
-    /// One `Nanohertz` (nHz), as a `Frequency`.
-    pub const NANOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -9) * HERTZ::<Exact>);
-
-    /// One `Picohertz` (pHz), as a `Frequency`.
-    pub const PICOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -12) * HERTZ::<Exact>);
-
-    /// One `Femtohertz` (fHz), as a `Frequency`.
-    pub const FEMTOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -15) * HERTZ::<Exact>);
-
-    /// One `Attohertz` (aHz), as a `Frequency`.
-    pub const ATTOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -18) * HERTZ::<Exact>);
-
-    /// One `Zeptohertz` (zHz), as a `Frequency`.
-    pub const ZEPTOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -21) * HERTZ::<Exact>);
-
-    /// One `Yoctohertz` (yHz), as a `Frequency`.
-    pub const YOCTOHERTZ<N: const From<Exact>>: Frequency<N> = counted(Exact::dec(1, -24) * HERTZ::<Exact>);
 
     /// One `CyclePerDay` (1/d), as a `Frequency`.
     pub const CYCLE_PER_DAY<N: const From<Exact>>: Frequency<N> = counted((Exact::int(1) / Exact::int(86400)) * HERTZ::<Exact>);
@@ -2680,41 +1325,11 @@ pub mod consts {
     /// One `CyclePerYear` (1/a), as a `Frequency`.
     pub const CYCLE_PER_YEAR<N: const From<Exact>>: Frequency<N> = counted((Exact::int(1) / Exact::int(31536000)) * HERTZ::<Exact>);
 
-    /// One `TerahertzPerSecond` (THz/s), as a `FrequencyDrift`.
-    pub const TERAHERTZ_PER_SECOND<N: const From<Exact>>: FrequencyDrift<N> = counted(Exact::int(1000000000000) * HERTZ_PER_SECOND::<Exact>);
-
-    /// One `GigahertzPerSecond` (GHz/s), as a `FrequencyDrift`.
-    pub const GIGAHERTZ_PER_SECOND<N: const From<Exact>>: FrequencyDrift<N> = counted(Exact::int(1000000000) * HERTZ_PER_SECOND::<Exact>);
-
-    /// One `MegahertzPerSecond` (MHz/s), as a `FrequencyDrift`.
-    pub const MEGAHERTZ_PER_SECOND<N: const From<Exact>>: FrequencyDrift<N> = counted(Exact::int(1000000) * HERTZ_PER_SECOND::<Exact>);
-
-    /// One `KilohertzPerSecond` (kHz/s), as a `FrequencyDrift`.
-    pub const KILOHERTZ_PER_SECOND<N: const From<Exact>>: FrequencyDrift<N> = counted(Exact::int(1000) * HERTZ_PER_SECOND::<Exact>);
-
     /// One `HertzPerSecond` (Hz/s), as a `FrequencyDrift`.
     pub const HERTZ_PER_SECOND<N: const From<Exact>>: FrequencyDrift<N> = counted(ONE::<Exact> / (SECOND::<Exact> * SECOND::<Exact>));
 
-    /// One `ReciprocalKilometre` (km⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_KILOMETRE<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::dec(1, -3) * RECIPROCAL_METRE::<Exact>);
-
     /// One `ReciprocalMetre` (m⁻¹), as a `ReciprocalLength`.
     pub const RECIPROCAL_METRE<N: const From<Exact>>: ReciprocalLength<N> = counted(ONE::<Exact> / METRE::<Exact>);
-
-    /// One `ReciprocalDecimetre` (dm⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_DECIMETRE<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(10) * RECIPROCAL_METRE::<Exact>);
-
-    /// One `ReciprocalCentimetre` (cm⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_CENTIMETRE<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(100) * RECIPROCAL_METRE::<Exact>);
-
-    /// One `ReciprocalMillimetre` (mm⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_MILLIMETRE<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(1000) * RECIPROCAL_METRE::<Exact>);
-
-    /// One `ReciprocalMicrometre` (µm⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_MICROMETRE<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(1000000) * RECIPROCAL_METRE::<Exact>);
-
-    /// One `ReciprocalNanometre` (nm⁻¹), as a `ReciprocalLength`.
-    pub const RECIPROCAL_NANOMETRE<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(1000000000) * RECIPROCAL_METRE::<Exact>);
 
     /// One `ReciprocalAngstrom` (Å⁻¹), as a `ReciprocalLength`.
     pub const RECIPROCAL_ANGSTROM<N: const From<Exact>>: ReciprocalLength<N> = counted(Exact::int(10000000000) * RECIPROCAL_METRE::<Exact>);
@@ -2731,83 +1346,17 @@ pub mod consts {
     /// One `DegreePerMetre` (°/m), as a `Curvature`.
     pub const DEGREE_PER_METRE<N: const From<Exact>>: Curvature<N> = counted((Exact::PI / Exact::int(180)) * RADIAN_PER_METRE::<Exact>);
 
-    /// One `RadianPerMillimetre` (rad/mm), as a `Curvature`.
-    pub const RADIAN_PER_MILLIMETRE<N: const From<Exact>>: Curvature<N> = counted(Exact::int(1000) * RADIAN_PER_METRE::<Exact>);
-
-    /// One `DegreePerMillimetre` (°/mm), as a `Curvature`.
-    pub const DEGREE_PER_MILLIMETRE<N: const From<Exact>>: Curvature<N> = counted((Exact::int(1000) * Exact::PI / Exact::int(180)) * RADIAN_PER_METRE::<Exact>);
-
     /// One `SquareMetrePerKilogram` (m²/kg), as a `SpecificArea`.
     pub const SQUARE_METRE_PER_KILOGRAM<N: const From<Exact>>: SpecificArea<N> = counted(METRE::<Exact> * METRE::<Exact> / KILOGRAM::<Exact>);
-
-    /// One `SquareCentimetrePerKilogram` (cm²/kg), as a `SpecificArea`.
-    pub const SQUARE_CENTIMETRE_PER_KILOGRAM<N: const From<Exact>>: SpecificArea<N> = counted(Exact::dec(1, -4) * SQUARE_METRE_PER_KILOGRAM::<Exact>);
 
     /// One `SquareMetrePerGram` (m²/g), as a `SpecificArea`.
     pub const SQUARE_METRE_PER_GRAM<N: const From<Exact>>: SpecificArea<N> = counted(Exact::int(1000) * SQUARE_METRE_PER_KILOGRAM::<Exact>);
 
-    /// One `CubicMetrePerYottagram` (m³/Yg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_YOTTAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -21) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerZettagram` (m³/Zg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_ZETTAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -18) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerExagram` (m³/Eg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_EXAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -15) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerPetagram` (m³/Pg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_PETAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -12) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerTeragram` (m³/Tg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_TERAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -9) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerGigagram` (m³/Gg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_GIGAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -6) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerMegagram` (m³/Mg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_MEGAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::dec(1, -3) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
     /// One `CubicMetrePerKilogram` (m³/kg), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_KILOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(METRE::<Exact> * METRE::<Exact> * METRE::<Exact> / KILOGRAM::<Exact>);
 
-    /// One `CubicMetrePerHectogram` (m³/hg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_HECTOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(10) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerDecagram` (m³/dag), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_DECAGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(100) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
     /// One `CubicMetrePerGram` (m³/g), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_GRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerDecigram` (m³/dg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_DECIGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(10000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerCentigram` (m³/cg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_CENTIGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(100000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerMilligram` (m³/mg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_MILLIGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerMicrogram` (m³/µg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_MICROGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerNanogram` (m³/ng), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_NANOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerPicogram` (m³/pg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_PICOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerFemtogram` (m³/fg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_FEMTOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerAttogram` (m³/ag), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_ATTOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000000000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerZeptogram` (m³/zg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_ZEPTOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000000000000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
-
-    /// One `CubicMetrePerYoctogram` (m³/yg), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_YOCTOGRAM<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(1000000000000000000000000000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
 
     /// One `CubicMetrePerCarat` (m³/ct), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_CARAT<N: const From<Exact>>: SpecificVolume<N> = counted(Exact::int(5000) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
@@ -2893,68 +1442,8 @@ pub mod consts {
     /// One `CubicFootPerTonShort` (ft³/2000 lb), as a `SpecificVolume`.
     pub const CUBIC_FOOT_PER_TON_SHORT<N: const From<Exact>>: SpecificVolume<N> = counted(((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(90718474, -5)) * CUBIC_METRE_PER_KILOGRAM::<Exact>);
 
-    /// One `YottawattPerKilogram` (YW/kg), as a `SpecificPower`.
-    pub const YOTTAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000000000000000000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `ZettawattPerKilogram` (ZW/kg), as a `SpecificPower`.
-    pub const ZETTAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000000000000000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `ExawattPerKilogram` (EW/kg), as a `SpecificPower`.
-    pub const EXAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000000000000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `PetawattPerKilogram` (PW/kg), as a `SpecificPower`.
-    pub const PETAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000000000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `TerawattPerKilogram` (TW/kg), as a `SpecificPower`.
-    pub const TERAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `GigawattPerKilogram` (GW/kg), as a `SpecificPower`.
-    pub const GIGAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `MegawattPerKilogram` (MW/kg), as a `SpecificPower`.
-    pub const MEGAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `KilowattPerKilogram` (kW/kg), as a `SpecificPower`.
-    pub const KILOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(1000) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `HectowattPerKilogram` (hW/kg), as a `SpecificPower`.
-    pub const HECTOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(100) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `DecawattPerKilogram` (daW/kg), as a `SpecificPower`.
-    pub const DECAWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::int(10) * WATT_PER_KILOGRAM::<Exact>);
-
     /// One `WattPerKilogram` (W/kg), as a `SpecificPower`.
     pub const WATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(METRE::<Exact> * METRE::<Exact> / (SECOND::<Exact> * SECOND::<Exact> * SECOND::<Exact>));
-
-    /// One `DeciwattPerKilogram` (dW/kg), as a `SpecificPower`.
-    pub const DECIWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -1) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `CentiwattPerKilogram` (cW/kg), as a `SpecificPower`.
-    pub const CENTIWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -2) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `MilliwattPerKilogram` (mW/kg), as a `SpecificPower`.
-    pub const MILLIWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -3) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `MicrowattPerKilogram` (µW/kg), as a `SpecificPower`.
-    pub const MICROWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -6) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `NanowattPerKilogram` (nW/kg), as a `SpecificPower`.
-    pub const NANOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -9) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `PicowattPerKilogram` (pW/kg), as a `SpecificPower`.
-    pub const PICOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -12) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `FemtowattPerKilogram` (fW/kg), as a `SpecificPower`.
-    pub const FEMTOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -15) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `AttowattPerKilogram` (aW/kg), as a `SpecificPower`.
-    pub const ATTOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -18) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `ZeptowattPerKilogram` (zW/kg), as a `SpecificPower`.
-    pub const ZEPTOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -21) * WATT_PER_KILOGRAM::<Exact>);
-
-    /// One `YoctowattPerKilogram` (yW/kg), as a `SpecificPower`.
-    pub const YOCTOWATT_PER_KILOGRAM<N: const From<Exact>>: SpecificPower<N> = counted(Exact::dec(1, -24) * WATT_PER_KILOGRAM::<Exact>);
 
     /// One `SquareMetrePerCubicSecond` (m² · s⁻³), as a `SpecificPower`.
     pub const SQUARE_METRE_PER_CUBIC_SECOND<N: const From<Exact>>: SpecificPower<N> = counted(WATT_PER_KILOGRAM::<Exact>);
@@ -3001,49 +1490,9 @@ pub mod consts {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Length<f64>)]
 pub enum LengthUnit {
-    #[unit("Ym", "yottametres", by = YOTTAMETRE)]
-    Yottametre,
-    #[unit("Zm", "zettametres", by = ZETTAMETRE)]
-    Zettametre,
-    #[unit("Em", "exametres", by = EXAMETRE)]
-    Exametre,
-    #[unit("Pm", "petametres", by = PETAMETRE)]
-    Petametre,
-    #[unit("Tm", "terametres", by = TERAMETRE)]
-    Terametre,
-    #[unit("Gm", "gigametres", by = GIGAMETRE)]
-    Gigametre,
-    #[unit("Mm", "megametres", by = MEGAMETRE)]
-    Megametre,
-    #[unit("km", "kilometres", by = KILOMETRE)]
-    Kilometre,
-    #[unit("hm", "hectometres", by = HECTOMETRE)]
-    Hectometre,
-    #[unit("dam", "decametres", by = DECAMETRE)]
-    Decametre,
     #[default]
     #[unit("m", "metres", by = METRE)]
     Metre,
-    #[unit("dm", "decimetres", by = DECIMETRE)]
-    Decimetre,
-    #[unit("cm", "centimetres", by = CENTIMETRE)]
-    Centimetre,
-    #[unit("mm", "millimetres", by = MILLIMETRE)]
-    Millimetre,
-    #[unit("µm", "micrometres", by = MICROMETRE)]
-    Micrometre,
-    #[unit("nm", "nanometres", by = NANOMETRE)]
-    Nanometre,
-    #[unit("pm", "picometres", by = PICOMETRE)]
-    Picometre,
-    #[unit("fm", "femtometres", by = FEMTOMETRE)]
-    Femtometre,
-    #[unit("am", "attometres", by = ATTOMETRE)]
-    Attometre,
-    #[unit("zm", "zeptometres", by = ZEPTOMETRE)]
-    Zeptometre,
-    #[unit("ym", "yoctometres", by = YOCTOMETRE)]
-    Yoctometre,
     #[unit("Å", "ångströms", by = ANGSTROM)]
     Angstrom,
     #[unit("a₀", "bohr radiuses", by = BOHR_RADIUS)]
@@ -3068,8 +1517,6 @@ pub enum LengthUnit {
     Inch,
     #[unit("l. y.", "light years", by = LIGHT_YEAR)]
     LightYear,
-    #[unit("μin", "microinches", by = MICROINCH)]
-    Microinch,
     #[unit("μ", "microns", by = MICRON)]
     Micron,
     #[unit("0.001 in", "mils", by = MIL)]
@@ -3129,49 +1576,11 @@ pub enum LengthUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Mass<f64>)]
 pub enum MassUnit {
-    #[unit("Yg", "yottagrams", by = YOTTAGRAM)]
-    Yottagram,
-    #[unit("Zg", "zettagrams", by = ZETTAGRAM)]
-    Zettagram,
-    #[unit("Eg", "exagrams", by = EXAGRAM)]
-    Exagram,
-    #[unit("Pg", "petagrams", by = PETAGRAM)]
-    Petagram,
-    #[unit("Tg", "teragrams", by = TERAGRAM)]
-    Teragram,
-    #[unit("Gg", "gigagrams", by = GIGAGRAM)]
-    Gigagram,
-    #[unit("Mg", "megagrams", by = MEGAGRAM)]
-    Megagram,
     #[default]
     #[unit("kg", "kilograms", by = KILOGRAM)]
     Kilogram,
-    #[unit("hg", "hectograms", by = HECTOGRAM)]
-    Hectogram,
-    #[unit("dag", "decagrams", by = DECAGRAM)]
-    Decagram,
     #[unit("g", "grams", by = GRAM)]
     Gram,
-    #[unit("dg", "decigrams", by = DECIGRAM)]
-    Decigram,
-    #[unit("cg", "centigrams", by = CENTIGRAM)]
-    Centigram,
-    #[unit("mg", "milligrams", by = MILLIGRAM)]
-    Milligram,
-    #[unit("µg", "micrograms", by = MICROGRAM)]
-    Microgram,
-    #[unit("ng", "nanograms", by = NANOGRAM)]
-    Nanogram,
-    #[unit("pg", "picograms", by = PICOGRAM)]
-    Picogram,
-    #[unit("fg", "femtograms", by = FEMTOGRAM)]
-    Femtogram,
-    #[unit("ag", "attograms", by = ATTOGRAM)]
-    Attogram,
-    #[unit("zg", "zeptograms", by = ZEPTOGRAM)]
-    Zeptogram,
-    #[unit("yg", "yoctograms", by = YOCTOGRAM)]
-    Yoctogram,
     #[unit("ct", "carats", by = CARAT)]
     Carat,
     #[unit("Da", "daltons", by = DALTON)]
@@ -3255,49 +1664,11 @@ pub enum MassUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Time<f64>)]
 pub enum TimeUnit {
-    #[unit("Ys", "yottaseconds", by = YOTTASECOND)]
-    Yottasecond,
-    #[unit("Zs", "zettaseconds", by = ZETTASECOND)]
-    Zettasecond,
-    #[unit("Es", "exaseconds", by = EXASECOND)]
-    Exasecond,
-    #[unit("Ps", "petaseconds", by = PETASECOND)]
-    Petasecond,
-    #[unit("Ts", "teraseconds", by = TERASECOND)]
-    Terasecond,
-    #[unit("Gs", "gigaseconds", by = GIGASECOND)]
-    Gigasecond,
-    #[unit("Ms", "megaseconds", by = MEGASECOND)]
-    Megasecond,
-    #[unit("ks", "kiloseconds", by = KILOSECOND)]
-    Kilosecond,
-    #[unit("hs", "hectoseconds", by = HECTOSECOND)]
-    Hectosecond,
-    #[unit("das", "decaseconds", by = DECASECOND)]
-    Decasecond,
     #[default]
     #[unit("s", "seconds", by = SECOND)]
     Second,
-    #[unit("ds", "deciseconds", by = DECISECOND)]
-    Decisecond,
-    #[unit("cs", "centiseconds", by = CENTISECOND)]
-    Centisecond,
     #[unit("ms", "milliseconds", by = MILLISECOND)]
     Millisecond,
-    #[unit("µs", "microseconds", by = MICROSECOND)]
-    Microsecond,
-    #[unit("ns", "nanoseconds", by = NANOSECOND)]
-    Nanosecond,
-    #[unit("ps", "picoseconds", by = PICOSECOND)]
-    Picosecond,
-    #[unit("fs", "femtoseconds", by = FEMTOSECOND)]
-    Femtosecond,
-    #[unit("as", "attoseconds", by = ATTOSECOND)]
-    Attosecond,
-    #[unit("zs", "zeptoseconds", by = ZEPTOSECOND)]
-    Zeptosecond,
-    #[unit("ys", "yoctoseconds", by = YOCTOSECOND)]
-    Yoctosecond,
     #[unit("s (sidereal)", "seconds (sidereal)", by = SECOND_SIDEREAL)]
     SecondSidereal,
     #[unit("d", "days", by = DAY)]
@@ -3343,49 +1714,9 @@ pub enum InstantUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Area<f64>)]
 pub enum AreaUnit {
-    #[unit("Ym²", "square yottametres", by = SQUARE_YOTTAMETRE)]
-    SquareYottametre,
-    #[unit("Zm²", "square zettametres", by = SQUARE_ZETTAMETRE)]
-    SquareZettametre,
-    #[unit("Em²", "square exametres", by = SQUARE_EXAMETRE)]
-    SquareExametre,
-    #[unit("Pm²", "square petametres", by = SQUARE_PETAMETRE)]
-    SquarePetametre,
-    #[unit("Tm²", "square terametres", by = SQUARE_TERAMETRE)]
-    SquareTerametre,
-    #[unit("Gm²", "square gigametres", by = SQUARE_GIGAMETRE)]
-    SquareGigametre,
-    #[unit("Mm²", "square megametres", by = SQUARE_MEGAMETRE)]
-    SquareMegametre,
-    #[unit("km²", "square kilometres", by = SQUARE_KILOMETRE)]
-    SquareKilometre,
-    #[unit("hm²", "square hectometres", by = SQUARE_HECTOMETRE)]
-    SquareHectometre,
-    #[unit("dam²", "square decametres", by = SQUARE_DECAMETRE)]
-    SquareDecametre,
     #[default]
     #[unit("m²", "square metres", by = SQUARE_METRE)]
     SquareMetre,
-    #[unit("dm²", "square decimetres", by = SQUARE_DECIMETRE)]
-    SquareDecimetre,
-    #[unit("cm²", "square centimetres", by = SQUARE_CENTIMETRE)]
-    SquareCentimetre,
-    #[unit("mm²", "square millimetres", by = SQUARE_MILLIMETRE)]
-    SquareMillimetre,
-    #[unit("µm²", "square micrometres", by = SQUARE_MICROMETRE)]
-    SquareMicrometre,
-    #[unit("nm²", "square nanometres", by = SQUARE_NANOMETRE)]
-    SquareNanometre,
-    #[unit("pm²", "square picometres", by = SQUARE_PICOMETRE)]
-    SquarePicometre,
-    #[unit("fm²", "square femtometres", by = SQUARE_FEMTOMETRE)]
-    SquareFemtometre,
-    #[unit("am²", "square attometres", by = SQUARE_ATTOMETRE)]
-    SquareAttometre,
-    #[unit("zm²", "square zeptometres", by = SQUARE_ZEPTOMETRE)]
-    SquareZeptometre,
-    #[unit("ym²", "square yoctometres", by = SQUARE_YOCTOMETRE)]
-    SquareYoctometre,
     #[unit("ac", "acres", by = ACRE)]
     Acre,
     #[unit("a", "ares", by = ARE)]
@@ -3494,48 +1825,10 @@ pub enum VolumeUnit {
     GillImperial,
     #[unit("gi", "gills", by = GILL)]
     Gill,
-    #[unit("YL", "yottalitres", by = YOTTALITRE)]
-    Yottalitre,
-    #[unit("ZL", "zettalitres", by = ZETTALITRE)]
-    Zettalitre,
-    #[unit("EL", "exalitres", by = EXALITRE)]
-    Exalitre,
-    #[unit("PL", "petalitres", by = PETALITRE)]
-    Petalitre,
-    #[unit("TL", "teralitres", by = TERALITRE)]
-    Teralitre,
-    #[unit("GL", "gigalitres", by = GIGALITRE)]
-    Gigalitre,
-    #[unit("ML", "megalitres", by = MEGALITRE)]
-    Megalitre,
     #[unit("kL", "kilolitres", by = KILOLITRE)]
     Kilolitre,
-    #[unit("hL", "hectolitres", by = HECTOLITRE)]
-    Hectolitre,
-    #[unit("daL", "decalitres", by = DECALITRE)]
-    Decalitre,
     #[unit("L", "litres", by = LITRE)]
     Litre,
-    #[unit("dL", "decilitres", by = DECILITRE)]
-    Decilitre,
-    #[unit("cL", "centilitres", by = CENTILITRE)]
-    Centilitre,
-    #[unit("mL", "millilitres", by = MILLILITRE)]
-    Millilitre,
-    #[unit("µL", "microlitres", by = MICROLITRE)]
-    Microlitre,
-    #[unit("nL", "nanolitres", by = NANOLITRE)]
-    Nanolitre,
-    #[unit("pL", "picolitres", by = PICOLITRE)]
-    Picolitre,
-    #[unit("fL", "femtolitres", by = FEMTOLITRE)]
-    Femtolitre,
-    #[unit("aL", "attolitres", by = ATTOLITRE)]
-    Attolitre,
-    #[unit("zL", "zeptolitres", by = ZEPTOLITRE)]
-    Zeptolitre,
-    #[unit("yL", "yoctolitres", by = YOCTOLITRE)]
-    Yoctolitre,
     #[unit("pk", "pecks", by = PECK)]
     Peck,
     #[unit("dry pt", "dry pints", by = PINT_DRY)]
@@ -3587,49 +1880,9 @@ pub enum VolumeUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Velocity<f64>)]
 pub enum VelocityUnit {
-    #[unit("Ym/s", "yottametres per second", by = YOTTAMETRE_PER_SECOND)]
-    YottametrePerSecond,
-    #[unit("Zm/s", "zettametres per second", by = ZETTAMETRE_PER_SECOND)]
-    ZettametrePerSecond,
-    #[unit("Em/s", "exametres per second", by = EXAMETRE_PER_SECOND)]
-    ExametrePerSecond,
-    #[unit("Pm/s", "petametres per second", by = PETAMETRE_PER_SECOND)]
-    PetametrePerSecond,
-    #[unit("Tm/s", "terametres per second", by = TERAMETRE_PER_SECOND)]
-    TerametrePerSecond,
-    #[unit("Gm/s", "gigametres per second", by = GIGAMETRE_PER_SECOND)]
-    GigametrePerSecond,
-    #[unit("Mm/s", "megametres per second", by = MEGAMETRE_PER_SECOND)]
-    MegametrePerSecond,
-    #[unit("km/s", "kilometres per second", by = KILOMETRE_PER_SECOND)]
-    KilometrePerSecond,
-    #[unit("hm/s", "hectometres per second", by = HECTOMETRE_PER_SECOND)]
-    HectometrePerSecond,
-    #[unit("dam/s", "decametres per second", by = DECAMETRE_PER_SECOND)]
-    DecametrePerSecond,
     #[default]
     #[unit("m/s", "metres per second", by = METRE_PER_SECOND)]
     MetrePerSecond,
-    #[unit("dm/s", "decimetres per second", by = DECIMETRE_PER_SECOND)]
-    DecimetrePerSecond,
-    #[unit("cm/s", "centimetres per second", by = CENTIMETRE_PER_SECOND)]
-    CentimetrePerSecond,
-    #[unit("mm/s", "millimetres per second", by = MILLIMETRE_PER_SECOND)]
-    MillimetrePerSecond,
-    #[unit("µm/s", "micrometres per second", by = MICROMETRE_PER_SECOND)]
-    MicrometrePerSecond,
-    #[unit("nm/s", "nanometres per second", by = NANOMETRE_PER_SECOND)]
-    NanometrePerSecond,
-    #[unit("pm/s", "picometres per second", by = PICOMETRE_PER_SECOND)]
-    PicometrePerSecond,
-    #[unit("fm/s", "femtometres per second", by = FEMTOMETRE_PER_SECOND)]
-    FemtometrePerSecond,
-    #[unit("am/s", "attometres per second", by = ATTOMETRE_PER_SECOND)]
-    AttometrePerSecond,
-    #[unit("zm/s", "zeptometres per second", by = ZEPTOMETRE_PER_SECOND)]
-    ZeptometrePerSecond,
-    #[unit("ym/s", "yoctometres per second", by = YOCTOMETRE_PER_SECOND)]
-    YoctometrePerSecond,
     #[unit("ft/h", "feet per hour", by = FOOT_PER_HOUR)]
     FootPerHour,
     #[unit("ft/min", "feet per minute", by = FOOT_PER_MINUTE)]
@@ -3665,49 +1918,9 @@ pub enum VelocityUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Acceleration<f64>)]
 pub enum AccelerationUnit {
-    #[unit("Ym/s²", "yottametres per second squared", by = YOTTAMETRE_PER_SECOND_SQUARED)]
-    YottametrePerSecondSquared,
-    #[unit("Zm/s²", "zettametres per second squared", by = ZETTAMETRE_PER_SECOND_SQUARED)]
-    ZettametrePerSecondSquared,
-    #[unit("Em/s²", "exametres per second squared", by = EXAMETRE_PER_SECOND_SQUARED)]
-    ExametrePerSecondSquared,
-    #[unit("Pm/s²", "petametres per second squared", by = PETAMETRE_PER_SECOND_SQUARED)]
-    PetametrePerSecondSquared,
-    #[unit("Tm/s²", "terametres per second squared", by = TERAMETRE_PER_SECOND_SQUARED)]
-    TerametrePerSecondSquared,
-    #[unit("Gm/s²", "gigametres per second squared", by = GIGAMETRE_PER_SECOND_SQUARED)]
-    GigametrePerSecondSquared,
-    #[unit("Mm/s²", "megametres per second squared", by = MEGAMETRE_PER_SECOND_SQUARED)]
-    MegametrePerSecondSquared,
-    #[unit("km/s²", "kilometres per second squared", by = KILOMETRE_PER_SECOND_SQUARED)]
-    KilometrePerSecondSquared,
-    #[unit("hm/s²", "hectometres per second squared", by = HECTOMETRE_PER_SECOND_SQUARED)]
-    HectometrePerSecondSquared,
-    #[unit("dam/s²", "decametres per second squared", by = DECAMETRE_PER_SECOND_SQUARED)]
-    DecametrePerSecondSquared,
     #[default]
     #[unit("m/s²", "metres per second squared", by = METRE_PER_SECOND_SQUARED)]
     MetrePerSecondSquared,
-    #[unit("dm/s²", "decimetres per second squared", by = DECIMETRE_PER_SECOND_SQUARED)]
-    DecimetrePerSecondSquared,
-    #[unit("cm/s²", "centimetres per second squared", by = CENTIMETRE_PER_SECOND_SQUARED)]
-    CentimetrePerSecondSquared,
-    #[unit("mm/s²", "millimetres per second squared", by = MILLIMETRE_PER_SECOND_SQUARED)]
-    MillimetrePerSecondSquared,
-    #[unit("µm/s²", "micrometres per second squared", by = MICROMETRE_PER_SECOND_SQUARED)]
-    MicrometrePerSecondSquared,
-    #[unit("nm/s²", "nanometres per second squared", by = NANOMETRE_PER_SECOND_SQUARED)]
-    NanometrePerSecondSquared,
-    #[unit("pm/s²", "picometres per second squared", by = PICOMETRE_PER_SECOND_SQUARED)]
-    PicometrePerSecondSquared,
-    #[unit("fm/s²", "femtometres per second squared", by = FEMTOMETRE_PER_SECOND_SQUARED)]
-    FemtometrePerSecondSquared,
-    #[unit("am/s²", "attometres per second squared", by = ATTOMETRE_PER_SECOND_SQUARED)]
-    AttometrePerSecondSquared,
-    #[unit("zm/s²", "zeptometres per second squared", by = ZEPTOMETRE_PER_SECOND_SQUARED)]
-    ZeptometrePerSecondSquared,
-    #[unit("ym/s²", "yoctometres per second squared", by = YOCTOMETRE_PER_SECOND_SQUARED)]
-    YoctometrePerSecondSquared,
     #[unit("ft/s²", "feet per second squared", by = FOOT_PER_SECOND_SQUARED)]
     FootPerSecondSquared,
     #[unit("Gal", "galileos", by = GALILEO)]
@@ -3725,49 +1938,9 @@ pub enum AccelerationUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Jerk<f64>)]
 pub enum JerkUnit {
-    #[unit("Ym/s³", "yottametres per second cubed", by = YOTTAMETRE_PER_SECOND_CUBED)]
-    YottametrePerSecondCubed,
-    #[unit("Zm/s³", "zettametres per second cubed", by = ZETTAMETRE_PER_SECOND_CUBED)]
-    ZettametrePerSecondCubed,
-    #[unit("Em/s³", "exametres per second cubed", by = EXAMETRE_PER_SECOND_CUBED)]
-    ExametrePerSecondCubed,
-    #[unit("Pm/s³", "petametres per second cubed", by = PETAMETRE_PER_SECOND_CUBED)]
-    PetametrePerSecondCubed,
-    #[unit("Tm/s³", "terametres per second cubed", by = TERAMETRE_PER_SECOND_CUBED)]
-    TerametrePerSecondCubed,
-    #[unit("Gm/s³", "gigametres per second cubed", by = GIGAMETRE_PER_SECOND_CUBED)]
-    GigametrePerSecondCubed,
-    #[unit("Mm/s³", "megametres per second cubed", by = MEGAMETRE_PER_SECOND_CUBED)]
-    MegametrePerSecondCubed,
-    #[unit("km/s³", "kilometres per second cubed", by = KILOMETRE_PER_SECOND_CUBED)]
-    KilometrePerSecondCubed,
-    #[unit("hm/s³", "hectometres per second cubed", by = HECTOMETRE_PER_SECOND_CUBED)]
-    HectometrePerSecondCubed,
-    #[unit("dam/s³", "decametres per second cubed", by = DECAMETRE_PER_SECOND_CUBED)]
-    DecametrePerSecondCubed,
     #[default]
     #[unit("m/s³", "metres per second cubed", by = METRE_PER_SECOND_CUBED)]
     MetrePerSecondCubed,
-    #[unit("dm/s³", "decimetres per second cubed", by = DECIMETRE_PER_SECOND_CUBED)]
-    DecimetrePerSecondCubed,
-    #[unit("cm/s³", "centimetres per second cubed", by = CENTIMETRE_PER_SECOND_CUBED)]
-    CentimetrePerSecondCubed,
-    #[unit("mm/s³", "millimetres per second cubed", by = MILLIMETRE_PER_SECOND_CUBED)]
-    MillimetrePerSecondCubed,
-    #[unit("µm/s³", "micrometres per second cubed", by = MICROMETRE_PER_SECOND_CUBED)]
-    MicrometrePerSecondCubed,
-    #[unit("nm/s³", "nanometres per second cubed", by = NANOMETRE_PER_SECOND_CUBED)]
-    NanometrePerSecondCubed,
-    #[unit("pm/s³", "picometres per second cubed", by = PICOMETRE_PER_SECOND_CUBED)]
-    PicometrePerSecondCubed,
-    #[unit("fm/s³", "femtometres per second cubed", by = FEMTOMETRE_PER_SECOND_CUBED)]
-    FemtometrePerSecondCubed,
-    #[unit("am/s³", "attometres per second cubed", by = ATTOMETRE_PER_SECOND_CUBED)]
-    AttometrePerSecondCubed,
-    #[unit("zm/s³", "zeptometres per second cubed", by = ZEPTOMETRE_PER_SECOND_CUBED)]
-    ZeptometrePerSecondCubed,
-    #[unit("ym/s³", "yoctometres per second cubed", by = YOCTOMETRE_PER_SECOND_CUBED)]
-    YoctometrePerSecondCubed,
     #[unit("ft/s³", "feet per second cubed", by = FOOT_PER_SECOND_CUBED)]
     FootPerSecondCubed,
     #[unit("in/s³", "inches per second cubed", by = INCH_PER_SECOND_CUBED)]
@@ -3781,49 +1954,9 @@ pub enum JerkUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Absement<f64>)]
 pub enum AbsementUnit {
-    #[unit("Ym · s", "yottametre seconds", by = YOTTAMETRE_SECOND)]
-    YottametreSecond,
-    #[unit("Zm · s", "zettametre seconds", by = ZETTAMETRE_SECOND)]
-    ZettametreSecond,
-    #[unit("Em · s", "exametre seconds", by = EXAMETRE_SECOND)]
-    ExametreSecond,
-    #[unit("Pm · s", "petametre seconds", by = PETAMETRE_SECOND)]
-    PetametreSecond,
-    #[unit("Tm · s", "terametre seconds", by = TERAMETRE_SECOND)]
-    TerametreSecond,
-    #[unit("Gm · s", "gigametre seconds", by = GIGAMETRE_SECOND)]
-    GigametreSecond,
-    #[unit("Mm · s", "megametre seconds", by = MEGAMETRE_SECOND)]
-    MegametreSecond,
-    #[unit("km · s", "kilometre seconds", by = KILOMETRE_SECOND)]
-    KilometreSecond,
-    #[unit("hm · s", "hectometre seconds", by = HECTOMETRE_SECOND)]
-    HectometreSecond,
-    #[unit("dam · s", "decametre seconds", by = DECAMETRE_SECOND)]
-    DecametreSecond,
     #[default]
     #[unit("m · s", "metre seconds", by = METRE_SECOND)]
     MetreSecond,
-    #[unit("dm · s", "decimetre seconds", by = DECIMETRE_SECOND)]
-    DecimetreSecond,
-    #[unit("cm · s", "centimetre seconds", by = CENTIMETRE_SECOND)]
-    CentimetreSecond,
-    #[unit("mm · s", "millimetre seconds", by = MILLIMETRE_SECOND)]
-    MillimetreSecond,
-    #[unit("µm · s", "micrometre seconds", by = MICROMETRE_SECOND)]
-    MicrometreSecond,
-    #[unit("nm · s", "nanometre seconds", by = NANOMETRE_SECOND)]
-    NanometreSecond,
-    #[unit("pm · s", "picometre seconds", by = PICOMETRE_SECOND)]
-    PicometreSecond,
-    #[unit("fm · s", "femtometre seconds", by = FEMTOMETRE_SECOND)]
-    FemtometreSecond,
-    #[unit("am · s", "attometre seconds", by = ATTOMETRE_SECOND)]
-    AttometreSecond,
-    #[unit("zm · s", "zeptometre seconds", by = ZEPTOMETRE_SECOND)]
-    ZeptometreSecond,
-    #[unit("ym · s", "yoctometre seconds", by = YOCTOMETRE_SECOND)]
-    YoctometreSecond,
     #[unit("ft · s", "foot seconds", by = FOOT_SECOND)]
     FootSecond,
     #[unit("in · s", "inch seconds", by = INCH_SECOND)]
@@ -3837,49 +1970,9 @@ pub enum AbsementUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = InverseVelocity<f64>)]
 pub enum InverseVelocityUnit {
-    #[unit("Ys/m", "yottaseconds per metre", by = YOTTASECOND_PER_METRE)]
-    YottasecondPerMetre,
-    #[unit("Zs/m", "zettaseconds per metre", by = ZETTASECOND_PER_METRE)]
-    ZettasecondPerMetre,
-    #[unit("Es/m", "exaseconds per metre", by = EXASECOND_PER_METRE)]
-    ExasecondPerMetre,
-    #[unit("Ps/m", "petaseconds per metre", by = PETASECOND_PER_METRE)]
-    PetasecondPerMetre,
-    #[unit("Ts/m", "teraseconds per metre", by = TERASECOND_PER_METRE)]
-    TerasecondPerMetre,
-    #[unit("Gs/m", "gigaseconds per metre", by = GIGASECOND_PER_METRE)]
-    GigasecondPerMetre,
-    #[unit("Ms/m", "megaseconds per metre", by = MEGASECOND_PER_METRE)]
-    MegasecondPerMetre,
-    #[unit("ks/m", "kiloseconds per metre", by = KILOSECOND_PER_METRE)]
-    KilosecondPerMetre,
-    #[unit("hs/m", "hectoseconds per metre", by = HECTOSECOND_PER_METRE)]
-    HectosecondPerMetre,
-    #[unit("das/m", "decaseconds per metre", by = DECASECOND_PER_METRE)]
-    DecasecondPerMetre,
     #[default]
     #[unit("s/m", "seconds per metre", by = SECOND_PER_METRE)]
     SecondPerMetre,
-    #[unit("ds/m", "deciseconds per metre", by = DECISECOND_PER_METRE)]
-    DecisecondPerMetre,
-    #[unit("cs/m", "centiseconds per metre", by = CENTISECOND_PER_METRE)]
-    CentisecondPerMetre,
-    #[unit("ms/m", "milliseconds per metre", by = MILLISECOND_PER_METRE)]
-    MillisecondPerMetre,
-    #[unit("µs/m", "microseconds per metre", by = MICROSECOND_PER_METRE)]
-    MicrosecondPerMetre,
-    #[unit("ns/m", "nanoseconds per metre", by = NANOSECOND_PER_METRE)]
-    NanosecondPerMetre,
-    #[unit("ps/m", "picoseconds per metre", by = PICOSECOND_PER_METRE)]
-    PicosecondPerMetre,
-    #[unit("fs/m", "femtoseconds per metre", by = FEMTOSECOND_PER_METRE)]
-    FemtosecondPerMetre,
-    #[unit("as/m", "attoseconds per metre", by = ATTOSECOND_PER_METRE)]
-    AttosecondPerMetre,
-    #[unit("zs/m", "zeptoseconds per metre", by = ZEPTOSECOND_PER_METRE)]
-    ZeptosecondPerMetre,
-    #[unit("ys/m", "yoctoseconds per metre", by = YOCTOSECOND_PER_METRE)]
-    YoctosecondPerMetre,
     #[unit("h/ft", "hours per foot", by = HOUR_PER_FOOT)]
     HourPerFoot,
     #[unit("min/ft", "minutes per foot", by = MINUTE_PER_FOOT)]
@@ -3905,49 +1998,9 @@ pub enum InverseVelocityUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Force<f64>)]
 pub enum ForceUnit {
-    #[unit("YN", "yottanewtons", by = YOTTANEWTON)]
-    Yottanewton,
-    #[unit("ZN", "zettanewtons", by = ZETTANEWTON)]
-    Zettanewton,
-    #[unit("EN", "exanewtons", by = EXANEWTON)]
-    Exanewton,
-    #[unit("PN", "petanewtons", by = PETANEWTON)]
-    Petanewton,
-    #[unit("TN", "teranewtons", by = TERANEWTON)]
-    Teranewton,
-    #[unit("GN", "giganewtons", by = GIGANEWTON)]
-    Giganewton,
-    #[unit("MN", "meganewtons", by = MEGANEWTON)]
-    Meganewton,
-    #[unit("kN", "kilonewtons", by = KILONEWTON)]
-    Kilonewton,
-    #[unit("hN", "hectonewtons", by = HECTONEWTON)]
-    Hectonewton,
-    #[unit("daN", "decanewtons", by = DECANEWTON)]
-    Decanewton,
     #[default]
     #[unit("N", "newtons", by = NEWTON)]
     Newton,
-    #[unit("dN", "decinewtons", by = DECINEWTON)]
-    Decinewton,
-    #[unit("cN", "centinewtons", by = CENTINEWTON)]
-    Centinewton,
-    #[unit("mN", "millinewtons", by = MILLINEWTON)]
-    Millinewton,
-    #[unit("µN", "micronewtons", by = MICRONEWTON)]
-    Micronewton,
-    #[unit("nN", "nanonewtons", by = NANONEWTON)]
-    Nanonewton,
-    #[unit("pN", "piconewtons", by = PICONEWTON)]
-    Piconewton,
-    #[unit("fN", "femtonewtons", by = FEMTONEWTON)]
-    Femtonewton,
-    #[unit("aN", "attonewtons", by = ATTONEWTON)]
-    Attonewton,
-    #[unit("zN", "zeptonewtons", by = ZEPTONEWTON)]
-    Zeptonewton,
-    #[unit("yN", "yoctonewtons", by = YOCTONEWTON)]
-    Yoctonewton,
     #[unit("dyn", "dynes", by = DYNE)]
     Dyne,
     #[unit("kgf", "kilograms-force", by = KILOGRAM_FORCE)]
@@ -3969,89 +2022,11 @@ pub enum ForceUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Momentum<f64>)]
 pub enum MomentumUnit {
-    #[unit("Yg · m/s", "yottagram metres per second", by = YOTTAGRAM_METRE_PER_SECOND)]
-    YottagramMetrePerSecond,
-    #[unit("Zg · m/s", "zettagram metres per second", by = ZETTAGRAM_METRE_PER_SECOND)]
-    ZettagramMetrePerSecond,
-    #[unit("Eg · m/s", "exagram metres per second", by = EXAGRAM_METRE_PER_SECOND)]
-    ExagramMetrePerSecond,
-    #[unit("Pg · m/s", "petagram metres per second", by = PETAGRAM_METRE_PER_SECOND)]
-    PetagramMetrePerSecond,
-    #[unit("Tg · m/s", "teragram metres per second", by = TERAGRAM_METRE_PER_SECOND)]
-    TeragramMetrePerSecond,
-    #[unit("Gg · m/s", "gigagram metres per second", by = GIGAGRAM_METRE_PER_SECOND)]
-    GigagramMetrePerSecond,
-    #[unit("Mg · m/s", "megagram metres per second", by = MEGAGRAM_METRE_PER_SECOND)]
-    MegagramMetrePerSecond,
     #[default]
     #[unit("kg · m/s", "kilogram metres per second", by = KILOGRAM_METRE_PER_SECOND)]
     KilogramMetrePerSecond,
-    #[unit("hg · m/s", "hectogram metres per second", by = HECTOGRAM_METRE_PER_SECOND)]
-    HectogramMetrePerSecond,
-    #[unit("dag · m/s", "decagram metres per second", by = DECAGRAM_METRE_PER_SECOND)]
-    DecagramMetrePerSecond,
     #[unit("g · m/s", "gram metres per second", by = GRAM_METRE_PER_SECOND)]
     GramMetrePerSecond,
-    #[unit("dg · m/s", "decigram metres per second", by = DECIGRAM_METRE_PER_SECOND)]
-    DecigramMetrePerSecond,
-    #[unit("cg · m/s", "centigram metres per second", by = CENTIGRAM_METRE_PER_SECOND)]
-    CentigramMetrePerSecond,
-    #[unit("mg · m/s", "milligram metres per second", by = MILLIGRAM_METRE_PER_SECOND)]
-    MilligramMetrePerSecond,
-    #[unit("µg · m/s", "microgram metres per second", by = MICROGRAM_METRE_PER_SECOND)]
-    MicrogramMetrePerSecond,
-    #[unit("ng · m/s", "nanogram metres per second", by = NANOGRAM_METRE_PER_SECOND)]
-    NanogramMetrePerSecond,
-    #[unit("pg · m/s", "picogram metres per second", by = PICOGRAM_METRE_PER_SECOND)]
-    PicogramMetrePerSecond,
-    #[unit("fg · m/s", "femtogram metres per second", by = FEMTOGRAM_METRE_PER_SECOND)]
-    FemtogramMetrePerSecond,
-    #[unit("ag · m/s", "attogram metres per second", by = ATTOGRAM_METRE_PER_SECOND)]
-    AttogramMetrePerSecond,
-    #[unit("zg · m/s", "zeptogram metres per second", by = ZEPTOGRAM_METRE_PER_SECOND)]
-    ZeptogramMetrePerSecond,
-    #[unit("yg · m/s", "yoctogram metres per second", by = YOCTOGRAM_METRE_PER_SECOND)]
-    YoctogramMetrePerSecond,
-    #[unit("kg · Ym/s", "kilogram yottametres per second", by = KILOGRAM_YOTTAMETRE_PER_SECOND)]
-    KilogramYottametrePerSecond,
-    #[unit("kg · Zm/s", "kilogram zettametres per second", by = KILOGRAM_ZETTAMETRE_PER_SECOND)]
-    KilogramZettametrePerSecond,
-    #[unit("kg · Em/s", "kilogram exametres per second", by = KILOGRAM_EXAMETRE_PER_SECOND)]
-    KilogramExametrePerSecond,
-    #[unit("kg · Pm/s", "kilogram petametres per second", by = KILOGRAM_PETAMETRE_PER_SECOND)]
-    KilogramPetametrePerSecond,
-    #[unit("kg · Tm/s", "kilogram terametres per second", by = KILOGRAM_TERAMETRE_PER_SECOND)]
-    KilogramTerametrePerSecond,
-    #[unit("kg · Gm/s", "kilogram gigametres per second", by = KILOGRAM_GIGAMETRE_PER_SECOND)]
-    KilogramGigametrePerSecond,
-    #[unit("kg · Mm/s", "kilogram megametres per second", by = KILOGRAM_MEGAMETRE_PER_SECOND)]
-    KilogramMegametrePerSecond,
-    #[unit("kg · km/s", "kilogram kilometres per second", by = KILOGRAM_KILOMETRE_PER_SECOND)]
-    KilogramKilometrePerSecond,
-    #[unit("kg · hm/s", "kilogram hectometres per second", by = KILOGRAM_HECTOMETRE_PER_SECOND)]
-    KilogramHectometrePerSecond,
-    #[unit("kg · dam/s", "kilogram decametres per second", by = KILOGRAM_DECAMETRE_PER_SECOND)]
-    KilogramDecametrePerSecond,
-    #[unit("kg · dm/s", "kilogram decimetres per second", by = KILOGRAM_DECIMETRE_PER_SECOND)]
-    KilogramDecimetrePerSecond,
-    #[unit("kg · cm/s", "kilogram centimetres per second", by = KILOGRAM_CENTIMETRE_PER_SECOND)]
-    KilogramCentimetrePerSecond,
-    #[unit("kg · mm/s", "kilogram millimetres per second", by = KILOGRAM_MILLIMETRE_PER_SECOND)]
-    KilogramMillimetrePerSecond,
-    #[unit("kg · µm/s", "kilogram micrometres per second", by = KILOGRAM_MICROMETRE_PER_SECOND)]
-    KilogramMicrometrePerSecond,
-    #[unit("kg · nm/s", "kilogram nanometres per second", by = KILOGRAM_NANOMETRE_PER_SECOND)]
-    KilogramNanometrePerSecond,
-    #[unit("kg · pm/s", "kilogram picometres per second", by = KILOGRAM_PICOMETRE_PER_SECOND)]
-    KilogramPicometrePerSecond,
-    #[unit("kg · fm/s", "kilogram femtometres per second", by = KILOGRAM_FEMTOMETRE_PER_SECOND)]
-    KilogramFemtometrePerSecond,
-    #[unit("kg · am/s", "kilogram attometres per second", by = KILOGRAM_ATTOMETRE_PER_SECOND)]
-    KilogramAttometrePerSecond,
-    #[unit("kg · zm/s", "kilogram zeptometres per second", by = KILOGRAM_ZEPTOMETRE_PER_SECOND)]
-    KilogramZeptometrePerSecond,
-    #[unit("kg · ym/s", "kilogram yoctometres per second", by = KILOGRAM_YOCTOMETRE_PER_SECOND)]
-    KilogramYoctometrePerSecond,
     #[unit("t · m/s", "ton metres per second", by = TON_METRE_PER_SECOND)]
     TonMetrePerSecond,
     #[unit("kg · m/min", "kilogram metres per minute", by = KILOGRAM_METRE_PER_MINUTE)]
@@ -4075,83 +2050,11 @@ pub enum MomentumUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Energy<f64>)]
 pub enum EnergyUnit {
-    #[unit("YJ", "yottajoules", by = YOTTAJOULE)]
-    Yottajoule,
-    #[unit("ZJ", "zettajoules", by = ZETTAJOULE)]
-    Zettajoule,
-    #[unit("EJ", "exajoules", by = EXAJOULE)]
-    Exajoule,
-    #[unit("PJ", "petajoules", by = PETAJOULE)]
-    Petajoule,
-    #[unit("TJ", "terajoules", by = TERAJOULE)]
-    Terajoule,
-    #[unit("GJ", "gigajoules", by = GIGAJOULE)]
-    Gigajoule,
-    #[unit("MJ", "megajoules", by = MEGAJOULE)]
-    Megajoule,
-    #[unit("kJ", "kilojoules", by = KILOJOULE)]
-    Kilojoule,
-    #[unit("hJ", "hectojoules", by = HECTOJOULE)]
-    Hectojoule,
-    #[unit("daJ", "decajoules", by = DECAJOULE)]
-    Decajoule,
     #[default]
     #[unit("J", "joules", by = JOULE)]
     Joule,
-    #[unit("dJ", "decijoules", by = DECIJOULE)]
-    Decijoule,
-    #[unit("cJ", "centijoules", by = CENTIJOULE)]
-    Centijoule,
-    #[unit("mJ", "millijoules", by = MILLIJOULE)]
-    Millijoule,
-    #[unit("µJ", "microjoules", by = MICROJOULE)]
-    Microjoule,
-    #[unit("nJ", "nanojoules", by = NANOJOULE)]
-    Nanojoule,
-    #[unit("pJ", "picojoules", by = PICOJOULE)]
-    Picojoule,
-    #[unit("fJ", "femtojoules", by = FEMTOJOULE)]
-    Femtojoule,
-    #[unit("aJ", "attojoules", by = ATTOJOULE)]
-    Attojoule,
-    #[unit("zJ", "zeptojoules", by = ZEPTOJOULE)]
-    Zeptojoule,
-    #[unit("yJ", "yoctojoules", by = YOCTOJOULE)]
-    Yoctojoule,
-    #[unit("PW · h", "petawatt hours", by = PETAWATT_HOUR)]
-    PetawattHour,
-    #[unit("TW · h", "terawatt hours", by = TERAWATT_HOUR)]
-    TerawattHour,
-    #[unit("GW · h", "gigawatt hours", by = GIGAWATT_HOUR)]
-    GigawattHour,
-    #[unit("MW · h", "megawatt hours", by = MEGAWATT_HOUR)]
-    MegawattHour,
-    #[unit("kW · h", "kilowatt hours", by = KILOWATT_HOUR)]
-    KilowattHour,
-    #[unit("hW · h", "hectowatt hours", by = HECTOWATT_HOUR)]
-    HectowattHour,
-    #[unit("daW · h", "decawatt hours", by = DECAWATT_HOUR)]
-    DecawattHour,
     #[unit("W · h", "watt hours", by = WATT_HOUR)]
     WattHour,
-    #[unit("mW · h", "milliwatt hours", by = MILLIWATT_HOUR)]
-    MilliwattHour,
-    #[unit("µW · h", "microwatt hours", by = MICROWATT_HOUR)]
-    MicrowattHour,
-    #[unit("PeV", "petaelectronvolts", by = PETAELECTRONVOLT)]
-    Petaelectronvolt,
-    #[unit("TeV", "teraelectronvolts", by = TERAELECTRONVOLT)]
-    Teraelectronvolt,
-    #[unit("GeV", "gigaelectronvolts", by = GIGAELECTRONVOLT)]
-    Gigaelectronvolt,
-    #[unit("MeV", "megaelectronvolts", by = MEGAELECTRONVOLT)]
-    Megaelectronvolt,
-    #[unit("keV", "kiloelectronvolts", by = KILOELECTRONVOLT)]
-    Kiloelectronvolt,
-    #[unit("heV", "hectoelectronvolts", by = HECTOELECTRONVOLT)]
-    Hectoelectronvolt,
-    #[unit("daeV", "decaelectronvolts", by = DECAELECTRONVOLT)]
-    Decaelectronvolt,
     #[unit("eV", "electronvolts", by = ELECTRONVOLT)]
     Electronvolt,
     #[unit("Eₕ", "hartrees", by = HARTREE)]
@@ -4174,10 +2077,6 @@ pub enum EnergyUnit {
     FootPoundal,
     #[unit("ft · lbf", "foot pounds-force", by = FOOT_POUND)]
     FootPound,
-    #[unit("kcal (IT)", "kilocalories (IT)", by = KILOCALORIE_IT)]
-    KilocalorieIt,
-    #[unit("kcal", "kilocalories", by = KILOCALORIE)]
-    Kilocalorie,
     #[unit("10¹⁵ Btu (IT)", "quads", by = QUAD)]
     Quad,
     #[unit("thm (EC)", "therms (EC)", by = THERM_EC)]
@@ -4195,79 +2094,11 @@ pub enum EnergyUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = AvailableEnergy<f64>)]
 pub enum AvailableEnergyUnit {
-    #[unit("YJ/kg", "yottajoules per kilogram", by = YOTTAJOULE_PER_KILOGRAM)]
-    YottajoulePerKilogram,
-    #[unit("ZJ/kg", "zettajoules per kilogram", by = ZETTAJOULE_PER_KILOGRAM)]
-    ZettajoulePerKilogram,
-    #[unit("EJ/kg", "exajoules per kilogram", by = EXAJOULE_PER_KILOGRAM)]
-    ExajoulePerKilogram,
-    #[unit("PJ/kg", "petajoules per kilogram", by = PETAJOULE_PER_KILOGRAM)]
-    PetajoulePerKilogram,
-    #[unit("TJ/kg", "terajoules per kilogram", by = TERAJOULE_PER_KILOGRAM)]
-    TerajoulePerKilogram,
-    #[unit("GJ/kg", "gigajoules per kilogram", by = GIGAJOULE_PER_KILOGRAM)]
-    GigajoulePerKilogram,
-    #[unit("MJ/kg", "megajoules per kilogram", by = MEGAJOULE_PER_KILOGRAM)]
-    MegajoulePerKilogram,
-    #[unit("kJ/kg", "kilojoules per kilogram", by = KILOJOULE_PER_KILOGRAM)]
-    KilojoulePerKilogram,
-    #[unit("hJ/kg", "hectojoules per kilogram", by = HECTOJOULE_PER_KILOGRAM)]
-    HectojoulePerKilogram,
-    #[unit("daJ/kg", "decajoules per kilogram", by = DECAJOULE_PER_KILOGRAM)]
-    DecajoulePerKilogram,
     #[default]
     #[unit("J/kg", "joules per kilogram", by = JOULE_PER_KILOGRAM)]
     JoulePerKilogram,
-    #[unit("dJ/kg", "decijoules per kilogram", by = DECIJOULE_PER_KILOGRAM)]
-    DecijoulePerKilogram,
-    #[unit("cJ/kg", "centijoules per kilogram", by = CENTIJOULE_PER_KILOGRAM)]
-    CentijoulePerKilogram,
-    #[unit("mJ/kg", "millijoules per kilogram", by = MILLIJOULE_PER_KILOGRAM)]
-    MillijoulePerKilogram,
-    #[unit("µJ/kg", "microjoules per kilogram", by = MICROJOULE_PER_KILOGRAM)]
-    MicrojoulePerKilogram,
-    #[unit("nJ/kg", "nanojoules per kilogram", by = NANOJOULE_PER_KILOGRAM)]
-    NanojoulePerKilogram,
-    #[unit("pJ/kg", "picojoules per kilogram", by = PICOJOULE_PER_KILOGRAM)]
-    PicojoulePerKilogram,
-    #[unit("fJ/kg", "femtojoules per kilogram", by = FEMTOJOULE_PER_KILOGRAM)]
-    FemtojoulePerKilogram,
-    #[unit("aJ/kg", "attojoules per kilogram", by = ATTOJOULE_PER_KILOGRAM)]
-    AttojoulePerKilogram,
-    #[unit("zJ/kg", "zeptojoules per kilogram", by = ZEPTOJOULE_PER_KILOGRAM)]
-    ZeptojoulePerKilogram,
-    #[unit("yJ/kg", "yoctojoules per kilogram", by = YOCTOJOULE_PER_KILOGRAM)]
-    YoctojoulePerKilogram,
-    #[unit("J/zg", "joules per zeptogram", by = JOULE_PER_ZEPTOGRAM)]
-    JoulePerZeptogram,
-    #[unit("J/ag", "joules per attogram", by = JOULE_PER_ATTOGRAM)]
-    JoulePerAttogram,
-    #[unit("J/fg", "joules per femtogram", by = JOULE_PER_FEMTOGRAM)]
-    JoulePerFemtogram,
-    #[unit("J/pg", "joules per picogram", by = JOULE_PER_PICOGRAM)]
-    JoulePerPicogram,
-    #[unit("J/ng", "joules per nanogram", by = JOULE_PER_NANOGRAM)]
-    JoulePerNanogram,
-    #[unit("J/µg", "joules per microgram", by = JOULE_PER_MICROGRAM)]
-    JoulePerMicrogram,
-    #[unit("J/mg", "joules per milligram", by = JOULE_PER_MILLIGRAM)]
-    JoulePerMilligram,
     #[unit("J/g", "joules per gram", by = JOULE_PER_GRAM)]
     JoulePerGram,
-    #[unit("J/Mg", "joules per megagram", by = JOULE_PER_MEGAGRAM)]
-    JoulePerMegagram,
-    #[unit("J/Gg", "joules per gigagram", by = JOULE_PER_GIGAGRAM)]
-    JoulePerGigagram,
-    #[unit("J/Tg", "joules per teragram", by = JOULE_PER_TERAGRAM)]
-    JoulePerTeragram,
-    #[unit("J/Pg", "joules per petagram", by = JOULE_PER_PETAGRAM)]
-    JoulePerPetagram,
-    #[unit("J/Eg", "joules per exagram", by = JOULE_PER_EXAGRAM)]
-    JoulePerExagram,
-    #[unit("J/Zg", "joules per zettagram", by = JOULE_PER_ZETTAGRAM)]
-    JoulePerZettagram,
-    #[unit("J/Yg", "joules per yottagram", by = JOULE_PER_YOTTAGRAM)]
-    JoulePerYottagram,
     #[unit("Btu (IT)/lb", "British thermal units (IT) per pound", by = BTU_IT_PER_POUND)]
     BtuItPerPound,
     #[unit("Btu/lb", "British thermal units per pound", by = BTU_PER_POUND)]
@@ -4283,26 +2114,6 @@ pub enum AvailableEnergyUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Power<f64>, non_const)]
 pub enum PowerUnit {
-    #[unit("YW", "yottawatts", by = YOTTAWATT)]
-    Yottawatt,
-    #[unit("ZW", "zettawatts", by = ZETTAWATT)]
-    Zettawatt,
-    #[unit("EW", "exawatts", by = EXAWATT)]
-    Exawatt,
-    #[unit("PW", "petawatts", by = PETAWATT)]
-    Petawatt,
-    #[unit("TW", "terawatts", by = TERAWATT)]
-    Terawatt,
-    #[unit("GW", "gigawatts", by = GIGAWATT)]
-    Gigawatt,
-    #[unit("MW", "megawatts", by = MEGAWATT)]
-    Megawatt,
-    #[unit("kW", "kilowatts", by = KILOWATT)]
-    Kilowatt,
-    #[unit("hW", "hectowatts", by = HECTOWATT)]
-    Hectowatt,
-    #[unit("daW", "decawatts", by = DECAWATT)]
-    Decawatt,
     #[default]
     #[unit("W", "watts", by = WATT)]
     Watt,
@@ -4310,26 +2121,6 @@ pub enum PowerUnit {
     DecibelWatt,
     #[unit("dBm", "decibels-milliwatt", by = DBM, via = PowerLevel<f64>)]
     DecibelMilliwatt,
-    #[unit("dW", "deciwatts", by = DECIWATT)]
-    Deciwatt,
-    #[unit("cW", "centiwatts", by = CENTIWATT)]
-    Centiwatt,
-    #[unit("mW", "milliwatts", by = MILLIWATT)]
-    Milliwatt,
-    #[unit("µW", "microwatts", by = MICROWATT)]
-    Microwatt,
-    #[unit("nW", "nanowatts", by = NANOWATT)]
-    Nanowatt,
-    #[unit("pW", "picowatts", by = PICOWATT)]
-    Picowatt,
-    #[unit("fW", "femtowatts", by = FEMTOWATT)]
-    Femtowatt,
-    #[unit("aW", "attowatts", by = ATTOWATT)]
-    Attowatt,
-    #[unit("zW", "zeptowatts", by = ZEPTOWATT)]
-    Zeptowatt,
-    #[unit("yW", "yoctowatts", by = YOCTOWATT)]
-    Yoctowatt,
     #[unit("erg/s", "ergs per second", by = ERG_PER_SECOND)]
     ErgPerSecond,
     #[unit("ft · lbf/h", "foot pounds-force per hour", by = FOOT_POUND_PER_HOUR)]
@@ -4383,49 +2174,9 @@ pub enum PowerLevelUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = PowerRate<f64>)]
 pub enum PowerRateUnit {
-    #[unit("YW/s", "yottawatts per second", by = YOTTAWATT_PER_SECOND)]
-    YottawattPerSecond,
-    #[unit("ZW/s", "zettawatts per second", by = ZETTAWATT_PER_SECOND)]
-    ZettawattPerSecond,
-    #[unit("EW/s", "exawatts per second", by = EXAWATT_PER_SECOND)]
-    ExawattPerSecond,
-    #[unit("PW/s", "petawatts per second", by = PETAWATT_PER_SECOND)]
-    PetawattPerSecond,
-    #[unit("TW/s", "terawatts per second", by = TERAWATT_PER_SECOND)]
-    TerawattPerSecond,
-    #[unit("GW/s", "gigawatts per second", by = GIGAWATT_PER_SECOND)]
-    GigawattPerSecond,
-    #[unit("MW/s", "megawatts per second", by = MEGAWATT_PER_SECOND)]
-    MegawattPerSecond,
-    #[unit("kW/s", "kilowatts per second", by = KILOWATT_PER_SECOND)]
-    KilowattPerSecond,
-    #[unit("hW/s", "hectowatts per second", by = HECTOWATT_PER_SECOND)]
-    HectowattPerSecond,
-    #[unit("daW/s", "decawatts per second", by = DECAWATT_PER_SECOND)]
-    DecawattPerSecond,
     #[default]
     #[unit("W/s", "watts per second", by = WATT_PER_SECOND)]
     WattPerSecond,
-    #[unit("dW/s", "deciwatts per second", by = DECIWATT_PER_SECOND)]
-    DeciwattPerSecond,
-    #[unit("cW/s", "centiwatts per second", by = CENTIWATT_PER_SECOND)]
-    CentiwattPerSecond,
-    #[unit("mW/s", "milliwatts per second", by = MILLIWATT_PER_SECOND)]
-    MilliwattPerSecond,
-    #[unit("µW/s", "microwatts per second", by = MICROWATT_PER_SECOND)]
-    MicrowattPerSecond,
-    #[unit("nW/s", "nanowatts per second", by = NANOWATT_PER_SECOND)]
-    NanowattPerSecond,
-    #[unit("pW/s", "picowatts per second", by = PICOWATT_PER_SECOND)]
-    PicowattPerSecond,
-    #[unit("fW/s", "femtowatts per second", by = FEMTOWATT_PER_SECOND)]
-    FemtowattPerSecond,
-    #[unit("aW/s", "attowatts per second", by = ATTOWATT_PER_SECOND)]
-    AttowattPerSecond,
-    #[unit("zW/s", "zeptowatts per second", by = ZEPTOWATT_PER_SECOND)]
-    ZeptowattPerSecond,
-    #[unit("yW/s", "yoctowatts per second", by = YOCTOWATT_PER_SECOND)]
-    YoctowattPerSecond,
     #[unit("erg/s²", "ergs per second squared", by = ERG_PER_SECOND_SQUARED)]
     ErgPerSecondSquared,
     #[unit("ft · lbf/s²", "foot pounds-force per second squared", by = FOOT_POUND_PER_SECOND_SQUARED)]
@@ -4467,93 +2218,11 @@ pub enum ActionUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Torque<f64>)]
 pub enum TorqueUnit {
-    #[unit("YN · m", "yottanewton metres", by = YOTTANEWTON_METRE)]
-    YottanewtonMetre,
-    #[unit("ZN · m", "zettanewton metres", by = ZETTANEWTON_METRE)]
-    ZettanewtonMetre,
-    #[unit("EN · m", "exanewton metres", by = EXANEWTON_METRE)]
-    ExanewtonMetre,
-    #[unit("PN · m", "petanewton metres", by = PETANEWTON_METRE)]
-    PetanewtonMetre,
-    #[unit("TN · m", "teranewton metres", by = TERANEWTON_METRE)]
-    TeranewtonMetre,
-    #[unit("GN · m", "giganewton metres", by = GIGANEWTON_METRE)]
-    GiganewtonMetre,
-    #[unit("MN · m", "meganewton metres", by = MEGANEWTON_METRE)]
-    MeganewtonMetre,
-    #[unit("kN · m", "kilonewton metres", by = KILONEWTON_METRE)]
-    KilonewtonMetre,
-    #[unit("hN · m", "hectonewton metres", by = HECTONEWTON_METRE)]
-    HectonewtonMetre,
-    #[unit("daN · m", "decanewton metres", by = DECANEWTON_METRE)]
-    DecanewtonMetre,
     #[default]
     #[unit("N · m", "newton metres", by = NEWTON_METRE)]
     NewtonMetre,
-    #[unit("dN · m", "decinewton metres", by = DECINEWTON_METRE)]
-    DecinewtonMetre,
-    #[unit("cN · m", "centinewton metres", by = CENTINEWTON_METRE)]
-    CentinewtonMetre,
-    #[unit("mN · m", "millinewton metres", by = MILLINEWTON_METRE)]
-    MillinewtonMetre,
-    #[unit("µN · m", "micronewton metres", by = MICRONEWTON_METRE)]
-    MicronewtonMetre,
-    #[unit("nN · m", "nanonewton metres", by = NANONEWTON_METRE)]
-    NanonewtonMetre,
-    #[unit("pN · m", "piconewton metres", by = PICONEWTON_METRE)]
-    PiconewtonMetre,
-    #[unit("fN · m", "femtonewton metres", by = FEMTONEWTON_METRE)]
-    FemtonewtonMetre,
-    #[unit("aN · m", "attonewton metres", by = ATTONEWTON_METRE)]
-    AttonewtonMetre,
-    #[unit("zN · m", "zeptonewton metres", by = ZEPTONEWTON_METRE)]
-    ZeptonewtonMetre,
-    #[unit("yN · m", "yoctonewton metres", by = YOCTONEWTON_METRE)]
-    YoctonewtonMetre,
-    #[unit("N · Ym", "newton yottametres", by = NEWTON_YOTTAMETRE)]
-    NewtonYottametre,
-    #[unit("N · Zm", "newton zettametres", by = NEWTON_ZETTAMETRE)]
-    NewtonZettametre,
-    #[unit("N · Em", "newton exametres", by = NEWTON_EXAMETRE)]
-    NewtonExametre,
-    #[unit("N · Pm", "newton petametres", by = NEWTON_PETAMETRE)]
-    NewtonPetametre,
-    #[unit("N · Tm", "newton terametres", by = NEWTON_TERAMETRE)]
-    NewtonTerametre,
-    #[unit("N · Gm", "newton gigametres", by = NEWTON_GIGAMETRE)]
-    NewtonGigametre,
-    #[unit("N · Mm", "newton megametres", by = NEWTON_MEGAMETRE)]
-    NewtonMegametre,
-    #[unit("N · km", "newton kilometres", by = NEWTON_KILOMETRE)]
-    NewtonKilometre,
-    #[unit("N · hm", "newton hectometres", by = NEWTON_HECTOMETRE)]
-    NewtonHectometre,
-    #[unit("N · dam", "newton decametres", by = NEWTON_DECAMETRE)]
-    NewtonDecametre,
-    #[unit("N · dm", "newton decimetres", by = NEWTON_DECIMETRE)]
-    NewtonDecimetre,
-    #[unit("N · cm", "newton centimetres", by = NEWTON_CENTIMETRE)]
-    NewtonCentimetre,
-    #[unit("N · mm", "newton millimetres", by = NEWTON_MILLIMETRE)]
-    NewtonMillimetre,
-    #[unit("N · µm", "newton micrometres", by = NEWTON_MICROMETRE)]
-    NewtonMicrometre,
-    #[unit("N · nm", "newton nanometres", by = NEWTON_NANOMETRE)]
-    NewtonNanometre,
-    #[unit("N · pm", "newton picometres", by = NEWTON_PICOMETRE)]
-    NewtonPicometre,
-    #[unit("N · fm", "newton femtometres", by = NEWTON_FEMTOMETRE)]
-    NewtonFemtometre,
-    #[unit("N · am", "newton attometres", by = NEWTON_ATTOMETRE)]
-    NewtonAttometre,
-    #[unit("N · zm", "newton zeptometres", by = NEWTON_ZEPTOMETRE)]
-    NewtonZeptometre,
-    #[unit("N · ym", "newton yoctometres", by = NEWTON_YOCTOMETRE)]
-    NewtonYoctometre,
     #[unit("dyn · m", "dyne metres", by = DYNE_METRE)]
     DyneMetre,
-    #[unit("dyn · cm", "dyne centimetres", by = DYNE_CENTIMETRE)]
-    DyneCentimetre,
     #[unit("kgf · m", "kilogram-force metres", by = KILOGRAM_FORCE_METRE)]
     KilogramForceMetre,
     #[unit("ozf · in", "ounces-force inches", by = OUNCE_FORCE_INCH)]
@@ -4581,49 +2250,9 @@ pub enum MomentOfInertiaUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Pressure<f64>)]
 pub enum PressureUnit {
-    #[unit("YPa", "yottapascals", by = YOTTAPASCAL)]
-    Yottapascal,
-    #[unit("ZPa", "zettapascals", by = ZETTAPASCAL)]
-    Zettapascal,
-    #[unit("EPa", "exapascals", by = EXAPASCAL)]
-    Exapascal,
-    #[unit("PPa", "petapascals", by = PETAPASCAL)]
-    Petapascal,
-    #[unit("TPa", "terapascals", by = TERAPASCAL)]
-    Terapascal,
-    #[unit("GPa", "gigapascals", by = GIGAPASCAL)]
-    Gigapascal,
-    #[unit("MPa", "megapascals", by = MEGAPASCAL)]
-    Megapascal,
-    #[unit("kPa", "kilopascals", by = KILOPASCAL)]
-    Kilopascal,
-    #[unit("hPa", "hectopascals", by = HECTOPASCAL)]
-    Hectopascal,
-    #[unit("daPa", "decapascals", by = DECAPASCAL)]
-    Decapascal,
     #[default]
     #[unit("Pa", "pascals", by = PASCAL)]
     Pascal,
-    #[unit("dPa", "decipascals", by = DECIPASCAL)]
-    Decipascal,
-    #[unit("cPa", "centipascals", by = CENTIPASCAL)]
-    Centipascal,
-    #[unit("mPa", "millipascals", by = MILLIPASCAL)]
-    Millipascal,
-    #[unit("µPa", "micropascals", by = MICROPASCAL)]
-    Micropascal,
-    #[unit("nPa", "nanopascals", by = NANOPASCAL)]
-    Nanopascal,
-    #[unit("pPa", "picopascals", by = PICOPASCAL)]
-    Picopascal,
-    #[unit("fPa", "femtopascals", by = FEMTOPASCAL)]
-    Femtopascal,
-    #[unit("aPa", "attopascals", by = ATTOPASCAL)]
-    Attopascal,
-    #[unit("zPa", "zeptopascals", by = ZEPTOPASCAL)]
-    Zeptopascal,
-    #[unit("yPa", "yoctopascals", by = YOCTOPASCAL)]
-    Yoctopascal,
     #[unit("atm", "standard atmospheres", by = STANDARD_ATMOSPHERE)]
     StandardAtmosphere,
     #[unit("at", "atmospheres (technical)", by = ATMOSPHERE_TECHNICAL)]
@@ -4648,14 +2277,10 @@ pub enum PressureUnit {
     NewtonPerSquareMillimetre,
     #[unit("kip/in²", "kips per square inch", by = KIP_PER_SQUARE_INCH)]
     KipPerSquareInch,
-    #[unit("mbar", "millibar", by = MILLIBAR)]
-    Millibar,
     #[unit("mm Hg", "millimetres of mercury", by = MILLIMETRE_OF_MERCURY)]
     MillimetreOfMercury,
     #[unit("mm H₂O", "millimetres of water", by = MILLIMETRE_OF_WATER)]
     MillimetreOfWater,
-    #[unit("mTorr", "millitorr", by = MILLITORR)]
-    Millitorr,
     #[unit("pdl/ft²", "poundals per square foot", by = POUNDAL_PER_SQUARE_FOOT)]
     PoundalPerSquareFoot,
     #[unit("lbf/ft²", "pounds-force per square foot", by = POUND_FORCE_PER_SQUARE_FOOT)]
@@ -4673,49 +2298,9 @@ pub enum PressureUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = Frequency<f64>)]
 pub enum FrequencyUnit {
-    #[unit("YHz", "yottahertz", by = YOTTAHERTZ)]
-    Yottahertz,
-    #[unit("ZHz", "zettahertz", by = ZETTAHERTZ)]
-    Zettahertz,
-    #[unit("EHz", "exahertz", by = EXAHERTZ)]
-    Exahertz,
-    #[unit("PHz", "petahertz", by = PETAHERTZ)]
-    Petahertz,
-    #[unit("THz", "terahertz", by = TERAHERTZ)]
-    Terahertz,
-    #[unit("GHz", "gigahertz", by = GIGAHERTZ)]
-    Gigahertz,
-    #[unit("MHz", "megahertz", by = MEGAHERTZ)]
-    Megahertz,
-    #[unit("kHz", "kilohertz", by = KILOHERTZ)]
-    Kilohertz,
-    #[unit("hHz", "hectohertz", by = HECTOHERTZ)]
-    Hectohertz,
-    #[unit("daHz", "decahertz", by = DECAHERTZ)]
-    Decahertz,
     #[default]
     #[unit("Hz", "hertz", by = HERTZ)]
     Hertz,
-    #[unit("dHz", "decihertz", by = DECIHERTZ)]
-    Decihertz,
-    #[unit("cHz", "centihertz", by = CENTIHERTZ)]
-    Centihertz,
-    #[unit("mHz", "millihertz", by = MILLIHERTZ)]
-    Millihertz,
-    #[unit("µHz", "microhertz", by = MICROHERTZ)]
-    Microhertz,
-    #[unit("nHz", "nanohertz", by = NANOHERTZ)]
-    Nanohertz,
-    #[unit("pHz", "picohertz", by = PICOHERTZ)]
-    Picohertz,
-    #[unit("fHz", "femtohertz", by = FEMTOHERTZ)]
-    Femtohertz,
-    #[unit("aHz", "attohertz", by = ATTOHERTZ)]
-    Attohertz,
-    #[unit("zHz", "zeptohertz", by = ZEPTOHERTZ)]
-    Zeptohertz,
-    #[unit("yHz", "yoctohertz", by = YOCTOHERTZ)]
-    Yoctohertz,
     #[unit("1/d", "cycles per day", by = CYCLE_PER_DAY)]
     CyclePerDay,
     #[unit("1/h", "cycles per hour", by = CYCLE_PER_HOUR)]
@@ -4733,14 +2318,6 @@ pub enum FrequencyUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = FrequencyDrift<f64>)]
 pub enum FrequencyDriftUnit {
-    #[unit("THz/s", "terahertz per second", by = TERAHERTZ_PER_SECOND)]
-    TerahertzPerSecond,
-    #[unit("GHz/s", "gigahertz per second", by = GIGAHERTZ_PER_SECOND)]
-    GigahertzPerSecond,
-    #[unit("MHz/s", "megahertz per second", by = MEGAHERTZ_PER_SECOND)]
-    MegahertzPerSecond,
-    #[unit("kHz/s", "kilohertz per second", by = KILOHERTZ_PER_SECOND)]
-    KilohertzPerSecond,
     #[default]
     #[unit("Hz/s", "hertz per second", by = HERTZ_PER_SECOND)]
     HertzPerSecond,
@@ -4751,21 +2328,9 @@ pub enum FrequencyDriftUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = ReciprocalLength<f64>)]
 pub enum ReciprocalLengthUnit {
-    #[unit("km⁻¹", "reciprocal kilometres", by = RECIPROCAL_KILOMETRE)]
-    ReciprocalKilometre,
     #[default]
     #[unit("m⁻¹", "reciprocal metres", by = RECIPROCAL_METRE)]
     ReciprocalMetre,
-    #[unit("dm⁻¹", "reciprocal decimetres", by = RECIPROCAL_DECIMETRE)]
-    ReciprocalDecimetre,
-    #[unit("cm⁻¹", "reciprocal centimetres", by = RECIPROCAL_CENTIMETRE)]
-    ReciprocalCentimetre,
-    #[unit("mm⁻¹", "reciprocal millimetres", by = RECIPROCAL_MILLIMETRE)]
-    ReciprocalMillimetre,
-    #[unit("µm⁻¹", "reciprocal micrometres", by = RECIPROCAL_MICROMETRE)]
-    ReciprocalMicrometre,
-    #[unit("nm⁻¹", "reciprocal nanometres", by = RECIPROCAL_NANOMETRE)]
-    ReciprocalNanometre,
     #[unit("Å⁻¹", "reciprocal ångströms", by = RECIPROCAL_ANGSTROM)]
     ReciprocalAngstrom,
     #[unit("dpt", "diopters", by = DIOPTER)]
@@ -4784,10 +2349,6 @@ pub enum CurvatureUnit {
     RadianPerMetre,
     #[unit("°/m", "degrees per metre", by = DEGREE_PER_METRE)]
     DegreePerMetre,
-    #[unit("rad/mm", "radians per millimetre", by = RADIAN_PER_MILLIMETRE)]
-    RadianPerMillimetre,
-    #[unit("°/mm", "degrees per millimetre", by = DEGREE_PER_MILLIMETRE)]
-    DegreePerMillimetre,
 }
 
 /// The units of `SpecificArea`, for a menu, a config file, a parser.
@@ -4798,8 +2359,6 @@ pub enum SpecificAreaUnit {
     #[default]
     #[unit("m²/kg", "square metres per kilogram", by = SQUARE_METRE_PER_KILOGRAM)]
     SquareMetrePerKilogram,
-    #[unit("cm²/kg", "square centimetres per kilogram", by = SQUARE_CENTIMETRE_PER_KILOGRAM)]
-    SquareCentimetrePerKilogram,
     #[unit("m²/g", "square metres per gram", by = SQUARE_METRE_PER_GRAM)]
     SquareMetrePerGram,
 }
@@ -4809,49 +2368,11 @@ pub enum SpecificAreaUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = SpecificVolume<f64>)]
 pub enum SpecificVolumeUnit {
-    #[unit("m³/Yg", "cubic metres per yottagram", by = CUBIC_METRE_PER_YOTTAGRAM)]
-    CubicMetrePerYottagram,
-    #[unit("m³/Zg", "cubic metres per zettagram", by = CUBIC_METRE_PER_ZETTAGRAM)]
-    CubicMetrePerZettagram,
-    #[unit("m³/Eg", "cubic metres per exagram", by = CUBIC_METRE_PER_EXAGRAM)]
-    CubicMetrePerExagram,
-    #[unit("m³/Pg", "cubic metres per petagram", by = CUBIC_METRE_PER_PETAGRAM)]
-    CubicMetrePerPetagram,
-    #[unit("m³/Tg", "cubic metres per teragram", by = CUBIC_METRE_PER_TERAGRAM)]
-    CubicMetrePerTeragram,
-    #[unit("m³/Gg", "cubic metres per gigagram", by = CUBIC_METRE_PER_GIGAGRAM)]
-    CubicMetrePerGigagram,
-    #[unit("m³/Mg", "cubic metres per megagram", by = CUBIC_METRE_PER_MEGAGRAM)]
-    CubicMetrePerMegagram,
     #[default]
     #[unit("m³/kg", "cubic metres per kilogram", by = CUBIC_METRE_PER_KILOGRAM)]
     CubicMetrePerKilogram,
-    #[unit("m³/hg", "cubic metres per hectogram", by = CUBIC_METRE_PER_HECTOGRAM)]
-    CubicMetrePerHectogram,
-    #[unit("m³/dag", "cubic metres per decagram", by = CUBIC_METRE_PER_DECAGRAM)]
-    CubicMetrePerDecagram,
     #[unit("m³/g", "cubic metres per gram", by = CUBIC_METRE_PER_GRAM)]
     CubicMetrePerGram,
-    #[unit("m³/dg", "cubic metres per decigram", by = CUBIC_METRE_PER_DECIGRAM)]
-    CubicMetrePerDecigram,
-    #[unit("m³/cg", "cubic metres per centigram", by = CUBIC_METRE_PER_CENTIGRAM)]
-    CubicMetrePerCentigram,
-    #[unit("m³/mg", "cubic metres per milligram", by = CUBIC_METRE_PER_MILLIGRAM)]
-    CubicMetrePerMilligram,
-    #[unit("m³/µg", "cubic metres per microgram", by = CUBIC_METRE_PER_MICROGRAM)]
-    CubicMetrePerMicrogram,
-    #[unit("m³/ng", "cubic metres per nanogram", by = CUBIC_METRE_PER_NANOGRAM)]
-    CubicMetrePerNanogram,
-    #[unit("m³/pg", "cubic metres per picogram", by = CUBIC_METRE_PER_PICOGRAM)]
-    CubicMetrePerPicogram,
-    #[unit("m³/fg", "cubic metres per femtogram", by = CUBIC_METRE_PER_FEMTOGRAM)]
-    CubicMetrePerFemtogram,
-    #[unit("m³/ag", "cubic metres per attogram", by = CUBIC_METRE_PER_ATTOGRAM)]
-    CubicMetrePerAttogram,
-    #[unit("m³/zg", "cubic metres per zeptogram", by = CUBIC_METRE_PER_ZEPTOGRAM)]
-    CubicMetrePerZeptogram,
-    #[unit("m³/yg", "cubic metres per yoctogram", by = CUBIC_METRE_PER_YOCTOGRAM)]
-    CubicMetrePerYoctogram,
     #[unit("m³/ct", "cubic metres per carat", by = CUBIC_METRE_PER_CARAT)]
     CubicMetrePerCarat,
     #[unit("m³/gr", "cubic metres per grain", by = CUBIC_METRE_PER_GRAIN)]
@@ -4915,49 +2436,9 @@ pub enum SpecificVolumeUnit {
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 #[unit(of = SpecificPower<f64>)]
 pub enum SpecificPowerUnit {
-    #[unit("YW/kg", "yottawatts per kilogram", by = YOTTAWATT_PER_KILOGRAM)]
-    YottawattPerKilogram,
-    #[unit("ZW/kg", "zettawatts per kilogram", by = ZETTAWATT_PER_KILOGRAM)]
-    ZettawattPerKilogram,
-    #[unit("EW/kg", "exawatts per kilogram", by = EXAWATT_PER_KILOGRAM)]
-    ExawattPerKilogram,
-    #[unit("PW/kg", "petawatts per kilogram", by = PETAWATT_PER_KILOGRAM)]
-    PetawattPerKilogram,
-    #[unit("TW/kg", "terawatts per kilogram", by = TERAWATT_PER_KILOGRAM)]
-    TerawattPerKilogram,
-    #[unit("GW/kg", "gigawatts per kilogram", by = GIGAWATT_PER_KILOGRAM)]
-    GigawattPerKilogram,
-    #[unit("MW/kg", "megawatts per kilogram", by = MEGAWATT_PER_KILOGRAM)]
-    MegawattPerKilogram,
-    #[unit("kW/kg", "kilowatts per kilogram", by = KILOWATT_PER_KILOGRAM)]
-    KilowattPerKilogram,
-    #[unit("hW/kg", "hectowatts per kilogram", by = HECTOWATT_PER_KILOGRAM)]
-    HectowattPerKilogram,
-    #[unit("daW/kg", "decawatts per kilogram", by = DECAWATT_PER_KILOGRAM)]
-    DecawattPerKilogram,
     #[default]
     #[unit("W/kg", "watts per kilogram", by = WATT_PER_KILOGRAM)]
     WattPerKilogram,
-    #[unit("dW/kg", "deciwatts per kilogram", by = DECIWATT_PER_KILOGRAM)]
-    DeciwattPerKilogram,
-    #[unit("cW/kg", "centiwatts per kilogram", by = CENTIWATT_PER_KILOGRAM)]
-    CentiwattPerKilogram,
-    #[unit("mW/kg", "milliwatts per kilogram", by = MILLIWATT_PER_KILOGRAM)]
-    MilliwattPerKilogram,
-    #[unit("µW/kg", "microwatts per kilogram", by = MICROWATT_PER_KILOGRAM)]
-    MicrowattPerKilogram,
-    #[unit("nW/kg", "nanowatts per kilogram", by = NANOWATT_PER_KILOGRAM)]
-    NanowattPerKilogram,
-    #[unit("pW/kg", "picowatts per kilogram", by = PICOWATT_PER_KILOGRAM)]
-    PicowattPerKilogram,
-    #[unit("fW/kg", "femtowatts per kilogram", by = FEMTOWATT_PER_KILOGRAM)]
-    FemtowattPerKilogram,
-    #[unit("aW/kg", "attowatts per kilogram", by = ATTOWATT_PER_KILOGRAM)]
-    AttowattPerKilogram,
-    #[unit("zW/kg", "zeptowatts per kilogram", by = ZEPTOWATT_PER_KILOGRAM)]
-    ZeptowattPerKilogram,
-    #[unit("yW/kg", "yoctowatts per kilogram", by = YOCTOWATT_PER_KILOGRAM)]
-    YoctowattPerKilogram,
     #[unit("m² · s⁻³", "square metres per cubic second", by = SQUARE_METRE_PER_CUBIC_SECOND)]
     SquareMetrePerCubicSecond,
     #[unit("(erg/s)/kg", "ergs per second per kilogram", by = ERG_PER_SECOND_PER_KILOGRAM)]

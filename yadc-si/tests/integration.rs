@@ -11,7 +11,7 @@ use yadc_si::angular::*;
 use yadc_si::dimensionless::*;
 use yadc_si::mechanical::*;
 use yadc_si::thermal::*;
-use yadc_si::{DynamicSIQuantity, ISQ, Kind, SIQuantity};
+use yadc_si::{CENTI, DynamicSIQuantity, ISQ, KILO, Kind, MILLI, Prefix, Prefixed, SIQuantity};
 
 /// A static quantity's dimension: its const parameter.
 fn dim_of<const D: ISQ>(_: SIQuantity<D, f64>) -> ISQ {
@@ -36,19 +36,20 @@ fn quantity_and_value_round_trip() {
 
 #[test]
 fn units_build_quantities_and_quantities_compose() {
-    use LengthUnit::{Kilometre, Metre};
+    use LengthUnit::Metre;
     use TimeUnit::{Hour, Second};
     use VelocityUnit::{KilometrePerHour, MetrePerSecond};
+    let kilometre: Length<f64> = KILO * mech::METRE;
 
     // Units never take part in arithmetic: build quantities, then compute.
-    let v: Velocity<f64> = Kilometre.quantity(90.0) / Hour.quantity(1.0);
+    let v: Velocity<f64> = kilometre.quantity(90.0) / Hour.quantity(1.0);
     close(MetrePerSecond.value(v), 25.0);
     close(KilometrePerHour.value(v), 90.0);
     close(
         MetrePerSecond.value(Metre.quantity(1.0) / Second.quantity(1.0)),
         1.0,
     );
-    close(Kilometre.value(v * Hour.quantity(1.0)), 90.0);
+    close(kilometre.value(v * Hour.quantity(1.0)), 90.0);
 }
 
 #[test]
@@ -216,7 +217,7 @@ fn quantity_convenience_ops() {
 
 #[test]
 fn power_levels_share_the_enum_with_watts() {
-    use PowerUnit::{DecibelMilliwatt, DecibelWatt, Kilowatt, Watt};
+    use PowerUnit::{DecibelMilliwatt, DecibelWatt, Watt};
 
     // 30 dBm is 30 dB above 1 mW: 1 W = 0 dBW.
     let p = DecibelMilliwatt.quantity(30.0);
@@ -232,8 +233,10 @@ fn power_levels_share_the_enum_with_watts() {
     let doubled = p * 2.0;
     close(DecibelWatt.value(doubled), 20.0 + 10.0 * 2f64.log10());
 
-    // Multiples and levels are members of one enum, picked alike.
-    let readouts: Vec<String> = [Kilowatt, Watt, DecibelWatt, DecibelMilliwatt]
+    // A multiple and the levels are values of one type, picked alike.
+    let kilowatt = Prefixed { prefix: Some(Prefix::Kilo), unit: Watt };
+    let picks = [kilowatt, Watt.into(), DecibelWatt.into(), DecibelMilliwatt.into()];
+    let readouts: Vec<String> = picks
         .iter()
         .map(|u| format!("{:.1} {}", u.value(p), u))
         .collect();
@@ -272,7 +275,7 @@ fn gains_are_logarithms_of_ratios() {
 
 #[test]
 fn power_levels_are_scales_on_the_logarithmic_line() {
-    use yadc_si::mechanical::consts::{DBM, DBW, DECIBEL, MILLIWATT, MILLIWATT_LEVEL, WATT};
+    use yadc_si::mechanical::consts::{DBM, DBW, DECIBEL, MILLIWATT_LEVEL, WATT};
 
     // A scale of levels is a unit of `PowerLevel`; the watts are one std
     // `From` away, either way.
@@ -280,8 +283,8 @@ fn power_levels_are_scales_on_the_logarithmic_line() {
     let p = Power::from(level);
     close(WATT(p), 1.0);
     close(DBW.value(level), 0.0);
-    close(DBM.value(PowerLevel::from(100.0 * MILLIWATT)), 20.0);
-    close(DBM.value(MILLIWATT.into()), 0.0);
+    close(DBM.value(PowerLevel::from(100.0 * (MILLI * WATT))), 20.0);
+    close(DBM.value((MILLI * WATT).into()), 0.0);
     close(DBM.value(MILLIWATT_LEVEL), 0.0);
 
     // A link budget, in decibels: on the line, multiplying is adding.
@@ -367,12 +370,12 @@ fn static_dynamic_bridge_round_trips_and_keeps_the_original_on_failure() {
 
 #[test]
 fn dynamic_arithmetic_is_partial() {
-    use LengthUnit::Kilometre;
     use TimeUnit::Hour;
+    let kilometre: Length<f64> = KILO * mech::METRE;
 
-    let d = DynamicSIQuantity::from(Kilometre.quantity(90.0));
+    let d = DynamicSIQuantity::from(kilometre.quantity(90.0));
     let hour = DynamicSIQuantity::from(Hour.quantity(1.0));
-    let km = DynamicSIQuantity::from(Kilometre.quantity(1.0));
+    let km = DynamicSIQuantity::from(kilometre);
     // The open type composes dimensions at run time: every step may have no
     // result.
     let v = (d / (hour * 2.0).unwrap()).unwrap();
@@ -389,7 +392,7 @@ fn dynamic_arithmetic_is_partial() {
     // ... while a well-formed chain goes through.
     let accepted = || -> Option<DynamicSIQuantity> { (((d * d)? / km)? + d)? - d };
     let total = accepted().and_then(|x| Length::try_from(x).ok()).unwrap();
-    close(Kilometre.value(total), 8100.0);
+    close(kilometre.value(total), 8100.0);
     // A read of the wrong quantity rejects it.
     assert!(f64::try_from(d).is_err());
     assert!(Length::try_from(v).is_err());
@@ -555,15 +558,15 @@ fn kinds_decide_sums_and_products() {
 
 #[test]
 fn a_gain_per_length_is_a_plain_rate() {
-    use LengthUnit::Kilometre;
+    let kilometre: Length<f64> = KILO * mech::METRE;
     // An attenuation of 0.2 dB per kilometre: a gain over a length leaves the
     // logarithmic kind, as a label leaves a product - a plain number per
     // metre, counting bels.
     let attenuation: yadc_si::density::LinearNumberDensity<f64> =
-        (0.2 * mech::DECIBEL) / Kilometre.quantity(1.0);
+        (0.2 * mech::DECIBEL) / kilometre;
     // Over 15 km it is a plain number again - of bels; that many bels is the
     // gain.
-    let bels: Dimensionless<f64> = attenuation * Kilometre.quantity(15.0);
+    let bels: Dimensionless<f64> = attenuation * kilometre.quantity(15.0);
     let loss: Gain<f64> = bels * mech::BEL;
     close(mech::DECIBEL.value(loss), 3.0);
     // Launched at 0 dBm, the level after the fibre.
@@ -571,7 +574,7 @@ fn a_gain_per_length_is_a_plain_rate() {
     let received: PowerLevel<f64> = launched - loss;
     close(mech::DBM.value(received), -3.0);
     let power: Power<f64> = received.into();
-    close(PowerUnit::Milliwatt.value(power), 10f64.powf(-0.3));
+    close((MILLI * mech::WATT).value(power), 10f64.powf(-0.3));
 }
 
 /// Generic code reads and builds a value through any unit it is handed: the
@@ -678,7 +681,7 @@ fn generic_code_reads_and_builds_through_a_unit() {
 
 #[test]
 fn units_picked_at_run_time() {
-    use LengthUnit::{Kilometre, Metre, Mile};
+    use LengthUnit::{Metre, Mile};
     use MassUnit::{Gram, Kilogram, Pound};
 
     // A unit need not print, so a list of units that do is your own trait:
@@ -689,7 +692,8 @@ fn units_picked_at_run_time() {
 
     // Some unit of length: chosen at run time, still checked at compile time
     // (a mass unit would not fit in this array).
-    let picks: [&dyn Shown<Length<f64>>; 3] = [&Metre, &Kilometre, &Mile];
+    let kilometre = Prefixed { prefix: Some(Prefix::Kilo), unit: Metre };
+    let picks: [&dyn Shown<Length<f64>>; 3] = [&Metre, &kilometre, &Mile];
     let d = picks[1].quantity(3.0);
     let shown: Vec<String> = picks
         .iter()
@@ -887,7 +891,7 @@ use yadc_si::thermal::consts as therm;
 
 // Quantity arithmetic is `const`: these compose in `const` items, evaluated
 // by the compiler.
-const LIMIT: Velocity<f64> = 50.0 * mech::KILOMETRE / mech::HOUR;
+const LIMIT: Velocity<f64> = 50.0 * (KILO * mech::METRE) / mech::HOUR;
 const ELECTRON_REST_ENERGY: Energy<f64> =
     mech::ELECTRON_MASS::<f64> * mech::SPEED_OF_LIGHT * mech::SPEED_OF_LIGHT;
 // A unit with a step, or a step and a zero, is a `const impl`, so building
@@ -913,12 +917,13 @@ fn unit_constants_are_one_of_the_unit() {
     use yadc_si::fluid::consts as fluid;
     use yadc_si::fluid::{DiffusionCoefficientUnit, KinematicViscosityUnit};
 
-    close(LengthUnit::Metre.value(mech::KILOMETRE), 1000.0);
+    close(LengthUnit::Metre.value(KILO * mech::METRE), 1000.0);
     close(MassUnit::Kilogram.value(mech::POUND), 0.45359237); // exact, by the 1959 agreement
-    close(EnergyUnit::Joule.value(mech::KILOWATT_HOUR), 3.6e6);
+    close(EnergyUnit::Joule.value(KILO * mech::WATT_HOUR), 3.6e6);
     close(f64::from(dimless::PERCENT), 0.01);
-    // A unit beside a log unit in its enum is still a constant (`KILOWATT`).
-    close(PowerUnit::Watt.value(mech::KILOWATT), 1000.0);
+    // A unit beside a log unit in its enum is still a constant, and takes a
+    // prefix (`KILO * WATT`).
+    close(PowerUnit::Watt.value(KILO * mech::WATT), 1000.0);
     // A step (a temperature difference) is an amount, so it has a constant;
     // a scale is a step and a zero (there is no "one °C" reading): °C counts
     // `KELVIN` steps from `ICE_POINT`, °F `DEGREE_FAHRENHEIT` steps from
@@ -974,7 +979,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
     assert!((AngularMomentumUnit::ReducedPlanckConstant.value(hbar) - 1.0).abs() < 1e-9);
     // 1 atm in kPa, and the elementary charge in coulombs.
     close(
-        PressureUnit::Kilopascal.value(mech::STANDARD_ATMOSPHERE),
+        (KILO * mech::PASCAL).value(mech::STANDARD_ATMOSPHERE),
         101.325,
     );
     close(
@@ -989,7 +994,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
     assert!((f64::from(one) - 1.0).abs() < 1e-9);
     // G M / r² at the Earth's surface is about standard gravity.
     let earth_mass = MassUnit::Kilogram.quantity(5.9722e24);
-    let earth_radius = LengthUnit::Kilometre.quantity(6371.0);
+    let earth_radius = (KILO * mech::METRE).quantity(6371.0);
     let g: Acceleration<f64> =
         mech::GRAVITATIONAL_CONSTANT * earth_mass / (earth_radius * earth_radius);
     assert!((AccelerationUnit::StandardGravity.value(g) - 1.0).abs() < 0.01);
@@ -1004,7 +1009,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
 #[test]
 fn velocities_read_in_units_of_c() {
     // A physical constant is a unit: read a speed as a fraction of c.
-    let v = VelocityUnit::KilometrePerSecond.quantity(29979.2458);
+    let v = (KILO * mech::METRE_PER_SECOND).quantity(29979.2458);
     close(VelocityUnit::SpeedOfLight.value(v), 0.1);
     // ... and build one from it.
     let half_c = VelocityUnit::SpeedOfLight.quantity(0.5);
@@ -1023,16 +1028,17 @@ const CUBIC_METRE_BOX: Volume<f64> = mech::METRE.powi::<3>();
 
 #[test]
 fn integer_powers_and_exact_roots() {
-    let edge = LengthUnit::Centimetre.quantity(20.0);
+    let centimetre: Length<f64> = CENTI * mech::METRE;
+    let edge = centimetre.quantity(20.0);
     let face: Area<f64> = edge.powi::<2>();
     let cube: Volume<f64> = edge.powi::<3>();
-    close(AreaUnit::SquareCentimetre.value(face), 400.0);
+    close((centimetre * centimetre).value(face), 400.0);
     close(VolumeUnit::Litre.value(cube), 8.0);
     // A root is the exact inverse of a power, dimension and all.
     let side: Length<f64> = face.root::<2>();
-    close(LengthUnit::Centimetre.value(side), 20.0);
+    close(centimetre.value(side), 20.0);
     let side3: Length<f64> = cube.root::<3>();
-    close(LengthUnit::Centimetre.value(side3), 20.0);
+    close(centimetre.value(side3), 20.0);
     // Negative powers: one over a time is a frequency, one over an area ...
     let f: Frequency<f64> = TimeUnit::Millisecond.quantity(2.0).powi::<-1>();
     close(FrequencyUnit::Hertz.value(f), 500.0);
@@ -1142,9 +1148,9 @@ mod unit_values {
     use super::close;
     use yadc::{CastAs, Unit};
     use yadc_si::mechanical::consts::{
-        DBM, FOOT, KILOPASCAL, METRE, MILLIWATT, PASCAL, POUND_FORCE_PER_SQUARE_INCH, WATT,
+        DBM, FOOT, METRE, PASCAL, POUND_FORCE_PER_SQUARE_INCH, WATT,
     };
-    use yadc_si::Scale;
+    use yadc_si::{KILO, MILLI, Scale};
     use yadc_si::mechanical::{Length, Power, PowerLevel, PowerUnit, Pressure};
     use yadc_si::thermal::consts::{CELSIUS, FAHRENHEIT, ICE_POINT, KELVIN, KELVIN_SCALE, RANKINE};
     use yadc_si::thermal::{
@@ -1156,8 +1162,8 @@ mod unit_values {
     /// function it is.
     const BODY: ThermodynamicTemperature<f64> = CELSIUS.quantity(37.0);
     const BODY_F: f64 = FAHRENHEIT.value(BODY);
-    const ATM_PSI: f64 = POUND_FORCE_PER_SQUARE_INCH.value(KILOPASCAL.quantity(101.325));
-    const ATM: Pressure<f64> = KILOPASCAL(101.325);
+    const ATM_PSI: f64 = POUND_FORCE_PER_SQUARE_INCH.value((KILO * PASCAL).quantity(101.325));
+    const ATM: Pressure<f64> = (KILO * PASCAL)(101.325);
     /// A scale is a constant like any other: so is one of yours.
     const REAUMUR: Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>> =
         Scale(ICE_POINT, 1.25 * KELVIN);
@@ -1177,7 +1183,7 @@ mod unit_values {
         // A level, on the logarithmic line: 30 dBm is a watt.
         let p = Power::from(DBM.quantity(30.0));
         close(WATT.value(p), 1.0);
-        close(DBM.value(PowerLevel::from(MILLIWATT.quantity(100.0))), 20.0);
+        close(DBM.value(PowerLevel::from((MILLI * WATT).quantity(100.0))), 20.0);
         // The unit enum's variant prints: `{}` its symbol and `{:#}` its
         // name.
         use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
@@ -1187,8 +1193,8 @@ mod unit_values {
         );
         // Picked at run time, still checked: any unit of a pressure, of a
         // temperature.
-        let any: [&dyn Unit<Pressure<f64>>; 2] = [&KILOPASCAL, &PASCAL];
-        let q = KILOPASCAL.quantity(2.0);
+        let any: [&dyn Unit<Pressure<f64>>; 2] = [&(KILO * PASCAL), &PASCAL];
+        let q = (KILO * PASCAL).quantity(2.0);
         close(any[0].value(q) * 1000.0, any[1].value(q));
         let scales: [&dyn Unit<ThermodynamicTemperature<f64>>; 3] =
             [&CELSIUS, &FAHRENHEIT, &Celsius];
@@ -1213,7 +1219,7 @@ mod unit_values {
         let dbm = PowerUnit::DecibelMilliwatt;
         let p: Power<f64> = dbm(30.0);
         close(WATT(p), 1.0);
-        close(dbm(MILLIWATT(100.0)), 20.0);
+        close(dbm((MILLI * WATT)(100.0)), 20.0);
         close(DBM.value(PowerLevel::from(p)), 30.0);
         // Generic code asks for the std function traits.
         fn convert<Q>(n: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
@@ -1229,9 +1235,8 @@ mod unit_values {
         close(convert(30.0, dbm, WATT), 1.0);
     }
 
-    /// The number type is a parameter, `f64` by default: a constant takes the
-    /// one it is used at, a cast changes it, and std `From` widens it
-    /// losslessly.
+    /// The number type is a parameter: a constant takes the one it is used
+    /// at, a cast changes it, and std `From` widens it losslessly.
     #[test]
     fn other_value_types() {
         use yadc::Dimension;
@@ -1246,12 +1251,11 @@ mod unit_values {
                 }
             },
             f32,
-        > =
-            KILOPASCAL;
+        > = KILO * PASCAL;
         let p32 = KPA32.quantity(2.5f32);
         assert_eq!(KPA32.value(p32), 2.5f32);
         let p: Pressure<f64> = Pressure::from(p32);
-        close(KILOPASCAL.value(p), 2.5);
+        close((KILO * PASCAL).value(p), 2.5);
         assert_eq!(p.cast::<f32>(), p32);
     }
 }
