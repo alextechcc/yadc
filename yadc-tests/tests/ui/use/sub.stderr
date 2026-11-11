@@ -45,7 +45,7 @@ error[E0277]: cannot subtract: the labels have no difference
    |                 ^ these labels do not subtract
    |
    = help: the trait `yadc::gates::SubLabels<Qty<yadc_tests::::Rank::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Number::{constant#0}>`
-   = note: the labels decide what may be subtracted: an absolute temperature minus a step is absolute, two absolute temperatures differ by a step, a step minus an absolute temperature has no result
+   = note: the labels' rules decide what may be subtracted - here there is none (a label's differences are declared on the kind enum: `#[kind(sub(X) = Y)]`)
    = note: required for `Qty<yadc_tests::::Number::{constant#0}>` to implement `Sub<Qty<yadc_tests::::Rank::{constant#0}>>`
 
 error[E0277]: cannot subtract: the labels have no difference
@@ -55,5 +55,5 @@ error[E0277]: cannot subtract: the labels have no difference
    |                  ^ these labels do not subtract
    |
    = help: the trait `yadc::gates::SubLabels<Qty<yadc_tests::::PowerLevel::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Power::{constant#0}>`
-   = note: the labels decide what may be subtracted: an absolute temperature minus a step is absolute, two absolute temperatures differ by a step, a step minus an absolute temperature has no result
+   = note: the labels' rules decide what may be subtracted - here there is none (a label's differences are declared on the kind enum: `#[kind(sub(X) = Y)]`)
    = note: required for `Qty<yadc_tests::::Power::{constant#0}>` to implement `Sub<Qty<yadc_tests::::PowerLevel::{constant#0}>>`

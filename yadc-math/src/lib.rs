@@ -111,7 +111,7 @@ macro_rules! exponent_root {
         }
     )*};
 }
-exponent_root!(i8, i16, i32, i64, isize);
+exponent_root!(i8, i16, i32, i64, i128, isize);
 
 /// A rational exponent, for systems with fractional powers: `V/√Hz` noise
 /// density, fracture toughness in `MPa·√m`, or CGS-Gaussian units, whose
@@ -330,18 +330,18 @@ const impl<X> RootAs for X {}
 /// are stated here as they are:
 ///
 /// - **A label** (a torque and an energy share their exponents) matters to
-///   `+` and `-` only. It survives `*` and `/` only beside a plain number,
-///   which makes `*` **not associative**: `(torque × m) / m` is a plain
+///   `+` and `-` only. It survives `*` and `/` only beside a plain number
+///   (where it scales), which makes `*` **not associative**: `(torque × m) / m` is a plain
 ///   newton-metre (the label meets a metre and is dropped), while `torque ×
 ///   (m / m)` is a torque (`m / m` is a plain number).
 /// - **A point** (the affine kind: an altitude, an instant) has no products:
 ///   `*` and `/` return `Option<Self>`, `None` whenever a point is involved,
-///   so `x * DIMENSIONLESS == x` holds only for a dimension that is not a
-///   point. Two points differ by an amount, and an amount moves one.
+///   so `x * DIMENSIONLESS == x` holds only for a dimension that scales.
+///   Two points differ by an amount, and an amount moves one.
 /// - **A logarithm** (the log kind: a level, a gain) adds where the things
 ///   it is the logarithm of multiply: its `+` and `-` add and subtract the
-///   exponents, and its only products are with a plain number, and - for a
-///   gain, which has no exponents - those a label has.
+///   exponents. A gain (no exponents) scales and has the products a label
+///   has; a level has no products.
 ///
 /// `a + b` keeps its left operand: where a sum of values exists it is `a`
 /// again (a point plus a length is the same point, a level plus a gain the
@@ -368,8 +368,9 @@ pub const trait Dimension:
 {
     /// Dimension one: the empty product, the dimension of a pure number
     /// (ISO 80000 calls dimensionless quantities "quantities of dimension
-    /// one"). `x * DIMENSIONLESS == x` and `x / x == DIMENSIONLESS` for every
-    /// `x` that is not a point, labelled or not.
+    /// one"). `x * DIMENSIONLESS == x` for every `x` that scales (adds to
+    /// itself as itself: not a point, a level or a label with no sum), and
+    /// `x / x == DIMENSIONLESS` for every amount and label.
     const DIMENSIONLESS: Self;
 
     /// The same exponents with the plain label: the map that

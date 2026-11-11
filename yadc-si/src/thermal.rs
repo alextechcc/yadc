@@ -401,12 +401,12 @@ pub mod consts {
         0.001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuPerDegreeFahrenheit` (Btu/°F), as a `HeatCapacity`.
-    pub const BTU_PER_DEGREE_FAHRENHEIT: HeatCapacity =
-        1897.8299999999999 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_PER_DEGREE_FAHRENHEIT: HeatCapacity = ((4184.0 * 0.45359237 / 1.8) / (5.0 / 9.0))
+        * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuItPerDegreeFahrenheit` (Btu (IT)/°F), as a `HeatCapacity`.
     pub const BTU_IT_PER_DEGREE_FAHRENHEIT: HeatCapacity =
-        1899.1007999999999 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+        (1055.05585262 / (5.0 / 9.0)) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BoltzmannConstant` (k), as a `HeatCapacity`.
     pub const BOLTZMANN_CONSTANT: HeatCapacity =
@@ -670,52 +670,60 @@ pub mod consts {
         KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuItPerHourSquareFootDegreeFahrenheit` (Btu (IT)/(hr · ft² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        5.6782641343060458 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer = (1055.05585262
+        / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0)))
+        * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuItPerHourSquareInchDegreeFahrenheit` (Btu (IT)/(hr · in² · °F)), as a `HeatTransfer`.
-    pub const BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        817.67003534007074 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+    pub const BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer = (1055.05585262
+        / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0)))
+        * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuItPerMinuteSquareFootDegreeFahrenheit` (Btu (IT)/(min · ft² · °F)), as a `HeatTransfer`.
     pub const BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        340.69584805836274 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        (1055.05585262 / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuItPerMinuteSquareInchDegreeFahrenheit` (Btu (IT)/(min · in² · °F)), as a `HeatTransfer`.
     pub const BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        49060.202120404247 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        (1055.05585262 / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuItPerSecondSquareFootDegreeFahrenheit` (Btu (IT)/(s · ft² · °F)), as a `HeatTransfer`.
     pub const BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        20441.750883501765 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        (1055.05585262 / (0.3048 * 0.3048 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuItPerSecondSquareInchDegreeFahrenheit` (Btu (IT)/(s · in² · °F)), as a `HeatTransfer`.
     pub const BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        2943612.1272242544 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        (1055.05585262 / (0.0254 * 0.0254 * (5.0 / 9.0))) * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuPerHourSquareFootDegreeFahrenheit` (Btu/(hr · ft² · °F)), as a `HeatTransfer`.
     pub const BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        5.6744644739289463 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        ((4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0)))
+            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuPerHourSquareInchDegreeFahrenheit` (Btu/(hr · in² · °F)), as a `HeatTransfer`.
     pub const BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        817.12288424576843 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        ((4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0)))
+            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuPerMinuteSquareFootDegreeFahrenheit` (Btu/(min · ft² · °F)), as a `HeatTransfer`.
     pub const BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        340.46786843573682 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        ((4184.0 * 0.45359237 / 1.8) / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0)))
+            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuPerMinuteSquareInchDegreeFahrenheit` (Btu/(min · in² · °F)), as a `HeatTransfer`.
     pub const BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        49027.373054746109 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        ((4184.0 * 0.45359237 / 1.8) / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0)))
+            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuPerSecondSquareFootDegreeFahrenheit` (Btu/(s · ft² · °F)), as a `HeatTransfer`.
     pub const BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT: HeatTransfer =
-        20428.072106144209 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        ((4184.0 * 0.45359237 / 1.8) / (0.3048 * 0.3048 * (5.0 / 9.0)))
+            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `BtuPerSecondSquareInchDegreeFahrenheit` (Btu/(s · in² · °F)), as a `HeatTransfer`.
     pub const BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT: HeatTransfer =
-        2941642.3832847662 * KILOGRAM_PER_SECOND_CUBED_KELVIN;
+        ((4184.0 * 0.45359237 / 1.8) / (0.0254 * 0.0254 * (5.0 / 9.0)))
+            * KILOGRAM_PER_SECOND_CUBED_KELVIN;
 
     /// One `YottagramMetreSquaredPerSecondCubedKelvin` (Yg · m²/(s³ · K)), as a `ThermalConductance`.
     pub const YOTTAGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: ThermalConductance =
@@ -1277,27 +1285,28 @@ pub mod consts {
 
     /// One `BtuPerOunceDegreeFahrenheit` (Btu/(oz · °F)), as a `SpecificHeatCapacity`.
     pub const BTU_PER_OUNCE_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        66943.990586083979 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+        (16.0 * 4184.0) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuItPerOunceDegreeFahrenheit` (Btu (IT)/(oz · °F)), as a `SpecificHeatCapacity`.
     pub const BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        66988.81674187076 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+        (16.0 * 4186.8) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuPerPoundDegreeFahrenheit` (Btu/(lb · °F)), as a `SpecificHeatCapacity`.
     pub const BTU_PER_POUND_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        4183.998950423262 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+        4184.0 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuItPerPoundDegreeFahrenheit` (Btu (IT)/(lb · °F)), as a `SpecificHeatCapacity`.
     pub const BTU_IT_PER_POUND_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        4186.800584851107 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+        4186.8 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuPerTonDegreeFahrenheit` (Btu/(t · °F)), as a `SpecificHeatCapacity`.
-    pub const BTU_PER_TON_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        1.8978299999999999 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+    pub const BTU_PER_TON_DEGREE_FAHRENHEIT: SpecificHeatCapacity = ((4184.0 * 0.45359237 / 1.8)
+        / (1000.0 * (5.0 / 9.0)))
+        * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `BtuItPerTonDegreeFahrenheit` (Btu (IT)/(t · °F)), as a `SpecificHeatCapacity`.
     pub const BTU_IT_PER_TON_DEGREE_FAHRENHEIT: SpecificHeatCapacity =
-        1.8991008 * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
+        (1055.05585262 / (1000.0 * (5.0 / 9.0))) * SQUARE_METRE_PER_SECOND_SQUARED_KELVIN;
 
     /// One `CaloriePerKilogramKelvin` (cal/(kg · K)), as a `SpecificHeatCapacity`.
     pub const CALORIE_PER_KILOGRAM_KELVIN: SpecificHeatCapacity =

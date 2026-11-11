@@ -1,0 +1,12 @@
+error[E0277]: the trait bound `Tag: const PartialEq` is not satisfied
+  --> tests/ui/const_partial_eq.rs:16:10
+   |
+16 |     tag: Tag,
+   |          ^^^
+   |
+note: required by a bound in `facts_compared_at_compile_time`
+  --> tests/ui/const_partial_eq.rs:12:10
+   |
+12 | #[derive(dynamickit::Dynamic)]
+   |          ^^^^^^^^^^^^^^^^^^^ required by this bound in `facts_compared_at_compile_time`
+   = note: this error originates in the derive macro `dynamickit::Dynamic` (in Nightly builds, run with -Z macro-backtrace for more info)

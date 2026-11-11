@@ -431,13 +431,13 @@ pub mod consts {
     pub const ABCOULOMB: ElectricCharge = 10.0 * COULOMB;
 
     /// One `Faraday` (F), as an `ElectricCharge`.
-    pub const FARADAY: ElectricCharge = 96485.309999999998 * COULOMB;
+    pub const FARADAY: ElectricCharge = (1.602176634e-19 * 6.02214076e23) * COULOMB;
 
     /// One `Franklin` (Fr), as an `ElectricCharge`.
-    pub const FRANKLIN: ElectricCharge = 3.335641e-10 * COULOMB;
+    pub const FRANKLIN: ElectricCharge = (1.0 / 2997924580.0) * COULOMB;
 
     /// One `Statcoulomb` (statC), as an `ElectricCharge`.
-    pub const STATCOULOMB: ElectricCharge = 3.335641e-10 * COULOMB;
+    pub const STATCOULOMB: ElectricCharge = (1.0 / 2997924580.0) * COULOMB;
 
     /// One `CoulombPerSquareMetre` (C/m²), as an `ElectricChargeArealDensity`.
     pub const ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE: ElectricChargeArealDensity =
@@ -523,10 +523,10 @@ pub mod consts {
     pub const ABAMPERE: ElectricCurrent = 10.0 * AMPERE;
 
     /// One `Gilbert` (Gi), as an `ElectricCurrent`.
-    pub const GILBERT: ElectricCurrent = 0.79577469999999995 * AMPERE;
+    pub const GILBERT: ElectricCurrent = (10.0 / (4.0 * core::f64::consts::PI)) * AMPERE;
 
     /// One `Statampere` (statA), as an `ElectricCurrent`.
-    pub const STATAMPERE: ElectricCurrent = 3.335641e-10 * AMPERE;
+    pub const STATAMPERE: ElectricCurrent = (1.0 / 2997924580.0) * AMPERE;
 
     /// One `AmperePerSquareMetre` (A/m²), as an `ElectricCurrentDensity`.
     pub const AMPERE_PER_SQUARE_METRE: ElectricCurrentDensity = AMPERE / (METRE * METRE);
@@ -616,7 +616,7 @@ pub mod consts {
     pub const ABVOLT: ElectricPotential = 1e-08 * VOLT;
 
     /// One `Statvolt` (statV), as an `ElectricPotential`.
-    pub const STATVOLT: ElectricPotential = 299.79250000000002 * VOLT;
+    pub const STATVOLT: ElectricPotential = 299.792458 * VOLT;
 
     /// One `VoltPerMetre` (V/m), as an `ElectricField`.
     pub const VOLT_PER_METRE: ElectricField =
@@ -764,10 +764,10 @@ pub mod consts {
     pub const ABSIEMENS: ElectricalConductance = 1000000000.0 * SIEMENS;
 
     /// One `Statsiemens` (statS), as an `ElectricalConductance`.
-    pub const STATSIEMENS: ElectricalConductance = 1.1126499999999999e-12 * SIEMENS;
+    pub const STATSIEMENS: ElectricalConductance = (1.0 / (299.792458 * 2997924580.0)) * SIEMENS;
 
     /// One `Statmho` (statmho), as an `ElectricalConductance`.
-    pub const STATMHO: ElectricalConductance = 1.1126499999999999e-12 * SIEMENS;
+    pub const STATMHO: ElectricalConductance = (1.0 / (299.792458 * 2997924580.0)) * SIEMENS;
 
     /// One `SiemensPerMetre` (S/m), as an `ElectricalConductivity`.
     pub const SIEMENS_PER_METRE: ElectricalConductivity =
@@ -852,7 +852,7 @@ pub mod consts {
     pub const ABOHM: ElectricalResistance = 1.0000000000000001e-09 * OHM;
 
     /// One `Statohm` (statΩ), as an `ElectricalResistance`.
-    pub const STATOHM: ElectricalResistance = 898755291711.5481 * OHM;
+    pub const STATOHM: ElectricalResistance = (299.792458 * 2997924580.0) * OHM;
 
     /// One `YottaohmMetre` (YΩ · m), as an `ElectricalResistivity`.
     pub const YOTTAOHM_METRE: ElectricalResistivity = 9.9999999999999998e+23 * OHM_METRE;
@@ -922,7 +922,7 @@ pub mod consts {
     pub const ABOHM_METRE: ElectricalResistivity = 1.0000000000000001e-09 * OHM_METRE;
 
     /// One `StatohmMetre` (statΩ · m), as an `ElectricalResistivity`.
-    pub const STATOHM_METRE: ElectricalResistivity = 898755291711.5481 * OHM_METRE;
+    pub const STATOHM_METRE: ElectricalResistivity = (299.792458 * 2997924580.0) * OHM_METRE;
 
     /// One `OhmCentimetre` (Ω · cm), as an `ElectricalResistivity`.
     pub const OHM_CENTIMETRE: ElectricalResistivity = 0.01 * OHM_METRE;
@@ -931,7 +931,8 @@ pub mod consts {
     pub const ABOHM_CENTIMETRE: ElectricalResistivity = 1.0000000000000001e-11 * OHM_METRE;
 
     /// One `StatohmCentimetre` (statΩ · cm), as an `ElectricalResistivity`.
-    pub const STATOHM_CENTIMETRE: ElectricalResistivity = 8987552917.1154804 * OHM_METRE;
+    pub const STATOHM_CENTIMETRE: ElectricalResistivity =
+        (299.792458 * 2997924580.0 / 100.0) * OHM_METRE;
 
     /// One `OhmInch` (Ω · in), as an `ElectricalResistivity`.
     pub const OHM_INCH: ElectricalResistivity = 0.025399999999999999 * OHM_METRE;
@@ -1014,7 +1015,7 @@ pub mod consts {
     pub const ABFARAD: Capacitance = 1000000000.0 * FARAD;
 
     /// One `Statfarad` (statF), as a `Capacitance`.
-    pub const STATFARAD: Capacitance = 1.1126499999999999e-12 * FARAD;
+    pub const STATFARAD: Capacitance = (1.0 / (299.792458 * 2997924580.0)) * FARAD;
 
     /// One `Yottahenry` (YH), as an `Inductance`.
     pub const YOTTAHENRY: Inductance = 9.9999999999999998e+23 * HENRY;
@@ -1083,7 +1084,7 @@ pub mod consts {
     pub const ABHENRY: Inductance = 1.0000000000000001e-09 * HENRY;
 
     /// One `Stathenry` (statH), as an `Inductance`.
-    pub const STATHENRY: Inductance = 898755291711.5481 * HENRY;
+    pub const STATHENRY: Inductance = (299.792458 * 2997924580.0) * HENRY;
 
     /// One `AmperePerMetre` (A/m), as a `MagneticFieldStrength`.
     pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE: MagneticFieldStrength = AMPERE / METRE;

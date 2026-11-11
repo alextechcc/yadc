@@ -94,7 +94,7 @@ pub mod consts {
     pub const GON: Angle = 0.015707963267948967 * RADIAN;
 
     /// One `Mil` (mil), as an `Angle`.
-    pub const MIL: Angle = 0.00098174770000000007 * RADIAN;
+    pub const MIL: Angle = (2.0 * core::f64::consts::PI / 6400.0) * RADIAN;
 
     /// One `Minute` (′), as an `Angle`.
     pub const MINUTE: Angle = 0.00029088820866572158 * RADIAN;
@@ -155,7 +155,7 @@ pub mod consts {
 
     /// One `ReducedPlanckConstant` (ħ), as an `AngularMomentum`.
     pub const REDUCED_PLANCK_CONSTANT: AngularMomentum =
-        1.054571817e-34 * KILOGRAM_SQUARE_METRE_PER_SECOND;
+        (6.62607015e-34 / (2.0 * core::f64::consts::PI)) * KILOGRAM_SQUARE_METRE_PER_SECOND;
 
     /// One `KilogramSquareMetrePerSecond` (kg · m²/s), as an `AngularMomentum`.
     pub const KILOGRAM_SQUARE_METRE_PER_SECOND: AngularMomentum =

@@ -376,8 +376,6 @@ pub(crate) fn expand_label(input: &DeriveInput) -> syn::Result<TokenStream2> {
         None => quote! { false },
     };
     let (is_affine, is_log) = (is(model.affine), is(model.log));
-    let all_variants = variants.iter();
-    let n_variants = variants.len();
 
     // Render a partial table (`+`, `-`) as a match returning `Option<Self>`;
     // every rejected pair falls to the `_ => None` arm, omitted when the arms
@@ -478,35 +476,17 @@ pub(crate) fn expand_label(input: &DeriveInput) -> syn::Result<TokenStream2> {
         // squares to a label, so past n = 1 only the plain label has roots): a
         // search over the variants, each power `v^n` built from `v` with `*` /
         // `/`.
+        // A label's first root is itself; any other root exists only of the
+        // plain label (a label's powers are all plain), and is plain.
         const impl #yadc::PartialRoot for #name {
             fn partial_root(self, n: i8) -> #opt {
-                const __ALL: [#name; #n_variants] = [#(#name::#all_variants),*];
-                if n == 0 {
-                    return ::core::option::Option::None;
+                if n == 1 {
+                    ::core::option::Option::Some(self)
+                } else if n != 0 && self == #name::#v_zero {
+                    ::core::option::Option::Some(self)
+                } else {
+                    ::core::option::Option::None
                 }
-                let mut i = 0;
-                while i < __ALL.len() {
-                    let v = __ALL[i];
-                    // v^|n|: v multiplied by itself, starting from v - so
-                    // v^1 is v.
-                    let mut acc = v;
-                    let mut j = 1;
-                    while j < n.unsigned_abs() {
-                        acc = <Self as ::core::ops::Mul>::mul(acc, v);
-                        j += 1;
-                    }
-                    if n < 0 {
-                        acc = <Self as ::core::ops::Div>::div(
-                            <Self as #yadc::Dimension>::DIMENSIONLESS,
-                            acc,
-                        );
-                    }
-                    if acc == self {
-                        return ::core::option::Option::Some(v);
-                    }
-                    i += 1;
-                }
-                ::core::option::Option::None
             }
         }
     })

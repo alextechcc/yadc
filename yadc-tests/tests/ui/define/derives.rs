@@ -77,6 +77,17 @@ pub struct BadField {
     pub kind: MulRule,
 }
 
+/// `Cast` changes the number type: a family needs one as a parameter.
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
+#[quantity(impl(Cast))]
+pub struct Fixed<const D: NoPlain>(f64);
+
+/// A unit of its own numbers is not called.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, impl(Fn))]
+#[unit("%", "percent", by = 0.01)]
+pub struct Percent;
+
 /// An unknown extra.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 #[quantity(impl(Neg, Zero))]

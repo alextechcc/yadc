@@ -266,9 +266,9 @@
 //!   PSI.quantity(14.7);` work.
 //! - **`const_try`** - the `Dimension` derive's `+`, `-` and root use `?` on
 //!   the label's `Option` in const code, so a crate defining a `Dim` needs it.
-//! - **`const_destruct`** - only for a quantity whose number type is a
-//!   generic parameter (`Qty<const D: Dim, N = f64>`): its const operators
-//!   drop an `N`.
+//! - **`const_destruct`** - for the quantity derive's `Fn` extra (on by
+//!   default), and for a quantity whose number type is a generic parameter
+//!   (`Qty<const D: Dim, N = f64>`): its const operators drop an `N`.
 //! - **`derive_const`** - `#[derive_const(PartialEq)]` on your `Dim` and
 //!   `Kind` (and `Default` on a `Kind`), so `==` on them is const-callable.
 

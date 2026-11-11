@@ -37,7 +37,7 @@ fn main() {
     // A unit prints itself: `{}` is its symbol, `{:#}` its long name. So a
     // quantity shown in a unit is the number the unit reads, then the unit.
 
-    use MassUnit::{Carat, Gram, Kilogram};
+    use MassUnit::{Gram, Kilogram};
     let mass = Kilogram(70.0);
     let accel = AccelerationUnit::StandardGravity(1.0);
     println!("mass  = {} {:#}", Kilogram(mass), Kilogram);
@@ -51,7 +51,7 @@ fn main() {
         Gram(250.0),
     ];
     let total: Mass = masses.iter().sum();
-    println!("sum   = {} {}", Carat(total), Carat);
+    println!("sum   = {} {}", Gram(total), Gram);
 
     // --- 2. Maths is on quantities: km/h is km divided by h -----------------
     // Units never take part in arithmetic. Build quantities, compute with

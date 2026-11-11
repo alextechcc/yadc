@@ -461,11 +461,11 @@ pub mod consts {
 
     /// One `BtuItPerMole` (Btu (IT)/mol), as a `MolarEnergy`.
     pub const BTU_IT_PER_MOLE: MolarEnergy =
-        1055.056 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
+        1055.05585262 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
 
     /// One `BtuPerMole` (Btu/mol), as a `MolarEnergy`.
     pub const BTU_PER_MOLE: MolarEnergy =
-        1054.3499999999999 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
+        (4184.0 * 0.45359237 / 1.8) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
 
     /// One `CalorieItPerMole` (cal (IT)/mol), as a `MolarEnergy`.
     pub const CALORIE_IT_PER_MOLE: MolarEnergy =
@@ -493,11 +493,11 @@ pub mod consts {
 
     /// One `FootPoundalPerMole` (ft · pdl/mol), as a `MolarEnergy`.
     pub const FOOT_POUNDAL_PER_MOLE: MolarEnergy =
-        0.042140110000000001 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
+        (0.3048 * 0.45359237 * 0.3048) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
 
     /// One `FootPoundForcePerMole` (ft · lbf/mol), as a `MolarEnergy`.
     pub const FOOT_POUND_FORCE_PER_MOLE: MolarEnergy =
-        1.355818 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
+        (0.3048 * 0.45359237 * 9.80665) * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
 
     /// One `KilocalorieItPerMole` (kcal (IT)/mol), as a `MolarEnergy`.
     pub const KILOCALORIE_IT_PER_MOLE: MolarEnergy =
@@ -509,7 +509,7 @@ pub mod consts {
 
     /// One `QuadPerMole` (10¹⁵ Btu (IT)/mol), as a `MolarEnergy`.
     pub const QUAD_PER_MOLE: MolarEnergy =
-        1.055056e+18 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
+        1.05505585262e18 * KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE;
 
     /// One `ThermEcPerMole` (thm (EC)/mol), as a `MolarEnergy`.
     pub const THERM_EC_PER_MOLE: MolarEnergy =
@@ -613,10 +613,11 @@ pub mod consts {
         9.9999999999999992e-25 * JOULE_PER_KELVIN_MOLE;
 
     /// One `BtuItPerKelvinMole` (Btu (IT)/(K · mol)), as a `MolarHeatCapacity`.
-    pub const BTU_IT_PER_KELVIN_MOLE: MolarHeatCapacity = 1055.056 * JOULE_PER_KELVIN_MOLE;
+    pub const BTU_IT_PER_KELVIN_MOLE: MolarHeatCapacity = 1055.05585262 * JOULE_PER_KELVIN_MOLE;
 
     /// One `BtuPerKelvinMole` (Btu/(K · mol)), as a `MolarHeatCapacity`.
-    pub const BTU_PER_KELVIN_MOLE: MolarHeatCapacity = 1054.3499999999999 * JOULE_PER_KELVIN_MOLE;
+    pub const BTU_PER_KELVIN_MOLE: MolarHeatCapacity =
+        (4184.0 * 0.45359237 / 1.8) * JOULE_PER_KELVIN_MOLE;
 
     /// One `CalorieItPerKelvinMole` (cal (IT)/(K · mol)), as a `MolarHeatCapacity`.
     pub const CALORIE_IT_PER_KELVIN_MOLE: MolarHeatCapacity =

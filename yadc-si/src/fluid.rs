@@ -123,7 +123,8 @@ pub mod consts {
     pub const POUND_PER_FOOT_SECOND: DynamicViscosity = 1.4881639435695537 * PASCAL_SECOND;
 
     /// One `SlugPerFootSecond` (slug/(ft · s)), as a `DynamicViscosity`.
-    pub const SLUG_PER_FOOT_SECOND: DynamicViscosity = 47.88024934383202 * PASCAL_SECOND;
+    pub const SLUG_PER_FOOT_SECOND: DynamicViscosity =
+        ((0.45359237 * 9.80665 / 0.3048) / 0.3048) * PASCAL_SECOND;
 
     /// One `GramPerCentimetreSecond` (g/(cm · s)), as a `DynamicViscosity`.
     pub const GRAM_PER_CENTIMETRE_SECOND: DynamicViscosity = 0.10000000000000001 * PASCAL_SECOND;
@@ -219,13 +220,16 @@ pub mod consts {
     pub const KILOGRAM_FORCE_PER_METRE: SurfaceTension = 9.8066499999999994 * NEWTON_PER_METRE;
 
     /// One `OunceForcePerInch` (ozf/in), as a `SurfaceTension`.
-    pub const OUNCE_FORCE_PER_INCH: SurfaceTension = 10.945429133858267 * NEWTON_PER_METRE;
+    pub const OUNCE_FORCE_PER_INCH: SurfaceTension =
+        ((0.45359237 * 9.80665 / 16.0) / 0.0254) * NEWTON_PER_METRE;
 
     /// One `PoundalPerInch` (pdl/in), as a `SurfaceTension`.
-    pub const POUNDAL_PER_INCH: SurfaceTension = 5.4431102362204724 * NEWTON_PER_METRE;
+    pub const POUNDAL_PER_INCH: SurfaceTension =
+        ((0.45359237 * 0.3048) / 0.0254) * NEWTON_PER_METRE;
 
     /// One `PoundForcePerInch` (lbf/in), as a `SurfaceTension`.
-    pub const POUND_FORCE_PER_INCH: SurfaceTension = 175.12685039370081 * NEWTON_PER_METRE;
+    pub const POUND_FORCE_PER_INCH: SurfaceTension =
+        ((0.45359237 * 9.80665) / 0.0254) * NEWTON_PER_METRE;
 
     /// One `JoulePerSquareMetre` (J/m²), as a `SurfaceTension`.
     pub const JOULE_PER_SQUARE_METRE: SurfaceTension = NEWTON_PER_METRE;
@@ -394,19 +398,19 @@ pub mod consts {
     pub const GRAIN_PER_SECOND: MassRate = 6.4798909999999995e-05 * KILOGRAM_PER_SECOND;
 
     /// One `HundredweightLongPerSecond` (cwt long/s), as a `MassRate`.
-    pub const HUNDREDWEIGHT_LONG_PER_SECOND: MassRate = 50.802349999999997 * KILOGRAM_PER_SECOND;
+    pub const HUNDREDWEIGHT_LONG_PER_SECOND: MassRate = 50.80234544 * KILOGRAM_PER_SECOND;
 
     /// One `HundredweightShortPerSecond` (cwt short/s), as a `MassRate`.
-    pub const HUNDREDWEIGHT_SHORT_PER_SECOND: MassRate = 45.35924 * KILOGRAM_PER_SECOND;
+    pub const HUNDREDWEIGHT_SHORT_PER_SECOND: MassRate = 45.359237 * KILOGRAM_PER_SECOND;
 
     /// One `OuncePerSecond` (oz/s), as a `MassRate`.
-    pub const OUNCE_PER_SECOND: MassRate = 0.02834952 * KILOGRAM_PER_SECOND;
+    pub const OUNCE_PER_SECOND: MassRate = 0.028349523125 * KILOGRAM_PER_SECOND;
 
     /// One `OunceTroyPerSecond` (oz t/s), as a `MassRate`.
-    pub const OUNCE_TROY_PER_SECOND: MassRate = 0.031103479999999999 * KILOGRAM_PER_SECOND;
+    pub const OUNCE_TROY_PER_SECOND: MassRate = 0.0311034768 * KILOGRAM_PER_SECOND;
 
     /// One `PennyweightPerSecond` (dwt/s), as a `MassRate`.
-    pub const PENNYWEIGHT_PER_SECOND: MassRate = 0.0015551740000000001 * KILOGRAM_PER_SECOND;
+    pub const PENNYWEIGHT_PER_SECOND: MassRate = 0.00155517384 * KILOGRAM_PER_SECOND;
 
     /// One `PoundPerSecond` (lb/s), as a `MassRate`.
     pub const POUND_PER_SECOND: MassRate = 0.45359237 * KILOGRAM_PER_SECOND;
@@ -421,13 +425,13 @@ pub mod consts {
     pub const POUND_PER_DAY: MassRate = 5.249911689814815e-06 * KILOGRAM_PER_SECOND;
 
     /// One `PoundTroyPerSecond` (lb t/s), as a `MassRate`.
-    pub const POUND_TROY_PER_SECOND: MassRate = 0.37324170000000001 * KILOGRAM_PER_SECOND;
+    pub const POUND_TROY_PER_SECOND: MassRate = 0.3732417216 * KILOGRAM_PER_SECOND;
 
     /// One `SlugPerSecond` (slug/s), as a `MassRate`.
-    pub const SLUG_PER_SECOND: MassRate = 14.5939 * KILOGRAM_PER_SECOND;
+    pub const SLUG_PER_SECOND: MassRate = (0.45359237 * 9.80665 / 0.3048) * KILOGRAM_PER_SECOND;
 
     /// One `TonAssayPerSecond` (AT/s), as a `MassRate`.
-    pub const TON_ASSAY_PER_SECOND: MassRate = 0.029166669999999999 * KILOGRAM_PER_SECOND;
+    pub const TON_ASSAY_PER_SECOND: MassRate = (0.175 / 6.0) * KILOGRAM_PER_SECOND;
 
     /// One `TonLongPerSecond` (2240 lb/s), as a `MassRate`.
     pub const TON_LONG_PER_SECOND: MassRate = 1016.0469088 * KILOGRAM_PER_SECOND;
@@ -526,92 +530,103 @@ pub mod consts {
     pub const LITRE_PER_MINUTE: VolumeRate = 1.6666666666666667e-05 * CUBIC_METRE_PER_SECOND;
 
     /// One `AcreFootPerSecond` (ac · ft/s), as a `VolumeRate`.
-    pub const ACRE_FOOT_PER_SECOND: VolumeRate = 1233.489 * CUBIC_METRE_PER_SECOND;
+    pub const ACRE_FOOT_PER_SECOND: VolumeRate =
+        (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0))
+            * CUBIC_METRE_PER_SECOND;
 
     /// One `BarrelPerSecond` (bbl/s), as a `VolumeRate`.
-    pub const BARREL_PER_SECOND: VolumeRate = 0.1589873 * CUBIC_METRE_PER_SECOND;
+    pub const BARREL_PER_SECOND: VolumeRate = 0.158987294928 * CUBIC_METRE_PER_SECOND;
 
     /// One `BushelPerSecond` (bu/s), as a `VolumeRate`.
-    pub const BUSHEL_PER_SECOND: VolumeRate = 0.035239069999999997 * CUBIC_METRE_PER_SECOND;
+    pub const BUSHEL_PER_SECOND: VolumeRate = 0.03523907016688 * CUBIC_METRE_PER_SECOND;
 
     /// One `CordPerSecond` (cords/s), as a `VolumeRate`.
-    pub const CORD_PER_SECOND: VolumeRate = 3.6245560000000001 * CUBIC_METRE_PER_SECOND;
+    pub const CORD_PER_SECOND: VolumeRate =
+        (128.0 * 0.3048 * 0.3048 * 0.3048) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicFootPerSecond` (ft³/s), as a `VolumeRate`.
-    pub const CUBIC_FOOT_PER_SECOND: VolumeRate = 0.028316850000000001 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_FOOT_PER_SECOND: VolumeRate =
+        (0.3048 * 0.3048 * 0.3048) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicFootPerMinute` (ft³/min), as a `VolumeRate`.
-    pub const CUBIC_FOOT_PER_MINUTE: VolumeRate = 0.00047194750000000002 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_FOOT_PER_MINUTE: VolumeRate =
+        (0.3048 * 0.3048 * 0.3048 / 60.0) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicInchPerSecond` (in³/s), as a `VolumeRate`.
-    pub const CUBIC_INCH_PER_SECOND: VolumeRate = 1.6387060000000002e-05 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_INCH_PER_SECOND: VolumeRate =
+        (0.0254 * 0.0254 * 0.0254) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicInchPerMinute` (in³/min), as a `VolumeRate`.
-    pub const CUBIC_INCH_PER_MINUTE: VolumeRate = 2.7311766666666671e-07 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_INCH_PER_MINUTE: VolumeRate =
+        (0.0254 * 0.0254 * 0.0254 / 60.0) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicMilePerSecond` (mi³/s), as a `VolumeRate`.
-    pub const CUBIC_MILE_PER_SECOND: VolumeRate = 4168182000.0 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_MILE_PER_SECOND: VolumeRate =
+        (1609.344 * 1609.344 * 1609.344) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicYardPerSecond` (yd³/s), as a `VolumeRate`.
-    pub const CUBIC_YARD_PER_SECOND: VolumeRate = 0.76455490000000004 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_YARD_PER_SECOND: VolumeRate =
+        (0.9144 * 0.9144 * 0.9144) * CUBIC_METRE_PER_SECOND;
 
     /// One `CubicYardPerMinute` (yd³/min), as a `VolumeRate`.
-    pub const CUBIC_YARD_PER_MINUTE: VolumeRate = 0.012742581666666667 * CUBIC_METRE_PER_SECOND;
+    pub const CUBIC_YARD_PER_MINUTE: VolumeRate =
+        (0.9144 * 0.9144 * 0.9144 / 60.0) * CUBIC_METRE_PER_SECOND;
 
     /// One `CupPerSecond` (cup/s), as a `VolumeRate`.
-    pub const CUP_PER_SECOND: VolumeRate = 0.00023658819999999999 * CUBIC_METRE_PER_SECOND;
+    pub const CUP_PER_SECOND: VolumeRate = 0.0002365882365 * CUBIC_METRE_PER_SECOND;
 
     /// One `FluidOuncePerSecond` (fl oz/s), as a `VolumeRate`.
-    pub const FLUID_OUNCE_PER_SECOND: VolumeRate = 2.9573529999999999e-05 * CUBIC_METRE_PER_SECOND;
+    pub const FLUID_OUNCE_PER_SECOND: VolumeRate = 0.0000295735295625 * CUBIC_METRE_PER_SECOND;
 
     /// One `FluidOunceImperialPerSecond` (fl oz (UK)/s), as a `VolumeRate`.
     pub const FLUID_OUNCE_IMPERIAL_PER_SECOND: VolumeRate =
-        2.8413060000000001e-05 * CUBIC_METRE_PER_SECOND;
+        0.0000284130625 * CUBIC_METRE_PER_SECOND;
 
     /// One `GallonImperialPerSecond` (gal (UK)/s), as a `VolumeRate`.
     pub const GALLON_IMPERIAL_PER_SECOND: VolumeRate = 0.00454609 * CUBIC_METRE_PER_SECOND;
 
     /// One `GallonPerSecond` (gal/s), as a `VolumeRate`.
-    pub const GALLON_PER_SECOND: VolumeRate = 0.0037854120000000002 * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_PER_SECOND: VolumeRate = 0.003785411784 * CUBIC_METRE_PER_SECOND;
 
     /// One `GallonPerMinute` (gal/min), as a `VolumeRate`.
-    pub const GALLON_PER_MINUTE: VolumeRate = 6.3090200000000008e-05 * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_PER_MINUTE: VolumeRate = (0.003785411784 / 60.0) * CUBIC_METRE_PER_SECOND;
 
     /// One `GallonPerDay` (gal/d), as a `VolumeRate`.
-    pub const GALLON_PER_DAY: VolumeRate = 4.3812638888888889e-08 * CUBIC_METRE_PER_SECOND;
+    pub const GALLON_PER_DAY: VolumeRate = (0.003785411784 / 86400.0) * CUBIC_METRE_PER_SECOND;
 
     /// One `GillImperialPerSecond` (gi (UK)/s), as a `VolumeRate`.
-    pub const GILL_IMPERIAL_PER_SECOND: VolumeRate = 0.0001420653 * CUBIC_METRE_PER_SECOND;
+    pub const GILL_IMPERIAL_PER_SECOND: VolumeRate = 0.0001420653125 * CUBIC_METRE_PER_SECOND;
 
     /// One `GillPerSecond` (gi/s), as a `VolumeRate`.
-    pub const GILL_PER_SECOND: VolumeRate = 0.0001182941 * CUBIC_METRE_PER_SECOND;
+    pub const GILL_PER_SECOND: VolumeRate = 0.00011829411825 * CUBIC_METRE_PER_SECOND;
 
     /// One `PeckPerSecond` (pk/s), as a `VolumeRate`.
-    pub const PECK_PER_SECOND: VolumeRate = 0.0088097680000000008 * CUBIC_METRE_PER_SECOND;
+    pub const PECK_PER_SECOND: VolumeRate = 0.00880976754172 * CUBIC_METRE_PER_SECOND;
 
     /// One `PintDryPerSecond` (dry pt/s), as a `VolumeRate`.
-    pub const PINT_DRY_PER_SECOND: VolumeRate = 0.00055061050000000005 * CUBIC_METRE_PER_SECOND;
+    pub const PINT_DRY_PER_SECOND: VolumeRate = 0.0005506104713575 * CUBIC_METRE_PER_SECOND;
 
     /// One `PintLiquidPerSecond` (liq pt/s), as a `VolumeRate`.
-    pub const PINT_LIQUID_PER_SECOND: VolumeRate = 0.00047317650000000002 * CUBIC_METRE_PER_SECOND;
+    pub const PINT_LIQUID_PER_SECOND: VolumeRate = 0.000473176473 * CUBIC_METRE_PER_SECOND;
 
     /// One `QuartDryPerSecond` (dry qt/s), as a `VolumeRate`.
-    pub const QUART_DRY_PER_SECOND: VolumeRate = 0.0011012210000000001 * CUBIC_METRE_PER_SECOND;
+    pub const QUART_DRY_PER_SECOND: VolumeRate = 0.001101220942715 * CUBIC_METRE_PER_SECOND;
 
     /// One `QuartLiquidPerSecond` (liq qt/s), as a `VolumeRate`.
-    pub const QUART_LIQUID_PER_SECOND: VolumeRate = 0.0009463529 * CUBIC_METRE_PER_SECOND;
+    pub const QUART_LIQUID_PER_SECOND: VolumeRate = 0.000946352946 * CUBIC_METRE_PER_SECOND;
 
     /// One `SterePerSecond` (st/s), as a `VolumeRate`.
     pub const STERE_PER_SECOND: VolumeRate = CUBIC_METRE_PER_SECOND;
 
     /// One `TablespoonPerSecond` (tbsp/s), as a `VolumeRate`.
-    pub const TABLESPOON_PER_SECOND: VolumeRate = 1.4786759999999999e-05 * CUBIC_METRE_PER_SECOND;
+    pub const TABLESPOON_PER_SECOND: VolumeRate = 0.00001478676478125 * CUBIC_METRE_PER_SECOND;
 
     /// One `TeaspoonPerSecond` (tsp/s), as a `VolumeRate`.
-    pub const TEASPOON_PER_SECOND: VolumeRate = 4.9289219999999997e-06 * CUBIC_METRE_PER_SECOND;
+    pub const TEASPOON_PER_SECOND: VolumeRate = 0.00000492892159375 * CUBIC_METRE_PER_SECOND;
 
     /// One `RegisterTonPerSecond` (RT/s), as a `VolumeRate`.
-    pub const REGISTER_TON_PER_SECOND: VolumeRate = 2.8316849999999998 * CUBIC_METRE_PER_SECOND;
+    pub const REGISTER_TON_PER_SECOND: VolumeRate =
+        (100.0 * 0.3048 * 0.3048 * 0.3048) * CUBIC_METRE_PER_SECOND;
 
     /// One `KilogramPerSquareMetreSecond` (kg/(m² · s)), as a `MassFlux`.
     pub const KILOGRAM_PER_SQUARE_METRE_SECOND: MassFlux = KILOGRAM / (METRE * METRE * SECOND);

@@ -119,7 +119,7 @@ fn variants(input: &DeriveInput, derive: &str) -> syn::Result<Vec<Variant>> {
         .collect()
 }
 
-/// `#[dynamickit(crate = path)]`, default `::dynamickit`.
+/// `#[dynamickit(crate = "path")]`, default `::dynamickit`.
 pub(crate) fn krate(input: &DeriveInput) -> syn::Result<Path> {
     for a in &input.attrs {
         if a.path().is_ident("dynamickit") {
@@ -987,9 +987,14 @@ fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
 /// where only values can tell (`TIME` vs `LENGTH`, `F::KIND` vs
 /// `FruitKind::Apple`), an assertion checks at compile time that they differ
 /// (for a constant naming a parameter, in that mapping's impls, for each
-/// member used). A mapping
-/// marked `shared` (`shared f64 => { .. }`) is the same value as another
-/// and may hold its facts: the way back gives either.
+/// member used); those constants' type has a `const` `PartialEq`
+/// (`#[derive_const(PartialEq)]`). A constant cannot be told apart from a
+/// const parameter's value (`dim: TIME` beside `dim: D`): a tag, a field
+/// filled with a different constant in each mapping, can. A mapping marked
+/// `shared` (`shared f64 => { .. }`) is the same value as exactly one other
+/// mapping and may hold its facts (the way back gives either); it is told
+/// apart from every other mapping, and refused if it could hold the facts
+/// of two, or of none.
 ///
 /// `#[dynamic(impl(..))]` lists the lifted items. Each does one thing to
 /// every field and builds `Self` from the results; its output is stated and
@@ -1030,4 +1035,3 @@ pub fn derive_dynamic(input: TokenStream) -> TokenStream {
         .unwrap_or_else(|e| e.to_compile_error())
         .into()
 }
-

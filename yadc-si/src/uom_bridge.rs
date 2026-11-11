@@ -1,5 +1,5 @@
-//! Blanket [`From`] / [`Into`] impls bridging yadc-si's const-generic [`ISQ`]
-//! and uom's typenum-based ISQ dimension system.
+//! Blanket [`From`] / [`Into`] / [`TryFrom`] impls bridging yadc-si's
+//! const-generic [`ISQ`] and uom's typenum-based ISQ dimension system.
 //!
 //! Each typenum exponent type (`P1`, `Z0`, `N1`, ...) carries a `const I8: i8`
 //! via [`typenum::Integer`], so the const-generic ISQ value can be computed
@@ -45,9 +45,10 @@ pub trait UomKindMapping {
 pub enum Radians {
     /// The kind says nothing about angles.
     None,
-    /// uom's angle kind: rad¹ on an angle and its rates, rad⁻¹ on torque and
-    /// angular momentum (uom marks those with the angle kind to tell them from
-    /// energy and action).
+    /// uom's angle kind: rad¹ on a quantity with no mass (an angle, its
+    /// rates, its absement, curvature), rad⁻¹ on one with mass (torque and
+    /// angular momentum, which uom marks with the angle kind to tell them
+    /// from energy and action).
     Angle,
     /// A kind that stands for rad² (the steradian): solid angle, and
     /// illuminance (lux = cd·sr/m²).
@@ -61,7 +62,7 @@ pub enum Radians {
 pub const fn rad_of(m: i8, kg: i8, s: i8, a: i8, k: i8, mol: i8, cd: i8, radians: Radians) -> i8 {
     match radians {
         Radians::Angle => {
-            if m == 0 && kg == 0 {
+            if kg == 0 {
                 1
             } else {
                 -1
@@ -304,140 +305,5 @@ where
         } else {
             Err(dq)
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::angular::*;
-    use crate::mechanical::*;
-    use std::convert::TryFrom;
-    use uom::si::angle::radian;
-    use uom::si::f64::{Angle, Force, Length, Mass, SolidAngle, Velocity};
-    use uom::si::force::newton;
-    use uom::si::length::{kilometer, meter};
-    use uom::si::mass::kilogram;
-    use uom::si::solid_angle::steradian;
-    use uom::si::velocity::meter_per_second;
-    use yadc::Unit;
-
-    fn close(a: f64, b: f64) {
-        assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
-    }
-
-    #[test]
-    fn static_uom_to_yadc_preserves_si_base_value() {
-        let q: StaticSIQuantity<_> = Length::new::<kilometer>(1.0).into();
-        close(LengthUnit::Metre.value(q), 1_000.0);
-    }
-
-    #[test]
-    fn static_yadc_to_uom_preserves_si_base_value() {
-        let q = LengthUnit::Kilometre.quantity(2.5);
-        let uom: Length = q.into();
-        close(uom.get::<meter>(), 2_500.0);
-    }
-
-    #[test]
-    fn static_round_trip_is_exact() {
-        let original = Length::new::<meter>(1_234.5);
-        let q: StaticSIQuantity<_> = original.into();
-        let back: Length = q.into();
-        close(back.get::<meter>(), 1_234.5);
-    }
-
-    #[test]
-    fn static_derived_force_round_trip() {
-        let original = Force::new::<newton>(9.81);
-        let q: StaticSIQuantity<_> = original.into();
-        let back: Force = q.into();
-        close(back.get::<newton>(), 9.81);
-    }
-
-    #[test]
-    fn static_angle_round_trip() {
-        let original = Angle::new::<radian>(core::f64::consts::FRAC_PI_2);
-        let q: StaticSIQuantity<_> = original.into();
-        close(AngleUnit::Radian.value(q), core::f64::consts::FRAC_PI_2);
-        let back: Angle = q.into();
-        close(back.get::<radian>(), core::f64::consts::FRAC_PI_2);
-    }
-
-    #[test]
-    fn static_solid_angle_round_trip() {
-        let original = SolidAngle::new::<steradian>(2.5);
-        let q: StaticSIQuantity<_> = original.into();
-        close(SolidAngleUnit::Steradian.value(q), 2.5);
-        let back: SolidAngle = q.into();
-        close(back.get::<steradian>(), 2.5);
-    }
-
-    #[test]
-    fn dynamic_from_uom_dim_is_correct() {
-        let dq: DynamicSIQuantity = Length::new::<meter>(42.0).into();
-        close(
-            LengthUnit::Metre.value(crate::mechanical::Length::try_from(dq).unwrap()),
-            42.0,
-        );
-        assert!(crate::mechanical::Mass::try_from(dq).is_err());
-    }
-
-    #[test]
-    fn dynamic_angle_kind_is_preserved() {
-        let dq: DynamicSIQuantity = Angle::new::<radian>(1.0).into();
-        close(
-            AngleUnit::Radian.value(crate::angular::Angle::try_from(dq).unwrap()),
-            1.0,
-        );
-        // A plain dimensionless quantity has no radians: no match.
-        assert!(crate::dimensionless::Dimensionless::try_from(dq).is_err());
-    }
-
-    #[test]
-    fn dynamic_solid_angle_kind_is_preserved() {
-        let dq: DynamicSIQuantity = SolidAngle::new::<steradian>(4.0).into();
-        close(
-            SolidAngleUnit::Steradian.value(crate::angular::SolidAngle::try_from(dq).unwrap()),
-            4.0,
-        );
-        assert!(crate::angular::Angle::try_from(dq).is_err());
-    }
-
-    #[test]
-    fn dynamic_try_from_success() {
-        let dq: DynamicSIQuantity = Velocity::new::<meter_per_second>(10.0).into();
-        let back = Velocity::try_from(dq).expect("dim matches");
-        close(back.get::<meter_per_second>(), 10.0);
-    }
-
-    #[test]
-    fn dynamic_try_from_failure_returns_original() {
-        let dq: DynamicSIQuantity = Mass::new::<kilogram>(3.0).into();
-        let err = Length::try_from(dq).unwrap_err();
-        close(
-            MassUnit::Kilogram.value(crate::mechanical::Mass::try_from(err).unwrap()),
-            3.0,
-        );
-    }
-
-    #[test]
-    fn dynamic_try_from_angle_succeeds() {
-        let dq: DynamicSIQuantity = Angle::new::<radian>(0.5).into();
-        let back = Angle::try_from(dq).expect("angle dim matches");
-        close(back.get::<radian>(), 0.5);
-    }
-
-    #[test]
-    fn dynamic_try_from_angle_rejects_dimensionless() {
-        // A plain dimensionless quantity (no radians) should not match uom's Angle.
-        let dimensionless =
-            DynamicSIQuantity::from(crate::dimensionless::DimensionlessUnit::Ratio.quantity(1.0));
-        let err = Angle::try_from(dimensionless).unwrap_err();
-        close(
-            crate::dimensionless::DimensionlessUnit::Ratio
-                .value(crate::dimensionless::Dimensionless::try_from(err).unwrap()),
-            1.0,
-        );
     }
 }

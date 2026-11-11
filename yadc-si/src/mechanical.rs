@@ -269,6 +269,7 @@ pub type Curvature = StaticSIQuantity<
     {
         ISQ {
             m: -1,
+            rad: 1,
             ..ISQ::DIMENSIONLESS
         }
     },
@@ -415,13 +416,13 @@ pub mod consts {
     pub const ASTRONOMICAL_UNIT: Length = 149597870700.0 * METRE;
 
     /// One `Chain` (ch), as a `Length`.
-    pub const CHAIN: Length = 20.11684 * METRE;
+    pub const CHAIN: Length = (66.0 * 1200.0 / 3937.0) * METRE;
 
     /// One `DataMile` (DM), as a `Length`.
     pub const DATA_MILE: Length = 1828.8 * METRE;
 
     /// One `Fathom` (fathom), as a `Length`.
-    pub const FATHOM: Length = 1.8288040000000001 * METRE;
+    pub const FATHOM: Length = (6.0 * 1200.0 / 3937.0) * METRE;
 
     /// One `Fermi` (fermi), as a `Length`.
     pub const FERMI: Length = 1.0000000000000001e-15 * METRE;
@@ -430,13 +431,13 @@ pub mod consts {
     pub const FOOT: Length = 0.30480000000000002 * METRE;
 
     /// One `FootSurvey` (ft (U.S. survey)), as a `Length`.
-    pub const FOOT_SURVEY: Length = 0.30480059999999998 * METRE;
+    pub const FOOT_SURVEY: Length = (1200.0 / 3937.0) * METRE;
 
     /// One `Inch` (in), as a `Length`.
     pub const INCH: Length = 0.025399999999999999 * METRE;
 
     /// One `LightYear` (l. y.), as a `Length`.
-    pub const LIGHT_YEAR: Length = 9460730000000000.0 * METRE;
+    pub const LIGHT_YEAR: Length = 9460730472580800.0 * METRE;
 
     /// One `Microinch` (μin), as a `Length`.
     pub const MICROINCH: Length = 2.5399999999999999e-08 * METRE;
@@ -451,13 +452,13 @@ pub mod consts {
     pub const MILE: Length = 1609.3440000000001 * METRE;
 
     /// One `MileSurvey` (mi (U.S. survey)), as a `Length`.
-    pub const MILE_SURVEY: Length = 1609.347 * METRE;
+    pub const MILE_SURVEY: Length = (6336000.0 / 3937.0) * METRE;
 
     /// One `NauticalMile` (M), as a `Length`.
     pub const NAUTICAL_MILE: Length = 1852.0 * METRE;
 
     /// One `Parsec` (pc), as a `Length`.
-    pub const PARSEC: Length = 30856780000000000.0 * METRE;
+    pub const PARSEC: Length = (149597870700.0 * 648000.0 / core::f64::consts::PI) * METRE;
 
     /// One `PicaComputer` (1/6 in (computer)), as a `Length`.
     pub const PICA_COMPUTER: Length = 0.0042333333333333329 * METRE;
@@ -466,13 +467,13 @@ pub mod consts {
     pub const PICA_PRINTERS: Length = 0.004217518 * METRE;
 
     /// One `PointComputer` (1/72 in (computer)), as a `Length`.
-    pub const POINT_COMPUTER: Length = 0.00035277779999999998 * METRE;
+    pub const POINT_COMPUTER: Length = (0.0254 / 72.0) * METRE;
 
     /// One `PointPrinters` (1/72 in), as a `Length`.
     pub const POINT_PRINTERS: Length = 0.00035145979999999999 * METRE;
 
     /// One `Rod` (rd), as a `Length`.
-    pub const ROD: Length = 5.02921 * METRE;
+    pub const ROD: Length = (16.5 * 1200.0 / 3937.0) * METRE;
 
     /// One `Yard` (yd), as a `Length`.
     pub const YARD: Length = 0.91439999999999999 * METRE;
@@ -595,31 +596,31 @@ pub mod consts {
     pub const GRAIN: Mass = 6.4798909999999995e-05 * KILOGRAM;
 
     /// One `HundredweightLong` (cwt long), as a `Mass`.
-    pub const HUNDREDWEIGHT_LONG: Mass = 50.802349999999997 * KILOGRAM;
+    pub const HUNDREDWEIGHT_LONG: Mass = 50.80234544 * KILOGRAM;
 
     /// One `HundredweightShort` (cwt short), as a `Mass`.
-    pub const HUNDREDWEIGHT_SHORT: Mass = 45.35924 * KILOGRAM;
+    pub const HUNDREDWEIGHT_SHORT: Mass = 45.359237 * KILOGRAM;
 
     /// One `Ounce` (oz), as a `Mass`.
-    pub const OUNCE: Mass = 0.02834952 * KILOGRAM;
+    pub const OUNCE: Mass = 0.028349523125 * KILOGRAM;
 
     /// One `OunceTroy` (oz t), as a `Mass`.
-    pub const OUNCE_TROY: Mass = 0.031103479999999999 * KILOGRAM;
+    pub const OUNCE_TROY: Mass = 0.0311034768 * KILOGRAM;
 
     /// One `Pennyweight` (dwt), as a `Mass`.
-    pub const PENNYWEIGHT: Mass = 0.0015551740000000001 * KILOGRAM;
+    pub const PENNYWEIGHT: Mass = 0.00155517384 * KILOGRAM;
 
     /// One `Pound` (lb), as a `Mass`.
     pub const POUND: Mass = 0.45359237 * KILOGRAM;
 
     /// One `PoundTroy` (lb t), as a `Mass`.
-    pub const POUND_TROY: Mass = 0.37324170000000001 * KILOGRAM;
+    pub const POUND_TROY: Mass = 0.3732417216 * KILOGRAM;
 
     /// One `Slug` (slug), as a `Mass`.
-    pub const SLUG: Mass = 14.5939 * KILOGRAM;
+    pub const SLUG: Mass = (0.45359237 * 9.80665 / 0.3048) * KILOGRAM;
 
     /// One `TonAssay` (AT), as a `Mass`.
-    pub const TON_ASSAY: Mass = 0.029166669999999999 * KILOGRAM;
+    pub const TON_ASSAY: Mass = (0.175 / 6.0) * KILOGRAM;
 
     /// One `TonLong` (2240 lb), as a `Mass`.
     pub const TON_LONG: Mass = 1016.0469088 * KILOGRAM;
@@ -871,7 +872,7 @@ pub mod consts {
     pub const SQUARE_YOCTOMETRE: Area = 9.9999999999999982e-49 * SQUARE_METRE;
 
     /// One `Acre` (ac), as an `Area`.
-    pub const ACRE: Area = 4046.873 * SQUARE_METRE;
+    pub const ACRE: Area = (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0)) * SQUARE_METRE;
 
     /// One `Are` (a), as an `Area`.
     pub const ARE: Area = 100.0 * SQUARE_METRE;
@@ -880,7 +881,8 @@ pub mod consts {
     pub const BARN: Area = 9.9999999999999997e-29 * SQUARE_METRE;
 
     /// One `CircularMil` (cmil), as an `Area`.
-    pub const CIRCULAR_MIL: Area = 5.0670750000000003e-10 * SQUARE_METRE;
+    pub const CIRCULAR_MIL: Area =
+        (core::f64::consts::PI / 4.0 * 0.0000254 * 0.0000254) * SQUARE_METRE;
 
     /// One `Hectare` (ha), as an `Area`.
     pub const HECTARE: Area = 10000.0 * SQUARE_METRE;
@@ -976,49 +978,50 @@ pub mod consts {
     pub const CUBIC_METRE: Volume = METRE * METRE * METRE;
 
     /// One `AcreFoot` (ac · ft), as a `Volume`.
-    pub const ACRE_FOOT: Volume = 1233.489 * CUBIC_METRE;
+    pub const ACRE_FOOT: Volume =
+        (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0)) * CUBIC_METRE;
 
     /// One `Barrel` (bbl), as a `Volume`.
-    pub const BARREL: Volume = 0.1589873 * CUBIC_METRE;
+    pub const BARREL: Volume = 0.158987294928 * CUBIC_METRE;
 
     /// One `Bushel` (bu), as a `Volume`.
-    pub const BUSHEL: Volume = 0.035239069999999997 * CUBIC_METRE;
+    pub const BUSHEL: Volume = 0.03523907016688 * CUBIC_METRE;
 
     /// One `Cord` (cords), as a `Volume`.
-    pub const CORD: Volume = 3.6245560000000001 * CUBIC_METRE;
+    pub const CORD: Volume = (128.0 * 0.3048 * 0.3048 * 0.3048) * CUBIC_METRE;
 
     /// One `CubicFoot` (ft³), as a `Volume`.
-    pub const CUBIC_FOOT: Volume = 0.028316850000000001 * CUBIC_METRE;
+    pub const CUBIC_FOOT: Volume = (0.3048 * 0.3048 * 0.3048) * CUBIC_METRE;
 
     /// One `CubicInch` (in³), as a `Volume`.
-    pub const CUBIC_INCH: Volume = 1.6387060000000002e-05 * CUBIC_METRE;
+    pub const CUBIC_INCH: Volume = (0.0254 * 0.0254 * 0.0254) * CUBIC_METRE;
 
     /// One `CubicMile` (mi³), as a `Volume`.
-    pub const CUBIC_MILE: Volume = 4168182000.0 * CUBIC_METRE;
+    pub const CUBIC_MILE: Volume = (1609.344 * 1609.344 * 1609.344) * CUBIC_METRE;
 
     /// One `CubicYard` (yd³), as a `Volume`.
-    pub const CUBIC_YARD: Volume = 0.76455490000000004 * CUBIC_METRE;
+    pub const CUBIC_YARD: Volume = (0.9144 * 0.9144 * 0.9144) * CUBIC_METRE;
 
     /// One `Cup` (cup), as a `Volume`.
-    pub const CUP: Volume = 0.00023658819999999999 * CUBIC_METRE;
+    pub const CUP: Volume = 0.0002365882365 * CUBIC_METRE;
 
     /// One `FluidOunce` (fl oz), as a `Volume`.
-    pub const FLUID_OUNCE: Volume = 2.9573529999999999e-05 * CUBIC_METRE;
+    pub const FLUID_OUNCE: Volume = 0.0000295735295625 * CUBIC_METRE;
 
     /// One `FluidOunceImperial` (fl oz (UK)), as a `Volume`.
-    pub const FLUID_OUNCE_IMPERIAL: Volume = 2.8413060000000001e-05 * CUBIC_METRE;
+    pub const FLUID_OUNCE_IMPERIAL: Volume = 0.0000284130625 * CUBIC_METRE;
 
     /// One `GallonImperial` (gal (UK)), as a `Volume`.
     pub const GALLON_IMPERIAL: Volume = 0.00454609 * CUBIC_METRE;
 
     /// One `Gallon` (gal), as a `Volume`.
-    pub const GALLON: Volume = 0.0037854120000000002 * CUBIC_METRE;
+    pub const GALLON: Volume = 0.003785411784 * CUBIC_METRE;
 
     /// One `GillImperial` (gi (UK)), as a `Volume`.
-    pub const GILL_IMPERIAL: Volume = 0.0001420653 * CUBIC_METRE;
+    pub const GILL_IMPERIAL: Volume = 0.0001420653125 * CUBIC_METRE;
 
     /// One `Gill` (gi), as a `Volume`.
-    pub const GILL: Volume = 0.0001182941 * CUBIC_METRE;
+    pub const GILL: Volume = 0.00011829411825 * CUBIC_METRE;
 
     /// One `Yottalitre` (YL), as a `Volume`.
     pub const YOTTALITRE: Volume = 1e+21 * CUBIC_METRE;
@@ -1084,31 +1087,31 @@ pub mod consts {
     pub const YOCTOLITRE: Volume = 9.9999999999999986e-28 * CUBIC_METRE;
 
     /// One `Peck` (pk), as a `Volume`.
-    pub const PECK: Volume = 0.0088097680000000008 * CUBIC_METRE;
+    pub const PECK: Volume = 0.00880976754172 * CUBIC_METRE;
 
     /// One `PintDry` (dry pt), as a `Volume`.
-    pub const PINT_DRY: Volume = 0.00055061050000000005 * CUBIC_METRE;
+    pub const PINT_DRY: Volume = 0.0005506104713575 * CUBIC_METRE;
 
     /// One `PintLiquid` (liq pt), as a `Volume`.
-    pub const PINT_LIQUID: Volume = 0.00047317650000000002 * CUBIC_METRE;
+    pub const PINT_LIQUID: Volume = 0.000473176473 * CUBIC_METRE;
 
     /// One `QuartDry` (dry qt), as a `Volume`.
-    pub const QUART_DRY: Volume = 0.0011012210000000001 * CUBIC_METRE;
+    pub const QUART_DRY: Volume = 0.001101220942715 * CUBIC_METRE;
 
     /// One `QuartLiquid` (liq qt), as a `Volume`.
-    pub const QUART_LIQUID: Volume = 0.0009463529 * CUBIC_METRE;
+    pub const QUART_LIQUID: Volume = 0.000946352946 * CUBIC_METRE;
 
     /// One `Stere` (st), as a `Volume`.
     pub const STERE: Volume = CUBIC_METRE;
 
     /// One `Tablespoon` (tbsp), as a `Volume`.
-    pub const TABLESPOON: Volume = 1.4786759999999999e-05 * CUBIC_METRE;
+    pub const TABLESPOON: Volume = 0.00001478676478125 * CUBIC_METRE;
 
     /// One `Teaspoon` (tsp), as a `Volume`.
-    pub const TEASPOON: Volume = 4.9289219999999997e-06 * CUBIC_METRE;
+    pub const TEASPOON: Volume = 0.00000492892159375 * CUBIC_METRE;
 
     /// One `RegisterTon` (RT), as a `Volume`.
-    pub const REGISTER_TON: Volume = 2.8316849999999998 * CUBIC_METRE;
+    pub const REGISTER_TON: Volume = (100.0 * 0.3048 * 0.3048 * 0.3048) * CUBIC_METRE;
 
     /// One `Culeus` (culeus), as a `Volume`.
     pub const CULEUS: Volume = 0.51868672000000005 * CUBIC_METRE;
@@ -1575,7 +1578,7 @@ pub mod consts {
     pub const HOUR_PER_MILE: InverseVelocity = 2.236936292054402 * SECOND_PER_METRE;
 
     /// One `MinutePerMile` (min/mi), as an `InverseVelocity`.
-    pub const MINUTE_PER_MILE: InverseVelocity = 0.037282271530000001 * SECOND_PER_METRE;
+    pub const MINUTE_PER_MILE: InverseVelocity = (60.0 / 1609.344) * SECOND_PER_METRE;
 
     /// One `SecondPerMile` (s/mi), as an `InverseVelocity`.
     pub const SECOND_PER_MILE: InverseVelocity = 0.00062137119223733392 * SECOND_PER_METRE;
@@ -1650,19 +1653,19 @@ pub mod consts {
     pub const KILOGRAM_FORCE: Force = 9.8066499999999994 * NEWTON;
 
     /// One `Kip` (kip), as a `Force`.
-    pub const KIP: Force = 4448.2219999999998 * NEWTON;
+    pub const KIP: Force = (1000.0 * 0.45359237 * 9.80665) * NEWTON;
 
     /// One `OunceForce` (ozf), as a `Force`.
-    pub const OUNCE_FORCE: Force = 0.27801389999999998 * NEWTON;
+    pub const OUNCE_FORCE: Force = (0.45359237 * 9.80665 / 16.0) * NEWTON;
 
     /// One `Poundal` (pdl), as a `Force`.
-    pub const POUNDAL: Force = 0.13825499999999999 * NEWTON;
+    pub const POUNDAL: Force = (0.45359237 * 0.3048) * NEWTON;
 
     /// One `PoundForce` (lbf), as a `Force`.
-    pub const POUND_FORCE: Force = 4.4482220000000003 * NEWTON;
+    pub const POUND_FORCE: Force = (0.45359237 * 9.80665) * NEWTON;
 
     /// One `TonForce` (2000 lbf), as a `Force`.
-    pub const TON_FORCE: Force = 8896.4429999999993 * NEWTON;
+    pub const TON_FORCE: Force = (2000.0 * 0.45359237 * 9.80665) * NEWTON;
 
     /// One `YottagramMetrePerSecond` (Yg · m/s), as a `Momentum`.
     pub const YOTTAGRAM_METRE_PER_SECOND: Momentum = 1e+21 * KILOGRAM_METRE_PER_SECOND;
@@ -1822,10 +1825,12 @@ pub mod consts {
     pub const KILOGRAM_METRE_PER_DAY: Momentum = 1.1574074074074073e-05 * KILOGRAM_METRE_PER_SECOND;
 
     /// One `SlugFootPerSecond` (slug · ft/s), as a `Momentum`.
-    pub const SLUG_FOOT_PER_SECOND: Momentum = 4.4482207200000001 * KILOGRAM_METRE_PER_SECOND;
+    pub const SLUG_FOOT_PER_SECOND: Momentum =
+        ((0.45359237 * 9.80665 / 0.3048) * 0.3048) * KILOGRAM_METRE_PER_SECOND;
 
     /// One `SlugInchPerSecond` (slug · in/s), as a `Momentum`.
-    pub const SLUG_INCH_PER_SECOND: Momentum = 0.37068506000000001 * KILOGRAM_METRE_PER_SECOND;
+    pub const SLUG_INCH_PER_SECOND: Momentum =
+        ((0.45359237 * 9.80665 / 0.3048) * 0.0254) * KILOGRAM_METRE_PER_SECOND;
 
     /// One `PoundFootPerSecond` (lb · ft/s), as a `Momentum`.
     pub const POUND_FOOT_PER_SECOND: Momentum = 0.138254954376 * KILOGRAM_METRE_PER_SECOND;
@@ -1954,10 +1959,10 @@ pub mod consts {
     pub const HARTREE: Energy = 4.3597447222071e-18 * JOULE;
 
     /// One `BtuIt` (Btu (IT)), as an `Energy`.
-    pub const BTU_IT: Energy = 1055.056 * JOULE;
+    pub const BTU_IT: Energy = 1055.05585262 * JOULE;
 
     /// One `Btu` (Btu), as an `Energy`.
-    pub const BTU: Energy = 1054.3499999999999 * JOULE;
+    pub const BTU: Energy = (4184.0 * 0.45359237 / 1.8) * JOULE;
 
     /// One `CalorieIt` (cal (IT)), as an `Energy`.
     pub const CALORIE_IT: Energy = 4.1867999999999999 * JOULE;
@@ -1975,10 +1980,10 @@ pub mod consts {
     pub const ERG: Energy = 9.9999999999999995e-08 * JOULE;
 
     /// One `FootPoundal` (ft · pdl), as an `Energy`.
-    pub const FOOT_POUNDAL: Energy = 0.042140110000000001 * JOULE;
+    pub const FOOT_POUNDAL: Energy = (0.3048 * 0.45359237 * 0.3048) * JOULE;
 
     /// One `FootPound` (ft · lbf), as an `Energy`.
-    pub const FOOT_POUND: Energy = 1.355818 * JOULE;
+    pub const FOOT_POUND: Energy = (0.3048 * 0.45359237 * 9.80665) * JOULE;
 
     /// One `KilocalorieIt` (kcal (IT)), as an `Energy`.
     pub const KILOCALORIE_IT: Energy = 4186.8000000000002 * JOULE;
@@ -1987,7 +1992,7 @@ pub mod consts {
     pub const KILOCALORIE: Energy = 4184.0 * JOULE;
 
     /// One `Quad` (10¹⁵ Btu (IT)), as an `Energy`.
-    pub const QUAD: Energy = 1.055056e+18 * JOULE;
+    pub const QUAD: Energy = 1.05505585262e18 * JOULE;
 
     /// One `ThermEc` (thm (EC)), as an `Energy`.
     pub const THERM_EC: Energy = 105506000.0 * JOULE;
@@ -2115,10 +2120,10 @@ pub mod consts {
     pub const JOULE_PER_YOTTAGRAM: AvailableEnergy = 9.9999999999999991e-22 * JOULE_PER_KILOGRAM;
 
     /// One `BtuItPerPound` (Btu (IT)/lb), as an `AvailableEnergy`.
-    pub const BTU_IT_PER_POUND: AvailableEnergy = 2326.000324917282 * JOULE_PER_KILOGRAM;
+    pub const BTU_IT_PER_POUND: AvailableEnergy = 2326.0 * JOULE_PER_KILOGRAM;
 
     /// One `BtuPerPound` (Btu/lb), as an `AvailableEnergy`.
-    pub const BTU_PER_POUND: AvailableEnergy = 2324.4438613462567 * JOULE_PER_KILOGRAM;
+    pub const BTU_PER_POUND: AvailableEnergy = (4184.0 / 1.8) * JOULE_PER_KILOGRAM;
 
     /// One `CalorieItPerGram` (cal (IT)/g), as an `AvailableEnergy`.
     pub const CALORIE_IT_PER_GRAM: AvailableEnergy = 4186.8000000000002 * JOULE_PER_KILOGRAM;
@@ -2193,16 +2198,16 @@ pub mod consts {
     pub const ERG_PER_SECOND: Power = 9.9999999999999995e-08 * WATT;
 
     /// One `FootPoundPerHour` (ft · lbf/h), as a `Power`.
-    pub const FOOT_POUND_PER_HOUR: Power = 0.00037661611111111112 * WATT;
+    pub const FOOT_POUND_PER_HOUR: Power = ((0.3048 * 0.45359237 * 9.80665) / 3600.0) * WATT;
 
     /// One `FootPoundPerMinute` (ft · lbf/min), as a `Power`.
-    pub const FOOT_POUND_PER_MINUTE: Power = 0.022596966666666666 * WATT;
+    pub const FOOT_POUND_PER_MINUTE: Power = ((0.3048 * 0.45359237 * 9.80665) / 60.0) * WATT;
 
     /// One `FootPoundPerSecond` (ft · lbf/s), as a `Power`.
-    pub const FOOT_POUND_PER_SECOND: Power = 1.355818 * WATT;
+    pub const FOOT_POUND_PER_SECOND: Power = (0.3048 * 0.45359237 * 9.80665) * WATT;
 
     /// One `Horsepower` (hp), as a `Power`.
-    pub const HORSEPOWER: Power = 745.69989999999996 * WATT;
+    pub const HORSEPOWER: Power = (550.0 * 0.3048 * 0.45359237 * 9.80665) * WATT;
 
     /// One `HorsepowerBoiler` (hp (S)), as a `Power`.
     pub const HORSEPOWER_BOILER: Power = 9809.5 * WATT;
@@ -2211,7 +2216,7 @@ pub mod consts {
     pub const HORSEPOWER_ELECTRIC: Power = 746.0 * WATT;
 
     /// One `HorsepowerMetric` (hp (M)), as a `Power`.
-    pub const HORSEPOWER_METRIC: Power = 735.49879999999996 * WATT;
+    pub const HORSEPOWER_METRIC: Power = (75.0 * 9.80665) * WATT;
 
     /// One `HorsepowerImperial` (hp (I)), as a `Power`.
     pub const HORSEPOWER_IMPERIAL: Power = 745.70000000000005 * WATT;
@@ -2302,10 +2307,12 @@ pub mod consts {
     pub const ERG_PER_SECOND_SQUARED: PowerRate = 9.9999999999999995e-08 * WATT_PER_SECOND;
 
     /// One `FootPoundPerSecondSquared` (ft · lbf/s²), as a `PowerRate`.
-    pub const FOOT_POUND_PER_SECOND_SQUARED: PowerRate = 1.355818 * WATT_PER_SECOND;
+    pub const FOOT_POUND_PER_SECOND_SQUARED: PowerRate =
+        (0.3048 * 0.45359237 * 9.80665) * WATT_PER_SECOND;
 
     /// One `HorsepowerPerSecond` (hp/s), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND: PowerRate = 745.69989999999996 * WATT_PER_SECOND;
+    pub const HORSEPOWER_PER_SECOND: PowerRate =
+        (550.0 * 0.3048 * 0.45359237 * 9.80665) * WATT_PER_SECOND;
 
     /// One `HorsepowerPerSecondBoiler` (hp/s (S)), as a `PowerRate`.
     pub const HORSEPOWER_PER_SECOND_BOILER: PowerRate = 9809.5 * WATT_PER_SECOND;
@@ -2314,7 +2321,7 @@ pub mod consts {
     pub const HORSEPOWER_PER_SECOND_ELECTRIC: PowerRate = 746.0 * WATT_PER_SECOND;
 
     /// One `HorsepowerPerSecondMetric` (hp/s (M)), as a `PowerRate`.
-    pub const HORSEPOWER_PER_SECOND_METRIC: PowerRate = 735.49879999999996 * WATT_PER_SECOND;
+    pub const HORSEPOWER_PER_SECOND_METRIC: PowerRate = (75.0 * 9.80665) * WATT_PER_SECOND;
 
     /// One `HorsepowerPerSecondImperial` (hp/s (I)), as a `PowerRate`.
     pub const HORSEPOWER_PER_SECOND_IMPERIAL: PowerRate = 745.70000000000005 * WATT_PER_SECOND;
@@ -2326,7 +2333,8 @@ pub mod consts {
     pub const JOULE_SECOND: Action = METRE * METRE * KILOGRAM / SECOND;
 
     /// One `AtomicUnitOfAction` (ħ), as an `Action`.
-    pub const ATOMIC_UNIT_OF_ACTION: Action = 1.054571817e-34 * JOULE_SECOND;
+    pub const ATOMIC_UNIT_OF_ACTION: Action =
+        (6.62607015e-34 / (2.0 * core::f64::consts::PI)) * JOULE_SECOND;
 
     /// One `PlanckConstant` (h), as an `Action`.
     pub const PLANCK_CONSTANT: Action = 6.62607015e-34 * JOULE_SECOND;
@@ -2470,13 +2478,13 @@ pub mod consts {
     pub const KILOGRAM_FORCE_METRE: Torque = 9.8066499999999994 * NEWTON_METRE;
 
     /// One `OunceForceInch` (ozf · in), as a `Torque`.
-    pub const OUNCE_FORCE_INCH: Torque = 0.0070615530599999997 * NEWTON_METRE;
+    pub const OUNCE_FORCE_INCH: Torque = ((0.45359237 * 9.80665 / 16.0) * 0.0254) * NEWTON_METRE;
 
     /// One `PoundForceFoot` (lbf · ft), as a `Torque`.
-    pub const POUND_FORCE_FOOT: Torque = 1.3558180656000001 * NEWTON_METRE;
+    pub const POUND_FORCE_FOOT: Torque = ((0.45359237 * 9.80665) * 0.3048) * NEWTON_METRE;
 
     /// One `PoundForceInch` (lbf · in), as a `Torque`.
-    pub const POUND_FORCE_INCH: Torque = 0.1129848388 * NEWTON_METRE;
+    pub const POUND_FORCE_INCH: Torque = ((0.45359237 * 9.80665) * 0.0254) * NEWTON_METRE;
 
     /// One `KilogramSquareMetre` (kg · m²), as a `MomentOfInertia`.
     pub const KILOGRAM_SQUARE_METRE: MomentOfInertia = METRE * METRE * KILOGRAM / (RADIAN * RADIAN);
@@ -2557,7 +2565,7 @@ pub mod consts {
     pub const BAR: Pressure = 100000.0 * PASCAL;
 
     /// One `CentimetreOfMercury` (cm Hg), as a `Pressure`.
-    pub const CENTIMETRE_OF_MERCURY: Pressure = 1333.2239999999999 * PASCAL;
+    pub const CENTIMETRE_OF_MERCURY: Pressure = (133.322387415 * 10.0) * PASCAL;
 
     /// One `CentimetreOfWater` (cm H₂O), as a `Pressure`.
     pub const CENTIMETRE_OF_WATER: Pressure = 98.066500000000005 * PASCAL;
@@ -2566,49 +2574,53 @@ pub mod consts {
     pub const DYNE_PER_SQUARE_CENTIMETRE: Pressure = 0.10000000000000001 * PASCAL;
 
     /// One `FootOfMercury` (ft Hg), as a `Pressure`.
-    pub const FOOT_OF_MERCURY: Pressure = 40636.660000000003 * PASCAL;
+    pub const FOOT_OF_MERCURY: Pressure = (133.322387415 * 304.8) * PASCAL;
 
     /// One `FootOfWater` (ft H₂O), as a `Pressure`.
-    pub const FOOT_OF_WATER: Pressure = 2989.067 * PASCAL;
+    pub const FOOT_OF_WATER: Pressure = (9.80665 * 304.8) * PASCAL;
 
     /// One `InchOfMercury` (in Hg), as a `Pressure`.
-    pub const INCH_OF_MERCURY: Pressure = 3386.3890000000001 * PASCAL;
+    pub const INCH_OF_MERCURY: Pressure = (133.322387415 * 25.4) * PASCAL;
 
     /// One `InchOfWater` (in H₂O), as a `Pressure`.
-    pub const INCH_OF_WATER: Pressure = 249.0889 * PASCAL;
+    pub const INCH_OF_WATER: Pressure = (9.80665 * 25.4) * PASCAL;
 
     /// One `NewtonPerSquareMillimetre` (N/mm²), as a `Pressure`.
     pub const NEWTON_PER_SQUARE_MILLIMETRE: Pressure = 1000000.0 * PASCAL;
 
     /// One `KipPerSquareInch` (kip/in²), as a `Pressure`.
-    pub const KIP_PER_SQUARE_INCH: Pressure = 6894757.889515779 * PASCAL;
+    pub const KIP_PER_SQUARE_INCH: Pressure =
+        ((1000.0 * 0.45359237 * 9.80665) / (0.0254 * 0.0254)) * PASCAL;
 
     /// One `Millibar` (mbar), as a `Pressure`.
     pub const MILLIBAR: Pressure = 100.0 * PASCAL;
 
     /// One `MillimetreOfMercury` (mm Hg), as a `Pressure`.
-    pub const MILLIMETRE_OF_MERCURY: Pressure = 133.32239999999999 * PASCAL;
+    pub const MILLIMETRE_OF_MERCURY: Pressure = 133.322387415 * PASCAL;
 
     /// One `MillimetreOfWater` (mm H₂O), as a `Pressure`.
     pub const MILLIMETRE_OF_WATER: Pressure = 9.8066499999999994 * PASCAL;
 
     /// One `Millitorr` (mTorr), as a `Pressure`.
-    pub const MILLITORR: Pressure = 0.13332240000000001 * PASCAL;
+    pub const MILLITORR: Pressure = (101325.0 / 760000.0) * PASCAL;
 
     /// One `PoundalPerSquareFoot` (pdl/ft²), as a `Pressure`.
-    pub const POUNDAL_PER_SQUARE_FOOT: Pressure = 1.4881644346622025 * PASCAL;
+    pub const POUNDAL_PER_SQUARE_FOOT: Pressure =
+        ((0.45359237 * 0.3048) / (0.3048 * 0.3048)) * PASCAL;
 
     /// One `PoundForcePerSquareFoot` (lbf/ft²), as a `Pressure`.
-    pub const POUND_FORCE_PER_SQUARE_FOOT: Pressure = 47.880263121637356 * PASCAL;
+    pub const POUND_FORCE_PER_SQUARE_FOOT: Pressure =
+        ((0.45359237 * 9.80665) / (0.3048 * 0.3048)) * PASCAL;
 
     /// One `PoundForcePerSquareInch` (lbf/in²), as a `Pressure`.
-    pub const POUND_FORCE_PER_SQUARE_INCH: Pressure = 6894.7578895157794 * PASCAL;
+    pub const POUND_FORCE_PER_SQUARE_INCH: Pressure =
+        ((0.45359237 * 9.80665) / (0.0254 * 0.0254)) * PASCAL;
 
     /// One `Psi` (psi), as a `Pressure`.
-    pub const PSI: Pressure = 6894.7569999999996 * PASCAL;
+    pub const PSI: Pressure = (0.45359237 * 9.80665 / (0.0254 * 0.0254)) * PASCAL;
 
     /// One `Torr` (Torr), as a `Pressure`.
-    pub const TORR: Pressure = 133.32239999999999 * PASCAL;
+    pub const TORR: Pressure = (101325.0 / 760.0) * PASCAL;
 
     /// One `Yottahertz` (YHz), as a `Frequency`.
     pub const YOTTAHERTZ: Frequency = 9.9999999999999998e+23 * HERTZ;
@@ -2734,7 +2746,7 @@ pub mod consts {
     pub const RYDBERG_CONSTANT: ReciprocalLength = 10973731.568159999 * RECIPROCAL_METRE;
 
     /// One `RadianPerMetre` (rad/m), as a `Curvature`.
-    pub const RADIAN_PER_METRE: Curvature = ONE / METRE;
+    pub const RADIAN_PER_METRE: Curvature = RADIAN / METRE;
 
     /// One `DegreePerMetre` (°/m), as a `Curvature`.
     pub const DEGREE_PER_METRE: Curvature = 0.017453292519943295 * RADIAN_PER_METRE;
@@ -2836,37 +2848,38 @@ pub mod consts {
 
     /// One `CubicMetrePerHundredweightLong` (m³/cwt long), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_HUNDREDWEIGHT_LONG: SpecificVolume =
-        0.019684128785380992 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / 50.80234544) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerHundredweightShort` (m³/cwt short), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_HUNDREDWEIGHT_SHORT: SpecificVolume =
-        0.022046224760379582 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / 45.359237) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerOunce` (m³/oz), as a `SpecificVolume`.
-    pub const CUBIC_METRE_PER_OUNCE: SpecificVolume = 35.273965837869568 * CUBIC_METRE_PER_KILOGRAM;
+    pub const CUBIC_METRE_PER_OUNCE: SpecificVolume =
+        (1.0 / 0.028349523125) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerOunceTroy` (m³/oz t), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_OUNCE_TROY: SpecificVolume =
-        32.150743260882706 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / 0.0311034768) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerPennyweight` (m³/dwt), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_PENNYWEIGHT: SpecificVolume =
-        643.01486521765401 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / 0.00155517384) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerPound` (m³/lb), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_POUND: SpecificVolume = 2.2046226218487757 * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerPoundTroy` (m³/lb t), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_POUND_TROY: SpecificVolume =
-        2.6792290357695832 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / 0.3732417216) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerSlug` (m³/slug), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_SLUG: SpecificVolume =
-        0.068521779647661013 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / (0.45359237 * 9.80665 / 0.3048)) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerTonAssay` (m³/AT), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_TON_ASSAY: SpecificVolume =
-        34.285710367347392 * CUBIC_METRE_PER_KILOGRAM;
+        (1.0 / (0.175 / 6.0)) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicMetrePerTonLong` (m³/2240 lb), as a `SpecificVolume`.
     pub const CUBIC_METRE_PER_TON_LONG: SpecificVolume =
@@ -2880,18 +2893,20 @@ pub mod consts {
     pub const CUBIC_METRE_PER_TON: SpecificVolume = 0.001 * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `GallonPerGrain` (gal/gr), as a `SpecificVolume`.
-    pub const GALLON_PER_GRAIN: SpecificVolume = 58.417834497524737 * CUBIC_METRE_PER_KILOGRAM;
+    pub const GALLON_PER_GRAIN: SpecificVolume =
+        (0.003785411784 / 0.00006479891) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicInchPerOunce` (in³/oz), as a `SpecificVolume`.
     pub const CUBIC_INCH_PER_OUNCE: SpecificVolume =
-        0.00057803659462311895 * CUBIC_METRE_PER_KILOGRAM;
+        (0.0254 * 0.0254 * 0.0254 / 0.028349523125) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `GallonImperialPerOunce` (gal (UK)/oz), as a `SpecificVolume`.
     pub const GALLON_IMPERIAL_PER_OUNCE: SpecificVolume =
-        0.16035862335588044 * CUBIC_METRE_PER_KILOGRAM;
+        (0.00454609 / 0.028349523125) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `GallonPerOunce` (gal/oz), as a `SpecificVolume`.
-    pub const GALLON_PER_OUNCE: SpecificVolume = 0.1335264935702615 * CUBIC_METRE_PER_KILOGRAM;
+    pub const GALLON_PER_OUNCE: SpecificVolume =
+        (0.003785411784 / 0.028349523125) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicFootPerPound` (ft³/lb), as a `SpecificVolume`.
     pub const CUBIC_FOOT_PER_POUND: SpecificVolume = 0.06242796057614461 * CUBIC_METRE_PER_KILOGRAM;
@@ -2912,7 +2927,7 @@ pub mod consts {
 
     /// One `CubicFootPerSlug` (ft³/slug), as a `SpecificVolume`.
     pub const CUBIC_FOOT_PER_SLUG: SpecificVolume =
-        0.0019403209560158697 * CUBIC_METRE_PER_KILOGRAM;
+        (0.3048 * 0.3048 * 0.3048 / (0.45359237 * 9.80665 / 0.3048)) * CUBIC_METRE_PER_KILOGRAM;
 
     /// One `CubicYardPerTonLong` (yd³/2240 lb), as a `SpecificVolume`.
     pub const CUBIC_YARD_PER_TON_LONG: SpecificVolume =
@@ -3002,18 +3017,19 @@ pub mod consts {
 
     /// One `FootPoundPerHourPerPound` ((ft · lbf/h)/lb), as a `SpecificPower`.
     pub const FOOT_POUND_PER_HOUR_PER_POUND: SpecificPower =
-        0.0008302963983082676 * WATT_PER_KILOGRAM;
+        ((0.3048 * 0.45359237 * 9.80665) / (3600.0 * 0.45359237)) * WATT_PER_KILOGRAM;
 
     /// One `FootPoundPerMinutePerPound` ((ft · lbf/min)/lb), as a `SpecificPower`.
     pub const FOOT_POUND_PER_MINUTE_PER_POUND: SpecificPower =
-        0.04981778389849605 * WATT_PER_KILOGRAM;
+        ((0.3048 * 0.45359237 * 9.80665) / (60.0 * 0.45359237)) * WATT_PER_KILOGRAM;
 
     /// One `FootPoundPerSecondPerPound` ((ft · lbf/s)/lb), as a `SpecificPower`.
     pub const FOOT_POUND_PER_SECOND_PER_POUND: SpecificPower =
-        2.9890670339097634 * WATT_PER_KILOGRAM;
+        ((0.3048 * 0.45359237 * 9.80665) / 0.45359237) * WATT_PER_KILOGRAM;
 
     /// One `HorsepowerPerPound` (hp/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_PER_POUND: SpecificPower = 1643.9868686503698 * WATT_PER_KILOGRAM;
+    pub const HORSEPOWER_PER_POUND: SpecificPower =
+        ((550.0 * 0.3048 * 0.45359237 * 9.80665) / 0.45359237) * WATT_PER_KILOGRAM;
 
     /// One `HorsepowerBoilerPerPound` ((hp (S))/lb), as a `SpecificPower`.
     pub const HORSEPOWER_BOILER_PER_POUND: SpecificPower = 21626.245609025565 * WATT_PER_KILOGRAM;
@@ -3022,7 +3038,8 @@ pub mod consts {
     pub const HORSEPOWER_ELECTRIC_PER_POUND: SpecificPower = 1644.6484758991867 * WATT_PER_KILOGRAM;
 
     /// One `HorsepowerMetricPerPound` ((hp (M))/lb), as a `SpecificPower`.
-    pub const HORSEPOWER_METRIC_PER_POUND: SpecificPower = 1621.4972928226282 * WATT_PER_KILOGRAM;
+    pub const HORSEPOWER_METRIC_PER_POUND: SpecificPower =
+        ((75.0 * 9.80665) / 0.45359237) * WATT_PER_KILOGRAM;
 
     /// One `HorsepowerImperialPerPound` ((hp (I))/lb), as a `SpecificPower`.
     pub const HORSEPOWER_IMPERIAL_PER_POUND: SpecificPower = 1643.9870891126322 * WATT_PER_KILOGRAM;

@@ -692,7 +692,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         let h_dn_rt = head_rt(&[], &[p_d.clone(), p_n.clone()]);
         let root_d = dim_fn("root_or_one", quote! { #td, __N });
         let root_ty = ty_of(&quote! { { #root_d } });
-        let mut preds = one_n(&["RootHasSquare", "RootExact"], &self_d);
+        let mut preds = one_n(&["RootHasSquare", "RootOfLabel", "RootExact"], &self_d);
         preds.extend([
             quote! { #root_ty: ::core::marker::Sized },
             quote! { #qv: #yadc::num_traits::real::Real },
@@ -743,6 +743,13 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
 
     // A change of number type, for a family generic over it:
     // `KILOPASCAL.cast::<f32>()`.
+    if opts.explicit("Cast") && v_ident.is_none() {
+        return Err(syn::Error::new_spanned(
+            &input.ident,
+            "`Cast` changes a family's number type, so the family needs one as a parameter: \
+             `struct Qty<const D: Dim, N = f64>(N)`",
+        ));
+    }
     if opts.has("Cast") && v_ident.is_some() {
         let w_ty = quote! { __W };
         let out_ty = ty_v(&td, Some(&w_ty));
@@ -823,7 +830,7 @@ enum Shape {
 const REFUSALS: &[(&str, &str, Shape)] = &[
     ("AddSameDimension", "add_same_dimension", Shape::Pair),
     ("AddNotTwoPoints", "add_not_two_points", Shape::Pair),
-    ("AddPointFirst", "add_point_first", Shape::Pair),
+    ("AddInOrder", "add_in_order", Shape::Pair),
     ("AddLabels", "add_labels", Shape::Pair),
     ("SubSameDimension", "sub_same_dimension", Shape::Pair),
     ("SubNotFromAmount", "sub_not_from_amount", Shape::Pair),
@@ -838,12 +845,13 @@ const REFUSALS: &[(&str, &str, Shape)] = &[
     ("PowiExists", "powi_exists", Shape::OneN),
     ("InvExists", "inv_exists", Shape::One),
     ("RootHasSquare", "root_has_square", Shape::OneN),
+    ("RootOfLabel", "root_of_label", Shape::OneN),
     ("RootExact", "root_exact", Shape::OneN),
 ];
 const ADD: &[&str] = &[
     "AddSameDimension",
     "AddNotTwoPoints",
-    "AddPointFirst",
+    "AddInOrder",
     "AddLabels",
 ];
 const SUB: &[&str] = &[
@@ -885,6 +893,11 @@ struct Options {
 }
 
 impl Options {
+    /// Listed in `#[quantity(impl(..))]`, not just on by default.
+    fn explicit(&self, name: &str) -> bool {
+        self.extras.as_ref().is_some_and(|l| l.iter().any(|e| e == name))
+    }
+
     fn has(&self, name: &str) -> bool {
         match &self.extras {
             None => true,

@@ -45,7 +45,8 @@ use unit::expand_unit;
 /// (the zero exponent - no literal `0` is written), const `Add` / `Sub`
 /// whose `Output` converts `Into<Option<Self>>` (an integer's sum is itself,
 /// a checked sum an `Option`), and `yadc::PartialRoot` - nothing is matched
-/// by name. Every integer qualifies; a rational type of yours with those
+/// by name. Every signed integer qualifies (an exponent may be negative); a
+/// rational type of yours with those
 /// operators gives fractional powers (`m^½`, `V/√Hz`), and `yadc::Exponent`
 /// is one such type, ready-made. There may be any number of axes, of
 /// different types. Each axis may also carry `#[ucum("kg")]` for the serde
@@ -73,10 +74,15 @@ use unit::expand_unit;
 ///   add and subtract the exponents: a power level less a power level is the
 ///   logarithm of watts over watts, a gain; a gain moves a level; two power
 ///   levels sum to the logarithm of watts squared, which is not a power
-///   level. Only a logarithm adds to a logarithm. Beside a plain number it
-///   survives a product (`3.0 * DECIBEL`, `ratio * BEL`); a gain - no
-///   exponents - leaves any other product as a label does (decibels per
-///   kilometre is a plain per-length); a level has no other products.
+///   level. Only a logarithm adds to a logarithm. A gain - no exponents -
+///   scales (`3.0 * DECIBEL`) and leaves any other product as a label does
+///   (decibels per kilometre is a plain per-length); a level has no
+///   products at all, not even with a plain number: twice a level would be
+///   the level of a square.
+///
+/// Beside a plain number every product is a scaling: it keeps the other
+/// operand only where that adds to itself as itself, so a point, a level
+/// and a label with no sum have none.
 ///
 /// Any other variant is a label of your own (see below): it tells apart
 /// quantities of the same exponents, and decides `+` and `-` only.
@@ -193,7 +199,8 @@ use unit::expand_unit;
 ///
 /// A crate that *defines* a unit system - a kind, a dimension and a
 /// quantity type - needs these twelve (the last three for the quantity's
-/// and the unit enums' default `Fn` extra, which makes them callable):
+/// default `Fn` extra, which makes its constants callable; a unit enum's
+/// `Fn` needs only `fn_traits` and `unboxed_closures`):
 ///
 /// ```ignore
 /// #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
@@ -300,8 +307,7 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// unit value is called: on a quantity it reads (`unit(q)`), and on a number
 /// it builds (`unit(n)`) when the unit measures one type. (A unit of the
 /// numbers themselves, `of = f64`, has one argument type for both directions
-/// and is not called; a variant's path is a constructor to the parser, so
-/// call a value: `let u = TemperatureUnit::Celsius; u(25.0)`.)
+/// and is not called; listing `Fn` for it is an error.)
 /// `#[unit(impl(..))]` on the type writes exactly the listed ones -
 /// `impl(Display)`, `impl()` for none (then no labels are needed). `Fn` needs
 /// `#![feature(fn_traits, unboxed_closures)]` in the crate.
@@ -408,7 +414,11 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///
 /// Every other generic parameter and the whole `where` clause are passed
 /// through to each emitted impl, and the bounds an operator needs on the
-/// number type are added to that impl's `where` clause. A number type
+/// number type are added to that impl's `where` clause. The number type
+/// parameter itself takes no bounds: the impls for `n * Qty` and the
+/// lossless `From`s are written once per primitive number type, which a
+/// bound such as `N: Float` would rule out - each impl asks for what it
+/// uses instead. `#[quantity(impl(Cast))]` needs that parameter. A number type
 /// parameter may have a default, and is best put last (`Qty<const D: Dim, N
 /// = f64>`), so `Qty<LENGTH>` is an `f64` length and `Qty<LENGTH, f32>` an
 /// `f32` one.

@@ -144,6 +144,15 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
     // A unit is called like the function it is: on a quantity it reads; on a
     // number it builds, when it measures one type (several would each be a
     // possible result). The three std function traits, each over `Unit`.
+    let explicit = |x: &str| top.impls.as_ref().is_some_and(|l| l.iter().any(|i| i == x));
+    if explicit("Fn") && top.of.iter().all(|q| quote! { #q }.to_string() == quote! { #number }.to_string()) {
+        return Err(syn::Error::new_spanned(
+            name,
+            "`Fn` calls a unit on a number to build and on a quantity to read; a unit of its \
+             own numbers (`of` the number type) has one argument type for both, so it is not \
+             called - leave `Fn` out",
+        ));
+    }
     if wants("Fn") {
         let mut directions: Vec<(TokenStream2, TokenStream2, TokenStream2)> = Vec::new();
         // A unit of the numbers themselves has one argument type for both
@@ -493,7 +502,7 @@ impl UnitCase {
         };
         Ok(UnitCase {
             ident: ident.clone(),
-            ctor: path.clone(),
+            ctor: quote! { #path {} },
             fieldless: fields.is_empty(),
             bind,
             bare,

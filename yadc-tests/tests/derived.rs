@@ -28,6 +28,10 @@ const LEVEL: Dim = Dim {
     kind: Kind::Log,
     ..POWER
 };
+const RANK: Dim = Dim {
+    kind: Kind::Rank,
+    ..Dim::DIMENSIONLESS
+};
 const GAIN: Dim = Dim {
     kind: Kind::Log,
     ..Dim::DIMENSIONLESS
@@ -53,9 +57,13 @@ const _: () = assert!(is(LEVEL - LEVEL, GAIN) && is(LEVEL + GAIN, LEVEL) && is(L
 const _: () = assert!(is(GAIN + GAIN, GAIN) && is(GAIN + LEVEL, LEVEL));
 const _: () = assert!(matches!(LEVEL + LEVEL, Some(d) if d.kg == 2 && d.m == 4 && d.kind == Kind::Log));
 const _: () = assert!((LEVEL + POWER).is_none() && (POWER + LEVEL).is_none() && (GAIN + Dim::DIMENSIONLESS).is_none());
-// Beside a plain number a logarithm survives; a gain leaves any other
-// product as a label does; a level has no other products.
-const _: () = assert!(is(GAIN * Dim::DIMENSIONLESS, GAIN) && is(LEVEL / Dim::DIMENSIONLESS, LEVEL));
+// Beside a plain number a product is a scaling: a gain scales (gains add),
+// a level does not (two levels sum to another level's square), nor does a
+// point or a label with no sum. A gain leaves any other product as a label
+// does; a level has no other products.
+const _: () = assert!(is(GAIN * Dim::DIMENSIONLESS, GAIN) && is(Dim::DIMENSIONLESS * GAIN, GAIN));
+const _: () = assert!((LEVEL * Dim::DIMENSIONLESS).is_none() && (LEVEL / Dim::DIMENSIONLESS).is_none());
+const _: () = assert!((RANK * Dim::DIMENSIONLESS).is_none() && is(LENGTH * Dim::DIMENSIONLESS, LENGTH));
 const _: () = assert!(matches!(GAIN / LENGTH, Some(d) if d.m == -1 && d.kind == Kind::Linear));
 const _: () = assert!((LEVEL * LENGTH).is_none() && (GAIN * GAIN).is_none() && (LENGTH / LEVEL).is_none());
 const _: () = assert!(GAIN.partial_root(2).is_none());

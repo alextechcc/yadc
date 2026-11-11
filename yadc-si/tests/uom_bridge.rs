@@ -254,3 +254,66 @@ fn uom_temperature_kind_is_absolute() {
     let back = ThermodynamicTemperature::try_from(dq).unwrap();
     close(back.get::<kelvin>(), 300.0);
 }
+
+#[test]
+fn dynamic_plain_ratio_is_not_a_uom_angle() {
+    // A plain ratio has no radians, so it does not convert to uom's Angle;
+    // the original comes back.
+    use yadc_si::dimensionless::{Dimensionless, DimensionlessUnit};
+    let ratio = DynamicSIQuantity::from(DimensionlessUnit::Ratio.quantity(1.0));
+    let err = Angle::try_from(ratio).unwrap_err();
+    close(
+        DimensionlessUnit::Ratio.value(Dimensionless::try_from(err).unwrap()),
+        1.0,
+    );
+}
+
+#[test]
+fn uom_curvature_is_radians_per_metre() {
+    use uom::si::curvature::radian_per_meter;
+    use uom::si::f64::Curvature;
+    // uom marks curvature with its angle kind: rad/m, not a plain 1/m.
+    let q: yadc_si::mechanical::Curvature = Curvature::new::<radian_per_meter>(0.25).into();
+    close(CurvatureUnit::RadianPerMetre.value(q), 0.25);
+    let back: Curvature = q.into();
+    close(back.get::<radian_per_meter>(), 0.25);
+    let dq: DynamicSIQuantity = Curvature::new::<radian_per_meter>(0.25).into();
+    assert!(yadc_si::mechanical::Curvature::try_from(dq).is_ok());
+    assert!(yadc_si::mechanical::ReciprocalLength::try_from(dq).is_err());
+    // An arc length times its curvature is the angle it turns through.
+    let turn = q * LengthUnit::Metre.quantity(4.0);
+    close(AngleUnit::Radian.value(turn), 1.0);
+}
+
+#[test]
+fn uom_angular_kinds_land_on_their_radians() {
+    use uom::si::angular_absement::radian_second;
+    use uom::si::angular_acceleration::radian_per_second_squared;
+    use uom::si::angular_jerk::radian_per_second_cubed;
+    use uom::si::angular_momentum::kilogram_square_meter_per_second;
+    use uom::si::angular_velocity::radian_per_second;
+    use uom::si::f64::{
+        AngularAbsement, AngularAcceleration, AngularJerk, AngularMomentum, AngularVelocity,
+    };
+    let w: yadc_si::angular::AngularVelocity =
+        AngularVelocity::new::<radian_per_second>(2.0).into();
+    close(AngularVelocityUnit::RadianPerSecond.value(w), 2.0);
+    let a: yadc_si::angular::AngularAcceleration =
+        AngularAcceleration::new::<radian_per_second_squared>(3.0).into();
+    close(
+        AngularAccelerationUnit::RadianPerSecondSquared.value(a),
+        3.0,
+    );
+    let j: yadc_si::angular::AngularJerk = AngularJerk::new::<radian_per_second_cubed>(4.0).into();
+    close(AngularJerkUnit::RadianPerSecondCubed.value(j), 4.0);
+    let s: yadc_si::angular::AngularAbsement = AngularAbsement::new::<radian_second>(5.0).into();
+    close(AngularAbsementUnit::RadianSecond.value(s), 5.0);
+    let l: yadc_si::angular::AngularMomentum =
+        AngularMomentum::new::<kilogram_square_meter_per_second>(6.0).into();
+    close(
+        AngularMomentumUnit::KilogramSquareMetrePerSecond.value(l),
+        6.0,
+    );
+    let back: AngularMomentum = l.into();
+    close(back.get::<kilogram_square_meter_per_second>(), 6.0);
+}

@@ -86,6 +86,35 @@ pub struct AnyQuantity {
     pub value: f64,
 }
 
+// What the derive writes, by hand (with `Q<D>` for `Quantity<D, SI<f64>,
+// f64>`, and `Div` the same as `Mul`):
+//
+// impl<D: Dimension<Kind = dyn uom::Kind> + ?Sized> From<Q<D>> for AnyQuantity {
+//     fn from(q: Q<D>) -> Self { AnyQuantity { exponents: Exponents::of::<D>(), value: q.value } }
+// }
+// impl<D: Dimension<Kind = dyn uom::Kind> + ?Sized> TryFrom<AnyQuantity> for Q<D> {
+//     type Error = AnyQuantity;
+//     fn try_from(a: AnyQuantity) -> Result<Self, AnyQuantity> {
+//         if a.exponents == Exponents::of::<D>() {
+//             Ok(Quantity { value: a.value, dimension: PhantomData, units: PhantomData })
+//         } else {
+//             Err(a)
+//         }
+//     }
+// }
+// impl Mul for AnyQuantity {
+//     type Output = AnyQuantity;
+//     fn mul(self, o: AnyQuantity) -> AnyQuantity {
+//         AnyQuantity { exponents: self.exponents * o.exponents, value: self.value * o.value }
+//     }
+// }
+// impl Add for AnyQuantity {
+//     type Output = Option<AnyQuantity>;
+//     fn add(self, o: AnyQuantity) -> Option<AnyQuantity> {
+//         Some(AnyQuantity { exponents: (self.exponents + o.exponents)?, value: self.value + o.value })
+//     }
+// }
+
 fn main() {
     let distance = AnyQuantity::from(Length::new::<length::kilometer>(3.0));
     let duration = AnyQuantity::from(Time::new::<time::minute>(10.0));

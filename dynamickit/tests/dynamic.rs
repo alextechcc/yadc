@@ -586,3 +586,28 @@ fn generic_dynamic_type() {
     assert_eq!(Tagged::<i32, 2>::try_from(a), Err(a));
     assert!(a < AnyTagged::from(Tagged::<i32, 1>(9)));
 }
+
+// ===== Raw identifiers ========================================================
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct Kinded<const K: u8> {
+    pub r#type: f64,
+}
+
+/// A field named by a raw identifier, filled and lifted like any other.
+#[derive(Copy, Clone, PartialEq, Debug, Dynamic)]
+#[dynamic(Kinded<const K: u8> => { r#match: K, r#type: .r#type })]
+#[dynamic(impl(Add -> Option<Self>, Neg -> Self))]
+pub struct AnyKinded {
+    #[dynamic(same)]
+    pub r#match: u8,
+    pub r#type: f64,
+}
+
+#[test]
+fn raw_identifiers() {
+    let a = AnyKinded::from(Kinded::<2> { r#type: 1.5 });
+    assert_eq!(Kinded::<2>::try_from((a + a).unwrap()), Ok(Kinded { r#type: 3.0 }));
+    assert_eq!(Kinded::<2>::try_from(-a), Ok(Kinded { r#type: -1.5 }));
+    assert_eq!(Kinded::<3>::try_from(a), Err(a));
+}

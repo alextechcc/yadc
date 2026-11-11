@@ -119,8 +119,6 @@ pub type Time = Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>;
 pub type Temperature = Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>;
 /// A temperature step: an amount.
 pub type TemperatureStep = Qty<{ Dim { k: 1, ..Dim::DIMENSIONLESS } }>;
-/// K⁴: a power of a temperature step, as in σT⁴.
-pub type KelvinToTheFourth = Qty<{ Dim { k: 4, ..Dim::DIMENSIONLESS } }>;
 pub type Angle = Qty<{ Dim { rad: 1, ..Dim::DIMENSIONLESS } }>;
 pub type SolidAngle = Qty<{ Dim { rad: 2, ..Dim::DIMENSIONLESS } }>;
 pub type AngularSpeed = Qty<{ Dim { s: -1, rad: 1, ..Dim::DIMENSIONLESS } }>;
@@ -176,8 +174,6 @@ pub const WATT: Power = JOULE / SECOND;
 pub const DECIBEL: Gain = 0.1 * BEL;
 /// The level of one milliwatt: 30 dB below a watt.
 pub const MILLIWATT_LEVEL: PowerLevel = WATT_LEVEL - 30.0 * DECIBEL;
-/// K⁴: a plain power of kelvin, as in σT⁴.
-pub const KELVIN_TO_THE_FOURTH: KelvinToTheFourth = KELVIN.powi::<4>();
 /// Torque is energy per radian of turn.
 pub const NEWTON_METRE_PER_RADIAN: Torque = JOULE / RADIAN;
 
@@ -260,7 +256,7 @@ fn main() {
     // kelvins above absolute zero, as in σT⁴ - it says so: `t - ABSOLUTE_ZERO`.
     println!("\n== A point (a temperature)");
     // A scale is a constant; its enum variant is the same unit with a name.
-    use TemperatureUnit::{Celsius, KelvinScale};
+    use TemperatureUnit::Celsius;
     let morning = CELSIUS.quantity(15.0);
     let noon = CELSIUS.quantity(22.5);
     let warming: TemperatureStep = noon - morning;
@@ -269,14 +265,6 @@ fn main() {
     println!("22.5 °C - 7.5 K  = {} {Celsius}", Celsius(noon - warming));
     let mean: Temperature = morning + (noon - morning) / 2.0;
     println!("mean of the two  = {:.2} {Celsius}", Celsius(mean));
-    // Twice as hot: twice the kelvins above absolute zero, moved back onto
-    // the line.
-    let cold = KELVIN_SCALE.quantity(150.0);
-    let doubled: Temperature = ABSOLUTE_ZERO + 2.0 * (cold - ABSOLUTE_ZERO);
-    println!("twice 150 K      = {} {KelvinScale}", KelvinScale(doubled));
-    let hot = KelvinScale(300.0);
-    let hot4: KelvinToTheFourth = (hot - ABSOLUTE_ZERO).powi::<4>();
-    println!("(300 K)⁴         = {:.3e} K⁴", KELVIN_TO_THE_FOURTH(hot4));
     // Everything else would depend on where the zero was put:
     // let _ = warming + morning;   // a sum keeps its left operand: `morning + warming`
     //     error: cannot add a point to an amount
@@ -287,7 +275,7 @@ fn main() {
     // let _ = morning * morning;
     //     error: cannot multiply: these have no product
     // let _ = morning.root::<2>();
-    //     error: a point has no roots
+    //     error: a point or a logarithm has no roots
 
     // --- A logarithm: adding is multiplying -------------------------------------------
     // A power level is the logarithm of a power, a gain the logarithm of a
@@ -336,11 +324,6 @@ fn main() {
     println!("400 W / 500 VA   = {}   (a power factor)", ONE(real / load));
     let used: Energy = load * SECOND(60.0);
     println!("500 VA × 60 s    = {} J   (the label drops)", JOULE(used));
-    // A power factor times an apparent power is a plain power: the label
-    // survives only beside a plain *number*, and reading it out of the
-    // ratio says which you mean.
-    let delivered: Power = ONE(real / load) * WATT * VOLT_AMPERE(load);
-    println!("0.8 × 500 VA     = {} W", WATT(delivered));
     // let _ = real + load;
     //     error: cannot add: the labels have no sum
 

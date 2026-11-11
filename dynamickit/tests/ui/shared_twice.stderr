@@ -1,0 +1,11 @@
+error: `Num<T>` is `shared`, and can have the same facts as `Qty<D>` and `Ratio<D>`: a `shared` mapping is the same value as one other mapping, and the way back must tell it apart from the rest - give them a fact whose constants differ (e.g. a tag)
+  --> tests/ui/shared_twice.rs:19:11
+   |
+19 | #[dynamic(shared Num<const T: u8> => { tag: T, dim: NUMBER, value: .0 })]
+   |           ^^^^^^
+
+error: `f64` is marked `shared` but can hold no other mapping's facts: `shared` is for a static type that is the same value as another (a bare number and a dimensionless quantity) - remove it
+  --> tests/ui/shared_twice.rs:29:11
+   |
+29 | #[dynamic(shared f64 => { tag: 1u8, dim: NUMBER, value: self })]
+   |           ^^^^^^

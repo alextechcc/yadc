@@ -42,10 +42,7 @@
 //! **Angles and radians.** `cos` and `sin` want a plain number, and an angle
 //! is not one here: the radian is a unit with its own exponent, like the
 //! metre. Reading an angle in radians gives the plain number
-//! (`RADIAN(theta)`). The same goes for formulas a textbook writes with
-//! "rad = 1": a wheel's rim speed is angular speed × radius, which comes out
-//! in m·rad/s, so you divide by a radian to get m/s. In return, a torque is
-//! joules *per radian*, and torque × angle is plainly an energy.
+//! (`RADIAN(theta)`).
 //!
 //! Run with: cargo run -p yadc --example rotations
 
@@ -63,9 +60,9 @@
 )]
 #![allow(incomplete_features)]
 
-use core::f64::consts::{PI, TAU};
+use core::f64::consts::PI;
 use core::marker::ConstParamTy;
-use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{Add, Div, Mul, Sub};
 
 use yadc::{Dimension, Root, RootAs, Unit};
 
@@ -82,12 +79,11 @@ pub enum Kind {
     Affine,
 }
 
-/// Metres, kilograms, seconds and radians, and the kind.
+/// Metres, seconds and radians, and the kind.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 pub struct Dim {
     pub m: i8,
-    pub kg: i8,
     pub s: i8,
     pub rad: i8,
     #[kind]
@@ -123,14 +119,6 @@ pub type Time = Qty<
         }
     },
 >;
-pub type Mass = Qty<
-    {
-        Dim {
-            kg: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
 pub type Velocity = Qty<
     {
         Dim {
@@ -157,33 +145,9 @@ pub type AngularVelocity = Qty<
         }
     },
 >;
-pub type Energy = Qty<
-    {
-        Dim {
-            m: 2,
-            kg: 1,
-            s: -2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
-/// Energy per radian: torque × angle is the work done turning.
-pub type Torque = Qty<
-    {
-        Dim {
-            m: 2,
-            kg: 1,
-            s: -2,
-            rad: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
-
 // --- Constants: the base ones, and the rest from them ---------------------------
 
 pub const METRE: Length = Qty(1.0);
-pub const KILOGRAM: Mass = Qty(1.0);
 pub const SECOND: Time = Qty(1.0);
 pub const RADIAN: Angle = Qty(1.0);
 /// The survey marker's coordinate, on every axis: the zero of the line of
@@ -191,17 +155,9 @@ pub const RADIAN: Angle = Qty(1.0);
 pub const MARKER: Coordinate = Qty(0.0);
 
 pub const NANOMETRE: Length = 1e-9 * METRE;
-pub const KILOMETRE: Length = 1000.0 * METRE;
-pub const MINUTE: Time = 60.0 * SECOND;
-pub const HOUR: Time = 60.0 * MINUTE;
 pub const METRE_PER_SECOND: Velocity = METRE / SECOND;
-pub const KILOMETRE_PER_HOUR: Velocity = KILOMETRE / HOUR;
 pub const DEGREE: Angle = (PI / 180.0) * RADIAN;
-pub const REVOLUTION: Angle = TAU * RADIAN;
 pub const DEGREE_PER_SECOND: AngularVelocity = DEGREE / SECOND;
-pub const RPM: AngularVelocity = REVOLUTION / MINUTE;
-pub const JOULE: Energy = KILOGRAM * METRE * METRE / (SECOND * SECOND);
-pub const NEWTON_METRE: Torque = JOULE / RADIAN;
 
 // Unit types, for printing: each names one of the values above, with
 // its labels.
@@ -211,25 +167,12 @@ pub const NEWTON_METRE: Torque = JOULE / RADIAN;
 struct Metre;
 
 #[derive(Copy, Clone, yadc::Unit)]
-#[unit("m/s", "metres per second", of = Velocity, by = METRE_PER_SECOND)]
-struct MetrePerSecond;
-
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("km/h", "kilometres per hour", of = Velocity, by = KILOMETRE_PER_HOUR)]
-struct KilometrePerHour;
-
-#[derive(Copy, Clone, yadc::Unit)]
 #[unit("°", "degrees", of = Angle, by = DEGREE)]
 struct Degree;
 
 #[derive(Copy, Clone, yadc::Unit)]
 #[unit("rad", "radians", of = Angle, by = RADIAN)]
 struct Radian;
-
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("J", "joules", of = Energy, by = JOULE)]
-struct Joule;
-
 // --- A vector of any quantity -----------------------------------------------------
 
 /// Three quantities of one type: x, y and z.
@@ -284,19 +227,6 @@ impl<A: Div<B>, B: Copy> Div<B> for Vec3<A> {
 }
 
 impl<Q: Copy> Vec3<Q> {
-    /// The cross product: perpendicular to both, with the unit of `Q * B`.
-    fn cross<B: Copy, P>(self, r: Vec3<B>) -> Vec3<P>
-    where
-        Q: Mul<B, Output = P>,
-        P: Sub<Output = P>,
-    {
-        Vec3::new(
-            self.y * r.z - self.z * r.y,
-            self.z * r.x - self.x * r.z,
-            self.x * r.y - self.y * r.x,
-        )
-    }
-
     /// How long the vector is: the square root of x² + y² + z², in `Q`'s own
     /// unit (a length's squares are an area, whose root is a length again).
     fn norm<S>(self) -> Q
@@ -404,16 +334,6 @@ where
     a + (b - a) * 0.5
 }
 
-/// `a` and `b` differ by less than `tolerance`, either way round.
-fn close<Q: Copy + Sub<Output = Q> + Neg<Output = Q> + PartialOrd>(
-    a: Q,
-    b: Q,
-    tolerance: Q,
-) -> bool {
-    let d = a - b;
-    d < tolerance && -d < tolerance
-}
-
 fn show(label: &str, [x, y, z]: [f64; 3]) {
     println!("{label}: ({x:.3}, {y:.3}, {z:.3})");
 }
@@ -487,39 +407,7 @@ fn main() {
     let sensor_now = after.quantity([2.0, 0.5, 1.0]);
     show("sensor, on the grid (m)   ", SITE_GRID.value(sensor_now));
 
-    // --- 4. Rim speed: ω × r, divided by a radian -------------------------------
-    // A wheel of radius 0.3 m at 300 rpm. ω·r is m·rad/s; one radian of turn
-    // moves the rim by one radius, so dividing by a radian gives m/s.
-    let wheel_speed: AngularVelocity = RPM(300.0);
-    let radius: Length = METRE(0.3);
-    let rim: Velocity = wheel_speed * radius / RADIAN;
-    println!(
-        "rim speed at 300 rpm, r = 0.3 m: {:.3} {MetrePerSecond} = {:.2} {KilometrePerHour}",
-        MetrePerSecond(rim),
-        KilometrePerHour(rim),
-    );
-    // The same as vectors: ω about z, crossed with the rim point's offset.
-    let omega: Vec3<AngularVelocity> = Vec3::new(0.0 * wheel_speed, 0.0 * wheel_speed, wheel_speed);
-    let rim_point: Vec3<Length> = Vec3::new(radius, 0.0 * radius, 0.0 * radius);
-    let rim_velocity: Vec3<Velocity> = omega.cross(rim_point) / RADIAN;
-    assert!(close(
-        rim_velocity.norm(),
-        rim,
-        METRE_PER_SECOND(1e-9)
-    ));
-    show(
-        "ω × r / rad (m/s)",
-        [rim_velocity.x, rim_velocity.y, rim_velocity.z].map(|v| MetrePerSecond(v)),
-    );
-
-    // --- 5. Torque × angle is energy --------------------------------------------
-    // A torque is joules per radian, so turning through an angle does work.
-    let torque: Torque = NEWTON_METRE(20.0);
-    let ten_turns: Angle = REVOLUTION(10.0);
-    let work: Energy = torque * ten_turns;
-    println!("20 N·m through 10 turns: {:.1} {Joule}", Joule(work));
-
-    // --- 6. What does not compile -------------------------------------------------
+    // --- 4. What does not compile -------------------------------------------------
     // A place is made of points: two of them differ by a displacement, and
     // that is all. Adding or scaling places would depend on where the marker
     // was put:
@@ -527,7 +415,9 @@ fn main() {
     // let _: Place = sensor + tree;
     //     error: cannot add a point to a point
     // let _ = sensor * 2.0;
-    //     error: cannot multiply `Qty<{ .. kind: Kind::Affine .. }>` by
-    //            `{float}` (a coordinate cannot be scaled)
+    //     error: cannot multiply `Qty<{ .. kind: Kind::Affine .. }>` by `f64`
+    // (`Vec3`'s `*` is this file's own, so the message is rustc's plain
+    // one, with no reason; its `help:` line names the trait the coordinate
+    // lacks, `ScaleNotPoint`.)
     let _ = tree - sensor; // a displacement: fine
 }

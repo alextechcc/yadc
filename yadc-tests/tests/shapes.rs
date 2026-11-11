@@ -61,3 +61,21 @@ fn variants_carry_their_unit() {
     assert_eq!(tape.value(tape.quantity(2.0)), 2.0);
     assert_eq!(METRE.value(Measured::Ruler(0.3 * METRE).quantity(1.0)), 0.3);
 }
+
+/// Fieldless units of every shape parse: `struct U;`, `U()`, `U {}`.
+#[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
+#[unit(of = Length)]
+pub enum Shapes {
+    #[unit("a", "as", by = METRE)]
+    Unit,
+    #[unit("b", "bs", by = METRE)]
+    Tuple(),
+    #[unit("c", "cs", by = METRE)]
+    Braced {},
+}
+
+#[test]
+fn fieldless_shapes_parse() {
+    assert_eq!("b".parse::<Shapes>(), Ok(Shapes::Tuple()));
+    assert_eq!("c".parse::<Shapes>(), Ok(Shapes::Braced {}));
+}

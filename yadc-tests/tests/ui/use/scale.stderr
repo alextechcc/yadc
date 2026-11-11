@@ -5,7 +5,7 @@ error[E0277]: a point cannot be scaled
    |                      ^ a point cannot be scaled
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale, a zero and a step (`Scale(SEA_LEVEL, FOOT)`)
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
    = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `Mul<f64>`
 
 error[E0277]: a point cannot be scaled
@@ -15,7 +15,7 @@ error[E0277]: a point cannot be scaled
    |                 ^ a point cannot be scaled
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale, a zero and a step (`Scale(SEA_LEVEL, FOOT)`)
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
    = note: required for `f64` to implement `Mul<Qty<yadc_tests::::Altitude::{constant#0}>>`
 
 error[E0277]: a point cannot be scaled
@@ -25,7 +25,7 @@ error[E0277]: a point cannot be scaled
    |                      ^ a point cannot be scaled
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale, a zero and a step (`Scale(SEA_LEVEL, FOOT)`)
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
    = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `Div<f64>`
 
 error[E0277]: cannot scale: this label cannot be added to itself
@@ -38,10 +38,30 @@ error[E0277]: cannot scale: this label cannot be added to itself
    = note: scaling is repeated addition, and this dimension has no sum with itself that is itself - its label declares none, or it is a level, whose double is the level of a square: it is not a `Quantity` nor a unit of itself
    = note: required for `Qty<yadc_tests::::Rank::{constant#0}>` to implement `Mul<f64>`
 
-error[E0599]: a point cannot be scaled
-  --> tests/ui/use/scale.rs:14:23
+error[E0277]: cannot multiply: these have no product
+  --> tests/ui/use/scale.rs:15:19
    |
-14 |     let _ = SEA_LEVEL.value(altitude); // a point is not a unit of itself
+15 |     let _ = FIRST * two;
+   |                   ^ no product
+   |
+   = help: the trait `MulExists<Qty<yadc_tests::::Number::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Rank::{constant#0}>`
+   = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
+   = note: required for `Qty<yadc_tests::::Rank::{constant#0}>` to implement `Mul<Qty<yadc_tests::::Number::{constant#0}>>`
+
+error[E0277]: cannot multiply: these have no product
+  --> tests/ui/use/scale.rs:16:29
+   |
+16 |     let _ = MILLIWATT_LEVEL * two;
+   |                             ^ no product
+   |
+   = help: the trait `MulExists<Qty<yadc_tests::::Number::{constant#0}>>` is not implemented for `Qty<yadc_tests::::PowerLevel::{constant#0}>`
+   = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
+   = note: required for `Qty<yadc_tests::::PowerLevel::{constant#0}>` to implement `Mul<Qty<yadc_tests::::Number::{constant#0}>>`
+
+error[E0599]: a point cannot be scaled
+  --> tests/ui/use/scale.rs:17:23
+   |
+17 |     let _ = SEA_LEVEL.value(altitude); // a point is not a unit of itself
    |                       ^^^^^ a point cannot be scaled
    |
   ::: src/lib.rs
@@ -52,12 +72,12 @@ error[E0599]: a point cannot be scaled
    = note: the following trait bounds were not satisfied:
            `Qty<yadc_tests::::Altitude::{constant#0}>: ScaleNotPoint`
            which is required by `Qty<yadc_tests::::Altitude::{constant#0}>: Unit<Qty<yadc_tests::::Altitude::{constant#0}>>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale, a zero and a step (`Scale(SEA_LEVEL, FOOT)`)
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
 
 error[E0277]: not a `Quantity`: this value cannot be scaled
-  --> tests/ui/use/scale.rs:15:19
+  --> tests/ui/use/scale.rs:18:19
    |
-15 |     is_quantity::<Altitude>(); // not a `Quantity`
+18 |     is_quantity::<Altitude>(); // not a `Quantity`
    |                   ^^^^^^^^ not a `Quantity`
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
@@ -76,9 +96,9 @@ note: required by a bound in `is_quantity`
    = note: this error originates in the derive macro `yadc::Quantity` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: not a `Quantity`: this value cannot be scaled
-  --> tests/ui/use/scale.rs:16:19
+  --> tests/ui/use/scale.rs:19:19
    |
-16 |     is_quantity::<Rank>();
+19 |     is_quantity::<Rank>();
    |                   ^^^^ not a `Quantity`
    |
    = help: the trait `ScaleLabel` is not implemented for `Qty<yadc_tests::::Rank::{constant#0}>`

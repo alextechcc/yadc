@@ -1,27 +1,19 @@
 //! Fractional exponents: dimensions like volts per square-root hertz.
 //!
-//! Most quantities have whole-number exponents - m², s⁻¹, kg·m·s⁻². But some
-//! common ones do not:
+//! Most quantities have whole-number exponents - m², s⁻¹, kg·m·s⁻². Noise
+//! does not. Random electrical noise spreads its *power* evenly over
+//! frequency, so power per hertz is the natural measure. Power goes with
+//! voltage *squared*, so the voltage per hertz goes with the *square root* of
+//! the bandwidth: a datasheet quotes an amplifier's noise as, say, 4 nV/√Hz,
+//! and over a 10 kHz bandwidth that is 4 nV × √10000 = 400 nV. The unit V/√Hz
+//! has the time exponent -5/2 (V has s⁻³, and 1/√Hz is s^½).
 //!
-//! - **Noise.** Random electrical noise spreads its *power* evenly over
-//!   frequency, so power per hertz is the natural measure. Power goes with
-//!   voltage *squared*, so the voltage per hertz goes with the *square root*
-//!   of the bandwidth: a datasheet quotes an amplifier's noise as, say,
-//!   4 nV/√Hz, and over a 10 kHz bandwidth that is 4 nV × √10000 = 400 nV.
-//!   The unit V/√Hz has the time exponent -5/2 (V has s⁻³, and 1/√Hz is
-//!   s^½).
-//! - **CGS-Gaussian units.** The old centimetre-gram-second system has no
-//!   separate unit of charge: charge is *defined* by Coulomb's law,
-//!   F = q₁·q₂ / r², with no constant in front. Solving for q gives
-//!   q = r·√F, so the unit of charge (the statcoulomb) is
-//!   cm · √(g·cm/s²) = g^½ · cm^(3/2) · s⁻¹.
-//!
-//! With whole-number exponents those dimensions cannot even be written down,
+//! With whole-number exponents that dimension cannot even be written down,
 //! and `x.root::<2>()` refuses anything whose exponents are odd. Declaring the
 //! dimension's fields as [`yadc::Exponent`] - a fraction - instead of `i8`
-//! makes every root exist, and the rest of yadc works unchanged. Neither
-//! system below needs a label (a `#[kind]` field), so neither has one: only
-//! the exponents decide.
+//! makes every root exist, and the rest of yadc works unchanged. The system
+//! below needs no label (a `#[kind]` field), so it has none: only the
+//! exponents decide.
 //!
 //! Run with: cargo run -p yadc --example fractional_exponents
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
@@ -38,7 +30,7 @@
 
 use yadc::{PowiAs, RootAs, Unit};
 
-// --- Part 1: SI with fractional exponents, for a noise budget -----------------
+// --- SI with fractional exponents, for a noise budget -------------------------
 
 mod si {
     use core::marker::ConstParamTy;
@@ -242,109 +234,7 @@ mod si {
     }
 }
 
-// --- Part 2: CGS-Gaussian electrostatics ----------------------------------------
-
-mod cgs {
-    use core::marker::ConstParamTy;
-    use yadc::{Dimension, Exponent, Unit};
-
-    /// Three base units - centimetre, gram, second - and no electrical one.
-    #[derive_const(PartialEq)]
-    #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
-    pub struct Dim {
-        pub cm: Exponent,
-        pub g: Exponent,
-        pub s: Exponent,
-    }
-
-    #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
-    pub struct Qty<const D: Dim>(f64);
-
-    const fn e(n: i8) -> Exponent {
-        Exponent::int(n)
-    }
-
-    pub type Length = Qty<
-        {
-            Dim {
-                cm: e(1),
-                ..Dim::DIMENSIONLESS
-            }
-        },
-    >;
-    /// The dyne: g·cm·s⁻².
-    pub type Force = Qty<
-        {
-            Dim {
-                g: e(1),
-                cm: e(1),
-                s: e(-2),
-            }
-        },
-    >;
-    /// The statcoulomb: g^½·cm^(3/2)·s⁻¹ - whatever makes F = q₁q₂/r² come out
-    /// in dynes.
-    pub type Charge = Qty<
-        {
-            Dim {
-                g: Exponent::new(1, 2),
-                cm: Exponent::new(3, 2),
-                s: e(-1),
-            }
-        },
-    >;
-
-    pub type Mass = Qty<
-        {
-            Dim {
-                g: e(1),
-                ..Dim::DIMENSIONLESS
-            }
-        },
-    >;
-    pub type Time = Qty<
-        {
-            Dim {
-                s: e(1),
-                ..Dim::DIMENSIONLESS
-            }
-        },
-    >;
-
-    // The base constants. The statcoulomb is defined by Coulomb's law,
-    // q = r·√F, so it is the root of g·cm³·s⁻² - and a root needs `powf`,
-    // which is not `const`. So it is given here as the third constant (its
-    // value checked in `main`): in CGS-Gaussian units it is coherent.
-    pub const CENTIMETRE: Length = Qty(1.0);
-    pub const GRAM: Mass = Qty(1.0);
-    pub const SECOND: Time = Qty(1.0);
-    pub const STATCOULOMB: Charge = Qty(1.0);
-
-    pub const DYNE: Force = GRAM * CENTIMETRE / (SECOND * SECOND);
-    /// The elementary charge in CGS-Gaussian units.
-    pub const ELEMENTARY_CHARGE: Charge = 4.803_204_712_570_263e-10 * STATCOULOMB;
-
-    #[derive(Copy, Clone, Unit)]
-    #[unit("cm", "centimetres", of = Length, by = CENTIMETRE)]
-    pub struct Centimetre;
-
-    #[derive(Copy, Clone, Unit)]
-    #[unit("dyn", "dynes", of = Force, by = DYNE)]
-    pub struct Dyne;
-
-    /// A choice of two units of charge.
-    #[derive(Copy, Clone, Unit)]
-    #[unit(of = Charge)]
-    pub enum ChargeUnit {
-        #[unit("statC", "statcoulombs", by = STATCOULOMB)]
-        Statcoulomb,
-        #[unit("e", "elementary charges", by = ELEMENTARY_CHARGE)]
-        ElementaryCharge,
-    }
-}
-
 fn main() {
-    // --- Part 1 -------------------------------------------------------------------
     use si::{Kelvin, Kilohertz, Kiloohm, Microvolt, NanovoltPerRootHertz};
     println!("== Noise budget (V/√Hz)");
 
@@ -382,36 +272,4 @@ fn main() {
     );
     // The whole dimension prints with fractional superscripts.
     println!("dimension of V/√Hz: {}", si_dim(total));
-
-    // --- Part 2 -------------------------------------------------------------------
-    use cgs::{Centimetre, ChargeUnit, Dyne};
-    println!("\n== CGS-Gaussian electrostatics");
-
-    // Two charges of 1 statC, 1 cm apart, repel with 1 dyn - that is the
-    // definition. Coulomb's law has no constant in this system.
-    let q1 = ChargeUnit::Statcoulomb(1.0);
-    let q2 = ChargeUnit::Statcoulomb(1.0);
-    let d = Centimetre(1.0);
-    let f: cgs::Force = q1 * q2 / d.powi::<2>();
-    println!("1 statC, 1 statC, 1 cm apart: {} {Dyne}", Dyne(f));
-
-    // Two electrons 1 Ångström (1e-8 cm) apart.
-    let e = ChargeUnit::ElementaryCharge(1.0);
-    let a = Centimetre(1e-8);
-    let fe: cgs::Force = e * e / a.powi::<2>();
-    println!("two electrons 1 Å apart: {:.3e} {Dyne}", Dyne(fe));
-
-    // And back: the charge that gives a force F at distance r is r·√F, a
-    // statcoulomb again - its exponents are halves.
-    let q: cgs::Charge = d * f.root::<2>();
-    let statc_unit = ChargeUnit::Statcoulomb;
-    println!("r·√F = {} {statc_unit}", statc_unit(q));
-    fn cgs_dim<const D: cgs::Dim>(_: cgs::Qty<D>) -> cgs::Dim {
-        D
-    }
-    let dim = cgs_dim(q);
-    // ... and the statcoulomb constant is that root: √(dyn·cm²).
-    let statc: cgs::Charge = (cgs::DYNE * cgs::CENTIMETRE * cgs::CENTIMETRE).root::<2>();
-    println!("√(dyn·cm²) = {} {statc_unit}", statc_unit(statc));
-    println!("statC = g^{} · cm^{} · s^{}", dim.g, dim.cm, dim.s);
 }

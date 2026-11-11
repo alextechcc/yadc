@@ -236,36 +236,33 @@ pub mod consts {
 
     /// One `HundredweightLongPerCubicMetre` (cwt long/m³), as a `MassDensity`.
     pub const HUNDREDWEIGHT_LONG_PER_CUBIC_METRE: MassDensity =
-        50.802349999999997 * KILOGRAM_PER_CUBIC_METRE;
+        50.80234544 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `HundredweightShortPerCubicMetre` (cwt short/m³), as a `MassDensity`.
     pub const HUNDREDWEIGHT_SHORT_PER_CUBIC_METRE: MassDensity =
-        45.35924 * KILOGRAM_PER_CUBIC_METRE;
+        45.359237 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `OuncePerCubicMetre` (oz/m³), as a `MassDensity`.
-    pub const OUNCE_PER_CUBIC_METRE: MassDensity = 0.02834952 * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_CUBIC_METRE: MassDensity = 0.028349523125 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `OunceTroyPerCubicMetre` (oz t/m³), as a `MassDensity`.
-    pub const OUNCE_TROY_PER_CUBIC_METRE: MassDensity =
-        0.031103479999999999 * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_TROY_PER_CUBIC_METRE: MassDensity = 0.0311034768 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `PennyweightPerCubicMetre` (dwt/m³), as a `MassDensity`.
-    pub const PENNYWEIGHT_PER_CUBIC_METRE: MassDensity =
-        0.0015551740000000001 * KILOGRAM_PER_CUBIC_METRE;
+    pub const PENNYWEIGHT_PER_CUBIC_METRE: MassDensity = 0.00155517384 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `PoundPerCubicMetre` (lb/m³), as a `MassDensity`.
     pub const POUND_PER_CUBIC_METRE: MassDensity = 0.45359237 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `PoundTroyPerCubicMetre` (lb t/m³), as a `MassDensity`.
-    pub const POUND_TROY_PER_CUBIC_METRE: MassDensity =
-        0.37324170000000001 * KILOGRAM_PER_CUBIC_METRE;
+    pub const POUND_TROY_PER_CUBIC_METRE: MassDensity = 0.3732417216 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `SlugPerCubicMetre` (slug/m³), as a `MassDensity`.
-    pub const SLUG_PER_CUBIC_METRE: MassDensity = 14.5939 * KILOGRAM_PER_CUBIC_METRE;
+    pub const SLUG_PER_CUBIC_METRE: MassDensity =
+        (0.45359237 * 9.80665 / 0.3048) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `TonAssayPerCubicMetre` (AT/m³), as a `MassDensity`.
-    pub const TON_ASSAY_PER_CUBIC_METRE: MassDensity =
-        0.029166669999999999 * KILOGRAM_PER_CUBIC_METRE;
+    pub const TON_ASSAY_PER_CUBIC_METRE: MassDensity = (0.175 / 6.0) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `TonLongPerCubicMetre` (2240 lb/m³), as a `MassDensity`.
     pub const TON_LONG_PER_CUBIC_METRE: MassDensity = 1016.0469088 * KILOGRAM_PER_CUBIC_METRE;
@@ -277,20 +274,23 @@ pub mod consts {
     pub const TON_PER_CUBIC_METRE: MassDensity = 1000.0 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `GrainPerGallon` (gr/gal), as a `MassDensity`.
-    pub const GRAIN_PER_GALLON: MassDensity = 0.01711806006849452 * KILOGRAM_PER_CUBIC_METRE;
+    pub const GRAIN_PER_GALLON: MassDensity =
+        (0.00006479891 / 0.003785411784) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `GramPerCubicCentimetre` (g/cm³), as a `MassDensity`.
     pub const GRAM_PER_CUBIC_CENTIMETRE: MassDensity = 1000.0 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `OuncePerCubicInch` (oz/in³), as a `MassDensity`.
-    pub const OUNCE_PER_CUBIC_INCH: MassDensity = 1729.9942759714065 * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_CUBIC_INCH: MassDensity =
+        (0.028349523125 / (0.0254 * 0.0254 * 0.0254)) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `OuncePerGallonImperial` (oz/gal (UK)), as a `MassDensity`.
     pub const OUNCE_PER_GALLON_IMPERIAL: MassDensity =
-        6.2360226040399551 * KILOGRAM_PER_CUBIC_METRE;
+        (0.028349523125 / 0.00454609) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `OuncePerGallon` (oz/gal), as a `MassDensity`.
-    pub const OUNCE_PER_GALLON: MassDensity = 7.4891504544287377 * KILOGRAM_PER_CUBIC_METRE;
+    pub const OUNCE_PER_GALLON: MassDensity =
+        (0.028349523125 / 0.003785411784) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `PoundPerCubicFoot` (lb/ft³), as a `MassDensity`.
     pub const POUND_PER_CUBIC_FOOT: MassDensity = 16.018463373960138 * KILOGRAM_PER_CUBIC_METRE;
@@ -308,7 +308,8 @@ pub mod consts {
     pub const POUND_PER_GALLON: MassDensity = 119.82642731689663 * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `SlugPerCubicFoot` (slug/ft³), as a `MassDensity`.
-    pub const SLUG_PER_CUBIC_FOOT: MassDensity = 515.37865263968274 * KILOGRAM_PER_CUBIC_METRE;
+    pub const SLUG_PER_CUBIC_FOOT: MassDensity =
+        ((0.45359237 * 9.80665 / 0.3048) / (0.3048 * 0.3048 * 0.3048)) * KILOGRAM_PER_CUBIC_METRE;
 
     /// One `TonLongPerCubicYard` (2240 lb/yd³), as a `MassDensity`.
     pub const TON_LONG_PER_CUBIC_YARD: MassDensity = 1328.9391836174339 * KILOGRAM_PER_CUBIC_METRE;
@@ -332,10 +333,10 @@ pub mod consts {
     pub const GRAM_PER_CENTIMETRE: LinearMassDensity = 0.10000000000000001 * KILOGRAM_PER_METRE;
 
     /// One `OuncePerFoot` (oz/ft), as a `LinearMassDensity`.
-    pub const OUNCE_PER_FOOT: LinearMassDensity = 0.093010236220472428 * KILOGRAM_PER_METRE;
+    pub const OUNCE_PER_FOOT: LinearMassDensity = (0.028349523125 / 0.3048) * KILOGRAM_PER_METRE;
 
     /// One `OuncePerInch` (oz/in), as a `LinearMassDensity`.
-    pub const OUNCE_PER_INCH: LinearMassDensity = 1.1161228346456693 * KILOGRAM_PER_METRE;
+    pub const OUNCE_PER_INCH: LinearMassDensity = (0.028349523125 / 0.0254) * KILOGRAM_PER_METRE;
 
     /// One `PoundPerYard` (lb/yd), as a `LinearMassDensity`.
     pub const POUND_PER_YARD: LinearMassDensity = 0.4960546478565179 * KILOGRAM_PER_METRE;
@@ -354,7 +355,7 @@ pub mod consts {
 
     /// One `OuncePerSquareFoot` (oz/ft²), as an `ArealMassDensity`.
     pub const OUNCE_PER_SQUARE_FOOT: ArealMassDensity =
-        0.30515169363672057 * KILOGRAM_PER_SQUARE_METRE;
+        (0.028349523125 / (0.3048 * 0.3048)) * KILOGRAM_PER_SQUARE_METRE;
 
     /// One `PerKilometre` (km⁻¹), as a `LinearNumberDensity`.
     pub const PER_KILOMETRE: LinearNumberDensity = 0.001 * PER_METRE;
@@ -375,7 +376,7 @@ pub mod consts {
     pub const PER_FOOT: LinearNumberDensity = 3.280839895013123 * PER_METRE;
 
     /// One `PerFootSurvey` (ft (U.S. survey)), as a `LinearNumberDensity`.
-    pub const PER_FOOT_SURVEY: LinearNumberDensity = 3.280833436679587 * PER_METRE;
+    pub const PER_FOOT_SURVEY: LinearNumberDensity = (1.0 / (1200.0 / 3937.0)) * PER_METRE;
 
     /// One `PerInch` (in⁻¹), as a `LinearNumberDensity`.
     pub const PER_INCH: LinearNumberDensity = 39.370078740157481 * PER_METRE;
@@ -384,7 +385,7 @@ pub mod consts {
     pub const PER_MILE: LinearNumberDensity = 0.00062137119223733392 * PER_METRE;
 
     /// One `PerMileSurvey` (mi⁻¹ (U.S. survey)), as a `LinearNumberDensity`.
-    pub const PER_MILE_SURVEY: LinearNumberDensity = 0.00062137003393301752 * PER_METRE;
+    pub const PER_MILE_SURVEY: LinearNumberDensity = (1.0 / (6336000.0 / 3937.0)) * PER_METRE;
 
     /// One `PerNauticalMile` (M⁻¹), as a `LinearNumberDensity`.
     pub const PER_NAUTICAL_MILE: LinearNumberDensity = 0.00053995680345572358 * PER_METRE;
@@ -396,7 +397,8 @@ pub mod consts {
     pub const PER_SQUARE_METRE: ArealNumberDensity = ONE / (METRE * METRE);
 
     /// One `PerAcre` (ac⁻²), as an `ArealNumberDensity`.
-    pub const PER_ACRE: ArealNumberDensity = 0.00024710436922532533 * PER_SQUARE_METRE;
+    pub const PER_ACRE: ArealNumberDensity =
+        (1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))) * PER_SQUARE_METRE;
 
     /// One `PerAre` (a⁻²), as an `ArealNumberDensity`.
     pub const PER_ARE: ArealNumberDensity = 0.01 * PER_SQUARE_METRE;
@@ -405,7 +407,8 @@ pub mod consts {
     pub const PER_BARN: ArealNumberDensity = 9.9999999999999996e+27 * PER_SQUARE_METRE;
 
     /// One `PerCircularMil` (cmil⁻²), as an `ArealNumberDensity`.
-    pub const PER_CIRCULAR_MIL: ArealNumberDensity = 1973525159.9788833 * PER_SQUARE_METRE;
+    pub const PER_CIRCULAR_MIL: ArealNumberDensity =
+        (4.0 / (core::f64::consts::PI * 0.0000254 * 0.0000254)) * PER_SQUARE_METRE;
 
     /// One `PerHectare` (ha⁻²), as an `ArealNumberDensity`.
     pub const PER_HECTARE: ArealNumberDensity = 0.0001 * PER_SQUARE_METRE;
@@ -426,29 +429,34 @@ pub mod consts {
     pub const PER_CUBIC_METRE: VolumetricNumberDensity = ONE / (METRE * METRE * METRE);
 
     /// One `PerCubicFoot` (ft⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_FOOT: VolumetricNumberDensity = 35.314662471284763 * PER_CUBIC_METRE;
+    pub const PER_CUBIC_FOOT: VolumetricNumberDensity =
+        (1.0 / (0.3048 * 0.3048 * 0.3048)) * PER_CUBIC_METRE;
 
     /// One `PerCubicInch` (in⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_INCH: VolumetricNumberDensity = 61023.758990325288 * PER_CUBIC_METRE;
+    pub const PER_CUBIC_INCH: VolumetricNumberDensity =
+        (1.0 / (0.0254 * 0.0254 * 0.0254)) * PER_CUBIC_METRE;
 
     /// One `PerCubicMile` (mi⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_MILE: VolumetricNumberDensity = 2.39912748531614e-10 * PER_CUBIC_METRE;
+    pub const PER_CUBIC_MILE: VolumetricNumberDensity =
+        (1.0 / (1609.344 * 1609.344 * 1609.344)) * PER_CUBIC_METRE;
 
     /// One `PerCubicYard` (yd⁻³), as a `VolumetricNumberDensity`.
-    pub const PER_CUBIC_YARD: VolumetricNumberDensity = 1.3079505474361619 * PER_CUBIC_METRE;
+    pub const PER_CUBIC_YARD: VolumetricNumberDensity =
+        (1.0 / (0.9144 * 0.9144 * 0.9144)) * PER_CUBIC_METRE;
 
     /// One `PerFluidOunce` (per fl oz), as a `VolumetricNumberDensity`.
-    pub const PER_FLUID_OUNCE: VolumetricNumberDensity = 33814.0222016107 * PER_CUBIC_METRE;
+    pub const PER_FLUID_OUNCE: VolumetricNumberDensity =
+        (1.0 / 0.0000295735295625) * PER_CUBIC_METRE;
 
     /// One `PerFluidOunceImperial` (per fl oz (UK)), as a `VolumetricNumberDensity`.
     pub const PER_FLUID_OUNCE_IMPERIAL: VolumetricNumberDensity =
-        35195.082824588411 * PER_CUBIC_METRE;
+        (1.0 / 0.0000284130625) * PER_CUBIC_METRE;
 
     /// One `PerGallonImperial` (per gal (UK)), as a `VolumetricNumberDensity`.
     pub const PER_GALLON_IMPERIAL: VolumetricNumberDensity = 219.96924829908778 * PER_CUBIC_METRE;
 
     /// One `PerGallon` (per gal), as a `VolumetricNumberDensity`.
-    pub const PER_GALLON: VolumetricNumberDensity = 264.17203728418463 * PER_CUBIC_METRE;
+    pub const PER_GALLON: VolumetricNumberDensity = (1.0 / 0.003785411784) * PER_CUBIC_METRE;
 
     /// One `PerLitre` (L⁻¹), as a `VolumetricNumberDensity`.
     pub const PER_LITRE: VolumetricNumberDensity = 1000.0 * PER_CUBIC_METRE;
@@ -469,7 +477,8 @@ pub mod consts {
     pub const PER_FOOT_SECOND: LinearNumberRate = 3.280839895013123 * PER_METRE_SECOND;
 
     /// One `PerFootSurveySecond` (ft⁻¹ (U.S. survey) · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_FOOT_SURVEY_SECOND: LinearNumberRate = 3.280833436679587 * PER_METRE_SECOND;
+    pub const PER_FOOT_SURVEY_SECOND: LinearNumberRate =
+        (1.0 / (1200.0 / 3937.0)) * PER_METRE_SECOND;
 
     /// One `PerInchSecond` (in⁻¹ · s⁻¹), as a `LinearNumberRate`.
     pub const PER_INCH_SECOND: LinearNumberRate = 39.370078740157481 * PER_METRE_SECOND;
@@ -478,7 +487,8 @@ pub mod consts {
     pub const PER_MILE_SECOND: LinearNumberRate = 0.00062137119223733392 * PER_METRE_SECOND;
 
     /// One `PerMileSurveySecond` (mi⁻¹ (U.S. survey) · s⁻¹), as a `LinearNumberRate`.
-    pub const PER_MILE_SURVEY_SECOND: LinearNumberRate = 0.00062137003393301752 * PER_METRE_SECOND;
+    pub const PER_MILE_SURVEY_SECOND: LinearNumberRate =
+        (1.0 / (6336000.0 / 3937.0)) * PER_METRE_SECOND;
 
     /// One `PerYardSecond` (yd⁻¹ · s⁻¹), as a `LinearNumberRate`.
     pub const PER_YARD_SECOND: LinearNumberRate = 1.0936132983377078 * PER_METRE_SECOND;
@@ -487,7 +497,8 @@ pub mod consts {
     pub const PER_SQUARE_METRE_SECOND: ArealNumberRate = ONE / (METRE * METRE * SECOND);
 
     /// One `PerAcreSecond` (ac⁻¹ · s⁻¹), as an `ArealNumberRate`.
-    pub const PER_ACRE_SECOND: ArealNumberRate = 0.00024710436922532533 * PER_SQUARE_METRE_SECOND;
+    pub const PER_ACRE_SECOND: ArealNumberRate =
+        (1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))) * PER_SQUARE_METRE_SECOND;
 
     /// One `PerAreSecond` (a⁻¹ · s⁻¹), as an `ArealNumberRate`.
     pub const PER_ARE_SECOND: ArealNumberRate = 0.01 * PER_SQUARE_METRE_SECOND;
@@ -497,7 +508,7 @@ pub mod consts {
 
     /// One `PerCircularMilSecond` (cmil⁻¹ · s⁻¹), as an `ArealNumberRate`.
     pub const PER_CIRCULAR_MIL_SECOND: ArealNumberRate =
-        1973525159.9788833 * PER_SQUARE_METRE_SECOND;
+        (4.0 / (core::f64::consts::PI * 0.0000254 * 0.0000254)) * PER_SQUARE_METRE_SECOND;
 
     /// One `PerHectareSecond` (ha⁻¹ · s⁻¹), as an `ArealNumberRate`.
     pub const PER_HECTARE_SECOND: ArealNumberRate = 0.0001 * PER_SQUARE_METRE_SECOND;
@@ -523,34 +534,35 @@ pub mod consts {
 
     /// One `PerCubicFootSecond` (ft⁻³ · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_CUBIC_FOOT_SECOND: VolumetricNumberRate =
-        35.314662471284763 * PER_CUBIC_METRE_SECOND;
+        (1.0 / (0.3048 * 0.3048 * 0.3048)) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerCubicInchSecond` (in⁻³ · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_CUBIC_INCH_SECOND: VolumetricNumberRate =
-        61023.758990325288 * PER_CUBIC_METRE_SECOND;
+        (1.0 / (0.0254 * 0.0254 * 0.0254)) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerCubicMileSecond` (mi⁻³ · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_CUBIC_MILE_SECOND: VolumetricNumberRate =
-        2.39912748531614e-10 * PER_CUBIC_METRE_SECOND;
+        (1.0 / (1609.344 * 1609.344 * 1609.344)) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerCubicYardSecond` (yd⁻³ · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_CUBIC_YARD_SECOND: VolumetricNumberRate =
-        1.3079505474361619 * PER_CUBIC_METRE_SECOND;
+        (1.0 / (0.9144 * 0.9144 * 0.9144)) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerFluidOunceSecond` (fl oz⁻¹ · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_FLUID_OUNCE_SECOND: VolumetricNumberRate =
-        33814.0222016107 * PER_CUBIC_METRE_SECOND;
+        (1.0 / 0.0000295735295625) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerFluidOunceImperialSecond` (fl oz⁻¹ (UK) · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_FLUID_OUNCE_IMPERIAL_SECOND: VolumetricNumberRate =
-        35195.082824588411 * PER_CUBIC_METRE_SECOND;
+        (1.0 / 0.0000284130625) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerGallonImperialSecond` (gal⁻¹ (UK) · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_GALLON_IMPERIAL_SECOND: VolumetricNumberRate =
         219.96924829908778 * PER_CUBIC_METRE_SECOND;
 
     /// One `PerGallonSecond` (gal⁻¹ · s⁻¹), as a `VolumetricNumberRate`.
-    pub const PER_GALLON_SECOND: VolumetricNumberRate = 264.17203728418463 * PER_CUBIC_METRE_SECOND;
+    pub const PER_GALLON_SECOND: VolumetricNumberRate =
+        (1.0 / 0.003785411784) * PER_CUBIC_METRE_SECOND;
 
     /// One `PerLitreSecond` (L⁻¹ · s⁻¹), as a `VolumetricNumberRate`.
     pub const PER_LITRE_SECOND: VolumetricNumberRate = 1000.0 * PER_CUBIC_METRE_SECOND;

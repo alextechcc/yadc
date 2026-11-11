@@ -16,8 +16,9 @@ use std::collections::BTreeMap;
 use proc_macro2::{Span, TokenStream as TokenStream2, TokenTree};
 use quote::{ToTokens, format_ident, quote, quote_spanned};
 use syn::{
-    Data, DeriveInput, Expr, Fields, GenericArgument, Ident, Member, Path,
-    PathArguments, Token, Type, TypeParam,
+    Data, DeriveInput, Expr, Fields, GenericArgument, Ident, Member, Path, PathArguments, Token,
+    Type, TypeParam,
+    ext::IdentExt,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     spanned::Spanned,
@@ -60,11 +61,23 @@ impl Parse for Decl {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
         let member: Member = input.parse()?;
         input.parse::<Token![:]>()?;
-        let ty: syn::TypePath = input.parse()?;
+        let ty: Type = input.parse()?;
+        let ty = match ty {
+            Type::Path(p) if p.qself.is_none() => p.path,
+            other => {
+                return Err(syn::Error::new_spanned(
+                    other,
+                    "a declared field's type is a named type (`Time`, `Qty<{ D }>`, \
+                     `PhantomData<F>`): the way back builds it as a struct expression, which a \
+                     tuple, an array or a reference has none of - move that field whole, into \
+                     a field of its type",
+                ));
+            }
+        };
         let children = decls(input)?;
         Ok(Decl {
             member,
-            ty: expr_path(ty.path),
+            ty: expr_path(ty),
             children,
         })
     }
@@ -121,8 +134,11 @@ struct Mapping {
     args: Vec<TokenStream2>,
     decls: Vec<Decl>,
     fills: Vec<(Member, Source)>,
-    /// `shared`: it may hold the same facts as another mapping - the way
-    /// back gives either.
+    /// Each fill's source, where it is written: where a type error in it is
+    /// reported.
+    fill_spans: Vec<Span>,
+    /// `shared`: it may hold the same facts as exactly one other mapping -
+    /// the way back gives either.
     shared: bool,
     span: Span,
 }
@@ -239,11 +255,13 @@ impl Parse for Mapping {
         })?;
         let inner;
         syn::braced!(inner in input);
-        let mut fills = Vec::new();
+        let (mut fills, mut fill_spans) = (Vec::new(), Vec::new());
         while !inner.is_empty() {
             let m: Member = inner.parse()?;
             inner.parse::<Token![:]>()?;
+            let at = inner.fork();
             let src = parse_source(&inner, &params)?;
+            fill_spans.push(source_span(&at, &inner));
             fills.push((m, src));
             if inner.is_empty() {
                 break;
@@ -256,10 +274,32 @@ impl Parse for Mapping {
             args,
             decls,
             fills,
+            fill_spans,
             shared,
             span,
         })
     }
+}
+
+/// The span of the tokens between `start` and `end`, joined where the
+/// compiler can.
+fn source_span(start: ParseStream<'_>, end: ParseStream<'_>) -> Span {
+    let first = start.span();
+    let mut last = first;
+    let _ = start.step(|c| {
+        let mut c = *c;
+        while c != end.cursor() {
+            match c.token_tree() {
+                Some((tt, next)) => {
+                    last = tt.span();
+                    c = next;
+                }
+                None => break,
+            }
+        }
+        Ok(((), c))
+    });
+    first.join(last).unwrap_or(first)
 }
 
 /// `.a.0` or `self` (a field path), a declared const parameter, or a
@@ -748,12 +788,12 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
         global: TokenStream2::new(),
         per_member: maps.iter().map(|_| Vec::new()).collect(),
     };
+    // The pairs that can hold the same facts, one of them `shared`.
+    let mut coincide: Vec<(usize, usize)> = Vec::new();
     for j in 0..maps.len() {
         for i in 0..j {
             let (a, b) = (&maps[i], &maps[j]);
-            if a.shared || b.shared {
-                continue;
-            }
+            let shared = a.shared || b.shared;
             let side_maps = [a, b];
             let mut terms: Vec<Term> = Vec::new();
             let mut parent: Vec<usize> = Vec::new();
@@ -833,9 +873,19 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
                 for w in c.windows(2) {
                     let (ea, ty) = &exprs[&w[0]];
                     let (eb, _) = &exprs[&w[1]];
+                    // Compared at compile time, so the field type's
+                    // `PartialEq` must be `const`: said at the field type.
+                    let eq = quote_spanned! { ty.span()=>
+                        facts_compared_at_compile_time::<#ty>(&__a, &__b)
+                    };
                     eqs.push(quote! {{
+                        const fn facts_compared_at_compile_time<
+                            __T: const ::core::cmp::PartialEq,
+                        >(a: &__T, b: &__T) -> bool {
+                            *a == *b
+                        }
                         let (__a, __b): (#ty, #ty) = (const { #ea }, const { #eb });
-                        __a == __b
+                        #eq
                     }});
                 }
                 if let Some(s) = per.first() {
@@ -852,6 +902,10 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
                     }
                 }
                 conds.push(quote! { (#(#eqs)&&*) });
+            }
+            if conds.is_empty() && shared {
+                coincide.push((i, j));
+                continue;
             }
             if conds.is_empty() {
                 return Err(syn::Error::new(
@@ -884,6 +938,7 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
                         const { ::core::assert!(!(#(#conds)&&*), #msg) };
                     });
                 }
+                _ if shared => coincide.push((i, j)),
                 _ => {
                     return Err(syn::Error::new(
                         b.span,
@@ -894,6 +949,46 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
                         ),
                     ));
                 }
+            }
+        }
+    }
+    // A `shared` mapping is the same value as exactly one other: it may hold
+    // that one's facts, and is told apart from every other.
+    for (k, m) in maps.iter().enumerate().filter(|(_, m)| m.shared) {
+        let with: Vec<String> = coincide
+            .iter()
+            .filter_map(|&(i, j)| match (i == k, j == k) {
+                (true, _) => Some(maps[j].name()),
+                (_, true) => Some(maps[i].name()),
+                _ => None,
+            })
+            .map(|n| format!("`{n}`"))
+            .collect();
+        match with.len() {
+            1 => {}
+            0 => {
+                return Err(syn::Error::new(
+                    m.span,
+                    format!(
+                        "`{}` is marked `shared` but can hold no other mapping's facts: \
+                         `shared` is for a static type that is the same value as another \
+                         (a bare number and a dimensionless quantity) - remove it",
+                        m.name()
+                    ),
+                ));
+            }
+            _ => {
+                return Err(syn::Error::new(
+                    m.span,
+                    format!(
+                        "`{}` is `shared`, and can have the same facts as {}: a `shared` mapping \
+                         is the same value as one other mapping, and the way back must tell it \
+                         apart from the rest - give them a fact whose constants differ (e.g. a \
+                         tag)",
+                        m.name(),
+                        with.join(" and ")
+                    ),
+                ));
             }
         }
     }
@@ -919,20 +1014,26 @@ fn each<'a>(
     out
 }
 
+/// A payload field of the dynamic type, the path it moves from and to, and
+/// where that path is written.
+type Payload<'a> = (&'a Member, &'a Vec<Member>, Span);
+
 /// The static value rebuilt from the dynamic one's payload: a struct
 /// expression per level, the declared types in between, and `Default` for a
-/// declared field no path reaches.
+/// declared field no path reaches. Each field moved back is spanned at its
+/// path.
 fn rebuild(
     ty: &TokenStream2,
     prefix: &[Member],
     decls: &[Decl],
-    payload: &[(&Member, &Vec<Member>)],
+    payload: &[Payload],
 ) -> TokenStream2 {
-    if let Some((field, _)) = payload.iter().find(|(_, p)| p.is_empty()) {
-        return quote! { __dynamic.#field };
+    if let Some((field, _, at)) = payload.iter().find(|(_, p, _)| p.is_empty()) {
+        let field = respan(field, *at);
+        return quote_spanned! { *at=> __dynamic.#field };
     }
     let mut next: Vec<&Member> = Vec::new();
-    for (_, p) in payload {
+    for (_, p, _) in payload {
         if p.len() > prefix.len()
             && p[..prefix.len()] == *prefix
             && !next.contains(&&p[prefix.len()])
@@ -945,15 +1046,18 @@ fn rebuild(
         .map(|seg| {
             let mut path = prefix.to_vec();
             path.push((*seg).clone());
-            let value = match payload.iter().find(|(_, p)| **p == path) {
-                Some((field, _)) => quote! { __dynamic.#field },
+            match payload.iter().find(|(_, p, _)| **p == path) {
+                Some((field, _, at)) => {
+                    let field = respan(field, *at);
+                    quote_spanned! { *at=> #seg: __dynamic.#field }
+                }
                 None => {
                     let d = decl_at(decls, &path).expect("checked");
                     let t = &d.ty;
-                    rebuild(&quote! { #t }, &path, decls, payload)
+                    let value = rebuild(&quote! { #t }, &path, decls, payload);
+                    quote! { #seg: #value }
                 }
-            };
-            quote! { #seg: #value }
+            }
         })
         .collect();
     // Declared fields at this level that no path reaches.
@@ -972,6 +1076,21 @@ fn rebuild(
         }
     }
     quote! { #ty { #(#parts,)* } }
+}
+
+/// `m`, as if written at `at`.
+fn respan(m: &Member, at: Span) -> Member {
+    match m {
+        Member::Named(i) => {
+            let mut i = i.clone();
+            i.set_span(at);
+            Member::Named(i)
+        }
+        Member::Unnamed(i) => Member::Unnamed(syn::Index {
+            index: i.index,
+            span: at,
+        }),
+    }
 }
 
 /// The types of declared fields filled with `Default`.
@@ -1141,7 +1260,10 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
     let pm: Vec<&Member> = payload.iter().map(|f| &f.member).collect();
     let pt: Vec<&Type> = payload.iter().map(|f| &f.ty).collect();
     // The new value of each field, in a `let`.
-    let var = |m: &Member| format_ident!("__v_{}", member_str(m));
+    let var = |m: &Member| match m {
+        Member::Named(i) => format_ident!("__v_{}", i.unraw()),
+        Member::Unnamed(i) => format_ident!("__v_{}", i.index),
+    };
     let all_vars: Vec<Ident> = fields.iter().map(|f| var(&f.member)).collect();
     let all_members: Vec<&Member> = fields.iter().map(|f| &f.member).collect();
     let build = quote! { Self { #(#all_members: #all_vars,)* } };
@@ -1151,11 +1273,17 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         let sty = m.ty();
         let h = head(&m.param_decls());
         let checks_apart = &apart.per_member[mi];
-        let fill = m.fills.iter().map(|(f, s)| match s {
-            Source::Param(p) => quote! { #f: #p },
-            Source::Const { expr, .. } => quote! { #f: const { #expr } },
-            Source::Path(p) => quote! { #f: __static #(.#p)* },
-        });
+        // Each fill and each rebuilt field at its source, where a type error
+        // in it is reported.
+        let fill = m
+            .fills
+            .iter()
+            .zip(&m.fill_spans)
+            .map(|((f, s), &at)| match s {
+                Source::Param(p) => quote_spanned! { at=> #f: #p },
+                Source::Const { expr, .. } => quote_spanned! { at=> #f: const { #expr } },
+                Source::Path(p) => quote_spanned! { at=> #f: __static #(.#p)* },
+            });
         let checks: Vec<TokenStream2> = m
             .fills
             .iter()
@@ -1165,17 +1293,18 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                 Source::Path(_) => None,
             })
             .collect();
-        let pay: Vec<(&Member, &Vec<Member>)> = m
+        let pay: Vec<Payload> = m
             .fills
             .iter()
-            .filter_map(|(f, s)| match s {
-                Source::Path(p) => Some((f, p)),
+            .zip(&m.fill_spans)
+            .filter_map(|((f, s), &at)| match s {
+                Source::Path(p) => Some((f, p, at)),
                 _ => None,
             })
             .collect();
         let back = rebuild(&m.expr(), &[], &m.decls, &pay);
         let mut dflt = Vec::new();
-        let pay_paths: Vec<&Vec<Member>> = pay.iter().map(|(_, p)| *p).collect();
+        let pay_paths: Vec<&Vec<Member>> = pay.iter().map(|(_, p, _)| *p).collect();
         defaulted(&m.decls, &pay_paths, &mut Vec::new(), &mut dflt);
         let dflt_bounds: Vec<TokenStream2> = dflt
             .iter()
@@ -1314,7 +1443,10 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                     ));
                 }
                 let (tok, meth) = match BINARY.iter().find(|(o, _, _)| op == o) {
-                    Some((_, tok, meth)) => (tok.parse::<TokenStream2>().unwrap(), format_ident!("{meth}")),
+                    Some((_, tok, meth)) => (
+                        tok.parse::<TokenStream2>().unwrap(),
+                        format_ident!("{meth}"),
+                    ),
                     None => (quote! {}, format_ident!("neg")),
                 };
                 // Every `same` check comes before any field's operator, so

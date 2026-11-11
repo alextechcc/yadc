@@ -535,10 +535,11 @@ fn kinds_decide_sums_and_products() {
     // Only a logarithm adds to a logarithm.
     assert_eq!(level + watt, None);
     assert_eq!(gain + ISQ::DIMENSIONLESS, None);
-    // Beside a plain number a logarithm stays; a gain leaves any other
-    // product, as a label does; a level has no other product.
+    // Beside a plain number a product is a scaling: a gain scales (gains
+    // add), a level does not (two levels sum to another dimension). A gain
+    // leaves any other product, as a label does; a level has no other product.
     assert_eq!(gain * ISQ::DIMENSIONLESS, Some(gain));
-    assert_eq!(level * ISQ::DIMENSIONLESS, Some(level));
+    assert_eq!(level * ISQ::DIMENSIONLESS, None);
     assert_eq!(gain / metre, ISQ::DIMENSIONLESS / metre);
     assert_eq!(level * metre, None);
     assert_eq!(gain * gain, None);

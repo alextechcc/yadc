@@ -202,10 +202,12 @@ fn lookup_sym(
     None
 }
 
+/// The value of a whole expression: `None` unless every byte of it is read.
 fn eval_expr<F: Fn(&str) -> Option<Resolved>>(expr: &str, lookup: &F) -> Option<Resolved> {
     let b = expr.as_bytes();
     let mut pos = 0;
-    parse_expr(b, &mut pos, lookup)
+    let r = parse_expr(b, &mut pos, lookup)?;
+    (pos == b.len()).then_some(r)
 }
 
 fn parse_expr<F: Fn(&str) -> Option<Resolved>>(
@@ -240,23 +242,29 @@ fn parse_term<F: Fn(&str) -> Option<Resolved>>(
     pos: &mut usize,
     lookup: &F,
 ) -> Option<Resolved> {
+    // An annotation alone (`{rbc}`) is the number one.
     if b.get(*pos) == Some(&b'{') {
-        *pos += 1;
-        while *pos < b.len() && b[*pos] != b'}' {
-            *pos += 1;
-        }
-        if *pos < b.len() {
-            *pos += 1;
-        }
+        skip_annotation(b, pos)?;
         return Some(Resolved::scalar(1.0));
     }
     let factor = parse_factor(b, pos, lookup)?;
     let exp = parse_exp(b, pos);
+    // An annotation after a factor (`mol{rbc}`, `m2{x}`) leaves its value.
+    if b.get(*pos) == Some(&b'{') {
+        skip_annotation(b, pos)?;
+    }
     if exp == 1 {
         Some(factor)
     } else {
         Some(factor.pow(exp))
     }
+}
+
+/// Step over `{...}`; `None` if it is not closed.
+fn skip_annotation(b: &[u8], pos: &mut usize) -> Option<()> {
+    let close = b[*pos..].iter().position(|&c| c == b'}')?;
+    *pos += close + 1;
+    Some(())
 }
 
 fn parse_factor<F: Fn(&str) -> Option<Resolved>>(
@@ -288,9 +296,10 @@ fn parse_factor<F: Fn(&str) -> Option<Resolved>>(
     if b[*pos] == b'(' {
         *pos += 1;
         let inner = parse_expr(b, pos, lookup)?;
-        if b.get(*pos) == Some(&b')') {
-            *pos += 1;
+        if b.get(*pos) != Some(&b')') {
+            return None;
         }
+        *pos += 1;
         return Some(inner);
     }
     let sym = read_symbol(b, pos);
@@ -318,7 +327,7 @@ fn read_symbol(b: &[u8], pos: &mut usize) -> String {
         if matches!(ch, b'.' | b'/' | b'(' | b')' | b'{' | b'}') || ch.is_ascii_digit() {
             break;
         }
-        if ch == b'-' && b.get(*pos + 1).is_some_and(|c| c.is_ascii_digit()) {
+        if matches!(ch, b'-' | b'+') && b.get(*pos + 1).is_some_and(|c| c.is_ascii_digit()) {
             break;
         }
         *pos += 1;
@@ -326,10 +335,17 @@ fn read_symbol(b: &[u8], pos: &mut usize) -> String {
     String::from_utf8_lossy(&b[start..*pos]).into_owned()
 }
 
+/// An exponent, signed or not (`m2`, `s-1`, `m+2`); one when there is none.
 fn parse_exp(b: &[u8], pos: &mut usize) -> i32 {
-    if b.get(*pos) == Some(&b'-') && b.get(*pos + 1).is_some_and(|c| c.is_ascii_digit()) {
+    let signed =
+        |sign| b.get(*pos) == Some(sign) && b.get(*pos + 1).is_some_and(u8::is_ascii_digit);
+    if signed(&b'-') {
         *pos += 1;
         return -parse_int(b, pos);
+    }
+    if signed(&b'+') {
+        *pos += 1;
+        return parse_int(b, pos);
     }
     if b.get(*pos).is_some_and(|c| c.is_ascii_digit()) {
         return parse_int(b, pos);
@@ -362,7 +378,7 @@ mod tests {
 
     fn lookup(sym: &str) -> Option<Resolved> {
         let dim: DimVec = [(sym.to_string(), 1)].into();
-        matches!(sym, "m" | "s" | "[pi]").then(|| Resolved {
+        matches!(sym, "m" | "s" | "mol" | "L" | "[pi]").then(|| Resolved {
             dim,
             multiplier: 1.0,
             kind: None,
@@ -392,5 +408,37 @@ mod tests {
         let r = eval_expr("/s", &lookup).unwrap();
         assert_eq!(r.dim, [("s".to_string(), -1)].into());
         assert_eq!(r.multiplier, 1.0);
+    }
+
+    #[test]
+    fn annotations_are_skipped() {
+        let r = eval_expr("mol{rbc}/L", &lookup).unwrap();
+        assert_eq!(
+            r.dim,
+            [("L".to_string(), -1), ("mol".to_string(), 1)].into()
+        );
+        let r = eval_expr("m2{x}.s", &lookup).unwrap();
+        assert_eq!(r.dim, [("m".to_string(), 2), ("s".to_string(), 1)].into());
+        let r = eval_expr("{tot}/s", &lookup).unwrap();
+        assert_eq!(r.dim, [("s".to_string(), -1)].into());
+        assert!(eval_expr("m{x", &lookup).is_none());
+    }
+
+    #[test]
+    fn plus_signed_exponent() {
+        let r = eval_expr("m+2/s", &lookup).unwrap();
+        assert_eq!(r.dim, [("m".to_string(), 2), ("s".to_string(), -1)].into());
+        let r = eval_expr("10*+3.m", &lookup).unwrap();
+        assert_eq!(r.multiplier, 1000.0);
+    }
+
+    #[test]
+    fn all_input_is_read() {
+        assert!(eval_expr("m)s", &lookup).is_none());
+        assert!(eval_expr("(m", &lookup).is_none());
+        assert!(eval_expr("m s", &lookup).is_none());
+        assert!(eval_expr("m/", &lookup).is_none());
+        let r = eval_expr("(m/s)2", &lookup).unwrap();
+        assert_eq!(r.dim, [("m".to_string(), 2), ("s".to_string(), -2)].into());
     }
 }

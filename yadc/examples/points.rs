@@ -25,7 +25,7 @@
 //! - Anything built from those: the midpoint of `a` and `b` is
 //!   `a + (b - a) / 2`, which only ever halves a `Length`.
 //!
-//! **A point is a kind of quantity.** The dimension below has a kind, an enum
+//! **A point is a dimension of the affine kind.** The dimension below has a kind, an enum
 //! of ours with two values: `Linear` (the default) for an amount, `Affine`
 //! for a point. `#[kind(affine)]` marks `Affine` as the point, and
 //! `#[derive(Dimension)]` writes the rules above into the dimension's own

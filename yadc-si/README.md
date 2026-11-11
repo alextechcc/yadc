@@ -47,8 +47,7 @@ the aliases and units exported here - calling them included - needs just:
 
 and, to do quantity arithmetic in its own `const` items (below), also
 `const_trait_impl` and `const_ops`. A crate that derives `Unit` on an enum of
-its own adds `const_trait_impl`, `fn_traits`, `unboxed_closures` and
-`const_destruct`.
+its own adds `const_trait_impl`, `fn_traits` and `unboxed_closures`.
 
 ## Usage
 
@@ -98,7 +97,7 @@ use yadc_si::thermal::consts::{
 use yadc_si::thermal::*;
 
 let t = CELSIUS.quantity(25.0);                                  // 298.15 K
-let f = FAHRENHEIT.value(t);                                  // 77.0
+let f = FAHRENHEIT.value(t);                                  // 77.0, to rounding
 let k = KELVIN_SCALE.value(t);                                // 298.15
 let c = ThermodynamicTemperatureUnit::Celsius.value(t); // 25.0: the enum names the same units
 let rise: TemperatureInterval = t - CELSIUS.quantity(20.0);      // T - T = ΔT
@@ -247,7 +246,8 @@ let beta = SPEED_OF_LIGHT(v);                         // a constant is a unit: v
   | Constant | Unit | Quantity |
   |---|---|---|
   | `mechanical::consts::SPEED_OF_LIGHT` | `VelocityUnit::SpeedOfLight` (c) | `Velocity` |
-  | `mechanical::consts::PLANCK_CONSTANT`, `REDUCED_PLANCK_CONSTANT` | `ActionUnit::PlanckConstant` (h), `ReducedPlanckConstant` (ħ) | `Action` |
+  | `mechanical::consts::PLANCK_CONSTANT` | `ActionUnit::PlanckConstant` (h) | `Action` |
+  | `angular::consts::REDUCED_PLANCK_CONSTANT` | `AngularMomentumUnit::ReducedPlanckConstant` (ħ) | `AngularMomentum` (J·s/rad, so `h = ħ · 2π rad`) |
   | `mechanical::consts::STANDARD_GRAVITY` | `AccelerationUnit::StandardGravity` (g₀) | `Acceleration` |
   | `mechanical::consts::GRAVITATIONAL_CONSTANT` | `SpecificGravitationalParameterUnit::GravitationalConstant` (G) | `SpecificGravitationalParameter` (m³/(kg·s²)) |
   | `mechanical::consts::ELECTRON_MASS`, `PROTON_MASS` | `MassUnit::ElectronMass` (mₑ), `ProtonMass` (mₚ) | `Mass` |

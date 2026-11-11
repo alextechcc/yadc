@@ -40,34 +40,46 @@ error: the kind field is marked `#[kind]` alone; which of its values is a point 
 76 |     #[kind(affine = MulRule::Other)]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: `Zero` is not an extra of `#[derive(Quantity)]`; expected one of Display, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Powi, Root, Inv, Sum, Cast, From, Fn
-  --> tests/ui/define/derives.rs:82:22
+error: `Cast` changes a family's number type, so the family needs one as a parameter: `struct Qty<const D: Dim, N = f64>(N)`
+  --> tests/ui/define/derives.rs:83:12
    |
-82 | #[quantity(impl(Neg, Zero))]
+83 | pub struct Fixed<const D: NoPlain>(f64);
+   |            ^^^^^
+
+error: `Fn` calls a unit on a number to build and on a quantity to read; a unit of its own numbers (`of` the number type) has one argument type for both, so it is not called - leave `Fn` out
+  --> tests/ui/define/derives.rs:89:12
+   |
+89 | pub struct Percent;
+   |            ^^^^^^^
+
+error: `Zero` is not an extra of `#[derive(Quantity)]`; expected one of Display, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Powi, Root, Inv, Sum, Cast, From, Fn
+  --> tests/ui/define/derives.rs:93:22
+   |
+93 | #[quantity(impl(Neg, Zero))]
    |                      ^^^^
 
 error: say what this unit measures: `#[unit(of = Q)]` (repeatable)
-  --> tests/ui/define/derives.rs:88:12
+  --> tests/ui/define/derives.rs:99:12
    |
-88 | pub struct NoTarget;
+99 | pub struct NoTarget;
    |            ^^^^^^^^
 
 error: say which unit value this is: `by = U` - a constant (`by = KILOMETRE`, a scale `by = CELSIUS`), or a field marked `#[unit(by)]`
-  --> tests/ui/define/derives.rs:93:12
-   |
-93 | pub struct NoForm;
-   |            ^^^^^^
+   --> tests/ui/define/derives.rs:104:12
+    |
+104 | pub struct NoForm;
+    |            ^^^^^^
 
 error: `Display` needs this unit's symbol and name: `#[unit("km", "kilometres", ..)]` - or leave `Display` out with `#[unit(impl(..))]`
-  --> tests/ui/define/derives.rs:98:12
-   |
-98 | pub struct NoLabels;
-   |            ^^^^^^^^
+   --> tests/ui/define/derives.rs:109:12
+    |
+109 | pub struct NoLabels;
+    |            ^^^^^^^^
 
 error: unknown `#[unit(..)]` item `step`; expected the symbol and name, `by = ..`, `via = ..`, or on the type `of = ..`, `number = ..`, `non_const`, `impl(..)`
-   --> tests/ui/define/derives.rs:102:28
+   --> tests/ui/define/derives.rs:113:28
     |
-102 | #[unit("x", "x", of = f64, step = 1.0)]
+113 | #[unit("x", "x", of = f64, step = 1.0)]
     |                            ^^^^
 
 warning: unused import: `yadc::Dimension`

@@ -5,7 +5,7 @@ error[E0277]: cannot multiply: these have no product
   |                      ^ no product
   |
   = help: the trait `yadc::gates::MulExists<Qty<yadc_tests::::Length::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-  = note: the dimension's own `*` has no result here. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
+  = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
   = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `Mul<Qty<yadc_tests::::Length::{constant#0}>>`
 
 error[E0277]: cannot multiply: these have no product
@@ -15,7 +15,7 @@ error[E0277]: cannot multiply: these have no product
   |                   ^ no product
   |
   = help: the trait `yadc::gates::MulExists<Qty<yadc_tests::::Altitude::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Length::{constant#0}>`
-  = note: the dimension's own `*` has no result here. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
+  = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
   = note: required for `Qty<yadc_tests::::Length::{constant#0}>` to implement `Mul<Qty<yadc_tests::::Altitude::{constant#0}>>`
 
 error[E0277]: cannot divide: these have no quotient
@@ -45,7 +45,7 @@ error[E0277]: cannot multiply: these have no product
    |                        ^ no product
    |
    = help: the trait `yadc::gates::MulExists<Qty<yadc_tests::::Length::{constant#0}>>` is not implemented for `Qty<yadc_tests::::PowerLevel::{constant#0}>`
-   = note: the dimension's own `*` has no result here. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
+   = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
    = note: required for `Qty<yadc_tests::::PowerLevel::{constant#0}>` to implement `Mul<Qty<yadc_tests::::Length::{constant#0}>>`
 
 error[E0277]: cannot multiply: these have no product
@@ -55,5 +55,5 @@ error[E0277]: cannot multiply: these have no product
    |                     ^ no product
    |
    = help: the trait `yadc::gates::MulExists<Qty<yadc_tests::::Gain::{constant#0}>>` is not implemented for `Qty<yadc_tests::::Gain::{constant#0}>`
-   = note: the dimension's own `*` has no result here. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
+   = note: the dimension's own `*` has no result here. Beside a plain number a product is a scaling, which only what adds to itself has. A point's zero is a convention, so its products would depend on it: multiply the amount `point - zero` instead. A level is a logarithm, and adding levels is what multiplies: multiply the quantity it is the level of
    = note: required for `Qty<yadc_tests::::Gain::{constant#0}>` to implement `Mul`

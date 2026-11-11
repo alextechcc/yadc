@@ -36,8 +36,8 @@ impl From<PowerLevel> for Power {
     }
 }
 
-/// The level of a power: `lg(power / 1 W)` bels above `WATT_LEVEL`. No power
-/// is at minus infinity, and a negative one has no level (NaN), as for
+/// The level of a power: `lg(power / 1 W)` bels above `WATT_LEVEL`. A zero
+/// power is at minus infinity, and a negative one has no level (NaN), as for
 /// `log10`.
 impl From<Power> for PowerLevel {
     fn from(power: Power) -> Self {

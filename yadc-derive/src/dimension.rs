@@ -221,9 +221,9 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     // adds where the things it is the logarithm of multiply, so `+` and `-`
     // add and subtract its exponents - a power level less a power level is
     // the logarithm of a plain ratio, a gain - and nothing but another
-    // logarithm adds to it; beside a plain number it survives a product, a
-    // gain (no exponents) leaves any other product as a label does, and a
-    // level (with exponents) has none.
+    // logarithm adds to it; a gain (no exponents) scales and leaves any
+    // other product as a label does, and a level (with exponents) has no
+    // products. Beside a plain number a product is a scaling (below).
     let special = kind_field.is_some();
     // Asks the kind of `x` (`a`, `b`, `self`) whether it is a point or a
     // logarithm, through `yadc::Label`.
@@ -273,29 +273,35 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
         };
         (
             quote! {
+                // Beside a plain number a product is a scaling: it keeps the
+                // other only where that scales (adds to itself as itself).
+                if a == #one || b == #one {
+                    let x = if a == #one { b } else { a };
+                    return match <Self as ::core::ops::Add>::add(x, x) {
+                        #some(sum) if sum == x => #some(x),
+                        _ => #none,
+                    };
+                }
                 if #aff_a || #aff_b {
                     return #none;
                 }
                 if #log_a || #log_b {
-                    if a == #one {
-                        return #some(b);
-                    }
-                    if b == #one {
-                        return #some(a);
-                    }
                     if (#log_a && #log_b) || (#log_a && !#zero_a) || (#log_b && !#zero_b) {
                         return #none;
                     }
                 }
             },
             quote! {
+                if b == #one {
+                    return match <Self as ::core::ops::Add>::add(a, a) {
+                        #some(sum) if sum == a => #some(a),
+                        _ => #none,
+                    };
+                }
                 if #aff_a || #aff_b {
                     return #none;
                 }
                 if #log_a || #log_b {
-                    if b == #one {
-                        return #some(a);
-                    }
                     if (#log_a && #log_b) || (#log_a && !#zero_a) || (#log_b && !#zero_b) {
                         return #none;
                     }

@@ -1,0 +1,17 @@
+error[E0308]: mismatched types
+ --> tests/ui/source_type.rs:9:29
+  |
+9 | #[dynamic(Count => { value: .0 })]
+  |                             ^^ expected `f64`, found `u32`
+
+error[E0308]: mismatched types
+ --> tests/ui/source_type.rs:9:29
+  |
+9 | #[dynamic(Count => { value: .0 })]
+  |                             ^^ expected `u32`, found `f64`
+
+error[E0308]: mismatched types
+  --> tests/ui/source_type.rs:15:27
+   |
+15 | #[dynamic(Count => { tag: 1.5, value: .0 })]
+   |                           ^^^ expected `u8`, found floating-point number

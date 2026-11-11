@@ -47,6 +47,27 @@ pub enum Colour {
     Blue(Blue),
 }
 
+// What the derives write, by hand: `Members` on `Shape` (and the same for
+// `Square`), and `Visit` on `Colour` (and the same for `&Colour`):
+//
+// impl From<Circle> for Shape {
+//     fn from(c: Circle) -> Self { Shape::Circle(c) }
+// }
+// impl TryFrom<Shape> for Circle {
+//     type Error = Shape;
+//     fn try_from(s: Shape) -> Result<Self, Shape> {
+//         match s { Shape::Circle(c) => Ok(c), s => Err(s) }
+//     }
+// }
+// impl<X> Visit<X> for Colour
+// where X: Visitor<Red> + Visitor<Blue, Output = <X as Visitor<Red>>::Output>
+// {
+//     type Output = <X as Visitor<Red>>::Output;
+//     fn visit_with(self, x: X) -> Self::Output {
+//         match self { Colour::Red(c) => x.visit(c), Colour::Blue(c) => x.visit(c) }
+//     }
+// }
+
 /// The relation: which shape a colour family paints, and how.
 pub trait Paints: core::fmt::Debug {
     type Shape;

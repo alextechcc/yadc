@@ -301,7 +301,7 @@ pub mod consts {
     pub const PHOT: Illuminance = 10000.0 * LUX;
 
     /// One `Footcandle` (fc), as an `Illuminance`.
-    pub const FOOTCANDLE: Illuminance = 10.763909999999999 * LUX;
+    pub const FOOTCANDLE: Illuminance = (1.0 / (0.3048 * 0.3048)) * LUX;
 
     /// One `YottajoulePerSquareMetre` (YJ/m²), as a `RadiantExposure`.
     pub const YOTTAJOULE_PER_SQUARE_METRE: RadiantExposure =

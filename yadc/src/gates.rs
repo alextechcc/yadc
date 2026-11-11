@@ -31,14 +31,14 @@
 //!
 //! | Operator | Refusals |
 //! |---|---|
-//! | `a + b`, `a += b`, `Sum` | [`AddSameDimension`], [`AddNotTwoPoints`], [`AddPointFirst`], [`AddLabels`] |
+//! | `a + b`, `a += b`, `Sum` | [`AddSameDimension`], [`AddNotTwoPoints`], [`AddInOrder`], [`AddLabels`] |
 //! | `a - b` | [`SubSameDimension`], [`SubNotFromAmount`], [`SubLabels`] |
 //! | `a -= b` | the three of `a - b`, and [`SubInPlace`] |
 //! | `a * b`, `a / b` | [`MulExists`], [`DivExists`] |
 //! | `a *= b`, `a /= b` | [`MulExists`] and [`MulInPlace`], [`DivExists`] and [`DivInPlace`] |
 //! | scaling: `a * n`, `n * a`, `a / n`, `a *= n`, `a /= n`, `-a`; [`Quantity`](crate::Quantity), [`Unit<Self>`](crate::Unit) | [`ScaleNotPoint`], [`ScaleLabel`] |
 //! | `a.powi::<N>()`, `a.inv()` | [`PowiExists`], [`InvExists`] |
-//! | `a.root::<N>()` | [`RootHasSquare`], [`RootExact`] |
+//! | `a.root::<N>()` | [`RootHasSquare`], [`RootOfLabel`], [`RootExact`] |
 //!
 //! A point is a dimension of the affine kind: its own `*` has no result
 //! ([`is_point`]). Everything here is phrased through the [`Dimension`]
@@ -155,13 +155,16 @@ pub const fn root_or_one<D: [const] Dimension>(a: D, n: i8) -> D {
 
 // --- What the messages tell apart -------------------------------------------
 
-/// A point: a dimension of the affine kind, which has no products - `a *
-/// DIMENSIONLESS` has no result.
+/// A point: a dimension of the affine kind. It has no products and no sum
+/// with itself, and two of it differ by something else - an amount.
+#[allow(clippy::eq_op)] // `a + a`, `a - a`: what two of one dimension give
 pub const fn is_point<D: [const] Dimension>(a: D) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
     product(a, D::DIMENSIONLESS).is_none()
+        && (a + a).is_none()
+        && matches!(a - a, Some(d) if d != a)
 }
 
 /// A dimension with no square - a point or a logarithm: `a * a` has no
@@ -225,7 +228,7 @@ pub const fn add_same_dimension<D: [const] Dimension>(a: D, b: D) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    sum_is_left(a, b) || same_dimension(a, b)
+    sum_is_left(a, b) || same_dimension(a, b) || sum_is_left(b, a)
 }
 
 /// `a + b`: not refused as two points.
@@ -236,12 +239,10 @@ where
     sum_is_left(a, b) || !same_dimension(a, b) || !(is_point(a) && is_point(b))
 }
 
-/// `a + b`: not refused as an amount plus a point.
-pub const fn add_point_first<D: [const] Dimension>(a: D, b: D) -> bool
-where
-    <D as Mul>::Output: [const] Into<Option<D>>,
-{
-    sum_is_left(a, b) || !same_dimension(a, b) || is_point(a) || !is_point(b)
+/// `a + b`: not refused as written in the wrong order - `b + a` exists (an
+/// amount plus a point, a gain plus a level).
+pub const fn add_in_order<D: [const] Dimension>(a: D, b: D) -> bool {
+    sum_is_left(a, b) || !sum_is_left(b, a)
 }
 
 /// `a + b`: not refused for the labels.
@@ -249,7 +250,7 @@ pub const fn add_labels<D: [const] Dimension>(a: D, b: D) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    sum_is_left(a, b) || !same_dimension(a, b) || is_point(b)
+    sum_is_left(a, b) || !same_dimension(a, b) || is_point(b) || sum_is_left(b, a)
 }
 
 /// `a - b`: not refused for differing dimensions.
@@ -359,12 +360,21 @@ where
     a.partial_root(n).is_some() || !has_no_square(a)
 }
 
+/// The `n`-th root: not refused as a label's (a label has no root but its
+/// first, though its exponents may).
+pub const fn root_of_label<D: [const] Dimension>(a: D, n: i8) -> bool
+where
+    <D as Mul>::Output: [const] Into<Option<D>>,
+{
+    a.partial_root(n).is_some() || has_no_square(a) || a.plain().partial_root(n).is_none()
+}
+
 /// The `n`-th root: not refused as inexact.
 pub const fn root_exact<D: [const] Dimension>(a: D, n: i8) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    a.partial_root(n).is_some() || has_no_square(a)
+    a.partial_root(n).is_some() || has_no_square(a) || a.plain().partial_root(n).is_some()
 }
 
 // --- The refusals ------------------------------------------------------------
@@ -390,17 +400,18 @@ refusals! {
          subtract them instead (`point - point` is an amount), or move one by an amount \
          (`point + amount`)";
     /// `a + b` of an amount and a point: a length plus an altitude.
-    AddPointFirst[R] = "cannot add a point to an amount",
-        "write the point first: `point + amount`",
-        "a sum keeps its left operand's type: an amount moves a point (`altitude + length` \
-         is an altitude), so the point goes on the left";
+    AddInOrder[R] = "cannot add these in this order",
+        "write the other operand first",
+        "a sum keeps its left operand's type: an amount moves a point (`point + amount`), a \
+         gain moves a level (`level + gain`), so the point or the level goes on the left";
     /// `a + b` whose labels have no sum: a temperature step plus an absolute
     /// temperature.
     AddLabels[R] = "cannot add: the labels have no sum",
         "these labels do not add",
-        "a sum keeps its left operand's label and the label decides what may be added to \
-         it: an absolute temperature plus a step is absolute (`absolute + step`), a step \
-         plus an absolute temperature has no result";
+        "a sum keeps its left operand's type, and the labels' rules decide what may be \
+         added to it - here there is none (a label's sums are declared on the kind enum: \
+         `#[kind(add(X) = Y)]`); two levels sum to the level of a product, another \
+         dimension: add the quantities they are the levels of";
     /// `a - b` of two different dimensions.
     SubSameDimension[R] = "cannot subtract: the dimensions differ",
         "the dimensions differ",
@@ -415,9 +426,8 @@ refusals! {
     /// absolute temperature.
     SubLabels[R] = "cannot subtract: the labels have no difference",
         "these labels do not subtract",
-        "the labels decide what may be subtracted: an absolute temperature minus a step is \
-         absolute, two absolute temperatures differ by a step, a step minus an absolute \
-         temperature has no result";
+        "the labels' rules decide what may be subtracted - here there is none (a label's \
+         differences are declared on the kind enum: `#[kind(sub(X) = Y)]`)";
     /// `a -= b` whose difference is another type: an altitude `-=` an
     /// altitude.
     SubInPlace[R] = "`-=` cannot change the type: the difference is another quantity",
@@ -427,7 +437,8 @@ refusals! {
     /// `a * b` with no product: a point or a level times anything.
     MulExists[R] = "cannot multiply: these have no product",
         "no product",
-        "the dimension's own `*` has no result here. A point's zero is a convention, so its \
+        "the dimension's own `*` has no result here. Beside a plain number a product is a \
+         scaling, which only what adds to itself has. A point's zero is a convention, so its \
          products would depend on it: multiply the amount `point - zero` instead. A level \
          is a logarithm, and adding levels is what multiplies: multiply the quantity it is \
          the level of";
@@ -455,7 +466,7 @@ refusals! {
         "a point cannot be scaled",
         "scaling is repeated addition, and a point cannot be added to a point: a point is \
          not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and \
-         read it on a scale, a zero and a step (`Scale(SEA_LEVEL, FOOT)`)";
+         read it on a scale: a zero and a step, as a unit";
     /// Scaling a label that cannot be added to itself.
     ScaleLabel[] = "cannot scale: this label cannot be added to itself",
         "this label cannot be scaled",
@@ -474,6 +485,11 @@ refusals! {
     RootHasSquare[const N: i8] = "a point or a logarithm has no roots",
         "a point or a logarithm has no roots",
         "a root is the inverse of a power, and a point or a logarithm has no powers";
+    /// `a.root::<N>()` of a labelled dimension whose exponents have the root.
+    RootOfLabel[const N: i8] = "a label has no root",
+        "a label has no root",
+        "a label survives a product only beside a plain number, so its powers are all \
+         plain and only its first root is itself";
     /// `a.root::<N>()` with no exact dimension: √m with integer exponents.
     RootExact[const N: i8] = "this root has no dimension",
         "no dimension is this root",

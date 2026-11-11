@@ -100,14 +100,38 @@
 //! tell two mappings apart, they are checked at compile time: a `const`
 //! assertion that the constants differ, or - when one side's fact comes from
 //! its parameter (`F::KIND`) - an assertion in that mapping's impls, checked
-//! for each member you use:
+//! for each member you use. The constants compared there are compared at
+//! compile time, so their type's `PartialEq` is `const`
+//! (`#[derive_const(PartialEq)]`).
 //!
-//! ```ignore
-//! // A quantity of any dimension, and an instant: a point in time, whose
-//! // dimension is a constant no quantity has.
-//! #[dynamic(Qty<const D: Dim> => { dim: D, value: .0 })]
-//! #[dynamic(Instant { since: Time } => { dim: Dim::INSTANT, value: .since.0 })]
-//! pub struct AnyQty { dim: Dim, value: f64 }
+//! A constant cannot be told apart from a const parameter's value: `dim:
+//! TIME` beside `dim: D` is refused, since `D` may be `TIME`. A tag - a
+//! field filled with a different constant in each mapping - tells them
+//! apart:
+//!
+//! ```
+//! # #![feature(adt_const_params, const_trait_impl, derive_const)]
+//! # #![feature(const_cmp, const_convert, const_destruct)]
+//! # #[derive_const(PartialEq)]
+//! # #[derive(Copy, Clone, Debug, Eq, core::marker::ConstParamTy)]
+//! # pub struct Dim(i8);
+//! # pub const TIME: Dim = Dim(1);
+//! # #[derive(Copy, Clone, PartialEq, Debug)]
+//! # pub struct Qty<const D: Dim>(f64);
+//! # pub type Time = Qty<TIME>;
+//! /// A point in time: not a quantity, though its payload is a `Time`.
+//! #[derive(Copy, Clone, PartialEq, Debug)]
+//! pub struct Instant { since: Time }
+//!
+//! #[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
+//! #[dynamic(Qty<const D: Dim>       => { tag: 0u8, dim: D,    value: .0 })]
+//! #[dynamic(Instant { since: Time } => { tag: 1u8, dim: TIME, value: .since.0 })]
+//! pub struct Reading { tag: u8, dim: Dim, value: f64 }
+//! # fn main() {
+//! let t = Reading::from(Instant { since: Qty(2.0) });
+//! assert!(Time::try_from(t).is_err());  // an instant is not a time
+//! assert_eq!(Instant::try_from(t), Ok(Instant { since: Qty(2.0) }));
+//! # }
 //! ```
 //!
 //! Several unrelated types with nothing in common - an RGB and an HSV
@@ -123,6 +147,9 @@
 //! dimensionless quantity. Say so with `shared` before the static type -
 //! `#[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]` - and
 //! the two may hold the same facts: the way back gives the value as either.
+//! A `shared` mapping is the same value as exactly one other mapping, and
+//! is told apart from the rest like any mapping: one that could hold the
+//! facts of two others, or of none, is refused.
 //!
 //! A static type the way back rebuilds as a struct expression, so the payload
 //! must be visible where the derive is (same module, or `pub` fields), and

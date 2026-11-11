@@ -106,11 +106,11 @@ source = "latest"
 # the resolver.  Omitted base units default to self-seeding (the code becomes
 # its own dim field with exponent 1 and multiplier 1.0).
 #
-# UCUM base units: m  s  g  C  K  cd  rad  (7 total, different from ISQ)
-# ISQ base units:  m  s  kg A  K  cd  mol  (7 total)
+# UCUM base units: m  s  g  C  K  cd  rad      (7)
+# [dim].fields:    m  s  kg A  K  cd  rad  mol (8: the ISQ, plus the radian axis)
 #
-# The three entries below perform the ISQ remapping.
-# m, s, K, cd map 1:1 and are handled by self-seeding.
+# The three entries below perform the remapping.
+# m, s, K, cd and rad map 1:1 and are handled by self-seeding.
 
 [[ucum.base]]
 # gram -> kilogram  (UCUM uses gram; ISQ uses kilogram)

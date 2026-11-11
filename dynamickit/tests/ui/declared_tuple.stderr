@@ -1,0 +1,5 @@
+error: a declared field's type is a named type (`Time`, `Qty<{ D }>`, `PhantomData<F>`): the way back builds it as a struct expression, which a tuple, an array or a reference has none of - move that field whole, into a field of its type
+  --> tests/ui/declared_tuple.rs:10:24
+   |
+10 | #[dynamic(Span { ends: (f64, f64) } => { start: .ends.0, end: .ends.1 })]
+   |                        ^^^^^^^^^^
