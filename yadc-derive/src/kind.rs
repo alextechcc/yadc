@@ -70,9 +70,9 @@ struct KindModel<'a> {
     affine: Option<usize>,
     /// The variant marked `#[kind(log)]`: a logarithm.
     log: Option<usize>,
-    /// Per-variant `#[ucum(prefix = ..)]`: outer `None` = not declared,
-    /// inner `None` = declared as `none`.
-    prefixes: Vec<Option<Option<String>>>,
+    /// Per-variant `#[ucum(prefix = ..)]`: `None` where none is declared or
+    /// it is declared `none`.
+    prefixes: Vec<Option<String>>,
 }
 
 impl KindModel<'_> {
@@ -109,7 +109,7 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
 
     let mut idents: Vec<&syn::Ident> = Vec::new();
     let mut rules: Vec<(usize, Op, KindRef, KindRef)> = Vec::new();
-    let mut prefixes: Vec<Option<Option<String>>> = Vec::new();
+    let mut prefixes: Vec<Option<String>> = Vec::new();
     let mut zero: Option<usize> = None;
     let mut affine: Option<usize> = None;
     let mut log: Option<usize> = None;
@@ -127,7 +127,7 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
             ));
         }
         idents.push(&variant.ident);
-        prefixes.push(ucum_prefix_override(variant)?);
+        prefixes.push(ucum_prefix_override(variant)?.flatten());
         if variant.attrs.iter().any(|a| a.path().is_ident("default")) && zero.replace(i).is_some() {
             return Err(syn::Error::new_spanned(
                 variant,
@@ -168,6 +168,31 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
             "mark the plain label - the label of a plain number - with `#[default]`",
         )
     })?;
+    if affine == Some(zero) || log == Some(zero) {
+        return Err(syn::Error::new_spanned(
+            idents[zero],
+            "the `#[default]` label is a plain number's, an amount: it cannot be \
+             `#[kind(affine)]` or `#[kind(log)]`",
+        ));
+    }
+    // A point's and a logarithm's sums are fixed by the dimension: a rule on
+    // one, or naming one, would never be read.
+    let special = |i: usize| affine == Some(i) || log == Some(i);
+    let names_special = |r: &KindRef| match r {
+        KindRef::Named(id) => idents.iter().position(|v| *v == id).is_some_and(special),
+        KindRef::Invalid => false,
+    };
+    for (owner, _, other, result) in &rules {
+        if special(*owner) || names_special(other) || names_special(result) {
+            return Err(syn::Error::new_spanned(
+                idents[*owner],
+                "a point's and a logarithm's sums are fixed (a point less a point is an \
+                 amount, an amount moves a point; logarithms add their exponents): no \
+                 `add(..)` / `sub(..)` rule may be written on or name an `affine` or `log` \
+                 variant",
+            ));
+        }
+    }
 
     Ok(KindModel {
         variants: idents,
@@ -271,9 +296,10 @@ fn parse_kind_items(attr: &syn::Attribute) -> syn::Result<Vec<KindItem>> {
     })
 }
 
-// Generates `Dimension` (dimension one: the plain label), the four const std
-// operators (total `*` / `/`, `+` / `-` with `Output = Option<Self>`) and
-// `PartialRoot` for an enum of labels.
+// Generates, for an enum of labels: `Dimension` (dimension one: the plain
+// label), `Label` (which variant is a point and which a logarithm), the four
+// const std operators (total `*` / `/`, `+` / `-` with `Output =
+// Option<Self>`), `PartialRoot`, `PartialPowi` and `Display`.
 //
 // The tables are *data*, not code: start from four universal defaults, then
 // the variants' own `#[kind(op(..) = ..)]` declarations, and treat every pair
@@ -301,8 +327,8 @@ pub(crate) fn expand_label(input: &DeriveInput) -> syn::Result<TokenStream2> {
     // Kinds are labels. `*` and `/` are total and fixed: a label survives
     // only beside the plain kind (x * plain, plain * x, x / plain); every
     // other product or quotient is the plain kind. `+` / `-` default to "a
-    // label with itself"; a preset or a declaration adds or (`= invalid`)
-    // revokes `add` / `sub` entries.
+    // label with itself"; a declaration adds or (`= invalid`) revokes `add` /
+    // `sub` entries.
     for x in 0..n {
         for y in 0..n {
             let mul = if x == zero {
@@ -504,7 +530,7 @@ pub(crate) fn expand_ucum_kind(input: &DeriveInput) -> syn::Result<TokenStream2>
     let mut prefix_rev = Vec::new();
     let mut seen: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     for (i, v) in model.variants.iter().enumerate() {
-        let prefix = model.prefixes[i].clone().flatten();
+        let prefix = model.prefixes[i].clone();
         let Some(prefix) = prefix else { continue };
         if let Some(other) = seen.insert(prefix.clone(), i) {
             let other = model.variants[other];

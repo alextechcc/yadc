@@ -3,8 +3,8 @@
 //!
 //! What makes a type a unit *of* something is one impl, `Unit<Q>`, with two
 //! methods: `quantity` turns a number into a `Q`, `value` reads a `Q` back as
-//! a number. Most units are constants: a quantity (`KILOMETRE`), or a scale
-//! - a zero and a step (°C is `Scale(ICE_POINT, KELVIN)`, dBm the same on
+//! a number. Most units are constants: a quantity (`KILOMETRE`), or a scale,
+//! a zero and a step (°C is `Scale(ICE_POINT, KELVIN)`, dBm the same on
 //! the logarithmic line). Anything else is two functions on a type of yours.
 //!
 //! The Beaufort wind scale is such a unit: force `B` is a wind speed of

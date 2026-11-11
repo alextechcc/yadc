@@ -3,6 +3,7 @@ name = "yadc-si"
 version = "0.1.0"
 edition = "2024"
 license = "MIT OR BSD-3-Clause"
+description = "An SI unit system built with yadc: quantities, units and physical constants, static and dynamic."
 
 [dependencies]
 yadc = { path = "../yadc", default-features = false }
@@ -26,7 +27,7 @@ default = [
 ]
 std = ["yadc/std", "serde?/std"]
 # Software float math for a `no_std` build: `Real` (and so the nonlinear
-# unit conversions) needs either this or `std`.
+# unit conversions and the dynamic type's roots) needs either this or `std`.
 libm = ["yadc/libm"]
 mechanical = []
 angular = []

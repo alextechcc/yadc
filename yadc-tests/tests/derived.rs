@@ -2,6 +2,8 @@
 //! powers, units of every form, and `Display`.
 #![feature(generic_const_exprs, const_trait_impl, const_ops, const_cmp)]
 #![allow(incomplete_features)]
+// `a - a` is asked of the algebra on purpose: the difference of two of a kind.
+#![allow(clippy::eq_op)]
 
 use yadc::{Dimension, PartialPowi, PartialRoot, Unit};
 use yadc_tests::*;

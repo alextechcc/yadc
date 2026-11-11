@@ -31,6 +31,13 @@ pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()
     std::fs::write(&written[1], gen_dimensionless_rs(system))?;
     std::fs::write(output_dir.join("Cargo.toml"), gen_cargo_toml(system))?;
 
+    for fam in &system.family {
+        assert!(
+            system.system.family_order.contains(&fam.name),
+            "family `{}` is not listed in [system].family_order: add it",
+            fam.name,
+        );
+    }
     for fam_name in &system.system.family_order {
         let Some(fam) = system.family.iter().find(|f| &f.name == fam_name) else {
             continue;
@@ -310,8 +317,11 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
         s += "/// of.\n";
     }
     s += "/// Any other is a label of this system's own, telling apart quantities of\n";
-    s += "/// the same exponents, with its sums as `#[kind(..)]` rules. Angles are not\n";
-    s += "/// a kind but an exponent axis of the dimension (`rad`).\n";
+    s += "/// the same exponents, with its sums as `#[kind(..)]` rules.";
+    if system.dim.fields.iter().any(|f| f == "rad") {
+        s += " Angles are not\n/// a kind but an exponent axis of the dimension (`rad`).";
+    }
+    s += "\n";
     s += "///\n";
     s += "/// `#[derive(Dimension)]` on the enum writes the label algebra: `*` and `/`\n";
     s += "/// keep a label only beside a plain number; `+` and `-` work within one\n";
@@ -377,9 +387,8 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "pub struct Scale<P, S>(pub P, pub S);\n\n";
     s += SCALE_IMPLS;
 
-    // A dimension with a kind field has partial products - a point or a
-    // level has none - and the dynamic type's with them.
-    let products = "Option<Self>";
+    // Which of the dynamic type's results may be missing: with an affine or
+    // a log kind, a product too (a point or a level has none).
     let products_doc = match (&system.kind.affine, &system.kind.log) {
         (None, None) => "A product or quotient always exists (`Some`); a sum or a\n/// scaling may not (`None` where the dimensions don't combine), so a calculation\n/// reads `(((a * b)? + c)? * 2.0)?`.".to_string(),
         (affine, log) => {
@@ -395,7 +404,6 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     };
     s += &DYNAMIC
         .replace("__PRODUCTS_DOC__", &products_doc)
-        .replace("__PRODUCTS__", products)
         .replace("__DYN__", dyn_)
         .replace("__QTY__", qty)
         .replace("__DIM__", dim);
@@ -462,9 +470,8 @@ const DYNAMIC: &str = r#"/// A quantity of any dimension, decided at run time: t
 #[dynamic(__QTY__<const D: __DIM__> => { dim: D, value: .0 })]
 #[dynamic(shared f64 => { dim: __DIM__::DIMENSIONLESS, value: self })]
 #[dynamic(impl(
-    TryFrom,
-    Mul -> __PRODUCTS__,
-    Div -> __PRODUCTS__,
+    Mul -> Option<Self>,
+    Div -> Option<Self>,
     Add -> Option<Self>,
     Sub -> Option<Self>,
     Mul<f64> -> Option<Self>,
@@ -997,8 +1004,7 @@ pub fn gen_dimensionless_rs(system: &UnitSystem) -> String {
         &quantities,
         system,
         &format!("pub type Dimensionless = {qty}<{{ {dim}::DIMENSIONLESS }}>;\n"),
-        "//! Plain numbers: ratios, percentages, and levels in decibels. Variants\n\
-         //! mirror uom's `ratio.rs` quantity.\n",
+        "//! Plain numbers: ratios and their units.\n",
         false,
     )
 }
@@ -1613,7 +1619,7 @@ dims = {m = 1}
 units = [{v = "Phon", m = "1.0", s = "phon", l = "phons", scale = "pow10"}]
 "#
         ));
-        let message = parsed.err().expect("an unknown field").to_string();
+        let message = parsed.expect_err("an unknown field").to_string();
         assert!(message.contains("unknown field `scale`"), "{message}");
     }
 }

@@ -50,7 +50,6 @@ fmt-clean files.
     #[dynamic(Qty<const D: Dim> => { dim: D, value: .0 })]
     #[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]
     #[dynamic(impl(
-        TryFrom,
         Mul -> Option<Self>,
         Div -> Option<Self>,
         Add -> Option<Self>,
@@ -66,8 +65,8 @@ fmt-clean files.
     (converting moves the number and records `D`; `TryFrom` checks it on the
     way back; a bare `f64` is the same value as a dimensionless quantity;
     every operator and method is the fields' own, its output stated - `Mul`
-    and `Div` are `-> Self` in a system that names no affine or logarithmic
-    kind, where every product exists), with the dimension's own `* f64` and
+    and `Div` are `-> Option<Self>`, since a dimension with a kind has
+    partial products), with the dimension's own `* f64` and
     `/ f64` beside it (a dimension scales where it adds to itself as itself);
   - `pub mod base`, the `[[base]]` constants - the only raw numbers;
   - one `pub mod` per family, per `extra_modules` entry and for
@@ -226,7 +225,8 @@ log      = "Log"        # levels and gains
   the exponents. A gain (no exponents) scales and leaves a product as a label
   does; a level (with exponents) has no products.
 
-Both are optional, and emitted on the dimension's kind field. Naming either
+Both are optional, and emitted on the variants they name: `#[kind(affine)]`,
+`#[kind(log)]`. Naming either
 makes the dimension's `*` and `/` partial - a product with a point or a level
 has no result - so the generated dynamic type's `*` and `/` return `Option`
 too.
@@ -387,8 +387,8 @@ units = [
 which generates the steps `KELVIN` (re-exported from `base`) and
 `DEGREE_FAHRENHEIT`, the zeros `ABSOLUTE_ZERO`, `ICE_POINT` and
 `FAHRENHEIT_ZERO`, and the scales `CELSIUS` and `FAHRENHEIT`, each a
-`Scale(zero, step)` - a unit of its zero's type, through the impl the
-quantity derive writes for the system's scale type.
+`Scale(zero, step)` - a unit of its zero's type, through the scale type's
+`impl Unit`.
 
 ### Instants: points on a line
 
@@ -531,7 +531,11 @@ under `*`).
 
 ### What gets generated
 
-Units are grouped by UCUM `class` into Cargo feature-gated families:
+Units are grouped by UCUM `class` into Cargo feature-gated families, and
+within a family into one quantity per UCUM property, dimension and kind (a
+property name shared by two dimensions gets a dimension suffix,
+`UnclassifiedM3PerKgS2`). Only class `dimless` goes to `dimensionless.rs`;
+a dimensionless unit of another class stays in its family:
 
 | Family | UCUM classes | Contents |
 |--------|-------------|----------|
@@ -540,7 +544,7 @@ Units are grouped by UCUM `class` into Cargo feature-gated families:
 | `iso1000` | `iso1000` | ISO 1000 units (litre, tonne, bar, …) |
 | `intcust` | `intcust` | International customary units |
 | `cgs` | `cgs` | Centimetre-gram-second units |
-| `infotech` | `infotech` | Bit, byte, and metric-prefixed variants |
+| `infotech` | `infotech` | Bit, byte and baud, with metric-prefixed variants |
 | `us` | `us-lengths`, `us-volumes`, `avoirdupois`, `troy`, `apoth` | US customary and apothecary units |
 | `british` | `brit-length`, `brit-volumes` | British imperial units |
 | `clinical` | `clinical`, `chemical` | Clinical and chemical units |
@@ -557,7 +561,5 @@ For every `isMetric="yes"` unit the generator also emits metric-prefixed variant
   substituted with hardcoded scales (a zero and a step) in the `heat` family.
 - `isArbitrary="yes"` units: titre, international units, etc. whose conversion factor
   is not defined.
-- Units whose expression cannot be fully resolved from known symbols (~79 units,
-  mostly those referencing `[pi]` — which is `isSpecial` — or chaining through
-  `[gr]` (grain), which is absent from `ucum-essence.xml`).  This takes out most
-  US customary, British imperial, troy, and apothecary units.
+- Units whose expression cannot be resolved from known symbols: none in
+  UCUM 2.2; the generator prints how many it resolved and skipped.

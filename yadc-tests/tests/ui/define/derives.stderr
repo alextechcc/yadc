@@ -22,41 +22,53 @@ error: only one variant can be `#[kind(affine)]`
 46 |     #[kind(affine)]
    |            ^^^^^^
 
-error: the kind field is marked `#[kind]` alone; which of its values is a point and which a logarithm is said on the label enum's variants: `#[kind(affine)] Affine`, `#[kind(log)] Log`
-  --> tests/ui/define/derives.rs:55:5
+error: the `#[default]` label is a plain number's, an amount: it cannot be `#[kind(affine)]` or `#[kind(log)]`
+  --> tests/ui/define/derives.rs:56:5
    |
-55 |     #[kind(affine = MulRule::Other)]
+56 |     Plain,
+   |     ^^^^^
+
+error: a point's and a logarithm's sums are fixed (a point less a point is an amount, an amount moves a point; logarithms add their exponents): no `add(..)` / `sub(..)` rule may be written on or name an `affine` or `log` variant
+  --> tests/ui/define/derives.rs:68:5
+   |
+68 |     Other,
+   |     ^^^^^
+
+error: the kind field is marked `#[kind]` alone; which of its values is a point and which a logarithm is said on the label enum's variants: `#[kind(affine)] Affine`, `#[kind(log)] Log`
+  --> tests/ui/define/derives.rs:76:5
+   |
+76 |     #[kind(affine = MulRule::Other)]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: `Zero` is not an extra of `#[derive(Quantity)]`; expected one of Display, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Powi, Root, Inv, Sum, Cast, From, Fn
-  --> tests/ui/define/derives.rs:61:22
+  --> tests/ui/define/derives.rs:82:22
    |
-61 | #[quantity(impl(Neg, Zero))]
+82 | #[quantity(impl(Neg, Zero))]
    |                      ^^^^
 
 error: say what this unit measures: `#[unit(of = Q)]` (repeatable)
-  --> tests/ui/define/derives.rs:67:12
+  --> tests/ui/define/derives.rs:88:12
    |
-67 | pub struct NoTarget;
+88 | pub struct NoTarget;
    |            ^^^^^^^^
 
 error: say which unit value this is: `by = U` - a constant (`by = KILOMETRE`, a scale `by = CELSIUS`), or a field marked `#[unit(by)]`
-  --> tests/ui/define/derives.rs:72:12
+  --> tests/ui/define/derives.rs:93:12
    |
-72 | pub struct NoForm;
+93 | pub struct NoForm;
    |            ^^^^^^
 
 error: `Display` needs this unit's symbol and name: `#[unit("km", "kilometres", ..)]` - or leave `Display` out with `#[unit(impl(..))]`
-  --> tests/ui/define/derives.rs:77:12
+  --> tests/ui/define/derives.rs:98:12
    |
-77 | pub struct NoLabels;
+98 | pub struct NoLabels;
    |            ^^^^^^^^
 
 error: unknown `#[unit(..)]` item `step`; expected the symbol and name, `by = ..`, `via = ..`, or on the type `of = ..`, `number = ..`, `non_const`, `impl(..)`
-  --> tests/ui/define/derives.rs:81:28
-   |
-81 | #[unit("x", "x", of = f64, step = 1.0)]
-   |                            ^^^^
+   --> tests/ui/define/derives.rs:102:28
+    |
+102 | #[unit("x", "x", of = f64, step = 1.0)]
+    |                            ^^^^
 
 warning: unused import: `yadc::Dimension`
  --> tests/ui/define/derives.rs:8:5

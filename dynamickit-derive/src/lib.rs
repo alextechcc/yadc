@@ -1,14 +1,16 @@
 //! The derives behind `dynamickit`: [`Dynamic`](macro@Dynamic) for the dynamic
 //! type, [`Visit`](macro@Visit), [`Variants`](macro@Variants),
 //! [`Members`](macro@Members) and [`Via`](macro@Via) for closed sets.
-//! `Visit` and `Variants` write the dynamickit trait they are named after; the
-//! others write std impls only. See the `dynamickit` crate for the traits and
-//! the examples.
+//! `Visit` and `Variants` write the dynamickit trait they are named after;
+//! `Members` and `Via` write std impls only; `Dynamic` writes std impls plus
+//! the traits you name in its `impl(..)`. See the `dynamickit` crate for the
+//! traits and the examples.
 //!
-//! Every derive takes `#[dynamickit(crate = "path")]` to name the `dynamickit` crate
-//! (default `::dynamickit`), and passes the type's generic parameters and where
-//! clause through to every impl. Each derive's attributes are namespaced by
-//! it: `#[dynamic(..)]`, `#[members(..)]`, `#[via(..)]`.
+//! `Visit` and `Variants` take `#[dynamickit(crate = "path")]` to name the
+//! `dynamickit` crate (default `::dynamickit`). Every derive passes the type's
+//! generic parameters and where clause through to every impl. Each derive's
+//! attributes are namespaced by it: `#[dynamic(..)]`, `#[members(..)]`,
+//! `#[via(..)]`.
 
 mod dynamic;
 
@@ -262,6 +264,33 @@ fn generics(input: &DeriveInput) -> Generics {
             .collect(),
     }
 }
+/// The enum's or struct's generic parameters as an impl declares them:
+/// lifetimes, then the others, without defaults (an impl takes none).
+pub(crate) fn impl_params(input: &DeriveInput) -> (Vec<TokenStream2>, Vec<TokenStream2>) {
+    let mut lts = Vec::new();
+    let mut rest = Vec::new();
+    for p in &input.generics.params {
+        let mut p = p.clone();
+        match &mut p {
+            GenericParam::Lifetime(_) => {}
+            GenericParam::Type(t) => {
+                t.eq_token = None;
+                t.default = None;
+            }
+            GenericParam::Const(c) => {
+                c.eq_token = None;
+                c.default = None;
+            }
+        }
+        if matches!(p, GenericParam::Lifetime(_)) {
+            lts.push(quote! { #p });
+        } else {
+            rest.push(quote! { #p });
+        }
+    }
+    (lts, rest)
+}
+
 /// `impl<'a, extra lifetimes, T, extra..>` - lifetimes first, as Rust
 /// requires.
 fn impl_head(
@@ -269,20 +298,7 @@ fn impl_head(
     extra: &[TokenStream2],
     input: &DeriveInput,
 ) -> TokenStream2 {
-    let lts: Vec<_> = input
-        .generics
-        .params
-        .iter()
-        .filter(|p| matches!(p, GenericParam::Lifetime(_)))
-        .map(|p| quote! { #p })
-        .collect();
-    let rest: Vec<_> = input
-        .generics
-        .params
-        .iter()
-        .filter(|p| !matches!(p, GenericParam::Lifetime(_)))
-        .map(|p| quote! { #p })
-        .collect();
+    let (lts, rest) = impl_params(input);
     quote! { impl<#(#lts,)* #(#extra_lts,)* #(#rest,)* #(#extra),*> }
 }
 
@@ -421,7 +437,7 @@ fn expand_visit(input: &DeriveInput) -> syn::Result<TokenStream2> {
 /// ```
 ///
 /// All `const`.
-#[proc_macro_derive(Members, attributes(dynamickit, members))]
+#[proc_macro_derive(Members, attributes(members))]
 pub fn derive_members(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     expand_members(&input)
@@ -733,7 +749,7 @@ fn expand_variants(input: &DeriveInput) -> syn::Result<TokenStream2> {
 ///     }
 /// }
 /// ```
-#[proc_macro_derive(Via, attributes(dynamickit, members, via))]
+#[proc_macro_derive(Via, attributes(members, via))]
 pub fn derive_via(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     expand_via(&input)
@@ -790,15 +806,19 @@ impl syn::parse::Parse for ViaAttr {
 }
 
 fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
-    krate(input)?;
     let name = &input.ident;
     let vs = variants(input, "Via")?;
-    let attr = input
-        .attrs
-        .iter()
-        .find(|a| a.path().is_ident("via"))
+    let mut vias = input.attrs.iter().filter(|a| a.path().is_ident("via"));
+    let attr = vias
+        .next()
         .ok_or_else(|| syn::Error::new_spanned(name, VIA_HELP))?
         .parse_args::<ViaAttr>()?;
+    if let Some(extra) = vias.next() {
+        return Err(syn::Error::new_spanned(
+            extra,
+            "one `#[via(X, ..)]` per enum: list every operator in it",
+        ));
+    }
     let x = &attr.through;
     let g = generics(input);
     let head = impl_head(&[], &[], input);
@@ -944,10 +964,11 @@ fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
 /// pub struct AnyBag { #[dynamic(same)] fruit: FruitKind, count: u32 }
 /// ```
 ///
-/// Writes std impls only. Per mapping: `From<Static>` (moves the payload in,
-/// records the facts) and the way back, `TryFrom<Self> for Static` (`Error =
-/// Self`: checks every fact, moves the payload back, rebuilding the static
-/// value). Generic over the mapping's parameters.
+/// Writes std traits, plus the traits you name in `impl(..)`. Per mapping:
+/// `From<Static>` (moves the payload in, records the facts) and the way
+/// back, `TryFrom<Self> for Static` (`Error = Self`: checks every fact, moves
+/// the payload back, rebuilding the static value). Generic over the
+/// mapping's parameters.
 ///
 /// A mapping is `Static => { field: source, .. }`, `Static` a type with its
 /// parameters declared (`Qty<const D: Dim>`, `Bag<F: Fruit>`; other
@@ -963,9 +984,10 @@ fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
 /// role (fact or payload) in every mapping, payload paths distinct, every
 /// declared parameter in some fact, and the static types told apart by their
 /// facts - two mappings whose facts could be equal are refused, naming both;
-/// where only values can tell (`TIME` vs `LENGTH`, `F::KIND` vs `MIXED`), an
-/// assertion checks at compile time that they differ (for a constant naming
-/// a parameter, in that mapping's impls, for each member used). A mapping
+/// where only values can tell (`TIME` vs `LENGTH`, `F::KIND` vs
+/// `FruitKind::Apple`), an assertion checks at compile time that they differ
+/// (for a constant naming a parameter, in that mapping's impls, for each
+/// member used). A mapping
 /// marked `shared` (`shared f64 => { .. }`) is the same value as another
 /// and may hold its facts: the way back gives either.
 ///
@@ -983,7 +1005,6 @@ fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
 ///
 /// The items:
 ///
-/// - `TryFrom`: the way back (always written; may be listed);
 /// - `Mul -> Self`, `Add -> Option<Self>`, ... (`Mul`, `Div`, `Add`, `Sub`,
 ///   `Rem`): `Self ∘ Self`; with `-> Option<Self>` each field's result goes
 ///   through `Into<Option<_>>` and any `None` makes the result `None`;
@@ -993,14 +1014,16 @@ fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
 ///   `&mut field`; the extra arguments are passed to each, so they are
 ///   `Copy`); associated types as bindings, `Trait<A = X>`. An ordinary impl;
 /// - `path::Trait::getter(&self) -> T = self.field`: the method returns the
-///   field - a `const impl` (so the trait is a `const trait`);
+///   field. The trait's impl is a `const impl` (so the trait is a `const
+///   trait`) when every item listed for that trait is a getter; with a lifted
+///   method among them, an ordinary impl;
 /// - `PartialOrd`: the payload compared, in field order, when the facts are
 ///   equal; `None` otherwise. `const` when `Self`'s `PartialEq` is.
 ///
 /// Operators are `const impl`s with `[const]` bounds, so a field type whose
 /// operators aren't `const` still works at run time. The payload must be
 /// visible here (same module, or `pub` fields).
-#[proc_macro_derive(Dynamic, attributes(dynamickit, dynamic))]
+#[proc_macro_derive(Dynamic, attributes(dynamic))]
 pub fn derive_dynamic(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     dynamic::expand(&input)

@@ -3,7 +3,7 @@ name = "dynamickit-derive"
 version = "0.1.0"
 edition = "2024"
 license = "MIT OR BSD-3-Clause"
-description = "The derives behind dynamickit: Dynamic, Visit, Variant, Members, Via, Zip, MapTo, Menu."
+description = "The derives behind dynamickit: Dynamic, Visit, Variants, Members, Via."
 
 [lib]
 proc-macro = true

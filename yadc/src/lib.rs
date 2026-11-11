@@ -169,7 +169,7 @@
 //!
 //! | module | what | |
 //! |---|---|---|
-//! | (root) | `Dimension`, `PartialPowi`, `PartialRoot`, `Exponent`, `Powi` / `PowiAs`, `Root` / `RootAs`, `Cast` / `CastAs` | the generic maths, from the `yadc-math` crate, re-exported |
+//! | (root) | `Dimension`, `Label`, `PartialPowi`, `PartialRoot`, `Exponent` / `ParseExponentError`, `Powi` / `PowiAs`, `Root` / `RootAs`, `Cast` / `CastAs` | the generic maths, from the `yadc-math` crate, re-exported |
 //! | [`quantity`] | `Quantity` | a value you can add, scale and measure with |
 //! | [`unit`](mod@unit) | `Unit`, `UnknownUnit` | turning numbers into quantities and points and back; parsing |
 //! | [`display`] | `write_dimension`, `write_quantity` | how the derived `Display` impls print |
@@ -239,8 +239,8 @@
 //! |---|---|
 //! | Just uses already-defined aliases (`Mass`, `Force`, ...) | `#![feature(generic_const_exprs)]` |
 //! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
-//! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const` (plus `const_destruct` if the quantity's number type is a generic parameter) |
-//! | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl` |
+//! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and for the default `Fn` extra (a constant is called: `KILOMETRE(3.0)`) `fn_traits`, `unboxed_closures`, `const_destruct` |
+//! | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl`, and for the default `Fn` extra `fn_traits`, `unboxed_closures` |
 //!
 //! Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs`
 //! warning.

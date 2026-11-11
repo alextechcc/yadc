@@ -4,7 +4,7 @@
 
 // `generic_const_exprs` is all a crate using `yadc-si` needs; `const_trait_impl`
 // and `const_ops` only because this one does quantity arithmetic in `const`
-// items (section 13).
+// items (section 11).
 #![feature(generic_const_exprs, const_trait_impl, const_ops)]
 #![allow(incomplete_features)]
 
@@ -28,8 +28,8 @@ const PSI: Pressure = POUND * STANDARD_GRAVITY / (INCH * INCH);
 
 fn main() {
     // --- 1. A unit turns a number into a quantity and back ------------------
-    // A unit is called like the function it is: on a number it builds, on a
-    // quantity it reads. `Kilogram(70.0)` *is* 70 kg (stored in SI base
+    // A quantity constant or a unit enum's value is called like a function:
+    // on a number it builds, on a quantity it reads. `Kilogram(70.0)` *is* 70 kg (stored in SI base
     // units), and `Kilogram(m)` reads a mass back in kilograms. A unit is a
     // value: every constant is one (`KILOGRAM(m)` is the same number), and
     // `MassUnit::Kilogram` is an enum variant that names it, for printing and
@@ -141,39 +141,14 @@ fn main() {
     println!("body is {:.0} K above room", above_room.value(body));
 
     // --- 6. Format flags ----------------------------------------------------
-    // The number takes the number's flags (`{:.2}`, `{:>12.3}`, `{:+}`), the
-    // unit its own (`{:#}` swaps the symbol for the long name). A quantity
-    // also prints itself, as its number and its dimension in base units.
+    // The number takes the number's flags, the unit its own (`{:#}` is the long
+    // name). A quantity also prints itself, as its number and base dimension.
 
     let newton = ForceUnit::Newton;
-    let n = newton(force);
-    println!("plain   : {n} {newton}");
-    println!("long    : {n} {newton:#}");
-    println!("2 dp    : {n:.2} {newton}");
-    println!("width 12: {n:>12.3} {newton}");
-    println!("itself  : {force:.2}");
+    println!("{:>10.3} {newton:#}", newton(force));
+    println!("{force:.2}");
 
-    // --- 7. Scalar arithmetic (Qty * f64, etc.) -----------------------------
-    // A quantity can be multiplied or divided by a plain number. The result
-    // keeps the same dimension. `*=` / `/=` work in place.
-
-    let m1 = Kilogram(10.0);
-    let doubled = m1 * 2.0;
-    let halved = m1 / 2.0;
-    let from_left: Mass = 3.0 * m1;
-    println!(
-        "10 kg x 2.0 = {} kg, 10 kg / 2.0 = {} kg, 3.0 x 10 kg = {} kg",
-        Kilogram(doubled),
-        Kilogram(halved),
-        Kilogram(from_left),
-    );
-
-    let mut tank = Kilogram(1.0);
-    tank *= 4.0;
-    tank /= 2.0;
-    println!("1 kg *= 4.0 /= 2.0 -> {} kg", Kilogram(tank));
-
-    // --- 8. Levels: dBm is a scale on a logarithmic line -------------------------
+    // --- 7. Levels: dBm is a scale on a logarithmic line --------------------
     // dBm is ten times the base-10 logarithm of the power over 1 mW, so
     // 30 dBm is 1 W. On that line multiplying is adding: a `PowerLevel` is a
     // place on it, a `Gain` a step, and `DBM` a scale like °C - a zero and a
@@ -203,7 +178,7 @@ fn main() {
     let hundredfold = Dimensionless::from(DECIBEL(20.0));
     println!("20 dB   = × {:.0}", RATIO(hundredfold));
 
-    // --- 9. Instants: points on the line of time ---------------------------
+    // --- 8. Instants: points on the line of time ----------------------------
     // An `Instant` is a point: measured from a zero somebody chose, so two of
     // them differ by a `Time` and a `Time` moves one, and nothing else -
     // `launch + landing` and `2.0 * launch` do not compile. Which zero is
@@ -218,92 +193,40 @@ fn main() {
     let jd = InstantUnit::JulianDate;
     println!("landing = {:.4} {jd} ({jd:#})", jd(landing));
 
-    // --- 10. Dynamic dimensions with DynamicSIQuantity ----------------------
+    // --- 9. Dynamic dimensions with DynamicSIQuantity -----------------------
     // `DynamicSIQuantity` carries its dimension at run time. Any static
     // quantity converts in with `From`; its arithmetic composes dimensions as
     // it goes. Any step may have no result - a sum of a mass and a force, a
-    // product of a power level (a logarithm has none) - so every operator
-    // returns an `Option`, `None` where the dimensions don't combine, and a
-    // calculation chains with `?`. Read it back through a static quantity:
-    // `Power::try_from(d)` fails if the dimension does not match, and a unit
-    // of `Power` reads the result.
+    // product of a power level - so every operator returns an `Option`, and a
+    // calculation chains with `?`. The way back, `TryFrom`, checks the
+    // dimension, and a mismatch hands the original back instead of losing it.
 
     let dyn_v = DynamicSIQuantity::from(Volt(12.0));
     let dyn_i = DynamicSIQuantity::from(ElectricCurrentUnit::Ampere(2.0));
     let dyn_p = (dyn_v * dyn_i).expect("amounts have a product");
     let p = Power::try_from(dyn_p).expect("V x A is a power");
-    println!(
-        "DynamicSIQuantity: 12 V x 2 A = {:.0} {:#}",
-        Watt(p),
-        Watt
-    );
-    // The dimension came along at run time: the way back checks it.
-    println!("a power? {:?}", Power::try_from(dyn_p).is_ok());
-    println!("a mass?  {:?}", Mass::try_from(dyn_p).is_ok());
+    println!("12 V x 2 A = {:.0} {:#}", Watt(p), Watt);
+    assert_eq!(Mass::try_from(dyn_p), Err(dyn_p));
 
-    // Its operators take two open values: 90 km / 2 h.
-    let dyn_v = DynamicSIQuantity::from(Kilometre(90.0))
-        / DynamicSIQuantity::from(Hour(2.0));
-    println!(
-        "90 km / 2 h = {:?} km/h",
-        dyn_v
-            .and_then(|v| Velocity::try_from(v).ok())
-            .map(|v| KilometrePerHour(v))
-    );
-
-    // An ill-formed sum does not panic: the operator returns `None`, and `?`
-    // stops the calculation at that step.
     let dyn_mass = DynamicSIQuantity::from(Kilogram(2.5));
     let dyn_force = DynamicSIQuantity::from(ForceUnit::Newton(1.0));
     let half_kg = DynamicSIQuantity::from(Kilogram(0.5));
     let nonsense = || -> Option<DynamicSIQuantity> { (dyn_mass + dyn_force)? * dyn_mass };
-    assert_eq!(nonsense(), None);
     let fine = || -> Option<f64> {
         let m = Mass::try_from(((dyn_mass + half_kg)? * 2.0)?).ok()?;
         Some(Kilogram(m))
     };
-    println!(
-        "(kg + N) * kg -> {:?}; (kg + kg) * 2 in kg -> {:?}",
-        nonsense(),
-        fine(),
-    );
+    println!("(kg + N) * kg -> {:?}; (kg + kg) * 2 in kg -> {:?}", nonsense(), fine());
 
-    // --- 11. Round-trip between typed and dynamic ---------------------------
-    // Erasing a dimension always succeeds (`From`); recovering one is fallible
-    // (`TryFrom`, `Error = DynamicSIQuantity`), so a mismatch hands the
-    // original back instead of losing it.
-
-    let erased = DynamicSIQuantity::from(Kilogram(2.0));
-    let back: Mass = erased.try_into().expect("dims match");
-    println!(
-        "typed -> DynamicSIQuantity -> typed: {} {:#}",
-        Kilogram(back),
-        Kilogram
-    );
-    match Force::try_from(erased) {
-        Ok(_) => unreachable!("a mass is not a force"),
-        Err(original) => println!(
-            "Force::try_from(mass) failed, original returned: {:?} kg",
-            Mass::try_from(original).map(|m| Kilogram(m))
-        ),
-    }
-
-    // --- 12. Runtime unit selection -----------------------------------------
-    // A display unit picked at run time is a `&dyn Unit<Mass>`: some unit of
-    // mass, still checked at compile time (a force unit does not fit). A unit
-    // need not print, so a list of units that do is a trait of your own: a
-    // unit of `Q` that is also `Display`.
-    // A choice across *several* quantities is a unit set - your own enum of
-    // unit enums (`yadc-si/examples/sets.rs`).
-    trait Shown<Q>: Unit<Q> + std::fmt::Display {}
-    impl<Q, U: Unit<Q> + std::fmt::Display> Shown<Q> for U {}
-    let choices: [&dyn Shown<Mass>; 3] = [&Kilogram, &MassUnit::Pound, &Gram];
-    let m = Mass::try_from(dyn_mass).expect("a mass");
-    let shown: Vec<String> = choices
-        .iter()
-        .map(|&u| format!("{:.2} {}", u.value(m), u))
-        .collect();
-    println!("2.5 kg in other units: {}", shown.join(" = "));
+    // --- 10. Runtime unit selection ----------------------------------------
+    // A unit picked at run time is a `&dyn Unit<Mass>`: some unit of mass,
+    // still checked at compile time (a force unit does not fit). A choice
+    // across *several* quantities is a unit set - your own enum of unit enums
+    // (`yadc-si/examples/sets.rs`).
+    let choices: [&dyn Unit<Mass>; 3] = [&Kilogram, &MassUnit::Pound, &Gram];
+    let m = Kilogram(2.5);
+    let shown: Vec<String> = choices.iter().map(|u| format!("{:.2}", u.value(m))).collect();
+    println!("2.5 kg in kg, lb, g: {}", shown.join(", "));
 
     // A unit is also std `Display` and `FromStr`: `{}` prints its symbol,
     // `{:#}` its long name, and `.parse()` reads the symbol back - from a
@@ -316,7 +239,7 @@ fn main() {
     let unknown = "furlong".parse::<MassUnit>().map(|u| u.to_string());
     println!("\"furlong\" as a mass unit: {unknown:?}");
 
-    // --- 13. Constants, at compile time -------------------------------------
+    // --- 11. Constants, at compile time -------------------------------------
     // Units are named constants: every family has a `consts` module with the
     // constants its units count in - `mechanical::consts::KILOMETRE` is one
     // kilometre, as a `Length`, and `LengthUnit::Kilometre` names it. The
@@ -349,7 +272,7 @@ fn main() {
     let probe = VelocityUnit::KilometrePerSecond(17.0);
     println!("17 km/s = {:.3e} c", SPEED_OF_LIGHT(probe));
 
-    // --- 14. Another number type ----------------------------------------------
+    // --- 12. Another number type --------------------------------------------
     // `StaticSIQuantity` is generic over its number type (`f64` unless you say
     // otherwise). `cast` changes it - for a compact record, say - and a
     // constant cast the same way is a unit counting in `f32`. Widening `f32`

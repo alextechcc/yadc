@@ -1148,7 +1148,8 @@ mod unit_values {
     };
 
     /// Quantity constants and scales (a zero and a step) convert at compile
-    /// time - called like the functions they are, or through `Unit`.
+    /// time through `Unit`; a quantity constant is also called like the
+    /// function it is.
     const BODY: ThermodynamicTemperature = CELSIUS.quantity(37.0);
     const BODY_F: f64 = FAHRENHEIT.value(BODY);
     const ATM_PSI: f64 = POUND_FORCE_PER_SQUARE_INCH.value(KILOPASCAL.quantity(101.325));
@@ -1173,8 +1174,8 @@ mod unit_values {
         let p = Power::from(DBM.quantity(30.0));
         close(WATT.value(p), 1.0);
         close(DBM.value(PowerLevel::from(MILLIWATT.quantity(100.0))), 20.0);
-        // A pair has no name: the unit enum's variant prints, `{}` its
-        // symbol and `{:#}` its name.
+        // The unit enum's variant prints: `{}` its symbol and `{:#}` its
+        // name.
         use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
         assert_eq!(
             format!("{Celsius} {Fahrenheit:#}"),
@@ -1190,20 +1191,14 @@ mod unit_values {
         close(scales[1].value(BODY), 98.6);
     }
 
-    /// A unit is called like the function it is: on a number it builds, on
-    /// a quantity it reads - a quantity constant, a scale, a unit enum's
-    /// value alike.
+    /// A quantity constant and a unit enum's value are called like the
+    /// functions they are: on a number they build, on a quantity they read.
     #[test]
     fn units_are_called() {
         // Quantity constants.
         let d: Length = FOOT(12.0);
         close(METRE(d), 12.0 * 0.3048);
         close(PASCAL(ATM), 101_325.0);
-        // Scales, a constant and one made at run time.
-        close(CELSIUS.value(BODY), 37.0);
-        let since_morning = Scale(CELSIUS.quantity(12.0), KELVIN);
-        close(since_morning.value(CELSIUS.quantity(19.5)), 7.5);
-        close(CELSIUS.value(since_morning.quantity(3.0)), 15.0);
         // A unit enum's value: bound to a name, since `Enum::Variant(x)`
         // reads as a constructor.
         let fahrenheit = ThermodynamicTemperatureUnit::Fahrenheit;

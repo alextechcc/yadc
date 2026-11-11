@@ -6,7 +6,7 @@
 //! (`x.inv()`) and `ConstOne` (typed powers).
 //!
 //! Every quantity constant is a unit counted in the quantity's own numbers,
-//! and a unit is called like a function: `KILOMETRE(MyF64(2.5))` is 2.5 km
+//! and is called like a function: `KILOMETRE(MyF64(2.5))` is 2.5 km
 //! and `KILOMETRE(d)` is a `MyF64`. A scale (°C: a zero and a step,
 //! `Scale(ICE_POINT, KELVIN)`) counts in its step's numbers, so in `MyF64`
 //! too. A unit enum says what its numbers are with `number = MyF64` in its
@@ -247,8 +247,8 @@ const BOILING: Temperature = CELSIUS.quantity(MyF64(100.0));
 const BOILING_IN_KELVIN: MyF64 = KELVIN_SCALE.value(BOILING);
 
 fn main() {
-    // A unit is called: on a number it builds, on a quantity it reads. A
-    // value of a unit enum is called the same way.
+    // A quantity constant is called: on a number it builds, on a quantity it
+    // reads. A value of a unit enum is called the same way.
     let km = LengthUnit::Kilometre;
     let side = km(MyF64(2.5));
     let area: Area = side * side;

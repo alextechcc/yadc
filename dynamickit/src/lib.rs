@@ -25,9 +25,9 @@
 //! shapes) and depends on nothing. It has two pairs of traits - a visit and
 //! its visitor, for a value ([`Visit`](trait@Visit), [`Visitor`]) and for a
 //! type's variants ([`Variants`](trait@Variants), [`VariantVisitor`]) -
-//! and everything else its derives write is a std trait: `From`, `TryFrom`,
-//! the operators, `PartialOrd`. It writes only impls: no generated traits,
-//! no inherent methods, no fields. Your static types are untouched; the
+//! and everything else its derives write is a std trait (`From`, `TryFrom`,
+//! the operators, `PartialOrd`) or a trait you name in `impl(..)`. It writes
+//! only impls: no generated traits, no inherent methods, no fields. Your static types are untouched; the
 //! dynamic type points at them.
 //!
 //! The examples (`cargo run -p dynamickit --example dynamic`, ...) each show one
@@ -164,12 +164,11 @@
 //!
 //! | Item | Writes |
 //! |---|---|
-//! | `TryFrom` | the way back, `TryFrom<Self> for Static` per mapping (always written) |
 //! | `Mul -> Self`, `Add -> Option<Self>`, ... (`Mul`, `Div`, `Add`, `Sub`, `Rem`) | `Self ∘ Self`: `a.f ∘ b.f` for every field `f` |
 //! | `Mul<K> -> ..`, `Div<K> -> ..` | by a `K`: `a.f ∘ k` for every field |
 //! | `Neg -> ..` | `-a.f` for every field |
 //! | `path::Trait::method(self, n: i8, ..) -> Option<Self>` | any trait's method, lifted the same way: `Trait::method(field, n, ..)` per field; `&self` and `&mut self` receivers pass `&field` / `&mut field`; associated types in the path (`Trait<D = X>`) |
-//! | `path::Trait::getter(&self) -> T = self.field` | a getter: the trait's method returns that field (a `const impl`, so the trait must be a `const trait`) |
+//! | `path::Trait::getter(&self) -> T = self.field` | a getter: the trait's method returns that field; the trait's impl is a `const impl` (so the trait must be a `const trait`) when every item listed for that trait is a getter, an ordinary impl otherwise |
 //! | `PartialOrd` | the payload compared in field order when the facts are equal; `None` otherwise |
 //!
 //! A field with an algebra of its own that takes part in `Mul<K>` says what
@@ -227,7 +226,9 @@
 //!
 //! The derives emit `const impl`s, so a crate using them needs
 //! `#![feature(const_trait_impl)]` (and `const_ops`, `const_convert`,
-//! `const_cmp`, `const_destruct` as the impls it uses require). Each impl is
+//! `const_cmp`, `const_destruct` as the impls it uses require; `const_default`
+//! where a field is filled with `Default` - a declared field such as a
+//! `PhantomData`, or `#[members(default)]`). Each impl is
 //! `const` where its bounds are: `impl(PartialOrd)` is, when the dynamic
 //! type's `PartialEq` is (`#[derive_const(PartialEq)]`). Not `const`: a
 //! lifted method; `#[derive(Via)]` (it converts through `X` with ordinary

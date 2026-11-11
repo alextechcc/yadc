@@ -3,9 +3,8 @@ crate_name   = "yadc-si"
 dim_type     = "ISQ"
 qty_type     = "StaticSIQuantity"
 dynqty_type  = "DynamicSIQuantity"
-# Derived on every unit enum.
-# aggregate can only derive what its leaves do, and `Debug` + `PartialEq` are
-# what a runtime unit picker needs (compare the chosen unit, print it).
+# Derived on every unit enum. `Debug` + `PartialEq` are what a runtime unit
+# picker needs (compare the chosen unit, print it).
 unit_derives = ["Copy", "Clone", "PartialEq", "Eq", "Hash", "Debug"]
 # Hand-written modules the codegen declares but never overwrites. uom_bridge
 # holds orphan-rule From impls that must live beside StaticSIQuantity, so it

@@ -17,8 +17,9 @@ family_order = [
 unit_derives = ["Copy", "Clone"]
 
 [kind]
-# `Absolute`: a temperature - an amount with a true zero that scales with
-# other zeros also read. Two differ by a linear step, and a step moves one.
+# `Absolute`: an amount with a true zero that is also read on scales with
+# other zeros - a temperature (kelvins, °C, °F). Two of them differ by a
+# linear amount and a linear amount moves one.
 variants = ["Linear", "Absolute"]
 default = "Linear"
 rules = { Absolute = ["sub(Absolute) = Linear", "add(Linear) = Absolute", "sub(Linear) = Absolute"] }
@@ -108,7 +109,7 @@ source = "latest"
 # UCUM base units: m  s  g  C  K  cd  rad  (7 total, different from ISQ)
 # ISQ base units:  m  s  kg A  K  cd  mol  (7 total)
 #
-# The five entries below perform the ISQ remapping.
+# The three entries below perform the ISQ remapping.
 # m, s, K, cd map 1:1 and are handled by self-seeding.
 
 [[ucum.base]]

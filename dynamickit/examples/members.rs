@@ -8,8 +8,7 @@
 //! goes in with `From` and comes back out, checked, with `TryFrom`.
 //!
 //! (A struct with a fact field - `#[derive(Dynamic)]` - is for a *family*
-//! whose members differ by a value with arithmetic of its own: a fruit, a
-//! dimension. See `dynamic` and `dynamic_const`.)
+//! whose members differ by a value: a fruit, a dimension. See `dynamic` and `dynamic_const`.)
 #![feature(const_trait_impl, const_convert, const_destruct)]
 
 /// Red, green, blue: each 0 to 1.

@@ -105,7 +105,8 @@ use unit::expand_unit;
 /// - `plain`, only with a `#[kind]` field: the exponents kept, the kind
 ///   forgotten (the trait's provided `plain` - the identity - is right
 ///   without one).
-/// - `yadc::PartialPowi`: repeated `*`, so `None` where a product is.
+/// - `yadc::PartialPowi`: repeated `*`, so `None` where a step has no
+///   product.
 /// - Scaling, `Mul<n>` / `Div<n> -> Option<Self>` for every primitive number
 ///   type `n`: the same dimension where it adds to itself as itself, `None`
 ///   otherwise (a point, a level, a label with no sum). It is what a dynamic
@@ -128,8 +129,8 @@ use unit::expand_unit;
 /// #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 /// pub enum Kind {
 ///     #[default] Linear,                // an ordinary amount
-///     Affine,                           // named `affine` on the dimension: a point
-///     Log,                              // named `log` on the dimension: a logarithm
+///     #[kind(affine)] Affine,           // a point
+///     #[kind(log)] Log,                 // a logarithm: a level or a gain
 ///     #[kind(add(Rank) = invalid)]      // a label of your own, with a rule
 ///     Rank,
 /// }
@@ -137,8 +138,11 @@ use unit::expand_unit;
 ///
 /// - **The ordinary kind** is the variant marked with std `#[default]`: the
 ///   enum's `DIMENSIONLESS`, and every label's `plain`.
-/// - **The affine and the logarithmic kind** are plain variants here; what
-///   they do is the dimension's business, which names them.
+/// - **The affine and the logarithmic kind** are the variants marked
+///   `#[kind(affine)]` and `#[kind(log)]` (at most one each, neither the
+///   `#[default]` one, and no `add`/`sub` rules on or naming them: their sums
+///   are fixed). The derive writes `yadc::Label`, which says which they are;
+///   the dimension's derive asks it.
 /// - **A label of your own** tells apart quantities with the same exponents
 ///   that must not be added together (a torque and an energy). It matters to
 ///   `+` and `-` only: by default it works within itself (`x + x = x`,
@@ -188,12 +192,14 @@ use unit::expand_unit;
 /// # Crate-root features
 ///
 /// A crate that *defines* a unit system - a kind, a dimension and a
-/// quantity type - needs these nine:
+/// quantity type - needs these twelve (the last three for the quantity's
+/// and the unit enums' default `Fn` extra, which makes them callable):
 ///
 /// ```ignore
 /// #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 /// #![feature(const_cmp, const_default, derive_const, const_ops, const_try)]
 /// #![feature(const_convert)]
+/// #![feature(fn_traits, unboxed_closures, const_destruct)]
 /// #![allow(incomplete_features)]
 /// ```
 ///
@@ -221,7 +227,7 @@ pub fn derive_dimension(input: TokenStream) -> TokenStream {
 /// default) says it has none. Both `ucum_prefix` and `from_ucum_prefix` are
 /// emitted from that one list, so the two directions cannot drift, and two
 /// variants claiming the same prefix is an error.
-/// `#[yadc(crate = "path", serde = "path")]` redirects the emitted paths.
+/// `#[yadc(crate = "path")]` redirects the emitted `::yadc::` paths.
 #[proc_macro_derive(UcumKind, attributes(yadc, kind, ucum, default))]
 pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -326,7 +332,8 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// its essence; the extras below are written too unless
 /// `#[quantity(impl(..))]` lists which ones to write. Add `Copy`, `Clone`,
 /// `PartialEq`, `PartialOrd`, `Debug`, ... to `#[derive(...)]` yourself.
-/// Everything is a trait impl, `const` except `Sum`, `Inv` and `Root`.
+/// Everything is a trait impl, `const` except `Display`, `Sum`, `Inv` and
+/// `Root`.
 ///
 /// # Always
 ///
@@ -408,7 +415,7 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///
 /// `#[yadc(crate = "path")]` redirects the emitted `::yadc::` paths. The
 /// crate defining `Qty` (or any new `pub type Foo = Qty<{ ... }>;` alias)
-/// needs the nine feature flags listed on [`Dimension`](macro@Dimension); a
+/// needs the twelve feature flags listed on [`Dimension`](macro@Dimension); a
 /// crate that only *uses* existing aliases needs `generic_const_exprs`
 /// alone.
 #[proc_macro_derive(Quantity, attributes(yadc, quantity, dim, value))]

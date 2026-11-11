@@ -286,7 +286,7 @@ const impl<X> PowiAs for X {}
 ///
 /// Exists only where the root's type does - every root with rational
 /// exponents ([`Exponent`]), only exact ones with integer exponents (√`m²` but
-/// not √`m`), none of a point. Call it as `x.root::<N>()`, through
+/// not √`m`), none of a point or a logarithm. Call it as `x.root::<N>()`, through
 /// [`RootAs`]. A `const trait` whose impls are ordinary ones: the number needs
 /// `powf`, which is not const.
 pub const trait Root<const N: i8> {

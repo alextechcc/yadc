@@ -37,7 +37,7 @@ fn class_to_family(class: &str) -> &'static str {
         "infotech" => "infotech",
         "iso1000" => "iso1000",
         "intcust" => "intcust",
-        "us-lengths" | "us-volumes" | "us-masses" | "us-distances" => "us",
+        "us-lengths" | "us-volumes" | "us-masses" => "us",
         "brit-length" | "brit-volumes" => "british",
         "avoirdupois" | "troy" | "apoth" => "us",
         "clinical" | "chemical" => "clinical",
@@ -171,13 +171,7 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
                 },
             ],
             units: vec![
-                scale(
-                    "Kelvin",
-                    "K",
-                    "kelvin",
-                    "KELVIN",
-                    "ABSOLUTE_ZERO",
-                ),
+                scale("Kelvin", "K", "kelvin", "KELVIN", "ABSOLUTE_ZERO"),
                 scale(
                     "DegreeCelsius",
                     "°C",
@@ -216,12 +210,77 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
     ]
 }
 
-/// Key for grouping units into a single `QuantityDef`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+/// Key for grouping units into a single `QuantityDef`: one quantity per
+/// family, UCUM property, dimension and kind.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 struct GroupKey {
+    family: String,
+    name: String,
     dim: DimVec,
     kind: Option<String>,
-    family: String,
+}
+
+/// Add `unit` to its group, unless the group already has a unit of that name.
+fn push_unit(groups: &mut BTreeMap<GroupKey, Vec<UnitDef>>, key: &GroupKey, unit: UnitDef) {
+    let units = groups.entry(key.clone()).or_default();
+    if !units.iter().any(|u| u.variant == unit.variant) {
+        units.push(unit);
+    }
+}
+
+/// The metric-prefixed multiples of a unit, skipping the ones UCUM defines
+/// itself.
+fn prefixed(
+    code: &str,
+    name: &str,
+    print_symbol: &str,
+    multiplier: f64,
+    all_codes: &HashSet<String>,
+) -> impl Iterator<Item = UnitDef> {
+    METRIC_PREFIXES
+        .iter()
+        .filter(move |(pfx_code, ..)| !all_codes.contains(&format!("{pfx_code}{code}")))
+        .map(move |&(_, pfx_val, pfx_sym, pfx_name)| UnitDef {
+            variant: format!("{}{}", pfx_pascal(pfx_name), to_pascal(name)),
+            multiplier: Some(fmt_mult(multiplier * pfx_val)),
+            symbol: format!("{pfx_sym}{print_symbol}"),
+            long: format!("{pfx_name}{name}"),
+            constant: None,
+            by: None,
+            via: None,
+            non_const: false,
+        })
+}
+
+/// A name suffix that tells apart quantities of one property by their
+/// dimension and kind, its axes in `[dim]` order: `KgPerM3`, `PerS`, `One`
+/// for dimension one.
+fn dim_suffix(dim: &DimVec, kind: Option<&str>, fields: &[String]) -> String {
+    let part = |positive: bool| -> String {
+        fields
+            .iter()
+            .filter_map(|k| dim.get(k).map(|e| (k, e)))
+            .filter(|&(_, &e)| (e > 0) == positive)
+            .map(|(k, e)| match e.abs() {
+                1 => to_pascal(k),
+                n => format!("{}{n}", to_pascal(k)),
+            })
+            .collect()
+    };
+    let (num, den) = (part(true), part(false));
+    let mut s = if num.is_empty() && den.is_empty() {
+        "One".to_string()
+    } else {
+        num
+    };
+    if !den.is_empty() {
+        s += "Per";
+        s += &den;
+    }
+    if let Some(k) = kind {
+        s += k;
+    }
+    s
 }
 
 pub fn to_unit_system(
@@ -233,7 +292,7 @@ pub fn to_unit_system(
     base: Vec<BaseConst>,
     dimless: DimensionlessDef,
 ) -> UnitSystem {
-    let mut groups: HashMap<GroupKey, (String, Vec<UnitDef>)> = HashMap::new();
+    let mut groups: BTreeMap<GroupKey, Vec<UnitDef>> = BTreeMap::new();
     let mut dimless_units: Vec<UnitDef> = dimless.units;
 
     let all_codes: HashSet<String> = essence
@@ -248,45 +307,39 @@ pub fn to_unit_system(
         let Some(r) = resolved.get(&base.code) else {
             continue;
         };
-        if base.property.contains("temperature") {
+        let name = to_pascal(&base.property);
+        if base.property.contains("temperature") || name.is_empty() {
             continue;
         }
 
         let key = GroupKey {
+            family: "si".to_string(),
+            name,
             dim: r.dim.clone(),
             kind: r.kind.clone(),
-            family: "si".to_string(),
         };
-        let (_, units_vec) = groups
-            .entry(key.clone())
-            .or_insert_with(|| (base.property.clone(), Vec::new()));
-        units_vec.push(UnitDef {
-            variant: to_pascal(&base.name),
-            multiplier: Some(fmt_mult(r.multiplier)),
-            symbol: base.print_symbol.clone(),
-            long: base.name.clone(),
-            constant: None,
-            by: None,
-            via: None,
-            non_const: false,
-        });
-        for &(pfx_code, pfx_val, pfx_sym, pfx_name) in METRIC_PREFIXES {
-            let prefixed_code = format!("{pfx_code}{}", base.code);
-            if all_codes.contains(&prefixed_code) {
-                continue;
-            }
-            let mult = fmt_mult(r.multiplier * pfx_val);
-            let entry = groups.get_mut(&key).unwrap();
-            entry.1.push(UnitDef {
-                variant: format!("{}{}", pfx_pascal(pfx_name), to_pascal(&base.name)),
-                multiplier: Some(mult),
-                symbol: format!("{pfx_sym}{}", base.print_symbol),
-                long: format!("{pfx_name}{}", base.name),
+        push_unit(
+            &mut groups,
+            &key,
+            UnitDef {
+                variant: to_pascal(&base.name),
+                multiplier: Some(fmt_mult(r.multiplier)),
+                symbol: base.print_symbol.clone(),
+                long: base.name.clone(),
                 constant: None,
                 by: None,
                 via: None,
                 non_const: false,
-            });
+            },
+        );
+        for u in prefixed(
+            &base.code,
+            &base.name,
+            &base.print_symbol,
+            r.multiplier,
+            &all_codes,
+        ) {
+            push_unit(&mut groups, &key, u);
         }
     }
 
@@ -297,85 +350,74 @@ pub fn to_unit_system(
         let Some(r) = resolved.get(&unit.code) else {
             continue;
         };
-        if unit.property.contains("temperature") {
+        let name = to_pascal(&unit.property);
+        if unit.property.contains("temperature") || name.is_empty() {
             continue;
         }
 
         let family = class_to_family(&unit.class);
-
-        if r.dim.is_empty()
-            && r.kind.is_none()
-            && !matches!(unit.class.as_str(), "si" | "iso1000" | "intl")
-        {
-            if family == "dimless" {
-                dimless_units.push(make_unit_def(unit, r.multiplier));
-            }
+        if family == "dimless" {
+            assert!(
+                r.dim.is_empty() && r.kind.is_none(),
+                "UCUM unit `{}` is of class `dimless` but resolves to dimension {:?}, kind {:?}",
+                unit.code,
+                r.dim,
+                r.kind,
+            );
+            dimless_units.push(make_unit_def(unit, r.multiplier));
             continue;
         }
 
         let key = GroupKey {
+            family: family.to_string(),
+            name,
             dim: r.dim.clone(),
             kind: r.kind.clone(),
-            family: family.to_string(),
         };
-        let (_, units_vec) = groups
-            .entry(key.clone())
-            .or_insert_with(|| (unit.property.clone(), Vec::new()));
-        units_vec.push(make_unit_def(unit, r.multiplier));
-
+        push_unit(&mut groups, &key, make_unit_def(unit, r.multiplier));
         if unit.is_metric {
-            for &(pfx_code, pfx_val, pfx_sym, pfx_name) in METRIC_PREFIXES {
-                let prefixed_code = format!("{pfx_code}{}", unit.code);
-                if all_codes.contains(&prefixed_code) {
-                    continue;
-                }
-                let mult = fmt_mult(r.multiplier * pfx_val);
-                let entry = groups.get_mut(&key).unwrap();
-                entry.1.push(UnitDef {
-                    variant: format!("{}{}", pfx_pascal(pfx_name), to_pascal(&unit.name)),
-                    multiplier: Some(mult),
-                    symbol: format!("{pfx_sym}{}", unit.print_symbol),
-                    long: format!("{pfx_name}{}", unit.name),
-                    constant: None,
-                    by: None,
-                    via: None,
-                    non_const: false,
-                });
+            for u in prefixed(
+                &unit.code,
+                &unit.name,
+                &unit.print_symbol,
+                r.multiplier,
+                &all_codes,
+            ) {
+                push_unit(&mut groups, &key, u);
             }
         }
     }
 
-    let mut family_qtys: HashMap<String, HashMap<String, QuantityDef>> = HashMap::new();
-
-    for (GroupKey { dim, kind, family }, (property, units_vec)) in groups {
-        if units_vec.is_empty() {
-            continue;
-        }
-        let qty_name = to_pascal(&property);
-        if qty_name.is_empty() {
-            continue;
-        }
-
-        let fam_map = family_qtys.entry(family).or_default();
-        let entry = fam_map
-            .entry(qty_name.clone())
-            .or_insert_with(|| QuantityDef {
-                name: qty_name,
-                dims: to_qty_dims(&dim),
-                kind,
+    // A property name shared by groups of different dimensions or kinds in
+    // one family is told apart by a dimension suffix on each.
+    let mut name_count: BTreeMap<(&str, &str), usize> = BTreeMap::new();
+    for key in groups.keys() {
+        *name_count.entry((&key.family, &key.name)).or_default() += 1;
+    }
+    let mut family_qtys: BTreeMap<String, Vec<QuantityDef>> = BTreeMap::new();
+    for (key, units) in &groups {
+        let name = if name_count[&(key.family.as_str(), key.name.as_str())] > 1 {
+            format!(
+                "{}{}",
+                key.name,
+                dim_suffix(&key.dim, key.kind.as_deref(), &dim_cfg.fields)
+            )
+        } else {
+            key.name.clone()
+        };
+        family_qtys
+            .entry(key.family.clone())
+            .or_default()
+            .push(QuantityDef {
+                name,
+                dims: to_qty_dims(&key.dim),
+                kind: key.kind.clone(),
                 consts: Vec::new(),
-                units: Vec::new(),
+                units: units.clone(),
             });
-        let existing: HashSet<String> = entry.units.iter().map(|u| u.variant.clone()).collect();
-        for u in units_vec {
-            if !existing.contains(&u.variant) {
-                entry.units.push(u);
-            }
-        }
     }
 
     // Insert hardcoded temperature quantities into "heat" family
-    let heat_map = family_qtys.entry("heat".to_string()).or_default();
     let absolute = base
         .iter()
         .find(|b| b.name == "ABSOLUTE_ZERO")
@@ -385,36 +427,36 @@ pub fn to_unit_system(
              a kind of its own: add `[[base]] name = \"ABSOLUTE_ZERO\"` with `kind = \"..\"` \
              (a `[kind]` variant: a label with rules, or the affine kind)",
         );
-    for qty in temperature_quantities(&absolute) {
-        heat_map.insert(qty.name.clone(), qty);
-    }
+    family_qtys
+        .entry("heat".to_string())
+        .or_default()
+        .extend(temperature_quantities(&absolute));
 
-    let mut families: Vec<FamilyDef> = Vec::new();
-    for fam_name in &system_cfg.family_order {
-        if let Some(qty_map) = family_qtys.remove(fam_name.as_str()) {
-            let mut qtys: Vec<QuantityDef> = qty_map.into_values().collect();
-            qtys.sort_by(|a, b| a.name.cmp(&b.name));
-            if !qtys.is_empty() {
-                families.push(FamilyDef {
-                    name: fam_name.clone(),
-                    quantity: qtys,
-                });
-            }
-        }
-    }
-    // Remaining families not in the ordered list
-    let mut extras: Vec<_> = family_qtys.into_iter().collect();
-    extras.sort_by(|a, b| a.0.cmp(&b.0));
-    for (name, qty_map) in extras {
-        let mut qtys: Vec<QuantityDef> = qty_map.into_values().collect();
+    for (fam_name, qtys) in &mut family_qtys {
+        assert!(
+            system_cfg.family_order.contains(fam_name),
+            "UCUM units fall in family `{fam_name}`, which [system].family_order does not list: \
+             add it",
+        );
         qtys.sort_by(|a, b| a.name.cmp(&b.name));
-        if !qtys.is_empty() {
-            families.push(FamilyDef {
-                name,
-                quantity: qtys,
-            });
+        for pair in qtys.windows(2) {
+            assert!(
+                pair[0].name != pair[1].name,
+                "two quantities named `{}` in family `{fam_name}`",
+                pair[0].name,
+            );
         }
     }
+    let families: Vec<FamilyDef> = system_cfg
+        .family_order
+        .iter()
+        .filter_map(|name| {
+            family_qtys.remove(name).map(|quantity| FamilyDef {
+                name: name.clone(),
+                quantity,
+            })
+        })
+        .collect();
 
     UnitSystem {
         system: system_cfg,

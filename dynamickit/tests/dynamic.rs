@@ -1,6 +1,6 @@
 //! The dynamic type on small families written here: `Qty<const D: Dim>(f64)`
-//! (a const parameter), `Money<C: Currency>` (a type parameter), plain
-//! types (`f64`, `Instant`, a gift card). The derived `DynQty` sits next to
+//! (a const parameter), `Bag<F: Fruit>` (a type parameter), plain types
+//! (`f64`, `Instant`, a fruit bowl). The derived `DynQty` sits next to
 //! `HandQty`, the same type with every impl written by hand, and the two
 //! must agree. Then the other lifted forms: `same` fields, methods and
 //! getters, several static types in one struct, a generic dynamic type.
@@ -62,12 +62,14 @@ const impl Sub for Dim {
 }
 
 /// What scaling does to a dimension: it stays, where it adds to itself.
+#[allow(clippy::suspicious_arithmetic_impl)]
 const impl Mul<f64> for Dim {
     type Output = Option<Dim>;
     fn mul(self, _: f64) -> Option<Dim> {
         self + self
     }
 }
+#[allow(clippy::suspicious_arithmetic_impl)]
 const impl Div<f64> for Dim {
     type Output = Option<Dim>;
     fn div(self, _: f64) -> Option<Dim> {
@@ -125,7 +127,6 @@ pub type Area = Qty<AREA>;
 #[dynamic(Qty<const D: Dim> => { dim: D, value: .0 })]
 #[dynamic(shared f64 => { dim: NUMBER, value: self })]
 #[dynamic(impl(
-    TryFrom,
     Mul -> Self, Div -> Self, Add -> Option<Self>, Sub -> Option<Self>,
     Mul<f64> -> Option<Self>, Div<f64> -> Option<Self>, Neg -> Option<Self>,
     PartialOrd,
@@ -384,72 +385,85 @@ fn in_const() {
 
 // ===== A family with a type parameter =========================================
 
-/// What a currency is: its code, as a constant of the type.
-pub trait Currency {
-    const CODE: Code;
+/// What a fruit is: its kind, as a constant of the type.
+pub trait Fruit {
+    const KIND: FruitKind;
 }
 
-/// An ISO 4217 numeric code: no arithmetic, only equality.
+/// A fruit as a value: no arithmetic, only equality.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug)]
-pub struct Code(u16);
+pub struct FruitKind(u8);
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub struct Eur;
-impl Currency for Eur {
-    const CODE: Code = Code(978);
+pub struct Apple;
+impl Fruit for Apple {
+    const KIND: FruitKind = FruitKind(1);
 }
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub struct Usd;
-impl Currency for Usd {
-    const CODE: Code = Code(840);
+pub struct Orange;
+impl Fruit for Orange {
+    const KIND: FruitKind = FruitKind(2);
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub struct Money<C: Currency> {
-    pub cents: i64,
-    pub currency: PhantomData<C>,
+pub struct Bag<F: Fruit> {
+    pub count: i64,
+    pub fruit: PhantomData<F>,
 }
-const fn money<C: Currency>(cents: i64) -> Money<C> {
-    Money {
-        cents,
-        currency: PhantomData,
+const fn bag<F: Fruit>(count: i64) -> Bag<F> {
+    Bag {
+        count,
+        fruit: PhantomData,
     }
 }
 
-/// A gift card: a plain type with the same kind of facts, told apart by its
-/// code (no currency has 0).
+/// A bowl of mixed fruit: a plain type with the same kind of facts, told
+/// apart by its kind (no fruit has 0).
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub struct GiftCard {
-    pub balance: i64,
+pub struct Bowl {
+    pub pieces: i64,
 }
-pub const GIFT: Code = Code(0);
+pub const MIXED: FruitKind = FruitKind(0);
 
 #[derive(Copy, Clone, PartialEq, Debug, Dynamic)]
-#[dynamic(Money<C: Currency> { currency: PhantomData<C> } => { code: C::CODE, cents: .cents })]
-#[dynamic(GiftCard => { code: GIFT, cents: .balance })]
-#[dynamic(impl(Add -> Option<Self>, Mul<i64> -> Self, PartialOrd))]
-pub struct AnyMoney {
+#[dynamic(Bag<F: Fruit> { fruit: PhantomData<F> } => { fruit: F::KIND, count: .count })]
+#[dynamic(Bowl => { fruit: MIXED, count: .pieces })]
+#[dynamic(impl(Add -> Option<Self>, Div -> Option<Self>, Mul<i64> -> Self, PartialOrd))]
+pub struct AnyBag {
     #[dynamic(same)]
-    pub code: Code,
-    pub cents: i64,
+    pub fruit: FruitKind,
+    pub count: i64,
 }
 
 #[test]
 fn type_parameters() {
-    let a = AnyMoney::from(money::<Eur>(250));
-    let b = AnyMoney::from(money::<Eur>(100));
-    let d = AnyMoney::from(money::<Usd>(100));
-    assert_eq!(Money::<Eur>::try_from((a + b).unwrap()), Ok(money(350)));
+    let a = AnyBag::from(bag::<Apple>(250));
+    let b = AnyBag::from(bag::<Apple>(100));
+    let d = AnyBag::from(bag::<Orange>(100));
+    assert_eq!(Bag::<Apple>::try_from((a + b).unwrap()), Ok(bag(350)));
     assert_eq!(a + d, None);
-    assert_eq!(Money::<Usd>::try_from(a), Err(a));
-    assert_eq!(Money::<Usd>::try_from(d * 3), Ok(money(300)));
-    let g = AnyMoney::from(GiftCard { balance: 500 });
-    assert_eq!(GiftCard::try_from(g), Ok(GiftCard { balance: 500 }));
-    assert_eq!(Money::<Eur>::try_from(g), Err(g));
+    assert_eq!(Bag::<Orange>::try_from(a), Err(a));
+    assert_eq!(Bag::<Orange>::try_from(d * 3), Ok(bag(300)));
+    let g = AnyBag::from(Bowl { pieces: 500 });
+    assert_eq!(Bowl::try_from(g), Ok(Bowl { pieces: 500 }));
+    assert_eq!(Bag::<Apple>::try_from(g), Err(g));
     assert_eq!(a + g, None);
     assert!(b < a);
     assert_eq!(a.partial_cmp(&d), None);
+}
+
+/// Operands that differ in a `same` field have no result, and their other
+/// fields are never combined: no division by an orange's zero count.
+#[test]
+fn same_checked_first() {
+    let a = AnyBag::from(bag::<Apple>(6));
+    let none = AnyBag::from(bag::<Orange>(0));
+    assert_eq!(a / none, None);
+    assert_eq!(
+        Bag::<Apple>::try_from((a / AnyBag::from(bag::<Apple>(3))).unwrap()),
+        Ok(bag(2))
+    );
 }
 
 // ===== Several static types, a fact with operators of its own ===================
@@ -555,7 +569,7 @@ pub struct Tagged<V, const T: u16>(pub V);
 #[derive(Copy, Clone, PartialEq, Debug, Dynamic)]
 #[dynamic(Tagged<V, const T: u16> => { tag: T, value: .0 })]
 #[dynamic(impl(Add -> Option<Self>, Mul<V> -> Self, PartialOrd))]
-pub struct AnyTagged<V> {
+pub struct AnyTagged<V = i32> {
     #[dynamic(same)]
     pub tag: u16,
     pub value: V,
@@ -563,6 +577,7 @@ pub struct AnyTagged<V> {
 
 #[test]
 fn generic_dynamic_type() {
+    let _: AnyTagged = AnyTagged::from(Tagged::<i32, 3>(0));
     let a = AnyTagged::from(Tagged::<i32, 1>(4));
     let b = AnyTagged::from(Tagged::<i32, 2>(5));
     assert_eq!((a + a).map(|x| x.value), Some(8));

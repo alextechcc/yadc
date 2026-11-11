@@ -3,7 +3,7 @@
 //! number casts, ..) that `#[quantity(impl(..))]` picks.
 
 use crate::paths::Paths;
-use crate::util::{has_attr, is_own_type_param, is_phantom, member_of, param_decl};
+use crate::util::{has_attr, is_phantom, member_of, param_decl};
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::quote;
 use syn::{Data, DeriveInput, GenericParam, Type};
@@ -39,7 +39,8 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
     // own borrow lifetime is spliced ahead of the struct's parameters.
     // Every impl is a `const impl` - so quantities compose in `const` items
     // (`const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;`) - except the few
-    // whose traits cannot be const (`Sum`, `num_traits::Inv`), which use
+    // whose traits cannot be const (`Display`, `Sum`, `num_traits::Inv`,
+    // `Root`), which use
     // `head_rt`. Value-type bounds are `[const]`: const only when used in a
     // const context, so a number type with ordinary impls still works.
     let head_with =
@@ -131,7 +132,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
     let v = value_ty;
     // A generic number type may have a destructor; the const impls drop values,
     // so they need it to be `[const] Destruct` (the run-time impls do not).
-    let value_is_generic = is_own_type_param(value_ty, generics);
+    let value_is_generic = v_ident.is_some();
     let const_extra: Vec<TokenStream2> = if value_is_generic {
         vec![quote! { #v: [const] ::core::marker::Destruct }]
     } else {
@@ -691,7 +692,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         let h_dn_rt = head_rt(&[], &[p_d.clone(), p_n.clone()]);
         let root_d = dim_fn("root_or_one", quote! { #td, __N });
         let root_ty = ty_of(&quote! { { #root_d } });
-        let mut preds = one_n(&["RootNotPoint", "RootExact"], &self_d);
+        let mut preds = one_n(&["RootHasSquare", "RootExact"], &self_d);
         preds.extend([
             quote! { #root_ty: ::core::marker::Sized },
             quote! { #qv: #yadc::num_traits::real::Real },
@@ -713,7 +714,8 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
     }
 
     if opts.has("Sum") {
-        // Seeded with `num_traits::Zero`, summed with `+=`: the refusals of `+`.
+        // Seeded with `num_traits::Zero`, the numbers summed with their `+=`;
+        // the refusals of `+` apply.
         let h_d_rt = head_rt(&[], ::core::slice::from_ref(&p_d));
         let h_d_ref = head_rt(&lt_a, ::core::slice::from_ref(&p_d));
         let w = wher_rt(&with(&add_dd, &[&b_zero, &b_add_assign_rt]));
@@ -725,7 +727,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
                 where
                     __I: ::core::iter::Iterator<Item = #self_d>,
                 {
-                    iter.fold(#seed, |mut __acc, __q| { __acc += __q; __acc })
+                    iter.fold(#seed, |mut __acc, __q| { __acc.#member += __q.#member; __acc })
                 }
             }
             #h_d_ref ::core::iter::Sum<&'__a #self_d> for #self_d #w_ref {
@@ -733,7 +735,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
                 where
                     __I: ::core::iter::Iterator<Item = &'__a #self_d>,
                 {
-                    iter.fold(#seed, |mut __acc, __q| { __acc += *__q; __acc })
+                    iter.fold(#seed, |mut __acc, __q| { __acc.#member += (*__q).#member; __acc })
                 }
             }
         });
@@ -741,9 +743,7 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
 
     // A change of number type, for a family generic over it:
     // `KILOPASCAL.cast::<f32>()`.
-    if opts.has("Cast")
-        && let Some(_) = v_ident
-    {
+    if opts.has("Cast") && v_ident.is_some() {
         let w_ty = quote! { __W };
         let out_ty = ty_v(&td, Some(&w_ty));
         let h = head(&[], &[p_d.clone(), w_ty.clone()]);
@@ -837,7 +837,7 @@ const REFUSALS: &[(&str, &str, Shape)] = &[
     ("ScaleLabel", "scale_label", Shape::One),
     ("PowiExists", "powi_exists", Shape::OneN),
     ("InvExists", "inv_exists", Shape::One),
-    ("RootNotPoint", "root_not_point", Shape::OneN),
+    ("RootHasSquare", "root_has_square", Shape::OneN),
     ("RootExact", "root_exact", Shape::OneN),
 ];
 const ADD: &[&str] = &[

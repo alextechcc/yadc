@@ -16,14 +16,14 @@ use std::collections::BTreeMap;
 use proc_macro2::{Span, TokenStream as TokenStream2, TokenTree};
 use quote::{ToTokens, format_ident, quote, quote_spanned};
 use syn::{
-    Data, DeriveInput, Expr, Fields, GenericArgument, GenericParam, Ident, Member, Path,
+    Data, DeriveInput, Expr, Fields, GenericArgument, Ident, Member, Path,
     PathArguments, Token, Type, TypeParam,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     spanned::Spanned,
 };
 
-use crate::krate;
+use crate::impl_params;
 
 // ===== Parsing: mappings ======================================================
 
@@ -33,7 +33,7 @@ enum Source {
     /// A const parameter of the static type: a fact.
     Param(Ident),
     /// A constant expression: a fact. `generic` when it names a declared
-    /// parameter (`C::CODE`), so its value is known per member.
+    /// parameter (`F::KIND`), so its value is known per member.
     Const { expr: Box<Expr>, generic: bool },
     /// A field path of the static value, `.0`, `.since.0`, or `self` (empty):
     /// payload.
@@ -91,7 +91,7 @@ fn expr_path(mut p: Path) -> Path {
     p
 }
 
-/// A parameter a mapping declares: `const D: Dim` or `C: Currency`.
+/// A parameter a mapping declares: `const D: Dim` or `F: Fruit`.
 enum Param {
     Const(Ident, Type),
     Type(TypeParam),
@@ -146,7 +146,7 @@ impl Mapping {
             quote! { #p::<#(#a),*> }
         }
     }
-    /// `const D: Dim`, `C: Currency`, for an impl's parameters.
+    /// `const D: Dim`, `F: Fruit`, for an impl's parameters.
     fn param_decls(&self) -> Vec<TokenStream2> {
         self.params.iter().map(Param::decl).collect()
     }
@@ -212,7 +212,7 @@ impl Parse for Mapping {
                     args.push(quote! { #name });
                     params.push(Param::Const(name, ty));
                 } else if input.peek(Ident) && input.peek2(Token![:]) && !input.peek2(Token![::]) {
-                    // `C: Currency` declares a type parameter.
+                    // `F: Fruit` declares a type parameter.
                     let tp: TypeParam = input.parse()?;
                     let name = &tp.ident;
                     args.push(quote! { #name });
@@ -311,7 +311,7 @@ fn parse_source(input: ParseStream<'_>, params: &[Param]) -> syn::Result<Source>
                 return Err(syn::Error::new_spanned(
                     id,
                     "a type parameter is not a value: a fact comes from one of its constants, \
-                     `C::CODE`",
+                     `F::KIND`",
                 ));
             }
             None => {}
@@ -389,7 +389,6 @@ enum Body {
 
 /// One entry of `impl(..)`.
 enum Item {
-    TryFrom,
     PartialOrd,
     /// `Mul -> Self`, `Mul<K> -> Option<Self>`, `Neg -> Self`.
     Op {
@@ -409,7 +408,7 @@ const BINARY: [(&str, &str, &str); 5] = [
     ("Rem", "%", "rem"),
 ];
 
-const ITEMS_HELP: &str = "`impl(..)` takes `TryFrom`, `PartialOrd`, an operator with its output \
+const ITEMS_HELP: &str = "`impl(..)` takes `PartialOrd`, an operator with its output \
      (`Mul -> Self`, `Add -> Option<Self>`, `Mul<K> -> Self`, `Neg -> Self`; `Mul`, `Div`, `Add`, \
      `Sub`, `Rem`, `Neg`), or a trait method (`path::Trait::method(self, n: i8) -> Option<Self>`, \
      a getter `path::Trait::get(&self) -> T = self.field`)";
@@ -429,14 +428,9 @@ fn arrow(input: ParseStream<'_>, what: &str) -> syn::Result<Type> {
 impl Parse for Item {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
         let path: Path = input.parse()?;
-        // `TryFrom`, `PartialOrd`: alone.
-        if input.is_empty() || input.peek(Token![,]) {
-            if path.is_ident("TryFrom") {
-                return Ok(Item::TryFrom);
-            }
-            if path.is_ident("PartialOrd") {
-                return Ok(Item::PartialOrd);
-            }
+        // `PartialOrd`: alone.
+        if (input.is_empty() || input.peek(Token![,])) && path.is_ident("PartialOrd") {
+            return Ok(Item::PartialOrd);
         }
         if input.peek(syn::token::Paren) {
             // A trait method: `path::Trait::method(recv, args..) -> T [= ..]`.
@@ -660,7 +654,7 @@ fn check_mapping(m: &Mapping, fields: &[Field]) -> syn::Result<()> {
                      as each other - fill a field with it{}",
                     tidy(&m.path.to_token_stream().to_string()),
                     if matches!(p, Param::Type(_)) {
-                        " (one of its constants: `C::CODE`)"
+                        " (one of its constants: `F::KIND`)"
                     } else {
                         ""
                     }
@@ -1026,7 +1020,6 @@ fn split_bindings(tr: &Path) -> (Path, Vec<(Ident, Type)>) {
 }
 
 pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
-    krate(input)?;
     let name = &input.ident;
     let Data::Struct(s) = &input.data else {
         return Err(syn::Error::new_spanned(
@@ -1122,16 +1115,7 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
 
     // --- Generics -----------------------------------------------------------------
     let g = &input.generics;
-    let lts: Vec<&GenericParam> = g
-        .params
-        .iter()
-        .filter(|p| matches!(p, GenericParam::Lifetime(_)))
-        .collect();
-    let rest: Vec<&GenericParam> = g
-        .params
-        .iter()
-        .filter(|p| !matches!(p, GenericParam::Lifetime(_)))
-        .collect();
+    let (lts, rest) = impl_params(input);
     let head = |extra: &[TokenStream2]| quote! { impl<#(#lts,)* #(#rest,)* #(#extra),*> };
     let (_, ty_args, _) = g.split_for_impl();
     let preds: Vec<TokenStream2> = g
@@ -1272,7 +1256,6 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
     let mut by_trait: Vec<(String, Vec<&Method>)> = Vec::new();
     for item in &items {
         match item {
-            Item::TryFrom => {}
             Item::PartialOrd => {
                 let h = head(&[]);
                 let ord = quote! { ::core::cmp::Ordering };
@@ -1334,6 +1317,9 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                     Some((_, tok, meth)) => (tok.parse::<TokenStream2>().unwrap(), format_ident!("{meth}")),
                     None => (quote! {}, format_ident!("neg")),
                 };
+                // Every `same` check comes before any field's operator, so
+                // operands that differ in one never reach the others'.
+                let mut checks = Vec::new();
                 let mut lets = Vec::new();
                 let mut bounds: Vec<TokenStream2> = Vec::new();
                 let mut uses_k = 0usize;
@@ -1344,10 +1330,9 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                     let e = if f.same {
                         if binary {
                             bounds.push(quote! { #t: [const] ::core::cmp::PartialEq });
-                            quote! { if self.#m == rhs.#m { self.#m } else { return #opt::None } }
-                        } else {
-                            quote! { self.#m }
+                            checks.push(quote! { if self.#m != rhs.#m { return #opt::None; } });
                         }
+                        quote! { self.#m }
                     } else if neg {
                         bounds.extend(result_bound(o, t, &tr, None));
                         take(o, &tt, quote! { -self.#m })
@@ -1393,7 +1378,7 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                     {
                         type Output = #output;
                         #[allow(unused_variables)]
-                        #sig -> #output { #(#lets)* #body }
+                        #sig -> #output { #(#checks)* #(#lets)* #body }
                     }
                 });
             }

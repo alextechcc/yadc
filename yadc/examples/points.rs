@@ -27,7 +27,7 @@
 //!
 //! **A point is a kind of quantity.** The dimension below has a kind, an enum
 //! of ours with two values: `Linear` (the default) for an amount, `Affine`
-//! for a point. The dimension names `Affine` as its affine kind, and
+//! for a point. `#[kind(affine)]` marks `Affine` as the point, and
 //! `#[derive(Dimension)]` writes the rules above into the dimension's own
 //! operators, so the quantity type follows them with no code of ours: an
 //! altitude is a `Qty` like any other, just one that cannot be scaled or

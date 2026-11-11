@@ -8,7 +8,7 @@
 //! that does not divide. Into
 //! it is std `From`; back out is std `TryFrom`, which checks the dimension
 //! and hands the value back on a mismatch. Numbers still go in and out
-//! through units, by way of a static quantity: a unit is called on a number
+//! through units, by way of a static quantity: a constant is called on a number
 //! to build (`KILOPASCAL(101.325)`), and on a quantity to read.
 //!
 //! Run with: cargo run -p yadc-si --example open

@@ -75,7 +75,7 @@ pub enum Cart {
 
 // What the derives write, by hand (per variant, and for each operator):
 //
-// impl From<Bag<Apple>> for Cart { fn from(b) -> Self { Cart::Apples(b) } }
+// impl From<Bag<Apple>> for Cart { fn from(b: Bag<Apple>) -> Self { Cart::Apples(b) } }
 // impl TryFrom<Cart> for Bag<Apple> {
 //     type Error = Cart;
 //     fn try_from(c: Cart) -> Result<Self, Cart> { match c { Cart::Apples(b) => Ok(b), c => Err(c) } }

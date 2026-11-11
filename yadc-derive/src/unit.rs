@@ -4,7 +4,7 @@
 //! plus `Display` and `FromStr` from the unit's symbol and name.
 
 use crate::paths::Paths;
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::parse::ParseStream;
 use syn::{Data, DataEnum, DeriveInput, Expr, Fields, Token, Type};
@@ -38,13 +38,8 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
     match &input.data {
         Data::Struct(s) => {
             let mut spec = top.unit_part();
-            let fields = field_params(&s.fields, &mut spec)?;
-            units.push(UnitCase::new(
-                quote! { #name },
-                &fields,
-                spec,
-                &input.ident,
-            )?);
+            let by = by_field(&s.fields, &mut spec)?;
+            units.push(UnitCase::new(quote! { #name }, &s.fields, by, spec, &input.ident)?);
         }
         Data::Enum(e) => {
             if top.has_unit_part() {
@@ -62,11 +57,12 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
                         parse_items(s, &mut spec, Place::Variant)
                     })?;
                 }
-                let fields = field_params(&variant.fields, &mut spec)?;
+                let by = by_field(&variant.fields, &mut spec)?;
                 let ident = &variant.ident;
                 units.push(UnitCase::new(
                     quote! { #name::#ident },
-                    &fields,
+                    &variant.fields,
+                    by,
                     spec,
                     ident,
                 )?);
@@ -262,13 +258,15 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
     Ok(out)
 }
 
-/// An enum each of whose variants wraps exactly one field: the shape of a unit
-/// set (`enum Units { Pressure(PressureUnit), .. }`), not of a unit.
+/// An enum each of whose variants wraps exactly one field, not marked
+/// `#[unit(by)]`: the shape of a unit set (`enum Units {
+/// Pressure(PressureUnit), .. }`), not of a unit.
 fn wraps_one_each(e: &DataEnum) -> bool {
     !e.variants.is_empty()
-        && e.variants
-            .iter()
-            .all(|v| matches!(&v.fields, Fields::Unnamed(f) if f.unnamed.len() == 1))
+        && e.variants.iter().all(|v| {
+            matches!(&v.fields, Fields::Unnamed(f) if f.unnamed.len() == 1
+                && !f.unnamed[0].attrs.iter().any(|a| a.path().is_ident("unit")))
+        })
 }
 
 /// Where a `#[unit(..)]` is written, for what it may say.
@@ -280,10 +278,8 @@ enum Place {
     Variant,
 }
 
-/// The parameter a unit's description names: `by`, the unit value it is.
-const PARAMS: &[&str] = &["by"];
-
-/// A parameter's source: a constant expression, or a field of the unit.
+/// Where the unit value comes from: a constant expression, or a field of the
+/// unit marked `#[unit(by)]`.
 #[derive(Clone)]
 enum Source {
     Expr(Expr),
@@ -294,7 +290,8 @@ enum Source {
 #[derive(Default, Clone)]
 struct Spec {
     labels: Option<(String, String)>,
-    params: Vec<(String, Source, Span)>,
+    /// `by = ..` or a `#[unit(by)]` field: the unit value this unit is.
+    by: Option<Source>,
     /// `via = P`: the type the unit value measures, converted with `From`.
     via: Option<Type>,
     // Type-level options.
@@ -309,20 +306,18 @@ impl Spec {
     fn unit_part(&self) -> Spec {
         Spec {
             labels: self.labels.clone(),
-            params: self.params.clone(),
+            by: self.by.clone(),
             via: self.via.clone(),
             ..Spec::default()
         }
     }
     fn has_unit_part(&self) -> bool {
-        self.labels.is_some() || !self.params.is_empty() || self.via.is_some()
+        self.labels.is_some() || self.by.is_some() || self.via.is_some()
     }
-    fn set(&mut self, key: &syn::Ident, source: Source) -> syn::Result<()> {
-        let k = key.to_string();
-        if self.params.iter().any(|(p, _, _)| *p == k) {
-            return Err(syn::Error::new_spanned(key, format!("`{k}` given twice")));
+    fn set_by(&mut self, key: &syn::Ident, source: Source) -> syn::Result<()> {
+        if self.by.replace(source).is_some() {
+            return Err(syn::Error::new_spanned(key, "`by` given twice: a unit is one unit value"));
         }
-        self.params.push((k, source, key.span()));
         Ok(())
     }
 }
@@ -349,7 +344,8 @@ fn parse_items(input: ParseStream<'_>, spec: &mut Spec, place: Place) -> syn::Re
                     return Err(syn::Error::new_spanned(
                         &id,
                         format!(
-                            "`{s}` is not an extra of `#[derive(Unit)]`; expected `Display` or `FromStr`"
+                            "`{s}` is not an extra of `#[derive(Unit)]`; expected one of {}",
+                            EXTRAS.join(", ")
                         ),
                     ));
                 }
@@ -396,7 +392,7 @@ fn parse_items(input: ParseStream<'_>, spec: &mut Spec, place: Place) -> syn::Re
                 }
                 "by" => {
                     input.parse::<Token![=]>()?;
-                    spec.set(&key, Source::Expr(input.parse()?))?;
+                    spec.set_by(&key, Source::Expr(input.parse()?))?;
                 }
                 other => {
                     return Err(syn::Error::new_spanned(
@@ -435,27 +431,21 @@ fn parse_items(input: ParseStream<'_>, spec: &mut Spec, place: Place) -> syn::Re
     Ok(())
 }
 
-/// The fields of a struct or variant that are parameters (`#[unit(by)]`),
-/// recorded in `spec`; returns `(member, parameter)` for each. Other fields
-/// are the unit's own business.
-fn field_params(fields: &Fields, spec: &mut Spec) -> syn::Result<Vec<(syn::Member, String)>> {
-    let mut out = Vec::new();
+/// The field of a struct or variant marked `#[unit(by)]`, if any, recorded
+/// in `spec`. Other fields are the unit's own business.
+fn by_field(fields: &Fields, spec: &mut Spec) -> syn::Result<Option<syn::Member>> {
+    let mut out = None;
     for (i, f) in fields.iter().enumerate() {
         for attr in f.attrs.iter().filter(|a| a.path().is_ident("unit")) {
             let key: syn::Ident = attr.parse_args()?;
-            let k = key.to_string();
-            if !PARAMS.contains(&k.as_str()) {
+            if key != "by" {
                 return Err(syn::Error::new_spanned(
                     &key,
                     "a field marked `#[unit(by)]` is the unit value this unit is",
                 ));
             }
-            spec.set(&key, Source::Field)?;
-            let member = match &f.ident {
-                Some(id) => syn::Member::Named(id.clone()),
-                None => syn::Member::Unnamed(syn::Index::from(i)),
-            };
-            out.push((member, k));
+            spec.set_by(&key, Source::Field)?;
+            out = Some(crate::util::member_of(i, f));
         }
     }
     Ok(out)
@@ -464,7 +454,7 @@ fn field_params(fields: &Fields, spec: &mut Spec) -> syn::Result<Vec<(syn::Membe
 /// One unit of the type: the struct, or one variant.
 struct UnitCase {
     ident: syn::Ident,
-    /// The pattern binding its parameter fields (`Self { ground: __p_zero, .. }`).
+    /// The pattern binding its `#[unit(by)]` field (`Self { scale: __by, .. }`).
     bind: TokenStream2,
     /// The pattern binding nothing.
     bare: TokenStream2,
@@ -480,19 +470,19 @@ struct UnitCase {
 impl UnitCase {
     fn new(
         path: TokenStream2,
-        fields: &[(syn::Member, String)],
+        fields: &Fields,
+        by_field: Option<syn::Member>,
         spec: Spec,
         ident: &syn::Ident,
     ) -> syn::Result<Self> {
-        let binds = fields.iter().map(|(m, p)| {
-            let b = syn::Ident::new(&format!("__p_{p}"), Span::call_site());
-            quote! { #m: #b }
-        });
-        let bind = quote! { #path { #(#binds,)* .. } };
+        let bind = match &by_field {
+            Some(m) => quote! { #path { #m: __by, .. } },
+            None => quote! { #path { .. } },
+        };
         let bare = quote! { #path { .. } };
-        let by = match spec.params.iter().find(|(k, _, _)| k == "by") {
-            Some((_, Source::Expr(e), _)) => quote! { &(#e) },
-            Some((_, Source::Field, _)) => quote! { __p_by },
+        let by = match &spec.by {
+            Some(Source::Expr(e)) => quote! { &(#e) },
+            Some(Source::Field) => quote! { __by },
             None => {
                 return Err(syn::Error::new_spanned(
                     ident,

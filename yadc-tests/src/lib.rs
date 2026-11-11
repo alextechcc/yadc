@@ -19,8 +19,8 @@ use core::ops::{Add, Sub};
 use yadc::{Dimension, Unit};
 
 /// The kinds: how a quantity behaves. `Linear` is an ordinary amount;
-/// `Affine` a point - measured from a zero somebody chose; `Log` a logarithm
-/// - a level or a gain, in decibels. `Rank` is a label of this system's own,
+/// `Affine` a point, measured from a zero somebody chose; `Log` a logarithm,
+/// a level or a gain, in decibels. `Rank` is a label of this system's own,
 /// with a rule: it cannot be added to itself.
 #[derive_const(PartialEq, Default)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
@@ -35,8 +35,7 @@ pub enum Kind {
     Rank,
 }
 
-/// The dimension. Its kind field names the two kinds with a behaviour of
-/// their own.
+/// The dimension. The kind field is marked `#[kind]`.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy, yadc::Dimension)]
 pub struct Dim {

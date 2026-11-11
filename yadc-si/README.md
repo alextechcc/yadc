@@ -4,7 +4,7 @@ An SI unit system built with [`yadc`](../yadc/). It is not part of yadc's API - 
 
 What it defines, in `lib.rs`:
 
-- `Kind` - how a quantity behaves under `+` and `-`, beside its exponents: `Linear` (`#[default]`: an ordinary amount, which adds to its own kind, scales and multiplies), `Absolute` (a temperature: an amount with a true zero that scales with other zeros also read - it scales and multiplies as an amount does, but two of them differ by a linear amount and a linear amount moves one; a label of this system's own, with three rules), `Affine` (a point, measured from a zero somebody chose - an instant: two differ by a linear amount, an amount moves one, and it has no sum with another, no scaling and no products) and `Log` (a logarithm - a level or a gain: adding logarithms multiplies what they are the logarithms of, so `+` and `-` add and subtract the exponents). The last two are marked on their variants, `#[kind(affine)]` and `#[kind(log)]`.
+- `Kind` - how a quantity behaves under `+` and `-`, beside its exponents: `Linear` (`#[default]`: an ordinary amount, which adds to its own kind, scales and multiplies), `Absolute` (a temperature: an amount with a true zero: it scales and multiplies as an amount does, but two of them differ by a linear amount and a linear amount moves one; a label of this system's own, with three rules), `Affine` (a point, measured from a zero somebody chose - an instant: two differ by a linear amount, an amount moves one, and it has no sum with another, no scaling and no products) and `Log` (a logarithm - a level or a gain: adding logarithms multiplies what they are the logarithms of, so `+` and `-` add and subtract the exponents). The last two are marked on their variants, `#[kind(affine)]` and `#[kind(log)]`.
 - `ISQ` - the dimension: one `i8` exponent per SI base unit (`m`, `kg`, `s`, `A`, `K`, `mol`, `cd`) and one for the radian (`rad`), plus the kind. Angle is `rad: 1`, solid angle `rad: 2` (sr = rad²), angular velocity rad/s; torque is J/rad and moment of inertia kg·m²/rad², so torque × angle is energy and an angular speed never mixes with a frequency. Its `*` and `/` are partial (`Option`): a product with a point or a level has no result. It prints as `m·kg·s⁻²`, a kind that is not `Linear` in braces (`K{Absolute}`).
 - `StaticSIQuantity<const D: ISQ, N = f64>(N)` - the compile-time-checked quantity (`#[derive(Quantity)]`), stored in coherent SI units (kilograms, metres, kelvin, radians, watts, ...), counted in `f64` unless you say otherwise (`KILOPASCAL.cast::<f32>()`). Its field is private to this crate: the base constants are the only raw numbers, and everyone else builds and reads through units. It prints as its number and dimension (`9.81 m·s⁻²`).
 - `DynamicSIQuantity` - the same with the dimension carried at run time, as `dim: ISQ`, built with [`dynamickit`](../dynamickit/)'s `#[derive(Dynamic)]`: `StaticSIQuantity<const D: ISQ> => { dim: D, value: .0 }` (converting moves the number in and records `D`; `TryFrom` checks it on the way back, handing the value back on a mismatch), and `shared f64 => { dim: ISQ::DIMENSIONLESS, value: self }` (a bare number is the same value as a dimensionless quantity). Its operators and methods are every field's own, each with its output stated: `*`, `/`, `+`, `-`, scaling by an `f64`, `partial_powi` and `partial_root` return an `Option` (`None` where the dimensions don't combine: a sum of two dimensions, a product with a point or a level, a scaled point or level), so a calculation reads `((a * b)? + c)?`; values of one dimension are ordered. No impl on it is hand-written.
@@ -52,7 +52,7 @@ its own adds `const_trait_impl`, `fn_traits`, `unboxed_closures` and
 
 ## Usage
 
-A unit turns a number into a quantity and a quantity back into a number, and is called like the function it is: on a number it builds, on a quantity it reads. Every constant, every scale (`Scale(zero, step)`) and every unit enum's value is one. Maths is on quantities.
+A unit turns a number into a quantity and a quantity back into a number, and is called like the function it is: on a number it builds, on a quantity it reads. Every quantity constant and every unit enum's value is one. A scale is a unit too, used through its methods: `CELSIUS.quantity(25.0)`, `CELSIUS.value(t)`. Maths is on quantities.
 
 ```rust
 use yadc::Unit;
@@ -73,8 +73,8 @@ println!("{force:.1}");                                 // 686.7 m·kg·s⁻²: 
 // A unit enum names a family's units, for a menu or a parser: std `Display` and
 // `FromStr` - `{}` is the symbol, `{:#}` the long name. Its values are units too.
 let n = ForceUnit::Newton;
-println!("{:.1} {n}", n(force));                        // 686.7 N (`Enum::Variant(x)` reads as a
-println!("{:.1} {n:#}", n(force));                      // constructor, so bind the variant first)
+println!("{:.1} {n}", n(force));                        // 686.7 N
+println!("{:.1} {n:#}", n(force));                      // 686.7 newtons
 let unit: MassUnit = "lb".parse().unwrap();             // Err(yadc::UnknownUnit) for an unknown symbol
 let m: Mass = unit(10.0);
 
@@ -106,7 +106,7 @@ let hotter: ThermodynamicTemperature = t + rise;        // T + ΔT = T
 let step = DEGREE_FAHRENHEIT(rise);                     // 9.0
 let mean: ThermodynamicTemperature = (t + hotter) / 2.0; // an average is a temperature
 let since_dawn = Scale(CELSIUS.quantity(12.0), KELVIN);          // a scale made at run time
-let warmed = since_dawn(t);                             // 13.0
+let warmed = since_dawn.value(t);                       // 13.0
 // rise + t doesn't compile ("cannot add: the labels have no sum": write t + rise),
 // and CELSIUS.value(rise) doesn't either: a scale with a zero reads a temperature, not a step.
 ```
@@ -114,6 +114,7 @@ let warmed = since_dawn(t);                             // 13.0
 Absolute zero is a fact, so a temperature scales and multiplies as any amount does - in kelvins, whatever scale built it - and the label drops out of a product:
 
 ```rust
+use yadc::PowiAs;
 use yadc_si::chemistry::consts::{MOLAR_GAS_CONSTANT, MOLE};
 
 let energy = MOLE * MOLAR_GAS_CONSTANT * t;              // n R T: joules
@@ -128,7 +129,8 @@ Decibels count on a logarithmic line, where multiplying is adding. Both quantiti
 The logarithm itself is in one place, the hand-written [`level.rs`](src/level.rs): std `From` between `PowerLevel` and `Power`, and between `Gain` and a plain ratio. A scale of levels measures levels, and the watts are one `From` away. `PowerUnit` names dBW and dBm beside the watts - each `by` the level's scale, `via = PowerLevel` - so its values take a decibel count straight to watts and back; the conversion is not `const`, so neither is that enum's.
 
 ```rust
-use yadc_si::mechanical::consts::{DBM, DBW, DECIBEL, WATT};
+use yadc_si::dimensionless::Dimensionless;
+use yadc_si::mechanical::consts::{BEL, DBM, DBW, DECIBEL, WATT};
 
 let sent = DBM.quantity(30.0);                                   // a PowerLevel: 30 dB above 1 mW
 let p = Power::from(sent);                              // 1 W
@@ -168,7 +170,7 @@ let jd = JULIAN_DATE.value(launch);                           // 2_460_263.42...
 let j2000 = JULIAN_DATE.quantity(2_451_545.0);                   // built on one scale,
 let unix = UNIX_SECONDS.value(j2000);                         // read on another: 946_728_000.0
 let mission = Scale(launch, SECOND);                    // seconds since launch: a scale made at run time
-let elapsed = mission(landing);                         // 7200.0
+let elapsed = mission.value(landing);                   // 7200.0
 // launch + landing, 2.0 * launch and launch * SECOND don't compile ("cannot add a point to a
 // point", "a point cannot be scaled", "cannot multiply: these have no product").
 ```
@@ -182,6 +184,7 @@ When the dimension is only known at run time, `DynamicSIQuantity` carries it alo
 ```rust
 use yadc::PartialRoot;
 use yadc_si::DynamicSIQuantity;
+use yadc_si::mechanical::consts::{SQUARE_METRE, WATT_LEVEL};
 
 let d = (DynamicSIQuantity::from(KILOMETRE(90.0)) / DynamicSIQuantity::from(HOUR(2.0))).unwrap();
 let v: Velocity = d.try_into().unwrap();                 // Err(d) on a mismatch
@@ -228,6 +231,7 @@ Quantity arithmetic is `const`, so they compose in your `const` items too:
 
 ```rust
 use yadc_si::mechanical::consts::*;            // KILOMETRE, HOUR, SPEED_OF_LIGHT, ...
+use yadc_si::thermal::consts::CELSIUS;
 
 const LIMIT: Velocity = 50.0 * KILOMETRE / HOUR;              // 50 km/h
 const REST_ENERGY: Energy = ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT; // 8.187e-14 J

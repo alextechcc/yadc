@@ -432,3 +432,42 @@ fn via() {
     assert_eq!(a * 3, Shelf::Apples(Stock(750)));
     assert_eq!(d / 2, Shelf::Oranges(Stock(50), Note(9)));
 }
+
+// ===== A generic set with a default ===========================================
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct Loose<T>(T);
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct Boxed<T>(T);
+
+/// The enum's parameter default is the enum's own: the impls take its
+/// parameter without it.
+#[derive(Copy, Clone, PartialEq, Debug, Visit, Variants, Members)]
+pub enum Packed<T = u8> {
+    Loose(Loose<T>),
+    Boxed(Boxed<T>),
+}
+
+struct Inner;
+impl<T> Visitor<Loose<T>> for Inner {
+    type Output = T;
+    fn visit(self, l: Loose<T>) -> T {
+        l.0
+    }
+}
+impl<T> Visitor<Boxed<T>> for Inner {
+    type Output = T;
+    fn visit(self, b: Boxed<T>) -> T {
+        b.0
+    }
+}
+
+#[test]
+fn generic_default() {
+    let p: Packed = Packed::from(Boxed(3u8));
+    assert_eq!(p.visit_with(Inner), 3);
+    assert_eq!(Loose::try_from(p), Err(p));
+    let mut names = Names(Vec::new());
+    Packed::<u8>::each_variant(&mut names);
+    assert_eq!(names.0, ["Loose", "Boxed"]);
+}

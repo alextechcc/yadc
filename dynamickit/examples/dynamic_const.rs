@@ -2,8 +2,8 @@
 //! arithmetic of its own: lengths, areas and volumes.
 //!
 //! `Extent<const N: Dims>` is a size in `N` dimensions, in metres: a length
-//! is 1-D, an area 2-D, a volume 3-D. The count is in the type, so
-//! `Length * Length` is an `Area` and `Length + Area` does not compile.
+//! is 1-D, an area 2-D, a volume 3-D. The count is in the type: a `Length`
+//! and an `Area` are different types, so `Length + Area` does not compile.
 //!
 //! `AnyExtent` holds any of them, the count in a field. Lifting does the
 //! same thing to every field with the field's own operator - so the count
@@ -31,6 +31,7 @@ use core::ops::{Add, Mul};
 pub struct Dims(pub i8);
 
 /// A product of sizes: the counts add (1-D × 2-D = 3-D).
+#[allow(clippy::suspicious_arithmetic_impl)]
 const impl Mul for Dims {
     type Output = Dims;
     fn mul(self, other: Dims) -> Dims {

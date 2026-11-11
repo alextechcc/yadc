@@ -61,14 +61,16 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
 
     // Axis arithmetic is core's own `Add` / `Sub` / `PartialEq` and the zero
     // exponent is `Default::default()` - all const-callable on nightly - so no
-    // literal `0` and no bespoke trait is needed. Any axis type with those four
-    // const impls works: every integer, or a `Rational` giving `m^½`.
+    // literal `0` and no bespoke trait is needed. Any axis type with those
+    // const impls and `PartialRoot` works: every integer, or `yadc::Exponent`
+    // giving `m^½`.
     let axes: Vec<(&syn::Ident, &Type)> = numeric_fields
         .iter()
         .filter_map(|f| f.ident.as_ref().map(|i| (i, &f.ty)))
         .collect();
 
-    // Mul: exponents add, kinds multiply.  Div: exponents subtract, kinds divide.
+    // Mul: exponents add.  Div: exponents subtract. A kind survives either
+    // only beside a plain number (below).
     // Add/Sub: exponents copied from the left operand, kinds add/subtract -
     // and `None` when the operands' exponents differ, so a mismatch (Mass +
     // Force) is rejected just like an illegal kind combination.
@@ -223,32 +225,26 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     // gain (no exponents) leaves any other product as a label does, and a
     // level (with exponents) has none.
     let special = kind_field.is_some();
-    let (is_aff, is_log, kname, kplain): (
-        Box<dyn Fn(TokenStream2) -> TokenStream2>,
-        Box<dyn Fn(TokenStream2) -> TokenStream2>,
-        TokenStream2,
-        TokenStream2,
-    ) = match kind_field {
-        Some(kf) => {
-            let k = kf.ident.clone().unwrap();
-            let kty = kf.ty.clone();
-            let (k1, k2) = (k.clone(), k.clone());
-            let (t1, t2) = (kty.clone(), kty.clone());
-            let y1 = yadc.clone();
-            let y2 = yadc.clone();
-            (
-                Box::new(move |x| quote! { <#t1 as #y1::Label>::is_affine(#x.#k1) }),
-                Box::new(move |x| quote! { <#t2 as #y2::Label>::is_log(#x.#k2) }),
-                quote! { #k },
-                quote! { <#kty as #yadc::Dimension>::DIMENSIONLESS },
-            )
+    // Asks the kind of `x` (`a`, `b`, `self`) whether it is a point or a
+    // logarithm, through `yadc::Label`.
+    let ask = |method: &str, x: TokenStream2| -> TokenStream2 {
+        match kind_field {
+            Some(kf) => {
+                let (k, kty) = (kf.ident.as_ref().unwrap(), &kf.ty);
+                let m = syn::Ident::new(method, Span::call_site());
+                quote! { <#kty as #yadc::Label>::#m(#x.#k) }
+            }
+            None => quote! { false },
         }
-        None => (
-            Box::new(|_| quote! { false }),
-            Box::new(|_| quote! { false }),
-            quote! {},
-            quote! {},
-        ),
+    };
+    let is_aff = |x: TokenStream2| ask("is_affine", x);
+    let is_log = |x: TokenStream2| ask("is_log", x);
+    let (kname, kplain) = match kind_field {
+        Some(kf) => {
+            let (k, kty) = (kf.ident.as_ref().unwrap(), &kf.ty);
+            (quote! { #k }, quote! { <#kty as #yadc::Dimension>::DIMENSIONLESS })
+        }
+        None => (quote! {}, quote! {}),
     };
     let (a_, b_, s_) = (quote! { a }, quote! { b }, quote! { self });
     let (aff_a, aff_b, log_a, log_b) = (
@@ -419,6 +415,7 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
             const DIMENSIONLESS: Self = #name { #(#zero_inits,)* #kind_identity };
             #plain_fn
         }
+        #[allow(clippy::suspicious_arithmetic_impl)] // exponents add under `*`
         const impl ::core::ops::Mul for #name #mul_bounds {
             type Output = #prod_out;
             fn mul(self, rhs: Self) -> #prod_out {
@@ -427,6 +424,7 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
                 #wrap_mul
             }
         }
+        #[allow(clippy::suspicious_arithmetic_impl)] // exponents subtract under `/`
         const impl ::core::ops::Div for #name #div_bounds {
             type Output = #prod_out;
             fn div(self, rhs: Self) -> #prod_out {

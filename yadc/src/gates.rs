@@ -12,8 +12,8 @@
 //!
 //! - `+ - * /` (and scaling, `n * a`), `.powi::<N>()`, `.root::<N>()`,
 //!   `.inv()`, a unit read: the refusal's own message - "cannot add: the
-//!   dimensions differ", "a point cannot be scaled", "a point has no
-//!   products".
+//!   dimensions differ", "a point cannot be scaled", "cannot multiply:
+//!   these have no product".
 //! - a `Q: Quantity` bound: the trait's message ("not a `Quantity`: this
 //!   value cannot be scaled"), with the refusal named in a `help:` line.
 //! - `+= -= *= /=` and `Sum`: std's message ("cannot add-assign ..."), with
@@ -38,7 +38,7 @@
 //! | `a *= b`, `a /= b` | [`MulExists`] and [`MulInPlace`], [`DivExists`] and [`DivInPlace`] |
 //! | scaling: `a * n`, `n * a`, `a / n`, `a *= n`, `a /= n`, `-a`; [`Quantity`](crate::Quantity), [`Unit<Self>`](crate::Unit) | [`ScaleNotPoint`], [`ScaleLabel`] |
 //! | `a.powi::<N>()`, `a.inv()` | [`PowiExists`], [`InvExists`] |
-//! | `a.root::<N>()` | [`RootNotPoint`], [`RootExact`] |
+//! | `a.root::<N>()` | [`RootHasSquare`], [`RootExact`] |
 //!
 //! A point is a dimension of the affine kind: its own `*` has no result
 //! ([`is_point`]). Everything here is phrased through the [`Dimension`]
@@ -162,6 +162,15 @@ where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
     product(a, D::DIMENSIONLESS).is_none()
+}
+
+/// A dimension with no square - a point or a logarithm: `a * a` has no
+/// result, so neither has any power or root of it.
+const fn has_no_square<D: [const] Dimension>(a: D) -> bool
+where
+    <D as Mul>::Output: [const] Into<Option<D>>,
+{
+    product(a, a).is_none()
 }
 
 /// The amount a dimension measures, label forgotten: its plain form, and for
@@ -342,12 +351,12 @@ where
     quotient(D::DIMENSIONLESS, a).is_some()
 }
 
-/// The `n`-th root: not refused as a point.
-pub const fn root_not_point<D: [const] Dimension>(a: D, n: i8) -> bool
+/// The `n`-th root: not refused as a point's or a logarithm's.
+pub const fn root_has_square<D: [const] Dimension>(a: D, n: i8) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    a.partial_root(n).is_some() || !is_point(a)
+    a.partial_root(n).is_some() || !has_no_square(a)
 }
 
 /// The `n`-th root: not refused as inexact.
@@ -355,7 +364,7 @@ pub const fn root_exact<D: [const] Dimension>(a: D, n: i8) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    a.partial_root(n).is_some() || is_point(a)
+    a.partial_root(n).is_some() || has_no_square(a)
 }
 
 // --- The refusals ------------------------------------------------------------
@@ -423,7 +432,7 @@ refusals! {
          is a logarithm, and adding levels is what multiplies: multiply the quantity it is \
          the level of";
     /// `a / b` with no quotient: a point or a level divided by anything, or
-    /// anything by one.
+    /// anything divided by a point or a level.
     DivExists[R] = "cannot divide: these have no quotient",
         "no quotient",
         "the dimension's own `/` has no result here. A point's zero is a convention, so its \
@@ -453,18 +462,18 @@ refusals! {
         "scaling is repeated addition, and this dimension has no sum with itself that is \
          itself - its label declares none, or it is a level, whose double is the level of a \
          square: it is not a `Quantity` nor a unit of itself";
-    /// `a.powi::<N>()` with no power: a point, a level.
+    /// `a.powi::<N>()` with no power: a point, a logarithm.
     PowiExists[const N: i8] = "this power has no dimension",
         "no dimension is this power",
-        "a power is repeated `*`, and a point or a level has no products";
-    /// `a.inv()` with no reciprocal: a point.
-    InvExists[] = "this reciprocal has no dimension: a point has no reciprocal",
-        "a point has no reciprocal",
-        "a reciprocal is `1 / a`, and a point has no quotients";
-    /// `a.root::<N>()` of a point.
-    RootNotPoint[const N: i8] = "a point has no roots",
-        "a point has no roots",
-        "a root is the inverse of a power, and a point has no powers";
+        "a power is repeated `*`, and a point or a logarithm has no square";
+    /// `a.inv()` with no reciprocal: a point, a level.
+    InvExists[] = "this reciprocal has no dimension: a point or a level has no reciprocal",
+        "a point or a level has no reciprocal",
+        "a reciprocal is `1 / a`, and a point or a level has no quotients";
+    /// `a.root::<N>()` of a point or a logarithm.
+    RootHasSquare[const N: i8] = "a point or a logarithm has no roots",
+        "a point or a logarithm has no roots",
+        "a root is the inverse of a power, and a point or a logarithm has no powers";
     /// `a.root::<N>()` with no exact dimension: √m with integer exponents.
     RootExact[const N: i8] = "this root has no dimension",
         "no dimension is this root",

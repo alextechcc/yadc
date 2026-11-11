@@ -33,15 +33,6 @@ pub(crate) fn is_phantom(ty: &Type) -> bool {
             && tp.path.segments.last().is_some_and(|s| s.ident == "PhantomData"))
 }
 
-/// Whether `ty` is exactly one of the item's own type parameters (a generic
-/// number type `N`): then an impl *for* it is an orphan-rule violation.
-pub(crate) fn is_own_type_param(ty: &Type, generics: &syn::Generics) -> bool {
-    generics.params.iter().any(|p| {
-        matches!(p, GenericParam::Type(t)
-            if matches!(ty, Type::Path(tp) if tp.qself.is_none() && tp.path.is_ident(&t.ident)))
-    })
-}
-
 /// Whether an attribute list carries `#[name]` / `#[name(..)]`.
 pub(crate) fn has_attr(attrs: &[syn::Attribute], name: &str) -> bool {
     attrs.iter().any(|a| a.path().is_ident(name))

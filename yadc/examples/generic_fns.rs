@@ -10,7 +10,8 @@
 //! itself", that is one bound, `Q: Quantity`. A single function body works
 //! unchanged regardless of which unit system its arguments come from.
 //!
-//! A unit is also called like a function - on a number it builds, on a
+//! A quantity constant or a unit enum's value is also called like a
+//! function - on a number it builds, on a
 //! quantity it reads - so a generic function may ask for nothing but std:
 //! `impl Fn(f64) -> Q` and `impl Fn(Q) -> f64` (`convert_with` below), which
 //! any closure satisfies too. `Unit<Q>` is the bound to use when both

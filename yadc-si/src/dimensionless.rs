@@ -1,5 +1,4 @@
-//! Plain numbers: ratios, percentages, and levels in decibels. Variants
-//! mirror uom's `ratio.rs` quantity.
+//! Plain numbers: ratios and their units.
 
 use crate::{ISQ, StaticSIQuantity};
 use consts::*;

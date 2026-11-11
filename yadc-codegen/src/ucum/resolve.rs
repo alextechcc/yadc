@@ -140,9 +140,6 @@ pub fn resolve_all(essence: &UcumEssence, base_maps: &[UcumBaseMap]) -> HashMap<
         );
     }
 
-    // UCUM annotation-only term
-    db.insert("1".into(), Resolved::scalar(1.0));
-
     // Build prefix lookup (longest code first for greedy match)
     let mut prefixes: Vec<(String, f64)> = essence
         .prefixes
@@ -188,9 +185,6 @@ fn lookup_sym(
     db: &HashMap<String, Resolved>,
     prefixes: &[(String, f64)],
 ) -> Option<Resolved> {
-    if sym == "1" {
-        return Some(Resolved::scalar(1.0));
-    }
     if let Some(r) = db.get(sym) {
         return Some(r.clone());
     }
@@ -219,7 +213,12 @@ fn parse_expr<F: Fn(&str) -> Option<Resolved>>(
     pos: &mut usize,
     lookup: &F,
 ) -> Option<Resolved> {
-    let mut r = parse_term(b, pos, lookup)?;
+    // A leading `/` divides one: `/s` is `1/s`.
+    let mut r = if b.get(*pos) == Some(&b'/') {
+        Resolved::scalar(1.0)
+    } else {
+        parse_term(b, pos, lookup)?
+    };
     while *pos < b.len() {
         match b[*pos] {
             b'.' => {
@@ -270,8 +269,21 @@ fn parse_factor<F: Fn(&str) -> Option<Resolved>>(
     }
     if b[*pos..].starts_with(b"10") && matches!(b.get(*pos + 2), Some(b'*') | Some(b'^')) {
         *pos += 3;
-        let exp = parse_int(b, pos);
+        let exp = match b.get(*pos) {
+            Some(b'-') => {
+                *pos += 1;
+                -parse_int(b, pos)
+            }
+            Some(b'+') => {
+                *pos += 1;
+                parse_int(b, pos)
+            }
+            _ => parse_int(b, pos),
+        };
         return Some(Resolved::scalar(10f64.powi(exp)));
+    }
+    if b[*pos].is_ascii_digit() {
+        return Some(Resolved::scalar(parse_number(b, pos)));
     }
     if b[*pos] == b'(' {
         *pos += 1;
@@ -288,27 +300,25 @@ fn parse_factor<F: Fn(&str) -> Option<Resolved>>(
     lookup(&sym)
 }
 
+/// An atom with its prefix: everything up to an operator or an exponent,
+/// with a bracketed part (`[in_i]`, `m[H2O]`, `B[10.nV]`) read whole.
 fn read_symbol(b: &[u8], pos: &mut usize) -> String {
     let start = *pos;
-    if b.get(*pos) == Some(&b'[') {
-        *pos += 1;
-        while *pos < b.len() && b[*pos] != b']' {
-            *pos += 1;
-        }
-        if *pos < b.len() {
-            *pos += 1;
-        }
-        return String::from_utf8_lossy(&b[start..*pos]).into_owned();
-    }
     while *pos < b.len() {
         let ch = b[*pos];
-        if matches!(ch, b'.' | b'/' | b'(' | b')' | b'{' | b'}') {
+        if ch == b'[' {
+            while *pos < b.len() && b[*pos] != b']' {
+                *pos += 1;
+            }
+            if *pos < b.len() {
+                *pos += 1;
+            }
+            continue;
+        }
+        if matches!(ch, b'.' | b'/' | b'(' | b')' | b'{' | b'}') || ch.is_ascii_digit() {
             break;
         }
         if ch == b'-' && b.get(*pos + 1).is_some_and(|c| c.is_ascii_digit()) {
-            break;
-        }
-        if ch.is_ascii_digit() {
             break;
         }
         *pos += 1;
@@ -327,6 +337,16 @@ fn parse_exp(b: &[u8], pos: &mut usize) -> i32 {
     1
 }
 
+/// A number factor: UCUM's are whole numbers (`m/3937`, `4.[pi]`).
+fn parse_number(b: &[u8], pos: &mut usize) -> f64 {
+    let mut n = 0.0;
+    while *pos < b.len() && b[*pos].is_ascii_digit() {
+        n = n * 10.0 + f64::from(b[*pos] - b'0');
+        *pos += 1;
+    }
+    n
+}
+
 fn parse_int(b: &[u8], pos: &mut usize) -> i32 {
     let mut n = 0i32;
     while *pos < b.len() && b[*pos].is_ascii_digit() {
@@ -334,4 +354,43 @@ fn parse_int(b: &[u8], pos: &mut usize) -> i32 {
         *pos += 1;
     }
     n
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn lookup(sym: &str) -> Option<Resolved> {
+        let dim: DimVec = [(sym.to_string(), 1)].into();
+        matches!(sym, "m" | "s" | "[pi]").then(|| Resolved {
+            dim,
+            multiplier: 1.0,
+            kind: None,
+        })
+    }
+
+    #[test]
+    fn number_factors() {
+        let r = eval_expr("m/3937", &lookup).unwrap();
+        assert_eq!(r.dim, [("m".to_string(), 1)].into());
+        assert_eq!(r.multiplier, 1.0 / 3937.0);
+        let r = eval_expr("4.[pi].10*-7.m/s2", &lookup).unwrap();
+        assert_eq!(r.multiplier, 4.0 * 1e-7);
+        assert_eq!(
+            r.dim,
+            [
+                ("[pi]".to_string(), 1),
+                ("m".to_string(), 1),
+                ("s".to_string(), -2)
+            ]
+            .into()
+        );
+    }
+
+    #[test]
+    fn leading_slash() {
+        let r = eval_expr("/s", &lookup).unwrap();
+        assert_eq!(r.dim, [("s".to_string(), -1)].into());
+        assert_eq!(r.multiplier, 1.0);
+    }
 }

@@ -25,7 +25,7 @@ pub trait Share: Sized {
 impl Share for u32 {
     /// Whole fruit only.
     fn share(self, n: u32) -> Option<u32> {
-        if n != 0 && self % n == 0 {
+        if n != 0 && self.is_multiple_of(n) {
             Some(self / n)
         } else {
             None
@@ -79,7 +79,7 @@ pub struct AnyBag {
 //         Some(AnyBag { fruit: self.fruit, count: self.count.share(n)? })
 //     }
 // }
-// impl const Kinded for AnyBag {
+// const impl Kinded for AnyBag {
 //     fn kind(&self) -> FruitKind { self.fruit }
 // }
 

@@ -1,0 +1,5 @@
+error: one `#[via(X, ..)]` per enum: list every operator in it
+  --> tests/ui/via_twice.rs:15:1
+   |
+15 | #[via(Apples, Div<i64>)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^

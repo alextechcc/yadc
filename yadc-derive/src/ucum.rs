@@ -11,9 +11,8 @@ use syn::{Data, DeriveInput, Fields, Type};
 // else a "{KindName}" annotation ("K{Affine}", "1{Log}"), read back on
 // deserialize.
 
-// (numeric_fields, kind_field). The kind field is identified by `#[kind]`.
-/// One numeric axis of a dimension struct: its field, the UCUM atom symbol it
-/// serializes as, and its (integer) type.
+/// One exponent axis of a dimension struct (every field but the `#[kind]`
+/// one): its field, the UCUM atom symbol it serializes as, and its type.
 struct AxisField {
     ident: syn::Ident,
     symbol: String,
@@ -155,7 +154,6 @@ pub(crate) fn expand_ucum_serialize(input: &DeriveInput) -> syn::Result<TokenStr
                     #(#axis_entries)*
                     // UCUM "1" for a dimensionless/kind-less quantity.
                     if __first { __buf.push('1'); }
-                    let _ = __first;
                     #kind_annotation
                     __ser.serialize_str(&__buf)
                 }

@@ -3,6 +3,7 @@ name = "yadc"
 version = "0.1.0"
 edition = "2024"
 license = "MIT OR BSD-3-Clause"
+description = "Dimensional analysis on your own types: the traits and derives for a unit system you define, checked at compile time."
 
 [dependencies]
 yadc-derive = { path = "../yadc-derive" }

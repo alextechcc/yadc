@@ -309,7 +309,7 @@ help: the trait `PowiExists<2>` is not implemented for `Qty<{ Dim { m: 1, kind: 
    |
 33 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   = note: a power is repeated `*`, and a point or a level has no products
+   = note: a power is repeated `*`, and a point or a logarithm has no square
 help: the trait `Powi<__N>` is implemented for `Qty<D>`
   --> tests/ui/define/refusals.rs:32:53
    |
