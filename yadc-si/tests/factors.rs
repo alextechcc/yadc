@@ -9,7 +9,8 @@ use yadc::Unit;
 use yadc_si::Exact;
 use yadc_si::angular::consts::{RADIAN, REDUCED_PLANCK_CONSTANT};
 use yadc_si::chemistry::consts::{AVOGADRO_CONSTANT, MOLE};
-use yadc_si::density::{MassDensity, MassDensityUnit};
+use yadc_si::density::MassDensity;
+use yadc_si::dynamic::density::MassDensityUnit;
 use yadc_si::electromagnetic::consts::{ELEMENTARY_CHARGE, FARADAY};
 use yadc_si::mechanical::consts::{
     ASTRONOMICAL_UNIT, BTU_IT, CUBIC_FOOT, CUBIC_INCH, DAY, FLUID_OUNCE, FOOT, FOOT_SURVEY, GALLON,
@@ -17,9 +18,8 @@ use yadc_si::mechanical::consts::{
     OUNCE, PARSEC, PASCAL, PLANCK_CONSTANT, POUND, POUND_FORCE, PSI, SECOND, SLUG, SPEED_OF_LIGHT,
     SQUARE_INCH, STANDARD_ATMOSPHERE, STANDARD_GRAVITY, TORR,
 };
-use yadc_si::mechanical::{
-    AvailableEnergy, AvailableEnergyUnit, Energy, EnergyUnit, Pressure, PressureUnit,
-};
+use yadc_si::mechanical::{AvailableEnergy, Energy, Pressure};
+use yadc_si::dynamic::mechanical::{AvailableEnergyUnit, EnergyUnit, PressureUnit};
 
 #[test]
 fn inch_based() {

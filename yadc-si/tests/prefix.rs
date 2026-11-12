@@ -5,9 +5,8 @@
 
 use yadc::Unit;
 use yadc_si::mechanical::consts::{self, SQUARE_METRE};
-use yadc_si::mechanical::{
-    Area, AreaUnit, Length, LengthUnit, Pressure, PressureUnit, Time, TimeUnit,
-};
+use yadc_si::mechanical::{Area, Length, Pressure, Time};
+use yadc_si::dynamic::mechanical::{AreaUnit, LengthUnit, PressureUnit, TimeUnit};
 use yadc_si::{Exact, KILO, MEGA, MICRO, MILLI, Prefix, Prefixed};
 
 const METRE: Length<f64> = consts::METRE.into();

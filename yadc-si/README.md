@@ -16,7 +16,7 @@ What it defines, in `lib.rs`:
 
 The crate root re-exports `yadc`'s `Dimension`, `Quantity` and `Unit`, and holds the prefixes, `Prefix` and `Prefixed`. Its one point is the `Instant`; a system with altitudes or positions gives them the affine kind the same way (see [`yadc-tests/src/lib.rs`](../yadc-tests/src/lib.rs)).
 
-and ~120 quantity aliases (`pub type Length<N> = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }, N>;`), each with a `<Q>Unit` enum naming its units in any number type the constants convert to (`#[unit(of = Length<N>, number = N)]`, `LengthUnit::Foot.quantity(3.0)`; `PowerUnit` holds W, dBW and dBm and counts in `f64`, as its logarithm does; a prefixed unit, kW, is `Prefixed<PowerUnit>`), organized into 9 feature-gated families:
+and ~120 quantity aliases (`pub type Length<N> = SIQuantity<{ ISQ { m: 1, ..ISQ::DIMENSIONLESS } }, N>;`), organized into 9 feature-gated families. Each family module (`mechanical`) holds its quantity aliases and their constants (`mechanical::consts`); each quantity's `<Q>Unit` enum, naming its units in any number type the constants convert to, lives in the dynamic half beside `DynamicSIQuantity` - what is chosen at run time, a dimension or a unit: `dynamic::mechanical::LengthUnit`, `LengthUnit::Foot.quantity(3.0)`. `PowerUnit` holds W, dBW and dBm, generic like the rest; a prefixed unit, kW, is `Prefixed<PowerUnit>`.
 
 | Feature | Examples |
 |---|---|
@@ -30,7 +30,7 @@ and ~120 quantity aliases (`pub type Length<N> = SIQuantity<{ ISQ { m: 1, ..ISQ:
 | `photometric` | Luminance, LuminousIntensity, Illuminance, RadiantExposure |
 | `information` | Information, InformationRate |
 
-`Dimensionless<N>` (`SIQuantity<{ ISQ::DIMENSIONLESS }, N>`) with `DimensionlessUnit` (ratio, %, ‰, ppm, ...) is always present. All families are on by default; disable selectively with `default-features = false` plus an explicit feature list to reduce compile time.
+`Dimensionless<N>` (`SIQuantity<{ ISQ::DIMENSIONLESS }, N>`) with `dynamic::dimensionless::DimensionlessUnit` (ratio, %, ‰, ppm, ...) is always present. All families are on by default; disable selectively with `default-features = false` plus an explicit feature list to reduce compile time.
 
 ## Nightly features
 
@@ -62,6 +62,7 @@ The constants are exact (`POUND: Mass<Exact>`); a program converts the ones it u
 use yadc::Unit;
 use yadc_si::mechanical::consts as si;
 use yadc_si::mechanical::*;
+use yadc_si::dynamic::mechanical::*;
 use yadc_si::{KILO, Prefix, Prefixed};
 
 const KILOGRAM: Mass<f64> = si::KILOGRAM.into();
@@ -110,6 +111,7 @@ let pounds: Vec<f64> = [mass, also].into_iter().map(|m| POUND.value(m)).collect(
 use yadc_si::Scale;
 use yadc_si::thermal::consts as si;
 use yadc_si::thermal::*;
+use yadc_si::dynamic::thermal::*;
 
 type TemperatureScale = Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>>;
 const CELSIUS: TemperatureScale = si::CELSIUS.into();
@@ -151,7 +153,7 @@ let flux = STEFAN_BOLTZMANN_CONSTANT * t.powi::<4>();    // σT⁴: W/m²
 
 Decibels count on a logarithmic line, where multiplying is adding. Both quantities on it have the `Log` kind, whose `+` and `-` add and subtract the exponents. A `Gain` is the logarithm of a plain ratio - no exponents - a quantity of its own with plain units (`BEL`, `DECIBEL`, `NEPER`; `GainUnit`), and a `PowerLevel` the logarithm of a power, with power's exponents: two levels differ by a gain (watts over watts), a gain moves a level, and two levels do not sum to a level (their sum is the logarithm of watts squared). A level is read on a scale like a temperature, a zero and a step: `DBW` is `Scale(WATT_LEVEL, DECIBEL)`, `DBM` is `Scale(MILLIWATT_LEVEL, DECIBEL)`.
 
-The logarithm itself is in one place, the hand-written [`level.rs`](src/level.rs): std `From` between `PowerLevel` and `Power`, and between `Gain` and a plain ratio. A scale of levels measures levels, and the watts are one `From` away. `PowerUnit` names dBW and dBm beside the watts - each `by` the level's scale, `via = PowerLevel` - so its values take a decibel count straight to watts and back; the conversion is not `const`, so neither is that enum's.
+The logarithm itself is in one place, the hand-written [`level.rs`](src/level.rs): std `From` between `PowerLevel` and `Power`, and between `Gain` and a plain ratio. A scale of levels measures levels, and the watts are one `From` away. Both conversions are generic over any `N: Real + From<Exact>` (`num_traits::Real`). `PowerUnit` names dBW and dBm beside the watts - each `by` the level's scale, `via = PowerLevel<N>` - so its values take a decibel count straight to watts and back, in any such number type; the conversion is not `const`, so neither is that enum's.
 
 ```rust
 use yadc_si::dimensionless::Dimensionless;
@@ -168,7 +170,7 @@ let sent = DBM.quantity(30.0);                          // a PowerLevel: 30 dB a
 let p = Power::<f64>::from(sent);                       // 1 W
 let w = WATT.value(p);                                  // 1.0
 let dbw = DBW.value(PowerLevel::<f64>::from(p));        // 0.0
-let dbm = PowerUnit::DecibelMilliwatt;                  // in the watts' enum (f64): both steps at once
+let dbm = PowerUnit::DecibelMilliwatt;                  // in the watts' enum: both steps at once
 let same = dbm.value(p);                                // 30.0
 let one_watt: Power<f64> = dbm.quantity(30.0);
 
@@ -250,7 +252,7 @@ for u in lengths {
 
 Some unit of *some* quantity is a set you list yourself: an enum of the quantities your program measures and an enum of their unit enums, visited with `dynamickit`'s `Visit` (each unit family names the quantity it measures in an associated type of yours; one visitor builds, one reads, each written once for every family) and listed for a menu with `Variants`; `dynamickit`'s `Members` and `Via` convert the set through `DynamicSIQuantity` and borrow its arithmetic. See [`examples/`](examples/).
 
-Units are not tied to this crate's quantities. Another crate may make them units of its own quantity - `impl Unit<my::Length> for yadc_si::mechanical::LengthUnit` is allowed by the orphan rule - and write a unit of its own by hand: `impl Unit<Length<f64>>` on a type of its own.
+Units are not tied to this crate's quantities. Another crate may make them units of its own quantity - `impl Unit<my::Length> for yadc_si::dynamic::mechanical::LengthUnit` is allowed by the orphan rule - and write a unit of its own by hand: `impl Unit<Length<f64>>` on a type of its own.
 
 See [`yadc/examples/basic_use.rs`](../yadc/examples/basic_use.rs) for a tour.
 
@@ -290,7 +292,7 @@ let beta = C.value(v);                                       // a constant is a 
 
 - **Unit constants.** A named unit (`#[unit("mi", "miles", by = Length::<N>::from(MILE))]`) has `pub const <SCREAMING_SNAKE variant>: <Quantity><Exact>` in its family's `consts`: `mechanical::consts::MILE`, `POUND`, `PSI`, `KNOT`, `LITRE`, `HORSEPOWER`, `BTU_IT`, `dimensionless::consts::PERCENT`; so do the squares and cubes of the metre, inch, foot, yard and mile, `METRE_PER_SECOND`, `METRE_PER_SECOND_SQUARED` and `MILE_PER_HOUR` - about 380 in all. A name two quantities of one module share is prefixed with the quantity (`TIME_MINUTE`, `ANGLE_MINUTE`).
 - **A unit written as others is an expression, not a constant.** The slug per cubic foot is `SLUG / CUBIC_FOOT`, the joule per kilogram `JOULE / KILOGRAM`, the foot-pound `FOOT * POUND_FORCE`, the kilometre per hour `KILO * METRE / HOUR`. Its unit-enum variant is its exact size, converted: `#[unit("km/h", "kilometres per hour", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::int(1000) / Exact::int(3600))))]`.
-- **Unit enums are generic over their number type.** `#[unit(of = Length<N>, number = N)]` with `#[unit(for<N> where N: Num + const From<Exact>, ..)]`: each variant's `by` is the exact constant converted with `From` (`by = Length::<N>::from(INCH)`), and the `Unit` derive evaluates every `by` in a `const { }` block - folded at compile time, once per number type, not converted on every call: `LengthUnit::Foot.quantity(3.0)`, `LengthUnit::Foot.value(d)`. An enum with a unit that measures another type (`via`) counts in `f64`: `PowerUnit`, whose decibels take a logarithm.
+- **Unit enums are generic over their number type.** Each lives in `dynamic::<family>` (`dynamic::mechanical::LengthUnit`) and reads `#[unit(of = Length<N>, number = N)]` with `#[unit(for<N: Num + const From<Exact>> where Length<N>: [const] Unit<Length<N>, N> + [const] Destruct)]`. `N` is any number type the exact constants convert to: each variant's `by` is the exact constant converted with `From` (`by = Length::<N>::from(INCH)`), and the `Unit` derive evaluates every `by` in a `const { }` block - folded at compile time, once per number type, not converted on every call: `LengthUnit::Foot.quantity(3.0)`, `LengthUnit::Foot.value(d)`. The `where` says each `by`'s type is a unit of the measured quantity in `N` (a scale's: `Scale<P<N>, S<N>>: [const] Unit<P<N>, N> + [const] Destruct`); it is written out because the derive cannot see a `by`'s type, and over a generic `N` the compiler cannot check the dimensions that make it hold. An enum with a unit that measures another type (`via`) adds the conversions both ways, `Power<N>: From<PowerLevel<N>>, PowerLevel<N>: From<Power<N>>`: `PowerUnit`, whose decibels take a logarithm, is generic like the rest.
 - **Prefixes are numbers, not units.** A unit whose symbol starts with an SI prefix on another unit - the kilometre, the millipascal, the kilowatt hour - has no constant and no unit-enum variant: it is `KILO * METRE`, `MILLI * PASCAL`, `KILO * WATT_HOUR`, and `Prefixed<LengthUnit>` parses `km`. A unit with a prefix inside its symbol - km/h, N/mm², kW/°C - is a variant without a constant (`VelocityUnit::KilometrePerHour`). A prefix multiplies a unit, not a number (`50.0 * KILO` doesn't compile: write `50.0 * KM` with a converted `KM`). A unit keeps its own name when it is coherent (`KILOGRAM`), when another definition uses it (`DECIBEL`, in `MILLIWATT_LEVEL`), when it is a scale, and when its prefix scales no unit of its quantity (`MILLIMETRE_OF_MERCURY`: there is no metre of mercury).
 - **Parsing a prefix.** `"km".parse::<Prefixed<LengthUnit>>()` reads a unit's own symbol first - `Pa` is the pascal, `min` the minute, `M` the nautical mile - then a leading prefix on one of the enum's symbols: `km`, `mPa`, and `µm`, `μm` or `um` for micro. It is `Err(yadc::UnknownUnit)` when neither reads.
 - **Physical constants are units**, as in UCUM: each is a unit of the quantity it measures (exact, or CODATA 2018), so it gets a constant like any unit and a quantity reads in it.
@@ -341,7 +343,7 @@ Everything in `src/` except `level.rs` and `uom_bridge.rs` is generated by [`yad
 cargo run -p yadc-codegen -- yadc-codegen/si.toml -o <dir>
 ```
 
-then copy `<dir>/src/*.rs` over `yadc-si/src/` (never generate straight into `yadc-si`: the generated `Cargo.toml` is a starting point, not this crate's). Keep the hand-written `src/level.rs` (the logarithms between a level and a power, a gain and a ratio) and `src/uom_bridge.rs` (orphan-rule impls that must sit beside `SIQuantity`) - `si.toml` lists them under `extra_modules`, so the generated `lib.rs` declares them but the generator never writes them.
+then copy `<dir>/src/*.rs` and `<dir>/src/dynamic/*.rs` over `yadc-si/src/` and `yadc-si/src/dynamic/` (never generate straight into `yadc-si`: the generated `Cargo.toml` is a starting point, not this crate's). Keep the hand-written `src/level.rs` (the logarithms between a level and a power, a gain and a ratio) and `src/uom_bridge.rs` (orphan-rule impls that must sit beside `SIQuantity`) - `si.toml` lists them under `extra_modules`, so the generated `lib.rs` declares them but the generator never writes them.
 
 ## Origin of the unit data
 

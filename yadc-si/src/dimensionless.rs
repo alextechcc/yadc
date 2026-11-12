@@ -1,7 +1,6 @@
 //! Plain numbers: ratios and their units.
 
 use crate::{Exact, ISQ, SIQuantity};
-use consts::*;
 use yadc::Dimension;
 
 pub type Dimensionless<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
@@ -50,36 +49,4 @@ pub mod consts {
 
     /// One `PartPerQuadrillion` (`ppq`), as a `Dimensionless`.
     pub const PART_PER_QUADRILLION: Dimensionless<Exact> = RATIO * Exact::dec(1, -15);
-}
-
-/// The units of `Dimensionless`, for a menu, a config file, a parser: in any number
-/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
-#[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Dimensionless<N>, number = N)]
-#[unit(for<N> where Dimensionless<N>: [const] yadc::Unit<Dimensionless<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
-pub enum DimensionlessUnit {
-    #[default]
-    #[unit("", "", by = Dimensionless::<N>::from(RATIO))]
-    Ratio,
-    #[unit("parts per hundred", "parts per hundred", by = Dimensionless::<N>::from(PART_PER_HUNDRED))]
-    PartPerHundred,
-    #[unit("%", "percent", by = Dimensionless::<N>::from(PERCENT))]
-    Percent,
-    #[unit("parts per thousand", "parts per thousand", by = Dimensionless::<N>::from(PART_PER_THOUSAND))]
-    PartPerThousand,
-    #[unit("‰", "per mille", by = Dimensionless::<N>::from(PER_MILLE))]
-    PerMille,
-    #[unit("parts per ten thousand", "parts per ten thousand", by = Dimensionless::<N>::from(PART_PER_TEN_THOUSAND))]
-    PartPerTenThousand,
-    #[unit("bp", "basis points", by = Dimensionless::<N>::from(BASIS_POINT))]
-    BasisPoint,
-    #[unit("ppm", "parts per million", by = Dimensionless::<N>::from(PART_PER_MILLION))]
-    PartPerMillion,
-    #[unit("ppb", "parts per billion", by = Dimensionless::<N>::from(PART_PER_BILLION))]
-    PartPerBillion,
-    #[unit("ppt", "parts per trillion", by = Dimensionless::<N>::from(PART_PER_TRILLION))]
-    PartPerTrillion,
-    #[unit("ppq", "parts per quadrillion", by = Dimensionless::<N>::from(PART_PER_QUADRILLION))]
-    PartPerQuadrillion,
 }

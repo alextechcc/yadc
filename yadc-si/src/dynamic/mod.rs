@@ -1,7 +1,29 @@
-//! The dynamic half: a quantity whose dimension is decided at run time.
+//! The dynamic half: what is chosen at run time - a quantity's dimension
+//! (`DynamicSIQuantity`), and its unit (each module's unit enums,
+//! `dynamic::mechanical::LengthUnit`).
 
 use crate::{ISQ, SIQuantity};
 use yadc::Dimension;
+
+#[cfg(feature = "angular")]
+pub mod angular;
+#[cfg(feature = "chemistry")]
+pub mod chemistry;
+#[cfg(feature = "density")]
+pub mod density;
+pub mod dimensionless;
+#[cfg(feature = "electromagnetic")]
+pub mod electromagnetic;
+#[cfg(feature = "fluid")]
+pub mod fluid;
+#[cfg(feature = "information")]
+pub mod information;
+#[cfg(feature = "mechanical")]
+pub mod mechanical;
+#[cfg(feature = "photometric")]
+pub mod photometric;
+#[cfg(feature = "thermal")]
+pub mod thermal;
 
 /// A quantity of any dimension, decided at run time: the dynamic version of
 /// `SIQuantity<D, f64>`, built with dynamickit. Converting (`From`) moves the number into

@@ -16,8 +16,10 @@ use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use yadc::{Unit, UnknownUnit};
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::mechanical::consts;
-use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Length, MassUnit, Pressure};
-use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
+use yadc_si::mechanical::{Area, Force, Length, Pressure};
+use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, MassUnit};
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
 use yadc_si::{ISQ, KILO, SIQuantity};
 
 const PASCAL: Pressure<f64> = consts::PASCAL.into();

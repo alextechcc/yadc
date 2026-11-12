@@ -8,12 +8,16 @@
 
 use yadc::{Dimension, PartialPowi, PartialRoot, PowiAs, RootAs, Unit};
 use yadc_si::angular::*;
+use yadc_si::dynamic::angular::*;
 use yadc_si::chemistry::InverseAmountOfSubstance;
 use yadc_si::dimensionless::*;
+use yadc_si::dynamic::dimensionless::*;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::electromagnetic::{ElectricCharge, ElectricPermittivity, MagneticPermeability};
 use yadc_si::mechanical::*;
+use yadc_si::dynamic::mechanical::*;
 use yadc_si::thermal::*;
+use yadc_si::dynamic::thermal::*;
 use yadc_si::{CENTI, Exact, ISQ, KILO, Kind, MILLI, Prefix, Prefixed, SIQuantity, Scale};
 
 /// A static quantity's dimension: its const parameter.
@@ -856,7 +860,8 @@ fn every_generated_unit_reaches_the_open_set() {
 #[test]
 fn inv_is_one_over() {
     use yadc::num_traits::Inv;
-    use yadc_si::mechanical::{Frequency, FrequencyUnit};
+    use yadc_si::mechanical::Frequency;
+use yadc_si::dynamic::mechanical::FrequencyUnit;
 
     let f: Frequency<f64> = TimeUnit::Second.quantity(2.0).inv();
     close(FrequencyUnit::Hertz.value(f), 0.5);
@@ -938,7 +943,7 @@ fn unit_constants_are_one_of_the_unit() {
     use yadc_si::angular::consts as ang;
     use yadc_si::dimensionless::consts as dimless;
     use yadc_si::fluid::consts as fluid;
-    use yadc_si::fluid::{DiffusionCoefficientUnit, KinematicViscosityUnit};
+    use yadc_si::dynamic::fluid::{DiffusionCoefficientUnit, KinematicViscosityUnit};
 
     close(LengthUnit::Metre.value(KILOMETRE), 1000.0);
     // Exact, by the 1959 agreement.
@@ -1032,7 +1037,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
         Exact::dec(101_325, -3)
     );
     close(
-        yadc_si::electromagnetic::ElectricChargeUnit::Coulomb
+        yadc_si::dynamic::electromagnetic::ElectricChargeUnit::Coulomb
             .value(ElectricCharge::<f64>::from(em::ELEMENTARY_CHARGE))
             * 1e19,
         1.602176634,
@@ -1072,7 +1077,7 @@ fn velocities_read_in_units_of_c() {
     let c = VelocityUnit::SpeedOfLight;
     assert_eq!(format!("{:.2} {}", c.value(half_c), c), "0.50 c");
     // The Avogadro constant: one mole of things, counted.
-    let per_mole = yadc_si::chemistry::InverseAmountOfSubstanceUnit::PerMole.value(
+    let per_mole = yadc_si::dynamic::chemistry::InverseAmountOfSubstanceUnit::PerMole.value(
         InverseAmountOfSubstance::<f64>::from(chem::AVOGADRO_CONSTANT),
     );
     close(per_mole / 1e23, 6.02214076);
@@ -1207,11 +1212,11 @@ mod unit_values {
     use yadc::{CastAs, Unit};
     use yadc_si::mechanical::consts as mech;
     use yadc_si::{KILO, MILLI, Scale};
-    use yadc_si::mechanical::{Gain, Length, Power, PowerLevel, PowerUnit, Pressure};
+    use yadc_si::mechanical::{Gain, Length, Power, PowerLevel, Pressure};
+use yadc_si::dynamic::mechanical::PowerUnit;
     use yadc_si::thermal::consts as therm;
-    use yadc_si::thermal::{
-        TemperatureInterval, ThermodynamicTemperature, ThermodynamicTemperatureUnit,
-    };
+    use yadc_si::thermal::{TemperatureInterval, ThermodynamicTemperature};
+use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
 
     type TemperatureScale = Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>>;
 

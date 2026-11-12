@@ -319,12 +319,14 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 ///   with concrete types it has no `where` clause, so each `by` is checked
 ///   here, for each `Q`.
 /// - `number = f32`: the numbers' type `N`, `f64` by default.
-/// - `for<N> where ..`: the impls are generic, with these bounds - the last
-///   item of its `#[unit(..)]`, as a where clause takes the rest. `of =
-///   Length<N>, number = N` with `for<N> where Length<N>: [const]
-///   Unit<Length<N>, N> + [const] Destruct, ..` counts in any number type
-///   the bounds allow, each `by` still evaluated at compile time, once per
-///   number type.
+/// - `for<N: ..> where ..`: the impls are generic, with these bounds - the
+///   last item of its `#[unit(..)]`, as a where clause takes the rest. `of =
+///   Length<N>, number = N` with `for<N: Num + const From<Exact>>` counts in
+///   any number type the bounds allow, each `by` still evaluated at compile
+///   time, once per number type. The `where` names what each `by` needs:
+///   `Length<N>: [const] Unit<Length<N>, N> + [const] Destruct` for a
+///   length, `Scale<P, S>: [const] Unit<P, N> + ..` for a scale - the
+///   derive cannot see a `by`'s type.
 /// - `non_const`: an ordinary impl instead of a `const impl`, when a `by = U`
 ///   names a value whose own `Unit` impl is not `const` (the derive cannot
 ///   see that) - a level read as a linear quantity, a hand-written formula.

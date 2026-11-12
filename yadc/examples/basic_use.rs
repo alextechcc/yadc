@@ -10,16 +10,20 @@
 
 use yadc::{CastAs, Unit};
 use yadc_si::dimensionless::*;
+use yadc_si::dynamic::dimensionless::*;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::electromagnetic::consts::AMPERE;
 use yadc_si::electromagnetic::*;
+use yadc_si::dynamic::electromagnetic::*;
 use yadc_si::mechanical::consts::{
     DECIBEL, ELECTRON_MASS, HOUR, INCH, KILOGRAM, METRE, METRE_PER_SECOND, POUND,
     SPEED_OF_LIGHT, STANDARD_GRAVITY,
 };
 use yadc_si::mechanical::*;
+use yadc_si::dynamic::mechanical::*;
 use yadc_si::thermal::consts::KELVIN;
 use yadc_si::thermal::*;
+use yadc_si::dynamic::thermal::*;
 use yadc_si::{Exact, KILO, MILLI, Prefix, Prefixed, Scale};
 
 // Compile-time quantities. The constants are exact numbers, and so is their

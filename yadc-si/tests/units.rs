@@ -14,7 +14,8 @@
 
 use core::marker::ConstParamTy;
 use yadc::{Dimension, PartialPowi, PowiAs, RootAs, Unit, UnknownUnit};
-use yadc_si::mechanical::{Length, LengthUnit, MassUnit, TimeUnit, consts};
+use yadc_si::mechanical::{Length, consts};
+use yadc_si::dynamic::mechanical::{LengthUnit, MassUnit, TimeUnit};
 use yadc_si::{KILO, Prefix, Prefixed};
 
 const METRE: Length<f64> = consts::METRE.into();

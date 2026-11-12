@@ -27,8 +27,10 @@ use yadc::{Unit, UnknownUnit};
 use yadc_si::KILO;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::mechanical::consts::{BAR, PASCAL, PSI, STANDARD_ATMOSPHERE};
-use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure};
-use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
+use yadc_si::mechanical::{Area, Force, Pressure};
+use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit};
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
 
 /// What the app measures: a closed set. It converts to and from the open
 /// type through its members, and does its arithmetic there.

@@ -21,7 +21,8 @@ use std::fmt;
 use yadc::Unit;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::mechanical::consts::METRE_PER_SECOND;
-use yadc_si::mechanical::{MassUnit, Velocity, VelocityUnit};
+use yadc_si::mechanical::Velocity;
+use yadc_si::dynamic::mechanical::{MassUnit, VelocityUnit};
 
 /// The unit the Beaufort formula counts in: the exact constant, rounded to
 /// `f64` by the compiler.

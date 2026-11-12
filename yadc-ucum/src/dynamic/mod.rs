@@ -1,7 +1,33 @@
-//! The dynamic half: a quantity whose dimension is decided at run time.
+//! The dynamic half: what is chosen at run time - a quantity's dimension
+//! (`DynQty`), and its unit (each module's unit enums,
+//! `dynamic::mechanical::LengthUnit`).
 
 use crate::{Dim, Qty};
 use yadc::Dimension;
+
+#[cfg(feature = "british")]
+pub mod british;
+#[cfg(feature = "cgs")]
+pub mod cgs;
+#[cfg(feature = "clinical")]
+pub mod clinical;
+#[cfg(feature = "constants")]
+pub mod constants;
+pub mod dimensionless;
+#[cfg(feature = "heat")]
+pub mod heat;
+#[cfg(feature = "infotech")]
+pub mod infotech;
+#[cfg(feature = "intcust")]
+pub mod intcust;
+#[cfg(feature = "iso1000")]
+pub mod iso1000;
+#[cfg(feature = "misc")]
+pub mod misc;
+#[cfg(feature = "si")]
+pub mod si;
+#[cfg(feature = "us")]
+pub mod us;
 
 /// A quantity of any dimension, decided at run time: the dynamic version of
 /// `Qty<D, f64>`, built with dynamickit. Converting (`From`) moves the number into

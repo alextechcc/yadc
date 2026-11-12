@@ -111,7 +111,8 @@ fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q>]) -> String {
 
 // --- Unit system A: yadc-si --------------------------------------------------
 use yadc_si::mechanical::*;
-use yadc_si::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
+use yadc_si::dynamic::mechanical::*;
+use yadc_si::dynamic::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
 use yadc_si::KILO;
 
 // Units counted in `f64`: exact constants, rounded by the compiler.

@@ -24,16 +24,17 @@ fn dyn_ty(sys: &SystemConfig) -> &str {
 
 pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()> {
     let src = output_dir.join("src");
-    std::fs::create_dir_all(&src)?;
-
-    let mut written = vec![src.join("lib.rs"), src.join("dimensionless.rs"), src.join("exact.rs")];
-    std::fs::write(&written[0], gen_lib_rs(system))?;
-    std::fs::write(&written[1], gen_dimensionless_rs(system))?;
-    std::fs::write(&written[2], EXACT)?;
-    written.push(src.join("prefix.rs"));
-    std::fs::write(&written[3], PREFIX.replace("__QTY__", qty_ty(&system.system)))?;
-    written.push(src.join("dynamic.rs"));
-    std::fs::write(&written[4], gen_dynamic_rs(system))?;
+    let dynamic = src.join("dynamic");
+    std::fs::create_dir_all(&dynamic)?;
+    let mut written = Vec::new();
+    let mut write = |path: std::path::PathBuf, text: &str| -> std::io::Result<()> {
+        std::fs::write(&path, text)?;
+        written.push(path);
+        Ok(())
+    };
+    write(src.join("lib.rs"), &gen_lib_rs(system))?;
+    write(src.join("exact.rs"), EXACT)?;
+    write(src.join("prefix.rs"), &PREFIX.replace("__QTY__", qty_ty(&system.system)))?;
     std::fs::write(output_dir.join("Cargo.toml"), gen_cargo_toml(system))?;
 
     for fam in &system.family {
@@ -43,6 +44,17 @@ pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()
             fam.name,
         );
     }
+    // Each module's quantities at the root, its unit enums in `dynamic`.
+    let mut unit_mods: Vec<(String, Option<String>)> = Vec::new();
+    let mut module = |name: &str, feature: Option<&str>, m: Module| -> std::io::Result<()> {
+        write(src.join(format!("{name}.rs")), &m.quantities)?;
+        if !m.units.is_empty() {
+            write(dynamic.join(format!("{name}.rs")), &m.units)?;
+            unit_mods.push((name.to_string(), feature.map(str::to_string)));
+        }
+        Ok(())
+    };
+    module("dimensionless", None, gen_dimensionless_rs(system))?;
     for fam_name in &system.system.family_order {
         let Some(fam) = system.family.iter().find(|f| &f.name == fam_name) else {
             continue;
@@ -50,10 +62,9 @@ pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()
         if fam.quantity.is_empty() {
             continue;
         }
-        let path = src.join(format!("{fam_name}.rs"));
-        std::fs::write(&path, gen_family_rs(fam, system))?;
-        written.push(path);
+        module(fam_name, Some(fam_name), gen_family_rs(fam, system))?;
     }
+    write(dynamic.join("mod.rs"), &gen_dynamic_rs(system, &unit_mods))?;
     format_files(&written);
     Ok(())
 }
@@ -500,8 +511,9 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s
 }
 
-/// `dynamic.rs`: the dynamic type.
-pub fn gen_dynamic_rs(system: &UnitSystem) -> String {
+/// `dynamic/mod.rs`: the dynamic type, and the modules of unit enums
+/// (`dynamic::mechanical::LengthUnit`), each behind its family's feature.
+pub fn gen_dynamic_rs(system: &UnitSystem, unit_mods: &[(String, Option<String>)]) -> String {
     let dim = dim_ty(&system.system);
     let qty = qty_ty(&system.system);
     let dyn_ = dyn_ty(&system.system);
@@ -521,8 +533,19 @@ pub fn gen_dynamic_rs(system: &UnitSystem) -> String {
         }
     };
     let mut s = String::new();
-    s += "//! The dynamic half: a quantity whose dimension is decided at run time.\n\n";
+    s += "//! The dynamic half: what is chosen at run time - a quantity's dimension\n";
+    s += &format!("//! (`{dyn_}`), and its unit (each module's unit enums,\n");
+    s += "//! `dynamic::mechanical::LengthUnit`).\n\n";
     s += &format!("use crate::{{{dim}, {qty}}};\nuse yadc::Dimension;\n\n");
+    for (m, feature) in unit_mods {
+        if let Some(f) = feature {
+            s += &format!("#[cfg(feature = \"{f}\")]\n");
+        }
+        s += &format!("pub mod {m};\n");
+    }
+    if !unit_mods.is_empty() {
+        s += "\n";
+    }
     s += &DYNAMIC
         .replace("__PRODUCTS_DOC__", &products_doc)
         .replace("__DYN__", dyn_)
@@ -895,9 +918,8 @@ fn counted_in_n(
         None => format!("{ty}<N>"),
     };
     let expr = conv(&unit_ty, x);
-    bounds.insert("N: yadc::num_traits::Num + const From<Exact>".into());
-    let destruct = if konst.is_empty() { String::new() } else { " + [const] core::marker::Destruct".into() };
-    bounds.insert(format!("{unit_ty}: {konst}yadc::Unit<{of}, N>{destruct}"));
+    let destruct = if konst.is_empty() { String::new() } else { " + [const] Destruct".into() };
+    bounds.insert(format!("{unit_ty}: {konst}Unit<{of}, N>{destruct}"));
     expr
 }
 
@@ -1232,7 +1254,7 @@ fn coherent_expr(
 
 // --- dimensionless.rs --------------------------------------------------------
 
-pub fn gen_dimensionless_rs(system: &UnitSystem) -> String {
+pub fn gen_dimensionless_rs(system: &UnitSystem) -> Module {
     let dim = dim_ty(&system.system);
     let qty = qty_ty(&system.system);
     let no_dims = BTreeMap::new();
@@ -1248,13 +1270,13 @@ pub fn gen_dimensionless_rs(system: &UnitSystem) -> String {
         system,
         &format!("pub type Dimensionless<N> = {qty}<{{ {dim}::DIMENSIONLESS }}, N>;\n"),
         "//! Plain numbers: ratios and their units.\n",
-        false,
+        "dimensionless",
     )
 }
 
 // --- <family>.rs -------------------------------------------------------------
 
-pub fn gen_family_rs(family: &FamilyDef, system: &UnitSystem) -> String {
+pub fn gen_family_rs(family: &FamilyDef, system: &UnitSystem) -> Module {
     let dim = dim_ty(&system.system);
     let qty = qty_ty(&system.system);
     let quantities: Vec<QuantityRef<'_>> = family
@@ -1267,19 +1289,25 @@ pub fn gen_family_rs(family: &FamilyDef, system: &UnitSystem) -> String {
         aliases += "\n";
         aliases += &fmt_type_alias(&q.name, &dim_value(&q.dims, q.kind.as_deref(), &system.dim.fields, dim), qty);
     }
-    let uses_kind = family.quantity.iter().any(|q| q.kind.is_some());
-    gen_module(&quantities, system, &aliases, "", uses_kind)
+    gen_module(&quantities, system, &aliases, "", &family.name)
 }
 
-/// A module: imports, the quantities' aliases, the constants and the unit
-/// enums.
+/// A family's two halves: its quantities and constants (`<family>.rs`), and
+/// its unit enums (`dynamic/<family>.rs`), each with its imports.
+pub struct Module {
+    pub quantities: String,
+    pub units: String,
+}
+
+/// A module: its quantities' aliases and constants, and - in the dynamic
+/// half - its unit enums. `name` is the module's (`mechanical`).
 fn gen_module(
     quantities: &[QuantityRef<'_>],
     system: &UnitSystem,
     aliases: &str,
     header: &str,
-    _uses_kind: bool,
-) -> String {
+    name: &str,
+) -> Module {
     let dim = dim_ty(&system.system);
     let qty = qty_ty(&system.system);
     let base = Base::new(system);
@@ -1293,48 +1321,35 @@ fn gen_module(
             enums += &e;
         }
     }
-    // Base constants the enums name that `consts` does not re-export.
-    let used = idents(&enums);
-    let local: BTreeSet<&str> = plan.names.iter().map(String::as_str).collect();
-    let from_base: Vec<&str> = base
-        .consts
-        .iter()
-        .map(|b| b.name.as_str())
-        .filter(|n| used.contains(*n) && !rendered.reexported.contains(*n) && !local.contains(n))
-        .collect();
+    // What a body names, its doc comments left out.
+    let named = |body: &str| -> BTreeSet<String> {
+        let code: String = body
+            .lines()
+            .filter(|l| !l.trim_start().starts_with("//"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        idents(&code)
+    };
+    let crate_names = |named: &BTreeSet<String>| -> Vec<&str> {
+        let mut names: Vec<&str> = [dim, qty, "Kind", "Scale", "Exact"]
+            .into_iter()
+            .chain(PREFIXES)
+            .filter(|n| named.contains(*n))
+            .collect();
+        names.sort_unstable();
+        names
+    };
 
+    // The quantities and constants.
     let mut s = String::new();
     s += header;
     if !header.is_empty() {
         s += "\n";
     }
-    // What the module names, imported: read off its aliases, constants
-    // and enums.
-    let body = format!("{aliases}{}{enums}", rendered.consts);
-    // What the code names, its doc comments left out.
-    let code: String = body
-        .lines()
-        .filter(|l| !l.trim_start().starts_with("//"))
-        .collect::<Vec<_>>()
-        .join("\n");
-    let named = idents(&code);
-    let mut names: Vec<&str> = [dim, qty, "Kind", "Scale", "Exact"]
-        .into_iter()
-        .chain(PREFIXES)
-        .filter(|n| named.contains(*n))
-        .collect();
-    names.sort_unstable();
-    s += &format!("use crate::{{{}}};\n", names.join(", "));
-    if !from_base.is_empty() {
-        s += &format!("use crate::base::{{{}}};\n", from_base.join(", "));
-    }
-    let in_consts = plan
-        .names
-        .iter()
-        .chain(rendered.reexported.iter())
-        .any(|n| used.contains(n));
-    if !rendered.consts.is_empty() && in_consts {
-        s += "use consts::*;\n";
+    let body = format!("{aliases}{}", rendered.consts);
+    let names = crate_names(&named(&body));
+    if !names.is_empty() {
+        s += &format!("use crate::{{{}}};\n", names.join(", "));
     }
     if body.contains("::DIMENSIONLESS") {
         s += "use yadc::Dimension;\n";
@@ -1345,8 +1360,44 @@ fn gen_module(
         s += "\n";
         s += &rendered.consts;
     }
-    s += &enums;
-    s
+
+    // The unit enums: the quantities and constants imported.
+    let mut u = String::new();
+    if !enums.is_empty() {
+        let used = named(&enums);
+        let local: BTreeSet<&str> = plan.names.iter().map(String::as_str).collect();
+        let from_base: Vec<&str> = base
+            .consts
+            .iter()
+            .map(|b| b.name.as_str())
+            .filter(|n| used.contains(*n) && !rendered.reexported.contains(*n) && !local.contains(n))
+            .collect();
+        u += &format!(
+            "//! The units of `{name}`'s quantities, chosen at run time: for a menu, a\n//! config file, a parser.\n\n"
+        );
+        u += &format!("use crate::{name}::*;\n");
+        let in_consts = plan.names.iter().chain(rendered.reexported.iter()).any(|n| used.contains(n));
+        if !rendered.consts.is_empty() && in_consts {
+            u += &format!("use crate::{name}::consts::*;\n");
+        }
+        let names = crate_names(&used);
+        if !names.is_empty() {
+            u += &format!("use crate::{{{}}};\n", names.join(", "));
+        }
+        if !from_base.is_empty() {
+            u += &format!("use crate::base::{{{}}};\n", from_base.join(", "));
+        }
+        if enums.contains("Destruct") {
+            u += "use core::marker::Destruct;\n";
+        }
+        let mut yadc = vec!["num_traits::Num"];
+        if enums.contains(" Unit<") {
+            yadc.insert(0, "Unit");
+        }
+        u += &format!("use yadc::{{{}}};\n", yadc.join(", "));
+        u += &enums;
+    }
+    Module { quantities: s, units: u }
 }
 
 /// `use`-free list of what `#[derive(..)]` a unit enum gets.
@@ -1431,7 +1482,7 @@ fn gen_unit_enum(
         variants += &format!("    {},\n", unit.variant);
     }
     let mut s = format!(
-        "/// The units of `{}`, for a menu, a config file, a parser: in any number\n/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).\n",
+        "/// The units of `{}`, in any number type the constants convert to.\n",
         q.name
     );
     s += "#[derive_const(Default)]\n";
@@ -1439,10 +1490,10 @@ fn gen_unit_enum(
     let nc = if non_const { ", non_const" } else { "" };
     s += &format!("#[unit(of = {}<N>, number = N{nc})]\n", q.name);
     if bounds.is_empty() {
-        s += "#[unit(for<N>)]\n";
+        s += "#[unit(for<N: Num + const From<Exact>>)]\n";
     } else {
         s += &format!(
-            "#[unit(for<N> where {})]\n",
+            "#[unit(for<N: Num + const From<Exact>> where {})]\n",
             bounds.into_iter().collect::<Vec<_>>().join(", ")
         );
     }
@@ -1663,9 +1714,11 @@ units = [
 ]
 "#;
 
+    /// Both halves of the test family: its quantities, then its unit enums.
     fn family() -> String {
         let sys = system(THERMAL);
-        gen_family_rs(&sys.family[0], &sys)
+        let m = gen_family_rs(&sys.family[0], &sys);
+        m.quantities + &m.units
     }
 
     /// The base constants are the only raw numbers; everything else is a
@@ -1755,9 +1808,10 @@ units = [
         assert!(!out.contains("PHON_REFERENCE"));
         // A unit measuring another type converts to and from it in the
         // enum's number type.
-        assert!(out.contains("#[unit(of = Loudness<N>, number = N, non_const)]\n#[unit(for<N> where Loudness<N>: From<crate::level::LoudnessLevel<N>>"));
-        assert!(out.contains("#[unit(of = Speed<N>, number = N)]\n#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Speed<N>: [const] yadc::Unit<Speed<N>, N> + [const] core::marker::Destruct)]\npub enum SpeedUnit {"));
+        assert!(out.contains("#[unit(of = Loudness<N>, number = N, non_const)]\n#[unit(for<N: Num + const From<Exact>> where Loudness<N>: From<crate::level::LoudnessLevel<N>>"));
+        assert!(out.contains("#[unit(of = Speed<N>, number = N)]\n#[unit(for<N: Num + const From<Exact>> where Speed<N>: [const] Unit<Speed<N>, N> + [const] Destruct)]\npub enum SpeedUnit {"));
         let d = gen_dimensionless_rs(&system(THERMAL));
+        let d = d.quantities + &d.units;
         assert!(d.contains("    pub const RATIO: Dimensionless<Exact> = ONE;\n"));
         assert!(d.contains("    pub const PERCENT: Dimensionless<Exact> = RATIO * Exact::dec(1, -2);\n"));
         assert!(d.contains("    pub use crate::base::ONE;\n"));
@@ -1768,8 +1822,13 @@ units = [
     fn unit_enums_name_their_units() {
         let out = family();
         assert!(out.contains(
-            "#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]\n#[unit(of = Speed<N>, number = N)]\n#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Speed<N>: [const] yadc::Unit<Speed<N>, N> + [const] core::marker::Destruct)]\npub enum SpeedUnit {\n    #[default]\n    #[unit(\"m/s\", \"metres per second\", by = Speed::<N>::from(METRE_PER_SECOND))]\n    MetrePerSecond,\n"
+            "#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]\n#[unit(of = Speed<N>, number = N)]\n#[unit(for<N: Num + const From<Exact>> where Speed<N>: [const] Unit<Speed<N>, N> + [const] Destruct)]\npub enum SpeedUnit {\n    #[default]\n    #[unit(\"m/s\", \"metres per second\", by = Speed::<N>::from(METRE_PER_SECOND))]\n    MetrePerSecond,\n"
         ));
+        // In the dynamic half, with the module's quantities and constants.
+        let sys = system(THERMAL);
+        let m = gen_family_rs(&sys.family[0], &sys);
+        assert!(!m.quantities.contains("pub enum"));
+        assert!(m.units.contains("use crate::thermal::*;\nuse crate::thermal::consts::*;\n"));
     }
 
     #[test]
@@ -1780,7 +1839,7 @@ units = [
         // the field is marked alone, its products partial, and the dynamic
         // type's too.
         assert!(out.contains("    #[kind]\n    pub kind: Kind,\n"));
-        let dynamic = gen_dynamic_rs(&system(THERMAL));
+        let dynamic = gen_dynamic_rs(&system(THERMAL), &[]);
         assert!(dynamic.contains(
             "    Mul -> Option<Self>,\n    Div -> Option<Self>,\n    Add -> Option<Self>,\n"
         ));
@@ -1834,7 +1893,8 @@ units = [
 ]
 "#,
         );
-        let out = gen_family_rs(&sys.family[0], &sys);
+        let m = gen_family_rs(&sys.family[0], &sys);
+        let out = m.quantities + &m.units;
         assert!(out.contains("    pub const TIME_MINUTE: Time<Exact> = SECOND * Exact::int(60);"));
         assert!(out.contains("    pub const ANGLE_MINUTE: Angle<Exact> = METRE * Exact::dec(29, -5);"));
         assert!(out.contains("    #[unit(\"min\", \"minutes\", by = Time::<N>::from(TIME_MINUTE))]\n    Minute,\n"));
@@ -1853,7 +1913,7 @@ units = [
         let out = gen_lib_rs(&sys);
         assert!(out.contains("    #[kind]\n    pub kind: Kind,\n"));
         assert!(!out.contains("#[kind(affine)]"));
-        let dynamic = gen_dynamic_rs(&sys);
+        let dynamic = gen_dynamic_rs(&sys, &[]);
         assert!(dynamic.contains("    Mul -> Option<Self>,\n    Div -> Option<Self>,\n"));
     }
 

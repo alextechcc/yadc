@@ -4,8 +4,8 @@
 #![allow(incomplete_features)]
 
 use yadc::Unit;
-use yadc_ucum::heat::ThermodynamicTemperatureUnit;
-use yadc_ucum::intcust::LengthUnit;
+use yadc_ucum::dynamic::heat::ThermodynamicTemperatureUnit;
+use yadc_ucum::dynamic::intcust::LengthUnit;
 use yadc_ucum::intcust::consts::{FOOT, INCH};
 use yadc_ucum::si::consts::{GRAM, METRE, MOLE, NEWTON, ONE, SECOND};
 use yadc_ucum::us::consts::INCH as SURVEY_INCH;

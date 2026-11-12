@@ -16,9 +16,12 @@
 use yadc_si::Unit;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::electromagnetic::*;
+use yadc_si::dynamic::electromagnetic::*;
 use yadc_si::mechanical::*;
-use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit::{Celsius, Fahrenheit}};
-use yadc_si::thermal::TemperatureIntervalUnit;
+use yadc_si::dynamic::mechanical::*;
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::dynamic::thermal::{ThermodynamicTemperatureUnit::{Celsius, Fahrenheit}};
+use yadc_si::dynamic::thermal::TemperatureIntervalUnit;
 
 fn main() {
     // 1. Typed Qty<D> -> JSON -> typed Qty<D>. Wire is just the number.

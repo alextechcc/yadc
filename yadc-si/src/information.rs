@@ -1,6 +1,4 @@
-use crate::base::SECOND;
 use crate::{Exact, ISQ, SIQuantity};
-use consts::*;
 use yadc::Dimension;
 
 pub type Information<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
@@ -44,42 +42,4 @@ pub mod consts {
 
     /// One `Shannon` (`Sh`), as an `Information`.
     pub const SHANNON: Information<Exact> = BYTE * Exact::dec(125, -3);
-}
-
-/// The units of `Information`, for a menu, a config file, a parser: in any number
-/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
-#[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Information<N>, number = N)]
-#[unit(for<N> where Information<N>: [const] yadc::Unit<Information<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
-pub enum InformationUnit {
-    #[unit("b", "bits", by = Information::<N>::from(BIT))]
-    Bit,
-    #[default]
-    #[unit("B", "bytes", by = Information::<N>::from(BYTE))]
-    Byte,
-    #[unit("o", "octets", by = Information::<N>::from(OCTET))]
-    Octet,
-    #[unit("nibble", "nibbles", by = Information::<N>::from(NIBBLE))]
-    Nibble,
-    #[unit("crumb", "crumbs", by = Information::<N>::from(CRUMB))]
-    Crumb,
-    #[unit("Sh", "shannons", by = Information::<N>::from(SHANNON))]
-    Shannon,
-}
-
-/// The units of `InformationRate`, for a menu, a config file, a parser: in any number
-/// type the constants convert to (`LengthUnit::Foot.quantity(3.0)`).
-#[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InformationRate<N>, number = N)]
-#[unit(for<N> where InformationRate<N>: [const] yadc::Unit<InformationRate<N>, N> + [const] core::marker::Destruct, N: yadc::num_traits::Num + const From<Exact>)]
-pub enum InformationRateUnit {
-    #[unit("b/s", "bits per second", by = InformationRate::<N>::from((ONE / SECOND) * Exact::dec(125, -3)))]
-    BitPerSecond,
-    #[default]
-    #[unit("B/s", "bytes per second", by = InformationRate::<N>::from(ONE / SECOND))]
-    BytePerSecond,
-    #[unit("o/s", "octets per second", by = InformationRate::<N>::from(ONE / SECOND))]
-    OctetPerSecond,
 }

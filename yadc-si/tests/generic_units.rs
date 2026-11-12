@@ -6,8 +6,10 @@
 use yadc::Unit;
 use yadc_si::KILO;
 use yadc_si::mechanical::consts::METRE;
-use yadc_si::mechanical::{Length, LengthUnit, Velocity, VelocityUnit};
-use yadc_si::thermal::{ThermodynamicTemperature, ThermodynamicTemperatureUnit};
+use yadc_si::mechanical::{Length, Velocity};
+use yadc_si::dynamic::mechanical::{LengthUnit, VelocityUnit};
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
 
 #[test]
 fn one_enum_many_number_types() {

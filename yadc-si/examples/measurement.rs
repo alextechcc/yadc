@@ -22,7 +22,8 @@ use dynamickit::{Members, Via, Visit, Visitor};
 use yadc::Unit;
 use yadc_si::KILO;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::mechanical::{Area, AreaUnit, Force, ForceUnit, Pressure, PressureUnit, consts};
+use yadc_si::mechanical::{Area, Force, Pressure, consts};
+use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PressureUnit};
 
 const PASCAL: Pressure<f64> = consts::PASCAL.into();
 const KILONEWTON: Force<f64> = (KILO * consts::NEWTON).into();

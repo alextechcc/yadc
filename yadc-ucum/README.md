@@ -19,7 +19,10 @@ unit system: generated from the official `ucum-essence.xml` by
   (`LengthUnit::Inch.quantity(3.0)`).
 - **One module per UCUM class**, each a Cargo feature: `si`, `heat`,
   `iso1000`, `intcust`, `cgs`, `infotech`, `us`, `british`, `clinical`,
-  `constants`, `misc`. Special units (logarithms, pH) and arbitrary ones
+  `constants`, `misc`. A family module (`intcust`) holds its quantity
+  aliases and `consts`; its unit enums are in the dynamic half, beside the
+  dynamic quantity - what is chosen at run time, a dimension or a unit:
+  `yadc_ucum::dynamic::intcust::LengthUnit`. Special units (logarithms, pH) and arbitrary ones
   (international units) are left out; Celsius and Fahrenheit are scales.
 
 ## Updating
