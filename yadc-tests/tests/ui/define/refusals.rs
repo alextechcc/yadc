@@ -1,6 +1,5 @@
 //! A crate that defines its system and misuses it in place.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
 #![allow(incomplete_features)]
 

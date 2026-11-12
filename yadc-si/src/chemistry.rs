@@ -185,31 +185,31 @@ pub mod consts {
     /// The mole, the SI base unit of amount of substance.
     pub use crate::base::MOLE;
 
-    /// One `Particle` (particle), as an `AmountOfSubstance`.
+    /// One `Particle` (`particle`), as an `AmountOfSubstance`.
     pub const PARTICLE: AmountOfSubstance<Exact> =
         MOLE * (Exact::int(1) / Exact::int(602214076000000000000000));
 
-    /// One `MolarGasConstant` (R), as a `MolarHeatCapacity`.
+    /// One `MolarGasConstant` (`R`), as a `MolarHeatCapacity`.
     pub const MOLAR_GAS_CONSTANT: MolarHeatCapacity<Exact> =
         (METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN * MOLE)) * Exact::dec(8314462618, -9);
 
-    /// One `Katal` (kat), as a `CatalyticActivity`.
+    /// One `Katal` (`kat`), as a `CatalyticActivity`.
     pub const KATAL: CatalyticActivity<Exact> = MOLE / SECOND;
 
-    /// One `Becquerel` (Bq), as a `Radioactivity`.
+    /// One `Becquerel` (`Bq`), as a `Radioactivity`.
     pub const BECQUEREL: Radioactivity<Exact> = ONE / SECOND;
 
-    /// One `Curie` (Ci), as a `Radioactivity`.
+    /// One `Curie` (`Ci`), as a `Radioactivity`.
     pub const CURIE: Radioactivity<Exact> = BECQUEREL * Exact::int(37000000000);
 
-    /// One `DisintegrationsPerMinute` (dpm), as a `Radioactivity`.
+    /// One `DisintegrationsPerMinute` (`dpm`), as a `Radioactivity`.
     pub const DISINTEGRATIONS_PER_MINUTE: Radioactivity<Exact> =
         BECQUEREL * (Exact::int(1) / Exact::int(60));
 
-    /// One `PerMole` (mol⁻¹), as an `InverseAmountOfSubstance`.
+    /// One `PerMole` (`mol⁻¹`), as an `InverseAmountOfSubstance`.
     pub const PER_MOLE: InverseAmountOfSubstance<Exact> = ONE / MOLE;
 
-    /// One `AvogadroConstant` (N_A), as an `InverseAmountOfSubstance`.
+    /// One `AvogadroConstant` (`N_A`), as an `InverseAmountOfSubstance`.
     pub const AVOGADRO_CONSTANT: InverseAmountOfSubstance<Exact> =
         PER_MOLE * Exact::int(602214076000000000000000);
 }

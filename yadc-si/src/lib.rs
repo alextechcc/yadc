@@ -4,7 +4,8 @@
 //! - `SIQuantity<D, N>`: a quantity whose dimension is in its type, counted in `N`. Every
 //!   constant is exact (`MILE: Length<Exact>`) and composes exactly (`KILO * METRE`,
 //!   `MILE / HOUR`); `From` rounds it once to a number type, and it is a unit of
-//!   that type's values (`const MI: Length<f64> = MILE.into();`, then `MI(3.0)`).
+//!   that type's values (`const MI: Length<f64> = MILE.into();`, then
+//!   `MI.quantity(3.0)` builds and `MI.value(d)` reads).
 //! - `Scale`: a zero and a step, a unit counted from a chosen zero (`CELSIUS`,
 //!   `DBM`, `UNIX_SECONDS`), exact like every constant.
 //! - `dynamic`: `DynamicSIQuantity`, a quantity whose dimension is decided at run time.
@@ -22,8 +23,6 @@
 #![feature(const_ops)]
 #![feature(const_convert)]
 #![feature(const_destruct)]
-#![feature(fn_traits)]
-#![feature(unboxed_closures)]
 #![allow(incomplete_features)]
 #![allow(clippy::excessive_precision)]
 #![allow(clippy::approx_constant)]
@@ -119,9 +118,9 @@ pub struct ISQ {
 /// says which (`Pressure<f64>`, `Pressure<Exact>`). Its number is private to
 /// this crate: the base constants (`base::METRE`) are the only raw numbers,
 /// and everyone else builds and reads through units - every quantity is a
-/// unit of its own number type (`MI(3.0)` builds, `MI(d)` reads, for `MI:
-/// Length<f64>`), and so is every scale, a zero and a step
-/// (`CELSIUS_F64.quantity(25.0)`), and every unit enum's value.
+/// unit of its own number type (`MI.quantity(3.0)` builds, `MI.value(d)`
+/// reads, for `MI: Length<f64>`), and so is every scale, a zero and a step,
+/// and every unit enum's value.
 ///
 /// It serializes transparently as just its number: the dimension `D` is the
 /// deserialization target's - schema-trusted, nothing on the wire.

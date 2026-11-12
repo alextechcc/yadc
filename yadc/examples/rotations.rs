@@ -34,22 +34,22 @@
 //!   moves them to the vehicle; reading one undoes both. "Body" and "world"
 //!   are not two kinds of place, just two ways of writing one down.
 //!
-//! The constants and the derived units are called like functions -
-//! `DEGREE(30.0)` builds, `METRE(reach)` reads. The grid and the frame are
-//! units written by hand, so they are their two methods:
-//! `SITE_GRID.quantity([10.0, 5.0, 0.0])`, `vehicle.value(sensor)`.
+//! Every unit is the `Unit` trait, built with `quantity` and read with
+//! `value`: the constants and the derived units (`DEGREE.quantity(30.0)`,
+//! `METRE.value(reach)`; a constant times a number builds too, `SECOND * 4.0`)
+//! and the grid and the frame, units written by hand
+//! (`SITE_GRID.quantity([10.0, 5.0, 0.0])`, `vehicle.value(sensor)`).
 //!
 //! **Angles and radians.** `cos` and `sin` want a plain number, and an angle
 //! is not one here: the radian is a unit with its own exponent, like the
 //! metre. Reading an angle in radians gives the plain number
-//! (`RADIAN(theta)`).
+//! (`RADIAN.value(theta)`).
 //!
 //! Run with: cargo run -p yadc --example rotations
 
 // This file defines its own kind, dimension and quantity type, so it needs
 // the definer's feature set.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(
     const_cmp,
     const_default,
@@ -244,7 +244,7 @@ impl<Q: Copy> Vec3<Q> {
         Q: Mul<f64, Output = Q> + Add<Output = Q> + Sub<Output = Q>,
     {
         // `cos` and `sin` want a plain number: the angle counted in radians.
-        let (sin, cos) = RADIAN(angle).sin_cos();
+        let (sin, cos) = RADIAN.value(angle).sin_cos();
         Vec3::new(
             self.x * cos - self.y * sin,
             self.x * sin + self.y * cos,
@@ -288,7 +288,7 @@ const SITE_GRID: Grid = Grid {
 
 /// A displacement's three numbers, in metres.
 fn metres(d: Vec3<Length>) -> [f64; 3] {
-    [d.x, d.y, d.z].map(|part| METRE(part))
+    [d.x, d.y, d.z].map(|part| METRE.value(part))
 }
 
 /// The vehicle's own axes: where it is and which way it faces. Another unit
@@ -345,7 +345,7 @@ fn main() {
     // left and 1 m up on the vehicle: three numbers in the vehicle's frame.
     let vehicle = Frame {
         origin: SITE_GRID.quantity([10.0, 5.0, 0.0]),
-        heading: DEGREE(30.0),
+        heading: DEGREE.quantity(30.0),
     };
     let sensor: Place = vehicle.quantity([2.0, 0.5, 1.0]);
     show("sensor, on the vehicle (m)", vehicle.value(sensor));
@@ -354,16 +354,16 @@ fn main() {
     // Back and forth through the vehicle's frame is the same place.
     let back = vehicle.quantity(vehicle.value(sensor));
     let error: Length = (back - sensor).norm();
-    assert!(error < NANOMETRE(1.0));
-    println!("round trip error: {:.1e} {Metre}", Metre(error));
+    assert!(error < NANOMETRE.quantity(1.0));
+    println!("round trip error: {:.1e} {Metre}", Metre.value(error));
 
     // Turning never changes a distance: place - place is a displacement,
     // whichever unit built the places.
     let reach: Length = (sensor - vehicle.origin).norm();
     let [x, y, z] = vehicle.value(sensor);
     let reach_on_vehicle = (x * x + y * y + z * z).sqrt();
-    assert!((METRE(reach) - reach_on_vehicle).abs() < 1e-9);
-    println!("sensor reach: {:.4} {Metre}", Metre(reach));
+    assert!((METRE.value(reach) - reach_on_vehicle).abs() < 1e-9);
+    println!("sensor reach: {:.4} {Metre}", Metre.value(reach));
 
     // A landmark on the grid, seen from the vehicle - and on a coarser grid
     // of 5 m cells whose corner is at (-5, -5, 0) m: the same place, other
@@ -383,25 +383,25 @@ fn main() {
     // Driving forward at 3 m/s for 4 s: the velocity is along the body's x
     // axis; turned into the world and multiplied by a time, it is a
     // displacement.
-    let zero = METRE_PER_SECOND(0.0);
-    let forward: Vec3<Velocity> = Vec3::new(METRE_PER_SECOND(3.0), zero, zero);
-    let moved: Vec3<Length> = vehicle.direction_to_world(forward) * SECOND(4.0);
+    let zero = METRE_PER_SECOND * 0.0;
+    let forward: Vec3<Velocity> = Vec3::new(METRE_PER_SECOND * 3.0, zero, zero);
+    let moved: Vec3<Length> = vehicle.direction_to_world(forward) * (SECOND * 4.0);
     show("moved in 4 s (m)          ", metres(moved));
     let half: Vec3<Length> = moved * 0.5;
     show("half of that (m)          ", metres(half));
 
     // --- 3. Turning: angular speed × time is an angle ---------------------------
-    let yaw_rate: AngularVelocity = DEGREE_PER_SECOND(15.0);
-    let turned: Angle = yaw_rate * SECOND(4.0);
+    let yaw_rate: AngularVelocity = DEGREE_PER_SECOND * 15.0;
+    let turned: Angle = yaw_rate * (SECOND * 4.0);
     let after = Frame {
         origin: vehicle.origin + moved,
         heading: vehicle.heading + turned,
     };
     println!(
         "turned {:.0} {Degree} in 4 s; heading now {:.0} {Degree} = {:.4} {Radian}",
-        Degree(turned),
-        Degree(after.heading),
-        Radian(after.heading),
+        Degree.value(turned),
+        Degree.value(after.heading),
+        Radian.value(after.heading),
     );
     // The sensor rode along: the same body coordinates, read in the new frame.
     let sensor_now = after.quantity([2.0, 0.5, 1.0]);

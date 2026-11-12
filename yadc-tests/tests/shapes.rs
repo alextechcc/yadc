@@ -1,7 +1,6 @@
 //! Shapes the derives accept: a quantity with only some of its extras, a unit
 //! with fields of its own, and an enum whose variants carry their unit value.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures)]
 #![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
 #![allow(incomplete_features)]
 
@@ -32,7 +31,7 @@ fn sum_alone() {
 }
 
 /// A unit with a field of its own: it has no value to parse into, so no
-/// `FromStr`; it still prints, measures and is called.
+/// `FromStr`; it still prints and measures.
 #[derive(Copy, Clone, yadc::Unit)]
 #[unit(of = Length)]
 #[unit("m", "metres", by = METRE)]
@@ -43,7 +42,7 @@ pub struct Rounded {
 #[test]
 fn unit_with_fields() {
     let u = Rounded { digits: 2 };
-    assert_eq!(u(u(1.5)), 1.5);
+    assert_eq!(u.value(u.quantity(1.5)), 1.5);
     assert_eq!(format!("{} {:#} {}", u, u, u.digits), "m metres 2");
 }
 

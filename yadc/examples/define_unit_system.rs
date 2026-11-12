@@ -3,8 +3,8 @@
 //!
 //! The base constants (`METRE`, `SECOND`, `KELVIN`, `ABSOLUTE_ZERO`) are the
 //! only raw numbers. Every other constant is defined from them, and every
-//! constant is a unit, called like a function: `KILOMETRE(3.0)` is three
-//! kilometres, `MILE(d)` is how many miles `d` is. A scale - a zero and a
+//! constant is a unit: `KILOMETRE * 3.0` (or `KILOMETRE.quantity(3.0)`) is
+//! three kilometres, `MILE.value(d)` is how many miles `d` is. A scale - a zero and a
 //! step - is a unit too: °C is `Scale(ICE_POINT, KELVIN)`.
 //!
 //! Run with: cargo run -p yadc --example define_unit_system
@@ -17,7 +17,6 @@
     const_convert,
     const_try
 )]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![allow(incomplete_features)]
 
 use core::marker::ConstParamTy;
@@ -148,14 +147,14 @@ pub const BOILING: Temperature = CELSIUS.quantity(100.0);
 
 fn main() {
     // Build with a unit, compute on quantities, read with a unit.
-    let distance = KILOMETRE(42.195);
-    let time = HOUR(3.5);
+    let distance = KILOMETRE * 42.195;
+    let time = HOUR * 3.5;
     let speed: Velocity = distance / time;
     println!(
         "{:.2} mi in {} h: {:.2} km/h",
-        MILE(distance),
-        HOUR(time),
-        KILOMETRE_PER_HOUR(speed)
+        MILE.value(distance),
+        HOUR.value(time),
+        KILOMETRE_PER_HOUR.value(speed)
     );
     // let nope = distance + time;           // error: cannot add: the dimensions differ
 
@@ -166,9 +165,9 @@ fn main() {
     println!(
         "noon is {:.1} °C, {:.1} K warmer",
         CELSIUS.value(noon),
-        KELVIN(rise)
+        KELVIN.value(rise)
     );
-    println!("water boils at {:.2} K", KELVIN(BOILING - ABSOLUTE_ZERO));
+    println!("water boils at {:.2} K", KELVIN.value(BOILING - ABSOLUTE_ZERO));
     // let nope = 2.0 * noon;                // error: a point cannot be scaled
 
     // A unit picked at run time, by its symbol.

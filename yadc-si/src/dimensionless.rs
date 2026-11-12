@@ -21,34 +21,34 @@ pub mod consts {
     /// One `Ratio`, as a `Dimensionless`.
     pub const RATIO: Dimensionless<Exact> = ONE;
 
-    /// One `PartPerHundred` (parts per hundred), as a `Dimensionless`.
+    /// One `PartPerHundred` (`parts per hundred`), as a `Dimensionless`.
     pub const PART_PER_HUNDRED: Dimensionless<Exact> = RATIO * Exact::dec(1, -2);
 
-    /// One `Percent` (%), as a `Dimensionless`.
+    /// One `Percent` (`%`), as a `Dimensionless`.
     pub const PERCENT: Dimensionless<Exact> = RATIO * Exact::dec(1, -2);
 
-    /// One `PartPerThousand` (parts per thousand), as a `Dimensionless`.
+    /// One `PartPerThousand` (`parts per thousand`), as a `Dimensionless`.
     pub const PART_PER_THOUSAND: Dimensionless<Exact> = RATIO * Exact::dec(1, -3);
 
-    /// One `PerMille` (‰), as a `Dimensionless`.
+    /// One `PerMille` (`‰`), as a `Dimensionless`.
     pub const PER_MILLE: Dimensionless<Exact> = RATIO * Exact::dec(1, -3);
 
-    /// One `PartPerTenThousand` (parts per ten thousand), as a `Dimensionless`.
+    /// One `PartPerTenThousand` (`parts per ten thousand`), as a `Dimensionless`.
     pub const PART_PER_TEN_THOUSAND: Dimensionless<Exact> = RATIO * Exact::dec(1, -4);
 
-    /// One `BasisPoint` (bp), as a `Dimensionless`.
+    /// One `BasisPoint` (`bp`), as a `Dimensionless`.
     pub const BASIS_POINT: Dimensionless<Exact> = RATIO * Exact::dec(1, -4);
 
-    /// One `PartPerMillion` (ppm), as a `Dimensionless`.
+    /// One `PartPerMillion` (`ppm`), as a `Dimensionless`.
     pub const PART_PER_MILLION: Dimensionless<Exact> = RATIO * Exact::dec(1, -6);
 
-    /// One `PartPerBillion` (ppb), as a `Dimensionless`.
+    /// One `PartPerBillion` (`ppb`), as a `Dimensionless`.
     pub const PART_PER_BILLION: Dimensionless<Exact> = RATIO * Exact::dec(1, -9);
 
-    /// One `PartPerTrillion` (ppt), as a `Dimensionless`.
+    /// One `PartPerTrillion` (`ppt`), as a `Dimensionless`.
     pub const PART_PER_TRILLION: Dimensionless<Exact> = RATIO * Exact::dec(1, -12);
 
-    /// One `PartPerQuadrillion` (ppq), as a `Dimensionless`.
+    /// One `PartPerQuadrillion` (`ppq`), as a `Dimensionless`.
     pub const PART_PER_QUADRILLION: Dimensionless<Exact> = RATIO * Exact::dec(1, -15);
 }
 

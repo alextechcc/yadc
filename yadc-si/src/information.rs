@@ -27,22 +27,22 @@ pub mod consts {
     /// The number one: the unit of dimension one.
     pub use crate::base::ONE;
 
-    /// One `Bit` (b), as an `Information`.
+    /// One `Bit` (`b`), as an `Information`.
     pub const BIT: Information<Exact> = BYTE * Exact::dec(125, -3);
 
-    /// One `Byte` (B), as an `Information`.
+    /// One `Byte` (`B`), as an `Information`.
     pub const BYTE: Information<Exact> = ONE;
 
-    /// One `Octet` (o), as an `Information`.
+    /// One `Octet` (`o`), as an `Information`.
     pub const OCTET: Information<Exact> = BYTE;
 
-    /// One `Nibble` (nibble), as an `Information`.
+    /// One `Nibble` (`nibble`), as an `Information`.
     pub const NIBBLE: Information<Exact> = BYTE * Exact::dec(5, -1);
 
-    /// One `Crumb` (crumb), as an `Information`.
+    /// One `Crumb` (`crumb`), as an `Information`.
     pub const CRUMB: Information<Exact> = BYTE * Exact::dec(25, -2);
 
-    /// One `Shannon` (Sh), as an `Information`.
+    /// One `Shannon` (`Sh`), as an `Information`.
     pub const SHANNON: Information<Exact> = BYTE * Exact::dec(125, -3);
 }
 

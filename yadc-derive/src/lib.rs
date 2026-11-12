@@ -205,15 +205,13 @@ use unit::expand_unit;
 /// # Crate-root features
 ///
 /// A crate that *defines* a unit system - a kind, a dimension and a
-/// quantity type - needs these twelve (the last three for the quantity's
-/// default `Fn` extra, which makes its constants callable; a unit enum's
-/// `Fn` needs only `fn_traits` and `unboxed_closures`):
+/// quantity type - needs these ten (`const_destruct` for a quantity type
+/// generic over its number type):
 ///
 /// ```ignore
 /// #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 /// #![feature(const_cmp, const_default, derive_const, const_ops, const_try)]
-/// #![feature(const_convert)]
-/// #![feature(fn_traits, unboxed_closures, const_destruct)]
+/// #![feature(const_convert, const_destruct)]
 /// #![allow(incomplete_features)]
 /// ```
 ///
@@ -285,9 +283,8 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// }
 ///
 /// let (celsius, kelvin) = (TemperatureUnit::Celsius, TemperatureUnit::Kelvin);
-/// let t = celsius(25.0);                              // build: a unit is called
-/// let k = kelvin(t);                                  // read: 298.15
-/// let same = kelvin.value(celsius.quantity(25.0));    // the `Unit` methods the call is
+/// let t = celsius.quantity(25.0);                     // build
+/// let k = kelvin.value(t);                            // read: 298.15
 /// println!("{k:.2} {kelvin:#}");                      // "298.15 kelvin"
 /// ```
 ///
@@ -312,14 +309,8 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// the name, through `Formatter::pad`, so width and alignment apply) and std
 /// `FromStr` (the symbol back to the unit, `Err(yadc::UnknownUnit)`
 /// otherwise; two units sharing a symbol: the first wins; only when no unit
-/// has fields). It also writes std `Fn` - the three function traits, so a
-/// unit value is called: on a quantity it reads (`unit(q)`), and on a number
-/// it builds (`unit(n)`) when the unit measures one type. (A unit of the
-/// numbers themselves, `of = f64`, has one argument type for both directions
-/// and is not called; listing `Fn` for it is an error.)
-/// `#[unit(impl(..))]` on the type writes exactly the listed ones -
-/// `impl(Display)`, `impl()` for none (then no labels are needed). `Fn` needs
-/// `#![feature(fn_traits, unboxed_closures)]` in the crate.
+/// has fields). `#[unit(impl(..))]` on the type writes exactly the listed
+/// ones - `impl(Display)`, `impl()` for none (then no labels are needed).
 ///
 /// # On the type
 ///
@@ -333,8 +324,7 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 ///   Length<N>, number = N` with `for<N> where Length<N>: [const]
 ///   Unit<Length<N>, N> + [const] Destruct, ..` counts in any number type
 ///   the bounds allow, each `by` still evaluated at compile time, once per
-///   number type. A generic unit is not called (`N` and `Q<N>` could be one
-///   type): it is read and built with `value` and `quantity`.
+///   number type.
 /// - `non_const`: an ordinary impl instead of a `const impl`, when a `by = U`
 ///   names a value whose own `Unit` impl is not `const` (the derive cannot
 ///   see that) - a level read as a linear quantity, a hand-written formula.
@@ -403,11 +393,6 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// - `Cast` (a generic number type only): `yadc::Cast<W>` -
 ///   `BAR.cast::<f32>()` is the same pressure counted in `f32`,
 ///   `const` - for every `N: Cast<W>`.
-/// - `Fn`: std's three function traits, so a unit is called like the function
-///   it is - on a number it builds, on a quantity it reads: `MILE(3.0)`,
-///   `FOOT(d)`. For every member that is a unit of itself; `const`. Needs `#![feature(fn_traits,
-///   unboxed_closures, const_destruct)]` in the crate that derives; a crate
-///   that only calls needs nothing.
 /// - `From`: `From<Qty<{ DIMENSIONLESS }>> for N` - a dimensionless quantity
 ///   is a number, `f64::from(a / b)` - and, for a generic number type, std
 ///   `From<Qty<D, N>> for Qty<D, W>` wherever std converts the primitives
@@ -432,8 +417,7 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///   operand's dimension); `+=` and `-=` into the `N` side (with the
 ///   `AddAssign` / `SubAssign` extras);
 /// - scaling an `M` member by an `N` number, from either side;
-/// - every `M` member as a `Unit` of `N` members (`MILE_32.value(d)`),
-///   called like one with the `Fn` extra (`MILE_32(3.0)`);
+/// - every `M` member as a `Unit` of `N` members (`MILE_32.value(d)`);
 /// - `==` and `<` either way round.
 ///
 /// It runs one way: listing a pair both ways is an error, since `f32 + f64`
@@ -471,7 +455,7 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///
 /// `#[yadc(crate = "path")]` redirects the emitted `::yadc::` paths. The
 /// crate defining `Qty` (or any new `pub type Foo = Qty<{ ... }>;` alias)
-/// needs the twelve feature flags listed on [`Dimension`](macro@Dimension); a
+/// needs the ten feature flags listed on [`Dimension`](macro@Dimension); a
 /// crate that only *uses* existing aliases needs `generic_const_exprs`
 /// alone.
 #[proc_macro_derive(Quantity, attributes(yadc, quantity, dim, value))]

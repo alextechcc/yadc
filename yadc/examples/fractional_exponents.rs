@@ -17,7 +17,6 @@
 //!
 //! Run with: cargo run -p yadc --example fractional_exponents
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(
     const_cmp,
     const_default,
@@ -210,17 +209,17 @@ mod si {
 
     /// Its step is only known at run time (a root is not `const`) - so this
     /// unit is written by hand. The step is a quantity, and every quantity is
-    /// a unit of its own kind, so both directions are the step's. A unit
-    /// written by hand is its two methods, `quantity` and `value`; the
-    /// constants and the derived units are also called like functions.
+    /// a unit of its own kind, so both directions are the step's: its
+    /// `quantity` and `value`, the two methods of the `Unit` trait that every
+    /// unit, constant or derived or written by hand, is.
     #[derive(Copy, Clone)]
     pub struct NanovoltPerRootHertz;
     impl Unit<NoiseDensity> for NanovoltPerRootHertz {
         fn quantity(&self, n: f64) -> NoiseDensity {
-            nanovolt_per_root_hertz()(n)
+            nanovolt_per_root_hertz().quantity(n)
         }
         fn value(&self, q: NoiseDensity) -> f64 {
-            nanovolt_per_root_hertz()(q)
+            nanovolt_per_root_hertz().value(q)
         }
     }
     impl core::fmt::Display for NanovoltPerRootHertz {
@@ -244,8 +243,8 @@ fn main() {
     // A 1 kΩ resistor at room temperature adds thermal (Johnson) noise of
     // density √(4·k·T·R). The units work out by themselves: J/K × K × Ω is
     // V²/Hz, and its square root is V/√Hz.
-    let r = Kiloohm(1.0);
-    let t = Kelvin(300.0);
+    let r = Kiloohm.quantity(1.0);
+    let t = Kelvin.quantity(300.0);
     let resistor: si::NoiseDensity = (4.0 * si::BOLTZMANN * t * r).root::<2>();
     let nv = NanovoltPerRootHertz;
     println!("resistor (1 kΩ, 300 K): {:.2} {nv}", nv.value(resistor));
@@ -255,12 +254,12 @@ fn main() {
     println!("amplifier + resistor:   {:.2} {nv}", nv.value(total));
 
     // Over a bandwidth, density × √bandwidth is the RMS noise voltage.
-    let bandwidth = Kilohertz(20.0);
+    let bandwidth = Kilohertz.quantity(20.0);
     let rms: si::Voltage = total * bandwidth.root::<2>();
     println!(
         "over {} {Kilohertz}: {:.3} {Microvolt} rms",
-        Kilohertz(bandwidth),
-        Microvolt(rms)
+        Kilohertz.value(bandwidth),
+        Microvolt.value(rms)
     );
     // A quantity's dimension is its type's const parameter.
     fn si_dim<const D: si::Dim>(_: si::Qty<D>) -> si::Dim {

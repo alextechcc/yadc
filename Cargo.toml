@@ -7,6 +7,7 @@ members = [
     "yadc-derive",
     "yadc-tests",
     "yadc-si",
+    "yadc-ucum",
     "yadc-codegen",
 ]
 resolver = "2"

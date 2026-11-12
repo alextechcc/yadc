@@ -34,7 +34,8 @@ const ELECTRON_REST_ENERGY: Energy<f64> = (ELECTRON_MASS * SPEED_OF_LIGHT * SPEE
 const PSI: Pressure<f64> = (POUND * STANDARD_GRAVITY / (INCH * INCH)).into();
 
 // The units this file counts `f64`s in, each rounded from its exact constant.
-// A quantity is a unit of its own kind, called like a function.
+// A quantity is a unit of its own kind: `KG.quantity(70.0)` builds 70 kg,
+// `KG.value(m)` reads a mass in kilograms.
 const KG: Mass<f64> = KILOGRAM.into();
 const KM: Length<f64> = (KILO * METRE).into();
 const KM_PER_S: Velocity<f64> = (KILO * METRE_PER_SECOND).into();
@@ -50,24 +51,24 @@ const DBM: Scale<PowerLevel<f64>, Gain<f64>> = yadc_si::mechanical::consts::DBM.
 
 fn main() {
     // --- 1. A unit turns a number into a quantity and back ------------------
-    // A quantity is called like a function: on a number it builds, on a
-    // quantity it reads. `KG(70.0)` *is* 70 kg (stored in SI base units), and
-    // `KG(m)` reads a mass back in kilograms. A unit enum names units, for
-    // printing and for picking at run time, and is a unit of any number type
-    // through the `Unit` trait: `MassUnit::Kilogram.quantity(70.0)` builds the
+    // A unit is the `Unit` trait: `quantity` builds, `value` reads.
+    // `KG.quantity(70.0)` *is* 70 kg (stored in SI base units), as is
+    // `KG * 70.0`, and `KG.value(m)` reads a mass back in kilograms. A unit
+    // enum names units, for printing and for picking at run time, and is a
+    // unit of any number type: `MassUnit::Kilogram.quantity(70.0)` builds the
     // same mass, `.value(m)` reads it. A unit prints itself: `{}` is its
     // symbol, `{:#}` its long name. So a quantity shown in a unit is the
     // number the unit reads, then the unit.
 
     use MassUnit::{Gram, Kilogram};
-    let mass = KG(70.0);
+    let mass = KG.quantity(70.0);
     assert_eq!(Kilogram.quantity(70.0), mass);
     println!("mass  = {} {Kilogram:#}", Kilogram.value(mass));
     let g0 = AccelerationUnit::StandardGravity;
     let accel = g0.quantity(1.0);
     println!("accel = {} {g0:#}", g0.value(accel));
 
-    let masses = [KG(1.0), Gram.quantity(500.0), Gram.quantity(250.0)];
+    let masses = [KG, Gram.quantity(500.0), Gram.quantity(250.0)];
     let total: Mass<f64> = masses.iter().sum();
     println!("sum   = {} {Gram}", Gram.value(total));
 
@@ -79,11 +80,11 @@ fn main() {
     // A prefix scales a unit: `KM` is `KILO * METRE`, a kilometre.
     let hour = TimeUnit::Hour;
     let (kmh, mps) = (VelocityUnit::KilometrePerHour, VelocityUnit::MetrePerSecond);
-    let v: Velocity<f64> = KM(90.0) / hour.quantity(1.0);
+    let v: Velocity<f64> = KM.quantity(90.0) / hour.quantity(1.0);
     println!("v     = {} {kmh} = {} {mps}", kmh.value(v), mps.value(v));
 
     let trip: Length<f64> = v * hour.quantity(2.5);
-    println!("2.5 h at {} {kmh} = {} km", kmh.value(v), KM(trip));
+    println!("2.5 h at {} {kmh} = {} km", kmh.value(v), KM.value(trip));
 
     // --- 3. Mul / Div compose dimensions ------------------------------------
     // `mass * accel` is type-checked to be Force.
@@ -94,7 +95,7 @@ fn main() {
 
     let volt = ElectricPotentialUnit::Volt;
     let voltage = volt.quantity(12.0);
-    let current = MA(500.0);
+    let current = MA.quantity(500.0);
     let power: Power<f64> = voltage * current;
     let resistance: ElectricalResistance<f64> = voltage / current;
     let (watt, ohm) = (PowerUnit::Watt, ElectricalResistanceUnit::Ohm);
@@ -172,7 +173,7 @@ fn main() {
     let dbm = PowerUnit::DecibelMilliwatt;
     println!("× 100   = {:.0} {dbm}", dbm.value(amplified));
     // The same on the line: a level moves by gains, with `+` and `-`.
-    let received = level - DB(3.0) + DB(23.0);
+    let received = level - DB * 3.0 + DB * 23.0;
     println!(
         "30 dBm - 3 dB + 23 dB = {:.0} {dbm} = {:.0} {watt}",
         DBM.value(received),
@@ -181,8 +182,8 @@ fn main() {
     // Two levels differ by a gain, and a gain is the logarithm of a ratio:
     // 20 dB is a hundred times.
     let gain: Gain<f64> = received - level;
-    println!("gain    = {:.0} dB", DB(gain));
-    let hundredfold = Dimensionless::from(DB(20.0));
+    println!("gain    = {:.0} dB", DB.value(gain));
+    let hundredfold = Dimensionless::from(DB * 20.0);
     println!("20 dB   = × {:.0}", one.value(hundredfold));
 
     // --- 8. Instants: points on the line of time ----------------------------
@@ -216,13 +217,13 @@ fn main() {
     println!("12 V x 2 A = {:.0} {watt:#}", watt.value(p));
     assert_eq!(Mass::try_from(dyn_p), Err(dyn_p));
 
-    let dyn_mass = DynamicSIQuantity::from(KG(2.5));
+    let dyn_mass = DynamicSIQuantity::from(KG.quantity(2.5));
     let dyn_force = DynamicSIQuantity::from(newton.quantity(1.0));
-    let half_kg = DynamicSIQuantity::from(KG(0.5));
+    let half_kg = DynamicSIQuantity::from(KG.quantity(0.5));
     let nonsense = || -> Option<DynamicSIQuantity> { (dyn_mass + dyn_force)? * dyn_mass };
     let fine = || -> Option<f64> {
         let m = Mass::try_from(((dyn_mass + half_kg)? * 2.0)?).ok()?;
-        Some(KG(m))
+        Some(KG.value(m))
     };
     println!("(kg + N) * kg -> {:?}; (kg + kg) * 2 in kg -> {:?}", nonsense(), fine());
 
@@ -232,7 +233,7 @@ fn main() {
     // across *several* quantities is a unit set - your own enum of unit enums
     // (`yadc-si/examples/sets.rs`).
     let choices: [&dyn Unit<Mass<f64>>; 3] = [&KG, &MassUnit::Pound, &Gram];
-    let m = KG(2.5);
+    let m = KG.quantity(2.5);
     let shown: Vec<String> = choices.iter().map(|u| format!("{:.2}", u.value(m))).collect();
     println!("2.5 kg in kg, lb, g: {}", shown.join(", "));
 
@@ -273,8 +274,8 @@ fn main() {
     let psi = PressureUnit::PoundForcePerSquareInch;
     println!("POUND * STANDARD_GRAVITY / INCH² = {:.6} {psi}", psi.value(PSI));
     // A constant is a unit, so speeds read in units of c.
-    let probe = KM_PER_S(17.0);
-    println!("17 km/s = {:.3e} c", C(probe));
+    let probe = KM_PER_S.quantity(17.0);
+    println!("17 km/s = {:.3e} c", C.value(probe));
 
     // --- 12. Another number type --------------------------------------------
     // `SIQuantity` is generic over its number type (`Mass<f64>`, `Mass<f32>`).
@@ -288,14 +289,14 @@ fn main() {
     let widened: Mass<f64> = m32.into();
     println!(
         "70 kg as f32: {} kg = {} {Kilogram} (an f32); widened back: {} kg",
-        KG_F32(m32),
+        KG_F32.value(m32),
         Kilogram.value(m32),
-        KG(widened),
+        KG.value(widened),
     );
     // Integers too: the compiler counts a kilometre in metres as an `i32`,
     // exactly, with no floating point anywhere.
     const KM_I32: Length<i32> = (KILO * METRE).into();
     const M_I32: Length<i32> = METRE.into();
-    assert_eq!(M_I32(KM_I32), 1000);
-    println!("1 km = {} m (an i32)", M_I32(KM_I32));
+    assert_eq!(M_I32.value(KM_I32), 1000);
+    println!("1 km = {} m (an i32)", M_I32.value(KM_I32));
 }

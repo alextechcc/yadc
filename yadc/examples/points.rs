@@ -50,7 +50,6 @@
 // This file defines its own kind, dimension and quantity type, so it needs
 // the definer's feature set.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(
     const_cmp,
     const_default,
@@ -275,8 +274,8 @@ fn main() {
     println!(
         "aircraft: {:.0} ft AGL = {:.1} {MetresAmsl} = {:.0} {FeetAmsl}",
         agl.value(aircraft),
-        MetresAmsl(aircraft),
-        FeetAmsl(aircraft),
+        MetresAmsl.value(aircraft),
+        FeetAmsl.value(aircraft),
     );
     // A point prints itself too: its number and its dimension, kind and all.
     println!("aircraft itself: {aircraft:.1}");
@@ -286,8 +285,8 @@ fn main() {
     let clearance: Length = aircraft - terrain;
     println!(
         "clearance over the ridge: {:.0} {Foot} = {:.1} {Metre}",
-        Foot(clearance),
-        Metre(clearance),
+        Foot.value(clearance),
+        Metre.value(clearance),
     );
     // Feet above the ground under the aircraft: the ridge as the zero.
     let above_ridge = Scale(terrain, FOOT);
@@ -297,13 +296,13 @@ fn main() {
     );
 
     // --- 3. point ± amount is a point ------------------------------------------
-    let climb = Foot(500.0);
+    let climb = Foot.quantity(500.0);
     let higher: Altitude = aircraft + climb;
     let lower: Altitude = aircraft - climb;
     println!(
         "climb 500 ft: {:.0} {FeetAmsl}; descend 500 ft: {:.0} {FeetAmsl}",
-        FeetAmsl(higher),
-        FeetAmsl(lower),
+        FeetAmsl.value(higher),
+        FeetAmsl.value(lower),
     );
     // The clearance, added back onto the ridge, is the aircraft again; in
     // place, too.
@@ -317,36 +316,36 @@ fn main() {
     assert_eq!(mid, midpoint(runway, aircraft));
     println!(
         "halfway down to the runway: {:.0} {FeetAmsl} = {:.0} ft AGL",
-        FeetAmsl(mid),
+        FeetAmsl.value(mid),
         agl.value(mid),
     );
 
     // --- 5. A height bound to a reference *can* be scaled ----------------------
     let pattern = HeightAbove {
         reference: runway,
-        height: Foot(1_000.0),
+        height: Foot.quantity(1_000.0),
     };
     let twice = pattern * 2.0;
     println!(
         "pattern: {:.0} ft above the runway, at {:.0} ft AMSL; twice as high: {:.0} ft, at {:.0} ft AMSL",
-        Foot(pattern.height),
-        FeetAmsl(pattern.position()),
-        Foot(twice.height),
-        FeetAmsl(twice.position()),
+        Foot.value(pattern.height),
+        FeetAmsl.value(pattern.position()),
+        Foot.value(twice.height),
+        FeetAmsl.value(twice.position()),
     );
 
     // --- 6. Clock times: the same rules for time --------------------------------
     // Two instants differ by a duration; a duration divides a distance.
     let takeoff = GPS_SECONDS.quantity(1_400_000_000.0);
-    let level_off = takeoff + Minute(12.0);
+    let level_off = takeoff + Minute.quantity(12.0);
     let cruise = FEET_AMSL.quantity(11_000.0);
     let elapsed: Time = level_off - takeoff;
     let climb_rate: Velocity = (cruise - runway) / elapsed;
     println!(
         "took off at {:.0} s GPS: {:.0} {Minute} of climbing at {:.0} {FootPerMinute}",
         GPS_SECONDS.value(takeoff),
-        Minute(elapsed),
-        FootPerMinute(climb_rate),
+        Minute.value(elapsed),
+        FootPerMinute.value(climb_rate),
     );
     println!(
         "the midpoint of the climb is at {:.0} s GPS",
@@ -362,7 +361,7 @@ fn main() {
     let logged = UNIX_SECONDS.quantity(1_715_964_000.0);
     println!(
         "logged {:.0} {Minute} before take-off",
-        Minute(takeoff - logged)
+        Minute.value(takeoff - logged)
     );
     println!("FL100 (a const) is {:.0} ft AGL", agl.value(FL100));
 

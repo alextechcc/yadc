@@ -11,7 +11,7 @@ use syn::{Data, DataEnum, DeriveInput, Expr, Fields, Token, Type};
 
 /// The extras `#[derive(Unit)]` writes beside `Unit`: all of them by default,
 /// or exactly those `#[unit(impl(..))]` lists.
-const EXTRAS: &[&str] = &["Display", "FromStr", "Fn"];
+const EXTRAS: &[&str] = &["Display", "FromStr"];
 
 pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
     if let Data::Enum(e) = &input.data
@@ -144,75 +144,6 @@ pub(crate) fn expand_unit(input: &DeriveInput) -> syn::Result<TokenStream2> {
         None => true,
         Some(list) => list.iter().any(|i| i == x),
     };
-    // A unit is called like the function it is: on a quantity it reads; on a
-    // number it builds, when it measures one type (several would each be a
-    // possible result). The three std function traits, each over `Unit`.
-    let explicit = |x: &str| top.impls.as_ref().is_some_and(|l| l.iter().any(|i| i == x));
-    if explicit("Fn") && top.of.iter().all(|q| quote! { #q }.to_string() == quote! { #number }.to_string()) {
-        return Err(syn::Error::new_spanned(
-            name,
-            "`Fn` calls a unit on a number to build and on a quantity to read; a unit of its \
-             own numbers (`of` the number type) has one argument type for both, so it is not \
-             called - leave `Fn` out",
-        ));
-    }
-    // Generic over its numbers, a unit called on an `N` and one called on a
-    // `Q<N>` are two impls that could be one (`N` may be a `Q<M>`): it is
-    // read and built with `value` and `quantity` only.
-    if explicit("Fn") && top.generics.is_some() {
-        return Err(syn::Error::new_spanned(
-            name,
-            "a unit generic over its numbers (`for<N>`) is not called: `N` and `Q<N>` could be \
-             one type - leave `Fn` out and use `quantity` and `value`",
-        ));
-    }
-    if wants("Fn") && top.generics.is_none() {
-        let mut directions: Vec<(TokenStream2, TokenStream2, TokenStream2)> = Vec::new();
-        // A unit of the numbers themselves has one argument type for both
-        // directions, so it is not called.
-        let same = |q: &Type| quote! { #q }.to_string() == quote! { #number }.to_string();
-        for q in top.of.iter().filter(|q| !same(q)) {
-            let tr = quote! { #yadc::Unit<#q, #number> };
-            directions.push((
-                quote! { #q },
-                quote! { #number },
-                quote! { <#name as #tr>::value(this, x) },
-            ));
-        }
-        if let [q] = top.of.as_slice()
-            && !same(q)
-        {
-            let tr = quote! { #yadc::Unit<#q, #number> };
-            directions.push((
-                quote! { #number },
-                quote! { #q },
-                quote! { <#name as #tr>::quantity(this, x) },
-            ));
-        }
-        for (arg, ret, call) in directions {
-            out.extend(quote! {
-                #c impl #gen_impl ::core::ops::FnOnce<(#arg,)> for #name #gen_where {
-                    type Output = #ret;
-                    extern "rust-call" fn call_once(self, (x,): (#arg,)) -> #ret {
-                        let this = &self;
-                        #call
-                    }
-                }
-                #c impl #gen_impl ::core::ops::FnMut<(#arg,)> for #name #gen_where {
-                    extern "rust-call" fn call_mut(&mut self, (x,): (#arg,)) -> #ret {
-                        let this = &*self;
-                        #call
-                    }
-                }
-                #c impl #gen_impl ::core::ops::Fn<(#arg,)> for #name #gen_where {
-                    extern "rust-call" fn call(&self, (x,): (#arg,)) -> #ret {
-                        let this = self;
-                        #call
-                    }
-                }
-            });
-        }
-    }
     let labelled = |what: &str| -> syn::Result<Vec<(&UnitCase, &(String, String))>> {
         units
             .iter()

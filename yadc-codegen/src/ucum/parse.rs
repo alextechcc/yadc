@@ -13,7 +13,8 @@ pub struct UcumEssence {
 #[allow(dead_code)]
 pub struct Prefix {
     pub code: String,
-    pub value: f64,
+    /// Its value as written: a decimal (`1e24`).
+    pub value: String,
     pub name: String,
     pub print_symbol: String,
 }
@@ -31,13 +32,13 @@ pub struct BaseUnit {
 pub struct Unit {
     pub code: String,
     pub name: String,
-    pub print_symbol: String,
     pub property: String,
     pub class: String,
     pub is_special: bool,
     pub is_arbitrary: bool,
     pub value_unit: String,
-    pub value_number: f64,
+    /// The number before `value_unit`, as written: a decimal (`2.54`).
+    pub value_number: String,
 }
 
 pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
@@ -49,7 +50,7 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
         match child.tag_name().name() {
             "prefix" => {
                 let code = child.attribute("Code").unwrap_or("").to_string();
-                let mut value = 0.0f64;
+                let mut value = String::from("0");
                 let mut name = String::new();
                 let mut print_symbol = String::new();
                 for elem in child.children().filter(|n| n.is_element()) {
@@ -58,7 +59,7 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                         "printSymbol" => print_symbol = elem.text().unwrap_or("").to_string(),
                         "value" => {
                             if let Some(v) = elem.attribute("value") {
-                                value = v.parse().unwrap_or(0.0);
+                                value = v.to_string();
                             }
                         }
                         _ => {}
@@ -101,21 +102,19 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                 let is_arbitrary = child.attribute("isArbitrary").unwrap_or("no") == "yes";
                 let class = child.attribute("class").unwrap_or("").to_string();
                 let mut name = String::new();
-                let mut print_symbol = String::new();
                 let mut property = String::new();
                 let mut value_unit = String::new();
-                let mut value_number = 1.0f64;
+                let mut value_number = String::from("1");
                 for elem in child.children().filter(|n| n.is_element()) {
                     match elem.tag_name().name() {
                         "name" => name = elem.text().unwrap_or("").to_string(),
-                        "printSymbol" => print_symbol = elem.text().unwrap_or("").to_string(),
                         "property" => property = elem.text().unwrap_or("").to_string(),
                         "value" => {
                             if let Some(u) = elem.attribute("Unit") {
                                 value_unit = u.to_string();
                             }
                             if let Some(v) = elem.attribute("value") {
-                                value_number = v.parse().unwrap_or(1.0);
+                                value_number = v.to_string();
                             }
                         }
                         _ => {}
@@ -125,7 +124,6 @@ pub fn parse(xml: &str) -> Result<UcumEssence, Box<dyn std::error::Error>> {
                     essence.units.push(Unit {
                         code,
                         name,
-                        print_symbol,
                         property,
                         class,
                         is_special,

@@ -10,12 +10,9 @@
 //! itself", that is one bound, `Q: Quantity`. A single function body works
 //! unchanged regardless of which unit system its arguments come from.
 //!
-//! A quantity is also called like a function - on a number it builds, on a
-//! quantity it reads - so a generic function may ask for nothing but std:
-//! `impl Fn(f64) -> Q` and `impl Fn(Q) -> f64` (`convert_with` below), which
-//! any closure satisfies too. `Unit<Q>` is the bound to use when both
-//! directions come from one value, behind `&dyn`, and for `yadc-si`'s unit
-//! enums, which are units of any number type and are not called.
+//! Every unit meets that one bound: a unit enum, a unit type, and a quantity
+//! constant alike (a quantity is a unit of its own kind), so `convert` below
+//! takes `MassUnit::Kilogram`, `KG` or `NAUTICAL_MILE` the same way.
 //!
 //! This is the capability no other unit library provides: every other library
 //! exposes only concrete types, so a function using their conversion or
@@ -33,7 +30,6 @@
 //!
 //! Run with: cargo run -p yadc --example generic_fns
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(
     const_cmp,
     const_default,
@@ -61,13 +57,6 @@ where
     T: Unit<Q, N>,
 {
     to.value(from.quantity(value))
-}
-
-/// The same conversion, asking only for std's function traits: something
-/// that turns a number into a `Q`, and something that reads a `Q` as a
-/// number. Every quantity is both; so is a closure.
-fn convert_with<Q>(value: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
-    to(from(value))
 }
 
 /// The average of two values: a value of the same quantity. No unit and no
@@ -170,6 +159,7 @@ type NavTime = NavQty<
 const METRE: NavDist = NavQty(1.0);
 const SECOND: NavTime = NavQty(1.0);
 const NAUTICAL_MILE: NavDist = 1852.0 * METRE;
+const FATHOM: NavDist = 1.8288 * METRE;
 const HOUR: NavTime = 3600.0 * SECOND;
 
 #[derive(Copy, Clone, yadc::Unit)]
@@ -199,35 +189,34 @@ fn main() {
     let m = convert(3.0, NavDistUnit::NauticalMile, NavDistUnit::Metre);
     println!("Nav  3 nmi          -> {m:.0} m");
 
-    // -- convert_with: units as functions --------------------------------------
-    // The units are passed as the functions they are - quantities, here
-    // constants - and a closure stands in where there is no unit: here, a
-    // reading in fathoms (six feet), built with a formula.
-    let lb = convert_with(70.0, KG, LB);
-    println!("SI   70 kg          -> {lb:.2} lb (by call)");
-    let nmi = convert_with(1000.0, |fathoms| 1.8288 * fathoms * METRE, NAUTICAL_MILE);
-    println!("Nav  1000 fathoms   -> {nmi:.3} nmi (a closure, then a constant)");
+    // -- convert, with constants as units -----------------------------------
+    // A quantity constant is a unit of its own kind, so the same function
+    // takes constants: here a reading in fathoms (six feet), `FATHOM`.
+    let lb = convert(70.0, KG, LB);
+    println!("SI   70 kg          -> {lb:.2} lb (constants)");
+    let nmi = convert(1000.0, FATHOM, NAUTICAL_MILE);
+    println!("Nav  1000 fathoms   -> {nmi:.3} nmi (constants)");
 
     // -- table -------------------------------------------------------------------
     // Maths is on quantities: 90 km in an hour is a velocity, shown in every
     // unit of a list picked at run time. A prefix scales an SI unit:
     // `KM` is `KILO * METRE`, a kilometre.
 
-    let v = KM(90.0) / TimeUnit::Hour.quantity(1.0);
+    let v = KM.quantity(90.0) / TimeUnit::Hour.quantity(1.0);
     println!(
         "SI   90 km/h        -> {}",
         table(v, &[&VelocityUnit::MetrePerSecond, &VelocityUnit::Knot])
     );
-    let leg = NavDistUnit::NauticalMile(12.0);
+    let leg = NavDistUnit::NauticalMile.quantity(12.0);
     println!(
         "Nav  12 nmi         -> {}",
         table(leg, &[&NavDistUnit::Metre, &NavDistUnit::NauticalMile])
     );
     // The nav system has no unit of speed, and needs none to compute one.
-    let speed = leg / Hour(1.0);
+    let speed = leg / Hour.quantity(1.0);
     // A quantity is a unit of its own kind: one metre per second reads it.
     let one_mps = METRE / SECOND;
-    println!("Nav  12 kn          -> {:.3} m/s", one_mps(speed));
+    println!("Nav  12 kn          -> {:.3} m/s", one_mps.value(speed));
 
     // -- average ---------------------------------------------------------------
 
@@ -242,34 +231,27 @@ fn main() {
     let (nmi, metre) = (NavDistUnit::NauticalMile, NavDistUnit::Metre);
     println!(
         "Nav  avg(10 nmi, 50 nmi) in m = {} {metre:#}",
-        metre(average(nmi(10.0), nmi(50.0))),
+        metre.value(average(nmi.quantity(10.0), nmi.quantity(50.0))),
     );
 
     // -- mean and how_many: generic over `Quantity` -----------------------------
 
-    let loads = [
-        KG(60.0),
-        KG(80.0),
-        LB(100.0),
-    ];
+    let loads = [KG * 60.0, KG * 80.0, LB * 100.0];
     println!(
         "SI   mean(60 kg, 80 kg, 100 lb) = {:.2} kg",
-        KG(mean(&loads).unwrap())
+        KG.value(mean(&loads).unwrap())
     );
     let legs = [
-        NavDistUnit::NauticalMile(3.0),
-        NavDistUnit::Metre(500.0),
+        NavDistUnit::NauticalMile.quantity(3.0),
+        NavDistUnit::Metre.quantity(500.0),
     ];
     println!(
         "Nav  mean(3 nmi, 500 m)         = {:.3} nmi",
-        NavDistUnit::NauticalMile(mean(&legs).unwrap())
+        NavDistUnit::NauticalMile.value(mean(&legs).unwrap())
     );
     println!(
         "SI   a marathon in laps of 400 m = {:.1}",
-        how_many(
-            KM(42.195),
-            LengthUnit::Metre.quantity(400.0)
-        )
+        how_many(KM * 42.195, LengthUnit::Metre.quantity(400.0))
     );
     println!(
         "Nav  12 nmi in cables (0.1 nmi)  = {:.0}",
@@ -289,8 +271,8 @@ fn main() {
     println!(
         "Nav  2 nmi -> 5 nmi   = {} m",
         change(
-            NavDistUnit::NauticalMile(2.0),
-            NavDistUnit::NauticalMile(5.0),
+            NAUTICAL_MILE * 2.0,
+            NAUTICAL_MILE * 5.0,
             NavDistUnit::Metre
         )
     );

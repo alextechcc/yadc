@@ -3,7 +3,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use super::parse::{UcumEssence, Unit};
-use super::resolve::{DimVec, Resolved};
+use super::resolve::{DimVec, Factor, Resolved};
 use crate::model::{
     BaseConst, ConstName, DimConfig, DimensionlessDef, ExtraConst, FamilyDef, KindConfig, QuantityDef,
     SystemConfig, UnitDef, UnitSystem,
@@ -51,16 +51,8 @@ pub fn to_pascal(s: &str) -> String {
         .collect()
 }
 
-fn fmt_mult(v: f64) -> String {
-    if v == 1.0 {
-        return "1.0".to_string();
-    }
-    let s = format!("{v}");
-    if s.contains('.') || s.contains('e') || s.contains('E') {
-        s
-    } else {
-        format!("{s}.0")
-    }
+fn fmt_mult(v: &Factor) -> String {
+    v.expr()
 }
 
 /// Convert DimVec (i32 exponents) to the BTreeMap<String, i64> used by QuantityDef.
@@ -117,7 +109,7 @@ fn scale(
 /// constants.
 fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
     let k_dim: BTreeMap<String, i64> = [("K".to_string(), 1i64)].into();
-    let mut fahrenheit = multiple("DegreeFahrenheit", "5.0 / 9.0", "°F", "degrees Fahrenheit");
+    let mut fahrenheit = multiple("DegreeFahrenheit", "5.0 / 9.0", "[degF]", "degrees Fahrenheit");
     fahrenheit.constant = Some(ConstName::Name("DEGREE_FAHRENHEIT".into()));
     let mut consts = vec![
         ExtraConst {
@@ -135,17 +127,17 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
     ];
     let units = vec![
         scale("Kelvin", "K", "kelvin", ("KELVIN_SCALE", "ABSOLUTE_ZERO", "KELVIN"), &mut consts),
-        scale("DegreeCelsius", "°C", "degrees Celsius", ("CELSIUS", "ICE_POINT", "KELVIN"), &mut consts),
+        scale("DegreeCelsius", "Cel", "degrees Celsius", ("CELSIUS", "ICE_POINT", "KELVIN"), &mut consts),
         scale(
             "DegreeFahrenheit",
-            "°F",
+            "[degF]",
             "degrees Fahrenheit",
             ("FAHRENHEIT", "FAHRENHEIT_ZERO", "DEGREE_FAHRENHEIT"),
             &mut consts,
         ),
         scale(
             "DegreeRankine",
-            "°R",
+            "[degR]",
             "degrees Rankine",
             ("RANKINE", "ABSOLUTE_ZERO", "DEGREE_FAHRENHEIT"),
             &mut consts,
@@ -166,8 +158,6 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
             consts: Vec::new(),
             units: vec![
                 multiple("Kelvin", "1.0", "K", "kelvin"),
-                multiple("Millikelvin", "0.001", "mK", "millikelvin"),
-                multiple("Microkelvin", "1e-6", "µK", "microkelvin"),
                 fahrenheit,
             ],
         },
@@ -256,8 +246,9 @@ pub fn to_unit_system(
             &key,
             UnitDef {
                 variant: to_pascal(&base.name),
-                multiplier: Some(fmt_mult(r.multiplier)),
-                symbol: base.print_symbol.clone(),
+                multiplier: Some(fmt_mult(&r.multiplier)),
+                // UCUM's code, case-sensitive: what it prints and parses.
+                symbol: base.code.clone(),
                 long: base.name.clone(),
                 constant: None,
                 by: None,
@@ -288,7 +279,7 @@ pub fn to_unit_system(
                 r.dim,
                 r.kind,
             );
-            dimless_units.push(make_unit_def(unit, r.multiplier));
+            dimless_units.push(make_unit_def(unit, &r.multiplier));
             continue;
         }
 
@@ -298,7 +289,7 @@ pub fn to_unit_system(
             dim: r.dim.clone(),
             kind: r.kind.clone(),
         };
-        push_unit(&mut groups, &key, make_unit_def(unit, r.multiplier));
+        push_unit(&mut groups, &key, make_unit_def(unit, &r.multiplier));
     }
 
     // A property name shared by groups of different dimensions or kinds in
@@ -384,11 +375,12 @@ pub fn to_unit_system(
     }
 }
 
-fn make_unit_def(unit: &Unit, multiplier: f64) -> UnitDef {
+fn make_unit_def(unit: &Unit, multiplier: &Factor) -> UnitDef {
     UnitDef {
         variant: to_pascal(&unit.name),
         multiplier: Some(fmt_mult(multiplier)),
-        symbol: unit.print_symbol.clone(),
+        // UCUM's code, case-sensitive: what it prints and parses.
+        symbol: unit.code.clone(),
         long: unit.name.clone(),
         constant: None,
         by: None,

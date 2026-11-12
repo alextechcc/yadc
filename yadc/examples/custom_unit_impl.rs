@@ -36,10 +36,10 @@ struct Beaufort;
 // turns those numbers into a speed and back.
 impl Unit<Velocity<f64>> for Beaufort {
     fn quantity(&self, force: f64) -> Velocity<f64> {
-        MPS(0.836 * force.powf(1.5))
+        MPS * (0.836 * force.powf(1.5))
     }
     fn value(&self, speed: Velocity<f64>) -> f64 {
-        (MPS(speed) / 0.836).powf(2.0 / 3.0)
+        (MPS.value(speed) / 0.836).powf(2.0 / 3.0)
     }
 }
 

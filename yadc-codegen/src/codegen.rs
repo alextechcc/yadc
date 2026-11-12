@@ -310,7 +310,8 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "<D, N>`: a quantity whose dimension is in its type, counted in `N`. Every\n";
     s += "//!   constant is exact (`MILE: Length<Exact>`) and composes exactly (`KILO * METRE`,\n";
     s += "//!   `MILE / HOUR`); `From` rounds it once to a number type, and it is a unit of\n";
-    s += "//!   that type's values (`const MI: Length<f64> = MILE.into();`, then `MI(3.0)`).\n";
+    s += "//!   that type's values (`const MI: Length<f64> = MILE.into();`, then\n";
+    s += "//!   `MI.quantity(3.0)` builds and `MI.value(d)` reads).\n";
     s += "//! - `Scale`: a zero and a step, a unit counted from a chosen zero (`CELSIUS`,\n";
     s += "//!   `DBM`, `UNIX_SECONDS`), exact like every constant.\n";
     s += "//! - `dynamic`: `";
@@ -339,8 +340,6 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "#![feature(const_convert)]\n";
     // The dynamic type's dynamickit impls drop their operands in `const` code.
     s += "#![feature(const_destruct)]\n";
-    s += "#![feature(fn_traits)]\n";
-    s += "#![feature(unboxed_closures)]\n";
     s += "#![allow(incomplete_features)]\n";
     s += "#![allow(clippy::excessive_precision)]\n";
     s += "#![allow(clippy::approx_constant)]\n";
@@ -445,9 +444,9 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "/// says which (`Pressure<f64>`, `Pressure<Exact>`). Its number is private to\n";
     s += "/// this crate: the base constants (`base::METRE`) are the only raw numbers,\n";
     s += "/// and everyone else builds and reads through units - every quantity is a\n";
-    s += "/// unit of its own number type (`MI(3.0)` builds, `MI(d)` reads, for `MI:\n";
-    s += "/// Length<f64>`), and so is every scale, a zero and a step\n";
-    s += "/// (`CELSIUS_F64.quantity(25.0)`), and every unit enum's value.\n";
+    s += "/// unit of its own number type (`MI.quantity(3.0)` builds, `MI.value(d)`\n";
+    s += "/// reads, for `MI: Length<f64>`), and so is every scale, a zero and a step,\n";
+    s += "/// and every unit enum's value.\n";
     s += "///\n";
     s += "/// It serializes transparently as just its number: the dimension `D` is the\n";
     s += "/// deserialization target's - schema-trusted, nothing on the wire.\n";
@@ -865,8 +864,8 @@ fn counted_in_n(
     ty: &str,
     x: &str,
     of: &str,
-    n: &str,
     konst: &str,
+    qualified: bool,
     quantities: &[QuantityRef<'_>],
     bounds: &mut BTreeSet<String>,
 ) -> String {
@@ -876,23 +875,26 @@ fn counted_in_n(
             "constant type `{name}` is not a quantity of this module"
         );
     }
-    // `Q<N>` -> `Q::<N>`, `Scale<P<N>, S<N>>` -> `Scale::<P<N>, S<N>>`.
+    // `Q<N>` -> `Q::<N>`, `Scale<P<N>, S<N>>` -> `Scale::<P<N>, S<N>>`; or
+    // the impl named in full (`<Q<N> as From<Q<Exact>>>`), where a bound
+    // `Q<N>: From<P<N>>` would otherwise be taken for it.
     let conv = |t: &str, x: &str| -> String {
         let x = x.strip_prefix('(').and_then(|r| r.strip_suffix(')')).filter(|r| balanced(r)).unwrap_or(x);
+        if qualified {
+            let exact = t.replace("<N>", "<Exact>");
+            return format!("<{t} as From<{exact}>>::from({x})");
+        }
         let (head, rest) = t.split_once('<').expect("a type with its number");
         format!("{head}::<{rest}::from({x})")
     };
     let unit_ty = match ty.strip_prefix("Scale<").and_then(|t| t.strip_suffix('>')) {
         Some(inner) => {
-            let parts: Vec<String> = inner.split(',').map(|p| format!("{}<{n}>", p.trim())).collect();
+            let parts: Vec<String> = inner.split(',').map(|p| format!("{}<N>", p.trim())).collect();
             format!("Scale<{}>", parts.join(", "))
         }
-        None => format!("{ty}<{n}>"),
+        None => format!("{ty}<N>"),
     };
     let expr = conv(&unit_ty, x);
-    if n != "N" {
-        return expr;
-    }
     bounds.insert("N: yadc::num_traits::Num + const From<Exact>".into());
     let destruct = if konst.is_empty() { String::new() } else { " + [const] core::marker::Destruct".into() };
     bounds.insert(format!("{unit_ty}: {konst}yadc::Unit<{of}, N>{destruct}"));
@@ -1044,14 +1046,14 @@ fn unit_const_names(consts: &[UnitConst<'_>]) -> Vec<String> {
     names
 }
 
-/// `` `Kilometre` (km) ``, or just `` `Ratio` `` for a unit with no printable
-/// symbol.
+/// `` `Kilometre` (`km`) ``, or just `` `Ratio` `` for a unit with no printable
+/// symbol. The symbol is code, so a UCUM code (`[pi]`) is no link.
 fn unit_label(unit: &UnitDef) -> String {
     let symbol = unit.symbol.replace('\n', " ");
     if symbol.is_empty() || symbol.contains('`') {
         format!("`{}`", unit.variant)
     } else {
-        format!("`{}` ({symbol})", unit.variant)
+        format!("`{}` (`{symbol}`)", unit.variant)
     }
 }
 
@@ -1381,10 +1383,7 @@ fn gen_unit_enum(
     let non_const = q.units.iter().any(|u| u.non_const);
     // A level's conversion is not `const`, so neither is the enum's.
     let konst = if non_const { "" } else { "[const] " };
-    // Generic over its numbers, unless a unit measures another type: that
-    // conversion (a logarithm, hand-written) is the enum's number type.
-    let generic = q.units.iter().all(|u| u.via.is_none());
-    let n = if generic { "N" } else { "f64" };
+    let qualified = q.units.iter().any(|u| u.via.is_some());
     let mut bounds: BTreeSet<String> = BTreeSet::new();
     let mut variants = String::new();
     for (i, unit) in q.units.iter().enumerate() {
@@ -1393,11 +1392,18 @@ fn gen_unit_enum(
         }
         // What the unit value measures: the quantity, or the type it
         // converts through, which converts to and from the quantity.
+        // What the unit value measures: the quantity, or the type it
+        // converts to and from (a level, through a logarithm).
         let of = match &unit.via {
-            Some(via) => format!("{via}<{n}>"),
-            None => format!("{}<{n}>", q.name),
+            Some(via) => {
+                bounds.insert(format!("{}<N>: From<{via}<N>>", q.name));
+                bounds.insert(format!("{via}<N>: From<{}<N>>", q.name));
+                format!("{via}<N>")
+            }
+            None => format!("{}<N>", q.name),
         };
-        let mut count = |ty: &str, x: &str| counted_in_n(ty, x, &of, n, konst, quantities, &mut bounds);
+        let mut count =
+            |ty: &str, x: &str| counted_in_n(ty, x, &of, konst, qualified, quantities, &mut bounds);
         let by = match &plan.variants[&(q.name, unit.variant.as_str())] {
             VariantSpec::Const(k) => count(&plan.consts[*k].ty, &plan.names[*k]),
             // A constant of the module, converted; anything else verbatim
@@ -1414,7 +1420,7 @@ fn gen_unit_enum(
             }
         };
         let spec = match &unit.via {
-            Some(via) => format!("by = {by}, via = {via}<{n}>"),
+            Some(via) => format!("by = {by}, via = {via}<N>"),
             None => format!("by = {by}"),
         };
         variants += &format!(
@@ -1431,13 +1437,8 @@ fn gen_unit_enum(
     s += "#[derive_const(Default)]\n";
     s += &fmt_derive_attr(&system.system.unit_derives);
     let nc = if non_const { ", non_const" } else { "" };
-    if !generic {
-        s += &format!("#[unit(of = {}<f64>{nc})]\n", q.name);
-    } else {
-        s += &format!("#[unit(of = {}<N>, number = N{nc})]\n", q.name);
-    }
-    if !generic {
-    } else if bounds.is_empty() {
+    s += &format!("#[unit(of = {}<N>, number = N{nc})]\n", q.name);
+    if bounds.is_empty() {
         s += "#[unit(for<N>)]\n";
     } else {
         s += &format!(
@@ -1719,7 +1720,7 @@ units = [
         let lib = gen_lib_rs(&system(THERMAL));
         assert!(lib.contains("const impl<P, S, N> Unit<P, N> for Scale<P, S>\n"));
         assert!(lib.contains("pub struct Scale<P, S>(pub P, pub S);\n"));
-        assert!(lib.contains("#![feature(fn_traits)]\n#![feature(unboxed_closures)]\n"));
+        assert!(!lib.contains("fn_traits"));
         let out = family();
         assert!(out.contains("use crate::{Dim, Exact, Kind, Qty, Scale};\n"));
         assert!(out.contains(
@@ -1748,14 +1749,13 @@ units = [
     #[test]
     fn non_const_units_make_the_enum_non_const() {
         let out = family();
-        assert!(out.contains("#[unit(of = Loudness<f64>, non_const)]\npub enum LoudnessUnit {"));
         assert!(
-            out.contains("    #[unit(\"phon\", \"phons\", by = crate::level::PHON, via = crate::level::LoudnessLevel<f64>)]\n    Phon,\n")
+            out.contains("    #[unit(\"phon\", \"phons\", by = crate::level::PHON, via = crate::level::LoudnessLevel<N>)]\n    Phon,\n")
         );
         assert!(!out.contains("PHON_REFERENCE"));
-        // A unit measuring another type counts in `f64`, where that
-        // conversion is; every other enum is generic over its numbers.
-        assert!(out.contains("#[unit(of = Loudness<f64>, non_const)]\npub enum LoudnessUnit {"));
+        // A unit measuring another type converts to and from it in the
+        // enum's number type.
+        assert!(out.contains("#[unit(of = Loudness<N>, number = N, non_const)]\n#[unit(for<N> where Loudness<N>: From<crate::level::LoudnessLevel<N>>"));
         assert!(out.contains("#[unit(of = Speed<N>, number = N)]\n#[unit(for<N> where N: yadc::num_traits::Num + const From<Exact>, Speed<N>: [const] yadc::Unit<Speed<N>, N> + [const] core::marker::Destruct)]\npub enum SpeedUnit {"));
         let d = gen_dimensionless_rs(&system(THERMAL));
         assert!(d.contains("    pub const RATIO: Dimensionless<Exact> = ONE;\n"));

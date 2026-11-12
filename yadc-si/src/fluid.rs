@@ -115,28 +115,28 @@ pub mod consts {
     use super::*;
     use crate::base::{KILOGRAM, METRE, SECOND};
 
-    /// One `Poise` (P), as a `DynamicViscosity`.
+    /// One `Poise` (`P`), as a `DynamicViscosity`.
     pub const POISE: DynamicViscosity<Exact> = (KILOGRAM / (METRE * SECOND)) * Exact::dec(1, -1);
 
-    /// One `Stokes` (St), as a `KinematicViscosity`.
+    /// One `Stokes` (`St`), as a `KinematicViscosity`.
     pub const KINEMATIC_VISCOSITY_STOKES: KinematicViscosity<Exact> =
         (METRE * METRE / SECOND) * Exact::dec(1, -4);
 
-    /// One `PerPascal` (Pa⁻¹), as a `CompressibilityCoefficient`.
+    /// One `PerPascal` (`Pa⁻¹`), as a `CompressibilityCoefficient`.
     pub const PER_PASCAL: CompressibilityCoefficient<Exact> = METRE * SECOND * SECOND / KILOGRAM;
 
-    /// One `PerAtmosphere` (atm⁻¹), as a `CompressibilityCoefficient`.
+    /// One `PerAtmosphere` (`atm⁻¹`), as a `CompressibilityCoefficient`.
     pub const PER_ATMOSPHERE: CompressibilityCoefficient<Exact> =
         PER_PASCAL * (Exact::int(1) / Exact::int(101325));
 
-    /// One `PerAtmosphereTechnical` (at⁻¹), as a `CompressibilityCoefficient`.
+    /// One `PerAtmosphereTechnical` (`at⁻¹`), as a `CompressibilityCoefficient`.
     pub const PER_ATMOSPHERE_TECHNICAL: CompressibilityCoefficient<Exact> =
         PER_PASCAL * (Exact::int(1) / Exact::dec(980665, -1));
 
-    /// One `PerBar` (bar⁻¹), as a `CompressibilityCoefficient`.
+    /// One `PerBar` (`bar⁻¹`), as a `CompressibilityCoefficient`.
     pub const PER_BAR: CompressibilityCoefficient<Exact> = PER_PASCAL * Exact::dec(1, -5);
 
-    /// One `Stokes` (St), as a `DiffusionCoefficient`.
+    /// One `Stokes` (`St`), as a `DiffusionCoefficient`.
     pub const DIFFUSION_COEFFICIENT_STOKES: DiffusionCoefficient<Exact> =
         (METRE * METRE / SECOND) * Exact::dec(1, -4);
 }

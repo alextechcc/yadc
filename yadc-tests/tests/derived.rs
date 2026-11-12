@@ -119,37 +119,38 @@ fn levels() {
     assert!(close(dbw.value(rx), 10.0));
 }
 
-/// A unit is called like the function it is: on a number it builds, on a
-/// quantity it reads. In `const` too.
-const MARATHON: Length = METRE(42_195.0);
+/// A unit builds with `quantity` and reads with `value`, in `const` too; a
+/// constant times a number builds as well.
+const MARATHON: Length = METRE.quantity(42_195.0);
 const BOILING: Temperature = CELSIUS.quantity(100.0);
 const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING);
 
 #[test]
-fn units_are_called() {
-    assert!(close(FOOT(MARATHON), 42_195.0 / 0.3048));
+fn units_build_and_read() {
+    assert!(close(FOOT.value(MARATHON), 42_195.0 / 0.3048));
     assert!(close(BOILING_K, 373.15));
     assert!(close(CELSIUS.value(BOILING), 100.0));
-    assert!(close(KILOPASCAL(PASCAL(2500.0)), 2.5));
+    assert!(close(KILOPASCAL.value(PASCAL * 2500.0), 2.5));
     let aircraft = FEET_AMSL.quantity(6500.0);
     let clearance = aircraft - FEET_AMSL.quantity(1200.0);
-    assert!(close(FOOT(clearance), 5300.0));
+    assert!(close(FOOT.value(clearance), 5300.0));
     let agl = Scale(FEET_AMSL.quantity(1200.0), METRE);
     assert!(close(agl.value(aircraft), 5300.0 * 0.3048));
-    assert!(close(DBM.value(DBM.quantity(30.0) + DECIBEL(3.0)), 33.0));
-    // A unit enum's values are called too; a level reads the watts `via`
-    // its line.
+    assert!(close(DBM.value(DBM.quantity(30.0) + DECIBEL * 3.0), 33.0));
+    // A unit enum's values build and read the same way; a level reads the
+    // watts `via` its line.
     let (celsius, dbm) = (TemperatureUnit::Celsius, PowerUnit::DecibelMilliwatt);
-    assert!(close(celsius(celsius(21.5)), 21.5));
-    assert!(close(WATT(dbm(30.0)), 1.0));
-    assert!(close(dbm(WATT(2.0)), 30.0 + 10.0 * 2f64.log10()));
-    // Generic code asks for the std function traits.
-    fn convert<Q>(n: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
-        to(from(n))
+    assert!(close(celsius.value(celsius.quantity(21.5)), 21.5));
+    assert!(close(WATT.value(dbm.quantity(30.0)), 1.0));
+    assert!(close(dbm.value(WATT * 2.0), 30.0 + 10.0 * 2f64.log10()));
+    // Generic code asks for `Unit`: constants, scales and unit enums meet it.
+    fn convert<Q>(n: f64, from: impl Unit<Q>, to: impl Unit<Q>) -> f64 {
+        to.value(from.quantity(n))
     }
     assert!(close(convert(12.0, FOOT, METRE), 12.0 * 0.3048));
     let fahrenheit = TemperatureUnit::Fahrenheit;
     assert!(close(convert(0.0, celsius, fahrenheit), 32.0));
+    assert!(close(convert(100.0, CELSIUS, fahrenheit), 212.0));
 }
 
 #[test]

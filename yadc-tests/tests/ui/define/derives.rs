@@ -1,6 +1,5 @@
 //! The derives' own errors: what each attribute must say.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
 #![allow(incomplete_features)]
 
@@ -90,12 +89,6 @@ pub struct BadField {
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 #[quantity(impl(Cast))]
 pub struct Fixed<const D: NoPlain>(f64);
-
-/// A unit of its own numbers is not called.
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = f64, impl(Fn))]
-#[unit("%", "percent", by = 0.01)]
-pub struct Percent;
 
 /// An unknown extra.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]

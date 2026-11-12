@@ -205,8 +205,7 @@ pub struct UnitDef {
     pub by: Option<String>,
     /// The quantity the `by` unit value measures, when not this quantity
     /// (`PowerLevel`, without its number type): the two convert with std
-    /// `From` (a level's scale reading a power), in `f64` - a unit enum with
-    /// such a unit counts in `f64`.
+    /// `From` (a level's scale reading a power), in the enum's number type.
     #[serde(default)]
     pub via: Option<String>,
     /// The unit's own `Unit` impl is not `const` (a level read as a power
@@ -264,33 +263,4 @@ pub struct UcumSection {
     /// | `"https://..."` or `"http://..."` | fetch this URL directly |
     /// | any other string | read as a local file path |
     pub source: String,
-
-    /// How each UCUM base-unit code is seeded in the resolver.
-    ///
-    /// Omitted base units default to self-seeding: the code is treated as its own
-    /// unit-dimension field with exponent 1 and multiplier 1.0.
-    #[serde(default)]
-    pub base: Vec<UcumBaseMap>,
-}
-
-/// One entry in `[[ucum.base]]`.
-#[derive(Deserialize, Debug)]
-pub struct UcumBaseMap {
-    /// UCUM base-unit code, e.g. `"g"`, `"C"`, `"rad"`.
-    pub code: String,
-    /// Target dimension exponents in the output `[dim]` field set.
-    /// Empty (`{}`) means dimensionless.
-    #[serde(default)]
-    pub dims: BTreeMap<String, i64>,
-    /// Scale factor from this unit to SI base units.
-    /// E.g. `1e-3` for gram->kilogram.
-    #[serde(default = "default_multiplier")]
-    pub multiplier: f64,
-    /// Kind variant name to assign (without `Kind::` prefix).
-    /// Only meaningful when `dims` is empty (dimensionless quantity).
-    pub kind: Option<String>,
-}
-
-fn default_multiplier() -> f64 {
-    1.0
 }

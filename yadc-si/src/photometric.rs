@@ -60,24 +60,24 @@ pub mod consts {
     /// The candela, the SI base unit of luminous intensity.
     pub use crate::base::CANDELA;
 
-    /// One `Footlambert` (fl), as a `Luminance`.
+    /// One `Footlambert` (`fl`), as a `Luminance`.
     pub const FOOTLAMBERT: Luminance<Exact> = (CANDELA / (METRE * METRE))
         * (Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4)));
 
-    /// One `Lambert` (la), as a `Luminance`.
+    /// One `Lambert` (`la`), as a `Luminance`.
     pub const LAMBERT: Luminance<Exact> =
         (CANDELA / (METRE * METRE)) * (Exact::int(10000) / Exact::PI);
 
-    /// One `Stilb` (sb), as a `Luminance`.
+    /// One `Stilb` (`sb`), as a `Luminance`.
     pub const STILB: Luminance<Exact> = (CANDELA / (METRE * METRE)) * Exact::int(10000);
 
-    /// One `Lux` (lx), as an `Illuminance`.
+    /// One `Lux` (`lx`), as an `Illuminance`.
     pub const LUX: Illuminance<Exact> = CANDELA * RADIAN * RADIAN / (METRE * METRE);
 
-    /// One `Phot` (ph), as an `Illuminance`.
+    /// One `Phot` (`ph`), as an `Illuminance`.
     pub const PHOT: Illuminance<Exact> = LUX * Exact::int(10000);
 
-    /// One `Footcandle` (fc), as an `Illuminance`.
+    /// One `Footcandle` (`fc`), as an `Illuminance`.
     pub const FOOTCANDLE: Illuminance<Exact> =
         LUX * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)));
 }

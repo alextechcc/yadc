@@ -2,7 +2,7 @@
 //! `M` meets one counted in `N` and the result is counted in `N`, converted
 //! with std `From<M> for N`.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
+#![feature(const_destruct)]
 #![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
 #![allow(incomplete_features)]
 
@@ -51,9 +51,9 @@ fn operators_count_in_the_target() {
 
 #[test]
 fn an_m_member_is_a_unit_of_n_members() {
-    let d: Length<f64> = KILOMETRE_32(3.0); // build an f64 length
+    let d: Length<f64> = KILOMETRE_32.quantity(3.0); // build an f64 length
     assert_eq!(METRE.value(d), 3000.0);
-    assert_eq!(KILOMETRE_32(d), 3.0); // read it, as f64
+    assert_eq!(KILOMETRE_32.value(d), 3.0); // read it, as f64
     assert_eq!(KILOMETRE_32.value(METRE * 500.0), 0.5);
     let scaled: Length<f64> = KILOMETRE_32 * 2.5; // scaled by an f64
     let scaled_l: Length<f64> = 2.5 * KILOMETRE_32;

@@ -1,12 +1,13 @@
-# UCUM-mode unit system definition for yadc-codegen.
+# The UCUM unit system for yadc-codegen: generated from ucum-essence.xml,
+# with UCUM's own base units.
 #
-# The [ucum] table triggers UCUM-driven generation: families and quantities
-# come from ucum-essence.xml rather than [[family]] sections in this file.
+# The [ucum] table drives generation: families, quantities and units come
+# from the XML, not from [[family]] sections here. Updating to a new UCUM
+# release is changing the tag in [ucum].source and regenerating.
 #
-# Angles are a real exponent axis (`rad`, so sr = rad2), as in yadc-si.
-# To use UCUM-native dimensions instead of ISQ (`g` as grams, `C` as
-# coulombs): change [dim].fields to ["m", "g", "s", "C", "K", "cd", "rad"] and
-# remove or remap the [[ucum.base]] entries for g and C.
+# UCUM's seven base units are the dimension's axes: the metre, the second,
+# the gram, the radian, the kelvin, the coulomb and the candela. The mole is
+# not one: UCUM defines it as a number, 6.0221367 x 10^23.
 
 [system]
 crate_name   = "yadc-ucum"
@@ -14,7 +15,7 @@ family_order = [
     "si", "heat", "iso1000", "intcust", "cgs",
     "infotech", "us", "british", "clinical", "constants", "misc",
 ]
-unit_derives = ["Copy", "Clone"]
+unit_derives = ["Copy", "Clone", "PartialEq", "Eq", "Hash", "Debug"]
 
 [kind]
 # `Absolute`: an amount with a true zero that is also read on scales with
@@ -24,17 +25,14 @@ variants = ["Linear", "Absolute"]
 default = "Linear"
 absolute = ["Absolute"]
 
-# ISQ dimension fields.  Change this list (and the [[ucum.base]] overrides
-# below) to switch to a different basis, e.g. native UCUM dimensions.
+# UCUM's base units, one axis each.
 [dim]
-fields = ["m", "kg", "s", "A", "K", "mol", "cd", "rad"]
+fields = ["m", "s", "g", "rad", "K", "C", "cd"]
 
 # The base constants: the only raw numbers of the generated crate (its `base`
 # module). One per axis - the unit of that axis, exponent 1 - plus the number
 # one (the unit of dimension one: `HERTZ = ONE / SECOND`) and the zero of
-# absolute temperature. Every other constant is defined from them: a coherent
-# unit as their product (`NEWTON = METRE * KILOGRAM / (SECOND * SECOND)`), a
-# multiple as `m * COHERENT` (`KILOMETRE = 1000.0 * METRE`).
+# absolute temperature. Every other constant is defined from them.
 
 [[base]]
 name = "ONE"
@@ -43,42 +41,37 @@ doc = "The number one: the unit of dimension one."
 [[base]]
 name = "METRE"
 dims = {m = 1}
-doc = "The metre, the SI base unit of length."
-
-[[base]]
-name = "KILOGRAM"
-dims = {kg = 1}
-doc = "The kilogram, the SI base unit of mass."
+doc = "The metre, UCUM's base unit of length."
 
 [[base]]
 name = "SECOND"
 dims = {s = 1}
-doc = "The second, the SI base unit of time."
+doc = "The second, UCUM's base unit of time."
 
 [[base]]
-name = "AMPERE"
-dims = {A = 1}
-doc = "The ampere, the SI base unit of electric current."
-
-[[base]]
-name = "KELVIN"
-dims = {K = 1}
-doc = "The kelvin as a step: a temperature difference of 1 K (the same as 1 °C of difference)."
-
-[[base]]
-name = "MOLE"
-dims = {mol = 1}
-doc = "The mole, the SI base unit of amount of substance."
-
-[[base]]
-name = "CANDELA"
-dims = {cd = 1}
-doc = "The candela, the SI base unit of luminous intensity."
+name = "GRAM"
+dims = {g = 1}
+doc = "The gram, UCUM's base unit of mass."
 
 [[base]]
 name = "RADIAN"
 dims = {rad = 1}
-doc = "The radian: an exponent axis here, so an angle never mixes with a plain ratio."
+doc = "The radian, UCUM's base unit of plane angle."
+
+[[base]]
+name = "KELVIN"
+dims = {K = 1}
+doc = "The kelvin as a step, UCUM's base unit of temperature: a difference of 1 K."
+
+[[base]]
+name = "COULOMB"
+dims = {C = 1}
+doc = "The coulomb, UCUM's base unit of electric charge."
+
+[[base]]
+name = "CANDELA"
+dims = {cd = 1}
+doc = "The candela, UCUM's base unit of luminous intensity."
 
 [[base]]
 name = "ABSOLUTE_ZERO"
@@ -95,41 +88,7 @@ units = [
 # --- UCUM source -------------------------------------------------------------
 
 [ucum]
-# "latest"  -> query the GitHub releases API and fetch that tag's ucum-essence.xml
-# URL       -> fetch the file at this address directly
-# file path -> read a local copy (pinned version, offline use)
-source = "latest"
-
-# --- Base-unit remapping -----------------------------------------------------
-#
-# Each [[ucum.base]] entry overrides how one UCUM base-unit code is seeded in
-# the resolver.  Omitted base units default to self-seeding (the code becomes
-# its own dim field with exponent 1 and multiplier 1.0).
-#
-# UCUM base units: m  s  g  C  K  cd  rad      (7)
-# [dim].fields:    m  s  kg A  K  cd  rad  mol (8: the ISQ, plus the radian axis)
-#
-# The three entries below perform the remapping.
-# m, s, K, cd and rad map 1:1 and are handled by self-seeding.
-
-[[ucum.base]]
-# gram -> kilogram  (UCUM uses gram; ISQ uses kilogram)
-code       = "g"
-dims       = { kg = 1 }
-multiplier = 1e-3
-
-[[ucum.base]]
-# coulomb -> ampere*second  (UCUM uses charge C; ISQ uses current A)
-# C = A*s, so 1 C expressed in ISQ base units has dim {A=1, s=1} x 1.0
-code       = "C"
-dims       = { A = 1, s = 1 }
-multiplier = 1.0
-
-[[ucum.base]]
-# mole - override UCUM's Avogadro-count interpretation and treat as ISQ base.
-# UCUM defines mol = 6.022x10^2^3 (a dimensionless count); this entry promotes
-# it to a proper SI base dimension, consistent with ISQ/SI.
-code       = "mol"
-dims       = { mol = 1 }
-multiplier = 1.0
-
+# A release's ucum-essence.xml, pinned by its tag: the generated crate is the
+# same for the same source. "latest" asks GitHub for the newest release; a
+# file path reads a local copy.
+source = "https://raw.githubusercontent.com/ucum-org/ucum/v2.2/ucum-essence.xml"

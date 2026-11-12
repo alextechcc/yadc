@@ -209,18 +209,18 @@ pub mod consts {
     pub const RANKINE: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> =
         Scale(ABSOLUTE_ZERO, DEGREE_FAHRENHEIT);
 
-    /// One `Fahrenheit` (°F), as a `TemperatureInterval`.
+    /// One `Fahrenheit` (`°F`), as a `TemperatureInterval`.
     pub const DEGREE_FAHRENHEIT: TemperatureInterval<Exact> =
         KELVIN * (Exact::int(5) / Exact::int(9));
 
-    /// One `PerKelvin` (K⁻¹), as a `TemperatureCoefficient`.
+    /// One `PerKelvin` (`K⁻¹`), as a `TemperatureCoefficient`.
     pub const PER_KELVIN: TemperatureCoefficient<Exact> = ONE / KELVIN;
 
-    /// One `BoltzmannConstant` (k), as a `HeatCapacity`.
+    /// One `BoltzmannConstant` (`k`), as a `HeatCapacity`.
     pub const BOLTZMANN_CONSTANT: HeatCapacity<Exact> =
         (METRE * METRE * KILOGRAM / (SECOND * SECOND * KELVIN)) * Exact::dec(1380649, -29);
 
-    /// One `StefanBoltzmannConstant` (σ), as a `StefanBoltzmannCoefficient`.
+    /// One `StefanBoltzmannConstant` (`σ`), as a `StefanBoltzmannCoefficient`.
     pub const STEFAN_BOLTZMANN_CONSTANT: StefanBoltzmannCoefficient<Exact> = (KILOGRAM
         / (SECOND * SECOND * SECOND * KELVIN * KELVIN * KELVIN * KELVIN))
         * Exact::dec(5670374419, -17);

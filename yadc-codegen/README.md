@@ -37,9 +37,9 @@ fmt-clean files.
     and a `#[kind]` field);
   - the static quantity `Qty<const D: Dim, N>(N)` (`#[derive(Quantity)]`:
     its operators, `Quantity` - every constant a unit - and the
-    extras, `Display` and `Fn` among them, so a quantity is called to build
-    and to read, `MI(3.0)`; the field is private to the crate, so the
-    base constants are the only raw numbers);
+    extras, `Display` among them - every quantity builds and reads as a
+    unit, `MI.quantity(3.0)`, `MI.value(d)`; the field is private to the
+    crate, so the base constants are the only raw numbers);
   - std `From` from an exact quantity, and from an exact scale, to the same
     one counted in any `N: num_traits::Num + From<Exact>` - two blanket
     impls, which do not overlap std's `From<T> for T` because `Exact` is not
@@ -230,10 +230,9 @@ logarithm) says `non_const = true`, and its enum is `#[unit(of = Q<f64>,
 non_const)]`.
 
 The enums take the `Unit` derive's extras as they come - `Display` and
-`FromStr` - so a unit enum's value prints and parses. A generic enum is not
-called (`N` and `Q<N>` could be one type): it builds and reads with the `Unit`
-methods (`LengthUnit::Mile.quantity(3.0)`, `LengthUnit::Mile.value(d)`); an
-`f64` enum is called too (`PowerUnit::DecibelMilliwatt(30.0)`).
+`FromStr` - so a unit enum's value prints and parses. Generic or `f64`, it
+builds and reads with the `Unit` methods (`LengthUnit::Mile.quantity(3.0)`,
+`LengthUnit::Mile.value(d)`, `PowerUnit::DecibelMilliwatt.quantity(30.0)`).
 
 ## TOML reference
 
@@ -540,59 +539,49 @@ levels; `PowerUnit` lists it beside the watts `via` the level, which is not
 ## UCUM mode
 
 Parses `ucum-essence.xml` from the [Unified Code for Units of Measure](https://ucum.org)
-project and generates a complete yadc unit crate.  Add a `[ucum]` table to your
-TOML to enable this mode — `ucum.toml` in this directory is the canonical example.
+project and generates a complete yadc unit crate, as UCUM defines it. Add a
+`[ucum]` table to your TOML to enable this mode — `ucum.toml` in this
+directory is the canonical example, and generates the workspace's
+`yadc-ucum` crate:
+
+```bash
+cargo run -p yadc-codegen -- yadc-codegen/ucum.toml -o yadc-ucum
+```
 
 ### `[ucum]`
 
 ```toml
 [ucum]
-# "latest"  → query GitHub releases API and fetch that tag's ucum-essence.xml
-# URL       → fetch the file at this address directly
-# file path → read a local copy (pinned version, offline use)
-source = "latest"
+# A release's ucum-essence.xml, pinned by its tag: the same source gives the
+# same crate. "latest" asks GitHub for the newest release; a file path reads
+# a local copy.
+source = "https://raw.githubusercontent.com/ucum-org/ucum/v2.2/ucum-essence.xml"
 ```
 
-### `[[ucum.base]]` — dimension basis remapping
+Updating to a new UCUM release is changing the tag and regenerating.
 
-UCUM uses a different set of base dimensions from ISQ/SI:
+### UCUM's base units are the axes
 
-| UCUM base | ISQ base | Key difference |
-|-----------|----------|----------------|
-| `g` (gram) | `kg` | scale ×10⁻³ |
-| `C` (coulomb) | `A` (ampere) | charge vs current; `C = A·s` |
-| `rad` (radian) | `rad` | a real dim in UCUM and in yadc-si's ISQ (dimensionless in SI proper) |
-| *(none)* | `mol` | mol is Avogadro's count in UCUM, a base in ISQ |
-| `m, s, K, cd` | `m, s, K, cd` | identical in both systems |
+Each of UCUM's seven base units is an axis of the dimension, named by its
+code: `m`, `s`, `g`, `rad`, `K`, `C` (the coulomb: charge, not current),
+`cd`. `[dim].fields` lists them, and `[[base]]` gives each its constant
+(`METRE`, `SECOND`, `GRAM`, `RADIAN`, `KELVIN`, `COULOMB`, `CANDELA`). The
+mole is no axis: UCUM defines it as a number, 6.02214076 × 10²³, so
+`AmountOfSubstance` is dimensionless. The newton is `KILO * GRAM * METRE /
+(SECOND * SECOND)`, the ampere `COULOMB / SECOND`.
 
-Each `[[ucum.base]]` entry overrides how one UCUM base code is seeded in the
-resolver.  Omitted codes are self-seeded (code → its own dim field, ×1.0).
+### Exact values, UCUM codes
 
-```toml
-[[ucum.base]]
-code       = "g"
-dims       = { kg = 1 }
-multiplier = 1e-3
+Every value in the XML is a decimal, and is read exactly - as a rational,
+with π (`[pi]`, a long decimal in the XML) kept as a power of π - so each
+constant is defined exactly: the international inch is `METRE *
+Exact::dec(254, -4)`, the US survey inch `METRE * (Exact::int(100) /
+Exact::int(3937))`, the degree `RADIAN * (Exact::int(1) / Exact::int(180) *
+Exact::PI)`.
 
-[[ucum.base]]
-code       = "C"
-dims       = { A = 1, s = 1 }
-multiplier = 1.0
-
-[[ucum.base]]
-code       = "mol"
-dims       = { mol = 1 }
-multiplier = 1.0
-```
-
-#### Radians
-
-`rad` is in `[dim].fields`, so it self-seeds as an axis and `sr` (defined in
-UCUM as `rad2`) resolves to rad² by plain arithmetic - angular velocity and
-frequency are type-distinct, as are torque and energy. To treat angles as
-dimensionless instead, drop `"rad"` from `[dim].fields` and seed it with
-`dims = {}`; an angle is then a plain ratio (a label cannot keep it apart
-under `*`).
+A unit enum's variant prints and parses as the unit's UCUM code,
+case-sensitive (`[in_i]`, `Cel`, `[degF]`); its name (`{:#}`) is UCUM's
+(`inch`).
 
 ### What gets generated
 
@@ -616,8 +605,8 @@ a dimensionless unit of another class stays in its family:
 | `constants` | `const` | Physical constants used as unit scales |
 | `misc` | `misc` | Remaining units |
 
-A unit gets no prefixed variants: `KILO * METRE` and `Prefixed<..Unit>`
-cover them, as in `yadc-si`. UCUM's own prefixed units (`kg`) are kept.
+A unit gets no prefixed variants: `KILO * GRAM` and `Prefixed<..Unit>` cover
+them, as in `yadc-si`.
 
 ### What is skipped
 

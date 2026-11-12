@@ -4,7 +4,6 @@
 //! in `const` items and round to `f64` there.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl, const_ops)]
 #![feature(const_convert)]
-#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use yadc::{Dimension, PartialPowi, PartialRoot, PowiAs, RootAs, Unit};
@@ -283,7 +282,7 @@ fn power_levels_are_scales_on_the_logarithmic_line() {
     // `From` away, either way.
     let level = DBM.quantity(30.0);
     let p = Power::from(level);
-    close(WATT(p), 1.0);
+    close(WATT.value(p), 1.0);
     close(DBW.value(level), 0.0);
     close(DBM.value(PowerLevel::from(100.0 * MILLIWATT)), 20.0);
     close(DBM.value(MILLIWATT.into()), 0.0);
@@ -299,14 +298,14 @@ fn power_levels_are_scales_on_the_logarithmic_line() {
     close(DBM.value(level + gain), 40.0);
     // The linear side and the line agree: doubling the watts is 3.01 dB.
     close(
-        DECIBEL(PowerLevel::from(2.0 * p) - level),
+        DECIBEL.value(PowerLevel::from(2.0 * p) - level),
         10.0 * 2f64.log10(),
     );
     // In the unit enum of `Power`, a level's scale reads the watts `via` its
     // line.
     let dbm = PowerUnit::DecibelMilliwatt;
-    close(WATT(dbm(30.0)), 1.0);
-    close(dbm(2.0 * p), 30.0 + 10.0 * 2f64.log10());
+    close(WATT.value(dbm.quantity(30.0)), 1.0);
+    close(dbm.value(2.0 * p), 30.0 + 10.0 * 2f64.log10());
 
     // The level's own unit enum, and the dynamic type.
     use PowerLevelUnit::{DecibelMilliwatt, DecibelWatt};
@@ -607,13 +606,13 @@ fn an_instant_is_a_point_in_time() {
     let launch: Instant<f64> = UNIX_SECONDS.quantity(1_700_000_000.0);
     let landing = launch + 2.0 * HOUR;
     let flight: Time<f64> = landing - launch;
-    close(HOUR(flight), 2.0);
+    close(HOUR.value(flight), 2.0);
     close(UNIX_SECONDS.value(landing - 30.0 * SECOND), 1_700_007_170.0);
     assert!(launch < landing);
     let mut t = launch;
     t += DAY;
     t -= HOUR;
-    close(HOUR(t - launch), 23.0);
+    close(HOUR.value(t - launch), 23.0);
     assert_eq!(dim_of(launch).kind, Kind::Affine);
     assert_eq!(dim_of(flight), dim_of(SECOND));
 
@@ -628,7 +627,7 @@ fn an_instant_is_a_point_in_time() {
     let j2000 = JULIAN_DATE.quantity(2_451_545.0);
     close(UNIX_SECONDS.value(j2000), 946_728_000.0);
     close(GPS_SECONDS.value(j2000), 946_728_000.0 - 315_964_800.0);
-    close(DAY(j2000 - GPS_SECONDS.quantity(0.0)), 7_300.5);
+    close(DAY.value(j2000 - GPS_SECONDS.quantity(0.0)), 7_300.5);
     // Stored as `f64` seconds from the Unix epoch: today's instants resolve
     // to a fraction of a microsecond, so a millisecond count survives.
     let precise: Instant<f64> = UNIX_MILLISECONDS.quantity(1_700_000_000_123.0);
@@ -1056,7 +1055,7 @@ fn physical_constants_are_units_with_their_quantity_types() {
     // σ T⁴: a black body at 300 K radiates about 459 W/m².
     let t = TemperatureIntervalUnit::Kelvin.quantity(300.0);
     let exitance =
-        StefanBoltzmannCoefficient::from(therm::STEFAN_BOLTZMANN_CONSTANT) * t * t * t * t;
+        StefanBoltzmannCoefficient::<f64>::from(therm::STEFAN_BOLTZMANN_CONSTANT) * t * t * t * t;
     let w_per_m2 = PowerUnit::Watt
         .value(exitance * LengthUnit::Metre.quantity(1.0) * LengthUnit::Metre.quantity(1.0));
     assert!((w_per_m2 - 459.3).abs() < 0.1, "got {w_per_m2}");
@@ -1233,12 +1232,11 @@ mod unit_values {
     const RANKINE: TemperatureScale = therm::RANKINE.into();
 
     /// Quantity constants and scales (a zero and a step) convert at compile
-    /// time through `Unit`; a quantity constant is also called like the
-    /// function it is.
+    /// time through `Unit`.
     const BODY: ThermodynamicTemperature<f64> = CELSIUS.quantity(37.0);
     const BODY_F: f64 = FAHRENHEIT.value(BODY);
-    const ATM_PSI: f64 = PSI.value(KILOPASCAL.quantity(101.325));
-    const ATM: Pressure<f64> = KILOPASCAL(101.325);
+    const ATM: Pressure<f64> = KILOPASCAL.quantity(101.325);
+    const ATM_PSI: f64 = PSI.value(ATM);
     /// A scale is a constant like any other: so is one of yours.
     const REAUMUR: Scale<ThermodynamicTemperature<f64>, TemperatureInterval<f64>> =
         Scale(ICE_POINT, 1.25 * KELVIN);
@@ -1277,44 +1275,35 @@ mod unit_values {
         close(scales[1].value(BODY), 98.6);
     }
 
-    /// A quantity constant, and a value of `PowerUnit` (whose number type is
-    /// `f64`), are called like the functions they are: on a number they
-    /// build, on a quantity they read. A unit enum generic over its number
-    /// type builds and reads through `Unit`.
+    /// Every unit builds and reads through `Unit`: a quantity constant, a
+    /// value of a unit enum generic over its number type, and a value of
+    /// `PowerUnit` (whose number type is `f64`). A constant scaled by a
+    /// number is that many of it.
     #[test]
-    fn units_are_called() {
+    fn units_build_and_read() {
         // Quantity constants.
-        let d: Length<f64> = FOOT(12.0);
-        close(METRE(d), 12.0 * 0.3048);
-        close(PASCAL(ATM), 101_325.0);
+        let d: Length<f64> = FOOT.quantity(12.0);
+        close(METRE.value(d), 12.0 * 0.3048);
+        assert_eq!(d, FOOT * 12.0);
+        close(PASCAL.value(ATM), 101_325.0);
         // A generic unit enum's value.
         let fahrenheit = ThermodynamicTemperatureUnit::Fahrenheit;
         close(fahrenheit.value(BODY), 98.6);
         close(CELSIUS.value(fahrenheit.quantity(212.0)), 100.0);
-        // A level in the watts' unit enum: `via` its logarithmic line. Bound
-        // to a name, since `Enum::Variant(x)` reads as a constructor.
+        // A level in the watts' unit enum: `via` its logarithmic line.
         let dbm = PowerUnit::DecibelMilliwatt;
-        let p: Power<f64> = dbm(30.0);
-        close(WATT(p), 1.0);
-        close(dbm(MILLIWATT(100.0)), 20.0);
+        let p: Power<f64> = dbm.quantity(30.0);
+        close(WATT.value(p), 1.0);
+        close(dbm.value(MILLIWATT.quantity(100.0)), 20.0);
         close(DBM.value(PowerLevel::from(p)), 30.0);
-        // Generic code asks for the std function traits.
-        fn convert<Q>(n: f64, from: impl Fn(f64) -> Q, to: impl Fn(Q) -> f64) -> f64 {
-            to(from(n))
+        // Generic code asks for `Unit`.
+        fn convert<Q>(n: f64, from: impl Unit<Q>, to: impl Unit<Q>) -> f64 {
+            to.value(from.quantity(n))
         }
         close(convert(1.0, FOOT, METRE), 0.3048);
-        let (celsius, fahrenheit) = (
-            ThermodynamicTemperatureUnit::Celsius,
-            ThermodynamicTemperatureUnit::Fahrenheit,
-        );
-        close(
-            convert(100.0, |n| celsius.quantity(n), |t| fahrenheit.value(t)),
-            212.0,
-        );
-        close(
-            convert(98.6, |n| fahrenheit.quantity(n), |t| celsius.value(t)),
-            37.0,
-        );
+        use ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
+        close(convert(100.0, Celsius, Fahrenheit), 212.0);
+        close(convert(98.6, Fahrenheit, Celsius), 37.0);
         close(convert(30.0, dbm, WATT), 1.0);
     }
 

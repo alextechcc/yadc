@@ -378,45 +378,6 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         }
     };
 
-    // A unit is called like the function it is: on a number it builds, on a
-    // quantity it reads - `KILOMETRE(3.0)`, `FOOT(d)`. The
-    // three std function traits, once per direction, each over `Unit`.
-    let callable = |h: &TokenStream2, me: &TokenStream2, q: &TokenStream2| -> TokenStream2 {
-        let unit = quote! { #yadc::Unit<#q, #v> };
-        let w = wher(&[quote! { #me: [const] #unit }, quote! { #me: [const] ::core::marker::Destruct }]);
-        let one = |arg: &TokenStream2, out: &TokenStream2, call: TokenStream2| {
-            quote! {
-                #h ::core::ops::FnOnce<(#arg,)> for #me #w {
-                    type Output = #out;
-                    extern "rust-call" fn call_once(self, (x,): (#arg,)) -> #out {
-                        let this = &self;
-                        #call
-                    }
-                }
-                #h ::core::ops::FnMut<(#arg,)> for #me #w {
-                    extern "rust-call" fn call_mut(&mut self, (x,): (#arg,)) -> #out {
-                        let this = &*self;
-                        #call
-                    }
-                }
-                #h ::core::ops::Fn<(#arg,)> for #me #w {
-                    extern "rust-call" fn call(&self, (x,): (#arg,)) -> #out {
-                        let this = self;
-                        #call
-                    }
-                }
-            }
-        };
-        let build = one(&quote! { #v }, q, quote! { <#me as #unit>::quantity(this, x) });
-        let read = one(q, &quote! { #v }, quote! { <#me as #unit>::value(this, x) });
-        quote! { #build #read }
-    };
-    let calls = if opts.has("Fn") {
-        callable(&h_d, &self_d, &self_d)
-    } else {
-        quote! {}
-    };
-
     let bin_op = |h: &TokenStream2,
                   rhs: &TokenStream2,
                   trait_name: &str,
@@ -963,32 +924,6 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
                 fn value(&self, quantity: #d_n) -> #n { #unit_read }
             }
         });
-        if opts.has("Fn") {
-            let unit = quote! { #yadc::Unit<#d_n, #n> };
-            let w = quote! { where #d_m: [const] #unit + [const] ::core::marker::Destruct };
-            let call = |arg: &TokenStream2, out: &TokenStream2, how: TokenStream2| {
-                quote! {
-                    #h_d_prim ::core::ops::FnOnce<(#arg,)> for #d_m #w {
-                        type Output = #out;
-                        extern "rust-call" fn call_once(self, (x,): (#arg,)) -> #out {
-                            <#d_m as #unit>::#how(&self, x)
-                        }
-                    }
-                    #h_d_prim ::core::ops::FnMut<(#arg,)> for #d_m #w {
-                        extern "rust-call" fn call_mut(&mut self, (x,): (#arg,)) -> #out {
-                            <#d_m as #unit>::#how(&*self, x)
-                        }
-                    }
-                    #h_d_prim ::core::ops::Fn<(#arg,)> for #d_m #w {
-                        extern "rust-call" fn call(&self, (x,): (#arg,)) -> #out {
-                            <#d_m as #unit>::#how(self, x)
-                        }
-                    }
-                }
-            };
-            mixed.extend(call(&n, &d_n, quote! { quantity }));
-            mixed.extend(call(&d_n, &n, quote! { value }));
-        }
         // A dimensionless `M` member is an `N` number, as a dimensionless `N`
         // member is (the `From` extra), where `N` is a primitive.
         if primitive(&n) && opts.has("From") {
@@ -1040,7 +975,6 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         #refusals
         #quantity
         #unit_of_self
-        #calls
         #ops
         #scalar_ops
         #left_scalar
@@ -1118,7 +1052,6 @@ const EXTRAS: &[&str] = &[
     "Sum",
     "Cast",
     "From",
-    "Fn",
 ];
 
 /// `#[quantity(impl(..))]`: which extras to write.

@@ -1,7 +1,7 @@
 //! `from(M => N)`: one direction only, on a family with a number parameter;
 //! a mixed operator keeps the same-type operator's refusals.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
+#![feature(const_destruct)]
 #![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
 #![allow(incomplete_features)]
 

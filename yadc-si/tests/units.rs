@@ -10,7 +10,6 @@
     const_try
 )]
 #![feature(const_destruct)]
-#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use core::marker::ConstParamTy;

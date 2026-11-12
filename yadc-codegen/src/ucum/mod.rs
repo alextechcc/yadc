@@ -43,7 +43,7 @@ pub fn build(
         essence.units.len()
     );
 
-    let resolved = resolve::resolve_all(&essence, &ucum.base);
+    let resolved = resolve::resolve_all(&essence);
     let unresolved = essence
         .units
         .iter()

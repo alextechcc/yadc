@@ -18,7 +18,6 @@
 //! Run with: cargo run -p yadc-si --example sets
 #![feature(generic_const_exprs, const_trait_impl)]
 #![feature(const_convert, const_destruct, const_ops)]
-#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use core::fmt;

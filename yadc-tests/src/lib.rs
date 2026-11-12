@@ -3,7 +3,6 @@
 //! crate" case - those in `tests/ui/define` define their own) and the
 //! run-time tests of the derived impls in `tests/derived.rs`.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(
     const_cmp,
     const_default,

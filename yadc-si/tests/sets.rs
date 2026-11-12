@@ -8,7 +8,6 @@
 //! written once for every family.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 #![feature(const_convert, const_default, const_destruct, const_ops, derive_const)]
-#![feature(fn_traits, unboxed_closures)]
 #![allow(incomplete_features)]
 
 use core::fmt;

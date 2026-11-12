@@ -18,7 +18,7 @@ const SECOND: Time<f64> = consts::SECOND.into();
 fn a_prefix_scales_a_unit() {
     let km: Length<f64> = (KILO * consts::METRE).into();
     assert_eq!(METRE.value(km), 1000.0);
-    let road = Length::<f64>::from(KILO * consts::METRE)(3.0);
+    let road = km.quantity(3.0);
     assert_eq!(METRE.value(road), 3000.0);
     let um: Length<f32> = (MICRO * consts::METRE).into();
     assert_eq!(um, Length::<f32>::from(consts::METRE) * 1e-6f32);

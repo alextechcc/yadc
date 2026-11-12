@@ -169,54 +169,54 @@ pub mod consts {
     use super::*;
     use crate::base::{METRE, ONE};
 
-    /// One `PerMetre` (m⁻¹), as a `LinearNumberDensity`.
+    /// One `PerMetre` (`m⁻¹`), as a `LinearNumberDensity`.
     pub const PER_METRE: LinearNumberDensity<Exact> = ONE / METRE;
 
-    /// One `PerFoot` (ft⁻¹), as a `LinearNumberDensity`.
+    /// One `PerFoot` (`ft⁻¹`), as a `LinearNumberDensity`.
     pub const PER_FOOT: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / Exact::dec(3048, -4));
 
-    /// One `PerFootSurvey` (ft (U.S. survey)), as a `LinearNumberDensity`.
+    /// One `PerFootSurvey` (`ft (U.S. survey)`), as a `LinearNumberDensity`.
     pub const PER_FOOT_SURVEY: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / (Exact::int(1200) / Exact::int(3937)));
 
-    /// One `PerInch` (in⁻¹), as a `LinearNumberDensity`.
+    /// One `PerInch` (`in⁻¹`), as a `LinearNumberDensity`.
     pub const PER_INCH: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / Exact::dec(254, -4));
 
-    /// One `PerMile` (mi⁻¹), as a `LinearNumberDensity`.
+    /// One `PerMile` (`mi⁻¹`), as a `LinearNumberDensity`.
     pub const PER_MILE: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / Exact::dec(1609344, -3));
 
-    /// One `PerMileSurvey` (mi⁻¹ (U.S. survey)), as a `LinearNumberDensity`.
+    /// One `PerMileSurvey` (`mi⁻¹ (U.S. survey)`), as a `LinearNumberDensity`.
     pub const PER_MILE_SURVEY: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / (Exact::int(6336000) / Exact::int(3937)));
 
-    /// One `PerNauticalMile` (M⁻¹), as a `LinearNumberDensity`.
+    /// One `PerNauticalMile` (`M⁻¹`), as a `LinearNumberDensity`.
     pub const PER_NAUTICAL_MILE: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / Exact::int(1852));
 
-    /// One `PerYard` (yd⁻¹), as a `LinearNumberDensity`.
+    /// One `PerYard` (`yd⁻¹`), as a `LinearNumberDensity`.
     pub const PER_YARD: LinearNumberDensity<Exact> =
         PER_METRE * (Exact::int(1) / Exact::dec(9144, -4));
 
-    /// One `PerFluidOunce` (per fl oz), as a `VolumetricNumberDensity`.
+    /// One `PerFluidOunce` (`per fl oz`), as a `VolumetricNumberDensity`.
     pub const PER_FLUID_OUNCE: VolumetricNumberDensity<Exact> =
         (ONE / (METRE * METRE * METRE)) * (Exact::int(1) / Exact::dec(295735295625, -16));
 
-    /// One `PerFluidOunceImperial` (per fl oz (UK)), as a `VolumetricNumberDensity`.
+    /// One `PerFluidOunceImperial` (`per fl oz (UK)`), as a `VolumetricNumberDensity`.
     pub const PER_FLUID_OUNCE_IMPERIAL: VolumetricNumberDensity<Exact> =
         (ONE / (METRE * METRE * METRE)) * (Exact::int(1) / Exact::dec(284130625, -13));
 
-    /// One `PerGallonImperial` (per gal (UK)), as a `VolumetricNumberDensity`.
+    /// One `PerGallonImperial` (`per gal (UK)`), as a `VolumetricNumberDensity`.
     pub const PER_GALLON_IMPERIAL: VolumetricNumberDensity<Exact> =
         (ONE / (METRE * METRE * METRE)) * (Exact::int(1) / Exact::dec(454609, -8));
 
-    /// One `PerGallon` (per gal), as a `VolumetricNumberDensity`.
+    /// One `PerGallon` (`per gal`), as a `VolumetricNumberDensity`.
     pub const PER_GALLON: VolumetricNumberDensity<Exact> =
         (ONE / (METRE * METRE * METRE)) * (Exact::int(1) / Exact::dec(3785411784, -12));
 
-    /// One `PerLitre` (L⁻¹), as a `VolumetricNumberDensity`.
+    /// One `PerLitre` (`L⁻¹`), as a `VolumetricNumberDensity`.
     pub const PER_LITRE: VolumetricNumberDensity<Exact> =
         (ONE / (METRE * METRE * METRE)) * Exact::int(1000);
 }

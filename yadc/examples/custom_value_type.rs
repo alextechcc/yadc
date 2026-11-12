@@ -5,9 +5,9 @@
 //! constants are defined), plus `num_traits::Zero` (it seeds `Sum`), `One`
 //! (`x.inv()`) and `ConstOne` (typed powers).
 //!
-//! Every quantity constant is a unit counted in the quantity's own numbers,
-//! and is called like a function: `KILOMETRE(MyF64(2.5))` is 2.5 km
-//! and `KILOMETRE(d)` is a `MyF64`. A scale (°C: a zero and a step,
+//! Every quantity constant is a unit counted in the quantity's own numbers:
+//! `KILOMETRE.quantity(MyF64(2.5))` is 2.5 km and `KILOMETRE.value(d)` is a
+//! `MyF64`. A scale (°C: a zero and a step,
 //! `Scale(ICE_POINT, KELVIN)`) counts in its step's numbers, so in `MyF64`
 //! too. A unit enum says what its numbers are with `number = MyF64` in its
 //! `#[unit(..)]`. The numbers stay `MyF64` throughout, with no `From<f64>`
@@ -16,7 +16,6 @@
 //! Run with: cargo run -p yadc --example custom_value_type
 
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(fn_traits, unboxed_closures, const_destruct)]
 #![feature(
     const_cmp,
     const_default,
@@ -247,18 +246,18 @@ const BOILING: Temperature = CELSIUS.quantity(MyF64(100.0));
 const BOILING_IN_KELVIN: MyF64 = KELVIN_SCALE.value(BOILING);
 
 fn main() {
-    // A quantity constant is called: on a number it builds, on a quantity it
-    // reads. A value of a unit enum is called the same way.
+    // A unit builds with `quantity` and reads with `value`: a value of a unit
+    // enum, and a quantity constant alike.
     let km = LengthUnit::Kilometre;
-    let side = km(MyF64(2.5));
+    let side = km.quantity(MyF64(2.5));
     let area: Area = side * side;
     // Reading a quantity in a unit gives a `MyF64` again; the unit prints
     // its symbol with `{}`, its name with `{:#}`.
-    println!("side = {} {km:#}", km(side));
+    println!("side = {} {km:#}", km.value(side));
     let m2 = AreaUnit::SquareMetre;
-    println!("area = {:.0} {m2}", m2(area));
+    println!("area = {:.0} {m2}", m2.value(area));
     // A constant is a unit too, counting in `MyF64`.
-    let in_km2: MyF64 = SQUARE_KILOMETRE(area);
+    let in_km2: MyF64 = SQUARE_KILOMETRE.value(area);
     println!("area in km² = {in_km2}");
     // A quantity prints itself as its number and its dimension.
     println!("area itself = {area}");
@@ -273,14 +272,14 @@ fn main() {
     );
 
     // Two temperatures differ by a step, which a step constant reads.
-    let fever: TemperatureStep = celsius(MyF64(38.6)) - body;
-    println!("fever - body = {:.1} K", KELVIN(fever));
+    let fever: TemperatureStep = celsius.quantity(MyF64(38.6)) - body;
+    println!("fever - body = {:.1} K", KELVIN.value(fever));
     println!(
         "boiling (const) = {:.2} {celsius} = {BOILING_IN_KELVIN:.2} {kelvin}",
         CELSIUS.value(BOILING)
     );
 
-    // The `Unit` trait is still there, for generic code and `&dyn`.
+    // A unit is the `Unit` trait, so it also goes behind `&dyn`.
     let any: &dyn Unit<Length, MyF64> = &KILOMETRE;
     println!("side = {} km (through `&dyn Unit`)", any.value(side));
 }

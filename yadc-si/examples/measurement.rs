@@ -91,9 +91,9 @@ fn main() {
     println!("p × p   = {:?}", (p * p).map(|m| m.to_string()));
 
     // From a bare quantity: the default unit.
-    let f = Measurement::from(KILONEWTON(2.0));
+    let f = Measurement::from(KILONEWTON.quantity(2.0));
     println!("f       = {f}");
     // Back to the bare quantity, checked.
-    println!("as Pa   = {:?}", Pressure::try_from(p).map(PASCAL));
+    println!("as Pa   = {:?}", Pressure::try_from(p).map(|q| PASCAL.value(q)));
     println!("as N    = {:?}", Force::try_from(p).is_ok());
 }

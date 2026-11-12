@@ -93,43 +93,43 @@ pub mod consts {
     /// The radian: an exponent axis here, so an angle never mixes with a plain ratio.
     pub use crate::base::RADIAN;
 
-    /// One `Revolution` (r), as an `Angle`.
+    /// One `Revolution` (`r`), as an `Angle`.
     pub const REVOLUTION: Angle<Exact> = RADIAN * (Exact::int(2) * Exact::PI);
 
-    /// One `Degree` (°), as an `Angle`.
+    /// One `Degree` (`°`), as an `Angle`.
     pub const DEGREE: Angle<Exact> = RADIAN * (Exact::PI / Exact::int(180));
 
-    /// One `Gon` (gon), as an `Angle`.
+    /// One `Gon` (`gon`), as an `Angle`.
     pub const GON: Angle<Exact> = RADIAN * (Exact::PI / Exact::int(200));
 
-    /// One `Mil` (mil), as an `Angle`.
+    /// One `Mil` (`mil`), as an `Angle`.
     pub const MIL: Angle<Exact> = RADIAN * (Exact::int(2) * Exact::PI / Exact::int(6400));
 
-    /// One `Minute` (′), as an `Angle`.
+    /// One `Minute` (`′`), as an `Angle`.
     pub const MINUTE: Angle<Exact> = RADIAN * (Exact::PI / Exact::int(10800));
 
-    /// One `Second` (″), as an `Angle`.
+    /// One `Second` (`″`), as an `Angle`.
     pub const SECOND: Angle<Exact> = RADIAN * (Exact::PI / Exact::int(648000));
 
-    /// One `Steradian` (sr), as a `SolidAngle`.
+    /// One `Steradian` (`sr`), as a `SolidAngle`.
     pub const STERADIAN: SolidAngle<Exact> = RADIAN * RADIAN;
 
-    /// One `Spat` (sp), as a `SolidAngle`.
+    /// One `Spat` (`sp`), as a `SolidAngle`.
     pub const SPAT: SolidAngle<Exact> = STERADIAN * (Exact::int(4) * Exact::PI);
 
-    /// One `RevolutionPerSecond` (rps), as an `AngularVelocity`.
+    /// One `RevolutionPerSecond` (`rps`), as an `AngularVelocity`.
     pub const REVOLUTION_PER_SECOND: AngularVelocity<Exact> =
         (RADIAN / crate::base::SECOND) * (Exact::int(2) * Exact::PI);
 
-    /// One `RevolutionPerMinute` (rpm), as an `AngularVelocity`.
+    /// One `RevolutionPerMinute` (`rpm`), as an `AngularVelocity`.
     pub const REVOLUTION_PER_MINUTE: AngularVelocity<Exact> =
         (RADIAN / crate::base::SECOND) * (Exact::int(2) * Exact::PI / Exact::int(60));
 
-    /// One `RevolutionPerHour` (rph), as an `AngularVelocity`.
+    /// One `RevolutionPerHour` (`rph`), as an `AngularVelocity`.
     pub const REVOLUTION_PER_HOUR: AngularVelocity<Exact> =
         (RADIAN / crate::base::SECOND) * (Exact::int(2) * Exact::PI / Exact::int(3600));
 
-    /// One `ReducedPlanckConstant` (ħ), as an `AngularMomentum`.
+    /// One `ReducedPlanckConstant` (`ħ`), as an `AngularMomentum`.
     pub const REDUCED_PLANCK_CONSTANT: AngularMomentum<Exact> = (METRE * METRE * KILOGRAM
         / (crate::base::SECOND * RADIAN))
         * (Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI));
