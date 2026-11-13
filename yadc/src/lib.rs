@@ -45,12 +45,11 @@
 //!
 //! A quantity's number is never read or written directly. A number becomes a
 //! quantity, and a quantity a number, only through a unit - a value
-//! implementing [`Unit`]. A unit is a constant, and it is called like the
-//! function it is - on a number it builds, on a quantity it reads:
+//! implementing [`Unit`], whose `quantity` builds and `value` reads:
 //!
-//! - **every quantity constant** is a unit of its own kind: `BAR(2.0)` is
-//!   two bars, `PSI(p)` is how many psi `p` is, and `&BAR` is a
-//!   `&dyn Unit<Pressure>`;
+//! - **every quantity constant** is a unit of its own kind:
+//!   `BAR.quantity(2.0)` is two bars (and so is `BAR * 2.0`), `PSI.value(p)`
+//!   is how many psi `p` is, and `&BAR` is a `&dyn Unit<Pressure>`;
 //! - **a scale** is two of them, a zero and a step, in a tuple struct of
 //!   yours with an `impl Unit` of yours (`n` is `zero + n · step`): °C is
 //!   `Scale(ICE_POINT, KELVIN)` - start at the ice point, count kelvins -
@@ -63,9 +62,7 @@
 //!
 //! `#[derive(Unit)]` on an enum of yours names a choice of them, for a menu.
 //! Every unit has [`Unit`]'s two methods, `quantity` (build) and `value`
-//! (read) - which is what generic code and `&dyn Unit<Q>` use; a quantity
-//! constant and a derived unit enum's value are also called, std's `Fn` over
-//! those two (`MILE(3.0)`, `FOOT(d)`).
+//! (read) - which is what generic code and `&dyn Unit<Q>` use.
 //!
 //! The base constants are the only raw numbers in a system - one per base
 //! unit, written where the field is visible. They are where numbers enter and
@@ -94,8 +91,8 @@
 //! pub struct Scale<P, S>(pub P, pub S);                  // a zero and a step, with an `impl Unit` of yours
 //! pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
 //!
-//! let p = PSI(14.7);                                     // build
-//! let bar = BAR(p);                                      // read
+//! let p = PSI.quantity(14.7);                            // build
+//! let bar = BAR.value(p);                                // read
 //! let t = CELSIUS.quantity(25.0);                       // 298.15 K: the zero point is the unit's business
 //! let c = CELSIUS.value(t);                              // 25.0
 //! ```
@@ -251,8 +248,8 @@
 //! |---|---|
 //! | Just uses already-defined aliases (`Mass`, `Force`, ...) | `#![feature(generic_const_exprs)]` |
 //! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity = 50.0 * MILE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
-//! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and for the default `Fn` extra (a constant is called: `MILE(3.0)`) `fn_traits`, `unboxed_closures`, `const_destruct` |
-//! | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl`, and for the default `Fn` extra `fn_traits`, `unboxed_closures` |
+//! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and `const_destruct` for a quantity type generic over its number type |
+//! | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl` |
 //!
 //! Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs`
 //! warning.

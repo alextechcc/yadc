@@ -28,16 +28,14 @@
 ///
 /// let t = CELSIUS.quantity(25.0);                         // build: 298.15 K
 /// let f = FAHRENHEIT.value(t);                             // read: 77.0
-/// let v = MILE(60.0) / HOUR(1.0);                          // a constant is also called
+/// let v = MILE.quantity(60.0) / HOUR.quantity(1.0);      // a constant is a unit too
 /// let any: &dyn Unit<Pressure> = &BAR;                     // picked at run time
 /// let u = TemperatureUnit::Celsius;
 /// println!("{:.1} {u}", u.value(t));                       // "25.0 °C": the enum's `Display`
 /// ```
 ///
-/// The derives also write std's `Fn` for a unit, over these two methods, so
-/// a unit is called like the function it is: on a number it builds, on a
-/// quantity it reads. Generic code may ask for either - `U: Unit<Q>`, or
-/// `impl Fn(f64) -> Q` and `impl Fn(Q) -> f64`.
+/// These two methods are the only way in and out; generic code asks for
+/// `U: Unit<Q>`.
 ///
 /// `impl Unit<Mass> for MassUnit` is the whole declaration that the two
 /// belong together: there is no structural check to pass instead, because two

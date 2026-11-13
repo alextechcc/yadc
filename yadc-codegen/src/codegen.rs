@@ -1198,7 +1198,7 @@ fn gen_consts_mod(
     s += "/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:\n";
     s += "/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,\n";
     s += "/// once, where it is written - in a `const`, by the compiler:\n";
-    s += "/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.\n";
+    s += "/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.\n";
     s += "pub mod consts {\n";
     s += "    use super::*;\n";
     let local: BTreeSet<&str> = plan.names.iter().map(String::as_str).collect();

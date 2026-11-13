@@ -210,7 +210,7 @@ pub type Radioactivity<N> = Qty<
 /// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
 /// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
 /// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH(60.0)`.
+/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
 pub mod consts {
     use super::*;
     use crate::base::{CANDELA, COULOMB, GRAM, METRE, ONE, RADIAN, SECOND};
