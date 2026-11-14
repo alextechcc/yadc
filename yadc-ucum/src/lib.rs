@@ -156,6 +156,60 @@ impl<const U: UcumUnit, N: core::fmt::Display, const B: Base> core::fmt::Display
     }
 }
 
+/// The number and the unit with the SI prefix that puts the number in
+/// [1, 1000): `{:e}` of 0.002 kg is `2 g`, of 25 000 N/m^2 `25 kPa`. The
+/// prefix goes on the unit's name or its first named unit of a positive
+/// power, before the power (`km^2`). A unit of named units of other sizes,
+/// or with a zero or a log scale, is written as `{}` writes it (`mi`,
+/// `°C`, `dBm`); a plain number as a number.
+impl<const U: UcumUnit, N, const B: Base> core::fmt::LowerExp for Qty<U, N, B>
+where
+    N: Copy
+        + core::fmt::Display
+        + From<Exact>
+        + Mul<Output = N>
+        + Div<Output = N>
+        + Sub<Output = N>
+        + PartialOrd,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let Some(e) = U.engineering() else {
+            return core::fmt::Display::fmt(self, f);
+        };
+        let (zero, one) = (N::from(Exact::ZERO), N::from(Exact::ONE));
+        // The number in a unit of `size`: times a whole inverse, so 0.0042 m
+        // is 4.2 mm, not 4.199999999999999.
+        let count = |size: Exact| {
+            let inverse = Exact::ONE / size;
+            if !size.is_integer() && inverse.is_integer() {
+                return Some(self.0 * N::from(inverse));
+            }
+            let size = N::from(size);
+            (size != zero).then(|| self.0 / size)
+        };
+        if let Some(size) = e.number() {
+            return match count(size) {
+                Some(n) => n.fmt(f),
+                None => core::fmt::Display::fmt(self, f),
+            };
+        }
+        let mut best: Option<(&'static str, N, N)> = None;
+        for (prefix, size) in e.prefixes() {
+            let Some(n) = count(size) else { continue };
+            let magnitude = if n < zero { zero - n } else { n };
+            if magnitude >= one && best.is_none_or(|(_, _, m)| magnitude < m) {
+                best = Some((prefix, n, magnitude));
+            }
+        }
+        let Some((prefix, n, _)) = best else {
+            return core::fmt::Display::fmt(self, f);
+        };
+        n.fmt(f)?;
+        f.write_str(" ")?;
+        e.write(f, prefix)
+    }
+}
+
 /// A condition on units, as a type: `Check<{ U.same_dimension(V) }>: True`
 /// holds where `U` and `V` measure the same dimension.
 pub struct Check<const B: bool>;
@@ -385,46 +439,74 @@ where
 /// The coherent units printed by name, not as their product of base units.
 static NAMED: [(UcumUnit, &str); 0] = [];
 
+/// The prefixes a unit is printed with: symbol, power of ten.
+static PREFIXES: [(&str, i16); 20] = [
+    ("Y", 24),
+    ("Z", 21),
+    ("E", 18),
+    ("P", 15),
+    ("T", 12),
+    ("G", 9),
+    ("M", 6),
+    ("k", 3),
+    ("h", 2),
+    ("da", 1),
+    ("d", -1),
+    ("c", -2),
+    ("m", -3),
+    ("μ", -6),
+    ("n", -9),
+    ("p", -12),
+    ("f", -15),
+    ("a", -18),
+    ("z", -21),
+    ("y", -24),
+];
+
+/// The base units with a prefix in their symbol, printed as their
+/// unprefixed unit: symbol, unprefixed symbol, its size in the base unit.
+static PREFIXED_BASES: [(&str, &str, Exact); 0] = [];
+
 /// The prefix yotta (`Y`): 10^24.
-pub const YOTTA: Unit<{ UcumUnit::prefix("Y", Exact::int(1000000000000000000000000)) }> = Unit::ONE;
+pub const YOTTA: Unit<{ UcumUnit::prefix(Exact::int(1000000000000000000000000)) }> = Unit::ONE;
 /// The prefix zetta (`Z`): 10^21.
-pub const ZETTA: Unit<{ UcumUnit::prefix("Z", Exact::int(1000000000000000000000)) }> = Unit::ONE;
+pub const ZETTA: Unit<{ UcumUnit::prefix(Exact::int(1000000000000000000000)) }> = Unit::ONE;
 /// The prefix exa (`E`): 10^18.
-pub const EXA: Unit<{ UcumUnit::prefix("E", Exact::int(1000000000000000000)) }> = Unit::ONE;
+pub const EXA: Unit<{ UcumUnit::prefix(Exact::int(1000000000000000000)) }> = Unit::ONE;
 /// The prefix peta (`P`): 10^15.
-pub const PETA: Unit<{ UcumUnit::prefix("P", Exact::int(1000000000000000)) }> = Unit::ONE;
+pub const PETA: Unit<{ UcumUnit::prefix(Exact::int(1000000000000000)) }> = Unit::ONE;
 /// The prefix tera (`T`): 10^12.
-pub const TERA: Unit<{ UcumUnit::prefix("T", Exact::int(1000000000000)) }> = Unit::ONE;
+pub const TERA: Unit<{ UcumUnit::prefix(Exact::int(1000000000000)) }> = Unit::ONE;
 /// The prefix giga (`G`): 10^9.
-pub const GIGA: Unit<{ UcumUnit::prefix("G", Exact::int(1000000000)) }> = Unit::ONE;
+pub const GIGA: Unit<{ UcumUnit::prefix(Exact::int(1000000000)) }> = Unit::ONE;
 /// The prefix mega (`M`): 10^6.
-pub const MEGA: Unit<{ UcumUnit::prefix("M", Exact::int(1000000)) }> = Unit::ONE;
+pub const MEGA: Unit<{ UcumUnit::prefix(Exact::int(1000000)) }> = Unit::ONE;
 /// The prefix kilo (`k`): 10^3.
-pub const KILO: Unit<{ UcumUnit::prefix("k", Exact::int(1000)) }> = Unit::ONE;
+pub const KILO: Unit<{ UcumUnit::prefix(Exact::int(1000)) }> = Unit::ONE;
 /// The prefix hecto (`h`): 10^2.
-pub const HECTO: Unit<{ UcumUnit::prefix("h", Exact::int(100)) }> = Unit::ONE;
+pub const HECTO: Unit<{ UcumUnit::prefix(Exact::int(100)) }> = Unit::ONE;
 /// The prefix deca (`da`): 10^1.
-pub const DECA: Unit<{ UcumUnit::prefix("da", Exact::int(10)) }> = Unit::ONE;
+pub const DECA: Unit<{ UcumUnit::prefix(Exact::int(10)) }> = Unit::ONE;
 /// The prefix deci (`d`): 10^-1.
-pub const DECI: Unit<{ UcumUnit::prefix("d", Exact::dec(1, -1)) }> = Unit::ONE;
+pub const DECI: Unit<{ UcumUnit::prefix(Exact::dec(1, -1)) }> = Unit::ONE;
 /// The prefix centi (`c`): 10^-2.
-pub const CENTI: Unit<{ UcumUnit::prefix("c", Exact::dec(1, -2)) }> = Unit::ONE;
+pub const CENTI: Unit<{ UcumUnit::prefix(Exact::dec(1, -2)) }> = Unit::ONE;
 /// The prefix milli (`m`): 10^-3.
-pub const MILLI: Unit<{ UcumUnit::prefix("m", Exact::dec(1, -3)) }> = Unit::ONE;
+pub const MILLI: Unit<{ UcumUnit::prefix(Exact::dec(1, -3)) }> = Unit::ONE;
 /// The prefix micro (`μ`): 10^-6.
-pub const MICRO: Unit<{ UcumUnit::prefix("μ", Exact::dec(1, -6)) }> = Unit::ONE;
+pub const MICRO: Unit<{ UcumUnit::prefix(Exact::dec(1, -6)) }> = Unit::ONE;
 /// The prefix nano (`n`): 10^-9.
-pub const NANO: Unit<{ UcumUnit::prefix("n", Exact::dec(1, -9)) }> = Unit::ONE;
+pub const NANO: Unit<{ UcumUnit::prefix(Exact::dec(1, -9)) }> = Unit::ONE;
 /// The prefix pico (`p`): 10^-12.
-pub const PICO: Unit<{ UcumUnit::prefix("p", Exact::dec(1, -12)) }> = Unit::ONE;
+pub const PICO: Unit<{ UcumUnit::prefix(Exact::dec(1, -12)) }> = Unit::ONE;
 /// The prefix femto (`f`): 10^-15.
-pub const FEMTO: Unit<{ UcumUnit::prefix("f", Exact::dec(1, -15)) }> = Unit::ONE;
+pub const FEMTO: Unit<{ UcumUnit::prefix(Exact::dec(1, -15)) }> = Unit::ONE;
 /// The prefix atto (`a`): 10^-18.
-pub const ATTO: Unit<{ UcumUnit::prefix("a", Exact::dec(1, -18)) }> = Unit::ONE;
+pub const ATTO: Unit<{ UcumUnit::prefix(Exact::dec(1, -18)) }> = Unit::ONE;
 /// The prefix zepto (`z`): 10^-21.
-pub const ZEPTO: Unit<{ UcumUnit::prefix("z", Exact::dec(1, -21)) }> = Unit::ONE;
+pub const ZEPTO: Unit<{ UcumUnit::prefix(Exact::dec(1, -21)) }> = Unit::ONE;
 /// The prefix yocto (`y`): 10^-24.
-pub const YOCTO: Unit<{ UcumUnit::prefix("y", Exact::dec(1, -24)) }> = Unit::ONE;
+pub const YOCTO: Unit<{ UcumUnit::prefix(Exact::dec(1, -24)) }> = Unit::ONE;
 
 /// Meter: a base unit, `m`.
 pub const METER: Unit<{ UcumUnit::base("m") }, BASE> = Unit::ONE;

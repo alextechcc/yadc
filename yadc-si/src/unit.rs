@@ -9,12 +9,15 @@ const F: usize = 8;
 /// At most this many base units in what a named unit is.
 const B: usize = 8;
 
-/// A unit: a product of named units to powers - merged, without zero
-/// powers, in a fixed order. A named unit is a base unit (a dimension of its
-/// own), or a size times other units; a prefix fuses with the one named unit
-/// it multiplies. A unit of a single named unit may also count from a zero,
-/// or on a logarithmic scale: such a unit has no products, and its
-/// quantities reach the coherent unit through `From`.
+/// A unit: an exact scale times a product of named units to powers -
+/// merged, without zero powers, in a fixed order. A named unit is a base unit
+/// (a dimension of its own), or a size times other units. A prefix is a
+/// scale: every prefix of a product multiplies into the one scale, so a unit
+/// has one form however it is built - `KILO * KILO` is `MEGA`, a kilometre
+/// per metre is `KILO`, a kilometre times a millimetre is a square metre. A
+/// unit of a single named unit may also count from a zero, or on a
+/// logarithmic scale: such a unit has no products, and its quantities reach
+/// the coherent unit through `From`.
 ///
 /// It is the const parameter of a quantity: `SIQuantity<U, N>` is a number of
 /// `U`. Quantities of one unit add; their product is counted in the product
@@ -22,19 +25,19 @@ const B: usize = 8;
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
 pub struct SIUnit {
+    scale: Exact,
     factors: [Factor; F],
     zero: Exact,
     log_base: Exact,
     log_per: Exact,
 }
 
-/// One named unit of a product, to a power: its prefix and symbol, its size
-/// in base units (the prefix's included), and what it is in base units.
-/// Power 0 is an empty slot, `Factor::NONE`.
+/// One named unit of a product, to a power: its symbol, its size in base
+/// units, and what it is in base units. Power 0 is an empty slot,
+/// `Factor::NONE`.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
 pub struct Factor {
-    prefix: &'static str,
     symbol: &'static str,
     size: Exact,
     power: i8,
@@ -44,7 +47,6 @@ pub struct Factor {
 impl Factor {
     /// An empty slot.
     const NONE: Factor = Factor {
-        prefix: "",
         symbol: "",
         size: Exact::ONE,
         power: 0,
@@ -68,6 +70,21 @@ const fn str_cmp(a: &str, b: &str) -> i8 {
     } else {
         0
     }
+}
+
+/// `x` to the power `n`.
+const fn pow(x: Exact, n: i8) -> Exact {
+    let mut r = Exact::ONE;
+    let mut p = n;
+    while p > 0 {
+        r = r * x;
+        p -= 1;
+    }
+    while p < 0 {
+        r = r / x;
+        p += 1;
+    }
+    r
 }
 
 /// Adds `sign` times each base unit of `from` into `into`: merged, without
@@ -129,8 +146,9 @@ const fn merge<const K: usize>(
 }
 
 impl SIUnit {
-    /// The unit of a plain number: no named units.
+    /// The unit of a plain number: no named units, scale one.
     pub const ONE: SIUnit = SIUnit {
+        scale: Exact::ONE,
         factors: [Factor::NONE; F],
         zero: Exact::ZERO,
         log_base: Exact::ZERO,
@@ -146,13 +164,11 @@ impl SIUnit {
         u
     }
 
-    /// A prefix: a plain number that fuses with the one unprefixed named unit
-    /// it multiplies - `KILO * METRE` is `km`.
-    pub const fn prefix(symbol: &'static str, size: Exact) -> SIUnit {
+    /// A prefix: a plain number of `size`, the scale of the units it
+    /// multiplies - `KILO * METRE` is a kilometre.
+    pub const fn prefix(size: Exact) -> SIUnit {
         let mut u = SIUnit::ONE;
-        u.factors[0].prefix = symbol;
-        u.factors[0].size = size;
-        u.factors[0].power = 1;
+        u.scale = size;
         u
     }
 
@@ -190,15 +206,8 @@ impl SIUnit {
         u
     }
 
-    const fn is_prefix(self) -> bool {
-        let f = self.factors[0];
-        f.power == 1 && f.symbol.is_empty() && !f.prefix.is_empty()
-    }
     const fn is_linear(self) -> bool {
         self.zero == Exact::ZERO && !self.is_log()
-    }
-    const fn is_single(self) -> bool {
-        self.factors[0].power == 1 && self.factors[1].power == 0
     }
 
     /// This unit times `other` to the power `n`: `None` for a unit with a
@@ -207,18 +216,8 @@ impl SIUnit {
         if !self.is_linear() || !other.is_linear() {
             return None;
         }
-        if n == 1
-            && self.is_prefix()
-            && other.is_single()
-            && other.factors[0].prefix.is_empty()
-            && !other.is_prefix()
-        {
-            let mut u = other;
-            u.factors[0].prefix = self.factors[0].prefix;
-            u.factors[0].size = self.factors[0].size * other.factors[0].size;
-            return Some(u);
-        }
         let mut out = self;
+        out.scale = self.scale * pow(other.scale, n);
         let mut i = 0;
         while i < F {
             let o = other.factors[i];
@@ -227,10 +226,7 @@ impl SIUnit {
                 let mut placed = false;
                 while j < F && !placed {
                     let f = out.factors[j];
-                    if f.power != 0
-                        && str_cmp(f.symbol, o.symbol) == 0
-                        && str_cmp(f.prefix, o.prefix) == 0
-                    {
+                    if f.power != 0 && str_cmp(f.symbol, o.symbol) == 0 {
                         out.factors[j].power += n * o.power;
                         placed = true;
                     }
@@ -256,7 +252,7 @@ impl SIUnit {
         Some(out.normal())
     }
 
-    /// Empty slots cleared and last; the rest by symbol, then prefix.
+    /// Empty slots cleared and last; the rest by symbol.
     const fn normal(mut self) -> SIUnit {
         let mut k = 0;
         while k < F {
@@ -270,11 +266,9 @@ impl SIUnit {
             let mut b = a + 1;
             while b < F {
                 let (x, y) = (self.factors[a], self.factors[b]);
-                let later = match str_cmp(y.symbol, x.symbol) {
-                    0 => str_cmp(y.prefix, x.prefix) < 0,
-                    c => c < 0,
-                };
-                if (x.power == 0 && y.power != 0) || (x.power != 0 && y.power != 0 && later) {
+                if (x.power == 0 && y.power != 0)
+                    || (x.power != 0 && y.power != 0 && str_cmp(y.symbol, x.symbol) < 0)
+                {
                     self.factors[a] = y;
                     self.factors[b] = x;
                 }
@@ -297,19 +291,10 @@ impl SIUnit {
 
     /// Its size in base units.
     pub const fn size(self) -> Exact {
-        let mut s = Exact::ONE;
+        let mut s = self.scale;
         let mut i = 0;
         while i < F {
-            let f = self.factors[i];
-            let mut p = f.power;
-            while p > 0 {
-                s = s * f.size;
-                p -= 1;
-            }
-            while p < 0 {
-                s = s / f.size;
-                p += 1;
-            }
+            s = s * pow(self.factors[i].size, self.factors[i].power);
             i += 1;
         }
         s
@@ -436,27 +421,75 @@ impl SIUnit {
         }
     }
 
-    /// Writes the unit: a coherent unit with a name its name (`N`), a prefix
-    /// on one its prefix and name (`kPa`), any other its named units with
-    /// their prefixes and powers, the positive powers first, then `/` and the
-    /// negative ones (`km/h`, `m/s^2`, `kg·m^2/s^2`, `1/h`, `W/(m^2·K)`).
+    /// Writes the unit. A coherent unit with a name: the prefix its scale is
+    /// and its name (`N`, `kPa`). A plain number: its prefix (`k`). Any
+    /// other: its named units with their powers, the positive powers first,
+    /// then `/` and the negative ones, its scale a prefix on one of them to
+    /// that one's power (`km/h`, `m/s^2`, `kg·m^2/s^2`, `1/h`, `W/(m^2·K)`,
+    /// `km^2`), or a number before them where no prefix is (`1000·m^2`).
     fn write(self, w: &mut impl core::fmt::Write) -> core::fmt::Result {
-        if let Some(name) = self.name() {
+        if let Some((prefix, name)) = self.named() {
+            w.write_str(prefix)?;
             return w.write_str(name);
         }
-        let mut k = 0;
-        while k < F {
-            let f = self.factors[k];
-            if f.power == 1 && f.symbol.is_empty() && !f.prefix.is_empty() {
-                let mut rest = self;
-                rest.factors[k].power = 0;
-                if let Some(name) = rest.normal().name() {
-                    w.write_str(f.prefix)?;
-                    return w.write_str(name);
+        if self.factors[0].power == 0 {
+            return match prefix_of(self.scale, 1) {
+                Some(prefix) => w.write_str(prefix),
+                None => write!(w, "{}", self.scale),
+            };
+        }
+        match self.spelling() {
+            Some(spelling) => self.write_factors(w, spelling),
+            None => {
+                write!(w, "{}·", self.scale)?;
+                self.write_factors(w, Spelling::PLAIN)
+            }
+        }
+    }
+
+    /// The coherent unit with a name this unit is a prefix times: the prefix
+    /// and the name.
+    fn named(self) -> Option<(&'static str, &'static str)> {
+        if !self.is_linear() {
+            return None;
+        }
+        crate::NAMED.iter().find_map(|(unit, name)| {
+            if unit.factors != self.factors {
+                return None;
+            }
+            Some((prefix_of(self.scale / unit.scale, 1)?, *name))
+        })
+    }
+
+    /// Its scale as a prefix on one named unit: the positive powers first, a
+    /// base unit with a prefix in its symbol (`kg`) last, as its unprefixed
+    /// unit (`mg`).
+    fn spelling(self) -> Option<Spelling> {
+        if self.scale == Exact::ONE {
+            return Some(Spelling::PLAIN);
+        }
+        for prefixed_base in [false, true] {
+            for positive in [true, false] {
+                for (at, f) in self.factors.iter().enumerate() {
+                    if f.power == 0 || (f.power > 0) != positive {
+                        continue;
+                    }
+                    let (symbol, size) = match (unprefixed(f.symbol), prefixed_base) {
+                        (None, false) => (f.symbol, Exact::ONE),
+                        (Some(unprefixed), true) => unprefixed,
+                        _ => continue,
+                    };
+                    if let Some(prefix) = prefix_of(self.scale / pow(size, f.power), f.power) {
+                        return Some(Spelling { at, prefix, symbol });
+                    }
                 }
             }
-            k += 1;
         }
+        None
+    }
+
+    /// Its named units, `spelling`'s one with its prefix and symbol.
+    fn write_factors(self, w: &mut impl core::fmt::Write, spelling: Spelling) -> core::fmt::Result {
         let count = |positive: bool| {
             self.factors
                 .iter()
@@ -467,13 +500,13 @@ impl SIUnit {
         if num == 0 && den > 0 {
             w.write_str("1")?;
         }
-        self.write_powers(w, true)?;
+        self.write_powers(w, true, spelling)?;
         if den > 0 {
             w.write_str("/")?;
             if den > 1 {
                 w.write_str("(")?;
             }
-            self.write_powers(w, false)?;
+            self.write_powers(w, false, spelling)?;
             if den > 1 {
                 w.write_str(")")?;
             }
@@ -481,20 +514,16 @@ impl SIUnit {
         Ok(())
     }
 
-    /// The name of a coherent unit that has one.
-    fn name(self) -> Option<&'static str> {
-        crate::NAMED
-            .iter()
-            .find(|(unit, _)| *unit == self)
-            .map(|(_, name)| *name)
-    }
-
-    /// The named units of positive powers, or of negative ones, with their
-    /// prefixes and the powers' sizes: `kg·m^2`.
-    fn write_powers(self, w: &mut impl core::fmt::Write, positive: bool) -> core::fmt::Result {
+    /// The named units of positive powers, or of negative ones, with the
+    /// powers' sizes: `kg·m^2`.
+    fn write_powers(
+        self,
+        w: &mut impl core::fmt::Write,
+        positive: bool,
+        spelling: Spelling,
+    ) -> core::fmt::Result {
         let mut first = true;
-        for k in 0..F {
-            let f = self.factors[k];
+        for (at, f) in self.factors.iter().enumerate() {
             let p = f.power;
             if p == 0 || (p > 0) != positive {
                 continue;
@@ -503,12 +532,159 @@ impl SIUnit {
                 w.write_str("·")?;
             }
             first = false;
-            write!(w, "{}{}", f.prefix, f.symbol)?;
+            if at == spelling.at {
+                write!(w, "{}{}", spelling.prefix, spelling.symbol)?;
+            } else {
+                w.write_str(f.symbol)?;
+            }
             if p.abs() != 1 {
                 write!(w, "^{}", p.abs())?;
             }
         }
         Ok(())
+    }
+
+    /// How `{:e}` writes a quantity of this unit: where it is a product of
+    /// base units, linear, one of its named units (the first of a positive
+    /// power) or its name takes a prefix. A plain number is written as a
+    /// number.
+    pub(crate) fn engineering(self) -> Option<Engineering> {
+        if !self.is_linear()
+            || self
+                .factors
+                .iter()
+                .any(|f| f.power != 0 && f.size != Exact::ONE)
+        {
+            return None;
+        }
+        if self.factors[0].power == 0 {
+            return Some(Engineering {
+                unit: self,
+                target: Target::Number,
+                power: 1,
+                one: Exact::ONE / self.scale,
+            });
+        }
+        if let Some((unit, name)) = crate::NAMED
+            .iter()
+            .find(|(unit, _)| unit.factors == self.factors)
+        {
+            return Some(Engineering {
+                unit: self,
+                target: Target::Name(name),
+                power: 1,
+                one: unit.scale / self.scale,
+            });
+        }
+        let at = self.factors.iter().position(|f| f.power > 0).unwrap_or(0);
+        let f = self.factors[at];
+        let (symbol, size) = unprefixed(f.symbol).unwrap_or((f.symbol, Exact::ONE));
+        Some(Engineering {
+            unit: self,
+            target: Target::Factor(at, symbol),
+            power: f.power,
+            one: pow(size, f.power) / self.scale,
+        })
+    }
+}
+
+/// The prefix of `size` to the power `power` that is `x`: `""` for one.
+fn prefix_of(x: Exact, power: i8) -> Option<&'static str> {
+    if x == Exact::ONE {
+        return Some("");
+    }
+    crate::PREFIXES
+        .iter()
+        .find(|(_, exp)| pow(Exact::dec(1, *exp), power) == x)
+        .map(|(symbol, _)| *symbol)
+}
+
+/// A base unit with a prefix in its symbol as its unprefixed unit: `kg` as
+/// `g`, of 0.001 kg.
+fn unprefixed(symbol: &str) -> Option<(&'static str, Exact)> {
+    crate::PREFIXED_BASES
+        .iter()
+        .find(|(base, _, _)| *base == symbol)
+        .map(|(_, unprefixed, size)| (*unprefixed, *size))
+}
+
+/// One named unit of a product written with a prefix and a symbol of its
+/// own: `at` its slot.
+#[derive(Copy, Clone)]
+struct Spelling {
+    at: usize,
+    prefix: &'static str,
+    symbol: &'static str,
+}
+
+impl Spelling {
+    /// Every named unit as it is.
+    const PLAIN: Spelling = Spelling {
+        at: F,
+        prefix: "",
+        symbol: "",
+    };
+}
+
+/// What takes the prefix in `{:e}`.
+#[derive(Copy, Clone)]
+enum Target {
+    /// Nothing: a plain number.
+    Number,
+    /// A coherent unit's name.
+    Name(&'static str),
+    /// A named unit, its slot and its unprefixed symbol.
+    Factor(usize, &'static str),
+}
+
+/// A unit as `{:e}` writes it: `target` prefixed. `one` is the size, in the
+/// unit, of the unprefixed target to its `power`.
+pub(crate) struct Engineering {
+    unit: SIUnit,
+    target: Target,
+    power: i8,
+    one: Exact,
+}
+
+impl Engineering {
+    /// The size, in the unit, of one of what a quantity of a plain number is
+    /// written as a number of.
+    pub(crate) fn number(&self) -> Option<Exact> {
+        match self.target {
+            Target::Number => Some(self.one),
+            _ => None,
+        }
+    }
+
+    /// The prefixes it may take, none and those of powers of 1000, each with
+    /// the size, in the unit, of one of it written so.
+    pub(crate) fn prefixes(&self) -> impl Iterator<Item = (&'static str, Exact)> + '_ {
+        core::iter::once(("", 0))
+            .chain(
+                crate::PREFIXES
+                    .iter()
+                    .copied()
+                    .filter(|(_, exp)| exp % 3 == 0),
+            )
+            .map(|(prefix, exp)| (prefix, pow(Exact::dec(1, exp), self.power) * self.one))
+    }
+
+    /// The unit, its target with `prefix`.
+    pub(crate) fn write(
+        &self,
+        w: &mut impl core::fmt::Write,
+        prefix: &'static str,
+    ) -> core::fmt::Result {
+        match self.target {
+            Target::Number => Ok(()),
+            Target::Name(name) => {
+                w.write_str(prefix)?;
+                w.write_str(name)
+            }
+            Target::Factor(at, symbol) => {
+                self.unit.write_factors(w, Spelling { at, prefix, symbol })
+            }
+        }
     }
 }
 

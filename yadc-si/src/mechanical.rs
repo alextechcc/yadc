@@ -216,8 +216,8 @@ pub const DIGITUS: Unit<{ SIUnit::scaled("digitus", Exact::dec(185, -4), METRE.u
 /// A mass, in `N`s of the unit `U`: by default its base unit, `KILOGRAM`.
 pub type Mass<N, const U: SIUnit = { KILOGRAM.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;
 
-/// Grams (`g`), a unit of `Mass`: `n` of them is `n · 0.001` base units.
-pub const GRAM: Unit<{ SIUnit::scaled("g", Exact::dec(1, -3), KILOGRAM.unit()) }> = Unit::ONE;
+/// Grams (`g`), a unit of `Mass`: `KILOGRAM / KILO`.
+pub const GRAM: Unit<{ (KILOGRAM / KILO).unit() }> = Unit::ONE;
 
 /// Carats (`ct`), a unit of `Mass`: `n` of them is `n · 0.0002` base units.
 pub const CARAT: Unit<{ SIUnit::scaled("ct", Exact::dec(2, -4), KILOGRAM.unit()) }> = Unit::ONE;

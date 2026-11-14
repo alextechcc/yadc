@@ -409,6 +409,26 @@ impl<'a> Context<'a> {
         None
     }
 
+    /// A unit of a base unit's quantity whose symbol is the base unit's
+    /// without its prefix, of the size that prefix makes it: the gram, the
+    /// kilogram's. The base unit, the prefix's constant and power of ten.
+    fn unprefixed_base(&self, q: &QuantityRef<'_>, u: &UnitDef) -> Option<(&Base<'a>, String, i32)> {
+        if !matches!(shape(u), Shape::Scaled { .. }) {
+            return None;
+        }
+        let size = exact_value(&u.multiplier)?;
+        self.bases.iter().find_map(|b| {
+            if q.dims != [(b.symbol.to_string(), 1)] {
+                return None;
+            }
+            let (name, _, exp) = PREFIXES
+                .iter()
+                .find(|(_, symbol, _)| b.symbol.strip_prefix(symbol) == Some(u.symbol.as_str()))?;
+            let ten = num_rational::BigRational::from_integer(10.into());
+            (size == (num_traits::Pow::pow(ten, -exp), 0)).then(|| (b, screaming_snake(name), *exp))
+        })
+    }
+
     /// The quantities whose name more than one module has, each with its
     /// exponents: their aliases are defined once, at the crate root, so they
     /// exist whatever modules are compiled and glob imports of two modules
@@ -642,6 +662,60 @@ impl<const U: __UNIT__, N: core::fmt::Display, const B: Base> core::fmt::Display
     }
 }
 
+/// The number and the unit with the SI prefix that puts the number in
+/// [1, 1000): `{:e}` of 0.002 kg is `2 g`, of 25 000 N/m^2 `25 kPa`. The
+/// prefix goes on the unit's name or its first named unit of a positive
+/// power, before the power (`km^2`). A unit of named units of other sizes,
+/// or with a zero or a log scale, is written as `{}` writes it (`mi`,
+/// `°C`, `dBm`); a plain number as a number.
+impl<const U: __UNIT__, N, const B: Base> core::fmt::LowerExp for __QTY__<U, N, B>
+where
+    N: Copy
+        + core::fmt::Display
+        + From<Exact>
+        + Mul<Output = N>
+        + Div<Output = N>
+        + Sub<Output = N>
+        + PartialOrd,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let Some(e) = U.engineering() else {
+            return core::fmt::Display::fmt(self, f);
+        };
+        let (zero, one) = (N::from(Exact::ZERO), N::from(Exact::ONE));
+        // The number in a unit of `size`: times a whole inverse, so 0.0042 m
+        // is 4.2 mm, not 4.199999999999999.
+        let count = |size: Exact| {
+            let inverse = Exact::ONE / size;
+            if !size.is_integer() && inverse.is_integer() {
+                return Some(self.0 * N::from(inverse));
+            }
+            let size = N::from(size);
+            (size != zero).then(|| self.0 / size)
+        };
+        if let Some(size) = e.number() {
+            return match count(size) {
+                Some(n) => n.fmt(f),
+                None => core::fmt::Display::fmt(self, f),
+            };
+        }
+        let mut best: Option<(&'static str, N, N)> = None;
+        for (prefix, size) in e.prefixes() {
+            let Some(n) = count(size) else { continue };
+            let magnitude = if n < zero { zero - n } else { n };
+            if magnitude >= one && best.is_none_or(|(_, _, m)| magnitude < m) {
+                best = Some((prefix, n, magnitude));
+            }
+        }
+        let Some((prefix, n, _)) = best else {
+            return core::fmt::Display::fmt(self, f);
+        };
+        n.fmt(f)?;
+        f.write_str(" ")?;
+        e.write(f, prefix)
+    }
+}
+
 /// A condition on units, as a type: `Check<{ U.same_dimension(V) }>: True`
 /// holds where `U` and `V` measure the same dimension.
 pub struct Check<const B: bool>;
@@ -815,11 +889,35 @@ fn gen_lib_rs(ctx: &Context<'_>) -> String {
     }
     s += "];\n\n";
 
+    s += "/// The prefixes a unit is printed with: symbol, power of ten.\n";
+    s += &format!("static PREFIXES: [(&str, i16); {}] = [\n", PREFIXES.len());
+    for (_, symbol, exp) in PREFIXES {
+        s += &format!("    (\"{symbol}\", {exp}),\n");
+    }
+    s += "];\n\n";
+
+    let unprefixed: Vec<(String, String, String)> = ctx
+        .modules()
+        .iter()
+        .flat_map(|m| &m.quantities)
+        .flat_map(|q| q.units.iter().filter_map(|u| {
+            let (b, _, exp) = ctx.unprefixed_base(q, u)?;
+            Some((rust_str(b.symbol), rust_str(&u.symbol), prefix_size(-exp)))
+        }))
+        .collect();
+    s += "/// The base units with a prefix in their symbol, printed as their\n";
+    s += "/// unprefixed unit: symbol, unprefixed symbol, its size in the base unit.\n";
+    s += &format!("static PREFIXED_BASES: [(&str, &str, Exact); {}] = [\n", unprefixed.len());
+    for (b, u, size) in &unprefixed {
+        s += &format!("    (\"{b}\", \"{u}\", {size}),\n");
+    }
+    s += "];\n\n";
+
     for (name, symbol, exp) in PREFIXES {
         let size = prefix_size(exp);
         s += &format!("/// The prefix {} (`{symbol}`): 10^{exp}.\n", name.to_lowercase());
         s += &format!(
-            "pub const {}: Unit<{{ {unit}::prefix(\"{symbol}\", {size}) }}> = Unit::ONE;\n",
+            "pub const {}: Unit<{{ {unit}::prefix({size}) }}> = Unit::ONE;\n",
             screaming_snake(name)
         );
     }
@@ -996,8 +1094,13 @@ fn gen_module(ctx: &Context<'_>, m: &ModuleRef<'_>) -> Module {
                 format!(" (`{symbol}`)")
             };
             let prefixed = ctx.prefixed(q, u);
+            let unprefixed = ctx.unprefixed_base(q, u);
             let what = match (&u.zero, &u.log) {
                 _ if ctx.is_base(q, u) => "the coherent unit, a product of base units".to_string(),
+                _ if unprefixed.is_some() => {
+                    let (b, p, _) = unprefixed.as_ref().unwrap();
+                    format!("`{} / {p}`", b.constant)
+                }
                 _ if prefixed.is_some() => {
                     let (p, o) = prefixed.as_ref().unwrap();
                     format!("`{p} * {}`", names[&(q.name, o.variant.as_str())])
@@ -1020,6 +1123,9 @@ fn gen_module(ctx: &Context<'_>, m: &ModuleRef<'_>) -> Module {
             };
             s += &format!("\n/// {label}{symbol}, a unit of `{}`: {what}.\n", q.name);
             s += &match prefixed {
+                None if let Some((b, p, _)) = &unprefixed => {
+                    format!("pub const {name}: Unit<{{ ({} / {p}).unit() }}> = Unit::ONE;\n", b.constant)
+                }
                 Some((p, o)) => {
                     let o = &names[&(q.name, o.variant.as_str())];
                     format!("pub const {name}: Unit<{{ ({p} * {o}).unit() }}> = Unit::ONE;\n")
@@ -1569,10 +1675,10 @@ units = [
     fn base_units_are_in_the_lib() {
         let (m, lib) = generated();
         assert!(lib.contains(
-            "pub const KILO: Unit<{ SIUnit::prefix(\"k\", Exact::int(1000)) }> = Unit::ONE;"
+            "pub const KILO: Unit<{ SIUnit::prefix(Exact::int(1000)) }> = Unit::ONE;"
         ));
         assert!(lib.contains(
-            "pub const MICRO: Unit<{ SIUnit::prefix(\"μ\", Exact::dec(1, -6)) }>"
+            "pub const MICRO: Unit<{ SIUnit::prefix(Exact::dec(1, -6)) }>"
         ));
         assert!(lib.contains(
             "pub const METRE: Unit<{ SIUnit::base(\"m\") }, BASE> = Unit::ONE;"
@@ -1582,10 +1688,13 @@ units = [
         ));
         assert!(!m.quantities.contains("pub const METRE:"));
         assert!(!m.quantities.contains("pub const KELVIN"));
-        // The kilogram is a base unit, not a prefixed gram.
+        // The kilogram is a base unit; the gram is it without its prefix,
+        // printed by the prefix table.
         assert!(m.quantities.contains(
-            "pub const GRAM: Unit<{ SIUnit::scaled(\"g\", Exact::dec(1, -3), KILOGRAM.unit()) }> = Unit::ONE;"
+            "pub const GRAM: Unit<{ (KILOGRAM / KILO).unit() }> = Unit::ONE;"
         ));
+        assert!(lib.contains("(\"μ\", -6),"));
+        assert!(lib.contains("(\"kg\", \"g\", Exact::dec(1, -3)),"));
     }
 
     /// The lib's doc names the system's own constants and types.

@@ -36,13 +36,15 @@ The names below are `yadc-si`'s; `[system]` names the types.
   every other named unit is a size times other units
   (`SIUnit::scaled("h", Exact::int(3600), SECOND.unit())`), and may count
   from a zero (`SIUnit::offset`) or on a log scale (`SIUnit::from_log`). A
-  prefix (`SIUnit::prefix`) fuses with the one unprefixed named unit it
-  multiplies. Its std `* / + -` are `const impl`s returning `Option`: `*`
+  prefix (`SIUnit::prefix`) is a scale: every prefix of a product
+  multiplies into the unit's one exact scale, so a unit has one form however
+  it is built (`KILOMETRE / METRE` is `KILO`). Its std `* / + -` are `const impl`s returning `Option`: `*`
   and `/` are `None` for a unit with a zero or a log scale, `+` and `-` are
   `Some` for one unit only. Also `times`, `same_dimension`,
   `to_base` / `from_base` (a number in base units and back), and `Display`
-  (`km/h`, `kg·m^2/s^2`, `kPa`; width, fill and alignment pad the whole
-  symbol).
+  (`km/h`, `kg·m^2/s^2`, `kPa`, the scale a prefix; width, fill and
+  alignment pad the whole symbol). A quantity's `{:e}` picks the SI prefix
+  that puts the number in [1, 1000) (`0.002 kg` is `2 g`).
 - `src/exact.rs` (from [`templates/exact.rs`](templates/exact.rs)) -
   `Exact`, the exact number unit sizes are written in (`num/den · 10ⁿ ·
   πᵏ`), with `const` arithmetic and std `From` to `f64`, `f32` (the nearest,

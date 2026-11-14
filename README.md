@@ -85,9 +85,11 @@ let p: Power<f64> = (30.0_f64 * DECIBEL_MILLIWATT).into();             // 1 W
 let speed: SIQuantity<{ KMH.unit() }, f64, NOT_BASE> = v.into();      // 72 km/h
 let kmh = f64::from(speed / KMH);                                       // 72.0
 
-// A prefix fuses with the unit it multiplies: `KILOMETRE` is that product.
+// A prefix is a scale: prefixes multiply into one, so a unit has one form.
 assert_eq!(KILO * METRE, KILOMETRE);
+assert_eq!((KILOMETRE / METRE).unit(), KILO.unit());
 let fast = 2.0_f64 * KILOMETRE / SECOND;                 // 2 km/s
+println!("{:e}", 0.002_f64 * KILOGRAM);                   // 2 g: the best SI prefix
 
 // A unit chosen at run time: every operator returns an Option.
 let q = (DynamicSIQuantity::from(d) / DynamicSIQuantity::from(t)).unwrap();
@@ -103,7 +105,7 @@ let n = SIUnit::from(unit).from_base(metres);            // 2.0
 
 [`yadc-codegen`](yadc-codegen/) writes these from a TOML file (see its README for the format):
 
-- **The unit type**, `SIUnit`: a product of named units to integer powers. Base units (`[dim]`) define the dimensions; every other named unit is a size times other units (the hour is 3600 s). A prefix fuses with the named unit it multiplies (`KILO * METRE` is `km`), and a prefixed unit of the TOML is that product (`KILOMETRE` is `KILO * METRE`). A unit of a single named unit may count from a zero (°C: 1 K from 273.15 K) or on a log scale (dBm: `0.001 · 10^(n / 10)` W); such a unit has no products. Its std `* / + -` return `Option`.
+- **The unit type**, `SIUnit`: a product of named units to integer powers. Base units (`[dim]`) define the dimensions; every other named unit is a size times other units (the hour is 3600 s). A prefix is a scale: every prefix of a product multiplies into the unit's one exact scale, so a unit has one form however it is built (`KILO * KILO` is `MEGA`, `KILOMETRE * MILLIMETRE` is `METRE * METRE`), and a prefixed unit of the TOML is that product (`KILOMETRE` is `KILO * METRE`). `Display` writes the scale as a prefix (`km^2`, `kPa`, `mg`); a quantity's `{:e}` picks the SI prefix that puts the number in [1, 1000). A unit of a single named unit may count from a zero (°C: 1 K from 273.15 K) or on a log scale (dBm: `0.001 · 10^(n / 10)` W); such a unit has no products. Its std `* / + -` return `Option`.
 - **`Exact`**, the exact number unit sizes are written in, with std `From` to `f64`, `f32` and every primitive integer.
 - **The quantity**, `SIQuantity<U, N, B>(N)` with `#[derive(const_derive_more::ConstOps)]`: `B`, a `Base`, says whether `U` is a base unit or a product of base units (`BASE`) or not (`NOT_BASE`); a product is `BASE` where both factors are. Quantities of one unit add and compare; a product is counted in the product of the units. A quantity of a plain number is a number of each primitive type, scaled by its unit's size (`f64::from(d / KILOMETRE)`).
 - **Unit constants**, one of each unit, counted in `Exact`: the prefixes and base units at the crate root (`KILO`, `METRE`), the rest in their family's module (`mechanical::KILOMETRE`).
