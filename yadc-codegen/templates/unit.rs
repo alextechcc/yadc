@@ -22,15 +22,34 @@ const B: usize = __B__;
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
 pub struct __UNIT__ {
-    prefixes: [&'static str; F],
-    symbols: [&'static str; F],
-    sizes: [Exact; F],
-    powers: [i8; F],
-    bases: [[&'static str; B]; F],
-    base_powers: [[i8; B]; F],
+    factors: [Factor; F],
     zero: Exact,
     log_base: Exact,
     log_per: Exact,
+}
+
+/// One named unit of a product, to a power: its prefix and symbol, its size
+/// in base units (the prefix's included), and what it is in base units.
+/// Power 0 is an empty slot, `Factor::NONE`.
+#[derive_const(PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
+pub struct Factor {
+    prefix: &'static str,
+    symbol: &'static str,
+    size: Exact,
+    power: i8,
+    base: [(&'static str, i8); B],
+}
+
+impl Factor {
+    /// An empty slot.
+    const NONE: Factor = Factor {
+        prefix: "",
+        symbol: "",
+        size: Exact::ONE,
+        power: 0,
+        base: [("", 0); B],
+    };
 }
 
 const fn str_cmp(a: &str, b: &str) -> i8 {
@@ -51,32 +70,29 @@ const fn str_cmp(a: &str, b: &str) -> i8 {
     }
 }
 
-/// Adds `sign` times each named thing of `from` into `into`: merged, without
+/// Adds `sign` times each base unit of `from` into `into`: merged, without
 /// zeros, sorted, empties last. `None` when there is no room.
 const fn merge<const K: usize>(
-    mut syms: [&'static str; K],
-    mut pows: [i8; K],
-    from: [&'static str; K],
-    from_pows: [i8; K],
+    mut into: [(&'static str, i8); K],
+    from: [(&'static str, i8); K],
     sign: i8,
-) -> Option<([&'static str; K], [i8; K])> {
+) -> Option<[(&'static str, i8); K]> {
     let mut i = 0;
     while i < K {
-        if from_pows[i] != 0 {
+        if from[i].1 != 0 {
             let mut j = 0;
             let mut placed = false;
             while j < K && !placed {
-                if pows[j] != 0 && str_cmp(syms[j], from[i]) == 0 {
-                    pows[j] += sign * from_pows[i];
+                if into[j].1 != 0 && str_cmp(into[j].0, from[i].0) == 0 {
+                    into[j].1 += sign * from[i].1;
                     placed = true;
                 }
                 j += 1;
             }
             j = 0;
             while j < K && !placed {
-                if pows[j] == 0 {
-                    syms[j] = from[i];
-                    pows[j] = sign * from_pows[i];
+                if into[j].1 == 0 {
+                    into[j] = (from[i].0, sign * from[i].1);
                     placed = true;
                 }
                 j += 1;
@@ -89,8 +105,8 @@ const fn merge<const K: usize>(
     }
     let mut k = 0;
     while k < K {
-        if pows[k] == 0 {
-            syms[k] = "";
+        if into[k].1 == 0 {
+            into[k].0 = "";
         }
         k += 1;
     }
@@ -98,31 +114,24 @@ const fn merge<const K: usize>(
     while a < K {
         let mut b = a + 1;
         while b < K {
-            if (pows[a] == 0 && pows[b] != 0)
-                || (pows[a] != 0 && pows[b] != 0 && str_cmp(syms[b], syms[a]) < 0)
+            if (into[a].1 == 0 && into[b].1 != 0)
+                || (into[a].1 != 0 && into[b].1 != 0 && str_cmp(into[b].0, into[a].0) < 0)
             {
-                let (s, p) = (syms[a], pows[a]);
-                syms[a] = syms[b];
-                pows[a] = pows[b];
-                syms[b] = s;
-                pows[b] = p;
+                let t = into[a];
+                into[a] = into[b];
+                into[b] = t;
             }
             b += 1;
         }
         a += 1;
     }
-    Some((syms, pows))
+    Some(into)
 }
 
 impl __UNIT__ {
     /// The unit of a plain number: no named units.
     pub const ONE: __UNIT__ = __UNIT__ {
-        prefixes: [""; F],
-        symbols: [""; F],
-        sizes: [Exact::ONE; F],
-        powers: [0; F],
-        bases: [[""; B]; F],
-        base_powers: [[0; B]; F],
+        factors: [Factor::NONE; F],
         zero: Exact::ZERO,
         log_base: Exact::ZERO,
         log_per: Exact::ZERO,
@@ -131,10 +140,9 @@ impl __UNIT__ {
     /// A base unit: a dimension of its own, `METRE`'s `"m"`.
     pub const fn base(symbol: &'static str) -> __UNIT__ {
         let mut u = __UNIT__::ONE;
-        u.symbols[0] = symbol;
-        u.powers[0] = 1;
-        u.bases[0][0] = symbol;
-        u.base_powers[0][0] = 1;
+        u.factors[0].symbol = symbol;
+        u.factors[0].power = 1;
+        u.factors[0].base[0] = (symbol, 1);
         u
     }
 
@@ -142,9 +150,9 @@ impl __UNIT__ {
     /// it multiplies - `KILO * METRE` is `km`.
     pub const fn prefix(symbol: &'static str, size: Exact) -> __UNIT__ {
         let mut u = __UNIT__::ONE;
-        u.prefixes[0] = symbol;
-        u.sizes[0] = size;
-        u.powers[0] = 1;
+        u.factors[0].prefix = symbol;
+        u.factors[0].size = size;
+        u.factors[0].power = 1;
         u
     }
 
@@ -152,12 +160,10 @@ impl __UNIT__ {
     /// zero or a log scale: the hour is 3600 seconds.
     pub const fn scaled(symbol: &'static str, size: Exact, of: __UNIT__) -> __UNIT__ {
         let mut u = __UNIT__::ONE;
-        u.symbols[0] = symbol;
-        u.powers[0] = 1;
-        u.sizes[0] = size * of.size();
-        let (b, p) = of.in_base();
-        u.bases[0] = b;
-        u.base_powers[0] = p;
+        u.factors[0].symbol = symbol;
+        u.factors[0].power = 1;
+        u.factors[0].size = size * of.size();
+        u.factors[0].base = of.dimension();
         u
     }
 
@@ -185,13 +191,14 @@ impl __UNIT__ {
     }
 
     const fn is_prefix(self) -> bool {
-        self.powers[0] == 1 && self.symbols[0].is_empty() && !self.prefixes[0].is_empty()
+        let f = self.factors[0];
+        f.power == 1 && f.symbol.is_empty() && !f.prefix.is_empty()
     }
     const fn is_linear(self) -> bool {
         self.zero == Exact::ZERO && !self.is_log()
     }
     const fn is_single(self) -> bool {
-        self.powers[0] == 1 && self.powers[1] == 0
+        self.factors[0].power == 1 && self.factors[1].power == 0
     }
 
     /// This unit times `other` to the power `n`: `None` for a unit with a
@@ -203,39 +210,39 @@ impl __UNIT__ {
         if n == 1
             && self.is_prefix()
             && other.is_single()
-            && other.prefixes[0].is_empty()
+            && other.factors[0].prefix.is_empty()
             && !other.is_prefix()
         {
             let mut u = other;
-            u.prefixes[0] = self.prefixes[0];
-            u.sizes[0] = self.sizes[0] * other.sizes[0];
+            u.factors[0].prefix = self.factors[0].prefix;
+            u.factors[0].size = self.factors[0].size * other.factors[0].size;
             return Some(u);
         }
         let mut out = self;
         let mut i = 0;
         while i < F {
-            if other.powers[i] != 0 {
+            let o = other.factors[i];
+            if o.power != 0 {
                 let mut j = 0;
                 let mut placed = false;
                 while j < F && !placed {
-                    if out.powers[j] != 0
-                        && str_cmp(out.symbols[j], other.symbols[i]) == 0
-                        && str_cmp(out.prefixes[j], other.prefixes[i]) == 0
+                    let f = out.factors[j];
+                    if f.power != 0
+                        && str_cmp(f.symbol, o.symbol) == 0
+                        && str_cmp(f.prefix, o.prefix) == 0
                     {
-                        out.powers[j] += n * other.powers[i];
+                        out.factors[j].power += n * o.power;
                         placed = true;
                     }
                     j += 1;
                 }
                 j = 0;
                 while j < F && !placed {
-                    if out.powers[j] == 0 {
-                        out.prefixes[j] = other.prefixes[i];
-                        out.symbols[j] = other.symbols[i];
-                        out.sizes[j] = other.sizes[i];
-                        out.bases[j] = other.bases[i];
-                        out.base_powers[j] = other.base_powers[i];
-                        out.powers[j] = n * other.powers[i];
+                    if out.factors[j].power == 0 {
+                        out.factors[j] = Factor {
+                            power: n * o.power,
+                            ..o
+                        };
                         placed = true;
                     }
                     j += 1;
@@ -253,12 +260,8 @@ impl __UNIT__ {
     const fn normal(mut self) -> __UNIT__ {
         let mut k = 0;
         while k < F {
-            if self.powers[k] == 0 {
-                self.prefixes[k] = "";
-                self.symbols[k] = "";
-                self.sizes[k] = Exact::ONE;
-                self.bases[k] = [""; B];
-                self.base_powers[k] = [0; B];
+            if self.factors[k].power == 0 {
+                self.factors[k] = Factor::NONE;
             }
             k += 1;
         }
@@ -266,33 +269,14 @@ impl __UNIT__ {
         while a < F {
             let mut b = a + 1;
             while b < F {
-                let later = match str_cmp(self.symbols[b], self.symbols[a]) {
-                    0 => str_cmp(self.prefixes[b], self.prefixes[a]) < 0,
+                let (x, y) = (self.factors[a], self.factors[b]);
+                let later = match str_cmp(y.symbol, x.symbol) {
+                    0 => str_cmp(y.prefix, x.prefix) < 0,
                     c => c < 0,
                 };
-                if (self.powers[a] == 0 && self.powers[b] != 0)
-                    || (self.powers[a] != 0 && self.powers[b] != 0 && later)
-                {
-                    let t = (
-                        self.prefixes[a],
-                        self.symbols[a],
-                        self.sizes[a],
-                        self.powers[a],
-                        self.bases[a],
-                        self.base_powers[a],
-                    );
-                    self.prefixes[a] = self.prefixes[b];
-                    self.symbols[a] = self.symbols[b];
-                    self.sizes[a] = self.sizes[b];
-                    self.powers[a] = self.powers[b];
-                    self.bases[a] = self.bases[b];
-                    self.base_powers[a] = self.base_powers[b];
-                    self.prefixes[b] = t.0;
-                    self.symbols[b] = t.1;
-                    self.sizes[b] = t.2;
-                    self.powers[b] = t.3;
-                    self.bases[b] = t.4;
-                    self.base_powers[b] = t.5;
+                if (x.power == 0 && y.power != 0) || (x.power != 0 && y.power != 0 && later) {
+                    self.factors[a] = y;
+                    self.factors[b] = x;
                 }
                 b += 1;
             }
@@ -316,13 +300,14 @@ impl __UNIT__ {
         let mut s = Exact::ONE;
         let mut i = 0;
         while i < F {
-            let mut p = self.powers[i];
+            let f = self.factors[i];
+            let mut p = f.power;
             while p > 0 {
-                s = s * self.sizes[i];
+                s = s * f.size;
                 p -= 1;
             }
             while p < 0 {
-                s = s / self.sizes[i];
+                s = s / f.size;
                 p += 1;
             }
             i += 1;
@@ -332,33 +317,45 @@ impl __UNIT__ {
 
     /// What it is in base units - its dimension: base symbols and powers.
     pub const fn in_base(self) -> ([&'static str; B], [i8; B]) {
-        let (mut s, mut p) = ([""; B], [0i8; B]);
+        let base = self.dimension();
+        let (mut symbols, mut powers) = ([""; B], [0; B]);
+        let mut i = 0;
+        while i < B {
+            (symbols[i], powers[i]) = base[i];
+            i += 1;
+        }
+        (symbols, powers)
+    }
+
+    /// Its dimension as base symbols with their powers, sorted, empties last.
+    const fn dimension(self) -> [(&'static str, i8); B] {
+        let mut out = [("", 0); B];
         let mut i = 0;
         while i < F {
-            if self.powers[i] != 0 {
-                let mut scaled = self.base_powers[i];
+            let f = self.factors[i];
+            if f.power != 0 {
+                let mut scaled = f.base;
                 let mut k = 0;
                 while k < B {
-                    scaled[k] *= self.powers[i];
+                    scaled[k].1 *= f.power;
                     k += 1;
                 }
-                (s, p) = match merge(s, p, self.bases[i], scaled, 1) {
+                out = match merge(out, scaled, 1) {
                     Some(x) => x,
                     None => panic!("too many base units"),
                 };
             }
             i += 1;
         }
-        (s, p)
+        out
     }
 
     /// Whether two units measure the same dimension.
     pub const fn same_dimension(self, other: __UNIT__) -> bool {
-        let (a, x) = self.in_base();
-        let (b, y) = other.in_base();
+        let (a, b) = (self.dimension(), other.dimension());
         let mut i = 0;
         while i < B {
-            if x[i] != y[i] || (x[i] != 0 && str_cmp(a[i], b[i]) != 0) {
+            if a[i].1 != b[i].1 || (a[i].1 != 0 && str_cmp(a[i].0, b[i].0) != 0) {
                 return false;
             }
             i += 1;
@@ -369,10 +366,10 @@ impl __UNIT__ {
     /// Whether it is the unit of a plain number: of dimension one, without a
     /// zero or a log scale - `m/km`, `%`, `k`.
     pub const fn is_plain_number(self) -> bool {
-        let (_, p) = self.in_base();
+        let base = self.dimension();
         let mut i = 0;
         while i < B {
-            if p[i] != 0 {
+            if base[i].1 != 0 {
                 return false;
             }
             i += 1;
@@ -449,20 +446,21 @@ impl __UNIT__ {
         }
         let mut k = 0;
         while k < F {
-            if self.powers[k] == 1 && self.symbols[k].is_empty() && !self.prefixes[k].is_empty() {
+            let f = self.factors[k];
+            if f.power == 1 && f.symbol.is_empty() && !f.prefix.is_empty() {
                 let mut rest = self;
-                rest.powers[k] = 0;
+                rest.factors[k].power = 0;
                 if let Some(name) = rest.normal().name() {
-                    w.write_str(self.prefixes[k])?;
+                    w.write_str(f.prefix)?;
                     return w.write_str(name);
                 }
             }
             k += 1;
         }
         let count = |positive: bool| {
-            self.powers
+            self.factors
                 .iter()
-                .filter(|&&p| p != 0 && (p > 0) == positive)
+                .filter(|f| f.power != 0 && (f.power > 0) == positive)
                 .count()
         };
         let (num, den) = (count(true), count(false));
@@ -493,7 +491,8 @@ impl __UNIT__ {
     fn write_powers(self, w: &mut impl core::fmt::Write, positive: bool) -> core::fmt::Result {
         let mut first = true;
         for k in 0..F {
-            let p = self.powers[k];
+            let f = self.factors[k];
+            let p = f.power;
             if p == 0 || (p > 0) != positive {
                 continue;
             }
@@ -501,7 +500,7 @@ impl __UNIT__ {
                 w.write_str("·")?;
             }
             first = false;
-            write!(w, "{}{}", self.prefixes[k], self.symbols[k])?;
+            write!(w, "{}{}", f.prefix, f.symbol)?;
             if p.abs() != 1 {
                 write!(w, "^{}", p.abs())?;
             }
