@@ -251,10 +251,7 @@ pub const fn add_labels<D: [const] Dimension>(a: D, b: D) -> bool
 where
     <D as Mul>::Output: [const] Into<Option<D>>,
 {
-    sum_is_left(a, b)
-        || sum_is_left(b, a)
-        || !same_dimension(a, b)
-        || (is_point(a) && is_point(b))
+    sum_is_left(a, b) || sum_is_left(b, a) || !same_dimension(a, b) || (is_point(a) && is_point(b))
 }
 
 /// `a - b`: not refused for differing dimensions.

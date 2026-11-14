@@ -74,7 +74,10 @@ fn unit_def(variant: &str, m: &str, z: Option<&str>, symbol: &str, long: &str) -
 
 /// The same, its type named `t`.
 fn named(t: &str, unit: UnitDef) -> UnitDef {
-    UnitDef { type_name: Some(t.into()), ..unit }
+    UnitDef {
+        type_name: Some(t.into()),
+        ..unit
+    }
 }
 
 /// Hardcoded temperature quantities - Celsius/Fahrenheit are isSpecial in
@@ -89,13 +92,40 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
             dims: k_dim.clone(),
             kind: Some(kind.to_string()),
             units: vec![
-                named("KelvinScale", unit_def("Kelvin", "1.0", None, "K", "kelvin")),
-                named("Celsius", unit_def("DegreeCelsius", "1.0", Some("273.15"), "Cel", "degrees Celsius")),
+                named(
+                    "KelvinScale",
+                    unit_def("Kelvin", "1.0", None, "K", "kelvin"),
+                ),
+                named(
+                    "Celsius",
+                    unit_def(
+                        "DegreeCelsius",
+                        "1.0",
+                        Some("273.15"),
+                        "Cel",
+                        "degrees Celsius",
+                    ),
+                ),
                 named(
                     "Fahrenheit",
-                    unit_def("DegreeFahrenheit", "5.0 / 9.0", Some("459.67 * 5.0 / 9.0"), "[degF]", "degrees Fahrenheit"),
+                    unit_def(
+                        "DegreeFahrenheit",
+                        "5.0 / 9.0",
+                        Some("459.67 * 5.0 / 9.0"),
+                        "[degF]",
+                        "degrees Fahrenheit",
+                    ),
                 ),
-                named("Rankine", unit_def("DegreeRankine", "5.0 / 9.0", None, "[degR]", "degrees Rankine")),
+                named(
+                    "Rankine",
+                    unit_def(
+                        "DegreeRankine",
+                        "5.0 / 9.0",
+                        None,
+                        "[degR]",
+                        "degrees Rankine",
+                    ),
+                ),
             ],
         },
         QuantityDef {
@@ -104,7 +134,13 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
             kind: None,
             units: vec![
                 unit_def("Kelvin", "1.0", None, "K", "kelvin"),
-                unit_def("DegreeFahrenheit", "5.0 / 9.0", None, "[degF]", "degrees Fahrenheit"),
+                unit_def(
+                    "DegreeFahrenheit",
+                    "5.0 / 9.0",
+                    None,
+                    "[degF]",
+                    "degrees Fahrenheit",
+                ),
             ],
         },
     ]
@@ -190,7 +226,13 @@ pub fn to_unit_system(
             &mut groups,
             &key,
             // UCUM's code, case-sensitive: what it prints and parses.
-            unit_def(&to_pascal(&base.name), &fmt_mult(&r.multiplier), None, &base.code, &base.name),
+            unit_def(
+                &to_pascal(&base.name),
+                &fmt_mult(&r.multiplier),
+                None,
+                &base.code,
+                &base.name,
+            ),
         );
     }
 
@@ -311,5 +353,11 @@ pub fn to_unit_system(
 
 fn make_unit_def(unit: &Unit, multiplier: &Factor) -> UnitDef {
     // UCUM's code, case-sensitive: what it prints and parses.
-    unit_def(&to_pascal(&unit.name), &fmt_mult(multiplier), None, &unit.code, &unit.name)
+    unit_def(
+        &to_pascal(&unit.name),
+        &fmt_mult(multiplier),
+        None,
+        &unit.code,
+        &unit.name,
+    )
 }

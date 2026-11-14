@@ -1,428 +1,353 @@
 //! The units of `chemistry`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::chemistry::units::*;
 use crate::chemistry::*;
 use crate::dynamic::DynamicSIUnit;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `AmountOfSubstance`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AmountOfSubstance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<AMOUNT_OF_SUBSTANCE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<AMOUNT_OF_SUBSTANCE, N>;
+        fn value(&self, quantity: SIQuantity<AMOUNT_OF_SUBSTANCE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AmountOfSubstanceUnit {
     #[default]
-    #[unit(Mole)]
+    #[value(MOLE)]
     Mole,
-    #[unit(Particle)]
+    #[value(PARTICLE)]
     Particle,
-}
-
-impl From<AmountOfSubstanceUnit> for DynamicSIUnit {
-    fn from(unit: AmountOfSubstanceUnit) -> Self {
-        match unit {
-            AmountOfSubstanceUnit::Mole => Mole {}.into(),
-            AmountOfSubstanceUnit::Particle => Particle {}.into(),
-        }
-    }
 }
 
 /// The units of `MolarConcentration`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarConcentration<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_CONCENTRATION, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_CONCENTRATION, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_CONCENTRATION, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarConcentrationUnit {
     #[default]
-    #[unit(MolePerCubicMetre)]
+    #[value(MOLE_PER_CUBIC_METRE)]
     MolePerCubicMetre,
-    #[unit(MolePerLitre)]
+    #[value(MOLE_PER_LITRE)]
     MolePerLitre,
-    #[unit(ParticlePerCubicMetre)]
+    #[value(PARTICLE_PER_CUBIC_METRE)]
     ParticlePerCubicMetre,
-}
-
-impl From<MolarConcentrationUnit> for DynamicSIUnit {
-    fn from(unit: MolarConcentrationUnit) -> Self {
-        match unit {
-            MolarConcentrationUnit::MolePerCubicMetre => MolePerCubicMetre {}.into(),
-            MolarConcentrationUnit::MolePerLitre => MolePerLitre {}.into(),
-            MolarConcentrationUnit::ParticlePerCubicMetre => ParticlePerCubicMetre {}.into(),
-        }
-    }
 }
 
 /// The units of `MolarEnergy`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarEnergy<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_ENERGY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_ENERGY, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_ENERGY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarEnergyUnit {
     #[default]
-    #[unit(KilogramSquareMetrePerSecondSquaredMole)]
+    #[value(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_MOLE)]
     KilogramSquareMetrePerSecondSquaredMole,
-    #[unit(JoulePerMole)]
+    #[value(JOULE_PER_MOLE)]
     JoulePerMole,
-    #[unit(WattHourPerMole)]
+    #[value(WATT_HOUR_PER_MOLE)]
     WattHourPerMole,
-    #[unit(BtuItPerMole)]
+    #[value(BTU_IT_PER_MOLE)]
     BtuItPerMole,
-    #[unit(BtuPerMole)]
+    #[value(BTU_PER_MOLE)]
     BtuPerMole,
-    #[unit(CalorieItPerMole)]
+    #[value(CALORIE_IT_PER_MOLE)]
     CalorieItPerMole,
-    #[unit(CaloriePerMole)]
+    #[value(CALORIE_PER_MOLE)]
     CaloriePerMole,
-    #[unit(CalorieItNutritionPerMole)]
+    #[value(CALORIE_IT_NUTRITION_PER_MOLE)]
     CalorieItNutritionPerMole,
-    #[unit(CalorieNutritionPerMole)]
+    #[value(CALORIE_NUTRITION_PER_MOLE)]
     CalorieNutritionPerMole,
-    #[unit(ElectronvoltPerMole)]
+    #[value(ELECTRONVOLT_PER_MOLE)]
     ElectronvoltPerMole,
-    #[unit(ErgPerMole)]
+    #[value(ERG_PER_MOLE)]
     ErgPerMole,
-    #[unit(FootPoundalPerMole)]
+    #[value(FOOT_POUNDAL_PER_MOLE)]
     FootPoundalPerMole,
-    #[unit(FootPoundForcePerMole)]
+    #[value(FOOT_POUND_FORCE_PER_MOLE)]
     FootPoundForcePerMole,
-    #[unit(QuadPerMole)]
+    #[value(QUAD_PER_MOLE)]
     QuadPerMole,
-    #[unit(ThermEcPerMole)]
+    #[value(THERM_EC_PER_MOLE)]
     ThermEcPerMole,
-    #[unit(ThermUsPerMole)]
+    #[value(THERM_US_PER_MOLE)]
     ThermUsPerMole,
-    #[unit(TonTntPerMole)]
+    #[value(TON_TNT_PER_MOLE)]
     TonTntPerMole,
-    #[unit(WattSecondPerMole)]
+    #[value(WATT_SECOND_PER_MOLE)]
     WattSecondPerMole,
-    #[unit(JoulePerParticle)]
+    #[value(JOULE_PER_PARTICLE)]
     JoulePerParticle,
-    #[unit(ElectronvoltPerParticle)]
+    #[value(ELECTRONVOLT_PER_PARTICLE)]
     ElectronvoltPerParticle,
-}
-
-impl From<MolarEnergyUnit> for DynamicSIUnit {
-    fn from(unit: MolarEnergyUnit) -> Self {
-        match unit {
-            MolarEnergyUnit::KilogramSquareMetrePerSecondSquaredMole => {
-                KilogramSquareMetrePerSecondSquaredMole {}.into()
-            }
-            MolarEnergyUnit::JoulePerMole => JoulePerMole {}.into(),
-            MolarEnergyUnit::WattHourPerMole => WattHourPerMole {}.into(),
-            MolarEnergyUnit::BtuItPerMole => BtuItPerMole {}.into(),
-            MolarEnergyUnit::BtuPerMole => BtuPerMole {}.into(),
-            MolarEnergyUnit::CalorieItPerMole => CalorieItPerMole {}.into(),
-            MolarEnergyUnit::CaloriePerMole => CaloriePerMole {}.into(),
-            MolarEnergyUnit::CalorieItNutritionPerMole => CalorieItNutritionPerMole {}.into(),
-            MolarEnergyUnit::CalorieNutritionPerMole => CalorieNutritionPerMole {}.into(),
-            MolarEnergyUnit::ElectronvoltPerMole => ElectronvoltPerMole {}.into(),
-            MolarEnergyUnit::ErgPerMole => ErgPerMole {}.into(),
-            MolarEnergyUnit::FootPoundalPerMole => FootPoundalPerMole {}.into(),
-            MolarEnergyUnit::FootPoundForcePerMole => FootPoundForcePerMole {}.into(),
-            MolarEnergyUnit::QuadPerMole => QuadPerMole {}.into(),
-            MolarEnergyUnit::ThermEcPerMole => ThermEcPerMole {}.into(),
-            MolarEnergyUnit::ThermUsPerMole => ThermUsPerMole {}.into(),
-            MolarEnergyUnit::TonTntPerMole => TonTntPerMole {}.into(),
-            MolarEnergyUnit::WattSecondPerMole => WattSecondPerMole {}.into(),
-            MolarEnergyUnit::JoulePerParticle => JoulePerParticle {}.into(),
-            MolarEnergyUnit::ElectronvoltPerParticle => ElectronvoltPerParticle {}.into(),
-        }
-    }
 }
 
 /// The units of `MolarFlux`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarFlux<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_FLUX, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_FLUX, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_FLUX, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarFluxUnit {
     #[default]
-    #[unit(MolePerSquareMetreSecond)]
+    #[value(MOLE_PER_SQUARE_METRE_SECOND)]
     MolePerSquareMetreSecond,
-}
-
-impl From<MolarFluxUnit> for DynamicSIUnit {
-    fn from(unit: MolarFluxUnit) -> Self {
-        match unit {
-            MolarFluxUnit::MolePerSquareMetreSecond => MolePerSquareMetreSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `MolarHeatCapacity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarHeatCapacity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_HEAT_CAPACITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_HEAT_CAPACITY, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_HEAT_CAPACITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarHeatCapacityUnit {
     #[default]
-    #[unit(JoulePerKelvinMole)]
+    #[value(JOULE_PER_KELVIN_MOLE)]
     JoulePerKelvinMole,
-    #[unit(BtuItPerKelvinMole)]
+    #[value(BTU_IT_PER_KELVIN_MOLE)]
     BtuItPerKelvinMole,
-    #[unit(BtuPerKelvinMole)]
+    #[value(BTU_PER_KELVIN_MOLE)]
     BtuPerKelvinMole,
-    #[unit(CalorieItPerKelvinMole)]
+    #[value(CALORIE_IT_PER_KELVIN_MOLE)]
     CalorieItPerKelvinMole,
-    #[unit(CaloriePerKelvinMole)]
+    #[value(CALORIE_PER_KELVIN_MOLE)]
     CaloriePerKelvinMole,
-    #[unit(CalorieItNutritionPerKelvinMole)]
+    #[value(CALORIE_IT_NUTRITION_PER_KELVIN_MOLE)]
     CalorieItNutritionPerKelvinMole,
-    #[unit(CalorieNutritionPerKelvinMole)]
+    #[value(CALORIE_NUTRITION_PER_KELVIN_MOLE)]
     CalorieNutritionPerKelvinMole,
-    #[unit(JoulePerKelvinParticle)]
+    #[value(JOULE_PER_KELVIN_PARTICLE)]
     JoulePerKelvinParticle,
-    #[unit(ElectronvoltPerKelvinParticle)]
+    #[value(ELECTRONVOLT_PER_KELVIN_PARTICLE)]
     ElectronvoltPerKelvinParticle,
-    #[unit(MolarGasConstant)]
+    #[value(MOLAR_GAS_CONSTANT)]
     MolarGasConstant,
-}
-
-impl From<MolarHeatCapacityUnit> for DynamicSIUnit {
-    fn from(unit: MolarHeatCapacityUnit) -> Self {
-        match unit {
-            MolarHeatCapacityUnit::JoulePerKelvinMole => JoulePerKelvinMole {}.into(),
-            MolarHeatCapacityUnit::BtuItPerKelvinMole => BtuItPerKelvinMole {}.into(),
-            MolarHeatCapacityUnit::BtuPerKelvinMole => BtuPerKelvinMole {}.into(),
-            MolarHeatCapacityUnit::CalorieItPerKelvinMole => CalorieItPerKelvinMole {}.into(),
-            MolarHeatCapacityUnit::CaloriePerKelvinMole => CaloriePerKelvinMole {}.into(),
-            MolarHeatCapacityUnit::CalorieItNutritionPerKelvinMole => {
-                CalorieItNutritionPerKelvinMole {}.into()
-            }
-            MolarHeatCapacityUnit::CalorieNutritionPerKelvinMole => {
-                CalorieNutritionPerKelvinMole {}.into()
-            }
-            MolarHeatCapacityUnit::JoulePerKelvinParticle => JoulePerKelvinParticle {}.into(),
-            MolarHeatCapacityUnit::ElectronvoltPerKelvinParticle => {
-                ElectronvoltPerKelvinParticle {}.into()
-            }
-            MolarHeatCapacityUnit::MolarGasConstant => MolarGasConstant {}.into(),
-        }
-    }
 }
 
 /// The units of `MolarMass`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarMass<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_MASS, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_MASS, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_MASS, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarMassUnit {
     #[default]
-    #[unit(KilogramPerMole)]
+    #[value(KILOGRAM_PER_MOLE)]
     KilogramPerMole,
-    #[unit(GramPerMole)]
+    #[value(GRAM_PER_MOLE)]
     GramPerMole,
-}
-
-impl From<MolarMassUnit> for DynamicSIUnit {
-    fn from(unit: MolarMassUnit) -> Self {
-        match unit {
-            MolarMassUnit::KilogramPerMole => KilogramPerMole {}.into(),
-            MolarMassUnit::GramPerMole => GramPerMole {}.into(),
-        }
-    }
 }
 
 /// The units of `MolarRadioactivity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarRadioactivity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_RADIOACTIVITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_RADIOACTIVITY, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_RADIOACTIVITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarRadioactivityUnit {
     #[default]
-    #[unit(BecquerelPerMole)]
+    #[value(BECQUEREL_PER_MOLE)]
     BecquerelPerMole,
-    #[unit(CuriePerMole)]
+    #[value(CURIE_PER_MOLE)]
     CuriePerMole,
-    #[unit(DisintegrationsPerMinutePerMole)]
+    #[value(DISINTEGRATIONS_PER_MINUTE_PER_MOLE)]
     DisintegrationsPerMinutePerMole,
-}
-
-impl From<MolarRadioactivityUnit> for DynamicSIUnit {
-    fn from(unit: MolarRadioactivityUnit) -> Self {
-        match unit {
-            MolarRadioactivityUnit::BecquerelPerMole => BecquerelPerMole {}.into(),
-            MolarRadioactivityUnit::CuriePerMole => CuriePerMole {}.into(),
-            MolarRadioactivityUnit::DisintegrationsPerMinutePerMole => {
-                DisintegrationsPerMinutePerMole {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `MolarVolume`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MolarVolume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLAR_VOLUME, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLAR_VOLUME, N>;
+        fn value(&self, quantity: SIQuantity<MOLAR_VOLUME, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolarVolumeUnit {
     #[default]
-    #[unit(CubicMetrePerMole)]
+    #[value(CUBIC_METRE_PER_MOLE)]
     CubicMetrePerMole,
-    #[unit(CubicMetrePerParticle)]
+    #[value(CUBIC_METRE_PER_PARTICLE)]
     CubicMetrePerParticle,
-}
-
-impl From<MolarVolumeUnit> for DynamicSIUnit {
-    fn from(unit: MolarVolumeUnit) -> Self {
-        match unit {
-            MolarVolumeUnit::CubicMetrePerMole => CubicMetrePerMole {}.into(),
-            MolarVolumeUnit::CubicMetrePerParticle => CubicMetrePerParticle {}.into(),
-        }
-    }
 }
 
 /// The units of `Molality`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Molality<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MOLALITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MOLALITY, N>;
+        fn value(&self, quantity: SIQuantity<MOLALITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MolalityUnit {
     #[default]
-    #[unit(MolePerKilogram)]
+    #[value(MOLE_PER_KILOGRAM)]
     MolePerKilogram,
-}
-
-impl From<MolalityUnit> for DynamicSIUnit {
-    fn from(unit: MolalityUnit) -> Self {
-        match unit {
-            MolalityUnit::MolePerKilogram => MolePerKilogram {}.into(),
-        }
-    }
 }
 
 /// The units of `MassConcentration`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassConcentration<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MASS_CONCENTRATION, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MASS_CONCENTRATION, N>;
+        fn value(&self, quantity: SIQuantity<MASS_CONCENTRATION, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MassConcentrationUnit {
     #[default]
-    #[unit(KilogramPerCubicMetre)]
+    #[value(KILOGRAM_PER_CUBIC_METRE)]
     KilogramPerCubicMetre,
-    #[unit(GramPerCubicMetre)]
+    #[value(GRAM_PER_CUBIC_METRE)]
     GramPerCubicMetre,
-}
-
-impl From<MassConcentrationUnit> for DynamicSIUnit {
-    fn from(unit: MassConcentrationUnit) -> Self {
-        match unit {
-            MassConcentrationUnit::KilogramPerCubicMetre => KilogramPerCubicMetre {}.into(),
-            MassConcentrationUnit::GramPerCubicMetre => GramPerCubicMetre {}.into(),
-        }
-    }
 }
 
 /// The units of `CatalyticActivity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CatalyticActivity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<CATALYTIC_ACTIVITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<CATALYTIC_ACTIVITY, N>;
+        fn value(&self, quantity: SIQuantity<CATALYTIC_ACTIVITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum CatalyticActivityUnit {
     #[default]
-    #[unit(Katal)]
+    #[value(KATAL)]
     Katal,
-    #[unit(ParticlePerSecond)]
+    #[value(PARTICLE_PER_SECOND)]
     ParticlePerSecond,
-    #[unit(MolePerSecond)]
+    #[value(MOLE_PER_SECOND)]
     MolePerSecond,
-}
-
-impl From<CatalyticActivityUnit> for DynamicSIUnit {
-    fn from(unit: CatalyticActivityUnit) -> Self {
-        match unit {
-            CatalyticActivityUnit::Katal => Katal {}.into(),
-            CatalyticActivityUnit::ParticlePerSecond => ParticlePerSecond {}.into(),
-            CatalyticActivityUnit::MolePerSecond => MolePerSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `CatalyticActivityConcentration`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CatalyticActivityConcentration<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<CATALYTIC_ACTIVITY_CONCENTRATION, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<CATALYTIC_ACTIVITY_CONCENTRATION, N>;
+        fn value(&self, quantity: SIQuantity<CATALYTIC_ACTIVITY_CONCENTRATION, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum CatalyticActivityConcentrationUnit {
     #[default]
-    #[unit(KatalPerCubicMetre)]
+    #[value(KATAL_PER_CUBIC_METRE)]
     KatalPerCubicMetre,
-    #[unit(KatalPerLitre)]
+    #[value(KATAL_PER_LITRE)]
     KatalPerLitre,
-    #[unit(ParticlePerSecondCubicMetre)]
+    #[value(PARTICLE_PER_SECOND_CUBIC_METRE)]
     ParticlePerSecondCubicMetre,
-}
-
-impl From<CatalyticActivityConcentrationUnit> for DynamicSIUnit {
-    fn from(unit: CatalyticActivityConcentrationUnit) -> Self {
-        match unit {
-            CatalyticActivityConcentrationUnit::KatalPerCubicMetre => KatalPerCubicMetre {}.into(),
-            CatalyticActivityConcentrationUnit::KatalPerLitre => KatalPerLitre {}.into(),
-            CatalyticActivityConcentrationUnit::ParticlePerSecondCubicMetre => {
-                ParticlePerSecondCubicMetre {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `Radioactivity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Radioactivity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<RADIOACTIVITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<RADIOACTIVITY, N>;
+        fn value(&self, quantity: SIQuantity<RADIOACTIVITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum RadioactivityUnit {
     #[default]
-    #[unit(Becquerel)]
+    #[value(BECQUEREL)]
     Becquerel,
-    #[unit(Curie)]
+    #[value(CURIE)]
     Curie,
-    #[unit(DisintegrationsPerMinute)]
+    #[value(DISINTEGRATIONS_PER_MINUTE)]
     DisintegrationsPerMinute,
-}
-
-impl From<RadioactivityUnit> for DynamicSIUnit {
-    fn from(unit: RadioactivityUnit) -> Self {
-        match unit {
-            RadioactivityUnit::Becquerel => Becquerel {}.into(),
-            RadioactivityUnit::Curie => Curie {}.into(),
-            RadioactivityUnit::DisintegrationsPerMinute => DisintegrationsPerMinute {}.into(),
-        }
-    }
 }
 
 /// The units of `SpecificRadioactivity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificRadioactivity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<SPECIFIC_RADIOACTIVITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<SPECIFIC_RADIOACTIVITY, N>;
+        fn value(&self, quantity: SIQuantity<SPECIFIC_RADIOACTIVITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum SpecificRadioactivityUnit {
     #[default]
-    #[unit(BecquerelPerKilogram)]
+    #[value(BECQUEREL_PER_KILOGRAM)]
     BecquerelPerKilogram,
-    #[unit(CuriePerKilogram)]
+    #[value(CURIE_PER_KILOGRAM)]
     CuriePerKilogram,
-    #[unit(DisintegrationsPerMinutePerKilogram)]
+    #[value(DISINTEGRATIONS_PER_MINUTE_PER_KILOGRAM)]
     DisintegrationsPerMinutePerKilogram,
-}
-
-impl From<SpecificRadioactivityUnit> for DynamicSIUnit {
-    fn from(unit: SpecificRadioactivityUnit) -> Self {
-        match unit {
-            SpecificRadioactivityUnit::BecquerelPerKilogram => BecquerelPerKilogram {}.into(),
-            SpecificRadioactivityUnit::CuriePerKilogram => CuriePerKilogram {}.into(),
-            SpecificRadioactivityUnit::DisintegrationsPerMinutePerKilogram => {
-                DisintegrationsPerMinutePerKilogram {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `InverseAmountOfSubstance`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InverseAmountOfSubstance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<INVERSE_AMOUNT_OF_SUBSTANCE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<INVERSE_AMOUNT_OF_SUBSTANCE, N>;
+        fn value(&self, quantity: SIQuantity<INVERSE_AMOUNT_OF_SUBSTANCE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum InverseAmountOfSubstanceUnit {
     #[default]
-    #[unit(PerMole)]
+    #[value(PER_MOLE)]
     PerMole,
-    #[unit(AvogadroConstant)]
+    #[value(AVOGADRO_CONSTANT)]
     AvogadroConstant,
-}
-
-impl From<InverseAmountOfSubstanceUnit> for DynamicSIUnit {
-    fn from(unit: InverseAmountOfSubstanceUnit) -> Self {
-        match unit {
-            InverseAmountOfSubstanceUnit::PerMole => PerMole {}.into(),
-            InverseAmountOfSubstanceUnit::AvogadroConstant => AvogadroConstant {}.into(),
-        }
-    }
 }

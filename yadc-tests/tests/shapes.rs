@@ -1,7 +1,14 @@
 //! Shapes the derives accept: a quantity with only some of its extras, and a
-//! unit enum whose variants name generic unit types and aliases of them.
+//! unit type defined by a const parameter, named by an enum of units.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
+#![feature(
+    const_cmp,
+    const_default,
+    derive_const,
+    const_ops,
+    const_convert,
+    const_try
+)]
 #![allow(incomplete_features)]
 
 use core::marker::ConstParamTy;
@@ -63,28 +70,42 @@ impl<const N: u32> core::fmt::Display for Metres<N> {
     }
 }
 
-pub type Kilometre = Metres<1000>;
+/// The units, as constants of their types.
+pub const METRES: Metres<1> = Metres;
+pub const KILOMETRE: Metres<1000> = Metres;
 
-/// Variants naming a generic unit type and an alias of one; a unit of each
-/// `of`.
-#[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Length, of = Distance, number = f64)]
+/// A unit itself, in `const`: its impl is `const`.
+const TEN_KM: Length = KILOMETRE.quantity(10.0);
+
+/// Variants naming values of a generic unit type; a unit of each
+/// `delegate`.
+#[derive(Copy, Clone, Debug, PartialEq, dynamickit::Values)]
+#[values(
+    delegate(Unit<Length, f64> {
+        fn quantity(&self, value: f64) -> Length;
+        fn value(&self, quantity: Length) -> f64;
+    }),
+    delegate(Unit<Distance, f64> {
+        fn quantity(&self, value: f64) -> Distance;
+        fn value(&self, quantity: Distance) -> f64;
+    })
+)]
 pub enum Lengths {
-    #[unit(Metres<1>)]
+    #[value(METRES)]
     Metre,
-    #[unit(Kilometre)]
+    #[value(KILOMETRE)]
     Kilometre,
 }
 
-/// Built and read in `const`: the derived impl is `const`.
-const TEN_KM: Length = Lengths::Kilometre.quantity(10.0);
-
 #[test]
-fn variants_name_unit_types() {
+fn variants_name_unit_values() {
     assert_eq!(Lengths::Metre.value(TEN_KM), 10_000.0);
     let d: Distance = Lengths::Kilometre.quantity(2.0);
     assert_eq!(ONE_METRE.value(d), 2000.0);
-    assert_eq!(format!("{}|{:>3}", Lengths::Metre, Lengths::Kilometre), "m| km");
+    assert_eq!(
+        format!("{}|{:>3}", Lengths::Metre, Lengths::Kilometre),
+        "m| km"
+    );
     assert_eq!("km".parse::<Lengths>(), Ok(Lengths::Kilometre));
-    assert_eq!("mi".parse::<Lengths>(), Err(yadc::UnknownUnit));
+    assert_eq!("mi".parse::<Lengths>(), Err(dynamickit::NoValue));
 }

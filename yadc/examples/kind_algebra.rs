@@ -92,31 +92,157 @@ pub struct Qty<const D: Dim>(f64);
 // --- Quantities ----------------------------------------------------------------
 
 pub type Ratio = Qty<{ Dim::DIMENSIONLESS }>;
-pub type Length = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }>;
-pub type Area = Qty<{ Dim { m: 2, ..Dim::DIMENSIONLESS } }>;
-pub type Time = Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }>;
+pub type Length = Qty<
+    {
+        Dim {
+            m: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type Area = Qty<
+    {
+        Dim {
+            m: 2,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type Time = Qty<
+    {
+        Dim {
+            s: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// A temperature as a thermometer reads it: a point on the line of kelvins.
-pub type Temperature = Qty<{ Dim { k: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>;
+pub type Temperature = Qty<
+    {
+        Dim {
+            k: 1,
+            kind: Kind::Affine,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// A temperature step: an amount.
-pub type TemperatureStep = Qty<{ Dim { k: 1, ..Dim::DIMENSIONLESS } }>;
-pub type Angle = Qty<{ Dim { rad: 1, ..Dim::DIMENSIONLESS } }>;
-pub type SolidAngle = Qty<{ Dim { rad: 2, ..Dim::DIMENSIONLESS } }>;
-pub type AngularSpeed = Qty<{ Dim { s: -1, rad: 1, ..Dim::DIMENSIONLESS } }>;
-pub type Mass = Qty<{ Dim { kg: 1, ..Dim::DIMENSIONLESS } }>;
-pub type Energy = Qty<{ Dim { m: 2, kg: 1, s: -2, ..Dim::DIMENSIONLESS } }>;
+pub type TemperatureStep = Qty<
+    {
+        Dim {
+            k: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type Angle = Qty<
+    {
+        Dim {
+            rad: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type SolidAngle = Qty<
+    {
+        Dim {
+            rad: 2,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type AngularSpeed = Qty<
+    {
+        Dim {
+            s: -1,
+            rad: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type Mass = Qty<
+    {
+        Dim {
+            kg: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
+pub type Energy = Qty<
+    {
+        Dim {
+            m: 2,
+            kg: 1,
+            s: -2,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// Real power: watts.
-pub type Power = Qty<{ Dim { m: 2, kg: 1, s: -3, ..Dim::DIMENSIONLESS } }>;
+pub type Power = Qty<
+    {
+        Dim {
+            m: 2,
+            kg: 1,
+            s: -3,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// Apparent power: the same exponents as `Power`, a label of its own.
-pub type ApparentPower =
-    Qty<{ Dim { m: 2, kg: 1, s: -3, kind: Kind::Apparent, ..Dim::DIMENSIONLESS } }>;
+pub type ApparentPower = Qty<
+    {
+        Dim {
+            m: 2,
+            kg: 1,
+            s: -3,
+            kind: Kind::Apparent,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// A power level: the logarithm of a power.
-pub type PowerLevel = Qty<{ Dim { m: 2, kg: 1, s: -3, kind: Kind::Log, ..Dim::DIMENSIONLESS } }>;
+pub type PowerLevel = Qty<
+    {
+        Dim {
+            m: 2,
+            kg: 1,
+            s: -3,
+            kind: Kind::Log,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// A gain: the logarithm of a plain ratio.
-pub type Gain = Qty<{ Dim { kind: Kind::Log, ..Dim::DIMENSIONLESS } }>;
+pub type Gain = Qty<
+    {
+        Dim {
+            kind: Kind::Log,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// A hardness number on the Mohs scale.
-pub type Hardness = Qty<{ Dim { kind: Kind::Hardness, ..Dim::DIMENSIONLESS } }>;
+pub type Hardness = Qty<
+    {
+        Dim {
+            kind: Kind::Hardness,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 /// Energy per radian: torque × angle is the work done turning.
-pub type Torque = Qty<{ Dim { m: 2, kg: 1, s: -2, rad: -1, ..Dim::DIMENSIONLESS } }>;
+pub type Torque = Qty<
+    {
+        Dim {
+            m: 2,
+            kg: 1,
+            s: -2,
+            rad: -1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+>;
 
 // --- Constants: the base ones, and the rest from them ---------------------------
 // A base constant is a raw number, written where the field is visible: one
@@ -221,30 +347,39 @@ impl From<Power> for PowerLevel {
 
 // --- Unit enums, for the units that print -----------------------------------
 
-#[derive(Copy, Clone, Unit)]
-#[unit(of = Temperature, number = f64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Temperature, f64> {
+    fn quantity(&self, value: f64) -> Temperature;
+    fn value(&self, quantity: Temperature) -> f64;
+}))]
 pub enum TemperatureUnit {
-    #[unit(KelvinScale)]
+    #[value(KelvinScale)]
     KelvinScale,
-    #[unit(Celsius)]
+    #[value(Celsius)]
     Celsius,
 }
 
-#[derive(Copy, Clone, Unit)]
-#[unit(of = Angle, number = f64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Angle, f64> {
+    fn quantity(&self, value: f64) -> Angle;
+    fn value(&self, quantity: Angle) -> f64;
+}))]
 pub enum AngleUnit {
-    #[unit(Radian)]
+    #[value(Radian)]
     Radian,
-    #[unit(Degree)]
+    #[value(Degree)]
     Degree,
 }
 
-#[derive(Copy, Clone, Unit)]
-#[unit(of = AngularSpeed, number = f64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<AngularSpeed, f64> {
+    fn quantity(&self, value: f64) -> AngularSpeed;
+    fn value(&self, quantity: AngularSpeed) -> f64;
+}))]
 pub enum AngularSpeedUnit {
-    #[unit(RadianPerSecond)]
+    #[value(RadianPerSecond)]
     RadianPerSecond,
-    #[unit(RevolutionPerMinute)]
+    #[value(RevolutionPerMinute)]
     RevolutionPerMinute,
 }
 
@@ -258,13 +393,19 @@ fn main() {
     let a = METRE.quantity(3.0);
     let b = METRE.quantity(4.0);
     println!("3 m × 4 m        = {} m²", SQUARE_METRE.value(a * b));
-    println!("(3 m)²           = {} m²", SQUARE_METRE.value(a.powi::<2>()));
+    println!(
+        "(3 m)²           = {} m²",
+        SQUARE_METRE.value(a.powi::<2>())
+    );
     // A ratio of two lengths is a plain number, read in the unit `ONE`.
     println!("3 m / 4 m        = {}", ONE.value(a / b));
     let floor = SQUARE_METRE.quantity(16.0);
     println!("√(16 m²)         = {} m", METRE.value(floor.root::<2>()));
     let per_radian = Radian.quantity(2.0).inv();
-    println!("1 / (2 rad) × 1 rad = {}", ONE.value(per_radian * Radian.quantity(1.0)));
+    println!(
+        "1 / (2 rad) × 1 rad = {}",
+        ONE.value(per_radian * Radian.quantity(1.0))
+    );
     // Only roots can fail - with whole-number exponents a length has no
     // square root (m^½):
     // let _ = a.root::<2>();
@@ -281,8 +422,14 @@ fn main() {
     let noon = TemperatureUnit::Celsius.quantity(22.5);
     let warming: TemperatureStep = noon - morning;
     println!("22.5 °C - 15 °C  = {} K", KELVIN.value(warming));
-    println!("15 °C + 7.5 K    = {} {Celsius}", Celsius.value(morning + warming));
-    println!("22.5 °C - 7.5 K  = {} {Celsius}", Celsius.value(noon - warming));
+    println!(
+        "15 °C + 7.5 K    = {} {Celsius}",
+        Celsius.value(morning + warming)
+    );
+    println!(
+        "22.5 °C - 7.5 K  = {} {Celsius}",
+        Celsius.value(noon - warming)
+    );
     let mean: Temperature = morning + (noon - morning) / 2.0;
     println!("mean of the two  = {:.2} {Celsius}", Celsius.value(mean));
     // Everything else would depend on where the zero was put:
@@ -310,9 +457,15 @@ fn main() {
     println!("30 dBm - 3 dB + 13 dB = {:.0} dBm", Dbm.value(received));
     let gain: Gain = received - sent;
     println!("received - sent  = {:.0} dB", DECIBEL.value(gain));
-    println!("40 dBm           = {:.0} W", WATT.value(Power::from(received)));
+    println!(
+        "40 dBm           = {:.0} W",
+        WATT.value(Power::from(received))
+    );
     let two_watts = WATT.quantity(2.0);
-    println!("2 W              = {:.2} dBm", Dbm.value(PowerLevel::from(two_watts)));
+    println!(
+        "2 W              = {:.2} dBm",
+        Dbm.value(PowerLevel::from(two_watts))
+    );
     // A gain per length is a plain rate - bels per metre - and that many
     // bels is a gain again: a kind is given by a constant that has it.
     let fibre = DECIBEL.quantity(0.2) / KILOMETRE;
@@ -341,16 +494,25 @@ fn main() {
     println!("500 VA + 250 VA  = {} VA", VOLT_AMPERE.value(load + more));
     println!("500 VA × 1.5     = {} VA", VOLT_AMPERE.value(load * 1.5));
     let real: Power = WATT.quantity(400.0);
-    println!("400 W / 500 VA   = {}   (a power factor)", ONE.value(real / load));
+    println!(
+        "400 W / 500 VA   = {}   (a power factor)",
+        ONE.value(real / load)
+    );
     let used: Energy = load * SECOND.quantity(60.0);
-    println!("500 VA × 60 s    = {} J   (the label drops)", JOULE.value(used));
+    println!(
+        "500 VA × 60 s    = {} J   (the label drops)",
+        JOULE.value(used)
+    );
     // let _ = real + load;
     //     error: cannot add: the labels have no sum
 
     // A hardness number orders minerals, and that is all: its rules say it
     // has no sum and no difference, so it cannot be scaled either.
     println!("\n== A label with rules (hardness)");
-    println!("talc < quartz < diamond: {}", TALC < QUARTZ && QUARTZ < DIAMOND);
+    println!(
+        "talc < quartz < diamond: {}",
+        TALC < QUARTZ && QUARTZ < DIAMOND
+    );
     println!("quartz itself    = {QUARTZ}");
     // let _ = QUARTZ + TALC;
     //     error: cannot add: the labels have no sum
@@ -364,12 +526,18 @@ fn main() {
     // torque J/rad - so the radians cancel where physics says they do.
     println!("\n== Radians (an exponent axis)");
     let turn = Degree.quantity(90.0);
-    println!("90° + 45°        = {:.1} {Degree}", Degree.value(turn + Degree.quantity(45.0)));
+    println!(
+        "90° + 45°        = {:.1} {Degree}",
+        Degree.value(turn + Degree.quantity(45.0))
+    );
     println!("90° in radians   = {:.4} {Radian}", Radian.value(turn));
     let patch: SolidAngle = Radian.quantity(0.1) * Radian.quantity(0.2);
     println!("0.1 rad × 0.2 rad = {:.3} sr", STERADIAN.value(patch));
     let sky = STERADIAN.quantity(0.25);
-    println!("√(0.25 sr)       = {} {Radian}", Radian.value(sky.root::<2>()));
+    println!(
+        "√(0.25 sr)       = {} {Radian}",
+        Radian.value(sky.root::<2>())
+    );
     let spin = AngularSpeedUnit::RevolutionPerMinute.quantity(30.0);
     let swept: Angle = spin * SECOND.quantity(1.0);
     println!("30 rpm × 1 s     = {:.1} {Degree}", Degree.value(swept));
@@ -380,7 +548,10 @@ fn main() {
     let radius = METRE.quantity(2.0);
     let arc: Length = radius * turn / Radian.quantity(1.0);
     println!("arc of 90° at 2 m = {:.4} m", METRE.value(arc));
-    println!("90° / 45°        = {}", ONE.value(turn / Degree.quantity(45.0)));
+    println!(
+        "90° / 45°        = {}",
+        ONE.value(turn / Degree.quantity(45.0))
+    );
     // An angle is not a ratio, and a torque is not an energy:
     // let _ = turn + ONE;
     //     error: cannot add: the dimensions differ

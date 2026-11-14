@@ -2,9 +2,10 @@
 //!
 //! - `Kind` and `ISQ`: the kinds and the dimension (an exponent per base unit, and a kind).
 //! - `SIQuantity<D, N>`: a quantity whose dimension is in its type, counted in `N`.
-//! - `SIUnit<D, C>`: a unit, a type of its own (`<module>::units::Mile`), its
-//!   definition `C` a `SIUnitConsts` - an exact size and zero, a symbol and a name.
-//!   `Mile {}.quantity(3.0)` builds, `Mile {}.value(d)` reads, in any number type.
+//! - `SIUnit<D, C>`: a unit, its dimension `D` and its definition `C` (a `SIUnitConsts`:
+//!   an exact size and zero, a symbol and a name) in its type. Each unit is a
+//!   constant of its own type in its module's `units` (`MILE`): `MILE.quantity(3.0)`
+//!   builds, `MILE.value(d)` reads, in any number type.
 //! - `dynamic`: `DynamicSIQuantity` and `DynamicSIUnit`, a quantity and a unit of a dimension decided
 //!   at run time; and each module's unit enums, a choice among its units.
 //! - One module per family, each a Cargo feature: `mechanical`, `angular`, `electromagnetic`, `thermal`, `fluid`, `density`, `chemistry`, `photometric`, `information`; and `dimensionless`,
@@ -111,13 +112,12 @@ pub struct SIUnitConsts {
     pub name: &'static str,
 }
 
-/// A unit: a type of its own, its quantity's dimension `D` and its
-/// definition `C` in its const parameters (`units::Mile`, in a module's
-/// `units`), built
-/// as `Mile {}`. A unit of `SIQuantity<D, N>` in any number type its size and zero
-/// convert to: `Mile {}.quantity(3.0)` builds, `Mile {}.value(d)` reads,
-/// rounding the size and zero once each, at compile time. Prints its symbol
-/// (`{}`) or name (`{:#}`).
+/// A unit: its quantity's dimension `D` and its definition `C` are its
+/// type, and a constant of it is its name (`mechanical::units::MILE`).
+/// `MILE.quantity(3.0)` is three miles, `MILE.value(d)` how many miles `d`
+/// is - in any number type its size and zero convert to; in a `const`, the
+/// compiler does the converting. It prints its symbol (`{}`) or name
+/// (`{:#}`).
 ///
 /// An integer quantity counts in units whose size is a whole number of
 /// coherent units: its size and zero are rounded to whole numbers, so a unit
@@ -125,11 +125,10 @@ pub struct SIUnitConsts {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub struct SIUnit<const D: ISQ, const C: SIUnitConsts>;
 
-/// The bridge from numbers to quantities, and back: the only place a
-/// number becomes a quantity.
+/// The bridge between numbers and quantities - the only one.
 impl<const D: ISQ, const C: SIUnitConsts, N> const Unit<SIQuantity<D, N>, N> for SIUnit<D, C>
 where
-    N: const From<Exact>
+    N: [const] From<Exact>
         + [const] core::ops::Add<Output = N>
         + [const] core::ops::Sub<Output = N>
         + [const] core::ops::Mul<Output = N>
@@ -137,21 +136,11 @@ where
         + [const] core::marker::Destruct,
 {
     fn quantity(&self, value: N) -> SIQuantity<D, N> {
-        SIQuantity(value * const { size::<N, C>() } + const { zero::<N, C>() })
+        SIQuantity(value * N::from(C.size) + N::from(C.zero))
     }
     fn value(&self, quantity: SIQuantity<D, N>) -> N {
-        (quantity.0 - const { zero::<N, C>() }) / const { size::<N, C>() }
+        (quantity.0 - N::from(C.zero)) / N::from(C.size)
     }
-}
-
-/// A unit's size in `N`: a function, as a generic constant reads no field.
-const fn size<N: const From<Exact>, const C: SIUnitConsts>() -> N {
-    N::from(C.size)
-}
-
-/// A unit's zero in `N`.
-const fn zero<N: const From<Exact>, const C: SIUnitConsts>() -> N {
-    N::from(C.zero)
 }
 
 impl<const D: ISQ, const C: SIUnitConsts> core::fmt::Display for SIUnit<D, C> {

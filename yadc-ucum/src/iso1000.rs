@@ -1,74 +1,67 @@
-use crate::{Dim, Qty};
+use crate::Dim;
 use yadc::Dimension;
 
-/// The dimension of `Area`.
+/// The dimension of `Area`: `Qty<AREA, N>` is one.
 pub const AREA: Dim = Dim {
     m: 2,
     ..Dim::DIMENSIONLESS
 };
-pub type Area<N> = Qty<AREA, N>;
 
-/// The dimension of `Energy`.
+/// The dimension of `Energy`: `Qty<ENERGY, N>` is one.
 pub const ENERGY: Dim = Dim {
     m: 2,
     s: -2,
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Energy<N> = Qty<ENERGY, N>;
 
-/// The dimension of `Length`.
+/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
 pub const LENGTH: Dim = Dim {
     m: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Length<N> = Qty<LENGTH, N>;
 
-/// The dimension of `Mass`.
+/// The dimension of `Mass`: `Qty<MASS, N>` is one.
 pub const MASS: Dim = Dim {
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Mass<N> = Qty<MASS, N>;
 
-/// The dimension of `PlaneAngle`.
+/// The dimension of `PlaneAngle`: `Qty<PLANE_ANGLE, N>` is one.
 pub const PLANE_ANGLE: Dim = Dim {
     rad: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type PlaneAngle<N> = Qty<PLANE_ANGLE, N>;
 
-/// The dimension of `Pressure`.
+/// The dimension of `Pressure`: `Qty<PRESSURE, N>` is one.
 pub const PRESSURE: Dim = Dim {
     m: -1,
     s: -2,
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Pressure<N> = Qty<PRESSURE, N>;
 
-/// The dimension of `Time`.
+/// The dimension of `Time`: `Qty<TIME, N>` is one.
 pub const TIME: Dim = Dim {
     s: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Time<N> = Qty<TIME, N>;
 
-/// The dimension of `Volume`.
+/// The dimension of `Volume`: `Qty<VOLUME, N>` is one.
 pub const VOLUME: Dim = Dim {
     m: 3,
     ..Dim::DIMENSIONLESS
 };
-pub type Volume<N> = Qty<VOLUME, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, UcumUnit, UcumUnitConsts};
 
     /// Are (`ar`), a unit of `Area`: `n` of them is `n · 1e2` coherent units.
-    pub type Are = UcumUnit<
+    pub const ARE: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -78,10 +71,10 @@ pub mod units {
                 name: "are",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Electronvolt (`eV`), a unit of `Energy`: `n` of them is `n · 1602176634e-25` coherent units.
-    pub type Electronvolt = UcumUnit<
+    pub const ELECTRONVOLT: UcumUnit<
         ENERGY,
         {
             UcumUnitConsts {
@@ -91,10 +84,10 @@ pub mod units {
                 name: "electronvolt",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Astronomic unit (`AU`), a unit of `Length`: `n` of them is `n · 149597870691` coherent units.
-    pub type AstronomicUnit = UcumUnit<
+    pub const ASTRONOMIC_UNIT: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -104,10 +97,10 @@ pub mod units {
                 name: "astronomic unit",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Parsec (`pc`), a unit of `Length`: `n` of them is `n · 3085678e10` coherent units.
-    pub type Parsec = UcumUnit<
+    pub const PARSEC: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -117,10 +110,10 @@ pub mod units {
                 name: "parsec",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Tonne (`t`), a unit of `Mass`: `n` of them is `n · 1e6` coherent units.
-    pub type Tonne = UcumUnit<
+    pub const TONNE: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -130,10 +123,10 @@ pub mod units {
                 name: "tonne",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Unified atomic mass unit (`u`), a unit of `Mass`: `n` of them is `n · 16605390666e-34` coherent units.
-    pub type UnifiedAtomicMassUnit = UcumUnit<
+    pub const UNIFIED_ATOMIC_MASS_UNIT: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -143,10 +136,10 @@ pub mod units {
                 name: "unified atomic mass unit",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Grade (`gon`), a unit of `PlaneAngle`: `n` of them is `n · 5e-3 * core::f64::consts::PI` coherent units.
-    pub type Grade = UcumUnit<
+    pub const GRADE: UcumUnit<
         PLANE_ANGLE,
         {
             UcumUnitConsts {
@@ -156,10 +149,10 @@ pub mod units {
                 name: "grade",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Degree (`deg`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 180 * core::f64::consts::PI` coherent units.
-    pub type Degree = UcumUnit<
+    pub const DEGREE: UcumUnit<
         PLANE_ANGLE,
         {
             UcumUnitConsts {
@@ -169,10 +162,10 @@ pub mod units {
                 name: "degree",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Minute (`'`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 10800 * core::f64::consts::PI` coherent units.
-    pub type PlaneAngleMinute = UcumUnit<
+    pub const PLANE_ANGLE_MINUTE: UcumUnit<
         PLANE_ANGLE,
         {
             UcumUnitConsts {
@@ -182,10 +175,10 @@ pub mod units {
                 name: "minute",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Second (`''`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 648000 * core::f64::consts::PI` coherent units.
-    pub type Second = UcumUnit<
+    pub const SECOND: UcumUnit<
         PLANE_ANGLE,
         {
             UcumUnitConsts {
@@ -195,10 +188,10 @@ pub mod units {
                 name: "second",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Bar (`bar`), a unit of `Pressure`: `n` of them is `n · 1e8` coherent units.
-    pub type Bar = UcumUnit<
+    pub const BAR: UcumUnit<
         PRESSURE,
         {
             UcumUnitConsts {
@@ -208,10 +201,10 @@ pub mod units {
                 name: "bar",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Minute (`min`), a unit of `Time`: `n` of them is `n · 6e1` coherent units.
-    pub type TimeMinute = UcumUnit<
+    pub const TIME_MINUTE: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -221,10 +214,10 @@ pub mod units {
                 name: "minute",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Hour (`h`), a unit of `Time`: `n` of them is `n · 36e2` coherent units.
-    pub type Hour = UcumUnit<
+    pub const HOUR: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -234,10 +227,10 @@ pub mod units {
                 name: "hour",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Day (`d`), a unit of `Time`: `n` of them is `n · 864e2` coherent units.
-    pub type Day = UcumUnit<
+    pub const DAY: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -247,10 +240,10 @@ pub mod units {
                 name: "day",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Tropical year (`a_t`), a unit of `Time`: `n` of them is `n · 31556925216e-3` coherent units.
-    pub type TropicalYear = UcumUnit<
+    pub const TROPICAL_YEAR: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -260,10 +253,10 @@ pub mod units {
                 name: "tropical year",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mean Julian year (`a_j`), a unit of `Time`: `n` of them is `n · 315576e2` coherent units.
-    pub type MeanJulianYear = UcumUnit<
+    pub const MEAN_JULIAN_YEAR: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -273,10 +266,10 @@ pub mod units {
                 name: "mean Julian year",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mean Gregorian year (`a_g`), a unit of `Time`: `n` of them is `n · 31556952` coherent units.
-    pub type MeanGregorianYear = UcumUnit<
+    pub const MEAN_GREGORIAN_YEAR: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -286,10 +279,10 @@ pub mod units {
                 name: "mean Gregorian year",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Year (`a`), a unit of `Time`: `n` of them is `n · 315576e2` coherent units.
-    pub type Year = UcumUnit<
+    pub const YEAR: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -299,10 +292,10 @@ pub mod units {
                 name: "year",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Week (`wk`), a unit of `Time`: `n` of them is `n · 6048e2` coherent units.
-    pub type Week = UcumUnit<
+    pub const WEEK: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -312,10 +305,10 @@ pub mod units {
                 name: "week",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Synodal month (`mo_s`), a unit of `Time`: `n` of them is `n · 2551442976e-3` coherent units.
-    pub type SynodalMonth = UcumUnit<
+    pub const SYNODAL_MONTH: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -325,10 +318,10 @@ pub mod units {
                 name: "synodal month",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mean Julian month (`mo_j`), a unit of `Time`: `n` of them is `n · 26298e2` coherent units.
-    pub type MeanJulianMonth = UcumUnit<
+    pub const MEAN_JULIAN_MONTH: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -338,10 +331,10 @@ pub mod units {
                 name: "mean Julian month",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mean Gregorian month (`mo_g`), a unit of `Time`: `n` of them is `n · 2629746` coherent units.
-    pub type MeanGregorianMonth = UcumUnit<
+    pub const MEAN_GREGORIAN_MONTH: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -351,10 +344,10 @@ pub mod units {
                 name: "mean Gregorian month",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Month (`mo`), a unit of `Time`: `n` of them is `n · 26298e2` coherent units.
-    pub type Month = UcumUnit<
+    pub const MONTH: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -364,10 +357,10 @@ pub mod units {
                 name: "month",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Liter (`l`), a unit of `Volume`: `n` of them is `n · 1e-3` coherent units.
-    pub type Liter = UcumUnit<
+    pub const LITER: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -377,5 +370,5 @@ pub mod units {
                 name: "liter",
             }
         },
-    >;
+    > = UcumUnit;
 }

@@ -54,26 +54,37 @@ const _: () = assert!((LENGTH - ALTITUDE).is_none() && (ALTITUDE + POWER).is_non
 // A logarithm: adding is multiplying what it is the logarithm of, so `+` and
 // `-` add and subtract the exponents. A level less a level is a gain, a gain
 // moves a level, and two levels sum to the logarithm of watts squared.
-const _: () = assert!(is(LEVEL - LEVEL, GAIN) && is(LEVEL + GAIN, LEVEL) && is(LEVEL - GAIN, LEVEL));
+const _: () =
+    assert!(is(LEVEL - LEVEL, GAIN) && is(LEVEL + GAIN, LEVEL) && is(LEVEL - GAIN, LEVEL));
 const _: () = assert!(is(GAIN + GAIN, GAIN) && is(GAIN + LEVEL, LEVEL));
-const _: () = assert!(matches!(LEVEL + LEVEL, Some(d) if d.kg == 2 && d.m == 4 && d.kind == Kind::Log));
-const _: () = assert!((LEVEL + POWER).is_none() && (POWER + LEVEL).is_none() && (GAIN + Dim::DIMENSIONLESS).is_none());
+const _: () =
+    assert!(matches!(LEVEL + LEVEL, Some(d) if d.kg == 2 && d.m == 4 && d.kind == Kind::Log));
+const _: () = assert!(
+    (LEVEL + POWER).is_none() && (POWER + LEVEL).is_none() && (GAIN + Dim::DIMENSIONLESS).is_none()
+);
 // Beside a plain number a product is a scaling: a gain scales (gains add),
 // a level does not (two levels sum to another level's square), nor does a
 // point or a label with no sum. A gain leaves any other product as a label
 // does; a level has no other products.
 const _: () = assert!(is(GAIN * Dim::DIMENSIONLESS, GAIN) && is(Dim::DIMENSIONLESS * GAIN, GAIN));
-const _: () = assert!((LEVEL * Dim::DIMENSIONLESS).is_none() && (LEVEL / Dim::DIMENSIONLESS).is_none());
-const _: () = assert!((RANK * Dim::DIMENSIONLESS).is_none() && is(LENGTH * Dim::DIMENSIONLESS, LENGTH));
+const _: () =
+    assert!((LEVEL * Dim::DIMENSIONLESS).is_none() && (LEVEL / Dim::DIMENSIONLESS).is_none());
+const _: () =
+    assert!((RANK * Dim::DIMENSIONLESS).is_none() && is(LENGTH * Dim::DIMENSIONLESS, LENGTH));
 const _: () = assert!(matches!(GAIN / LENGTH, Some(d) if d.m == -1 && d.kind == Kind::Linear));
-const _: () = assert!((LEVEL * LENGTH).is_none() && (GAIN * GAIN).is_none() && (LENGTH / LEVEL).is_none());
-const _: () = assert!(GAIN.partial_root(2).is_none() && matches!(GAIN.partial_root(1), Some(d) if d == GAIN));
+const _: () =
+    assert!((LEVEL * LENGTH).is_none() && (GAIN * GAIN).is_none() && (LENGTH / LEVEL).is_none());
+const _: () =
+    assert!(GAIN.partial_root(2).is_none() && matches!(GAIN.partial_root(1), Some(d) if d == GAIN));
 // An exponent that does not fit its type has no product.
-const BIG: Dim = Dim { m: 100, ..Dim::DIMENSIONLESS };
+const BIG: Dim = Dim {
+    m: 100,
+    ..Dim::DIMENSIONLESS
+};
 const _: () = assert!((BIG * BIG).is_none() && (LENGTH.partial_powi(-128)).is_none());
 const _: () = assert!(matches!(Kind::Rank * Kind::Linear, Kind::Rank));
 const BODY: Temperature = Celsius.quantity(37.0); // a unit type, in `const`
-const _: () = assert!(TemperatureUnit::Kelvin.value(BODY) > 310.0);
+const _: () = assert!(KelvinScale.value(BODY) > 310.0);
 
 fn close(a: f64, b: f64) -> bool {
     (a - b).abs() < 1e-9
@@ -90,7 +101,9 @@ fn units_of_every_form() {
     assert!(close(FOOT.value(3.0 * METRE), 3.0 / 0.3048));
     // A unit of points, and one whose zero is made at run time.
     let aircraft: Altitude = FeetAmsl.quantity(150.0);
-    let ground = FeetAboveGround { ground: SEA_LEVEL + 100.0 * FOOT };
+    let ground = FeetAboveGround {
+        ground: SEA_LEVEL + 100.0 * FOOT,
+    };
     assert!(close(ground.value(aircraft), 50.0));
     assert!(close(
         PressureUnit::Kilopascal.value(PressureUnit::Pascal.quantity(2500.0)),
@@ -104,7 +117,10 @@ fn levels() {
     // `PowerLevel`, and the watts are one `From` away.
     let tx = Dbm.quantity(30.0);
     assert!(close(WATT.value(Power::from(tx)), 1.0));
-    assert!(close(Dbm.value(PowerLevel::from(2.0 * WATT)), 30.0 + 10.0 * 2f64.log10()));
+    assert!(close(
+        Dbm.value(PowerLevel::from(2.0 * WATT)),
+        30.0 + 10.0 * 2f64.log10()
+    ));
     assert!(close(Dbm.value(MILLIWATT.into()), 0.0));
     // On the line, multiplying is adding: a level moves by gains.
     let rx = tx - 3.0 * DECIBEL + 13.0 * DECIBEL;
@@ -121,7 +137,7 @@ fn levels() {
 /// constant times a number builds as well.
 const MARATHON: Length = METRE.quantity(42_195.0);
 const BOILING: Temperature = Celsius.quantity(100.0);
-const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING);
+const BOILING_K: f64 = KelvinScale.value(BOILING);
 
 #[test]
 fn units_build_and_read() {
@@ -139,7 +155,10 @@ fn units_build_and_read() {
     // A unit of power through the logarithmic line: not `const`, a unit all
     // the same.
     assert!(close(WATT.value(DbmPower.quantity(30.0)), 1.0));
-    assert!(close(DbmPower.value(WATT * 2.0), 30.0 + 10.0 * 2f64.log10()));
+    assert!(close(
+        DbmPower.value(WATT * 2.0),
+        30.0 + 10.0 * 2f64.log10()
+    ));
     // Generic code asks for `Unit`: constants, unit types and unit enums
     // meet it.
     fn convert<Q>(n: f64, from: impl Unit<Q, f64>, to: impl Unit<Q, f64>) -> f64 {
@@ -165,19 +184,39 @@ fn unit_labels() {
         "°F".parse::<TemperatureUnit>(),
         Ok(TemperatureUnit::Fahrenheit)
     );
-    assert_eq!("x".parse::<TemperatureUnit>(), Err(yadc::UnknownUnit));
+    assert_eq!("x".parse::<TemperatureUnit>(), Err(dynamickit::NoValue));
     let agl = FeetAboveGround { ground: SEA_LEVEL };
-    assert_eq!(format!("{agl} / {agl:#}"), "ft AGL / feet above ground level");
+    assert_eq!(
+        format!("{agl} / {agl:#}"),
+        "ft AGL / feet above ground level"
+    );
     assert_eq!(format!("{}", Dbm), "dBm");
 }
 
 #[test]
 fn dimension_display() {
     let one = Dim::DIMENSIONLESS;
-    let pressure = Dim { kg: 1, m: -1, s: -2, ..one };
-    let power = Dim { kg: 1, m: 2, s: -3, ..one };
-    let temperature = Dim { k: 1, kind: Kind::Affine, ..one };
-    let gain = Dim { kind: Kind::Log, ..one };
+    let pressure = Dim {
+        kg: 1,
+        m: -1,
+        s: -2,
+        ..one
+    };
+    let power = Dim {
+        kg: 1,
+        m: 2,
+        s: -3,
+        ..one
+    };
+    let temperature = Dim {
+        k: 1,
+        kind: Kind::Affine,
+        ..one
+    };
+    let gain = Dim {
+        kind: Kind::Log,
+        ..one
+    };
     assert_eq!(pressure.to_string(), "kg·m⁻¹·s⁻²");
     assert_eq!(power.to_string(), "kg·m²·s⁻³");
     assert_eq!(temperature.to_string(), "k{Affine}");

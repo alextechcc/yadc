@@ -1,9 +1,8 @@
 //! The derive macros of yadc. Each derive writes its own trait: `Dimension`
 //! writes `yadc::Dimension` (on a struct, a dimension; on an enum, a label),
 //! `Quantity` writes `yadc::Quantity` (with its supertraits, the cross-type
-//! operators and the extras it lists), `Unit` writes `yadc::Unit` for an enum
-//! of unit types (with `Display` and `FromStr` from theirs), and
-//! the UCUM derives the serde add-on.
+//! operators and the extras it lists), and the UCUM derives the serde
+//! add-on.
 
 use proc_macro::TokenStream;
 use syn::{DeriveInput, parse_macro_input};
@@ -13,14 +12,12 @@ mod kind;
 mod paths;
 mod quantity;
 mod ucum;
-mod unit;
 mod util;
 
 use dimension::expand_dimension;
 use kind::expand_ucum_kind;
 use quantity::expand_quantity;
 use ucum::{expand_ucum_deserialize, expand_ucum_serialize};
-use unit::expand_unit;
 
 /// Derive `yadc::Dimension`: on a **struct**, a dimension - exponent axes,
 /// plus an optional kind; on an **enum**, a kind (a label). The derive picks
@@ -244,60 +241,6 @@ pub fn derive_dimension(input: TokenStream) -> TokenStream {
 pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     expand_ucum_kind(&input)
-        .unwrap_or_else(|e| e.to_compile_error())
-        .into()
-}
-
-/// Derive `yadc::Unit<Q, N>` for an enum of unit types - a choice of
-/// units, for a menu, a config file, a parser - plus std `Display` and
-/// `FromStr`. Trait impls only - no inherent items.
-///
-/// Each variant names the unit type it is; the enum is a unit by being, at
-/// run time, one of them:
-///
-/// ```ignore
-/// #[derive(Copy, Clone, yadc::Unit)]
-/// #[unit(of = ThermodynamicTemperature<f64>, number = f64)]
-/// pub enum TemperatureUnit {
-///     #[unit(Kelvin)] Kelvin,
-///     #[unit(Celsius)] Celsius,
-///     #[unit(Fahrenheit)] Fahrenheit,
-/// }
-///
-/// let (celsius, kelvin) = (TemperatureUnit::Celsius, TemperatureUnit::Kelvin);
-/// let t = celsius.quantity(25.0);                     // build
-/// let k = kelvin.value(t);                            // read: 298.15
-/// println!("{k:.2} {kelvin:#}");                      // "298.15 kelvin"
-/// ```
-///
-/// A unit type is any type built as `T {}` (a unit struct, an alias of one)
-/// with an `impl Unit` of its own. The variants have no fields.
-///
-/// # What it writes
-///
-/// - `Unit<Q, N>` for each `of = Q`: a `const impl` matching on the variant
-///   and calling its type's own. With concrete `Q` and `N` each type's impl
-///   is checked here; with `for<N>`, the bounds you give are what every
-///   type's impl needs of `N`.
-/// - `Display`: the variant's type's own (its `{}`, `{:#}`, width and
-///   alignment all pass through).
-/// - `FromStr`: the first variant whose type prints as the string,
-///   `Err(yadc::UnknownUnit)` otherwise.
-///
-/// `#[unit(impl(..))]` writes exactly the listed extras - `impl(Display)`,
-/// `impl()` for none.
-///
-/// # On the enum
-///
-/// - `of = Q` (repeatable): what the units measure.
-/// - `number = N`: what they count in.
-/// - `for<N: ..> where ..`: the impls' generics and their bounds - the
-///   last item of its `#[unit(..)]`, as a where clause takes the rest.
-/// - `#[yadc(crate = "path")]` redirects the emitted `::yadc::` paths.
-#[proc_macro_derive(Unit, attributes(yadc, unit))]
-pub fn derive_unit(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    expand_unit(&input)
         .unwrap_or_else(|e| e.to_compile_error())
         .into()
 }

@@ -1,194 +1,165 @@
 //! The units of `angular`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::angular::units::*;
 use crate::angular::*;
 use crate::dynamic::DynamicSIUnit;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `Angle`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Angle<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ANGLE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ANGLE, N>;
+        fn value(&self, quantity: SIQuantity<ANGLE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AngleUnit {
     #[default]
-    #[unit(Radian)]
+    #[value(RADIAN)]
     Radian,
-    #[unit(Revolution)]
+    #[value(REVOLUTION)]
     Revolution,
-    #[unit(Degree)]
+    #[value(DEGREE)]
     Degree,
-    #[unit(Gon)]
+    #[value(GON)]
     Gon,
-    #[unit(Mil)]
+    #[value(MIL)]
     Mil,
-    #[unit(Minute)]
+    #[value(MINUTE)]
     Minute,
-    #[unit(Second)]
+    #[value(SECOND)]
     Second,
-}
-
-impl From<AngleUnit> for DynamicSIUnit {
-    fn from(unit: AngleUnit) -> Self {
-        match unit {
-            AngleUnit::Radian => Radian {}.into(),
-            AngleUnit::Revolution => Revolution {}.into(),
-            AngleUnit::Degree => Degree {}.into(),
-            AngleUnit::Gon => Gon {}.into(),
-            AngleUnit::Mil => Mil {}.into(),
-            AngleUnit::Minute => Minute {}.into(),
-            AngleUnit::Second => Second {}.into(),
-        }
-    }
 }
 
 /// The units of `SolidAngle`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SolidAngle<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<SOLID_ANGLE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<SOLID_ANGLE, N>;
+        fn value(&self, quantity: SIQuantity<SOLID_ANGLE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum SolidAngleUnit {
     #[default]
-    #[unit(Steradian)]
+    #[value(STERADIAN)]
     Steradian,
-    #[unit(Spat)]
+    #[value(SPAT)]
     Spat,
-    #[unit(SquareDegree)]
+    #[value(SQUARE_DEGREE)]
     SquareDegree,
-    #[unit(SquareMinute)]
+    #[value(SQUARE_MINUTE)]
     SquareMinute,
-    #[unit(SquareSecond)]
+    #[value(SQUARE_SECOND)]
     SquareSecond,
-}
-
-impl From<SolidAngleUnit> for DynamicSIUnit {
-    fn from(unit: SolidAngleUnit) -> Self {
-        match unit {
-            SolidAngleUnit::Steradian => Steradian {}.into(),
-            SolidAngleUnit::Spat => Spat {}.into(),
-            SolidAngleUnit::SquareDegree => SquareDegree {}.into(),
-            SolidAngleUnit::SquareMinute => SquareMinute {}.into(),
-            SolidAngleUnit::SquareSecond => SquareSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `AngularVelocity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularVelocity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ANGULAR_VELOCITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ANGULAR_VELOCITY, N>;
+        fn value(&self, quantity: SIQuantity<ANGULAR_VELOCITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AngularVelocityUnit {
     #[default]
-    #[unit(RadianPerSecond)]
+    #[value(RADIAN_PER_SECOND)]
     RadianPerSecond,
-    #[unit(DegreePerSecond)]
+    #[value(DEGREE_PER_SECOND)]
     DegreePerSecond,
-    #[unit(RevolutionPerSecond)]
+    #[value(REVOLUTION_PER_SECOND)]
     RevolutionPerSecond,
-    #[unit(RevolutionPerMinute)]
+    #[value(REVOLUTION_PER_MINUTE)]
     RevolutionPerMinute,
-    #[unit(RevolutionPerHour)]
+    #[value(REVOLUTION_PER_HOUR)]
     RevolutionPerHour,
-}
-
-impl From<AngularVelocityUnit> for DynamicSIUnit {
-    fn from(unit: AngularVelocityUnit) -> Self {
-        match unit {
-            AngularVelocityUnit::RadianPerSecond => RadianPerSecond {}.into(),
-            AngularVelocityUnit::DegreePerSecond => DegreePerSecond {}.into(),
-            AngularVelocityUnit::RevolutionPerSecond => RevolutionPerSecond {}.into(),
-            AngularVelocityUnit::RevolutionPerMinute => RevolutionPerMinute {}.into(),
-            AngularVelocityUnit::RevolutionPerHour => RevolutionPerHour {}.into(),
-        }
-    }
 }
 
 /// The units of `AngularAcceleration`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularAcceleration<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ANGULAR_ACCELERATION, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ANGULAR_ACCELERATION, N>;
+        fn value(&self, quantity: SIQuantity<ANGULAR_ACCELERATION, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AngularAccelerationUnit {
     #[default]
-    #[unit(RadianPerSecondSquared)]
+    #[value(RADIAN_PER_SECOND_SQUARED)]
     RadianPerSecondSquared,
-    #[unit(DegreePerSecondSquared)]
+    #[value(DEGREE_PER_SECOND_SQUARED)]
     DegreePerSecondSquared,
-}
-
-impl From<AngularAccelerationUnit> for DynamicSIUnit {
-    fn from(unit: AngularAccelerationUnit) -> Self {
-        match unit {
-            AngularAccelerationUnit::RadianPerSecondSquared => RadianPerSecondSquared {}.into(),
-            AngularAccelerationUnit::DegreePerSecondSquared => DegreePerSecondSquared {}.into(),
-        }
-    }
 }
 
 /// The units of `AngularJerk`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularJerk<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ANGULAR_JERK, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ANGULAR_JERK, N>;
+        fn value(&self, quantity: SIQuantity<ANGULAR_JERK, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AngularJerkUnit {
     #[default]
-    #[unit(RadianPerSecondCubed)]
+    #[value(RADIAN_PER_SECOND_CUBED)]
     RadianPerSecondCubed,
-    #[unit(DegreePerSecondCubed)]
+    #[value(DEGREE_PER_SECOND_CUBED)]
     DegreePerSecondCubed,
-}
-
-impl From<AngularJerkUnit> for DynamicSIUnit {
-    fn from(unit: AngularJerkUnit) -> Self {
-        match unit {
-            AngularJerkUnit::RadianPerSecondCubed => RadianPerSecondCubed {}.into(),
-            AngularJerkUnit::DegreePerSecondCubed => DegreePerSecondCubed {}.into(),
-        }
-    }
 }
 
 /// The units of `AngularAbsement`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularAbsement<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ANGULAR_ABSEMENT, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ANGULAR_ABSEMENT, N>;
+        fn value(&self, quantity: SIQuantity<ANGULAR_ABSEMENT, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AngularAbsementUnit {
     #[default]
-    #[unit(RadianSecond)]
+    #[value(RADIAN_SECOND)]
     RadianSecond,
-    #[unit(DegreeSecond)]
+    #[value(DEGREE_SECOND)]
     DegreeSecond,
-}
-
-impl From<AngularAbsementUnit> for DynamicSIUnit {
-    fn from(unit: AngularAbsementUnit) -> Self {
-        match unit {
-            AngularAbsementUnit::RadianSecond => RadianSecond {}.into(),
-            AngularAbsementUnit::DegreeSecond => DegreeSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `AngularMomentum`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AngularMomentum<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ANGULAR_MOMENTUM, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ANGULAR_MOMENTUM, N>;
+        fn value(&self, quantity: SIQuantity<ANGULAR_MOMENTUM, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AngularMomentumUnit {
-    #[unit(ReducedPlanckConstant)]
+    #[value(REDUCED_PLANCK_CONSTANT)]
     ReducedPlanckConstant,
     #[default]
-    #[unit(KilogramSquareMetrePerSecond)]
+    #[value(KILOGRAM_SQUARE_METRE_PER_SECOND)]
     KilogramSquareMetrePerSecond,
-    #[unit(NewtonMetreSecond)]
+    #[value(NEWTON_METRE_SECOND)]
     NewtonMetreSecond,
-}
-
-impl From<AngularMomentumUnit> for DynamicSIUnit {
-    fn from(unit: AngularMomentumUnit) -> Self {
-        match unit {
-            AngularMomentumUnit::ReducedPlanckConstant => ReducedPlanckConstant {}.into(),
-            AngularMomentumUnit::KilogramSquareMetrePerSecond => {
-                KilogramSquareMetrePerSecond {}.into()
-            }
-            AngularMomentumUnit::NewtonMetreSecond => NewtonMetreSecond {}.into(),
-        }
-    }
 }

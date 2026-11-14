@@ -1,50 +1,39 @@
 //! The units of `dimensionless`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dimensionless::units::*;
 use crate::dimensionless::*;
 use crate::dynamic::DynamicUcumUnit;
-use core::marker::Destruct;
+use crate::{Exact, Qty, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `Dimensionless`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Dimensionless<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<DIMENSIONLESS, N>, N> {
+        fn quantity(&self, value: N) -> Qty<DIMENSIONLESS, N>;
+        fn value(&self, quantity: Qty<DIMENSIONLESS, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum DimensionlessUnit {
     #[default]
-    #[unit(Ratio)]
+    #[value(RATIO)]
     Ratio,
-    #[unit(TheNumberTenForArbitraryPowers)]
+    #[value(THE_NUMBER_TEN_FOR_ARBITRARY_POWERS)]
     TheNumberTenForArbitraryPowers,
-    #[unit(TheNumberPi)]
+    #[value(THE_NUMBER_PI)]
     TheNumberPi,
-    #[unit(Percent)]
+    #[value(PERCENT)]
     Percent,
-    #[unit(PartsPerThousand)]
+    #[value(PARTS_PER_THOUSAND)]
     PartsPerThousand,
-    #[unit(PartsPerMillion)]
+    #[value(PARTS_PER_MILLION)]
     PartsPerMillion,
-    #[unit(PartsPerBillion)]
+    #[value(PARTS_PER_BILLION)]
     PartsPerBillion,
-    #[unit(PartsPerTrillion)]
+    #[value(PARTS_PER_TRILLION)]
     PartsPerTrillion,
-}
-
-impl From<DimensionlessUnit> for DynamicUcumUnit {
-    fn from(unit: DimensionlessUnit) -> Self {
-        match unit {
-            DimensionlessUnit::Ratio => Ratio {}.into(),
-            DimensionlessUnit::TheNumberTenForArbitraryPowers => {
-                TheNumberTenForArbitraryPowers {}.into()
-            }
-            DimensionlessUnit::TheNumberPi => TheNumberPi {}.into(),
-            DimensionlessUnit::Percent => Percent {}.into(),
-            DimensionlessUnit::PartsPerThousand => PartsPerThousand {}.into(),
-            DimensionlessUnit::PartsPerMillion => PartsPerMillion {}.into(),
-            DimensionlessUnit::PartsPerBillion => PartsPerBillion {}.into(),
-            DimensionlessUnit::PartsPerTrillion => PartsPerTrillion {}.into(),
-        }
-    }
 }

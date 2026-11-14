@@ -1,141 +1,124 @@
-use crate::{ISQ, Kind, SIQuantity};
+use crate::{ISQ, Kind};
 use yadc::Dimension;
 
-/// The dimension of `Length`.
+/// The dimension of `Length`: `SIQuantity<LENGTH, N>` is one.
 pub const LENGTH: ISQ = ISQ {
     m: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Length<N> = SIQuantity<LENGTH, N>;
 
-/// The dimension of `Mass`.
+/// The dimension of `Mass`: `SIQuantity<MASS, N>` is one.
 pub const MASS: ISQ = ISQ {
     kg: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Mass<N> = SIQuantity<MASS, N>;
 
-/// The dimension of `Time`.
+/// The dimension of `Time`: `SIQuantity<TIME, N>` is one.
 pub const TIME: ISQ = ISQ {
     s: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Time<N> = SIQuantity<TIME, N>;
 
-/// The dimension of `Instant`.
+/// The dimension of `Instant`: `SIQuantity<INSTANT, N>` is one.
 pub const INSTANT: ISQ = ISQ {
     s: 1,
     kind: Kind::Affine,
     ..ISQ::DIMENSIONLESS
 };
-pub type Instant<N> = SIQuantity<INSTANT, N>;
 
-/// The dimension of `Area`.
+/// The dimension of `Area`: `SIQuantity<AREA, N>` is one.
 pub const AREA: ISQ = ISQ {
     m: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Area<N> = SIQuantity<AREA, N>;
 
-/// The dimension of `Volume`.
+/// The dimension of `Volume`: `SIQuantity<VOLUME, N>` is one.
 pub const VOLUME: ISQ = ISQ {
     m: 3,
     ..ISQ::DIMENSIONLESS
 };
-pub type Volume<N> = SIQuantity<VOLUME, N>;
 
-/// The dimension of `Velocity`.
+/// The dimension of `Velocity`: `SIQuantity<VELOCITY, N>` is one.
 pub const VELOCITY: ISQ = ISQ {
     m: 1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Velocity<N> = SIQuantity<VELOCITY, N>;
 
-/// The dimension of `Acceleration`.
+/// The dimension of `Acceleration`: `SIQuantity<ACCELERATION, N>` is one.
 pub const ACCELERATION: ISQ = ISQ {
     m: 1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Acceleration<N> = SIQuantity<ACCELERATION, N>;
 
-/// The dimension of `Jerk`.
+/// The dimension of `Jerk`: `SIQuantity<JERK, N>` is one.
 pub const JERK: ISQ = ISQ {
     m: 1,
     s: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type Jerk<N> = SIQuantity<JERK, N>;
 
-/// The dimension of `Absement`.
+/// The dimension of `Absement`: `SIQuantity<ABSEMENT, N>` is one.
 pub const ABSEMENT: ISQ = ISQ {
     m: 1,
     s: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Absement<N> = SIQuantity<ABSEMENT, N>;
 
-/// The dimension of `InverseVelocity`.
+/// The dimension of `InverseVelocity`: `SIQuantity<INVERSE_VELOCITY, N>` is one.
 pub const INVERSE_VELOCITY: ISQ = ISQ {
     m: -1,
     s: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type InverseVelocity<N> = SIQuantity<INVERSE_VELOCITY, N>;
 
-/// The dimension of `Force`.
+/// The dimension of `Force`: `SIQuantity<FORCE, N>` is one.
 pub const FORCE: ISQ = ISQ {
     m: 1,
     kg: 1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Force<N> = SIQuantity<FORCE, N>;
 
-/// The dimension of `Momentum`.
+/// The dimension of `Momentum`: `SIQuantity<MOMENTUM, N>` is one.
 pub const MOMENTUM: ISQ = ISQ {
     m: 1,
     kg: 1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Momentum<N> = SIQuantity<MOMENTUM, N>;
 
-/// The dimension of `Energy`.
+/// The dimension of `Energy`: `SIQuantity<ENERGY, N>` is one.
 pub const ENERGY: ISQ = ISQ {
     m: 2,
     kg: 1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Energy<N> = SIQuantity<ENERGY, N>;
 
-/// The dimension of `AvailableEnergy`.
+/// The dimension of `AvailableEnergy`: `SIQuantity<AVAILABLE_ENERGY, N>` is one.
 pub const AVAILABLE_ENERGY: ISQ = ISQ {
     m: 2,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type AvailableEnergy<N> = SIQuantity<AVAILABLE_ENERGY, N>;
 
-/// The dimension of `Power`.
+/// The dimension of `Power`: `SIQuantity<POWER, N>` is one.
 pub const POWER: ISQ = ISQ {
     m: 2,
     kg: 1,
     s: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type Power<N> = SIQuantity<POWER, N>;
 
-/// The dimension of `Gain`.
+/// The dimension of `Gain`: `SIQuantity<GAIN, N>` is one.
 pub const GAIN: ISQ = ISQ {
     kind: Kind::Log,
     ..ISQ::DIMENSIONLESS
 };
-pub type Gain<N> = SIQuantity<GAIN, N>;
 
-/// The dimension of `PowerLevel`.
+/// The dimension of `PowerLevel`: `SIQuantity<POWER_LEVEL, N>` is one.
 pub const POWER_LEVEL: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -143,27 +126,24 @@ pub const POWER_LEVEL: ISQ = ISQ {
     kind: Kind::Log,
     ..ISQ::DIMENSIONLESS
 };
-pub type PowerLevel<N> = SIQuantity<POWER_LEVEL, N>;
 
-/// The dimension of `PowerRate`.
+/// The dimension of `PowerRate`: `SIQuantity<POWER_RATE, N>` is one.
 pub const POWER_RATE: ISQ = ISQ {
     m: 2,
     kg: 1,
     s: -4,
     ..ISQ::DIMENSIONLESS
 };
-pub type PowerRate<N> = SIQuantity<POWER_RATE, N>;
 
-/// The dimension of `Action`.
+/// The dimension of `Action`: `SIQuantity<ACTION, N>` is one.
 pub const ACTION: ISQ = ISQ {
     m: 2,
     kg: 1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Action<N> = SIQuantity<ACTION, N>;
 
-/// The dimension of `Torque`.
+/// The dimension of `Torque`: `SIQuantity<TORQUE, N>` is one.
 pub const TORQUE: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -171,96 +151,86 @@ pub const TORQUE: ISQ = ISQ {
     rad: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Torque<N> = SIQuantity<TORQUE, N>;
 
-/// The dimension of `MomentOfInertia`.
+/// The dimension of `MomentOfInertia`: `SIQuantity<MOMENT_OF_INERTIA, N>` is one.
 pub const MOMENT_OF_INERTIA: ISQ = ISQ {
     m: 2,
     kg: 1,
     rad: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type MomentOfInertia<N> = SIQuantity<MOMENT_OF_INERTIA, N>;
 
-/// The dimension of `Pressure`.
+/// The dimension of `Pressure`: `SIQuantity<PRESSURE, N>` is one.
 pub const PRESSURE: ISQ = ISQ {
     m: -1,
     kg: 1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Pressure<N> = SIQuantity<PRESSURE, N>;
 
-/// The dimension of `Frequency`.
+/// The dimension of `Frequency`: `SIQuantity<FREQUENCY, N>` is one.
 pub const FREQUENCY: ISQ = ISQ {
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Frequency<N> = SIQuantity<FREQUENCY, N>;
 
-/// The dimension of `FrequencyDrift`.
+/// The dimension of `FrequencyDrift`: `SIQuantity<FREQUENCY_DRIFT, N>` is one.
 pub const FREQUENCY_DRIFT: ISQ = ISQ {
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type FrequencyDrift<N> = SIQuantity<FREQUENCY_DRIFT, N>;
 
-/// The dimension of `ReciprocalLength`.
+/// The dimension of `ReciprocalLength`: `SIQuantity<RECIPROCAL_LENGTH, N>` is one.
 pub const RECIPROCAL_LENGTH: ISQ = ISQ {
     m: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ReciprocalLength<N> = SIQuantity<RECIPROCAL_LENGTH, N>;
 
-/// The dimension of `Curvature`.
+/// The dimension of `Curvature`: `SIQuantity<CURVATURE, N>` is one.
 pub const CURVATURE: ISQ = ISQ {
     m: -1,
     rad: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Curvature<N> = SIQuantity<CURVATURE, N>;
 
-/// The dimension of `SpecificArea`.
+/// The dimension of `SpecificArea`: `SIQuantity<SPECIFIC_AREA, N>` is one.
 pub const SPECIFIC_AREA: ISQ = ISQ {
     m: 2,
     kg: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type SpecificArea<N> = SIQuantity<SPECIFIC_AREA, N>;
 
-/// The dimension of `SpecificVolume`.
+/// The dimension of `SpecificVolume`: `SIQuantity<SPECIFIC_VOLUME, N>` is one.
 pub const SPECIFIC_VOLUME: ISQ = ISQ {
     m: 3,
     kg: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type SpecificVolume<N> = SIQuantity<SPECIFIC_VOLUME, N>;
 
-/// The dimension of `SpecificPower`.
+/// The dimension of `SpecificPower`: `SIQuantity<SPECIFIC_POWER, N>` is one.
 pub const SPECIFIC_POWER: ISQ = ISQ {
     m: 2,
     s: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type SpecificPower<N> = SIQuantity<SPECIFIC_POWER, N>;
 
-/// The dimension of `SpecificGravitationalParameter`.
+/// The dimension of `SpecificGravitationalParameter`: `SIQuantity<SPECIFIC_GRAVITATIONAL_PARAMETER, N>` is one.
 pub const SPECIFIC_GRAVITATIONAL_PARAMETER: ISQ = ISQ {
     m: 3,
     kg: -1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type SpecificGravitationalParameter<N> = SIQuantity<SPECIFIC_GRAVITATIONAL_PARAMETER, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Metres (`m`), a unit of `Length`: `n` of them is `n · 1.0` coherent units.
-    pub type Metre = SIUnit<
+    pub const METRE: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -270,10 +240,10 @@ pub mod units {
                 name: "metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ångströms (`Å`), a unit of `Length`: `n` of them is `n · 1e-10` coherent units.
-    pub type Angstrom = SIUnit<
+    pub const ANGSTROM: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -283,10 +253,10 @@ pub mod units {
                 name: "ångströms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bohr radiuses (`a₀`), a unit of `Length`: `n` of them is `n · 5.29177210903e-11` coherent units.
-    pub type BohrRadius = SIUnit<
+    pub const BOHR_RADIUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -296,10 +266,10 @@ pub mod units {
                 name: "bohr radiuses",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of length (`a.u. of length`), a unit of `Length`: `n` of them is `n · 5.29177210903e-11` coherent units.
-    pub type AtomicUnitOfLength = SIUnit<
+    pub const ATOMIC_UNIT_OF_LENGTH: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -309,10 +279,10 @@ pub mod units {
                 name: "atomic units of length",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Astronomical units (`ua`), a unit of `Length`: `n` of them is `n · 149597870700.0` coherent units.
-    pub type AstronomicalUnit = SIUnit<
+    pub const ASTRONOMICAL_UNIT: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -322,10 +292,10 @@ pub mod units {
                 name: "astronomical units",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Chains (`ch`), a unit of `Length`: `n` of them is `n · 66.0 * 1200.0 / 3937.0` coherent units.
-    pub type Chain = SIUnit<
+    pub const CHAIN: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -335,10 +305,10 @@ pub mod units {
                 name: "chains",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Data miles (`DM`), a unit of `Length`: `n` of them is `n · 1828.8` coherent units.
-    pub type DataMile = SIUnit<
+    pub const DATA_MILE: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -348,10 +318,10 @@ pub mod units {
                 name: "data miles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Fathoms (`fathom`), a unit of `Length`: `n` of them is `n · 6.0 * 1200.0 / 3937.0` coherent units.
-    pub type Fathom = SIUnit<
+    pub const FATHOM: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -361,10 +331,10 @@ pub mod units {
                 name: "fathoms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Fermis (`fermi`), a unit of `Length`: `n` of them is `n · 1e-15` coherent units.
-    pub type Fermi = SIUnit<
+    pub const FERMI: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -374,10 +344,10 @@ pub mod units {
                 name: "fermis",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet (`ft`), a unit of `Length`: `n` of them is `n · 0.3048` coherent units.
-    pub type Foot = SIUnit<
+    pub const FOOT: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -387,10 +357,10 @@ pub mod units {
                 name: "feet",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet (U.S. survey) (`ft (U.S. survey)`), a unit of `Length`: `n` of them is `n · 1200.0 / 3937.0` coherent units.
-    pub type FootSurvey = SIUnit<
+    pub const FOOT_SURVEY: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -400,10 +370,10 @@ pub mod units {
                 name: "feet (U.S. survey)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches (`in`), a unit of `Length`: `n` of them is `n · 0.0254` coherent units.
-    pub type Inch = SIUnit<
+    pub const INCH: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -413,10 +383,10 @@ pub mod units {
                 name: "inches",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Light years (`l. y.`), a unit of `Length`: `n` of them is `n · 9460730472580800.0` coherent units.
-    pub type LightYear = SIUnit<
+    pub const LIGHT_YEAR: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -426,10 +396,10 @@ pub mod units {
                 name: "light years",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Microns (`μ`), a unit of `Length`: `n` of them is `n · 1e-06` coherent units.
-    pub type Micron = SIUnit<
+    pub const MICRON: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -439,10 +409,10 @@ pub mod units {
                 name: "microns",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Mils (`0.001 in`), a unit of `Length`: `n` of them is `n · 2.54e-05` coherent units.
-    pub type Mil = SIUnit<
+    pub const MIL: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -452,10 +422,10 @@ pub mod units {
                 name: "mils",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Miles (`mi`), a unit of `Length`: `n` of them is `n · 1609.344` coherent units.
-    pub type Mile = SIUnit<
+    pub const MILE: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -465,10 +435,10 @@ pub mod units {
                 name: "miles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Miles (U.S. survey) (`mi (U.S. survey)`), a unit of `Length`: `n` of them is `n · 6336000.0 / 3937.0` coherent units.
-    pub type MileSurvey = SIUnit<
+    pub const MILE_SURVEY: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -478,10 +448,10 @@ pub mod units {
                 name: "miles (U.S. survey)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Nautical miles (`M`), a unit of `Length`: `n` of them is `n · 1852.0` coherent units.
-    pub type NauticalMile = SIUnit<
+    pub const NAUTICAL_MILE: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -491,10 +461,10 @@ pub mod units {
                 name: "nautical miles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Parsecs (`pc`), a unit of `Length`: `n` of them is `n · 149597870700.0 * 648000.0 / core::f64::consts::PI` coherent units.
-    pub type Parsec = SIUnit<
+    pub const PARSEC: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -504,10 +474,10 @@ pub mod units {
                 name: "parsecs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Picas (computer) (`1/6 in (computer)`), a unit of `Length`: `n` of them is `n · 0.0254 / 6.0` coherent units.
-    pub type PicaComputer = SIUnit<
+    pub const PICA_COMPUTER: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -517,10 +487,10 @@ pub mod units {
                 name: "picas (computer)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Picas (printer's) (`1/6 in`), a unit of `Length`: `n` of them is `n · 0.004217518` coherent units.
-    pub type PicaPrinters = SIUnit<
+    pub const PICA_PRINTERS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -530,10 +500,10 @@ pub mod units {
                 name: "picas (printer's)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Points (computer) (`1/72 in (computer)`), a unit of `Length`: `n` of them is `n · 0.0254 / 72.0` coherent units.
-    pub type PointComputer = SIUnit<
+    pub const POINT_COMPUTER: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -543,10 +513,10 @@ pub mod units {
                 name: "points (computer)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Points (printer's) (`1/72 in`), a unit of `Length`: `n` of them is `n · 0.0003514598` coherent units.
-    pub type PointPrinters = SIUnit<
+    pub const POINT_PRINTERS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -556,10 +526,10 @@ pub mod units {
                 name: "points (printer's)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Rods (`rd`), a unit of `Length`: `n` of them is `n · 16.5 * 1200.0 / 3937.0` coherent units.
-    pub type Rod = SIUnit<
+    pub const ROD: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -569,10 +539,10 @@ pub mod units {
                 name: "rods",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Yards (`yd`), a unit of `Length`: `n` of them is `n · 0.9144` coherent units.
-    pub type Yard = SIUnit<
+    pub const YARD: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -582,10 +552,10 @@ pub mod units {
                 name: "yards",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Leugae (`leuga`), a unit of `Length`: `n` of them is `n · 2220.0` coherent units.
-    pub type Leuga = SIUnit<
+    pub const LEUGA: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -595,10 +565,10 @@ pub mod units {
                 name: "leugae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Mille passa (`mille passus`), a unit of `Length`: `n` of them is `n · 1480.0` coherent units.
-    pub type MillePassus = SIUnit<
+    pub const MILLE_PASSUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -608,10 +578,10 @@ pub mod units {
                 name: "mille passa",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Stadia (`stadium`), a unit of `Length`: `n` of them is `n · 185.0` coherent units.
-    pub type Stadium = SIUnit<
+    pub const STADIUM: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -621,10 +591,10 @@ pub mod units {
                 name: "stadia",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acta (`actus`), a unit of `Length`: `n` of them is `n · 35.52` coherent units.
-    pub type Actus = SIUnit<
+    pub const ACTUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -634,10 +604,10 @@ pub mod units {
                 name: "acta",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Decempedae (`decempeda`), a unit of `Length`: `n` of them is `n · 2.96` coherent units.
-    pub type Decempeda = SIUnit<
+    pub const DECEMPEDA: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -647,10 +617,10 @@ pub mod units {
                 name: "decempedae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Passa (`passus`), a unit of `Length`: `n` of them is `n · 1.48` coherent units.
-    pub type Passus = SIUnit<
+    pub const PASSUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -660,10 +630,10 @@ pub mod units {
                 name: "passa",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gradus (`gradus`), a unit of `Length`: `n` of them is `n · 0.74` coherent units.
-    pub type Gradus = SIUnit<
+    pub const GRADUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -673,10 +643,10 @@ pub mod units {
                 name: "gradus",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubita (`cubitum`), a unit of `Length`: `n` of them is `n · 0.444` coherent units.
-    pub type Cubitum = SIUnit<
+    pub const CUBITUM: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -686,10 +656,10 @@ pub mod units {
                 name: "cubita",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Palmipedes (`palmipes`), a unit of `Length`: `n` of them is `n · 0.37` coherent units.
-    pub type Palmipes = SIUnit<
+    pub const PALMIPES: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -699,10 +669,10 @@ pub mod units {
                 name: "palmipedes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pedes (`pes`), a unit of `Length`: `n` of them is `n · 0.296` coherent units.
-    pub type Pes = SIUnit<
+    pub const PES: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -712,10 +682,10 @@ pub mod units {
                 name: "pedes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Palmas maior (`palmus maior`), a unit of `Length`: `n` of them is `n · 0.222` coherent units.
-    pub type PalmusMaior = SIUnit<
+    pub const PALMUS_MAIOR: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -725,10 +695,10 @@ pub mod units {
                 name: "palmas maior",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Palmas (`palmus`), a unit of `Length`: `n` of them is `n · 0.074` coherent units.
-    pub type Palmus = SIUnit<
+    pub const PALMUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -738,10 +708,10 @@ pub mod units {
                 name: "palmas",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Unciae (`uncia`), a unit of `Length`: `n` of them is `n · 0.296 / 12.0` coherent units.
-    pub type LengthUncia = SIUnit<
+    pub const LENGTH_UNCIA: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -751,10 +721,10 @@ pub mod units {
                 name: "unciae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Digiti (`digitus`), a unit of `Length`: `n` of them is `n · 0.0185` coherent units.
-    pub type Digitus = SIUnit<
+    pub const DIGITUS: SIUnit<
         LENGTH,
         {
             SIUnitConsts {
@@ -764,10 +734,10 @@ pub mod units {
                 name: "digiti",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms (`kg`), a unit of `Mass`: `n` of them is `n · 1.0` coherent units.
-    pub type Kilogram = SIUnit<
+    pub const KILOGRAM: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -777,10 +747,10 @@ pub mod units {
                 name: "kilograms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams (`g`), a unit of `Mass`: `n` of them is `n · 0.001` coherent units.
-    pub type Gram = SIUnit<
+    pub const GRAM: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -790,10 +760,10 @@ pub mod units {
                 name: "grams",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Carats (`ct`), a unit of `Mass`: `n` of them is `n · 0.0002` coherent units.
-    pub type Carat = SIUnit<
+    pub const CARAT: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -803,10 +773,10 @@ pub mod units {
                 name: "carats",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Daltons (`Da`), a unit of `Mass`: `n` of them is `n · 1.6605390666e-27` coherent units.
-    pub type Dalton = SIUnit<
+    pub const DALTON: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -816,10 +786,10 @@ pub mod units {
                 name: "daltons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Electron masses (`mₑ`), a unit of `Mass`: `n` of them is `n · 9.1093837015e-31` coherent units.
-    pub type ElectronMass = SIUnit<
+    pub const ELECTRON_MASS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -829,10 +799,10 @@ pub mod units {
                 name: "electron masses",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Proton masses (`mₚ`), a unit of `Mass`: `n` of them is `n · 1.67262192369e-27` coherent units.
-    pub type ProtonMass = SIUnit<
+    pub const PROTON_MASS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -842,10 +812,10 @@ pub mod units {
                 name: "proton masses",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grains (`gr`), a unit of `Mass`: `n` of them is `n · 6.479891e-05` coherent units.
-    pub type Grain = SIUnit<
+    pub const GRAIN: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -855,10 +825,10 @@ pub mod units {
                 name: "grains",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hundredweight (long) (`cwt long`), a unit of `Mass`: `n` of them is `n · 50.80234544` coherent units.
-    pub type HundredweightLong = SIUnit<
+    pub const HUNDREDWEIGHT_LONG: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -868,10 +838,10 @@ pub mod units {
                 name: "hundredweight (long)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hundredweight (short) (`cwt short`), a unit of `Mass`: `n` of them is `n · 45.359237` coherent units.
-    pub type HundredweightShort = SIUnit<
+    pub const HUNDREDWEIGHT_SHORT: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -881,10 +851,10 @@ pub mod units {
                 name: "hundredweight (short)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces (`oz`), a unit of `Mass`: `n` of them is `n · 0.028349523125` coherent units.
-    pub type Ounce = SIUnit<
+    pub const OUNCE: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -894,10 +864,10 @@ pub mod units {
                 name: "ounces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Troy ounces (`oz t`), a unit of `Mass`: `n` of them is `n · 0.0311034768` coherent units.
-    pub type OunceTroy = SIUnit<
+    pub const OUNCE_TROY: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -907,10 +877,10 @@ pub mod units {
                 name: "troy ounces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pennyweight (`dwt`), a unit of `Mass`: `n` of them is `n · 0.00155517384` coherent units.
-    pub type Pennyweight = SIUnit<
+    pub const PENNYWEIGHT: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -920,10 +890,10 @@ pub mod units {
                 name: "pennyweight",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds (`lb`), a unit of `Mass`: `n` of them is `n · 0.45359237` coherent units.
-    pub type Pound = SIUnit<
+    pub const POUND: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -933,10 +903,10 @@ pub mod units {
                 name: "pounds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Troy pounds (`lb t`), a unit of `Mass`: `n` of them is `n · 0.3732417216` coherent units.
-    pub type PoundTroy = SIUnit<
+    pub const POUND_TROY: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -946,10 +916,10 @@ pub mod units {
                 name: "troy pounds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slugs (`slug`), a unit of `Mass`: `n` of them is `n · 0.45359237 * 9.80665 / 0.3048` coherent units.
-    pub type Slug = SIUnit<
+    pub const SLUG: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -959,10 +929,10 @@ pub mod units {
                 name: "slugs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Assay tons (`AT`), a unit of `Mass`: `n` of them is `n · 0.175 / 6.0` coherent units.
-    pub type TonAssay = SIUnit<
+    pub const TON_ASSAY: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -972,10 +942,10 @@ pub mod units {
                 name: "assay tons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Long tons (`2240 lb`), a unit of `Mass`: `n` of them is `n · 1016.0469088` coherent units.
-    pub type TonLong = SIUnit<
+    pub const TON_LONG: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -985,10 +955,10 @@ pub mod units {
                 name: "long tons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Short tons (`2000 lb`), a unit of `Mass`: `n` of them is `n · 907.18474` coherent units.
-    pub type TonShort = SIUnit<
+    pub const TON_SHORT: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -998,10 +968,10 @@ pub mod units {
                 name: "short tons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons (`t`), a unit of `Mass`: `n` of them is `n · 1000.0` coherent units.
-    pub type Ton = SIUnit<
+    pub const TON: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1011,10 +981,10 @@ pub mod units {
                 name: "tons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Librae (`libra`), a unit of `Mass`: `n` of them is `n · 0.3289` coherent units.
-    pub type Libra = SIUnit<
+    pub const LIBRA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1024,10 +994,10 @@ pub mod units {
                 name: "librae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Deunces (`deunx`), a unit of `Mass`: `n` of them is `n · 0.3289 * 11.0 / 12.0` coherent units.
-    pub type MassDeunx = SIUnit<
+    pub const MASS_DEUNX: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1037,10 +1007,10 @@ pub mod units {
                 name: "deunces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dextantes (`dextans`), a unit of `Mass`: `n` of them is `n · 0.3289 * 10.0 / 12.0` coherent units.
-    pub type MassDextans = SIUnit<
+    pub const MASS_DEXTANS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1050,10 +1020,10 @@ pub mod units {
                 name: "dextantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dodrantes (`dodrans`), a unit of `Mass`: `n` of them is `n · 0.246675` coherent units.
-    pub type MassDodrans = SIUnit<
+    pub const MASS_DODRANS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1063,10 +1033,10 @@ pub mod units {
                 name: "dodrantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bessis (`bes`), a unit of `Mass`: `n` of them is `n · 0.3289 * 8.0 / 12.0` coherent units.
-    pub type MassBes = SIUnit<
+    pub const MASS_BES: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1076,10 +1046,10 @@ pub mod units {
                 name: "bessis",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Septunces (`septunx`), a unit of `Mass`: `n` of them is `n · 0.3289 * 7.0 / 12.0` coherent units.
-    pub type MassSeptunx = SIUnit<
+    pub const MASS_SEPTUNX: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1089,10 +1059,10 @@ pub mod units {
                 name: "septunces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Semisses (`semis`), a unit of `Mass`: `n` of them is `n · 0.16445` coherent units.
-    pub type MassSemis = SIUnit<
+    pub const MASS_SEMIS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1102,10 +1072,10 @@ pub mod units {
                 name: "semisses",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Quincunx (`quincunx`), a unit of `Mass`: `n` of them is `n · 0.3289 * 5.0 / 12.0` coherent units.
-    pub type MassQuincunx = SIUnit<
+    pub const MASS_QUINCUNX: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1115,10 +1085,10 @@ pub mod units {
                 name: "quincunx",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Trientes (`triens`), a unit of `Mass`: `n` of them is `n · 0.3289 / 3.0` coherent units.
-    pub type MassTriens = SIUnit<
+    pub const MASS_TRIENS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1128,10 +1098,10 @@ pub mod units {
                 name: "trientes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Quadrantes teruncius (`quadrans teruncius`), a unit of `Mass`: `n` of them is `n · 0.082225` coherent units.
-    pub type QuadransTeruncius = SIUnit<
+    pub const QUADRANS_TERUNCIUS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1141,10 +1111,10 @@ pub mod units {
                 name: "quadrantes teruncius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sextantes (`sextans`), a unit of `Mass`: `n` of them is `n · 0.3289 / 6.0` coherent units.
-    pub type MassSextans = SIUnit<
+    pub const MASS_SEXTANS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1154,10 +1124,10 @@ pub mod units {
                 name: "sextantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sescunciae (`sescuncia`), a unit of `Mass`: `n` of them is `n · 0.0411125` coherent units.
-    pub type Sescuncia = SIUnit<
+    pub const SESCUNCIA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1167,10 +1137,10 @@ pub mod units {
                 name: "sescunciae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Unciae (`uncia`), a unit of `Mass`: `n` of them is `n · 0.3289 / 12.0` coherent units.
-    pub type MassUncia = SIUnit<
+    pub const MASS_UNCIA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1180,10 +1150,10 @@ pub mod units {
                 name: "unciae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Semunciae (`semuncia`), a unit of `Mass`: `n` of them is `n · 0.3289 / 24.0` coherent units.
-    pub type Semuncia = SIUnit<
+    pub const SEMUNCIA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1193,10 +1163,10 @@ pub mod units {
                 name: "semunciae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Duella (`duella`), a unit of `Mass`: `n` of them is `n · 0.3289 / 36.0` coherent units.
-    pub type Duella = SIUnit<
+    pub const DUELLA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1206,10 +1176,10 @@ pub mod units {
                 name: "duella",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Scilici (`sicilicus`), a unit of `Mass`: `n` of them is `n · 0.3289 / 48.0` coherent units.
-    pub type MassSicilicus = SIUnit<
+    pub const MASS_SICILICUS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1219,10 +1189,10 @@ pub mod units {
                 name: "scilici",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sextulae (`sextula`), a unit of `Mass`: `n` of them is `n · 0.3289 / 72.0` coherent units.
-    pub type MassSextula = SIUnit<
+    pub const MASS_SEXTULA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1232,10 +1202,10 @@ pub mod units {
                 name: "sextulae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Semisextulae (`semisextula`), a unit of `Mass`: `n` of them is `n · 0.3289 / 144.0` coherent units.
-    pub type Semisextula = SIUnit<
+    pub const SEMISEXTULA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1245,10 +1215,10 @@ pub mod units {
                 name: "semisextulae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Scrupula (`scrupulum`), a unit of `Mass`: `n` of them is `n · 0.3289 / 288.0` coherent units.
-    pub type MassScrupulum = SIUnit<
+    pub const MASS_SCRUPULUM: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1258,10 +1228,10 @@ pub mod units {
                 name: "scrupula",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Oboli (`obolus`), a unit of `Mass`: `n` of them is `n · 0.3289 / 576.0` coherent units.
-    pub type Obolus = SIUnit<
+    pub const OBOLUS: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1271,10 +1241,10 @@ pub mod units {
                 name: "oboli",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Siliquae (`siliqua`), a unit of `Mass`: `n` of them is `n · 0.3289 / 1728.0` coherent units.
-    pub type Siliqua = SIUnit<
+    pub const SILIQUA: SIUnit<
         MASS,
         {
             SIUnitConsts {
@@ -1284,10 +1254,10 @@ pub mod units {
                 name: "siliquae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds (`s`), a unit of `Time`: `n` of them is `n · 1.0` coherent units.
-    pub type Second = SIUnit<
+    pub const SECOND: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1297,10 +1267,10 @@ pub mod units {
                 name: "seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds (sidereal) (`s (sidereal)`), a unit of `Time`: `n` of them is `n · 0.9972696` coherent units.
-    pub type SecondSidereal = SIUnit<
+    pub const SECOND_SIDEREAL: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1310,10 +1280,10 @@ pub mod units {
                 name: "seconds (sidereal)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Days (`d`), a unit of `Time`: `n` of them is `n · 86400.0` coherent units.
-    pub type Day = SIUnit<
+    pub const DAY: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1323,10 +1293,10 @@ pub mod units {
                 name: "days",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Days (sidereal) (`d (sidereal)`), a unit of `Time`: `n` of them is `n · 86164.09` coherent units.
-    pub type DaySidereal = SIUnit<
+    pub const DAY_SIDEREAL: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1336,10 +1306,10 @@ pub mod units {
                 name: "days (sidereal)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hours (`h`), a unit of `Time`: `n` of them is `n · 3600.0` coherent units.
-    pub type Hour = SIUnit<
+    pub const HOUR: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1349,10 +1319,10 @@ pub mod units {
                 name: "hours",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hours (sidereal) (`h (sidereal)`), a unit of `Time`: `n` of them is `n · 3590.17` coherent units.
-    pub type HourSidereal = SIUnit<
+    pub const HOUR_SIDEREAL: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1362,10 +1332,10 @@ pub mod units {
                 name: "hours (sidereal)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Minutes (`min`), a unit of `Time`: `n` of them is `n · 60.0` coherent units.
-    pub type Minute = SIUnit<
+    pub const MINUTE: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1375,10 +1345,10 @@ pub mod units {
                 name: "minutes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shakes (`10.0 ns`), a unit of `Time`: `n` of them is `n · 1e-08` coherent units.
-    pub type Shake = SIUnit<
+    pub const SHAKE: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1388,10 +1358,10 @@ pub mod units {
                 name: "shakes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Years (`a`), a unit of `Time`: `n` of them is `n · 31536000.0` coherent units.
-    pub type Year = SIUnit<
+    pub const YEAR: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1401,10 +1371,10 @@ pub mod units {
                 name: "years",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Years (sidereal) (`a (sidereal)`), a unit of `Time`: `n` of them is `n · 31558150.0` coherent units.
-    pub type YearSidereal = SIUnit<
+    pub const YEAR_SIDEREAL: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1414,10 +1384,10 @@ pub mod units {
                 name: "years (sidereal)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Years (tropical) (`a (tropical)`), a unit of `Time`: `n` of them is `n · 31556930.0` coherent units.
-    pub type YearTropical = SIUnit<
+    pub const YEAR_TROPICAL: SIUnit<
         TIME,
         {
             SIUnitConsts {
@@ -1427,10 +1397,10 @@ pub mod units {
                 name: "years (tropical)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds of Unix time (`s Unix`), a unit of `Instant`: `n` of them is `n · 1.0` coherent units.
-    pub type UnixSecond = SIUnit<
+    pub const UNIX_SECOND: SIUnit<
         INSTANT,
         {
             SIUnitConsts {
@@ -1440,10 +1410,10 @@ pub mod units {
                 name: "seconds of Unix time",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Milliseconds of Unix time (`ms Unix`), a unit of `Instant`: `n` of them is `n · 0.001` coherent units.
-    pub type UnixMillisecond = SIUnit<
+    pub const UNIX_MILLISECOND: SIUnit<
         INSTANT,
         {
             SIUnitConsts {
@@ -1453,10 +1423,10 @@ pub mod units {
                 name: "milliseconds of Unix time",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds of GPS time (`s GPS`), a unit of `Instant`: `n` of them is `n · 1.0 + 315964800.0` coherent units.
-    pub type GpsSecond = SIUnit<
+    pub const GPS_SECOND: SIUnit<
         INSTANT,
         {
             SIUnitConsts {
@@ -1466,10 +1436,10 @@ pub mod units {
                 name: "seconds of GPS time",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Julian date (`JD`), a unit of `Instant`: `n` of them is `n · 86400.0 + -2440587.5 * 86400.0` coherent units.
-    pub type JulianDate = SIUnit<
+    pub const JULIAN_DATE: SIUnit<
         INSTANT,
         {
             SIUnitConsts {
@@ -1479,10 +1449,10 @@ pub mod units {
                 name: "Julian date",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Modified Julian date (`MJD`), a unit of `Instant`: `n` of them is `n · 86400.0 + -40587.0 * 86400.0` coherent units.
-    pub type ModifiedJulianDate = SIUnit<
+    pub const MODIFIED_JULIAN_DATE: SIUnit<
         INSTANT,
         {
             SIUnitConsts {
@@ -1492,10 +1462,10 @@ pub mod units {
                 name: "modified Julian date",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres (`m²`), a unit of `Area`: `n` of them is `n · 1.0` coherent units.
-    pub type SquareMetre = SIUnit<
+    pub const SQUARE_METRE: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1505,10 +1475,10 @@ pub mod units {
                 name: "square metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acres (`ac`), a unit of `Area`: `n` of them is `n · 43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0)` coherent units.
-    pub type Acre = SIUnit<
+    pub const ACRE: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1520,10 +1490,10 @@ pub mod units {
                 name: "acres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ares (`a`), a unit of `Area`: `n` of them is `n · 100.0` coherent units.
-    pub type Are = SIUnit<
+    pub const ARE: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1533,10 +1503,10 @@ pub mod units {
                 name: "ares",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Barns (`b`), a unit of `Area`: `n` of them is `n · 1e-28` coherent units.
-    pub type Barn = SIUnit<
+    pub const BARN: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1546,10 +1516,10 @@ pub mod units {
                 name: "barns",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Circular mils (`cmil`), a unit of `Area`: `n` of them is `n · core::f64::consts::PI / 4.0 * 2.54e-05 * 2.54e-05` coherent units.
-    pub type CircularMil = SIUnit<
+    pub const CIRCULAR_MIL: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1559,10 +1529,10 @@ pub mod units {
                 name: "circular mils",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hectares (`ha`), a unit of `Area`: `n` of them is `n · 10000.0` coherent units.
-    pub type Hectare = SIUnit<
+    pub const HECTARE: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1572,10 +1542,10 @@ pub mod units {
                 name: "hectares",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square feet (`ft²`), a unit of `Area`: `n` of them is `n · 0.09290304` coherent units.
-    pub type SquareFoot = SIUnit<
+    pub const SQUARE_FOOT: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1585,10 +1555,10 @@ pub mod units {
                 name: "square feet",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square inches (`in²`), a unit of `Area`: `n` of them is `n · 0.00064516` coherent units.
-    pub type SquareInch = SIUnit<
+    pub const SQUARE_INCH: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1598,10 +1568,10 @@ pub mod units {
                 name: "square inches",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square miles (`mi²`), a unit of `Area`: `n` of them is `n · 2589988.110336` coherent units.
-    pub type SquareMile = SIUnit<
+    pub const SQUARE_MILE: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1611,10 +1581,10 @@ pub mod units {
                 name: "square miles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square yards (`yd²`), a unit of `Area`: `n` of them is `n · 0.83612736` coherent units.
-    pub type SquareYard = SIUnit<
+    pub const SQUARE_YARD: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1624,10 +1594,10 @@ pub mod units {
                 name: "square yards",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Saltus (`saltus`), a unit of `Area`: `n` of them is `n · 2018672.64` coherent units.
-    pub type Saltus = SIUnit<
+    pub const SALTUS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1637,10 +1607,10 @@ pub mod units {
                 name: "saltus",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Centuriae (`centuria`), a unit of `Area`: `n` of them is `n · 504668.16` coherent units.
-    pub type Centuria = SIUnit<
+    pub const CENTURIA: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1650,10 +1620,10 @@ pub mod units {
                 name: "centuriae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Heredia (`heredium`), a unit of `Area`: `n` of them is `n · 5046.6816` coherent units.
-    pub type Heredium = SIUnit<
+    pub const HEREDIUM: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1663,10 +1633,10 @@ pub mod units {
                 name: "heredia",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Jugera (`jugerum`), a unit of `Area`: `n` of them is `n · 2523.3408` coherent units.
-    pub type Jugerum = SIUnit<
+    pub const JUGERUM: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1676,10 +1646,10 @@ pub mod units {
                 name: "jugera",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Deunces (`deunx`), a unit of `Area`: `n` of them is `n · 2313.0624` coherent units.
-    pub type AreaDeunx = SIUnit<
+    pub const AREA_DEUNX: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1689,10 +1659,10 @@ pub mod units {
                 name: "deunces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dextantes (`dextans`), a unit of `Area`: `n` of them is `n · 2102.784` coherent units.
-    pub type AreaDextans = SIUnit<
+    pub const AREA_DEXTANS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1702,10 +1672,10 @@ pub mod units {
                 name: "dextantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dodrantes (`dodrans`), a unit of `Area`: `n` of them is `n · 1892.5056` coherent units.
-    pub type AreaDodrans = SIUnit<
+    pub const AREA_DODRANS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1715,10 +1685,10 @@ pub mod units {
                 name: "dodrantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Besses (`bes`), a unit of `Area`: `n` of them is `n · 1682.2272` coherent units.
-    pub type AreaBes = SIUnit<
+    pub const AREA_BES: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1728,10 +1698,10 @@ pub mod units {
                 name: "besses",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Septunces (`septunx`), a unit of `Area`: `n` of them is `n · 1471.9488` coherent units.
-    pub type AreaSeptunx = SIUnit<
+    pub const AREA_SEPTUNX: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1741,10 +1711,10 @@ pub mod units {
                 name: "septunces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Semisses (`semis`), a unit of `Area`: `n` of them is `n · 1261.6704` coherent units.
-    pub type AreaSemis = SIUnit<
+    pub const AREA_SEMIS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1754,10 +1724,10 @@ pub mod units {
                 name: "semisses",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acta quadratus (`actus quadratus`), a unit of `Area`: `n` of them is `n · 1261.6704` coherent units.
-    pub type ActusQuadratus = SIUnit<
+    pub const ACTUS_QUADRATUS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1767,10 +1737,10 @@ pub mod units {
                 name: "acta quadratus",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Quincunces (`quincunx`), a unit of `Area`: `n` of them is `n · 1051.392` coherent units.
-    pub type AreaQuincunx = SIUnit<
+    pub const AREA_QUINCUNX: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1780,10 +1750,10 @@ pub mod units {
                 name: "quincunces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Trientes (`triens`), a unit of `Area`: `n` of them is `n · 841.1136` coherent units.
-    pub type AreaTriens = SIUnit<
+    pub const AREA_TRIENS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1793,10 +1763,10 @@ pub mod units {
                 name: "trientes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Quadrantes (`quadrans`), a unit of `Area`: `n` of them is `n · 630.8352` coherent units.
-    pub type Quadrans = SIUnit<
+    pub const QUADRANS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1806,10 +1776,10 @@ pub mod units {
                 name: "quadrantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sextantes (`sextans`), a unit of `Area`: `n` of them is `n · 420.5568` coherent units.
-    pub type AreaSextans = SIUnit<
+    pub const AREA_SEXTANS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1819,10 +1789,10 @@ pub mod units {
                 name: "sextantes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Climata (`clima`), a unit of `Area`: `n` of them is `n · 315.4176` coherent units.
-    pub type Clima = SIUnit<
+    pub const CLIMA: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1832,10 +1802,10 @@ pub mod units {
                 name: "climata",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Unciae (`uncia`), a unit of `Area`: `n` of them is `n · 210.2784` coherent units.
-    pub type AreaUncia = SIUnit<
+    pub const AREA_UNCIA: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1845,10 +1815,10 @@ pub mod units {
                 name: "unciae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Semiunciae (`semiuncia`), a unit of `Area`: `n` of them is `n · 105.1392` coherent units.
-    pub type Semiuncia = SIUnit<
+    pub const SEMIUNCIA: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1858,10 +1828,10 @@ pub mod units {
                 name: "semiunciae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Siculi (`sicilicus`), a unit of `Area`: `n` of them is `n · 52.5696` coherent units.
-    pub type AreaSicilicus = SIUnit<
+    pub const AREA_SICILICUS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1871,10 +1841,10 @@ pub mod units {
                 name: "siculi",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acta simplex (`actus simplex`), a unit of `Area`: `n` of them is `n · 42.05568` coherent units.
-    pub type ActusSimplex = SIUnit<
+    pub const ACTUS_SIMPLEX: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1884,10 +1854,10 @@ pub mod units {
                 name: "acta simplex",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sextulae (`sextula`), a unit of `Area`: `n` of them is `n · 35.0464` coherent units.
-    pub type AreaSextula = SIUnit<
+    pub const AREA_SEXTULA: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1897,10 +1867,10 @@ pub mod units {
                 name: "sextulae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Duo scrupula (`duo scrupulum`), a unit of `Area`: `n` of them is `n · 17.5232` coherent units.
-    pub type DuoScrupulum = SIUnit<
+    pub const DUO_SCRUPULUM: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1910,10 +1880,10 @@ pub mod units {
                 name: "duo scrupula",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Scrupula (`scrupulum`), a unit of `Area`: `n` of them is `n · 8.7616` coherent units.
-    pub type AreaScrupulum = SIUnit<
+    pub const AREA_SCRUPULUM: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1923,10 +1893,10 @@ pub mod units {
                 name: "scrupula",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dimidium scupula (`dimidium scrupulum`), a unit of `Area`: `n` of them is `n · 4.3808` coherent units.
-    pub type DimidiumScrupulum = SIUnit<
+    pub const DIMIDIUM_SCRUPULUM: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1936,10 +1906,10 @@ pub mod units {
                 name: "dimidium scupula",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pedes quadratus (`pes quadratus`), a unit of `Area`: `n` of them is `n · 0.087616` coherent units.
-    pub type PesQuadratus = SIUnit<
+    pub const PES_QUADRATUS: SIUnit<
         AREA,
         {
             SIUnitConsts {
@@ -1949,10 +1919,10 @@ pub mod units {
                 name: "pedes quadratus",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres (`m³`), a unit of `Volume`: `n` of them is `n · 1.0` coherent units.
-    pub type CubicMetre = SIUnit<
+    pub const CUBIC_METRE: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -1962,10 +1932,10 @@ pub mod units {
                 name: "cubic metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acre-feet (`ac · ft`), a unit of `Volume`: `n` of them is `n · 43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0)` coherent units.
-    pub type AcreFoot = SIUnit<
+    pub const ACRE_FOOT: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -1978,10 +1948,10 @@ pub mod units {
                 name: "acre-feet",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Barrels (`bbl`), a unit of `Volume`: `n` of them is `n · 0.158987294928` coherent units.
-    pub type Barrel = SIUnit<
+    pub const BARREL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -1991,10 +1961,10 @@ pub mod units {
                 name: "barrels",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bushels (`bu`), a unit of `Volume`: `n` of them is `n · 0.03523907016688` coherent units.
-    pub type Bushel = SIUnit<
+    pub const BUSHEL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2004,10 +1974,10 @@ pub mod units {
                 name: "bushels",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cords (`cords`), a unit of `Volume`: `n` of them is `n · 128.0 * 0.3048 * 0.3048 * 0.3048` coherent units.
-    pub type Cord = SIUnit<
+    pub const CORD: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2020,10 +1990,10 @@ pub mod units {
                 name: "cords",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feet (`ft³`), a unit of `Volume`: `n` of them is `n · 0.3048 * 0.3048 * 0.3048` coherent units.
-    pub type CubicFoot = SIUnit<
+    pub const CUBIC_FOOT: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2033,10 +2003,10 @@ pub mod units {
                 name: "cubic feet",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic inches (`in³`), a unit of `Volume`: `n` of them is `n · 0.0254 * 0.0254 * 0.0254` coherent units.
-    pub type CubicInch = SIUnit<
+    pub const CUBIC_INCH: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2046,10 +2016,10 @@ pub mod units {
                 name: "cubic inches",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic miles (`mi³`), a unit of `Volume`: `n` of them is `n · 1609.344 * 1609.344 * 1609.344` coherent units.
-    pub type CubicMile = SIUnit<
+    pub const CUBIC_MILE: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2059,10 +2029,10 @@ pub mod units {
                 name: "cubic miles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic yards (`yd³`), a unit of `Volume`: `n` of them is `n · 0.9144 * 0.9144 * 0.9144` coherent units.
-    pub type CubicYard = SIUnit<
+    pub const CUBIC_YARD: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2072,10 +2042,10 @@ pub mod units {
                 name: "cubic yards",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cups (`cup`), a unit of `Volume`: `n` of them is `n · 0.0002365882365` coherent units.
-    pub type Cup = SIUnit<
+    pub const CUP: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2085,10 +2055,10 @@ pub mod units {
                 name: "cups",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Fluid ounces (`fl oz`), a unit of `Volume`: `n` of them is `n · 2.95735295625e-05` coherent units.
-    pub type FluidOunce = SIUnit<
+    pub const FLUID_OUNCE: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2098,10 +2068,10 @@ pub mod units {
                 name: "fluid ounces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial fluid ounces (`fl oz (UK)`), a unit of `Volume`: `n` of them is `n · 2.84130625e-05` coherent units.
-    pub type FluidOunceImperial = SIUnit<
+    pub const FLUID_OUNCE_IMPERIAL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2111,10 +2081,10 @@ pub mod units {
                 name: "Imperial fluid ounces",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial gallons (`gal (UK)`), a unit of `Volume`: `n` of them is `n · 0.00454609` coherent units.
-    pub type GallonImperial = SIUnit<
+    pub const GALLON_IMPERIAL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2124,10 +2094,10 @@ pub mod units {
                 name: "Imperial gallons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons (`gal`), a unit of `Volume`: `n` of them is `n · 0.003785411784` coherent units.
-    pub type Gallon = SIUnit<
+    pub const GALLON: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2137,10 +2107,10 @@ pub mod units {
                 name: "gallons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial gills (`gi (UK)`), a unit of `Volume`: `n` of them is `n · 0.0001420653125` coherent units.
-    pub type GillImperial = SIUnit<
+    pub const GILL_IMPERIAL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2150,10 +2120,10 @@ pub mod units {
                 name: "Imperial gills",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gills (`gi`), a unit of `Volume`: `n` of them is `n · 0.00011829411825` coherent units.
-    pub type Gill = SIUnit<
+    pub const GILL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2163,10 +2133,10 @@ pub mod units {
                 name: "gills",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Litres (`L`), a unit of `Volume`: `n` of them is `n · 0.001` coherent units.
-    pub type Litre = SIUnit<
+    pub const LITRE: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2176,10 +2146,10 @@ pub mod units {
                 name: "litres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pecks (`pk`), a unit of `Volume`: `n` of them is `n · 0.00880976754172` coherent units.
-    pub type Peck = SIUnit<
+    pub const PECK: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2189,10 +2159,10 @@ pub mod units {
                 name: "pecks",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dry pints (`dry pt`), a unit of `Volume`: `n` of them is `n · 0.0005506104713575` coherent units.
-    pub type PintDry = SIUnit<
+    pub const PINT_DRY: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2202,10 +2172,10 @@ pub mod units {
                 name: "dry pints",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Liquid pints (`liq pt`), a unit of `Volume`: `n` of them is `n · 0.000473176473` coherent units.
-    pub type PintLiquid = SIUnit<
+    pub const PINT_LIQUID: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2215,10 +2185,10 @@ pub mod units {
                 name: "liquid pints",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dry quarts (`dry qt`), a unit of `Volume`: `n` of them is `n · 0.001101220942715` coherent units.
-    pub type QuartDry = SIUnit<
+    pub const QUART_DRY: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2228,10 +2198,10 @@ pub mod units {
                 name: "dry quarts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Liquid quarts (`liq qt`), a unit of `Volume`: `n` of them is `n · 0.000946352946` coherent units.
-    pub type QuartLiquid = SIUnit<
+    pub const QUART_LIQUID: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2241,10 +2211,10 @@ pub mod units {
                 name: "liquid quarts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Steres (`st`), a unit of `Volume`: `n` of them is `n · 1.0` coherent units.
-    pub type Stere = SIUnit<
+    pub const STERE: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2254,10 +2224,10 @@ pub mod units {
                 name: "steres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tablespoons (`tbsp`), a unit of `Volume`: `n` of them is `n · 1.478676478125e-05` coherent units.
-    pub type Tablespoon = SIUnit<
+    pub const TABLESPOON: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2267,10 +2237,10 @@ pub mod units {
                 name: "tablespoons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Teaspoons (`tsp`), a unit of `Volume`: `n` of them is `n · 4.92892159375e-06` coherent units.
-    pub type Teaspoon = SIUnit<
+    pub const TEASPOON: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2280,10 +2250,10 @@ pub mod units {
                 name: "teaspoons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Register tons (`RT`), a unit of `Volume`: `n` of them is `n · 100.0 * 0.3048 * 0.3048 * 0.3048` coherent units.
-    pub type RegisterTon = SIUnit<
+    pub const REGISTER_TON: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2296,10 +2266,10 @@ pub mod units {
                 name: "register tons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Culei (`culeus`), a unit of `Volume`: `n` of them is `n · 0.51868672` coherent units.
-    pub type Culeus = SIUnit<
+    pub const CULEUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2309,10 +2279,10 @@ pub mod units {
                 name: "culei",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Amphora quadrantal (`amphora quadrantal`), a unit of `Volume`: `n` of them is `n · 0.025934336` coherent units.
-    pub type AmphoraQuadrantal = SIUnit<
+    pub const AMPHORA_QUADRANTAL: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2322,10 +2292,10 @@ pub mod units {
                 name: "amphora quadrantal",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Urnae (`urna`), a unit of `Volume`: `n` of them is `n · 0.012967168` coherent units.
-    pub type Urna = SIUnit<
+    pub const URNA: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2335,10 +2305,10 @@ pub mod units {
                 name: "urnae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Modii castrensis (`modius castrensis`), a unit of `Volume`: `n` of them is `n · 0.012967168` coherent units.
-    pub type ModiusCastrensis = SIUnit<
+    pub const MODIUS_CASTRENSIS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2348,10 +2318,10 @@ pub mod units {
                 name: "modii castrensis",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Modii (`modius`), a unit of `Volume`: `n` of them is `n · 0.003241792 * 16.0 / 6.0` coherent units.
-    pub type Modius = SIUnit<
+    pub const MODIUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2361,10 +2331,10 @@ pub mod units {
                 name: "modii",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Semimodii (`semimodius`), a unit of `Volume`: `n` of them is `n · 0.003241792 * 8.0 / 6.0` coherent units.
-    pub type Semimodius = SIUnit<
+    pub const SEMIMODIUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2374,10 +2344,10 @@ pub mod units {
                 name: "semimodii",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Congii (`congius`), a unit of `Volume`: `n` of them is `n · 0.003241792` coherent units.
-    pub type Congius = SIUnit<
+    pub const CONGIUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2387,10 +2357,10 @@ pub mod units {
                 name: "congii",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sextarii (`sextarius`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 6.0` coherent units.
-    pub type Sextarius = SIUnit<
+    pub const SEXTARIUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2400,10 +2370,10 @@ pub mod units {
                 name: "sextarii",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Heminae (`hemina`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 12.0` coherent units.
-    pub type Hemina = SIUnit<
+    pub const HEMINA: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2413,10 +2383,10 @@ pub mod units {
                 name: "heminae",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Quartarii (`quartarius`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 24.0` coherent units.
-    pub type Quartarius = SIUnit<
+    pub const QUARTARIUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2426,10 +2396,10 @@ pub mod units {
                 name: "quartarii",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acetabula (`acetabulum`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 48.0` coherent units.
-    pub type Acetabulum = SIUnit<
+    pub const ACETABULUM: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2439,10 +2409,10 @@ pub mod units {
                 name: "acetabula",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cyathi (`cyathus`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 72.0` coherent units.
-    pub type Cyathus = SIUnit<
+    pub const CYATHUS: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2452,10 +2422,10 @@ pub mod units {
                 name: "cyathi",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ligula (`ligula`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 288.0` coherent units.
-    pub type Ligula = SIUnit<
+    pub const LIGULA: SIUnit<
         VOLUME,
         {
             SIUnitConsts {
@@ -2465,10 +2435,10 @@ pub mod units {
                 name: "ligula",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metres per second (`m/s`), a unit of `Velocity`: `n` of them is `n · 1.0` coherent units.
-    pub type MetrePerSecond = SIUnit<
+    pub const METRE_PER_SECOND: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2478,10 +2448,10 @@ pub mod units {
                 name: "metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet per hour (`ft/h`), a unit of `Velocity`: `n` of them is `n · 0.3048 / 3600.0` coherent units.
-    pub type FootPerHour = SIUnit<
+    pub const FOOT_PER_HOUR: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2491,10 +2461,10 @@ pub mod units {
                 name: "feet per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet per minute (`ft/min`), a unit of `Velocity`: `n` of them is `n · 0.00508` coherent units.
-    pub type FootPerMinute = SIUnit<
+    pub const FOOT_PER_MINUTE: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2504,10 +2474,10 @@ pub mod units {
                 name: "feet per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet per second (`ft/s`), a unit of `Velocity`: `n` of them is `n · 0.3048` coherent units.
-    pub type FootPerSecond = SIUnit<
+    pub const FOOT_PER_SECOND: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2517,10 +2487,10 @@ pub mod units {
                 name: "feet per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches per second (`in/s`), a unit of `Velocity`: `n` of them is `n · 0.0254` coherent units.
-    pub type InchPerSecond = SIUnit<
+    pub const INCH_PER_SECOND: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2530,10 +2500,10 @@ pub mod units {
                 name: "inches per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches per minute (`in/min`), a unit of `Velocity`: `n` of them is `n · 0.0254 / 60.0` coherent units.
-    pub type InchPerMinute = SIUnit<
+    pub const INCH_PER_MINUTE: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2543,10 +2513,10 @@ pub mod units {
                 name: "inches per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Knots (`kn`), a unit of `Velocity`: `n` of them is `n · 1852.0 / 3600.0` coherent units.
-    pub type Knot = SIUnit<
+    pub const KNOT: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2556,10 +2526,10 @@ pub mod units {
                 name: "knots",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Miles per hour (`mi/h`), a unit of `Velocity`: `n` of them is `n · 0.44704` coherent units.
-    pub type MilePerHour = SIUnit<
+    pub const MILE_PER_HOUR: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2569,10 +2539,10 @@ pub mod units {
                 name: "miles per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Miles per minute (`mi/min`), a unit of `Velocity`: `n` of them is `n · 26.8224` coherent units.
-    pub type MilePerMinute = SIUnit<
+    pub const MILE_PER_MINUTE: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2582,10 +2552,10 @@ pub mod units {
                 name: "miles per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Miles per second (`mi/s`), a unit of `Velocity`: `n` of them is `n · 1609.344` coherent units.
-    pub type MilePerSecond = SIUnit<
+    pub const MILE_PER_SECOND: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2595,10 +2565,10 @@ pub mod units {
                 name: "miles per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of velocity (`a₀ · Eₕ/ħ`), a unit of `Velocity`: `n` of them is `n · 2187691.26364` coherent units.
-    pub type AtomicUnitOfVelocity = SIUnit<
+    pub const ATOMIC_UNIT_OF_VELOCITY: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2608,10 +2578,10 @@ pub mod units {
                 name: "atomic units of velocity",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Natural units of velocity (`c`), a unit of `Velocity`: `n` of them is `n · 299792458.0` coherent units.
-    pub type NaturalUnitOfVelocity = SIUnit<
+    pub const NATURAL_UNIT_OF_VELOCITY: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2621,10 +2591,10 @@ pub mod units {
                 name: "natural units of velocity",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Speeds of light in vacuum (`c`), a unit of `Velocity`: `n` of them is `n · 299792458.0` coherent units.
-    pub type SpeedOfLight = SIUnit<
+    pub const SPEED_OF_LIGHT: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2634,10 +2604,10 @@ pub mod units {
                 name: "speeds of light in vacuum",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilometres per hour (`km/h`), a unit of `Velocity`: `n` of them is `n · 1000.0 / 3600.0` coherent units.
-    pub type KilometrePerHour = SIUnit<
+    pub const KILOMETRE_PER_HOUR: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2647,10 +2617,10 @@ pub mod units {
                 name: "kilometres per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Millimetres per minute (`mm/min`), a unit of `Velocity`: `n` of them is `n · 0.001 / 60.0` coherent units.
-    pub type MillimetrePerMinute = SIUnit<
+    pub const MILLIMETRE_PER_MINUTE: SIUnit<
         VELOCITY,
         {
             SIUnitConsts {
@@ -2660,10 +2630,10 @@ pub mod units {
                 name: "millimetres per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metres per second squared (`m/s²`), a unit of `Acceleration`: `n` of them is `n · 1.0` coherent units.
-    pub type MetrePerSecondSquared = SIUnit<
+    pub const METRE_PER_SECOND_SQUARED: SIUnit<
         ACCELERATION,
         {
             SIUnitConsts {
@@ -2673,10 +2643,10 @@ pub mod units {
                 name: "metres per second squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet per second squared (`ft/s²`), a unit of `Acceleration`: `n` of them is `n · 0.3048` coherent units.
-    pub type FootPerSecondSquared = SIUnit<
+    pub const FOOT_PER_SECOND_SQUARED: SIUnit<
         ACCELERATION,
         {
             SIUnitConsts {
@@ -2686,10 +2656,10 @@ pub mod units {
                 name: "feet per second squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Galileos (`Gal`), a unit of `Acceleration`: `n` of them is `n · 0.01` coherent units.
-    pub type Galileo = SIUnit<
+    pub const GALILEO: SIUnit<
         ACCELERATION,
         {
             SIUnitConsts {
@@ -2699,10 +2669,10 @@ pub mod units {
                 name: "galileos",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches per second squared (`in/s²`), a unit of `Acceleration`: `n` of them is `n · 0.0254` coherent units.
-    pub type InchPerSecondSquared = SIUnit<
+    pub const INCH_PER_SECOND_SQUARED: SIUnit<
         ACCELERATION,
         {
             SIUnitConsts {
@@ -2712,10 +2682,10 @@ pub mod units {
                 name: "inches per second squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Standard accelerations of gravity (`g₀`), a unit of `Acceleration`: `n` of them is `n · 9.80665` coherent units.
-    pub type StandardGravity = SIUnit<
+    pub const STANDARD_GRAVITY: SIUnit<
         ACCELERATION,
         {
             SIUnitConsts {
@@ -2725,10 +2695,10 @@ pub mod units {
                 name: "standard accelerations of gravity",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Millimetres per minute squared (`mm/min²`), a unit of `Acceleration`: `n` of them is `n · 0.001 / (60.0 * 60.0)` coherent units.
-    pub type MillimetrePerMinuteSquared = SIUnit<
+    pub const MILLIMETRE_PER_MINUTE_SQUARED: SIUnit<
         ACCELERATION,
         {
             SIUnitConsts {
@@ -2738,10 +2708,10 @@ pub mod units {
                 name: "millimetres per minute squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metres per second cubed (`m/s³`), a unit of `Jerk`: `n` of them is `n · 1.0` coherent units.
-    pub type MetrePerSecondCubed = SIUnit<
+    pub const METRE_PER_SECOND_CUBED: SIUnit<
         JERK,
         {
             SIUnitConsts {
@@ -2751,10 +2721,10 @@ pub mod units {
                 name: "metres per second cubed",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet per second cubed (`ft/s³`), a unit of `Jerk`: `n` of them is `n · 0.3048` coherent units.
-    pub type FootPerSecondCubed = SIUnit<
+    pub const FOOT_PER_SECOND_CUBED: SIUnit<
         JERK,
         {
             SIUnitConsts {
@@ -2764,10 +2734,10 @@ pub mod units {
                 name: "feet per second cubed",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches per second cubed (`in/s³`), a unit of `Jerk`: `n` of them is `n · 0.0254` coherent units.
-    pub type InchPerSecondCubed = SIUnit<
+    pub const INCH_PER_SECOND_CUBED: SIUnit<
         JERK,
         {
             SIUnitConsts {
@@ -2777,10 +2747,10 @@ pub mod units {
                 name: "inches per second cubed",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilometres per minute cubed (`km/min³`), a unit of `Jerk`: `n` of them is `n · 1000.0 / (60.0 * 60.0 * 60.0)` coherent units.
-    pub type KilometrePerMinuteCubed = SIUnit<
+    pub const KILOMETRE_PER_MINUTE_CUBED: SIUnit<
         JERK,
         {
             SIUnitConsts {
@@ -2790,10 +2760,10 @@ pub mod units {
                 name: "kilometres per minute cubed",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metre seconds (`m · s`), a unit of `Absement`: `n` of them is `n · 1.0` coherent units.
-    pub type MetreSecond = SIUnit<
+    pub const METRE_SECOND: SIUnit<
         ABSEMENT,
         {
             SIUnitConsts {
@@ -2803,10 +2773,10 @@ pub mod units {
                 name: "metre seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot seconds (`ft · s`), a unit of `Absement`: `n` of them is `n · 0.3048` coherent units.
-    pub type FootSecond = SIUnit<
+    pub const FOOT_SECOND: SIUnit<
         ABSEMENT,
         {
             SIUnitConsts {
@@ -2816,10 +2786,10 @@ pub mod units {
                 name: "foot seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inch seconds (`in · s`), a unit of `Absement`: `n` of them is `n · 0.0254` coherent units.
-    pub type InchSecond = SIUnit<
+    pub const INCH_SECOND: SIUnit<
         ABSEMENT,
         {
             SIUnitConsts {
@@ -2829,10 +2799,10 @@ pub mod units {
                 name: "inch seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilometre hours (`km · h`), a unit of `Absement`: `n` of them is `n · 3600000.0` coherent units.
-    pub type KilometreHour = SIUnit<
+    pub const KILOMETRE_HOUR: SIUnit<
         ABSEMENT,
         {
             SIUnitConsts {
@@ -2842,10 +2812,10 @@ pub mod units {
                 name: "kilometre hours",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds per metre (`s/m`), a unit of `InverseVelocity`: `n` of them is `n · 1.0` coherent units.
-    pub type SecondPerMetre = SIUnit<
+    pub const SECOND_PER_METRE: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2855,10 +2825,10 @@ pub mod units {
                 name: "seconds per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hours per foot (`h/ft`), a unit of `InverseVelocity`: `n` of them is `n · 3600.0 / 0.3048` coherent units.
-    pub type HourPerFoot = SIUnit<
+    pub const HOUR_PER_FOOT: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2868,10 +2838,10 @@ pub mod units {
                 name: "hours per foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Minutes per foot (`min/ft`), a unit of `InverseVelocity`: `n` of them is `n · 60.0 / 0.3048` coherent units.
-    pub type MinutePerFoot = SIUnit<
+    pub const MINUTE_PER_FOOT: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2881,10 +2851,10 @@ pub mod units {
                 name: "minutes per foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds per foot (`s/ft`), a unit of `InverseVelocity`: `n` of them is `n · 1.0 / 0.3048` coherent units.
-    pub type SecondPerFoot = SIUnit<
+    pub const SECOND_PER_FOOT: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2894,10 +2864,10 @@ pub mod units {
                 name: "seconds per foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds per inch (`s/in`), a unit of `InverseVelocity`: `n` of them is `n · 1.0 / 0.0254` coherent units.
-    pub type SecondPerInch = SIUnit<
+    pub const SECOND_PER_INCH: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2907,10 +2877,10 @@ pub mod units {
                 name: "seconds per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hours per mile (`h/mi`), a unit of `InverseVelocity`: `n` of them is `n · 3600.0 / 1609.344` coherent units.
-    pub type HourPerMile = SIUnit<
+    pub const HOUR_PER_MILE: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2920,10 +2890,10 @@ pub mod units {
                 name: "hours per mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Minutes per mile (`min/mi`), a unit of `InverseVelocity`: `n` of them is `n · 60.0 / 1609.344` coherent units.
-    pub type MinutePerMile = SIUnit<
+    pub const MINUTE_PER_MILE: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2933,10 +2903,10 @@ pub mod units {
                 name: "minutes per mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Seconds per mile (`s/mi`), a unit of `InverseVelocity`: `n` of them is `n · 1.0 / 1609.344` coherent units.
-    pub type SecondPerMile = SIUnit<
+    pub const SECOND_PER_MILE: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2946,10 +2916,10 @@ pub mod units {
                 name: "seconds per mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Minutes per kilometre (`min/km`), a unit of `InverseVelocity`: `n` of them is `n · 0.06` coherent units.
-    pub type MinutePerKilometre = SIUnit<
+    pub const MINUTE_PER_KILOMETRE: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2959,10 +2929,10 @@ pub mod units {
                 name: "minutes per kilometre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hours per kilometre (`h/km`), a unit of `InverseVelocity`: `n` of them is `n · 3.6` coherent units.
-    pub type HourPerKilometre = SIUnit<
+    pub const HOUR_PER_KILOMETRE: SIUnit<
         INVERSE_VELOCITY,
         {
             SIUnitConsts {
@@ -2972,10 +2942,10 @@ pub mod units {
                 name: "hours per kilometre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Newtons (`N`), a unit of `Force`: `n` of them is `n · 1.0` coherent units.
-    pub type Newton = SIUnit<
+    pub const NEWTON: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -2985,10 +2955,10 @@ pub mod units {
                 name: "newtons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dynes (`dyn`), a unit of `Force`: `n` of them is `n · 1e-05` coherent units.
-    pub type Dyne = SIUnit<
+    pub const DYNE: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -2998,10 +2968,10 @@ pub mod units {
                 name: "dynes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms-force (`kgf`), a unit of `Force`: `n` of them is `n · 9.80665` coherent units.
-    pub type KilogramForce = SIUnit<
+    pub const KILOGRAM_FORCE: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -3011,10 +2981,10 @@ pub mod units {
                 name: "kilograms-force",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kips (`kip`), a unit of `Force`: `n` of them is `n · 1000.0 * 0.45359237 * 9.80665` coherent units.
-    pub type Kip = SIUnit<
+    pub const KIP: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -3024,10 +2994,10 @@ pub mod units {
                 name: "kips",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces-force (`ozf`), a unit of `Force`: `n` of them is `n · 0.45359237 * 9.80665 / 16.0` coherent units.
-    pub type OunceForce = SIUnit<
+    pub const OUNCE_FORCE: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -3037,10 +3007,10 @@ pub mod units {
                 name: "ounces-force",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Poundals (`pdl`), a unit of `Force`: `n` of them is `n · 0.45359237 * 0.3048` coherent units.
-    pub type Poundal = SIUnit<
+    pub const POUNDAL: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -3050,10 +3020,10 @@ pub mod units {
                 name: "poundals",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force (`lbf`), a unit of `Force`: `n` of them is `n · 0.45359237 * 9.80665` coherent units.
-    pub type PoundForce = SIUnit<
+    pub const POUND_FORCE: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -3063,10 +3033,10 @@ pub mod units {
                 name: "pounds-force",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons-force (`2000 lbf`), a unit of `Force`: `n` of them is `n · 2000.0 * 0.45359237 * 9.80665` coherent units.
-    pub type TonForce = SIUnit<
+    pub const TON_FORCE: SIUnit<
         FORCE,
         {
             SIUnitConsts {
@@ -3076,10 +3046,10 @@ pub mod units {
                 name: "tons-force",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram metres per second (`kg · m/s`), a unit of `Momentum`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramMetrePerSecond = SIUnit<
+    pub const KILOGRAM_METRE_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3089,10 +3059,10 @@ pub mod units {
                 name: "kilogram metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gram metres per second (`g · m/s`), a unit of `Momentum`: `n` of them is `n · 0.001` coherent units.
-    pub type GramMetrePerSecond = SIUnit<
+    pub const GRAM_METRE_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3102,10 +3072,10 @@ pub mod units {
                 name: "gram metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ton metres per second (`t · m/s`), a unit of `Momentum`: `n` of them is `n · 1000.0` coherent units.
-    pub type TonMetrePerSecond = SIUnit<
+    pub const TON_METRE_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3115,10 +3085,10 @@ pub mod units {
                 name: "ton metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram metres per minute (`kg · m/min`), a unit of `Momentum`: `n` of them is `n · 1.0 / 60.0` coherent units.
-    pub type KilogramMetrePerMinute = SIUnit<
+    pub const KILOGRAM_METRE_PER_MINUTE: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3128,10 +3098,10 @@ pub mod units {
                 name: "kilogram metres per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram metres per hour (`kg · m/h`), a unit of `Momentum`: `n` of them is `n · 1.0 / 3600.0` coherent units.
-    pub type KilogramMetrePerHour = SIUnit<
+    pub const KILOGRAM_METRE_PER_HOUR: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3141,10 +3111,10 @@ pub mod units {
                 name: "kilogram metres per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram metres per day (`kg · m/d`), a unit of `Momentum`: `n` of them is `n · 1.0 / 86400.0` coherent units.
-    pub type KilogramMetrePerDay = SIUnit<
+    pub const KILOGRAM_METRE_PER_DAY: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3154,10 +3124,10 @@ pub mod units {
                 name: "kilogram metres per day",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slug feet per second (`slug · ft/s`), a unit of `Momentum`: `n` of them is `n · (0.45359237 * 9.80665 / 0.3048) * 0.3048` coherent units.
-    pub type SlugFootPerSecond = SIUnit<
+    pub const SLUG_FOOT_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3168,10 +3138,10 @@ pub mod units {
                 name: "slug feet per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slug inches per second (`slug · in/s`), a unit of `Momentum`: `n` of them is `n · (0.45359237 * 9.80665 / 0.3048) * 0.0254` coherent units.
-    pub type SlugInchPerSecond = SIUnit<
+    pub const SLUG_INCH_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3182,10 +3152,10 @@ pub mod units {
                 name: "slug inches per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pound feet per second (`lb · ft/s`), a unit of `Momentum`: `n` of them is `n · 0.138254954376` coherent units.
-    pub type PoundFootPerSecond = SIUnit<
+    pub const POUND_FOOT_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3195,10 +3165,10 @@ pub mod units {
                 name: "pound feet per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pound inches per second (`lb · in/s`), a unit of `Momentum`: `n` of them is `n · 0.011521246198` coherent units.
-    pub type PoundInchPerSecond = SIUnit<
+    pub const POUND_INCH_PER_SECOND: SIUnit<
         MOMENTUM,
         {
             SIUnitConsts {
@@ -3208,10 +3178,10 @@ pub mod units {
                 name: "pound inches per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules (`J`), a unit of `Energy`: `n` of them is `n · 1.0` coherent units.
-    pub type Joule = SIUnit<
+    pub const JOULE: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3221,10 +3191,10 @@ pub mod units {
                 name: "joules",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watt hours (`W · h`), a unit of `Energy`: `n` of them is `n · 3600.0` coherent units.
-    pub type WattHour = SIUnit<
+    pub const WATT_HOUR: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3234,10 +3204,10 @@ pub mod units {
                 name: "watt hours",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Electronvolts (`eV`), a unit of `Energy`: `n` of them is `n · 1.602176634e-19` coherent units.
-    pub type Electronvolt = SIUnit<
+    pub const ELECTRONVOLT: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3247,10 +3217,10 @@ pub mod units {
                 name: "electronvolts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hartrees (`Eₕ`), a unit of `Energy`: `n` of them is `n · 4.3597447222071e-18` coherent units.
-    pub type Hartree = SIUnit<
+    pub const HARTREE: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3260,10 +3230,10 @@ pub mod units {
                 name: "hartrees",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) (`Btu (IT)`), a unit of `Energy`: `n` of them is `n · 1055.05585262` coherent units.
-    pub type BtuIt = SIUnit<
+    pub const BTU_IT: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3273,10 +3243,10 @@ pub mod units {
                 name: "British thermal units (IT)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (`Btu`), a unit of `Energy`: `n` of them is `n · 4184.0 * 0.45359237 / 1.8` coherent units.
-    pub type Btu = SIUnit<
+    pub const BTU: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3286,10 +3256,10 @@ pub mod units {
                 name: "British thermal units",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories (IT) (`cal (IT)`), a unit of `Energy`: `n` of them is `n · 4.1868` coherent units.
-    pub type CalorieIt = SIUnit<
+    pub const CALORIE_IT: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3299,10 +3269,10 @@ pub mod units {
                 name: "calories (IT)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories (`cal`), a unit of `Energy`: `n` of them is `n · 4.184` coherent units.
-    pub type Calorie = SIUnit<
+    pub const CALORIE: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3312,10 +3282,10 @@ pub mod units {
                 name: "calories",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories (IT) (`Cal (IT)`), a unit of `Energy`: `n` of them is `n · 4186.8` coherent units.
-    pub type CalorieItNutrition = SIUnit<
+    pub const CALORIE_IT_NUTRITION: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3325,10 +3295,10 @@ pub mod units {
                 name: "Calories (IT)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories (`Cal`), a unit of `Energy`: `n` of them is `n · 4184.0` coherent units.
-    pub type CalorieNutrition = SIUnit<
+    pub const CALORIE_NUTRITION: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3338,10 +3308,10 @@ pub mod units {
                 name: "Calories",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ergs (`erg`), a unit of `Energy`: `n` of them is `n · 1e-07` coherent units.
-    pub type Erg = SIUnit<
+    pub const ERG: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3351,10 +3321,10 @@ pub mod units {
                 name: "ergs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot poundals (`ft · pdl`), a unit of `Energy`: `n` of them is `n · 0.3048 * 0.45359237 * 0.3048` coherent units.
-    pub type FootPoundal = SIUnit<
+    pub const FOOT_POUNDAL: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3364,10 +3334,10 @@ pub mod units {
                 name: "foot poundals",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force (`ft · lbf`), a unit of `Energy`: `n` of them is `n · 0.3048 * 0.45359237 * 9.80665` coherent units.
-    pub type FootPound = SIUnit<
+    pub const FOOT_POUND: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3377,10 +3347,10 @@ pub mod units {
                 name: "foot pounds-force",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Quads (`10¹⁵ Btu (IT)`), a unit of `Energy`: `n` of them is `n · 1.05505585262e18` coherent units.
-    pub type Quad = SIUnit<
+    pub const QUAD: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3390,10 +3360,10 @@ pub mod units {
                 name: "quads",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Therms (EC) (`thm (EC)`), a unit of `Energy`: `n` of them is `n · 105506000.0` coherent units.
-    pub type ThermEc = SIUnit<
+    pub const THERM_EC: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3403,10 +3373,10 @@ pub mod units {
                 name: "therms (EC)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Therms (`thm`), a unit of `Energy`: `n` of them is `n · 105480400.0` coherent units.
-    pub type ThermUs = SIUnit<
+    pub const THERM_US: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3416,10 +3386,10 @@ pub mod units {
                 name: "therms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons of TNT (`t of TNT`), a unit of `Energy`: `n` of them is `n · 4184000000.0` coherent units.
-    pub type TonTnt = SIUnit<
+    pub const TON_TNT: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3429,10 +3399,10 @@ pub mod units {
                 name: "tons of TNT",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watt seconds (`W · s`), a unit of `Energy`: `n` of them is `n · 1.0` coherent units.
-    pub type WattSecond = SIUnit<
+    pub const WATT_SECOND: SIUnit<
         ENERGY,
         {
             SIUnitConsts {
@@ -3442,10 +3412,10 @@ pub mod units {
                 name: "watt seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per kilogram (`J/kg`), a unit of `AvailableEnergy`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerKilogram = SIUnit<
+    pub const JOULE_PER_KILOGRAM: SIUnit<
         AVAILABLE_ENERGY,
         {
             SIUnitConsts {
@@ -3455,10 +3425,10 @@ pub mod units {
                 name: "joules per kilogram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per gram (`J/g`), a unit of `AvailableEnergy`: `n` of them is `n · 1000.0` coherent units.
-    pub type JoulePerGram = SIUnit<
+    pub const JOULE_PER_GRAM: SIUnit<
         AVAILABLE_ENERGY,
         {
             SIUnitConsts {
@@ -3468,10 +3438,10 @@ pub mod units {
                 name: "joules per gram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per pound (`Btu (IT)/lb`), a unit of `AvailableEnergy`: `n` of them is `n · 2326.0` coherent units.
-    pub type BtuItPerPound = SIUnit<
+    pub const BTU_IT_PER_POUND: SIUnit<
         AVAILABLE_ENERGY,
         {
             SIUnitConsts {
@@ -3481,10 +3451,10 @@ pub mod units {
                 name: "British thermal units (IT) per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per pound (`Btu/lb`), a unit of `AvailableEnergy`: `n` of them is `n · 4184.0 / 1.8` coherent units.
-    pub type BtuPerPound = SIUnit<
+    pub const BTU_PER_POUND: SIUnit<
         AVAILABLE_ENERGY,
         {
             SIUnitConsts {
@@ -3494,10 +3464,10 @@ pub mod units {
                 name: "British thermal units per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories (IT) per gram (`cal (IT)/g`), a unit of `AvailableEnergy`: `n` of them is `n · 4186.8` coherent units.
-    pub type CalorieItPerGram = SIUnit<
+    pub const CALORIE_IT_PER_GRAM: SIUnit<
         AVAILABLE_ENERGY,
         {
             SIUnitConsts {
@@ -3507,10 +3477,10 @@ pub mod units {
                 name: "calories (IT) per gram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories per gram (`cal/g`), a unit of `AvailableEnergy`: `n` of them is `n · 4184.0` coherent units.
-    pub type CaloriePerGram = SIUnit<
+    pub const CALORIE_PER_GRAM: SIUnit<
         AVAILABLE_ENERGY,
         {
             SIUnitConsts {
@@ -3520,10 +3490,10 @@ pub mod units {
                 name: "calories per gram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts (`W`), a unit of `Power`: `n` of them is `n · 1.0` coherent units.
-    pub type Watt = SIUnit<
+    pub const WATT: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3533,10 +3503,10 @@ pub mod units {
                 name: "watts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ergs per second (`erg/s`), a unit of `Power`: `n` of them is `n · 1e-07` coherent units.
-    pub type ErgPerSecond = SIUnit<
+    pub const ERG_PER_SECOND: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3546,10 +3516,10 @@ pub mod units {
                 name: "ergs per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per hour (`ft · lbf/h`), a unit of `Power`: `n` of them is `n · (0.3048 * 0.45359237 * 9.80665) / 3600.0` coherent units.
-    pub type FootPoundPerHour = SIUnit<
+    pub const FOOT_POUND_PER_HOUR: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3560,10 +3530,10 @@ pub mod units {
                 name: "foot pounds-force per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per minute (`ft · lbf/min`), a unit of `Power`: `n` of them is `n · (0.3048 * 0.45359237 * 9.80665) / 60.0` coherent units.
-    pub type FootPoundPerMinute = SIUnit<
+    pub const FOOT_POUND_PER_MINUTE: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3574,10 +3544,10 @@ pub mod units {
                 name: "foot pounds-force per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per second (`ft · lbf/s`), a unit of `Power`: `n` of them is `n · 0.3048 * 0.45359237 * 9.80665` coherent units.
-    pub type FootPoundPerSecond = SIUnit<
+    pub const FOOT_POUND_PER_SECOND: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3587,10 +3557,10 @@ pub mod units {
                 name: "foot pounds-force per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (`hp`), a unit of `Power`: `n` of them is `n · 550.0 * 0.3048 * 0.45359237 * 9.80665` coherent units.
-    pub type Horsepower = SIUnit<
+    pub const HORSEPOWER: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3603,10 +3573,10 @@ pub mod units {
                 name: "horsepower",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (boiler) (`hp (S)`), a unit of `Power`: `n` of them is `n · 9809.5` coherent units.
-    pub type HorsepowerBoiler = SIUnit<
+    pub const HORSEPOWER_BOILER: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3616,10 +3586,10 @@ pub mod units {
                 name: "horsepower (boiler)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (electric) (`hp (E)`), a unit of `Power`: `n` of them is `n · 746.0` coherent units.
-    pub type HorsepowerElectric = SIUnit<
+    pub const HORSEPOWER_ELECTRIC: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3629,10 +3599,10 @@ pub mod units {
                 name: "horsepower (electric)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metric horsepower (`hp (M)`), a unit of `Power`: `n` of them is `n · 75.0 * 9.80665` coherent units.
-    pub type HorsepowerMetric = SIUnit<
+    pub const HORSEPOWER_METRIC: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3642,10 +3612,10 @@ pub mod units {
                 name: "metric horsepower",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (Imperial) (`hp (I)`), a unit of `Power`: `n` of them is `n · 745.7` coherent units.
-    pub type HorsepowerImperial = SIUnit<
+    pub const HORSEPOWER_IMPERIAL: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3655,10 +3625,10 @@ pub mod units {
                 name: "horsepower (Imperial)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hydraulic horsepower (`hp (hydraulic)`), a unit of `Power`: `n` of them is `n · 746.043` coherent units.
-    pub type HydraulicHorsepower = SIUnit<
+    pub const HYDRAULIC_HORSEPOWER: SIUnit<
         POWER,
         {
             SIUnitConsts {
@@ -3668,10 +3638,10 @@ pub mod units {
                 name: "hydraulic horsepower",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bels (`B`), a unit of `Gain`: `n` of them is `n · 1.0` coherent units.
-    pub type Bel = SIUnit<
+    pub const BEL: SIUnit<
         GAIN,
         {
             SIUnitConsts {
@@ -3681,10 +3651,10 @@ pub mod units {
                 name: "bels",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Decibels (`dB`), a unit of `Gain`: `n` of them is `n · 0.1` coherent units.
-    pub type Decibel = SIUnit<
+    pub const DECIBEL: SIUnit<
         GAIN,
         {
             SIUnitConsts {
@@ -3694,10 +3664,10 @@ pub mod units {
                 name: "decibels",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Nepers (`Np`), a unit of `Gain`: `n` of them is `n · 0.8685889638065036` coherent units.
-    pub type Neper = SIUnit<
+    pub const NEPER: SIUnit<
         GAIN,
         {
             SIUnitConsts {
@@ -3707,10 +3677,10 @@ pub mod units {
                 name: "nepers",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Decibels-watt (`dBW`), a unit of `PowerLevel`: `n` of them is `n · 0.1` coherent units.
-    pub type DecibelWatt = SIUnit<
+    pub const DECIBEL_WATT: SIUnit<
         POWER_LEVEL,
         {
             SIUnitConsts {
@@ -3720,10 +3690,10 @@ pub mod units {
                 name: "decibels-watt",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Decibels-milliwatt (`dBm`), a unit of `PowerLevel`: `n` of them is `n · 0.1 + -3.0` coherent units.
-    pub type DecibelMilliwatt = SIUnit<
+    pub const DECIBEL_MILLIWATT: SIUnit<
         POWER_LEVEL,
         {
             SIUnitConsts {
@@ -3733,10 +3703,10 @@ pub mod units {
                 name: "decibels-milliwatt",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per second (`W/s`), a unit of `PowerRate`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerSecond = SIUnit<
+    pub const WATT_PER_SECOND: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3746,10 +3716,10 @@ pub mod units {
                 name: "watts per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ergs per second squared (`erg/s²`), a unit of `PowerRate`: `n` of them is `n · 1e-07` coherent units.
-    pub type ErgPerSecondSquared = SIUnit<
+    pub const ERG_PER_SECOND_SQUARED: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3759,10 +3729,10 @@ pub mod units {
                 name: "ergs per second squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per second squared (`ft · lbf/s²`), a unit of `PowerRate`: `n` of them is `n · 0.3048 * 0.45359237 * 9.80665` coherent units.
-    pub type FootPoundPerSecondSquared = SIUnit<
+    pub const FOOT_POUND_PER_SECOND_SQUARED: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3772,10 +3742,10 @@ pub mod units {
                 name: "foot pounds-force per second squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower per second (`hp/s`), a unit of `PowerRate`: `n` of them is `n · 550.0 * 0.3048 * 0.45359237 * 9.80665` coherent units.
-    pub type HorsepowerPerSecond = SIUnit<
+    pub const HORSEPOWER_PER_SECOND: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3788,10 +3758,10 @@ pub mod units {
                 name: "horsepower per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower per second (boiler) (`hp/s (S)`), a unit of `PowerRate`: `n` of them is `n · 9809.5` coherent units.
-    pub type HorsepowerPerSecondBoiler = SIUnit<
+    pub const HORSEPOWER_PER_SECOND_BOILER: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3801,10 +3771,10 @@ pub mod units {
                 name: "horsepower per second (boiler)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower per second (electric) (`hp/s (E)`), a unit of `PowerRate`: `n` of them is `n · 746.0` coherent units.
-    pub type HorsepowerPerSecondElectric = SIUnit<
+    pub const HORSEPOWER_PER_SECOND_ELECTRIC: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3814,10 +3784,10 @@ pub mod units {
                 name: "horsepower per second (electric)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metric horsepower per second (`hp/s (M)`), a unit of `PowerRate`: `n` of them is `n · 75.0 * 9.80665` coherent units.
-    pub type HorsepowerPerSecondMetric = SIUnit<
+    pub const HORSEPOWER_PER_SECOND_METRIC: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3827,10 +3797,10 @@ pub mod units {
                 name: "metric horsepower per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower per second (Imperial) (`hp/s (I)`), a unit of `PowerRate`: `n` of them is `n · 745.7` coherent units.
-    pub type HorsepowerPerSecondImperial = SIUnit<
+    pub const HORSEPOWER_PER_SECOND_IMPERIAL: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3840,10 +3810,10 @@ pub mod units {
                 name: "horsepower per second (Imperial)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hydraulic horsepower per second (`hp/s (hydraulic)`), a unit of `PowerRate`: `n` of them is `n · 746.043` coherent units.
-    pub type HydraulicHorsepowerPerSecond = SIUnit<
+    pub const HYDRAULIC_HORSEPOWER_PER_SECOND: SIUnit<
         POWER_RATE,
         {
             SIUnitConsts {
@@ -3853,10 +3823,10 @@ pub mod units {
                 name: "hydraulic horsepower per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joule seconds (`J · s`), a unit of `Action`: `n` of them is `n · 1.0` coherent units.
-    pub type JouleSecond = SIUnit<
+    pub const JOULE_SECOND: SIUnit<
         ACTION,
         {
             SIUnitConsts {
@@ -3866,10 +3836,10 @@ pub mod units {
                 name: "joule seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of action (`ħ`), a unit of `Action`: `n` of them is `n · 6.62607015e-34 / (2.0 * core::f64::consts::PI)` coherent units.
-    pub type AtomicUnitOfAction = SIUnit<
+    pub const ATOMIC_UNIT_OF_ACTION: SIUnit<
         ACTION,
         {
             SIUnitConsts {
@@ -3879,10 +3849,10 @@ pub mod units {
                 name: "atomic units of action",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Planck constants (`h`), a unit of `Action`: `n` of them is `n · 6.62607015e-34` coherent units.
-    pub type PlanckConstant = SIUnit<
+    pub const PLANCK_CONSTANT: SIUnit<
         ACTION,
         {
             SIUnitConsts {
@@ -3892,10 +3862,10 @@ pub mod units {
                 name: "Planck constants",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Erg seconds (`erg · s`), a unit of `Action`: `n` of them is `n · 1e-07` coherent units.
-    pub type ErgSecond = SIUnit<
+    pub const ERG_SECOND: SIUnit<
         ACTION,
         {
             SIUnitConsts {
@@ -3905,10 +3875,10 @@ pub mod units {
                 name: "erg seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Electronvolt seconds (`eV · s`), a unit of `Action`: `n` of them is `n · 1.602176634e-19` coherent units.
-    pub type ElectronvoltSecond = SIUnit<
+    pub const ELECTRONVOLT_SECOND: SIUnit<
         ACTION,
         {
             SIUnitConsts {
@@ -3918,10 +3888,10 @@ pub mod units {
                 name: "electronvolt seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Newton metres (`N · m`), a unit of `Torque`: `n` of them is `n · 1.0` coherent units.
-    pub type NewtonMetre = SIUnit<
+    pub const NEWTON_METRE: SIUnit<
         TORQUE,
         {
             SIUnitConsts {
@@ -3931,10 +3901,10 @@ pub mod units {
                 name: "newton metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dyne metres (`dyn · m`), a unit of `Torque`: `n` of them is `n · 1e-05` coherent units.
-    pub type DyneMetre = SIUnit<
+    pub const DYNE_METRE: SIUnit<
         TORQUE,
         {
             SIUnitConsts {
@@ -3944,10 +3914,10 @@ pub mod units {
                 name: "dyne metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram-force metres (`kgf · m`), a unit of `Torque`: `n` of them is `n · 9.80665` coherent units.
-    pub type KilogramForceMetre = SIUnit<
+    pub const KILOGRAM_FORCE_METRE: SIUnit<
         TORQUE,
         {
             SIUnitConsts {
@@ -3957,10 +3927,10 @@ pub mod units {
                 name: "kilogram-force metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces-force inches (`ozf · in`), a unit of `Torque`: `n` of them is `n · (0.45359237 * 9.80665 / 16.0) * 0.0254` coherent units.
-    pub type OunceForceInch = SIUnit<
+    pub const OUNCE_FORCE_INCH: SIUnit<
         TORQUE,
         {
             SIUnitConsts {
@@ -3971,10 +3941,10 @@ pub mod units {
                 name: "ounces-force inches",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force feet (`lbf · ft`), a unit of `Torque`: `n` of them is `n · (0.45359237 * 9.80665) * 0.3048` coherent units.
-    pub type PoundForceFoot = SIUnit<
+    pub const POUND_FORCE_FOOT: SIUnit<
         TORQUE,
         {
             SIUnitConsts {
@@ -3984,10 +3954,10 @@ pub mod units {
                 name: "pounds-force feet",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force inches (`lbf · in`), a unit of `Torque`: `n` of them is `n · (0.45359237 * 9.80665) * 0.0254` coherent units.
-    pub type PoundForceInch = SIUnit<
+    pub const POUND_FORCE_INCH: SIUnit<
         TORQUE,
         {
             SIUnitConsts {
@@ -3997,10 +3967,10 @@ pub mod units {
                 name: "pounds-force inches",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram square metres (`kg · m²`), a unit of `MomentOfInertia`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramSquareMetre = SIUnit<
+    pub const KILOGRAM_SQUARE_METRE: SIUnit<
         MOMENT_OF_INERTIA,
         {
             SIUnitConsts {
@@ -4010,10 +3980,10 @@ pub mod units {
                 name: "kilogram square metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dalton square ångströms (`Da · Å²`), a unit of `MomentOfInertia`: `n` of them is `n · 1.6605390666e-47` coherent units.
-    pub type DaltonSquareAngstrom = SIUnit<
+    pub const DALTON_SQUARE_ANGSTROM: SIUnit<
         MOMENT_OF_INERTIA,
         {
             SIUnitConsts {
@@ -4023,10 +3993,10 @@ pub mod units {
                 name: "dalton square ångströms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pascals (`Pa`), a unit of `Pressure`: `n` of them is `n · 1.0` coherent units.
-    pub type Pascal = SIUnit<
+    pub const PASCAL: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4036,10 +4006,10 @@ pub mod units {
                 name: "pascals",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Standard atmospheres (`atm`), a unit of `Pressure`: `n` of them is `n · 101325.0` coherent units.
-    pub type StandardAtmosphere = SIUnit<
+    pub const STANDARD_ATMOSPHERE: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4049,10 +4019,10 @@ pub mod units {
                 name: "standard atmospheres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atmospheres (technical) (`at`), a unit of `Pressure`: `n` of them is `n · 98066.5` coherent units.
-    pub type AtmosphereTechnical = SIUnit<
+    pub const ATMOSPHERE_TECHNICAL: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4062,10 +4032,10 @@ pub mod units {
                 name: "atmospheres (technical)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bar (`bar`), a unit of `Pressure`: `n` of them is `n · 100000.0` coherent units.
-    pub type Bar = SIUnit<
+    pub const BAR: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4075,10 +4045,10 @@ pub mod units {
                 name: "bar",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Centimetres of mercury (`cm Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415 * 10.0` coherent units.
-    pub type CentimetreOfMercury = SIUnit<
+    pub const CENTIMETRE_OF_MERCURY: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4088,10 +4058,10 @@ pub mod units {
                 name: "centimetres of mercury",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Centimetres of water (`cm H₂O`), a unit of `Pressure`: `n` of them is `n · 98.0665` coherent units.
-    pub type CentimetreOfWater = SIUnit<
+    pub const CENTIMETRE_OF_WATER: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4101,10 +4071,10 @@ pub mod units {
                 name: "centimetres of water",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet of mercury (`ft Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415 * 304.8` coherent units.
-    pub type FootOfMercury = SIUnit<
+    pub const FOOT_OF_MERCURY: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4114,10 +4084,10 @@ pub mod units {
                 name: "feet of mercury",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Feet of water (`ft H₂O`), a unit of `Pressure`: `n` of them is `n · 9.80665 * 304.8` coherent units.
-    pub type FootOfWater = SIUnit<
+    pub const FOOT_OF_WATER: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4127,10 +4097,10 @@ pub mod units {
                 name: "feet of water",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches of mercury (`in Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415 * 25.4` coherent units.
-    pub type InchOfMercury = SIUnit<
+    pub const INCH_OF_MERCURY: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4140,10 +4110,10 @@ pub mod units {
                 name: "inches of mercury",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Inches of water (`in H₂O`), a unit of `Pressure`: `n` of them is `n · 9.80665 * 25.4` coherent units.
-    pub type InchOfWater = SIUnit<
+    pub const INCH_OF_WATER: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4153,10 +4123,10 @@ pub mod units {
                 name: "inches of water",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kips per square inch (`kip/in²`), a unit of `Pressure`: `n` of them is `n · (1000.0 * 0.45359237 * 9.80665) / (0.0254 * 0.0254)` coherent units.
-    pub type KipPerSquareInch = SIUnit<
+    pub const KIP_PER_SQUARE_INCH: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4167,10 +4137,10 @@ pub mod units {
                 name: "kips per square inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Millimetres of mercury (`mm Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415` coherent units.
-    pub type MillimetreOfMercury = SIUnit<
+    pub const MILLIMETRE_OF_MERCURY: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4180,10 +4150,10 @@ pub mod units {
                 name: "millimetres of mercury",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Millimetres of water (`mm H₂O`), a unit of `Pressure`: `n` of them is `n · 9.80665` coherent units.
-    pub type MillimetreOfWater = SIUnit<
+    pub const MILLIMETRE_OF_WATER: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4193,10 +4163,10 @@ pub mod units {
                 name: "millimetres of water",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Poundals per square foot (`pdl/ft²`), a unit of `Pressure`: `n` of them is `n · (0.45359237 * 0.3048) / (0.3048 * 0.3048)` coherent units.
-    pub type PoundalPerSquareFoot = SIUnit<
+    pub const POUNDAL_PER_SQUARE_FOOT: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4207,10 +4177,10 @@ pub mod units {
                 name: "poundals per square foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force per square foot (`lbf/ft²`), a unit of `Pressure`: `n` of them is `n · (0.45359237 * 9.80665) / (0.3048 * 0.3048)` coherent units.
-    pub type PoundForcePerSquareFoot = SIUnit<
+    pub const POUND_FORCE_PER_SQUARE_FOOT: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4221,10 +4191,10 @@ pub mod units {
                 name: "pounds-force per square foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force per square inch (`lbf/in²`), a unit of `Pressure`: `n` of them is `n · (0.45359237 * 9.80665) / (0.0254 * 0.0254)` coherent units.
-    pub type PoundForcePerSquareInch = SIUnit<
+    pub const POUND_FORCE_PER_SQUARE_INCH: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4235,10 +4205,10 @@ pub mod units {
                 name: "pounds-force per square inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force per square inch (`psi`), a unit of `Pressure`: `n` of them is `n · 0.45359237 * 9.80665 / (0.0254 * 0.0254)` coherent units.
-    pub type Psi = SIUnit<
+    pub const PSI: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4249,10 +4219,10 @@ pub mod units {
                 name: "pounds-force per square inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Torr (`Torr`), a unit of `Pressure`: `n` of them is `n · 101325.0 / 760.0` coherent units.
-    pub type Torr = SIUnit<
+    pub const TORR: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4262,10 +4232,10 @@ pub mod units {
                 name: "torr",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dynes per square centimetre (`dyn/cm²`), a unit of `Pressure`: `n` of them is `n · 0.1` coherent units.
-    pub type DynePerSquareCentimetre = SIUnit<
+    pub const DYNE_PER_SQUARE_CENTIMETRE: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4275,10 +4245,10 @@ pub mod units {
                 name: "dynes per square centimetre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Newtons per square millimetre (`N/mm²`), a unit of `Pressure`: `n` of them is `n · 1000000.0` coherent units.
-    pub type NewtonPerSquareMillimetre = SIUnit<
+    pub const NEWTON_PER_SQUARE_MILLIMETRE: SIUnit<
         PRESSURE,
         {
             SIUnitConsts {
@@ -4288,10 +4258,10 @@ pub mod units {
                 name: "newtons per square millimetre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hertz (`Hz`), a unit of `Frequency`: `n` of them is `n · 1.0` coherent units.
-    pub type Hertz = SIUnit<
+    pub const HERTZ: SIUnit<
         FREQUENCY,
         {
             SIUnitConsts {
@@ -4301,10 +4271,10 @@ pub mod units {
                 name: "hertz",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cycles per day (`1/d`), a unit of `Frequency`: `n` of them is `n · 1.0 / 86400.0` coherent units.
-    pub type CyclePerDay = SIUnit<
+    pub const CYCLE_PER_DAY: SIUnit<
         FREQUENCY,
         {
             SIUnitConsts {
@@ -4314,10 +4284,10 @@ pub mod units {
                 name: "cycles per day",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cycles per hour (`1/h`), a unit of `Frequency`: `n` of them is `n · 1.0 / 3600.0` coherent units.
-    pub type CyclePerHour = SIUnit<
+    pub const CYCLE_PER_HOUR: SIUnit<
         FREQUENCY,
         {
             SIUnitConsts {
@@ -4327,10 +4297,10 @@ pub mod units {
                 name: "cycles per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cycles per minute (`1/min`), a unit of `Frequency`: `n` of them is `n · 1.0 / 60.0` coherent units.
-    pub type CyclePerMinute = SIUnit<
+    pub const CYCLE_PER_MINUTE: SIUnit<
         FREQUENCY,
         {
             SIUnitConsts {
@@ -4340,10 +4310,10 @@ pub mod units {
                 name: "cycles per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cycles per shake (`100 MHz`), a unit of `Frequency`: `n` of them is `n · 100000000.0` coherent units.
-    pub type CyclePerShake = SIUnit<
+    pub const CYCLE_PER_SHAKE: SIUnit<
         FREQUENCY,
         {
             SIUnitConsts {
@@ -4353,10 +4323,10 @@ pub mod units {
                 name: "cycles per shake",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cycles per year (`1/a`), a unit of `Frequency`: `n` of them is `n · 1.0 / 31536000.0` coherent units.
-    pub type CyclePerYear = SIUnit<
+    pub const CYCLE_PER_YEAR: SIUnit<
         FREQUENCY,
         {
             SIUnitConsts {
@@ -4366,10 +4336,10 @@ pub mod units {
                 name: "cycles per year",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hertz per second (`Hz/s`), a unit of `FrequencyDrift`: `n` of them is `n · 1.0` coherent units.
-    pub type HertzPerSecond = SIUnit<
+    pub const HERTZ_PER_SECOND: SIUnit<
         FREQUENCY_DRIFT,
         {
             SIUnitConsts {
@@ -4379,10 +4349,10 @@ pub mod units {
                 name: "hertz per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Reciprocal metres (`m⁻¹`), a unit of `ReciprocalLength`: `n` of them is `n · 1.0` coherent units.
-    pub type ReciprocalMetre = SIUnit<
+    pub const RECIPROCAL_METRE: SIUnit<
         RECIPROCAL_LENGTH,
         {
             SIUnitConsts {
@@ -4392,10 +4362,10 @@ pub mod units {
                 name: "reciprocal metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Reciprocal ångströms (`Å⁻¹`), a unit of `ReciprocalLength`: `n` of them is `n · 10000000000.0` coherent units.
-    pub type ReciprocalAngstrom = SIUnit<
+    pub const RECIPROCAL_ANGSTROM: SIUnit<
         RECIPROCAL_LENGTH,
         {
             SIUnitConsts {
@@ -4405,10 +4375,10 @@ pub mod units {
                 name: "reciprocal ångströms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Diopters (`dpt`), a unit of `ReciprocalLength`: `n` of them is `n · 1.0` coherent units.
-    pub type Diopter = SIUnit<
+    pub const DIOPTER: SIUnit<
         RECIPROCAL_LENGTH,
         {
             SIUnitConsts {
@@ -4418,10 +4388,10 @@ pub mod units {
                 name: "diopters",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Rydberg constants (`R∞`), a unit of `ReciprocalLength`: `n` of them is `n · 10973731.56816` coherent units.
-    pub type RydbergConstant = SIUnit<
+    pub const RYDBERG_CONSTANT: SIUnit<
         RECIPROCAL_LENGTH,
         {
             SIUnitConsts {
@@ -4431,10 +4401,10 @@ pub mod units {
                 name: "Rydberg constants",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Radians per metre (`rad/m`), a unit of `Curvature`: `n` of them is `n · 1.0` coherent units.
-    pub type RadianPerMetre = SIUnit<
+    pub const RADIAN_PER_METRE: SIUnit<
         CURVATURE,
         {
             SIUnitConsts {
@@ -4444,10 +4414,10 @@ pub mod units {
                 name: "radians per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees per metre (`°/m`), a unit of `Curvature`: `n` of them is `n · core::f64::consts::PI / 180.0` coherent units.
-    pub type DegreePerMetre = SIUnit<
+    pub const DEGREE_PER_METRE: SIUnit<
         CURVATURE,
         {
             SIUnitConsts {
@@ -4457,10 +4427,10 @@ pub mod units {
                 name: "degrees per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per kilogram (`m²/kg`), a unit of `SpecificArea`: `n` of them is `n · 1.0` coherent units.
-    pub type SquareMetrePerKilogram = SIUnit<
+    pub const SQUARE_METRE_PER_KILOGRAM: SIUnit<
         SPECIFIC_AREA,
         {
             SIUnitConsts {
@@ -4470,10 +4440,10 @@ pub mod units {
                 name: "square metres per kilogram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per gram (`m²/g`), a unit of `SpecificArea`: `n` of them is `n · 1000.0` coherent units.
-    pub type SquareMetrePerGram = SIUnit<
+    pub const SQUARE_METRE_PER_GRAM: SIUnit<
         SPECIFIC_AREA,
         {
             SIUnitConsts {
@@ -4483,10 +4453,10 @@ pub mod units {
                 name: "square metres per gram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per kilogram (`m³/kg`), a unit of `SpecificVolume`: `n` of them is `n · 1.0` coherent units.
-    pub type CubicMetrePerKilogram = SIUnit<
+    pub const CUBIC_METRE_PER_KILOGRAM: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4496,10 +4466,10 @@ pub mod units {
                 name: "cubic metres per kilogram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per gram (`m³/g`), a unit of `SpecificVolume`: `n` of them is `n · 1000.0` coherent units.
-    pub type CubicMetrePerGram = SIUnit<
+    pub const CUBIC_METRE_PER_GRAM: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4509,10 +4479,10 @@ pub mod units {
                 name: "cubic metres per gram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per carat (`m³/ct`), a unit of `SpecificVolume`: `n` of them is `n · 5000.0` coherent units.
-    pub type CubicMetrePerCarat = SIUnit<
+    pub const CUBIC_METRE_PER_CARAT: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4522,10 +4492,10 @@ pub mod units {
                 name: "cubic metres per carat",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per grain (`m³/gr`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 6.479891e-05` coherent units.
-    pub type CubicMetrePerGrain = SIUnit<
+    pub const CUBIC_METRE_PER_GRAIN: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4535,10 +4505,10 @@ pub mod units {
                 name: "cubic metres per grain",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per hundredweight (long) (`m³/cwt long`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 50.80234544` coherent units.
-    pub type CubicMetrePerHundredweightLong = SIUnit<
+    pub const CUBIC_METRE_PER_HUNDREDWEIGHT_LONG: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4548,10 +4518,10 @@ pub mod units {
                 name: "cubic metres per hundredweight (long)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per hundredweight (short) (`m³/cwt short`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 45.359237` coherent units.
-    pub type CubicMetrePerHundredweightShort = SIUnit<
+    pub const CUBIC_METRE_PER_HUNDREDWEIGHT_SHORT: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4561,10 +4531,10 @@ pub mod units {
                 name: "cubic metres per hundredweight (short)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per ounce (`m³/oz`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 0.028349523125` coherent units.
-    pub type CubicMetrePerOunce = SIUnit<
+    pub const CUBIC_METRE_PER_OUNCE: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4574,10 +4544,10 @@ pub mod units {
                 name: "cubic metres per ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per troy ounce (`m³/oz t`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 0.0311034768` coherent units.
-    pub type CubicMetrePerOunceTroy = SIUnit<
+    pub const CUBIC_METRE_PER_OUNCE_TROY: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4587,10 +4557,10 @@ pub mod units {
                 name: "cubic metres per troy ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per pennyweight (`m³/dwt`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 0.00155517384` coherent units.
-    pub type CubicMetrePerPennyweight = SIUnit<
+    pub const CUBIC_METRE_PER_PENNYWEIGHT: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4600,10 +4570,10 @@ pub mod units {
                 name: "cubic metres per pennyweight",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per pound (`m³/lb`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 0.45359237` coherent units.
-    pub type CubicMetrePerPound = SIUnit<
+    pub const CUBIC_METRE_PER_POUND: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4613,10 +4583,10 @@ pub mod units {
                 name: "cubic metres per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per troy pound (`m³/lb t`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 0.3732417216` coherent units.
-    pub type CubicMetrePerPoundTroy = SIUnit<
+    pub const CUBIC_METRE_PER_POUND_TROY: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4626,10 +4596,10 @@ pub mod units {
                 name: "cubic metres per troy pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per slug (`m³/slug`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / (0.45359237 * 9.80665 / 0.3048)` coherent units.
-    pub type CubicMetrePerSlug = SIUnit<
+    pub const CUBIC_METRE_PER_SLUG: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4640,10 +4610,10 @@ pub mod units {
                 name: "cubic metres per slug",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per assay ton (`m³/AT`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / (0.175 / 6.0)` coherent units.
-    pub type CubicMetrePerTonAssay = SIUnit<
+    pub const CUBIC_METRE_PER_TON_ASSAY: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4653,10 +4623,10 @@ pub mod units {
                 name: "cubic metres per assay ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per long ton (`m³/2240 lb`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 1016.0469088` coherent units.
-    pub type CubicMetrePerTonLong = SIUnit<
+    pub const CUBIC_METRE_PER_TON_LONG: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4666,10 +4636,10 @@ pub mod units {
                 name: "cubic metres per long ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per short ton (`m³/2000 lb`), a unit of `SpecificVolume`: `n` of them is `n · 1.0 / 907.18474` coherent units.
-    pub type CubicMetrePerTonShort = SIUnit<
+    pub const CUBIC_METRE_PER_TON_SHORT: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4679,10 +4649,10 @@ pub mod units {
                 name: "cubic metres per short ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per ton (`m³/t`), a unit of `SpecificVolume`: `n` of them is `n · 0.001` coherent units.
-    pub type CubicMetrePerTon = SIUnit<
+    pub const CUBIC_METRE_PER_TON: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4692,10 +4662,10 @@ pub mod units {
                 name: "cubic metres per ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons per grain (`gal/gr`), a unit of `SpecificVolume`: `n` of them is `n · 0.003785411784 / 6.479891e-05` coherent units.
-    pub type GallonPerGrain = SIUnit<
+    pub const GALLON_PER_GRAIN: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4705,10 +4675,10 @@ pub mod units {
                 name: "gallons per grain",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic inches per ounce (`in³/oz`), a unit of `SpecificVolume`: `n` of them is `n · 0.0254 * 0.0254 * 0.0254 / 0.028349523125` coherent units.
-    pub type CubicInchPerOunce = SIUnit<
+    pub const CUBIC_INCH_PER_OUNCE: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4719,10 +4689,10 @@ pub mod units {
                 name: "cubic inches per ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial gallons per ounce (`gal (UK)/oz`), a unit of `SpecificVolume`: `n` of them is `n · 0.00454609 / 0.028349523125` coherent units.
-    pub type GallonImperialPerOunce = SIUnit<
+    pub const GALLON_IMPERIAL_PER_OUNCE: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4732,10 +4702,10 @@ pub mod units {
                 name: "Imperial gallons per ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons per ounce (`gal/oz`), a unit of `SpecificVolume`: `n` of them is `n · 0.003785411784 / 0.028349523125` coherent units.
-    pub type GallonPerOunce = SIUnit<
+    pub const GALLON_PER_OUNCE: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4745,10 +4715,10 @@ pub mod units {
                 name: "gallons per ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feet per pound (`ft³/lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.3048 * 0.3048 * 0.3048) / 0.45359237` coherent units.
-    pub type CubicFootPerPound = SIUnit<
+    pub const CUBIC_FOOT_PER_POUND: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4759,10 +4729,10 @@ pub mod units {
                 name: "cubic feet per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic inches per pound (`in³/lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.0254 * 0.0254 * 0.0254) / 0.45359237` coherent units.
-    pub type CubicInchPerPound = SIUnit<
+    pub const CUBIC_INCH_PER_POUND: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4773,10 +4743,10 @@ pub mod units {
                 name: "cubic inches per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic yards per pound (`yd³/lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.9144 * 0.9144 * 0.9144) / 0.45359237` coherent units.
-    pub type CubicYardPerPound = SIUnit<
+    pub const CUBIC_YARD_PER_POUND: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4787,10 +4757,10 @@ pub mod units {
                 name: "cubic yards per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial gallons per pound (`gal (UK)/lb`), a unit of `SpecificVolume`: `n` of them is `n · 0.00454609 / 0.45359237` coherent units.
-    pub type GallonImperialPerPound = SIUnit<
+    pub const GALLON_IMPERIAL_PER_POUND: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4800,10 +4770,10 @@ pub mod units {
                 name: "Imperial gallons per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons per pound (`gal/lb`), a unit of `SpecificVolume`: `n` of them is `n · 0.003785411784 / 0.45359237` coherent units.
-    pub type GallonPerPound = SIUnit<
+    pub const GALLON_PER_POUND: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4813,10 +4783,10 @@ pub mod units {
                 name: "gallons per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feett per slug (`ft³/slug`), a unit of `SpecificVolume`: `n` of them is `n · 0.3048 * 0.3048 * 0.3048 / (0.45359237 * 9.80665 / 0.3048)` coherent units.
-    pub type CubicFootPerSlug = SIUnit<
+    pub const CUBIC_FOOT_PER_SLUG: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4827,10 +4797,10 @@ pub mod units {
                 name: "cubic feett per slug",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic yards per long ton (`yd³/2240 lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.9144 * 0.9144 * 0.9144) / 1016.0469088` coherent units.
-    pub type CubicYardPerTonLong = SIUnit<
+    pub const CUBIC_YARD_PER_TON_LONG: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4841,10 +4811,10 @@ pub mod units {
                 name: "cubic yards per long ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic yards per short ton (`yd³/2000 lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.9144 * 0.9144 * 0.9144) / 907.18474` coherent units.
-    pub type CubicYardPerTonShort = SIUnit<
+    pub const CUBIC_YARD_PER_TON_SHORT: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4855,10 +4825,10 @@ pub mod units {
                 name: "cubic yards per short ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feet per long ton (`ft³/2240 lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.3048 * 0.3048 * 0.3048) / 1016.0469088` coherent units.
-    pub type CubicFootPerTonLong = SIUnit<
+    pub const CUBIC_FOOT_PER_TON_LONG: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4869,10 +4839,10 @@ pub mod units {
                 name: "cubic feet per long ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feet per short ton (`ft³/2000 lb`), a unit of `SpecificVolume`: `n` of them is `n · (0.3048 * 0.3048 * 0.3048) / 907.18474` coherent units.
-    pub type CubicFootPerTonShort = SIUnit<
+    pub const CUBIC_FOOT_PER_TON_SHORT: SIUnit<
         SPECIFIC_VOLUME,
         {
             SIUnitConsts {
@@ -4883,10 +4853,10 @@ pub mod units {
                 name: "cubic feet per short ton",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per kilogram (`W/kg`), a unit of `SpecificPower`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerKilogram = SIUnit<
+    pub const WATT_PER_KILOGRAM: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4896,10 +4866,10 @@ pub mod units {
                 name: "watts per kilogram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per cubic second (`m² · s⁻³`), a unit of `SpecificPower`: `n` of them is `n · 1.0` coherent units.
-    pub type SquareMetrePerCubicSecond = SIUnit<
+    pub const SQUARE_METRE_PER_CUBIC_SECOND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4909,10 +4879,10 @@ pub mod units {
                 name: "square metres per cubic second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ergs per second per kilogram (`(erg/s)/kg`), a unit of `SpecificPower`: `n` of them is `n · 1e-07` coherent units.
-    pub type ErgPerSecondPerKilogram = SIUnit<
+    pub const ERG_PER_SECOND_PER_KILOGRAM: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4922,10 +4892,10 @@ pub mod units {
                 name: "ergs per second per kilogram",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per hour per pound (`(ft · lbf/h)/lb`), a unit of `SpecificPower`: `n` of them is `n · (0.3048 * 0.45359237 * 9.80665) / (3600.0 * 0.45359237)` coherent units.
-    pub type FootPoundPerHourPerPound = SIUnit<
+    pub const FOOT_POUND_PER_HOUR_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4936,10 +4906,10 @@ pub mod units {
                 name: "foot pounds-force per hour per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per minute per pound (`(ft · lbf/min)/lb`), a unit of `SpecificPower`: `n` of them is `n · (0.3048 * 0.45359237 * 9.80665) / (60.0 * 0.45359237)` coherent units.
-    pub type FootPoundPerMinutePerPound = SIUnit<
+    pub const FOOT_POUND_PER_MINUTE_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4950,10 +4920,10 @@ pub mod units {
                 name: "foot pounds-force per minute per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot pounds-force per second per pound (`(ft · lbf/s)/lb`), a unit of `SpecificPower`: `n` of them is `n · (0.3048 * 0.45359237 * 9.80665) / 0.45359237` coherent units.
-    pub type FootPoundPerSecondPerPound = SIUnit<
+    pub const FOOT_POUND_PER_SECOND_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4964,10 +4934,10 @@ pub mod units {
                 name: "foot pounds-force per second per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower per pound (`hp/lb`), a unit of `SpecificPower`: `n` of them is `n · (550.0 * 0.3048 * 0.45359237 * 9.80665) / 0.45359237` coherent units.
-    pub type HorsepowerPerPound = SIUnit<
+    pub const HORSEPOWER_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4981,10 +4951,10 @@ pub mod units {
                 name: "horsepower per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (boiler) per pound (`(hp (S))/lb`), a unit of `SpecificPower`: `n` of them is `n · 9809.5 / 0.45359237` coherent units.
-    pub type HorsepowerBoilerPerPound = SIUnit<
+    pub const HORSEPOWER_BOILER_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -4994,10 +4964,10 @@ pub mod units {
                 name: "horsepower (boiler) per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (electric) per pound (`(hp (E))/lb`), a unit of `SpecificPower`: `n` of them is `n · 746.0 / 0.45359237` coherent units.
-    pub type HorsepowerElectricPerPound = SIUnit<
+    pub const HORSEPOWER_ELECTRIC_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -5007,10 +4977,10 @@ pub mod units {
                 name: "horsepower (electric) per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Metric horsepower per pound (`(hp (M))/lb`), a unit of `SpecificPower`: `n` of them is `n · (75.0 * 9.80665) / 0.45359237` coherent units.
-    pub type HorsepowerMetricPerPound = SIUnit<
+    pub const HORSEPOWER_METRIC_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -5020,10 +4990,10 @@ pub mod units {
                 name: "metric horsepower per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Horsepower (Imperial) per pound (`(hp (I))/lb`), a unit of `SpecificPower`: `n` of them is `n · 745.7 / 0.45359237` coherent units.
-    pub type HorsepowerImperialPerPound = SIUnit<
+    pub const HORSEPOWER_IMPERIAL_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -5033,10 +5003,10 @@ pub mod units {
                 name: "horsepower (Imperial) per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hydraulic horsepower per pound (`(hp (hydraulic))/lb`), a unit of `SpecificPower`: `n` of them is `n · 746.043 / 0.45359237` coherent units.
-    pub type HydraulicHorsepowerPerPound = SIUnit<
+    pub const HYDRAULIC_HORSEPOWER_PER_POUND: SIUnit<
         SPECIFIC_POWER,
         {
             SIUnitConsts {
@@ -5046,10 +5016,10 @@ pub mod units {
                 name: "hydraulic horsepower per pound",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per kilogram second squared (`m³/(kg · s²)`), a unit of `SpecificGravitationalParameter`: `n` of them is `n · 1.0` coherent units.
-    pub type CubicMetrePerKilogramSecondSquared = SIUnit<
+    pub const CUBIC_METRE_PER_KILOGRAM_SECOND_SQUARED: SIUnit<
         SPECIFIC_GRAVITATIONAL_PARAMETER,
         {
             SIUnitConsts {
@@ -5059,10 +5029,10 @@ pub mod units {
                 name: "cubic metres per kilogram second squared",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Newtonian constants of gravitation (`G`), a unit of `SpecificGravitationalParameter`: `n` of them is `n · 6.6743e-11` coherent units.
-    pub type GravitationalConstant = SIUnit<
+    pub const GRAVITATIONAL_CONSTANT: SIUnit<
         SPECIFIC_GRAVITATIONAL_PARAMETER,
         {
             SIUnitConsts {
@@ -5072,5 +5042,5 @@ pub mod units {
                 name: "Newtonian constants of gravitation",
             }
         },
-    >;
+    > = SIUnit;
 }

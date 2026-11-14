@@ -16,12 +16,18 @@ pub struct Factor {
 
 impl Factor {
     pub fn one() -> Self {
-        Factor { ratio: BigRational::one(), pi: 0 }
+        Factor {
+            ratio: BigRational::one(),
+            pi: 0,
+        }
     }
 
     /// π.
     pub fn pi() -> Self {
-        Factor { ratio: BigRational::one(), pi: 1 }
+        Factor {
+            ratio: BigRational::one(),
+            pi: 1,
+        }
     }
 
     /// `10^n`.
@@ -44,22 +50,34 @@ impl Factor {
         };
         let (int, frac) = mantissa.split_once('.').unwrap_or((mantissa, ""));
         let digits: BigInt = format!("{int}{frac}").parse().ok()?;
-        let mut f = Factor { ratio: BigRational::from_integer(digits), pi: 0 };
+        let mut f = Factor {
+            ratio: BigRational::from_integer(digits),
+            pi: 0,
+        };
         f = f.mul(&Factor::ten_to(exp - frac.len() as i32));
         Some(f)
     }
 
     pub fn mul(&self, o: &Factor) -> Factor {
-        Factor { ratio: &self.ratio * &o.ratio, pi: self.pi + o.pi }
+        Factor {
+            ratio: &self.ratio * &o.ratio,
+            pi: self.pi + o.pi,
+        }
     }
 
     pub fn div(&self, o: &Factor) -> Factor {
-        Factor { ratio: &self.ratio / &o.ratio, pi: self.pi - o.pi }
+        Factor {
+            ratio: &self.ratio / &o.ratio,
+            pi: self.pi - o.pi,
+        }
     }
 
     pub fn pow(&self, n: i32) -> Factor {
         let r = num_traits::pow(self.ratio.clone(), n.unsigned_abs() as usize);
-        Factor { ratio: if n >= 0 { r } else { r.recip() }, pi: self.pi * n }
+        Factor {
+            ratio: if n >= 0 { r } else { r.recip() },
+            pi: self.pi * n,
+        }
     }
 
     /// The factor as an expression of number literals, exactly: `254e-4`,
@@ -94,11 +112,23 @@ impl Factor {
         }
         let (n, a) = split(n);
         let e = a - k;
-        let num = if e == 0 { format!("{n}") } else { format!("{n}e{e}") };
-        let mut out = if d.is_one() { num } else { format!("{num} / {d}") };
+        let num = if e == 0 {
+            format!("{n}")
+        } else {
+            format!("{n}e{e}")
+        };
+        let mut out = if d.is_one() {
+            num
+        } else {
+            format!("{num} / {d}")
+        };
         debug_assert!(!self.ratio.is_negative());
         for _ in 0..self.pi.unsigned_abs() {
-            out += if self.pi > 0 { " * core::f64::consts::PI" } else { " / core::f64::consts::PI" };
+            out += if self.pi > 0 {
+                " * core::f64::consts::PI"
+            } else {
+                " / core::f64::consts::PI"
+            };
         }
         out
     }
@@ -221,7 +251,12 @@ pub fn resolve_all(essence: &UcumEssence) -> HashMap<String, Resolved> {
     let mut prefixes: Vec<(String, Factor)> = essence
         .prefixes
         .iter()
-        .map(|p| (p.code.clone(), Factor::decimal(&p.value).expect("a prefix's value")))
+        .map(|p| {
+            (
+                p.code.clone(),
+                Factor::decimal(&p.value).expect("a prefix's value"),
+            )
+        })
         .collect();
     prefixes.sort_by_key(|(code, _)| -(code.len() as i64));
 

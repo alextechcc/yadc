@@ -7,8 +7,8 @@
 //! is three kilometres, `MILE.value(d)` is how many miles `d` is.
 //!
 //! A unit is also a type of ours with an `impl Unit<Q, N>`: degrees Celsius
-//! add a zero to kelvins, and the length units of a menu are types an enum
-//! can name, each printing its symbol.
+//! add a zero to kelvins, and the length units of a menu are values an enum
+//! names (`dynamickit::Values`), each printing its symbol.
 //!
 //! Run with: cargo run -p yadc --example define_unit_system
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
@@ -177,16 +177,19 @@ impl fmt::Display for Mile {
 }
 
 /// A choice of units, for a menu or a parser: each variant names the unit
-/// type it is. The derive writes `Unit`, and `Display` and `FromStr` from
-/// each type's `Display`.
-#[derive(Copy, Clone, Debug, yadc::Unit)]
-#[unit(of = Length, number = f64)]
+/// it is. The derive writes `Unit` by delegating to that unit, and `Display`
+/// and `FromStr` from its `Display`.
+#[derive(Copy, Clone, Debug, dynamickit::Values)]
+#[values(delegate(Unit<Length, f64> {
+    fn quantity(&self, value: f64) -> Length;
+    fn value(&self, quantity: Length) -> f64;
+}))]
 pub enum LengthUnit {
-    #[unit(Metre)]
+    #[value(Metre)]
     Metre,
-    #[unit(Kilometre)]
+    #[value(Kilometre)]
     Kilometre,
-    #[unit(Mile)]
+    #[value(Mile)]
     Mile,
 }
 
@@ -215,7 +218,10 @@ fn main() {
         Celsius.value(noon),
         KELVIN.value(rise)
     );
-    println!("water boils at {:.2} K", KELVIN.value(BOILING - ABSOLUTE_ZERO));
+    println!(
+        "water boils at {:.2} K",
+        KELVIN.value(BOILING - ABSOLUTE_ZERO)
+    );
     // let nope = 2.0 * noon;                // error: a point cannot be scaled
 
     // A unit picked at run time, by its symbol.

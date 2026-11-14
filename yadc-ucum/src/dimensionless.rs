@@ -1,19 +1,21 @@
 //! Plain numbers: ratios and their units.
 
-use crate::{Dim, Qty};
+use crate::Dim;
 use yadc::Dimension;
 
-pub type Dimensionless<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
+/// The dimension of `Dimensionless`: `Qty<DIMENSIONLESS, N>` is one.
+pub const DIMENSIONLESS: Dim = Dim::DIMENSIONLESS;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
-    use crate::{Dim, Exact, UcumUnit, UcumUnitConsts};
-    use yadc::Dimension;
+    use super::*;
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
     /// Ratio, a unit of `Dimensionless`: `n` of them is `n · 1.0` coherent units.
-    pub type Ratio = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const RATIO: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::int(1),
@@ -22,11 +24,11 @@ pub mod units {
                 name: "",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// The number ten for arbitrary powers (`10*`), a unit of `Dimensionless`: `n` of them is `n · 1e1` coherent units.
-    pub type TheNumberTenForArbitraryPowers = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const THE_NUMBER_TEN_FOR_ARBITRARY_POWERS: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::int(10),
@@ -35,11 +37,11 @@ pub mod units {
                 name: "the number ten for arbitrary powers",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// The number pi (`[pi]`), a unit of `Dimensionless`: `n` of them is `n · 1 * core::f64::consts::PI` coherent units.
-    pub type TheNumberPi = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const THE_NUMBER_PI: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::int(1) * Exact::PI,
@@ -48,11 +50,11 @@ pub mod units {
                 name: "the number pi",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Percent (`%`), a unit of `Dimensionless`: `n` of them is `n · 1e-2` coherent units.
-    pub type Percent = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const PERCENT: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::dec(1, -2),
@@ -61,11 +63,11 @@ pub mod units {
                 name: "percent",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Parts per thousand (`[ppth]`), a unit of `Dimensionless`: `n` of them is `n · 1e-3` coherent units.
-    pub type PartsPerThousand = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const PARTS_PER_THOUSAND: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::dec(1, -3),
@@ -74,11 +76,11 @@ pub mod units {
                 name: "parts per thousand",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Parts per million (`[ppm]`), a unit of `Dimensionless`: `n` of them is `n · 1e-6` coherent units.
-    pub type PartsPerMillion = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const PARTS_PER_MILLION: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::dec(1, -6),
@@ -87,11 +89,11 @@ pub mod units {
                 name: "parts per million",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Parts per billion (`[ppb]`), a unit of `Dimensionless`: `n` of them is `n · 1e-9` coherent units.
-    pub type PartsPerBillion = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const PARTS_PER_BILLION: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::dec(1, -9),
@@ -100,11 +102,11 @@ pub mod units {
                 name: "parts per billion",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Parts per trillion (`[pptr]`), a unit of `Dimensionless`: `n` of them is `n · 1e-12` coherent units.
-    pub type PartsPerTrillion = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const PARTS_PER_TRILLION: UcumUnit<
+        DIMENSIONLESS,
         {
             UcumUnitConsts {
                 size: Exact::dec(1, -12),
@@ -113,5 +115,5 @@ pub mod units {
                 name: "parts per trillion",
             }
         },
-    >;
+    > = UcumUnit;
 }

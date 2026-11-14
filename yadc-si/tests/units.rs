@@ -18,10 +18,12 @@
 #![allow(incomplete_features)]
 
 use core::marker::ConstParamTy;
-use yadc::{Dimension, PartialPowi, PowiAs, RootAs, Unit, UnknownUnit};
+use dynamickit::NoValue;
+use yadc::{Dimension, PartialPowi, PowiAs, RootAs, Unit};
+use yadc_si::SIQuantity;
 use yadc_si::dynamic::mechanical::{LengthUnit, MassUnit, TimeUnit};
-use yadc_si::mechanical::units::Metre;
-use yadc_si::mechanical::{LENGTH, Length};
+use yadc_si::mechanical::LENGTH;
+use yadc_si::mechanical::units::METRE;
 use yadc_si::{Exact, Prefix, Prefixed, SIUnit, SIUnitConsts};
 
 fn close(a: f64, b: f64) {
@@ -75,17 +77,16 @@ fn units_parse_from_their_symbol() {
     // An unknown symbol - or a long name - is an error.
     assert_eq!(
         "furlongs per fortnight".parse::<LengthUnit>().err(),
-        Some(UnknownUnit)
+        Some(NoValue)
     );
     assert!("kilometres".parse::<LengthUnit>().is_err());
     assert!("kg".parse::<LengthUnit>().is_err());
-    assert_eq!(UnknownUnit.to_string(), "unknown unit symbol");
-    let _: Result<TimeUnit, UnknownUnit> = "h".parse();
+    let _: Result<TimeUnit, NoValue> = "h".parse();
 }
 
 /// A unit of your own is an `SIUnit` with a definition of yours: its
 /// quantity's dimension, and an exact size, a symbol and a name.
-type Kilometre = SIUnit<
+const KILOMETRE: SIUnit<
     LENGTH,
     {
         SIUnitConsts {
@@ -95,27 +96,33 @@ type Kilometre = SIUnit<
             name: "kilometres",
         }
     },
->;
+> = SIUnit;
 
-// A unit enum may leave out the derived `FromStr` - `impl(Display)` writes
-// only `Display` - and write its own: here one that also accepts the long
-// names.
-#[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Length<f64>, number = f64, impl(Display))]
+// An enum of units may leave out the derived `FromStr` - `impl(Display)`
+// writes only `Display` - and write its own: here one that also accepts the
+// long names.
+#[derive(Copy, Clone, Debug, PartialEq, dynamickit::Values)]
+#[values(
+    delegate(Unit<SIQuantity<LENGTH, f64>, f64> {
+        fn quantity(&self, value: f64) -> SIQuantity<LENGTH, f64>;
+        fn value(&self, quantity: SIQuantity<LENGTH, f64>) -> f64;
+    }),
+    impl(Display)
+)]
 enum Distance {
-    #[unit(Metre)]
+    #[value(METRE)]
     Metre,
-    #[unit(Kilometre)]
+    #[value(KILOMETRE)]
     Kilometre,
 }
 
 impl core::str::FromStr for Distance {
-    type Err = UnknownUnit;
-    fn from_str(s: &str) -> Result<Self, UnknownUnit> {
+    type Err = NoValue;
+    fn from_str(s: &str) -> Result<Self, NoValue> {
         match s {
             "m" | "metre" | "metres" => Ok(Distance::Metre),
             "km" | "kilometre" | "kilometres" => Ok(Distance::Kilometre),
-            _ => Err(UnknownUnit),
+            _ => Err(NoValue),
         }
     }
 }
@@ -124,7 +131,7 @@ impl core::str::FromStr for Distance {
 fn a_hand_written_from_str() {
     assert_eq!("kilometres".parse(), Ok(Distance::Kilometre));
     assert_eq!("m".parse(), Ok(Distance::Metre));
-    assert_eq!("mile".parse::<Distance>(), Err(UnknownUnit));
+    assert_eq!("mile".parse::<Distance>(), Err(NoValue));
     assert_eq!(format!("{:#}", Distance::Kilometre), "kilometres");
     close(
         Distance::Kilometre.value(Distance::Metre.quantity(500.0)),

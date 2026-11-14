@@ -226,22 +226,28 @@ unit!(Minute: Time = MINUTE, "min", "minutes");
 unit!(FootPerMinute: Velocity = FOOT_PER_MINUTE, "ft/min", "feet per minute");
 
 /// The altitude units: a choice, for a menu, which prints.
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = Altitude, number = f64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Altitude, f64> {
+    fn quantity(&self, value: f64) -> Altitude;
+    fn value(&self, quantity: Altitude) -> f64;
+}))]
 enum AltitudeUnit {
-    #[unit(FeetAmsl)]
+    #[value(FeetAmsl)]
     FeetAmsl,
-    #[unit(MetresAmsl)]
+    #[value(MetresAmsl)]
     MetresAmsl,
 }
 
 /// The lengths' units: a choice, for a menu.
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = Length, number = f64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Length, f64> {
+    fn quantity(&self, value: f64) -> Length;
+    fn value(&self, quantity: Length) -> f64;
+}))]
 enum LengthUnit {
-    #[unit(Metre)]
+    #[value(Metre)]
     Metre,
-    #[unit(Foot)]
+    #[value(Foot)]
     Foot,
 }
 

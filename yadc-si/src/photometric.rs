@@ -1,46 +1,43 @@
-use crate::{ISQ, SIQuantity};
+use crate::ISQ;
 use yadc::Dimension;
 
-/// The dimension of `Luminance`.
+/// The dimension of `Luminance`: `SIQuantity<LUMINANCE, N>` is one.
 pub const LUMINANCE: ISQ = ISQ {
     m: -2,
     cd: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type Luminance<N> = SIQuantity<LUMINANCE, N>;
 
-/// The dimension of `LuminousIntensity`.
+/// The dimension of `LuminousIntensity`: `SIQuantity<LUMINOUS_INTENSITY, N>` is one.
 pub const LUMINOUS_INTENSITY: ISQ = ISQ {
     cd: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type LuminousIntensity<N> = SIQuantity<LUMINOUS_INTENSITY, N>;
 
-/// The dimension of `Illuminance`.
+/// The dimension of `Illuminance`: `SIQuantity<ILLUMINANCE, N>` is one.
 pub const ILLUMINANCE: ISQ = ISQ {
     m: -2,
     cd: 1,
     rad: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Illuminance<N> = SIQuantity<ILLUMINANCE, N>;
 
-/// The dimension of `RadiantExposure`.
+/// The dimension of `RadiantExposure`: `SIQuantity<RADIANT_EXPOSURE, N>` is one.
 pub const RADIANT_EXPOSURE: ISQ = ISQ {
     kg: 1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type RadiantExposure<N> = SIQuantity<RADIANT_EXPOSURE, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Candelas per square metre (`cd/m²`), a unit of `Luminance`: `n` of them is `n · 1.0` coherent units.
-    pub type CandelaPerSquareMetre = SIUnit<
+    pub const CANDELA_PER_SQUARE_METRE: SIUnit<
         LUMINANCE,
         {
             SIUnitConsts {
@@ -50,10 +47,10 @@ pub mod units {
                 name: "candelas per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Candelas per square inch (`cd/in²`), a unit of `Luminance`: `n` of them is `n · 1.0 / (0.0254 * 0.0254)` coherent units.
-    pub type CandelaPerSquareInch = SIUnit<
+    pub const CANDELA_PER_SQUARE_INCH: SIUnit<
         LUMINANCE,
         {
             SIUnitConsts {
@@ -63,10 +60,10 @@ pub mod units {
                 name: "candelas per square inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Candelas per square foot (`cd/ft²`), a unit of `Luminance`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` coherent units.
-    pub type CandelaPerSquareFoot = SIUnit<
+    pub const CANDELA_PER_SQUARE_FOOT: SIUnit<
         LUMINANCE,
         {
             SIUnitConsts {
@@ -76,10 +73,10 @@ pub mod units {
                 name: "candelas per square foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Footlamberts (`fl`), a unit of `Luminance`: `n` of them is `n · 1.0 / (core::f64::consts::PI * 0.3048 * 0.3048)` coherent units.
-    pub type Footlambert = SIUnit<
+    pub const FOOTLAMBERT: SIUnit<
         LUMINANCE,
         {
             SIUnitConsts {
@@ -89,10 +86,10 @@ pub mod units {
                 name: "footlamberts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Lamberts (`la`), a unit of `Luminance`: `n` of them is `n · 10000.0 / core::f64::consts::PI` coherent units.
-    pub type Lambert = SIUnit<
+    pub const LAMBERT: SIUnit<
         LUMINANCE,
         {
             SIUnitConsts {
@@ -102,10 +99,10 @@ pub mod units {
                 name: "lamberts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Stilbs (`sb`), a unit of `Luminance`: `n` of them is `n · 10000.0` coherent units.
-    pub type Stilb = SIUnit<
+    pub const STILB: SIUnit<
         LUMINANCE,
         {
             SIUnitConsts {
@@ -115,10 +112,10 @@ pub mod units {
                 name: "stilbs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Candelas (`cd`), a unit of `LuminousIntensity`: `n` of them is `n · 1.0` coherent units.
-    pub type Candela = SIUnit<
+    pub const CANDELA: SIUnit<
         LUMINOUS_INTENSITY,
         {
             SIUnitConsts {
@@ -128,10 +125,10 @@ pub mod units {
                 name: "candelas",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Lux (`lx`), a unit of `Illuminance`: `n` of them is `n · 1.0` coherent units.
-    pub type Lux = SIUnit<
+    pub const LUX: SIUnit<
         ILLUMINANCE,
         {
             SIUnitConsts {
@@ -141,10 +138,10 @@ pub mod units {
                 name: "lux",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 10000.0` coherent units.
-    pub type Phot = SIUnit<
+    pub const PHOT: SIUnit<
         ILLUMINANCE,
         {
             SIUnitConsts {
@@ -154,10 +151,10 @@ pub mod units {
                 name: "phot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Footcandles (`fc`), a unit of `Illuminance`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` coherent units.
-    pub type Footcandle = SIUnit<
+    pub const FOOTCANDLE: SIUnit<
         ILLUMINANCE,
         {
             SIUnitConsts {
@@ -167,10 +164,10 @@ pub mod units {
                 name: "footcandles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per square metre (`J/m²`), a unit of `RadiantExposure`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerSquareMetre = SIUnit<
+    pub const JOULE_PER_SQUARE_METRE: SIUnit<
         RADIANT_EXPOSURE,
         {
             SIUnitConsts {
@@ -180,10 +177,10 @@ pub mod units {
                 name: "joules per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watt hours per square metre (`W · h/m²`), a unit of `RadiantExposure`: `n` of them is `n · 3600.0` coherent units.
-    pub type WattHourPerSquareMetre = SIUnit<
+    pub const WATT_HOUR_PER_SQUARE_METRE: SIUnit<
         RADIANT_EXPOSURE,
         {
             SIUnitConsts {
@@ -193,10 +190,10 @@ pub mod units {
                 name: "watt hours per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Microjoules per square millimetre (`µJ/mm²`), a unit of `RadiantExposure`: `n` of them is `n · 1.0` coherent units.
-    pub type MicrojoulePerSquareMillimetre = SIUnit<
+    pub const MICROJOULE_PER_SQUARE_MILLIMETRE: SIUnit<
         RADIANT_EXPOSURE,
         {
             SIUnitConsts {
@@ -206,5 +203,5 @@ pub mod units {
                 name: "microjoules per square millimetre",
             }
         },
-    >;
+    > = SIUnit;
 }

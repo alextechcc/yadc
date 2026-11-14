@@ -1,66 +1,56 @@
 //! The units of `information`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dynamic::DynamicSIUnit;
 use crate::information::units::*;
 use crate::information::*;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `Information`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Information<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<INFORMATION, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<INFORMATION, N>;
+        fn value(&self, quantity: SIQuantity<INFORMATION, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum InformationUnit {
-    #[unit(Bit)]
+    #[value(BIT)]
     Bit,
     #[default]
-    #[unit(Byte)]
+    #[value(BYTE)]
     Byte,
-    #[unit(Octet)]
+    #[value(OCTET)]
     Octet,
-    #[unit(Nibble)]
+    #[value(NIBBLE)]
     Nibble,
-    #[unit(Crumb)]
+    #[value(CRUMB)]
     Crumb,
-    #[unit(Shannon)]
+    #[value(SHANNON)]
     Shannon,
-}
-
-impl From<InformationUnit> for DynamicSIUnit {
-    fn from(unit: InformationUnit) -> Self {
-        match unit {
-            InformationUnit::Bit => Bit {}.into(),
-            InformationUnit::Byte => Byte {}.into(),
-            InformationUnit::Octet => Octet {}.into(),
-            InformationUnit::Nibble => Nibble {}.into(),
-            InformationUnit::Crumb => Crumb {}.into(),
-            InformationUnit::Shannon => Shannon {}.into(),
-        }
-    }
 }
 
 /// The units of `InformationRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InformationRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<INFORMATION_RATE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<INFORMATION_RATE, N>;
+        fn value(&self, quantity: SIQuantity<INFORMATION_RATE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum InformationRateUnit {
-    #[unit(BitPerSecond)]
+    #[value(BIT_PER_SECOND)]
     BitPerSecond,
     #[default]
-    #[unit(BytePerSecond)]
+    #[value(BYTE_PER_SECOND)]
     BytePerSecond,
-    #[unit(OctetPerSecond)]
+    #[value(OCTET_PER_SECOND)]
     OctetPerSecond,
-}
-
-impl From<InformationRateUnit> for DynamicSIUnit {
-    fn from(unit: InformationRateUnit) -> Self {
-        match unit {
-            InformationRateUnit::BitPerSecond => BitPerSecond {}.into(),
-            InformationRateUnit::BytePerSecond => BytePerSecond {}.into(),
-            InformationRateUnit::OctetPerSecond => OctetPerSecond {}.into(),
-        }
-    }
 }

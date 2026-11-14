@@ -4,7 +4,7 @@
 //! `Quantities` is an enum of yours - the quantities this app measures.
 //! `Units` is another enum of yours: for each quantity, its family of units.
 //! Which quantity a unit family measures is a fact about the types, written
-//! as one: `impl Measures for PressureUnit { type Quantity = Pressure; }`.
+//! as one: `impl Measures for PressureUnit { type Quantity = SIQuantity<PRESSURE, f64>; }`.
 //! dynamickit gives the plumbing:
 //!
 //! - `Variants` walks the choices: one group per quantity, then the units
@@ -27,14 +27,16 @@
 
 use core::fmt;
 use core::str::FromStr;
+use dynamickit::NoValue;
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
-use yadc::{Unit, UnknownUnit};
+use yadc::Unit;
+use yadc_si::SIQuantity;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit};
 use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
-use yadc_si::mechanical::units::{Bar, Pascal, Psi, StandardAtmosphere};
-use yadc_si::mechanical::{Area, Force, PRESSURE, Pressure};
-use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::mechanical::units::{BAR, PASCAL, PSI, STANDARD_ATMOSPHERE};
+use yadc_si::mechanical::{AREA, FORCE, PRESSURE};
+use yadc_si::thermal::THERMODYNAMIC_TEMPERATURE;
 use yadc_si::{Exact, SIUnit, SIUnitConsts};
 
 /// What the app measures: a closed set. It converts to and from the open
@@ -43,14 +45,14 @@ use yadc_si::{Exact, SIUnit, SIUnitConsts};
 #[members(convert(DynamicSIQuantity))]
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Quantities {
-    Pressure(Pressure<f64>),
-    Temperature(ThermodynamicTemperature<f64>),
-    Area(Area<f64>),
-    Force(Force<f64>),
+    Pressure(SIQuantity<PRESSURE, f64>),
+    Temperature(SIQuantity<THERMODYNAMIC_TEMPERATURE, f64>),
+    Area(SIQuantity<AREA, f64>),
+    Force(SIQuantity<FORCE, f64>),
 }
 
 /// The app's own unit: a kilopascal, a unit of pressure with an exact size.
-type Kilopascal = SIUnit<
+const KILOPASCAL: SIUnit<
     PRESSURE,
     {
         SIUnitConsts {
@@ -60,22 +62,25 @@ type Kilopascal = SIUnit<
             name: "kilopascals",
         }
     },
->;
+> = SIUnit;
 
 /// The units of pressure the app offers: a family of your own, a unit of
 /// its own among them.
-#[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
-#[unit(of = Pressure<f64>, number = f64)]
+#[derive(Clone, Copy, PartialEq, Debug, dynamickit::Values, Variants)]
+#[values(delegate(Unit<SIQuantity<PRESSURE, f64>, f64> {
+    fn quantity(&self, value: f64) -> SIQuantity<PRESSURE, f64>;
+    fn value(&self, quantity: SIQuantity<PRESSURE, f64>) -> f64;
+}))]
 enum PressureUnit {
-    #[unit(Pascal)]
+    #[value(PASCAL)]
     Pascal,
-    #[unit(Kilopascal)]
+    #[value(KILOPASCAL)]
     Kilopascal,
-    #[unit(Bar)]
+    #[value(BAR)]
     Bar,
-    #[unit(StandardAtmosphere)]
+    #[value(STANDARD_ATMOSPHERE)]
     StandardAtmosphere,
-    #[unit(Psi)]
+    #[value(PSI)]
     Psi,
 }
 
@@ -93,16 +98,16 @@ trait Measures: Unit<Self::Quantity, f64> {
     type Quantity;
 }
 impl Measures for PressureUnit {
-    type Quantity = Pressure<f64>;
+    type Quantity = SIQuantity<PRESSURE, f64>;
 }
 impl Measures for ThermodynamicTemperatureUnit {
-    type Quantity = ThermodynamicTemperature<f64>;
+    type Quantity = SIQuantity<THERMODYNAMIC_TEMPERATURE, f64>;
 }
 impl Measures for AreaUnit {
-    type Quantity = Area<f64>;
+    type Quantity = SIQuantity<AREA, f64>;
 }
 impl Measures for ForceUnit {
-    type Quantity = Force<f64>;
+    type Quantity = SIQuantity<FORCE, f64>;
 }
 
 /// Build: a number in a unit is that unit's quantity, put in the set by
@@ -199,13 +204,13 @@ impl fmt::Display for Units {
 
 /// And back: the menu entry that prints as the saved form.
 impl FromStr for Units {
-    type Err = UnknownUnit;
-    fn from_str(s: &str) -> Result<Self, UnknownUnit> {
+    type Err = NoValue;
+    fn from_str(s: &str) -> Result<Self, NoValue> {
         menu()
             .into_iter()
             .flat_map(|(_, units)| units)
             .find(|unit| unit.to_string() == s)
-            .ok_or(UnknownUnit)
+            .ok_or(NoValue)
     }
 }
 

@@ -1,7 +1,7 @@
 //! UCUM (de)serialization of dimensions: the `serde` feature, which enables
 //! `yadc/ucum`. Needs only the `mechanical` family (and `angular` / `thermal`
 //! for the angle and temperature tests). A unit's quantity's dimension is
-//! the unit type's const parameter: `dim_of(Radian {})`.
+//! a const parameter of the unit's type: `dim_of(RADIAN)`.
 #![cfg(feature = "serde")]
 #![feature(generic_const_exprs, adt_const_params, unsized_const_params)]
 #![allow(incomplete_features)]
@@ -22,12 +22,12 @@ fn angle_dimension_ucum_round_trip() {
     use serde::de::value::{Error, StrDeserializer};
 
     let read = |s: &str| yadc_si::ISQ::deserialize(StrDeserializer::<Error>::new(s)).unwrap();
-    use yadc_si::angular::units::{Radian, Steradian};
-    use yadc_si::dimensionless::units::Ratio;
-    assert_eq!(read("1"), dim_of(Ratio {}));
-    assert_eq!(read("rad"), dim_of(Radian {}));
+    use yadc_si::angular::units::{RADIAN, STERADIAN};
+    use yadc_si::dimensionless::units::RATIO;
+    assert_eq!(read("1"), dim_of(RATIO));
+    assert_eq!(read("rad"), dim_of(RADIAN));
     // Radians are an axis: a steradian is rad².
-    assert_eq!(read("rad2"), dim_of(Steradian {}));
+    assert_eq!(read("rad2"), dim_of(STERADIAN));
 }
 
 /// A kind that is not the plain one is a UCUM annotation: a temperature is
@@ -37,11 +37,11 @@ fn angle_dimension_ucum_round_trip() {
 fn temperature_ucum_round_trip() {
     use serde::Deserialize;
     use serde::de::value::{Error, StrDeserializer};
-    use yadc_si::thermal::units::{Kelvin, KelvinScale};
+    use yadc_si::thermal::units::{KELVIN, KELVIN_SCALE};
 
     let read = |s: &str| ISQ::deserialize(StrDeserializer::<Error>::new(s)).unwrap();
-    assert_eq!(read("K{Absolute}"), dim_of(KelvinScale {}));
-    assert_eq!(read("K"), dim_of(Kelvin {}));
+    assert_eq!(read("K{Absolute}"), dim_of(KELVIN_SCALE));
+    assert_eq!(read("K"), dim_of(KELVIN));
     // An annotation names a kind of the system.
     assert!(ISQ::deserialize(StrDeserializer::<Error>::new("K{Point}")).is_err());
 }
@@ -51,11 +51,11 @@ fn temperature_ucum_round_trip() {
 fn instant_ucum_round_trip() {
     use serde::Deserialize;
     use serde::de::value::{Error, StrDeserializer};
-    use yadc_si::mechanical::units::{Second, UnixSecond};
+    use yadc_si::mechanical::units::{SECOND, UNIX_SECOND};
 
     let read = |s: &str| ISQ::deserialize(StrDeserializer::<Error>::new(s)).unwrap();
-    assert_eq!(read("s{Affine}"), dim_of(UnixSecond {}));
-    assert_eq!(read("s"), dim_of(Second {}));
+    assert_eq!(read("s{Affine}"), dim_of(UNIX_SECOND));
+    assert_eq!(read("s"), dim_of(SECOND));
 }
 
 /// A level carries the exponents of what it is the level of; a gain has none.
@@ -63,11 +63,11 @@ fn instant_ucum_round_trip() {
 fn logarithm_ucum_round_trip() {
     use serde::Deserialize;
     use serde::de::value::{Error, StrDeserializer};
-    use yadc_si::mechanical::units::{Bel, DecibelWatt};
+    use yadc_si::mechanical::units::{BEL, DECIBEL_WATT};
 
     let read = |s: &str| ISQ::deserialize(StrDeserializer::<Error>::new(s)).unwrap();
-    assert_eq!(read("1{Log}"), dim_of(Bel {}));
-    assert_eq!(read("m2.kg.s-3{Log}"), dim_of(DecibelWatt {}));
+    assert_eq!(read("1{Log}"), dim_of(BEL));
+    assert_eq!(read("m2.kg.s-3{Log}"), dim_of(DECIBEL_WATT));
 }
 
 #[test]

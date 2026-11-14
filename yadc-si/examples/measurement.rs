@@ -20,10 +20,18 @@
 use core::fmt;
 use dynamickit::{Members, Via, Visit, Visitor};
 use yadc::Unit;
+use yadc_si::SIQuantity;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PressureUnit};
-use yadc_si::mechanical::units::{Newton, Pascal};
-use yadc_si::mechanical::{Area, Force, Pressure};
+use yadc_si::mechanical::units::{NEWTON, PASCAL};
+use yadc_si::mechanical::{AREA, FORCE, PRESSURE};
+
+/// The quantities a measurement holds, named once. The `Visit` derive bounds
+/// its impl by each field's type, and a dimension constant written in that
+/// bound is a const expression of the generic impl, which rustc cannot check.
+type Pressure = SIQuantity<PRESSURE, f64>;
+type Area = SIQuantity<AREA, f64>;
+type Force = SIQuantity<FORCE, f64>;
 
 /// A quantity and the unit it is shown in.
 #[derive(Clone, Copy, Debug, Visit, Members, Via)]
@@ -31,19 +39,19 @@ use yadc_si::mechanical::{Area, Force, Pressure};
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Measurement {
     Pressure(
-        #[members(member)] Pressure<f64>,
+        #[members(member)] Pressure,
         #[members(default)]
         #[via(keep)]
         PressureUnit,
     ),
     Area(
-        #[members(member)] Area<f64>,
+        #[members(member)] Area,
         #[members(default)]
         #[via(keep)]
         AreaUnit,
     ),
     Force(
-        #[members(member)] Force<f64>,
+        #[members(member)] Force,
         #[members(default)]
         #[via(keep)]
         ForceUnit,
@@ -89,12 +97,15 @@ fn main() {
     println!("p × p   = {:?}", (p * p).map(|m| m.to_string()));
 
     // From a bare quantity: the default unit.
-    let f = Measurement::from(Newton {}.quantity(2000.0));
+    let f = Measurement::from(NEWTON.quantity(2000.0));
     println!("f       = {f}");
     // Back to the bare quantity, checked.
     println!(
         "as Pa   = {:?}",
-        Pressure::try_from(p).map(|q| Pascal {}.value(q))
+        SIQuantity::<PRESSURE, _>::try_from(p).map(|q| PASCAL.value(q))
     );
-    println!("as N    = {:?}", Force::try_from(p).is_ok());
+    println!(
+        "as N    = {:?}",
+        SIQuantity::<FORCE, f64>::try_from(p).is_ok()
+    );
 }

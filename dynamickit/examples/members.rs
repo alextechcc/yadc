@@ -48,8 +48,16 @@ pub enum AnyColor {
 
 fn main() {
     let palette = [
-        AnyColor::from(Rgb { r: 1.0, g: 0.5, b: 0.0 }),
-        AnyColor::from(Hsv { h: 210.0, s: 0.8, v: 0.9 }),
+        AnyColor::from(Rgb {
+            r: 1.0,
+            g: 0.5,
+            b: 0.0,
+        }),
+        AnyColor::from(Hsv {
+            h: 210.0,
+            s: 0.8,
+            v: 0.9,
+        }),
     ];
     for color in palette {
         match color {

@@ -79,7 +79,10 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     // product is a type).
     let partial = kind_field.is_some();
     let checked = |f: &syn::Ident, ty: &Type, add: bool| {
-        let m = syn::Ident::new(if add { "checked_add" } else { "checked_sub" }, Span::call_site());
+        let m = syn::Ident::new(
+            if add { "checked_add" } else { "checked_sub" },
+            Span::call_site(),
+        );
         let msg = format!(
             "the exponent `{f}` of this {} does not fit in its type",
             if add { "product" } else { "quotient" }
@@ -106,7 +109,9 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
         }
     }
     let axis_bound = {
-        let preds = axis_types.iter().map(|ty| quote! { #ty: [const] #yadc::Axis, });
+        let preds = axis_types
+            .iter()
+            .map(|ty| quote! { #ty: [const] #yadc::Axis, });
         quote! { where #(#preds)* }
     };
     let mul_bounds = axis_bound.clone();
@@ -236,7 +241,10 @@ pub(crate) fn expand_dimension(input: &DeriveInput) -> syn::Result<TokenStream2>
     let (kname, kplain) = match kind_field {
         Some(kf) => {
             let (k, kty) = (kf.ident.as_ref().unwrap(), &kf.ty);
-            (quote! { #k }, quote! { <#kty as #yadc::Dimension>::DIMENSIONLESS })
+            (
+                quote! { #k },
+                quote! { <#kty as #yadc::Dimension>::DIMENSIONLESS },
+            )
         }
         None => (quote! {}, quote! {}),
     };

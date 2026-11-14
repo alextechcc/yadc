@@ -28,12 +28,20 @@ pub struct Exponents(pub [i8; 7]);
 impl Exponents {
     /// The exponents `uom` keeps in the type `D`.
     pub const fn of<D: Dimension + ?Sized>() -> Exponents {
-        Exponents([D::L::I8, D::M::I8, D::T::I8, D::I::I8, D::Th::I8, D::N::I8, D::J::I8])
+        Exponents([
+            D::L::I8,
+            D::M::I8,
+            D::T::I8,
+            D::I::I8,
+            D::Th::I8,
+            D::N::I8,
+            D::J::I8,
+        ])
     }
 }
 
 /// A product: the exponents add (m × m = m²).
-const impl Mul for Exponents {
+impl const Mul for Exponents {
     type Output = Exponents;
     fn mul(mut self, o: Exponents) -> Exponents {
         let mut i = 0;
@@ -46,7 +54,7 @@ const impl Mul for Exponents {
 }
 
 /// A quotient: the exponents subtract (m / s = m·s⁻¹).
-const impl Div for Exponents {
+impl const Div for Exponents {
     type Output = Exponents;
     fn div(mut self, o: Exponents) -> Exponents {
         let mut i = 0;
@@ -59,7 +67,7 @@ const impl Div for Exponents {
 }
 
 /// A sum: only of the same dimension.
-const impl Add for Exponents {
+impl const Add for Exponents {
     type Output = Option<Exponents>;
     fn add(self, o: Exponents) -> Option<Exponents> {
         if self == o { Some(self) } else { None }
@@ -129,6 +137,9 @@ fn main() {
 
     // Back to a `uom` type: checked, and read with `uom`'s own units.
     let v = Velocity::try_from(speed).expect("a length over a time is a velocity");
-    println!("as Velocity: {} km/h", v.get::<velocity::kilometer_per_hour>());
+    println!(
+        "as Velocity: {} km/h",
+        v.get::<velocity::kilometer_per_hour>()
+    );
     println!("as Length:   {}", Length::try_from(speed).is_ok());
 }

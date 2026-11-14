@@ -1,128 +1,115 @@
-use crate::{ISQ, SIQuantity};
+use crate::ISQ;
 use yadc::Dimension;
 
-/// The dimension of `MassDensity`.
+/// The dimension of `MassDensity`: `SIQuantity<MASS_DENSITY, N>` is one.
 pub const MASS_DENSITY: ISQ = ISQ {
     m: -3,
     kg: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MassDensity<N> = SIQuantity<MASS_DENSITY, N>;
 
-/// The dimension of `LinearMassDensity`.
+/// The dimension of `LinearMassDensity`: `SIQuantity<LINEAR_MASS_DENSITY, N>` is one.
 pub const LINEAR_MASS_DENSITY: ISQ = ISQ {
     m: -1,
     kg: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type LinearMassDensity<N> = SIQuantity<LINEAR_MASS_DENSITY, N>;
 
-/// The dimension of `ArealMassDensity`.
+/// The dimension of `ArealMassDensity`: `SIQuantity<AREAL_MASS_DENSITY, N>` is one.
 pub const AREAL_MASS_DENSITY: ISQ = ISQ {
     m: -2,
     kg: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ArealMassDensity<N> = SIQuantity<AREAL_MASS_DENSITY, N>;
 
-/// The dimension of `LinearNumberDensity`.
+/// The dimension of `LinearNumberDensity`: `SIQuantity<LINEAR_NUMBER_DENSITY, N>` is one.
 pub const LINEAR_NUMBER_DENSITY: ISQ = ISQ {
     m: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type LinearNumberDensity<N> = SIQuantity<LINEAR_NUMBER_DENSITY, N>;
 
-/// The dimension of `ArealNumberDensity`.
+/// The dimension of `ArealNumberDensity`: `SIQuantity<AREAL_NUMBER_DENSITY, N>` is one.
 pub const AREAL_NUMBER_DENSITY: ISQ = ISQ {
     m: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ArealNumberDensity<N> = SIQuantity<AREAL_NUMBER_DENSITY, N>;
 
-/// The dimension of `VolumetricNumberDensity`.
+/// The dimension of `VolumetricNumberDensity`: `SIQuantity<VOLUMETRIC_NUMBER_DENSITY, N>` is one.
 pub const VOLUMETRIC_NUMBER_DENSITY: ISQ = ISQ {
     m: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type VolumetricNumberDensity<N> = SIQuantity<VOLUMETRIC_NUMBER_DENSITY, N>;
 
-/// The dimension of `LinearNumberRate`.
+/// The dimension of `LinearNumberRate`: `SIQuantity<LINEAR_NUMBER_RATE, N>` is one.
 pub const LINEAR_NUMBER_RATE: ISQ = ISQ {
     m: -1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type LinearNumberRate<N> = SIQuantity<LINEAR_NUMBER_RATE, N>;
 
-/// The dimension of `ArealNumberRate`.
+/// The dimension of `ArealNumberRate`: `SIQuantity<AREAL_NUMBER_RATE, N>` is one.
 pub const AREAL_NUMBER_RATE: ISQ = ISQ {
     m: -2,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ArealNumberRate<N> = SIQuantity<AREAL_NUMBER_RATE, N>;
 
-/// The dimension of `VolumetricNumberRate`.
+/// The dimension of `VolumetricNumberRate`: `SIQuantity<VOLUMETRIC_NUMBER_RATE, N>` is one.
 pub const VOLUMETRIC_NUMBER_RATE: ISQ = ISQ {
     m: -3,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type VolumetricNumberRate<N> = SIQuantity<VOLUMETRIC_NUMBER_RATE, N>;
 
-/// The dimension of `LinearDensityOfStates`.
+/// The dimension of `LinearDensityOfStates`: `SIQuantity<LINEAR_DENSITY_OF_STATES, N>` is one.
 pub const LINEAR_DENSITY_OF_STATES: ISQ = ISQ {
     m: -3,
     kg: -1,
     s: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type LinearDensityOfStates<N> = SIQuantity<LINEAR_DENSITY_OF_STATES, N>;
 
-/// The dimension of `ArealDensityOfStates`.
+/// The dimension of `ArealDensityOfStates`: `SIQuantity<AREAL_DENSITY_OF_STATES, N>` is one.
 pub const AREAL_DENSITY_OF_STATES: ISQ = ISQ {
     m: -4,
     kg: -1,
     s: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ArealDensityOfStates<N> = SIQuantity<AREAL_DENSITY_OF_STATES, N>;
 
-/// The dimension of `VolumetricDensityOfStates`.
+/// The dimension of `VolumetricDensityOfStates`: `SIQuantity<VOLUMETRIC_DENSITY_OF_STATES, N>` is one.
 pub const VOLUMETRIC_DENSITY_OF_STATES: ISQ = ISQ {
     m: -5,
     kg: -1,
     s: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type VolumetricDensityOfStates<N> = SIQuantity<VOLUMETRIC_DENSITY_OF_STATES, N>;
 
-/// The dimension of `LinearPowerDensity`.
+/// The dimension of `LinearPowerDensity`: `SIQuantity<LINEAR_POWER_DENSITY, N>` is one.
 pub const LINEAR_POWER_DENSITY: ISQ = ISQ {
     m: 1,
     kg: 1,
     s: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type LinearPowerDensity<N> = SIQuantity<LINEAR_POWER_DENSITY, N>;
 
-/// The dimension of `VolumetricPowerDensity`.
+/// The dimension of `VolumetricPowerDensity`: `SIQuantity<VOLUMETRIC_POWER_DENSITY, N>` is one.
 pub const VOLUMETRIC_POWER_DENSITY: ISQ = ISQ {
     m: -1,
     kg: 1,
     s: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type VolumetricPowerDensity<N> = SIQuantity<VOLUMETRIC_POWER_DENSITY, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Kilograms per cubic metre (`kg/m³`), a unit of `MassDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerCubicMetre = SIUnit<
+    pub const KILOGRAM_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -132,10 +119,10 @@ pub mod units {
                 name: "kilograms per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per cubic metre (`g/m³`), a unit of `MassDensity`: `n` of them is `n · 0.001` coherent units.
-    pub type GramPerCubicMetre = SIUnit<
+    pub const GRAM_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -145,10 +132,10 @@ pub mod units {
                 name: "grams per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Carats per cubic metre (`ct/m³`), a unit of `MassDensity`: `n` of them is `n · 0.0002` coherent units.
-    pub type CaratPerCubicMetre = SIUnit<
+    pub const CARAT_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -158,10 +145,10 @@ pub mod units {
                 name: "carats per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grains per cubic metre (`gr/m³`), a unit of `MassDensity`: `n` of them is `n · 6.479891e-05` coherent units.
-    pub type GrainPerCubicMetre = SIUnit<
+    pub const GRAIN_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -171,10 +158,10 @@ pub mod units {
                 name: "grains per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hundredweight (long) per cubic metre (`cwt long/m³`), a unit of `MassDensity`: `n` of them is `n · 50.80234544` coherent units.
-    pub type HundredweightLongPerCubicMetre = SIUnit<
+    pub const HUNDREDWEIGHT_LONG_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -184,10 +171,10 @@ pub mod units {
                 name: "hundredweight (long) per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hundredweight (short) per cubic metre (`cwt short/m³`), a unit of `MassDensity`: `n` of them is `n · 45.359237` coherent units.
-    pub type HundredweightShortPerCubicMetre = SIUnit<
+    pub const HUNDREDWEIGHT_SHORT_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -197,10 +184,10 @@ pub mod units {
                 name: "hundredweight (short) per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per cubic metre (`oz/m³`), a unit of `MassDensity`: `n` of them is `n · 0.028349523125` coherent units.
-    pub type OuncePerCubicMetre = SIUnit<
+    pub const OUNCE_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -210,10 +197,10 @@ pub mod units {
                 name: "ounces per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Troy ounces per cubic metre (`oz t/m³`), a unit of `MassDensity`: `n` of them is `n · 0.0311034768` coherent units.
-    pub type OunceTroyPerCubicMetre = SIUnit<
+    pub const OUNCE_TROY_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -223,10 +210,10 @@ pub mod units {
                 name: "troy ounces per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pennyweight per cubic metre (`dwt/m³`), a unit of `MassDensity`: `n` of them is `n · 0.00155517384` coherent units.
-    pub type PennyweightPerCubicMetre = SIUnit<
+    pub const PENNYWEIGHT_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -236,10 +223,10 @@ pub mod units {
                 name: "pennyweight per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per cubic metre (`lb/m³`), a unit of `MassDensity`: `n` of them is `n · 0.45359237` coherent units.
-    pub type PoundPerCubicMetre = SIUnit<
+    pub const POUND_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -249,10 +236,10 @@ pub mod units {
                 name: "pounds per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Troy pounds per cubic metre (`lb t/m³`), a unit of `MassDensity`: `n` of them is `n · 0.3732417216` coherent units.
-    pub type PoundTroyPerCubicMetre = SIUnit<
+    pub const POUND_TROY_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -262,10 +249,10 @@ pub mod units {
                 name: "troy pounds per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slugs per cubic metre (`slug/m³`), a unit of `MassDensity`: `n` of them is `n · 0.45359237 * 9.80665 / 0.3048` coherent units.
-    pub type SlugPerCubicMetre = SIUnit<
+    pub const SLUG_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -275,10 +262,10 @@ pub mod units {
                 name: "slugs per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Assay tons per cubic metre (`AT/m³`), a unit of `MassDensity`: `n` of them is `n · 0.175 / 6.0` coherent units.
-    pub type TonAssayPerCubicMetre = SIUnit<
+    pub const TON_ASSAY_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -288,10 +275,10 @@ pub mod units {
                 name: "assay tons per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Long tons per cubic metre (`2240 lb/m³`), a unit of `MassDensity`: `n` of them is `n · 1016.0469088` coherent units.
-    pub type TonLongPerCubicMetre = SIUnit<
+    pub const TON_LONG_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -301,10 +288,10 @@ pub mod units {
                 name: "long tons per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Short tons per cubic metre (`2000 lb/m³`), a unit of `MassDensity`: `n` of them is `n · 907.18474` coherent units.
-    pub type TonShortPerCubicMetre = SIUnit<
+    pub const TON_SHORT_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -314,10 +301,10 @@ pub mod units {
                 name: "short tons per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons per cubic metre (`t/m³`), a unit of `MassDensity`: `n` of them is `n · 1000.0` coherent units.
-    pub type TonPerCubicMetre = SIUnit<
+    pub const TON_PER_CUBIC_METRE: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -327,10 +314,10 @@ pub mod units {
                 name: "tons per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grains per gallon (`gr/gal`), a unit of `MassDensity`: `n` of them is `n · 6.479891e-05 / 0.003785411784` coherent units.
-    pub type GrainPerGallon = SIUnit<
+    pub const GRAIN_PER_GALLON: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -340,10 +327,10 @@ pub mod units {
                 name: "grains per gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per cubic inch (`oz/in³`), a unit of `MassDensity`: `n` of them is `n · 0.028349523125 / (0.0254 * 0.0254 * 0.0254)` coherent units.
-    pub type OuncePerCubicInch = SIUnit<
+    pub const OUNCE_PER_CUBIC_INCH: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -354,10 +341,10 @@ pub mod units {
                 name: "ounces per cubic inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per Imperial gallon (`oz/gal (UK)`), a unit of `MassDensity`: `n` of them is `n · 0.028349523125 / 0.00454609` coherent units.
-    pub type OuncePerGallonImperial = SIUnit<
+    pub const OUNCE_PER_GALLON_IMPERIAL: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -367,10 +354,10 @@ pub mod units {
                 name: "ounces per Imperial gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per gallon (`oz/gal`), a unit of `MassDensity`: `n` of them is `n · 0.028349523125 / 0.003785411784` coherent units.
-    pub type OuncePerGallon = SIUnit<
+    pub const OUNCE_PER_GALLON: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -380,10 +367,10 @@ pub mod units {
                 name: "ounces per gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per cubic foot (`lb/ft³`), a unit of `MassDensity`: `n` of them is `n · 0.45359237 / (0.3048 * 0.3048 * 0.3048)` coherent units.
-    pub type PoundPerCubicFoot = SIUnit<
+    pub const POUND_PER_CUBIC_FOOT: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -394,10 +381,10 @@ pub mod units {
                 name: "pounds per cubic foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per cubic inch (`lb/in³`), a unit of `MassDensity`: `n` of them is `n · 0.45359237 / (0.0254 * 0.0254 * 0.0254)` coherent units.
-    pub type PoundPerCubicInch = SIUnit<
+    pub const POUND_PER_CUBIC_INCH: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -408,10 +395,10 @@ pub mod units {
                 name: "pounds per cubic inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per cubic yard (`lb/yd³`), a unit of `MassDensity`: `n` of them is `n · 0.45359237 / (0.9144 * 0.9144 * 0.9144)` coherent units.
-    pub type PoundPerCubicYard = SIUnit<
+    pub const POUND_PER_CUBIC_YARD: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -422,10 +409,10 @@ pub mod units {
                 name: "pounds per cubic yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per Imperial gallon (`lb/gal (UK)`), a unit of `MassDensity`: `n` of them is `n · 0.45359237 / 0.00454609` coherent units.
-    pub type PoundPerGallonImperial = SIUnit<
+    pub const POUND_PER_GALLON_IMPERIAL: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -435,10 +422,10 @@ pub mod units {
                 name: "pounds per Imperial gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per gallon (`lb/gal`), a unit of `MassDensity`: `n` of them is `n · 0.45359237 / 0.003785411784` coherent units.
-    pub type PoundPerGallon = SIUnit<
+    pub const POUND_PER_GALLON: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -448,10 +435,10 @@ pub mod units {
                 name: "pounds per gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slugs per cubic foot (`slug/ft³`), a unit of `MassDensity`: `n` of them is `n · (0.45359237 * 9.80665 / 0.3048) / (0.3048 * 0.3048 * 0.3048)` coherent units.
-    pub type SlugPerCubicFoot = SIUnit<
+    pub const SLUG_PER_CUBIC_FOOT: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -462,10 +449,10 @@ pub mod units {
                 name: "slugs per cubic foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Long tons per cubic yard (`2240 lb/yd³`), a unit of `MassDensity`: `n` of them is `n · 1016.0469088 / (0.9144 * 0.9144 * 0.9144)` coherent units.
-    pub type TonLongPerCubicYard = SIUnit<
+    pub const TON_LONG_PER_CUBIC_YARD: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -476,10 +463,10 @@ pub mod units {
                 name: "long tons per cubic yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Short tons per cubic yard (`2000 lb/yd³`), a unit of `MassDensity`: `n` of them is `n · 907.18474 / (0.9144 * 0.9144 * 0.9144)` coherent units.
-    pub type TonShortPerCubicYard = SIUnit<
+    pub const TON_SHORT_PER_CUBIC_YARD: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -490,10 +477,10 @@ pub mod units {
                 name: "short tons per cubic yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Long tons per cubic foot (`2240 lb/ft³`), a unit of `MassDensity`: `n` of them is `n · 1016.0469088 / (0.3048 * 0.3048 * 0.3048)` coherent units.
-    pub type TonLongPerCubicFoot = SIUnit<
+    pub const TON_LONG_PER_CUBIC_FOOT: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -504,10 +491,10 @@ pub mod units {
                 name: "long tons per cubic foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Short tons per cubic foot (`2000 lb/ft³`), a unit of `MassDensity`: `n` of them is `n · 907.18474 / (0.3048 * 0.3048 * 0.3048)` coherent units.
-    pub type TonShortPerCubicFoot = SIUnit<
+    pub const TON_SHORT_PER_CUBIC_FOOT: SIUnit<
         MASS_DENSITY,
         {
             SIUnitConsts {
@@ -518,10 +505,10 @@ pub mod units {
                 name: "short tons per cubic foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per metre (`kg/m`), a unit of `LinearMassDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerMetre = SIUnit<
+    pub const KILOGRAM_PER_METRE: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -531,10 +518,10 @@ pub mod units {
                 name: "kilograms per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per foot (`oz/ft`), a unit of `LinearMassDensity`: `n` of them is `n · 0.028349523125 / 0.3048` coherent units.
-    pub type OuncePerFoot = SIUnit<
+    pub const OUNCE_PER_FOOT: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -544,10 +531,10 @@ pub mod units {
                 name: "ounces per foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per inch (`oz/in`), a unit of `LinearMassDensity`: `n` of them is `n · 0.028349523125 / 0.0254` coherent units.
-    pub type OuncePerInch = SIUnit<
+    pub const OUNCE_PER_INCH: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -557,10 +544,10 @@ pub mod units {
                 name: "ounces per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per yard (`lb/yd`), a unit of `LinearMassDensity`: `n` of them is `n · 0.45359237 / 0.9144` coherent units.
-    pub type PoundPerYard = SIUnit<
+    pub const POUND_PER_YARD: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -570,10 +557,10 @@ pub mod units {
                 name: "pounds per yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per foot (`lb/ft`), a unit of `LinearMassDensity`: `n` of them is `n · 0.45359237 / 0.3048` coherent units.
-    pub type PoundPerFoot = SIUnit<
+    pub const POUND_PER_FOOT: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -583,10 +570,10 @@ pub mod units {
                 name: "pounds per foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per inch (`lb/in`), a unit of `LinearMassDensity`: `n` of them is `n · 0.45359237 / 0.0254` coherent units.
-    pub type PoundPerInch = SIUnit<
+    pub const POUND_PER_INCH: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -596,10 +583,10 @@ pub mod units {
                 name: "pounds per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per kilometre (`g/km`), a unit of `LinearMassDensity`: `n` of them is `n · 1e-06` coherent units.
-    pub type GramPerKilometre = SIUnit<
+    pub const GRAM_PER_KILOMETRE: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -609,10 +596,10 @@ pub mod units {
                 name: "grams per kilometre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per centimetre (`g/cm`), a unit of `LinearMassDensity`: `n` of them is `n · 0.1` coherent units.
-    pub type GramPerCentimetre = SIUnit<
+    pub const GRAM_PER_CENTIMETRE: SIUnit<
         LINEAR_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -622,10 +609,10 @@ pub mod units {
                 name: "grams per centimetre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per square metre (`kg/m²`), a unit of `ArealMassDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerSquareMetre = SIUnit<
+    pub const KILOGRAM_PER_SQUARE_METRE: SIUnit<
         AREAL_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -635,10 +622,10 @@ pub mod units {
                 name: "kilograms per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per square metre (`g/m²`), a unit of `ArealMassDensity`: `n` of them is `n · 0.001` coherent units.
-    pub type GramPerSquareMetre = SIUnit<
+    pub const GRAM_PER_SQUARE_METRE: SIUnit<
         AREAL_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -648,10 +635,10 @@ pub mod units {
                 name: "grams per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per square foot (`oz/ft²`), a unit of `ArealMassDensity`: `n` of them is `n · 0.028349523125 / (0.3048 * 0.3048)` coherent units.
-    pub type OuncePerSquareFoot = SIUnit<
+    pub const OUNCE_PER_SQUARE_FOOT: SIUnit<
         AREAL_MASS_DENSITY,
         {
             SIUnitConsts {
@@ -661,10 +648,10 @@ pub mod units {
                 name: "ounces per square foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per metre (`m⁻¹`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type PerMetre = SIUnit<
+    pub const PER_METRE: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -674,10 +661,10 @@ pub mod units {
                 name: "per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per foot (`ft⁻¹`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / 0.3048` coherent units.
-    pub type PerFoot = SIUnit<
+    pub const PER_FOOT: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -687,10 +674,10 @@ pub mod units {
                 name: "per foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Foot (U.S. survey) (`ft (U.S. survey)`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / (1200.0 / 3937.0)` coherent units.
-    pub type PerFootSurvey = SIUnit<
+    pub const PER_FOOT_SURVEY: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -700,10 +687,10 @@ pub mod units {
                 name: "foot (U.S. survey)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per inch (`in⁻¹`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / 0.0254` coherent units.
-    pub type PerInch = SIUnit<
+    pub const PER_INCH: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -713,10 +700,10 @@ pub mod units {
                 name: "per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per mile (`mi⁻¹`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / 1609.344` coherent units.
-    pub type PerMile = SIUnit<
+    pub const PER_MILE: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -726,10 +713,10 @@ pub mod units {
                 name: "per mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per mile (U.S. survey) (`mi⁻¹ (U.S. survey)`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / (6336000.0 / 3937.0)` coherent units.
-    pub type PerMileSurvey = SIUnit<
+    pub const PER_MILE_SURVEY: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -739,10 +726,10 @@ pub mod units {
                 name: "per mile (U.S. survey)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per nautical mile (`M⁻¹`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / 1852.0` coherent units.
-    pub type PerNauticalMile = SIUnit<
+    pub const PER_NAUTICAL_MILE: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -752,10 +739,10 @@ pub mod units {
                 name: "per nautical mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per yard (`yd⁻¹`), a unit of `LinearNumberDensity`: `n` of them is `n · 1.0 / 0.9144` coherent units.
-    pub type PerYard = SIUnit<
+    pub const PER_YARD: SIUnit<
         LINEAR_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -765,10 +752,10 @@ pub mod units {
                 name: "per yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square metre (`m⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type PerSquareMetre = SIUnit<
+    pub const PER_SQUARE_METRE: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -778,10 +765,10 @@ pub mod units {
                 name: "per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per acre (`ac⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))` coherent units.
-    pub type PerAcre = SIUnit<
+    pub const PER_ACRE: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -794,10 +781,10 @@ pub mod units {
                 name: "per acre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per are (`a⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 0.01` coherent units.
-    pub type PerAre = SIUnit<
+    pub const PER_ARE: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -807,10 +794,10 @@ pub mod units {
                 name: "per are",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per barn (`b⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1e+28` coherent units.
-    pub type PerBarn = SIUnit<
+    pub const PER_BARN: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -820,10 +807,10 @@ pub mod units {
                 name: "per barn",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per circular mil (`cmil⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 4.0 / (core::f64::consts::PI * 2.54e-05 * 2.54e-05)` coherent units.
-    pub type PerCircularMil = SIUnit<
+    pub const PER_CIRCULAR_MIL: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -833,10 +820,10 @@ pub mod units {
                 name: "per circular mil",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per hectare (`ha⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 0.0001` coherent units.
-    pub type PerHectare = SIUnit<
+    pub const PER_HECTARE: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -846,10 +833,10 @@ pub mod units {
                 name: "per hectare",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square foot (`ft⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` coherent units.
-    pub type PerSquareFoot = SIUnit<
+    pub const PER_SQUARE_FOOT: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -859,10 +846,10 @@ pub mod units {
                 name: "per square foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square inch (`in⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1.0 / (0.0254 * 0.0254)` coherent units.
-    pub type PerSquareInch = SIUnit<
+    pub const PER_SQUARE_INCH: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -872,10 +859,10 @@ pub mod units {
                 name: "per square inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square mile (`mi⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1.0 / (1609.344 * 1609.344)` coherent units.
-    pub type PerSquareMile = SIUnit<
+    pub const PER_SQUARE_MILE: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -885,10 +872,10 @@ pub mod units {
                 name: "per square mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square yard (`yd⁻²`), a unit of `ArealNumberDensity`: `n` of them is `n · 1.0 / (0.9144 * 0.9144)` coherent units.
-    pub type PerSquareYard = SIUnit<
+    pub const PER_SQUARE_YARD: SIUnit<
         AREAL_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -898,10 +885,10 @@ pub mod units {
                 name: "per square yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic metre (`m⁻³`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type PerCubicMetre = SIUnit<
+    pub const PER_CUBIC_METRE: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -911,10 +898,10 @@ pub mod units {
                 name: "per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic foot (`ft⁻³`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / (0.3048 * 0.3048 * 0.3048)` coherent units.
-    pub type PerCubicFoot = SIUnit<
+    pub const PER_CUBIC_FOOT: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -925,10 +912,10 @@ pub mod units {
                 name: "per cubic foot",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic inch (`in⁻³`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / (0.0254 * 0.0254 * 0.0254)` coherent units.
-    pub type PerCubicInch = SIUnit<
+    pub const PER_CUBIC_INCH: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -939,10 +926,10 @@ pub mod units {
                 name: "per cubic inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic mile (`mi⁻³`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / (1609.344 * 1609.344 * 1609.344)` coherent units.
-    pub type PerCubicMile = SIUnit<
+    pub const PER_CUBIC_MILE: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -953,10 +940,10 @@ pub mod units {
                 name: "per cubic mile",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic yard (`yd⁻³`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / (0.9144 * 0.9144 * 0.9144)` coherent units.
-    pub type PerCubicYard = SIUnit<
+    pub const PER_CUBIC_YARD: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -967,10 +954,10 @@ pub mod units {
                 name: "per cubic yard",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per fluid ounce (`per fl oz`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / 2.95735295625e-05` coherent units.
-    pub type PerFluidOunce = SIUnit<
+    pub const PER_FLUID_OUNCE: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -980,10 +967,10 @@ pub mod units {
                 name: "per fluid ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per Imperial fluid ounce (`per fl oz (UK)`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / 2.84130625e-05` coherent units.
-    pub type PerFluidOunceImperial = SIUnit<
+    pub const PER_FLUID_OUNCE_IMPERIAL: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -993,10 +980,10 @@ pub mod units {
                 name: "per Imperial fluid ounce",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per Imperial gallon (`per gal (UK)`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / 0.00454609` coherent units.
-    pub type PerGallonImperial = SIUnit<
+    pub const PER_GALLON_IMPERIAL: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -1006,10 +993,10 @@ pub mod units {
                 name: "per Imperial gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per gallon (`per gal`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1.0 / 0.003785411784` coherent units.
-    pub type PerGallon = SIUnit<
+    pub const PER_GALLON: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -1019,10 +1006,10 @@ pub mod units {
                 name: "per gallon",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per litre (`L⁻¹`), a unit of `VolumetricNumberDensity`: `n` of them is `n · 1000.0` coherent units.
-    pub type PerLitre = SIUnit<
+    pub const PER_LITRE: SIUnit<
         VOLUMETRIC_NUMBER_DENSITY,
         {
             SIUnitConsts {
@@ -1032,10 +1019,10 @@ pub mod units {
                 name: "per litre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per metre second (`m⁻¹ · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0` coherent units.
-    pub type PerMetreSecond = SIUnit<
+    pub const PER_METRE_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1045,10 +1032,10 @@ pub mod units {
                 name: "per metre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per foot second (`ft⁻¹ · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0 / 0.3048` coherent units.
-    pub type PerFootSecond = SIUnit<
+    pub const PER_FOOT_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1058,10 +1045,10 @@ pub mod units {
                 name: "per foot second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per foot (U.S. survey) second (`ft⁻¹ (U.S. survey) · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0 / (1200.0 / 3937.0)` coherent units.
-    pub type PerFootSurveySecond = SIUnit<
+    pub const PER_FOOT_SURVEY_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1071,10 +1058,10 @@ pub mod units {
                 name: "per foot (U.S. survey) second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per inch second (`in⁻¹ · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0 / 0.0254` coherent units.
-    pub type PerInchSecond = SIUnit<
+    pub const PER_INCH_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1084,10 +1071,10 @@ pub mod units {
                 name: "per inch second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per mile second (`mi⁻¹ · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0 / 1609.344` coherent units.
-    pub type PerMileSecond = SIUnit<
+    pub const PER_MILE_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1097,10 +1084,10 @@ pub mod units {
                 name: "per mile second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per mile (U.S. survey) second (`mi⁻¹ (U.S. survey) · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0 / (6336000.0 / 3937.0)` coherent units.
-    pub type PerMileSurveySecond = SIUnit<
+    pub const PER_MILE_SURVEY_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1110,10 +1097,10 @@ pub mod units {
                 name: "per mile (U.S. survey) second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per yard second (`yd⁻¹ · s⁻¹`), a unit of `LinearNumberRate`: `n` of them is `n · 1.0 / 0.9144` coherent units.
-    pub type PerYardSecond = SIUnit<
+    pub const PER_YARD_SECOND: SIUnit<
         LINEAR_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1123,10 +1110,10 @@ pub mod units {
                 name: "per yard second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square metre second (`m⁻² · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1.0` coherent units.
-    pub type PerSquareMetreSecond = SIUnit<
+    pub const PER_SQUARE_METRE_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1136,10 +1123,10 @@ pub mod units {
                 name: "per square metre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per acre second (`ac⁻¹ · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))` coherent units.
-    pub type PerAcreSecond = SIUnit<
+    pub const PER_ACRE_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1152,10 +1139,10 @@ pub mod units {
                 name: "per acre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per are second (`a⁻¹ · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 0.01` coherent units.
-    pub type PerAreSecond = SIUnit<
+    pub const PER_ARE_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1165,10 +1152,10 @@ pub mod units {
                 name: "per are second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per barn second (`b⁻¹ · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1e+28` coherent units.
-    pub type PerBarnSecond = SIUnit<
+    pub const PER_BARN_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1178,10 +1165,10 @@ pub mod units {
                 name: "per barn second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per circular mil second (`cmil⁻¹ · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 4.0 / (core::f64::consts::PI * 2.54e-05 * 2.54e-05)` coherent units.
-    pub type PerCircularMilSecond = SIUnit<
+    pub const PER_CIRCULAR_MIL_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1191,10 +1178,10 @@ pub mod units {
                 name: "per circular mil second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per hectare second (`ha⁻¹ · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 0.0001` coherent units.
-    pub type PerHectareSecond = SIUnit<
+    pub const PER_HECTARE_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1204,10 +1191,10 @@ pub mod units {
                 name: "per hectare second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square foot second (`ft⁻² · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` coherent units.
-    pub type PerSquareFootSecond = SIUnit<
+    pub const PER_SQUARE_FOOT_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1217,10 +1204,10 @@ pub mod units {
                 name: "per square foot second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square inch second (`in⁻² · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1.0 / (0.0254 * 0.0254)` coherent units.
-    pub type PerSquareInchSecond = SIUnit<
+    pub const PER_SQUARE_INCH_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1230,10 +1217,10 @@ pub mod units {
                 name: "per square inch second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square mile second (`mi⁻² · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1.0 / (1609.344 * 1609.344)` coherent units.
-    pub type PerSquareMileSecond = SIUnit<
+    pub const PER_SQUARE_MILE_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1243,10 +1230,10 @@ pub mod units {
                 name: "per square mile second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per square yard second (`yd⁻² · s⁻¹`), a unit of `ArealNumberRate`: `n` of them is `n · 1.0 / (0.9144 * 0.9144)` coherent units.
-    pub type PerSquareYardSecond = SIUnit<
+    pub const PER_SQUARE_YARD_SECOND: SIUnit<
         AREAL_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1256,10 +1243,10 @@ pub mod units {
                 name: "per square yard second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic metre second (`m⁻³ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0` coherent units.
-    pub type PerCubicMetreSecond = SIUnit<
+    pub const PER_CUBIC_METRE_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1269,10 +1256,10 @@ pub mod units {
                 name: "per cubic metre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic foot second (`ft⁻³ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / (0.3048 * 0.3048 * 0.3048)` coherent units.
-    pub type PerCubicFootSecond = SIUnit<
+    pub const PER_CUBIC_FOOT_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1283,10 +1270,10 @@ pub mod units {
                 name: "per cubic foot second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic inch second (`in⁻³ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / (0.0254 * 0.0254 * 0.0254)` coherent units.
-    pub type PerCubicInchSecond = SIUnit<
+    pub const PER_CUBIC_INCH_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1297,10 +1284,10 @@ pub mod units {
                 name: "per cubic inch second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic mile second (`mi⁻³ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / (1609.344 * 1609.344 * 1609.344)` coherent units.
-    pub type PerCubicMileSecond = SIUnit<
+    pub const PER_CUBIC_MILE_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1311,10 +1298,10 @@ pub mod units {
                 name: "per cubic mile second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per cubic yard second (`yd⁻³ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / (0.9144 * 0.9144 * 0.9144)` coherent units.
-    pub type PerCubicYardSecond = SIUnit<
+    pub const PER_CUBIC_YARD_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1325,10 +1312,10 @@ pub mod units {
                 name: "per cubic yard second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per fluid ounce second (`fl oz⁻¹ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / 2.95735295625e-05` coherent units.
-    pub type PerFluidOunceSecond = SIUnit<
+    pub const PER_FLUID_OUNCE_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1338,10 +1325,10 @@ pub mod units {
                 name: "per fluid ounce second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per Imperial fluid ounce second (`fl oz⁻¹ (UK) · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / 2.84130625e-05` coherent units.
-    pub type PerFluidOunceImperialSecond = SIUnit<
+    pub const PER_FLUID_OUNCE_IMPERIAL_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1351,10 +1338,10 @@ pub mod units {
                 name: "per Imperial fluid ounce second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per Imperial gallon second (`gal⁻¹ (UK) · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / 0.00454609` coherent units.
-    pub type PerGallonImperialSecond = SIUnit<
+    pub const PER_GALLON_IMPERIAL_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1364,10 +1351,10 @@ pub mod units {
                 name: "per Imperial gallon second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per gallon second (`gal⁻¹ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / 0.003785411784` coherent units.
-    pub type PerGallonSecond = SIUnit<
+    pub const PER_GALLON_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1377,10 +1364,10 @@ pub mod units {
                 name: "per gallon second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per litre second (`L⁻¹ · s⁻¹`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1000.0` coherent units.
-    pub type PerLitreSecond = SIUnit<
+    pub const PER_LITRE_SECOND: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1390,10 +1377,10 @@ pub mod units {
                 name: "per litre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Becquerels per cubic metre (`Bq/m³`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0` coherent units.
-    pub type BecquerelPerCubicMetre = SIUnit<
+    pub const BECQUEREL_PER_CUBIC_METRE: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1403,10 +1390,10 @@ pub mod units {
                 name: "becquerels per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Curies per cubic metre (`Ci/m³`), a unit of `VolumetricNumberRate`: `n` of them is `n · 37000000000.0` coherent units.
-    pub type CuriePerCubicMetre = SIUnit<
+    pub const CURIE_PER_CUBIC_METRE: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1416,10 +1403,10 @@ pub mod units {
                 name: "curies per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Disintegrations per minute per cubic metre (`dpm/m³`), a unit of `VolumetricNumberRate`: `n` of them is `n · 1.0 / 60.0` coherent units.
-    pub type DisintegrationsPerMinutePerCubicMetre = SIUnit<
+    pub const DISINTEGRATIONS_PER_MINUTE_PER_CUBIC_METRE: SIUnit<
         VOLUMETRIC_NUMBER_RATE,
         {
             SIUnitConsts {
@@ -1429,10 +1416,10 @@ pub mod units {
                 name: "disintegrations per minute per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// States per metre joule (`1/(m · J)`), a unit of `LinearDensityOfStates`: `n` of them is `n · 1.0` coherent units.
-    pub type StatePerMetreJoule = SIUnit<
+    pub const STATE_PER_METRE_JOULE: SIUnit<
         LINEAR_DENSITY_OF_STATES,
         {
             SIUnitConsts {
@@ -1442,10 +1429,10 @@ pub mod units {
                 name: "states per metre joule",
             }
         },
-    >;
+    > = SIUnit;
 
     /// States per square metre joule (`1/(m² · J)`), a unit of `ArealDensityOfStates`: `n` of them is `n · 1.0` coherent units.
-    pub type StatePerSquareMetreJoule = SIUnit<
+    pub const STATE_PER_SQUARE_METRE_JOULE: SIUnit<
         AREAL_DENSITY_OF_STATES,
         {
             SIUnitConsts {
@@ -1455,10 +1442,10 @@ pub mod units {
                 name: "states per square metre joule",
             }
         },
-    >;
+    > = SIUnit;
 
     /// States per cubic metre joule (`1/(m³ · J)`), a unit of `VolumetricDensityOfStates`: `n` of them is `n · 1.0` coherent units.
-    pub type StatePerCubicMetreJoule = SIUnit<
+    pub const STATE_PER_CUBIC_METRE_JOULE: SIUnit<
         VOLUMETRIC_DENSITY_OF_STATES,
         {
             SIUnitConsts {
@@ -1468,10 +1455,10 @@ pub mod units {
                 name: "states per cubic metre joule",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per metre (`W/m`), a unit of `LinearPowerDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerMetre = SIUnit<
+    pub const WATT_PER_METRE: SIUnit<
         LINEAR_POWER_DENSITY,
         {
             SIUnitConsts {
@@ -1481,10 +1468,10 @@ pub mod units {
                 name: "watts per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per cubic metre (`W/m³`), a unit of `VolumetricPowerDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerCubicMetre = SIUnit<
+    pub const WATT_PER_CUBIC_METRE: SIUnit<
         VOLUMETRIC_POWER_DENSITY,
         {
             SIUnitConsts {
@@ -1494,5 +1481,5 @@ pub mod units {
                 name: "watts per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 }

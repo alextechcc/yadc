@@ -1,110 +1,94 @@
 //! The units of `photometric`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dynamic::DynamicSIUnit;
 use crate::photometric::units::*;
 use crate::photometric::*;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `Luminance`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Luminance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LUMINANCE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LUMINANCE, N>;
+        fn value(&self, quantity: SIQuantity<LUMINANCE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LuminanceUnit {
     #[default]
-    #[unit(CandelaPerSquareMetre)]
+    #[value(CANDELA_PER_SQUARE_METRE)]
     CandelaPerSquareMetre,
-    #[unit(CandelaPerSquareInch)]
+    #[value(CANDELA_PER_SQUARE_INCH)]
     CandelaPerSquareInch,
-    #[unit(CandelaPerSquareFoot)]
+    #[value(CANDELA_PER_SQUARE_FOOT)]
     CandelaPerSquareFoot,
-    #[unit(Footlambert)]
+    #[value(FOOTLAMBERT)]
     Footlambert,
-    #[unit(Lambert)]
+    #[value(LAMBERT)]
     Lambert,
-    #[unit(Stilb)]
+    #[value(STILB)]
     Stilb,
-}
-
-impl From<LuminanceUnit> for DynamicSIUnit {
-    fn from(unit: LuminanceUnit) -> Self {
-        match unit {
-            LuminanceUnit::CandelaPerSquareMetre => CandelaPerSquareMetre {}.into(),
-            LuminanceUnit::CandelaPerSquareInch => CandelaPerSquareInch {}.into(),
-            LuminanceUnit::CandelaPerSquareFoot => CandelaPerSquareFoot {}.into(),
-            LuminanceUnit::Footlambert => Footlambert {}.into(),
-            LuminanceUnit::Lambert => Lambert {}.into(),
-            LuminanceUnit::Stilb => Stilb {}.into(),
-        }
-    }
 }
 
 /// The units of `LuminousIntensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LuminousIntensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LUMINOUS_INTENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LUMINOUS_INTENSITY, N>;
+        fn value(&self, quantity: SIQuantity<LUMINOUS_INTENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LuminousIntensityUnit {
     #[default]
-    #[unit(Candela)]
+    #[value(CANDELA)]
     Candela,
-}
-
-impl From<LuminousIntensityUnit> for DynamicSIUnit {
-    fn from(unit: LuminousIntensityUnit) -> Self {
-        match unit {
-            LuminousIntensityUnit::Candela => Candela {}.into(),
-        }
-    }
 }
 
 /// The units of `Illuminance`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Illuminance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<ILLUMINANCE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<ILLUMINANCE, N>;
+        fn value(&self, quantity: SIQuantity<ILLUMINANCE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum IlluminanceUnit {
     #[default]
-    #[unit(Lux)]
+    #[value(LUX)]
     Lux,
-    #[unit(Phot)]
+    #[value(PHOT)]
     Phot,
-    #[unit(Footcandle)]
+    #[value(FOOTCANDLE)]
     Footcandle,
-}
-
-impl From<IlluminanceUnit> for DynamicSIUnit {
-    fn from(unit: IlluminanceUnit) -> Self {
-        match unit {
-            IlluminanceUnit::Lux => Lux {}.into(),
-            IlluminanceUnit::Phot => Phot {}.into(),
-            IlluminanceUnit::Footcandle => Footcandle {}.into(),
-        }
-    }
 }
 
 /// The units of `RadiantExposure`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = RadiantExposure<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<RADIANT_EXPOSURE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<RADIANT_EXPOSURE, N>;
+        fn value(&self, quantity: SIQuantity<RADIANT_EXPOSURE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum RadiantExposureUnit {
     #[default]
-    #[unit(JoulePerSquareMetre)]
+    #[value(JOULE_PER_SQUARE_METRE)]
     JoulePerSquareMetre,
-    #[unit(WattHourPerSquareMetre)]
+    #[value(WATT_HOUR_PER_SQUARE_METRE)]
     WattHourPerSquareMetre,
-    #[unit(MicrojoulePerSquareMillimetre)]
+    #[value(MICROJOULE_PER_SQUARE_MILLIMETRE)]
     MicrojoulePerSquareMillimetre,
-}
-
-impl From<RadiantExposureUnit> for DynamicSIUnit {
-    fn from(unit: RadiantExposureUnit) -> Self {
-        match unit {
-            RadiantExposureUnit::JoulePerSquareMetre => JoulePerSquareMetre {}.into(),
-            RadiantExposureUnit::WattHourPerSquareMetre => WattHourPerSquareMetre {}.into(),
-            RadiantExposureUnit::MicrojoulePerSquareMillimetre => {
-                MicrojoulePerSquareMillimetre {}.into()
-            }
-        }
-    }
 }

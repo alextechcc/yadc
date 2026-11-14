@@ -1,56 +1,51 @@
-use crate::{Dim, Qty};
+use crate::Dim;
 use yadc::Dimension;
 
-/// The dimension of `Area`.
+/// The dimension of `Area`: `Qty<AREA, N>` is one.
 pub const AREA: Dim = Dim {
     m: 2,
     ..Dim::DIMENSIONLESS
 };
-pub type Area<N> = Qty<AREA, N>;
 
-/// The dimension of `DryVolume`.
+/// The dimension of `DryVolume`: `Qty<DRY_VOLUME, N>` is one.
 pub const DRY_VOLUME: Dim = Dim {
     m: 3,
     ..Dim::DIMENSIONLESS
 };
-pub type DryVolume<N> = Qty<DRY_VOLUME, N>;
 
-/// The dimension of `FluidVolume`.
+/// The dimension of `FluidVolume`: `Qty<FLUID_VOLUME, N>` is one.
 pub const FLUID_VOLUME: Dim = Dim {
     m: 3,
     ..Dim::DIMENSIONLESS
 };
-pub type FluidVolume<N> = Qty<FLUID_VOLUME, N>;
 
-/// The dimension of `Length`.
+/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
 pub const LENGTH: Dim = Dim {
     m: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Length<N> = Qty<LENGTH, N>;
 
-/// The dimension of `Mass`.
+/// The dimension of `Mass`: `Qty<MASS, N>` is one.
 pub const MASS: Dim = Dim {
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Mass<N> = Qty<MASS, N>;
 
-/// The dimension of `Volume`.
+/// The dimension of `Volume`: `Qty<VOLUME, N>` is one.
 pub const VOLUME: Dim = Dim {
     m: 3,
     ..Dim::DIMENSIONLESS
 };
-pub type Volume<N> = Qty<VOLUME, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, UcumUnit, UcumUnitConsts};
 
     /// Acre (`[acr_us]`), a unit of `Area`: `n` of them is `n · 627264e5 / 15499969` coherent units.
-    pub type Acre = UcumUnit<
+    pub const ACRE: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -60,10 +55,10 @@ pub mod units {
                 name: "acre",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Square rod (`[srd_us]`), a unit of `Area`: `n` of them is `n · 39204e4 / 15499969` coherent units.
-    pub type SquareRod = UcumUnit<
+    pub const SQUARE_ROD: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -73,10 +68,10 @@ pub mod units {
                 name: "square rod",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Square mile (`[smi_us]`), a unit of `Area`: `n` of them is `n · 40144896e6 / 15499969` coherent units.
-    pub type SquareMile = UcumUnit<
+    pub const SQUARE_MILE: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -86,10 +81,10 @@ pub mod units {
                 name: "square mile",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Section (`[sct]`), a unit of `Area`: `n` of them is `n · 40144896e6 / 15499969` coherent units.
-    pub type Section = UcumUnit<
+    pub const SECTION: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -99,10 +94,10 @@ pub mod units {
                 name: "section",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Township (`[twp]`), a unit of `Area`: `n` of them is `n · 1445216256e6 / 15499969` coherent units.
-    pub type Township = UcumUnit<
+    pub const TOWNSHIP: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -112,10 +107,10 @@ pub mod units {
                 name: "township",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Bushel (`[bu_us]`), a unit of `DryVolume`: `n` of them is `n · 3523907016688e-14` coherent units.
-    pub type Bushel = UcumUnit<
+    pub const BUSHEL: UcumUnit<
         DRY_VOLUME,
         {
             UcumUnitConsts {
@@ -125,10 +120,10 @@ pub mod units {
                 name: "bushel",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Historical winchester gallon (`[gal_wi]`), a unit of `DryVolume`: `n` of them is `n · 440488377086e-14` coherent units.
-    pub type HistoricalWinchesterGallon = UcumUnit<
+    pub const HISTORICAL_WINCHESTER_GALLON: UcumUnit<
         DRY_VOLUME,
         {
             UcumUnitConsts {
@@ -138,10 +133,10 @@ pub mod units {
                 name: "historical winchester gallon",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Peck (`[pk_us]`), a unit of `DryVolume`: `n` of them is `n · 880976754172e-14` coherent units.
-    pub type Peck = UcumUnit<
+    pub const PECK: UcumUnit<
         DRY_VOLUME,
         {
             UcumUnitConsts {
@@ -151,10 +146,10 @@ pub mod units {
                 name: "peck",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Dry quart (`[dqt_us]`), a unit of `DryVolume`: `n` of them is `n · 1101220942715e-15` coherent units.
-    pub type DryQuart = UcumUnit<
+    pub const DRY_QUART: UcumUnit<
         DRY_VOLUME,
         {
             UcumUnitConsts {
@@ -164,10 +159,10 @@ pub mod units {
                 name: "dry quart",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Dry pint (`[dpt_us]`), a unit of `DryVolume`: `n` of them is `n · 5506104713575e-16` coherent units.
-    pub type DryPint = UcumUnit<
+    pub const DRY_PINT: UcumUnit<
         DRY_VOLUME,
         {
             UcumUnitConsts {
@@ -177,10 +172,10 @@ pub mod units {
                 name: "dry pint",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Queen Anne's wine gallon (`[gal_us]`), a unit of `FluidVolume`: `n` of them is `n · 3785411784e-12` coherent units.
-    pub type QueenAnneSWineGallon = UcumUnit<
+    pub const QUEEN_ANNE_S_WINE_GALLON: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -190,10 +185,10 @@ pub mod units {
                 name: "Queen Anne's wine gallon",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Barrel (`[bbl_us]`), a unit of `FluidVolume`: `n` of them is `n · 158987294928e-12` coherent units.
-    pub type Barrel = UcumUnit<
+    pub const BARREL: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -203,10 +198,10 @@ pub mod units {
                 name: "barrel",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Quart (`[qt_us]`), a unit of `FluidVolume`: `n` of them is `n · 946352946e-12` coherent units.
-    pub type Quart = UcumUnit<
+    pub const QUART: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -216,10 +211,10 @@ pub mod units {
                 name: "quart",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Pint (`[pt_us]`), a unit of `FluidVolume`: `n` of them is `n · 473176473e-12` coherent units.
-    pub type Pint = UcumUnit<
+    pub const PINT: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -229,10 +224,10 @@ pub mod units {
                 name: "pint",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Gill (`[gil_us]`), a unit of `FluidVolume`: `n` of them is `n · 11829411825e-14` coherent units.
-    pub type Gill = UcumUnit<
+    pub const GILL: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -242,10 +237,10 @@ pub mod units {
                 name: "gill",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Fluid ounce (`[foz_us]`), a unit of `FluidVolume`: `n` of them is `n · 295735295625e-16` coherent units.
-    pub type FluidOunce = UcumUnit<
+    pub const FLUID_OUNCE: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -255,10 +250,10 @@ pub mod units {
                 name: "fluid ounce",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Fluid dram (`[fdr_us]`), a unit of `FluidVolume`: `n` of them is `n · 36966911953125e-19` coherent units.
-    pub type FluidDram = UcumUnit<
+    pub const FLUID_DRAM: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -268,10 +263,10 @@ pub mod units {
                 name: "fluid dram",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Minim (`[min_us]`), a unit of `FluidVolume`: `n` of them is `n · 61611519921875e-21` coherent units.
-    pub type Minim = UcumUnit<
+    pub const MINIM: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -281,10 +276,10 @@ pub mod units {
                 name: "minim",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Cord (`[crd_us]`), a unit of `FluidVolume`: `n` of them is `n · 3624556363776e-12` coherent units.
-    pub type Cord = UcumUnit<
+    pub const CORD: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -294,10 +289,10 @@ pub mod units {
                 name: "cord",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Metric fluid ounce (`[foz_m]`), a unit of `FluidVolume`: `n` of them is `n · 3e-5` coherent units.
-    pub type MetricFluidOunce = UcumUnit<
+    pub const METRIC_FLUID_OUNCE: UcumUnit<
         FLUID_VOLUME,
         {
             UcumUnitConsts {
@@ -307,10 +302,10 @@ pub mod units {
                 name: "metric fluid ounce",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Foot (`[ft_us]`), a unit of `Length`: `n` of them is `n · 12e2 / 3937` coherent units.
-    pub type Foot = UcumUnit<
+    pub const FOOT: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -320,10 +315,10 @@ pub mod units {
                 name: "foot",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Yard (`[yd_us]`), a unit of `Length`: `n` of them is `n · 36e2 / 3937` coherent units.
-    pub type Yard = UcumUnit<
+    pub const YARD: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -333,10 +328,10 @@ pub mod units {
                 name: "yard",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Inch (`[in_us]`), a unit of `Length`: `n` of them is `n · 1e2 / 3937` coherent units.
-    pub type Inch = UcumUnit<
+    pub const INCH: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -346,10 +341,10 @@ pub mod units {
                 name: "inch",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Rod (`[rd_us]`), a unit of `Length`: `n` of them is `n · 198e2 / 3937` coherent units.
-    pub type Rod = UcumUnit<
+    pub const ROD: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -359,10 +354,10 @@ pub mod units {
                 name: "rod",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Surveyor's chain (`[ch_us]`), a unit of `Length`: `n` of them is `n · 792e2 / 3937` coherent units.
-    pub type SurveyorSChain = UcumUnit<
+    pub const SURVEYOR_S_CHAIN: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -372,10 +367,10 @@ pub mod units {
                 name: "Surveyor's chain",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Link for Gunter's chain (`[lk_us]`), a unit of `Length`: `n` of them is `n · 792 / 3937` coherent units.
-    pub type LinkForGunterSChain = UcumUnit<
+    pub const LINK_FOR_GUNTER_S_CHAIN: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -385,10 +380,10 @@ pub mod units {
                 name: "link for Gunter's chain",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Engineer's chain (`[rch_us]`), a unit of `Length`: `n` of them is `n · 12e4 / 3937` coherent units.
-    pub type EngineerSChain = UcumUnit<
+    pub const ENGINEER_S_CHAIN: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -398,10 +393,10 @@ pub mod units {
                 name: "Engineer's chain",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Link for Ramden's chain (`[rlk_us]`), a unit of `Length`: `n` of them is `n · 12e2 / 3937` coherent units.
-    pub type LinkForRamdenSChain = UcumUnit<
+    pub const LINK_FOR_RAMDEN_S_CHAIN: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -411,10 +406,10 @@ pub mod units {
                 name: "link for Ramden's chain",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Fathom (`[fth_us]`), a unit of `Length`: `n` of them is `n · 72e2 / 3937` coherent units.
-    pub type Fathom = UcumUnit<
+    pub const FATHOM: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -424,10 +419,10 @@ pub mod units {
                 name: "fathom",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Furlong (`[fur_us]`), a unit of `Length`: `n` of them is `n · 792e3 / 3937` coherent units.
-    pub type Furlong = UcumUnit<
+    pub const FURLONG: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -437,10 +432,10 @@ pub mod units {
                 name: "furlong",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mile (`[mi_us]`), a unit of `Length`: `n` of them is `n · 6336e3 / 3937` coherent units.
-    pub type Mile = UcumUnit<
+    pub const MILE: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -450,10 +445,10 @@ pub mod units {
                 name: "mile",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mil (`[mil_us]`), a unit of `Length`: `n` of them is `n · 1 / 39370` coherent units.
-    pub type Mil = UcumUnit<
+    pub const MIL: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -463,10 +458,10 @@ pub mod units {
                 name: "mil",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Grain (`[gr]`), a unit of `Mass`: `n` of them is `n · 6479891e-8` coherent units.
-    pub type Grain = UcumUnit<
+    pub const GRAIN: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -476,10 +471,10 @@ pub mod units {
                 name: "grain",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Pound (`[lb_av]`), a unit of `Mass`: `n` of them is `n · 45359237e-5` coherent units.
-    pub type Pound = UcumUnit<
+    pub const POUND: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -489,10 +484,10 @@ pub mod units {
                 name: "pound",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Ounce (`[oz_av]`), a unit of `Mass`: `n` of them is `n · 28349523125e-9` coherent units.
-    pub type Ounce = UcumUnit<
+    pub const OUNCE: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -502,10 +497,10 @@ pub mod units {
                 name: "ounce",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Dram (`[dr_av]`), a unit of `Mass`: `n` of them is `n · 17718451953125e-13` coherent units.
-    pub type Dram = UcumUnit<
+    pub const DRAM: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -515,10 +510,10 @@ pub mod units {
                 name: "dram",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// U.S. hundredweight (`[scwt_av]`), a unit of `Mass`: `n` of them is `n · 45359237e-3` coherent units.
-    pub type USHundredweight = UcumUnit<
+    pub const US_HUNDREDWEIGHT: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -528,10 +523,10 @@ pub mod units {
                 name: "U.S. hundredweight",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// British hundredweight (`[lcwt_av]`), a unit of `Mass`: `n` of them is `n · 5080234544e-5` coherent units.
-    pub type BritishHundredweight = UcumUnit<
+    pub const BRITISH_HUNDREDWEIGHT: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -541,10 +536,10 @@ pub mod units {
                 name: "British hundredweight",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// U.S. ton (`[ston_av]`), a unit of `Mass`: `n` of them is `n · 90718474e-2` coherent units.
-    pub type USTon = UcumUnit<
+    pub const US_TON: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -554,10 +549,10 @@ pub mod units {
                 name: "U.S. ton",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// British ton (`[lton_av]`), a unit of `Mass`: `n` of them is `n · 10160469088e-4` coherent units.
-    pub type BritishTon = UcumUnit<
+    pub const BRITISH_TON: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -567,10 +562,10 @@ pub mod units {
                 name: "British ton",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// British stone (`[stone_av]`), a unit of `Mass`: `n` of them is `n · 635029318e-5` coherent units.
-    pub type BritishStone = UcumUnit<
+    pub const BRITISH_STONE: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -580,10 +575,10 @@ pub mod units {
                 name: "British stone",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Pennyweight (`[pwt_tr]`), a unit of `Mass`: `n` of them is `n · 155517384e-8` coherent units.
-    pub type Pennyweight = UcumUnit<
+    pub const PENNYWEIGHT: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -593,10 +588,10 @@ pub mod units {
                 name: "pennyweight",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Scruple (`[sc_ap]`), a unit of `Mass`: `n` of them is `n · 12959782e-7` coherent units.
-    pub type Scruple = UcumUnit<
+    pub const SCRUPLE: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -606,10 +601,10 @@ pub mod units {
                 name: "scruple",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Drachm (`[dr_ap]`), a unit of `Mass`: `n` of them is `n · 38879346e-7` coherent units.
-    pub type Drachm = UcumUnit<
+    pub const DRACHM: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -619,10 +614,10 @@ pub mod units {
                 name: "drachm",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Metric ounce (`[oz_m]`), a unit of `Mass`: `n` of them is `n · 28` coherent units.
-    pub type MetricOunce = UcumUnit<
+    pub const METRIC_OUNCE: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -632,10 +627,10 @@ pub mod units {
                 name: "metric ounce",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Tablespoon (`[tbs_us]`), a unit of `Volume`: `n` of them is `n · 1478676478125e-17` coherent units.
-    pub type Tablespoon = UcumUnit<
+    pub const TABLESPOON: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -645,10 +640,10 @@ pub mod units {
                 name: "tablespoon",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Teaspoon (`[tsp_us]`), a unit of `Volume`: `n` of them is `n · 492892159375e-17` coherent units.
-    pub type Teaspoon = UcumUnit<
+    pub const TEASPOON: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -658,10 +653,10 @@ pub mod units {
                 name: "teaspoon",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Cup (`[cup_us]`), a unit of `Volume`: `n` of them is `n · 2365882365e-13` coherent units.
-    pub type Cup = UcumUnit<
+    pub const CUP: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -671,10 +666,10 @@ pub mod units {
                 name: "cup",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Metric cup (`[cup_m]`), a unit of `Volume`: `n` of them is `n · 24e-5` coherent units.
-    pub type MetricCup = UcumUnit<
+    pub const METRIC_CUP: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -684,10 +679,10 @@ pub mod units {
                 name: "metric cup",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Metric teaspoon (`[tsp_m]`), a unit of `Volume`: `n` of them is `n · 5e-6` coherent units.
-    pub type MetricTeaspoon = UcumUnit<
+    pub const METRIC_TEASPOON: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -697,10 +692,10 @@ pub mod units {
                 name: "metric teaspoon",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Metric tablespoon (`[tbs_m]`), a unit of `Volume`: `n` of them is `n · 15e-6` coherent units.
-    pub type MetricTablespoon = UcumUnit<
+    pub const METRIC_TABLESPOON: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -710,5 +705,5 @@ pub mod units {
                 name: "metric tablespoon",
             }
         },
-    >;
+    > = UcumUnit;
 }

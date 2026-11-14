@@ -58,10 +58,11 @@
 //!   chosen at run time (`FeetAbove(runway)`), the Beaufort scale's two
 //!   functions. A system with many units can keep each one's definition in
 //!   const parameters and write one impl for all of them, as `yadc-si`'s
-//!   `SIUnit<D, C>` does;
+//!   `SIUnit<D, C>` does: each unit is a constant whose type is its
+//!   definition (`pub const MILE: SIUnit<LENGTH, { .. }> = SIUnit;`);
 //! - **a choice of units** - for a menu, a config file, a parser - is an
-//!   enum of yours with `#[derive(Unit)]`, each variant naming the unit type
-//!   it is.
+//!   enum of yours, each variant naming the unit it is; `dynamickit`'s
+//!   `#[derive(Values)]` writes its `Unit` impl.
 //!
 //! Every unit has [`Unit`]'s two methods, `quantity` (build) and `value`
 //! (read) - which is what generic code (`U: Unit<Q, N>`) and `&dyn Unit<Q,
@@ -102,16 +103,20 @@
 //! let c = Celsius.value(t);                              // 25.0
 //! ```
 //!
-//! `#[derive(Unit)]` on an enum writes [`Unit`] by matching on the variant,
-//! and `Display` / `FromStr` from each unit type's own `Display`:
+//! An enum of units with `dynamickit`'s `#[derive(Values)]` implements the
+//! [`Unit`] it lists by matching on the variant and calling the unit the
+//! variant names, and `Display` / `FromStr` from that unit's own `Display`:
 //!
 //! ```ignore
-//! #[derive(Copy, Clone, yadc::Unit)]
-//! #[unit(of = Temperature, number = f64)]
+//! #[derive(Copy, Clone, dynamickit::Values)]
+//! #[values(delegate(Unit<Temperature, f64> {
+//!     fn quantity(&self, value: f64) -> Temperature;
+//!     fn value(&self, quantity: Temperature) -> f64;
+//! }))]
 //! pub enum TemperatureUnit {
-//!     #[unit(KelvinScale)] Kelvin,
-//!     #[unit(Celsius)] Celsius,
-//!     #[unit(Fahrenheit)] Fahrenheit,
+//!     #[value(KelvinScale)] Kelvin,
+//!     #[value(Celsius)] Celsius,
+//!     #[value(Fahrenheit)] Fahrenheit,
 //! }
 //! let u: TemperatureUnit = "°F".parse()?;
 //! println!("{:.1} {u}", u.value(t));                     // "77.0 °F"
@@ -189,7 +194,6 @@
 //! |---|---|---|
 //! | (root) | `Dimension`, `Label`, `Axis`, `PartialPowi`, `PartialRoot`, `Exponent` / `ParseExponentError`, `Powi` / `PowiAs`, `Root` / `RootAs`, `Cast` / `CastAs` | the generic maths, from the `yadc-math` crate, re-exported |
 //! | [`quantity`] | `Quantity` | a value you can add, scale and measure with |
-//! | [`unit`](mod@unit) | `Unit`, `UnknownUnit` | turning numbers into quantities and points and back; parsing |
 //! | [`display`] | `write_dimension`, `write_quantity` | how the derived `Display` impls print |
 //! | [`gates`] | the refusals | why an operator a family does not have does not compile; the derives' helpers |
 //! | `ucum` | `UcumKind` | the serde add-on, behind the `ucum` Cargo feature |
@@ -211,7 +215,7 @@
 //! | [`Dimension`] | the above operators, `PartialPowi` and `PartialRoot`, plus `DIMENSIONLESS` (dimension one: the empty product, what `x / x` gives); `plain` provided; implemented by `#[derive(Dimension)]` on a struct (a dimension) or on an enum (a label). A reciprocal is `DIMENSIONLESS / d` |
 //! | [`Powi<N>`] / [`Root<N>`] | a power or root with the exponent `N` known at compile time, typed: `Length` squared is an `Area`; called as `x.powi::<N>()` / `x.root::<N>()` with [`PowiAs`] / [`RootAs`] in scope |
 //! | [`Quantity`] | an amount: adds, scales by its `Number`s, compares, and is a unit of itself; by `#[derive(Quantity)]` for every member that can be scaled |
-//! | [`Unit<Q, N>`] | a unit of any `Q` counted in `N`: `quantity(n)` builds, `value(q)` reads; dyn compatible. Quantity values, types of yours with a hand-written impl, and enums of them by `#[derive(Unit)]` |
+//! | [`Unit<Q, N>`] | a unit of any `Q` counted in `N`: `quantity(n)` builds, `value(q)` reads; dyn compatible. Quantity values, types of yours with a hand-written impl, and enums of them (`dynamickit::Values`) |
 //! | [`Cast<T>`] / [`CastAs`] | a change of number type, `x.cast::<f32>()`: primitives by `as`, a family generic over its number type by the derive (which also writes std `From` where the change is lossless: `Pressure::<f64>::from(p32)`) |
 //!
 //! Printing is std `Display`: a unit's (`{}` its symbol, `{:#}` its name) -
@@ -226,9 +230,9 @@
 //! The traits are the whole contract. Nothing generated relies on an
 //! inherent method or a field of some *other* type existing: the quantity
 //! derive reaches dimensions only through [`Dimension`] (the std operators,
-//! [`PartialPowi`], [`PartialRoot`], `DIMENSIONLESS` and `plain`), and a derived unit enum
-//! delegates to the unit types you name in its attributes, through their
-//! `Unit` and `Display` impls. Only the crate that owns a quantity type can
+//! [`PartialPowi`], [`PartialRoot`], `DIMENSIONLESS` and `plain`), and an
+//! enum of units (`dynamickit::Values`) delegates to the units its variants
+//! name, through their `Unit` and `Display` impls. Only the crate that owns a quantity type can
 //! write its field: its base constants, and the unit impls it chooses to
 //! write there; everyone else builds and reads through units.
 //! Anything a derive can produce, you can write by hand, and the two
@@ -257,9 +261,9 @@
 //! | What your crate does | Required at crate root |
 //! |---|---|
 //! | Just uses already-defined aliases (`Mass`, `Force`, ...) | `#![feature(generic_const_exprs)]` |
-//! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity<f64> = MilePerHour {}.quantity(50.0);`) | additionally `const_trait_impl`, `const_ops` |
+//! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity<f64> = MILE_PER_HOUR.quantity(50.0);`) | additionally `const_trait_impl`, `const_ops` |
 //! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and `const_destruct` for a quantity type generic over its number type |
-//! | Defines unit types (`impl const Unit`) or unit enums (`#[derive(Unit)]`) | `const_trait_impl` |
+//! | Defines unit types (`impl const Unit`) | `const_trait_impl` |
 //!
 //! Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs`
 //! warning.
@@ -312,13 +316,13 @@ pub mod unit;
 pub use num_traits;
 
 pub use quantity::Quantity;
-pub use unit::{Unit, UnknownUnit};
+pub use unit::Unit;
 pub use yadc_math::{
-    Axis, Cast, CastAs, Dimension, Exponent, Label, ParseExponentError, PartialPowi, PartialRoot, Powi,
-    PowiAs, Root, RootAs,
+    Axis, Cast, CastAs, Dimension, Exponent, Label, ParseExponentError, PartialPowi, PartialRoot,
+    Powi, PowiAs, Root, RootAs,
 };
 // The `UcumKind` *trait* lives at `yadc::ucum::UcumKind`, so a downstream
 // `pub enum Kind` never collides with anything re-exported here.
-pub use yadc_derive::{Dimension, Quantity, Unit};
+pub use yadc_derive::{Dimension, Quantity};
 #[cfg(feature = "ucum")]
 pub use yadc_derive::{UcumDeserialize, UcumKind, UcumSerialize};

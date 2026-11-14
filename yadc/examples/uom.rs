@@ -11,16 +11,20 @@ use uom::si::f64::{Length, Mass, Velocity};
 use uom::si::length::{kilometer, meter};
 use uom::si::mass::kilogram;
 use uom::si::velocity::meter_per_second;
-use yadc_si::dynamic::mechanical::{MassUnit::Kilogram, VelocityUnit::MetrePerSecond};
-use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::{Prefix, Prefixed, SIQuantity, mechanical};
 use yadc::Unit;
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::dynamic::mechanical::{MassUnit::Kilogram, VelocityUnit::MetrePerSecond};
+use yadc_si::mechanical::MASS;
+use yadc_si::{Prefix, Prefixed, SIQuantity};
 
 fn main() {
     // -- uom -> SIQuantity (From, infallible) -----------------------------
     let uom_dist = Length::new::<kilometer>(42.195);
     let static_dist: SIQuantity<_, f64> = uom_dist.into();
-    let km = Prefixed { prefix: Some(Prefix::Kilo), unit: yadc_si::dynamic::mechanical::LengthUnit::Metre };
+    let km = Prefixed {
+        prefix: Some(Prefix::Kilo),
+        unit: yadc_si::dynamic::mechanical::LengthUnit::Metre,
+    };
     println!(
         "marathon (static, from uom): {} {km}",
         km.value(static_dist)
@@ -34,13 +38,13 @@ fn main() {
 
     // -- uom -> DynamicSIQuantity (From, infallible) ---------------------------
     // Reading a runtime-dimensioned quantity in a unit goes through the static
-    // quantity, checked: `Mass::try_from(d)` is `Err(d)` if the dimension does
+    // quantity, checked: `SIQuantity::<MASS, _>::try_from(d)` is `Err(d)` if the dimension does
     // not match.
     let uom_mass = Mass::new::<kilogram>(70.0);
     let dyn_mass: DynamicSIQuantity = uom_mass.into();
     println!(
         "mass (dynamic, from uom): {:?}",
-        mechanical::Mass::try_from(dyn_mass).map(|m| Kilogram.value(m))
+        SIQuantity::<MASS, _>::try_from(dyn_mass).map(|m| Kilogram.value(m))
     );
 
     // -- DynamicSIQuantity -> uom (TryFrom, runtime dim check) -----------------
@@ -60,7 +64,7 @@ fn main() {
         Ok(_) => println!("unexpected success"),
         Err(recovered) => println!(
             "dim mismatch recovered mass: {:?}",
-            mechanical::Mass::try_from(recovered).map(|m| Kilogram.value(m))
+            SIQuantity::<MASS, _>::try_from(recovered).map(|m| Kilogram.value(m))
         ),
     }
 }

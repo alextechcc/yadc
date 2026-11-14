@@ -960,8 +960,10 @@ fn differentiate(maps: &[Mapping], fields: &[Field], generic_tys: &[Ident]) -> s
     // A `shared` mapping is the same value as exactly one other: it may hold
     // that one's facts, and is told apart from every other.
     for (k, m) in maps.iter().enumerate().filter(|(_, m)| m.shared) {
-        let mine: Vec<&(usize, usize, TokenStream2)> =
-            maybe.iter().filter(|(i, j, _)| *i == k || *j == k).collect();
+        let mine: Vec<&(usize, usize, TokenStream2)> = maybe
+            .iter()
+            .filter(|(i, j, _)| *i == k || *j == k)
+            .collect();
         let with: Vec<String> = coincide
             .iter()
             .filter_map(|&(i, j)| match (i == k, j == k) {

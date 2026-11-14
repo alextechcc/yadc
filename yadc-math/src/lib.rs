@@ -141,7 +141,7 @@ macro_rules! integer_axis {
 }
 integer_axis!(i8, i16, i32, i64, i128, isize);
 
-const impl Axis for Exponent {
+impl const Axis for Exponent {
     fn checked_add(self, rhs: Self) -> Option<Self> {
         self + rhs
     }
@@ -217,14 +217,14 @@ const fn gcd(a: i32, b: i32) -> i32 {
     if a == 0 { 1 } else { a as i32 }
 }
 
-const impl Default for Exponent {
+impl const Default for Exponent {
     fn default() -> Self {
         Exponent::int(0)
     }
 }
 
 /// Exponents add under a dimension's `*`; `None` if the sum doesn't fit.
-const impl Add for Exponent {
+impl const Add for Exponent {
     type Output = Option<Self>;
     fn add(self, rhs: Self) -> Option<Self> {
         let (a, b) = (self, rhs);
@@ -237,7 +237,7 @@ const impl Add for Exponent {
 
 /// Exponents subtract under a dimension's `/`; `None` if the difference
 /// doesn't fit.
-const impl Sub for Exponent {
+impl const Sub for Exponent {
     type Output = Option<Self>;
     fn sub(self, rhs: Self) -> Option<Self> {
         let (a, b) = (self, rhs);
@@ -249,7 +249,7 @@ const impl Sub for Exponent {
 }
 
 /// Every rational exponent has every root that fits: divide by `n`.
-const impl PartialRoot for Exponent {
+impl const PartialRoot for Exponent {
     fn partial_root(self, n: i8) -> Option<Exponent> {
         Exponent::reduced(self.num as i32, self.den as i32 * n as i32)
     }
@@ -317,7 +317,7 @@ pub const trait PowiAs: Sized {
         <Self as Powi<N>>::powi_into(self)
     }
 }
-const impl<X> PowiAs for X {}
+impl<X> const PowiAs for X {}
 
 /// The `N`-th root for a compile-time integer `N`: `Area` -> `Length`.
 ///
@@ -344,7 +344,7 @@ pub const trait RootAs: Sized {
         <Self as Root<N>>::root_into(self)
     }
 }
-const impl<X> RootAs for X {}
+impl<X> const RootAs for X {}
 
 /// A dimension: what a value of a family *is*, and how products and sums of
 /// them combine.
@@ -463,7 +463,7 @@ pub const trait CastAs: Sized {
         <Self as Cast<T>>::cast_into(self)
     }
 }
-const impl<X> CastAs for X {}
+impl<X> const CastAs for X {}
 
 macro_rules! cast_all {
     ($($a:ty),*) => { cast_all!(@each [$($a),*] [$($a),*]); };

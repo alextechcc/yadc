@@ -55,7 +55,11 @@ impl syn::parse::Parse for KindRef {
 /// algebra entry - or `affine` / `log`, the behaviour the variant has, or
 /// `absolute`, the three rules of an amount with a true zero.
 enum KindItem {
-    Rule { op: Op, other: KindRef, result: KindRef },
+    Rule {
+        op: Op,
+        other: KindRef,
+        result: KindRef,
+    },
     Absolute,
     Affine(syn::Ident),
     Log(syn::Ident),
@@ -147,7 +151,11 @@ fn parse_kind(input: &DeriveInput) -> syn::Result<KindModel<'_>> {
                     KindItem::Rule { op, other, result } => rules.push((i, op, other, result)),
                     KindItem::Absolute => absolute.push(i),
                     KindItem::Affine(id) | KindItem::Log(id) => {
-                        let slot = if id == "affine" { &mut affine } else { &mut log };
+                        let slot = if id == "affine" {
+                            &mut affine
+                        } else {
+                            &mut log
+                        };
                         if slot.replace(i).is_some() {
                             return Err(syn::Error::new_spanned(
                                 &id,

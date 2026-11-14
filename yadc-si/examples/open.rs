@@ -1,7 +1,7 @@
 //! The open type: `DynamicSIQuantity` holds a quantity of *any* dimension,
 //! decided at run time - what a calculator, a parser or a config file needs.
 //!
-//! A static quantity (`Pressure`, `Area`, ...) has its dimension in its type,
+//! A static quantity (`SIQuantity<PRESSURE, f64>`, ...) has its dimension in its type,
 //! so the compiler checks every operator. The open type keeps the dimension
 //! in a field instead, and checks at run time: any operator may have no
 //! result (`None`) - a sum of two dimensions, a product with a level, a root
@@ -18,13 +18,14 @@
 #![allow(incomplete_features)]
 
 use yadc::{PartialPowi, PartialRoot, Unit};
+use yadc_si::SIQuantity;
 use yadc_si::dynamic::mechanical::{
     AreaUnit, ForceUnit, GainUnit, LengthUnit, PowerLevelUnit, PressureUnit, TimeUnit, VolumeUnit,
 };
 use yadc_si::dynamic::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
 use yadc_si::dynamic::{DynamicSIQuantity, DynamicSIUnit};
-use yadc_si::mechanical::Pressure;
-use yadc_si::mechanical::units::{Bar, Psi, UnixSecond};
+use yadc_si::mechanical::units::{BAR, PSI, UNIX_SECOND};
+use yadc_si::mechanical::{LENGTH, PRESSURE};
 
 /// Generic over any dynamic version of `T`: in, and back.
 fn round_trip<T, X: From<T>>(t: T) -> Result<T, X>
@@ -35,7 +36,7 @@ where
 }
 
 fn main() {
-    let bar = DynamicSIUnit::from(Bar {});
+    let bar = DynamicSIUnit::from(BAR);
     let square_metre = DynamicSIUnit::from(AreaUnit::SquareMetre);
     let newton = DynamicSIUnit::from(ForceUnit::Newton);
     let p = bar.quantity(Some(1.01325)).unwrap();
@@ -77,7 +78,7 @@ fn main() {
 
     // The way back to a static quantity: std `TryFrom` checks the dimension,
     // and a mismatch hands the value back.
-    let back: Pressure<f64> = p.try_into().unwrap();
+    let back: SIQuantity<PRESSURE, f64> = p.try_into().unwrap();
     println!(
         "back        = {:.3} {}",
         PressureUnit::Pascal.value(back),
@@ -85,10 +86,10 @@ fn main() {
     );
     println!(
         "as a length = {:?}",
-        yadc_si::mechanical::Length::try_from(p).is_ok()
+        SIQuantity::<LENGTH, _>::try_from(p).is_ok()
     );
-    let kept = round_trip::<Pressure<f64>, DynamicSIQuantity>(back);
-    println!("round trip  = {:.3?} psi", kept.map(|q| Psi {}.value(q)));
+    let kept = round_trip::<SIQuantity<PRESSURE, f64>, DynamicSIQuantity>(back);
+    println!("round trip  = {:.3?} psi", kept.map(|q| PSI.value(q)));
 
     // A temperature is an amount kept apart from its differences: it scales
     // and averages as a temperature, and two differ by an interval.
@@ -115,7 +116,7 @@ fn main() {
 
     // An instant is a point: two differ by a time, a time moves one, and it
     // has no sum with another, no products and no scaling.
-    let unix = DynamicSIUnit::from(UnixSecond {});
+    let unix = DynamicSIUnit::from(UNIX_SECOND);
     let hour = DynamicSIUnit::from(TimeUnit::Hour);
     let launch = unix.quantity(Some(1_700_000_000.0)).unwrap();
     let later = (launch + hour.quantity(Some(2.0)).unwrap()).unwrap();

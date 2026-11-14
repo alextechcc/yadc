@@ -1,17 +1,17 @@
-use crate::{Dim, Qty};
+use crate::Dim;
 use yadc::Dimension;
 
-pub type AmountOfSubstance<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
+/// The dimension of `AmountOfSubstance`: `Qty<AMOUNT_OF_SUBSTANCE, N>` is one.
+pub const AMOUNT_OF_SUBSTANCE: Dim = Dim::DIMENSIONLESS;
 
-/// The dimension of `DoseEquivalent`.
+/// The dimension of `DoseEquivalent`: `Qty<DOSE_EQUIVALENT, N>` is one.
 pub const DOSE_EQUIVALENT: Dim = Dim {
     m: 2,
     s: -2,
     ..Dim::DIMENSIONLESS
 };
-pub type DoseEquivalent<N> = Qty<DOSE_EQUIVALENT, N>;
 
-/// The dimension of `ElectricCapacitance`.
+/// The dimension of `ElectricCapacitance`: `Qty<ELECTRIC_CAPACITANCE, N>` is one.
 pub const ELECTRIC_CAPACITANCE: Dim = Dim {
     m: -2,
     s: 2,
@@ -19,16 +19,14 @@ pub const ELECTRIC_CAPACITANCE: Dim = Dim {
     C: 2,
     ..Dim::DIMENSIONLESS
 };
-pub type ElectricCapacitance<N> = Qty<ELECTRIC_CAPACITANCE, N>;
 
-/// The dimension of `ElectricCharge`.
+/// The dimension of `ElectricCharge`: `Qty<ELECTRIC_CHARGE, N>` is one.
 pub const ELECTRIC_CHARGE: Dim = Dim {
     C: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type ElectricCharge<N> = Qty<ELECTRIC_CHARGE, N>;
 
-/// The dimension of `ElectricConductance`.
+/// The dimension of `ElectricConductance`: `Qty<ELECTRIC_CONDUCTANCE, N>` is one.
 pub const ELECTRIC_CONDUCTANCE: Dim = Dim {
     m: -2,
     s: 1,
@@ -36,17 +34,15 @@ pub const ELECTRIC_CONDUCTANCE: Dim = Dim {
     C: 2,
     ..Dim::DIMENSIONLESS
 };
-pub type ElectricConductance<N> = Qty<ELECTRIC_CONDUCTANCE, N>;
 
-/// The dimension of `ElectricCurrent`.
+/// The dimension of `ElectricCurrent`: `Qty<ELECTRIC_CURRENT, N>` is one.
 pub const ELECTRIC_CURRENT: Dim = Dim {
     s: -1,
     C: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type ElectricCurrent<N> = Qty<ELECTRIC_CURRENT, N>;
 
-/// The dimension of `ElectricPotential`.
+/// The dimension of `ElectricPotential`: `Qty<ELECTRIC_POTENTIAL, N>` is one.
 pub const ELECTRIC_POTENTIAL: Dim = Dim {
     m: 2,
     s: -2,
@@ -54,9 +50,8 @@ pub const ELECTRIC_POTENTIAL: Dim = Dim {
     C: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type ElectricPotential<N> = Qty<ELECTRIC_POTENTIAL, N>;
 
-/// The dimension of `ElectricResistance`.
+/// The dimension of `ElectricResistance`: `Qty<ELECTRIC_RESISTANCE, N>` is one.
 pub const ELECTRIC_RESISTANCE: Dim = Dim {
     m: 2,
     s: -1,
@@ -64,82 +59,72 @@ pub const ELECTRIC_RESISTANCE: Dim = Dim {
     C: -2,
     ..Dim::DIMENSIONLESS
 };
-pub type ElectricResistance<N> = Qty<ELECTRIC_RESISTANCE, N>;
 
-/// The dimension of `Energy`.
+/// The dimension of `Energy`: `Qty<ENERGY, N>` is one.
 pub const ENERGY: Dim = Dim {
     m: 2,
     s: -2,
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Energy<N> = Qty<ENERGY, N>;
 
-/// The dimension of `EnergyDose`.
+/// The dimension of `EnergyDose`: `Qty<ENERGY_DOSE, N>` is one.
 pub const ENERGY_DOSE: Dim = Dim {
     m: 2,
     s: -2,
     ..Dim::DIMENSIONLESS
 };
-pub type EnergyDose<N> = Qty<ENERGY_DOSE, N>;
 
-/// The dimension of `Force`.
+/// The dimension of `Force`: `Qty<FORCE, N>` is one.
 pub const FORCE: Dim = Dim {
     m: 1,
     s: -2,
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Force<N> = Qty<FORCE, N>;
 
-/// The dimension of `Frequency`.
+/// The dimension of `Frequency`: `Qty<FREQUENCY, N>` is one.
 pub const FREQUENCY: Dim = Dim {
     s: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type Frequency<N> = Qty<FREQUENCY, N>;
 
-/// The dimension of `Illuminance`.
+/// The dimension of `Illuminance`: `Qty<ILLUMINANCE, N>` is one.
 pub const ILLUMINANCE: Dim = Dim {
     m: -2,
     rad: 2,
     cd: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Illuminance<N> = Qty<ILLUMINANCE, N>;
 
-/// The dimension of `Inductance`.
+/// The dimension of `Inductance`: `Qty<INDUCTANCE, N>` is one.
 pub const INDUCTANCE: Dim = Dim {
     m: 2,
     g: 1,
     C: -2,
     ..Dim::DIMENSIONLESS
 };
-pub type Inductance<N> = Qty<INDUCTANCE, N>;
 
-/// The dimension of `Length`.
+/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
 pub const LENGTH: Dim = Dim {
     m: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Length<N> = Qty<LENGTH, N>;
 
-/// The dimension of `LuminousFlux`.
+/// The dimension of `LuminousFlux`: `Qty<LUMINOUS_FLUX, N>` is one.
 pub const LUMINOUS_FLUX: Dim = Dim {
     rad: 2,
     cd: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type LuminousFlux<N> = Qty<LUMINOUS_FLUX, N>;
 
-/// The dimension of `LuminousIntensity`.
+/// The dimension of `LuminousIntensity`: `Qty<LUMINOUS_INTENSITY, N>` is one.
 pub const LUMINOUS_INTENSITY: Dim = Dim {
     cd: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type LuminousIntensity<N> = Qty<LUMINOUS_INTENSITY, N>;
 
-/// The dimension of `MagneticFlux`.
+/// The dimension of `MagneticFlux`: `Qty<MAGNETIC_FLUX, N>` is one.
 pub const MAGNETIC_FLUX: Dim = Dim {
     m: 2,
     s: -1,
@@ -147,80 +132,71 @@ pub const MAGNETIC_FLUX: Dim = Dim {
     C: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type MagneticFlux<N> = Qty<MAGNETIC_FLUX, N>;
 
-/// The dimension of `MagneticFluxDensity`.
+/// The dimension of `MagneticFluxDensity`: `Qty<MAGNETIC_FLUX_DENSITY, N>` is one.
 pub const MAGNETIC_FLUX_DENSITY: Dim = Dim {
     s: -1,
     g: 1,
     C: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type MagneticFluxDensity<N> = Qty<MAGNETIC_FLUX_DENSITY, N>;
 
-/// The dimension of `Mass`.
+/// The dimension of `Mass`: `Qty<MASS, N>` is one.
 pub const MASS: Dim = Dim {
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Mass<N> = Qty<MASS, N>;
 
-/// The dimension of `PlaneAngle`.
+/// The dimension of `PlaneAngle`: `Qty<PLANE_ANGLE, N>` is one.
 pub const PLANE_ANGLE: Dim = Dim {
     rad: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type PlaneAngle<N> = Qty<PLANE_ANGLE, N>;
 
-/// The dimension of `Power`.
+/// The dimension of `Power`: `Qty<POWER, N>` is one.
 pub const POWER: Dim = Dim {
     m: 2,
     s: -3,
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Power<N> = Qty<POWER, N>;
 
-/// The dimension of `Pressure`.
+/// The dimension of `Pressure`: `Qty<PRESSURE, N>` is one.
 pub const PRESSURE: Dim = Dim {
     m: -1,
     s: -2,
     g: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Pressure<N> = Qty<PRESSURE, N>;
 
-/// The dimension of `Radioactivity`.
+/// The dimension of `Radioactivity`: `Qty<RADIOACTIVITY, N>` is one.
 pub const RADIOACTIVITY: Dim = Dim {
     s: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type Radioactivity<N> = Qty<RADIOACTIVITY, N>;
 
-/// The dimension of `SolidAngle`.
+/// The dimension of `SolidAngle`: `Qty<SOLID_ANGLE, N>` is one.
 pub const SOLID_ANGLE: Dim = Dim {
     rad: 2,
     ..Dim::DIMENSIONLESS
 };
-pub type SolidAngle<N> = Qty<SOLID_ANGLE, N>;
 
-/// The dimension of `Time`.
+/// The dimension of `Time`: `Qty<TIME, N>` is one.
 pub const TIME: Dim = Dim {
     s: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Time<N> = Qty<TIME, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
-    use crate::{Dim, Exact, UcumUnit, UcumUnitConsts};
-    use yadc::Dimension;
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
     /// Mole (`mol`), a unit of `AmountOfSubstance`: `n` of them is `n · 602214076e15` coherent units.
-    pub type Mole = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const MOLE: UcumUnit<
+        AMOUNT_OF_SUBSTANCE,
         {
             UcumUnitConsts {
                 size: Exact::int(602214076000000000000000),
@@ -229,10 +205,10 @@ pub mod units {
                 name: "mole",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Sievert (`Sv`), a unit of `DoseEquivalent`: `n` of them is `n · 1` coherent units.
-    pub type Sievert = UcumUnit<
+    pub const SIEVERT: UcumUnit<
         DOSE_EQUIVALENT,
         {
             UcumUnitConsts {
@@ -242,10 +218,10 @@ pub mod units {
                 name: "sievert",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Farad (`F`), a unit of `ElectricCapacitance`: `n` of them is `n · 1e-3` coherent units.
-    pub type Farad = UcumUnit<
+    pub const FARAD: UcumUnit<
         ELECTRIC_CAPACITANCE,
         {
             UcumUnitConsts {
@@ -255,10 +231,10 @@ pub mod units {
                 name: "farad",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Coulomb (`C`), a unit of `ElectricCharge`: `n` of them is `n · 1` coherent units.
-    pub type Coulomb = UcumUnit<
+    pub const COULOMB: UcumUnit<
         ELECTRIC_CHARGE,
         {
             UcumUnitConsts {
@@ -268,10 +244,10 @@ pub mod units {
                 name: "coulomb",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Siemens (`S`), a unit of `ElectricConductance`: `n` of them is `n · 1e-3` coherent units.
-    pub type Siemens = UcumUnit<
+    pub const SIEMENS: UcumUnit<
         ELECTRIC_CONDUCTANCE,
         {
             UcumUnitConsts {
@@ -281,10 +257,10 @@ pub mod units {
                 name: "siemens",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Ampère (`A`), a unit of `ElectricCurrent`: `n` of them is `n · 1` coherent units.
-    pub type Ampere = UcumUnit<
+    pub const AMPERE: UcumUnit<
         ELECTRIC_CURRENT,
         {
             UcumUnitConsts {
@@ -294,10 +270,10 @@ pub mod units {
                 name: "ampère",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Volt (`V`), a unit of `ElectricPotential`: `n` of them is `n · 1e3` coherent units.
-    pub type Volt = UcumUnit<
+    pub const VOLT: UcumUnit<
         ELECTRIC_POTENTIAL,
         {
             UcumUnitConsts {
@@ -307,10 +283,10 @@ pub mod units {
                 name: "volt",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Ohm (`Ohm`), a unit of `ElectricResistance`: `n` of them is `n · 1e3` coherent units.
-    pub type Ohm = UcumUnit<
+    pub const OHM: UcumUnit<
         ELECTRIC_RESISTANCE,
         {
             UcumUnitConsts {
@@ -320,10 +296,10 @@ pub mod units {
                 name: "ohm",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Joule (`J`), a unit of `Energy`: `n` of them is `n · 1e3` coherent units.
-    pub type Joule = UcumUnit<
+    pub const JOULE: UcumUnit<
         ENERGY,
         {
             UcumUnitConsts {
@@ -333,10 +309,10 @@ pub mod units {
                 name: "joule",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Gray (`Gy`), a unit of `EnergyDose`: `n` of them is `n · 1` coherent units.
-    pub type Gray = UcumUnit<
+    pub const GRAY: UcumUnit<
         ENERGY_DOSE,
         {
             UcumUnitConsts {
@@ -346,10 +322,10 @@ pub mod units {
                 name: "gray",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Newton (`N`), a unit of `Force`: `n` of them is `n · 1e3` coherent units.
-    pub type Newton = UcumUnit<
+    pub const NEWTON: UcumUnit<
         FORCE,
         {
             UcumUnitConsts {
@@ -359,10 +335,10 @@ pub mod units {
                 name: "newton",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Hertz (`Hz`), a unit of `Frequency`: `n` of them is `n · 1` coherent units.
-    pub type Hertz = UcumUnit<
+    pub const HERTZ: UcumUnit<
         FREQUENCY,
         {
             UcumUnitConsts {
@@ -372,10 +348,10 @@ pub mod units {
                 name: "hertz",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Lux (`lx`), a unit of `Illuminance`: `n` of them is `n · 1` coherent units.
-    pub type Lux = UcumUnit<
+    pub const LUX: UcumUnit<
         ILLUMINANCE,
         {
             UcumUnitConsts {
@@ -385,10 +361,10 @@ pub mod units {
                 name: "lux",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Henry (`H`), a unit of `Inductance`: `n` of them is `n · 1e3` coherent units.
-    pub type Henry = UcumUnit<
+    pub const HENRY: UcumUnit<
         INDUCTANCE,
         {
             UcumUnitConsts {
@@ -398,10 +374,10 @@ pub mod units {
                 name: "henry",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Meter (`m`), a unit of `Length`: `n` of them is `n · 1` coherent units.
-    pub type Meter = UcumUnit<
+    pub const METER: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -411,10 +387,10 @@ pub mod units {
                 name: "meter",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Lumen (`lm`), a unit of `LuminousFlux`: `n` of them is `n · 1` coherent units.
-    pub type Lumen = UcumUnit<
+    pub const LUMEN: UcumUnit<
         LUMINOUS_FLUX,
         {
             UcumUnitConsts {
@@ -424,10 +400,10 @@ pub mod units {
                 name: "lumen",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Candela (`cd`), a unit of `LuminousIntensity`: `n` of them is `n · 1` coherent units.
-    pub type Candela = UcumUnit<
+    pub const CANDELA: UcumUnit<
         LUMINOUS_INTENSITY,
         {
             UcumUnitConsts {
@@ -437,10 +413,10 @@ pub mod units {
                 name: "candela",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Weber (`Wb`), a unit of `MagneticFlux`: `n` of them is `n · 1e3` coherent units.
-    pub type Weber = UcumUnit<
+    pub const WEBER: UcumUnit<
         MAGNETIC_FLUX,
         {
             UcumUnitConsts {
@@ -450,10 +426,10 @@ pub mod units {
                 name: "weber",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Tesla (`T`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e3` coherent units.
-    pub type Tesla = UcumUnit<
+    pub const TESLA: UcumUnit<
         MAGNETIC_FLUX_DENSITY,
         {
             UcumUnitConsts {
@@ -463,10 +439,10 @@ pub mod units {
                 name: "tesla",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Gram (`g`), a unit of `Mass`: `n` of them is `n · 1` coherent units.
-    pub type Gram = UcumUnit<
+    pub const GRAM: UcumUnit<
         MASS,
         {
             UcumUnitConsts {
@@ -476,10 +452,10 @@ pub mod units {
                 name: "gram",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Radian (`rad`), a unit of `PlaneAngle`: `n` of them is `n · 1` coherent units.
-    pub type Radian = UcumUnit<
+    pub const RADIAN: UcumUnit<
         PLANE_ANGLE,
         {
             UcumUnitConsts {
@@ -489,10 +465,10 @@ pub mod units {
                 name: "radian",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Watt (`W`), a unit of `Power`: `n` of them is `n · 1e3` coherent units.
-    pub type Watt = UcumUnit<
+    pub const WATT: UcumUnit<
         POWER,
         {
             UcumUnitConsts {
@@ -502,10 +478,10 @@ pub mod units {
                 name: "watt",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Pascal (`Pa`), a unit of `Pressure`: `n` of them is `n · 1e3` coherent units.
-    pub type Pascal = UcumUnit<
+    pub const PASCAL: UcumUnit<
         PRESSURE,
         {
             UcumUnitConsts {
@@ -515,10 +491,10 @@ pub mod units {
                 name: "pascal",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Becquerel (`Bq`), a unit of `Radioactivity`: `n` of them is `n · 1` coherent units.
-    pub type Becquerel = UcumUnit<
+    pub const BECQUEREL: UcumUnit<
         RADIOACTIVITY,
         {
             UcumUnitConsts {
@@ -528,10 +504,10 @@ pub mod units {
                 name: "becquerel",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Steradian (`sr`), a unit of `SolidAngle`: `n` of them is `n · 1` coherent units.
-    pub type Steradian = UcumUnit<
+    pub const STERADIAN: UcumUnit<
         SOLID_ANGLE,
         {
             UcumUnitConsts {
@@ -541,10 +517,10 @@ pub mod units {
                 name: "steradian",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Second (`s`), a unit of `Time`: `n` of them is `n · 1` coherent units.
-    pub type Second = UcumUnit<
+    pub const SECOND: UcumUnit<
         TIME,
         {
             UcumUnitConsts {
@@ -554,5 +530,5 @@ pub mod units {
                 name: "second",
             }
         },
-    >;
+    > = UcumUnit;
 }

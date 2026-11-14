@@ -1,405 +1,313 @@
 //! The units of `fluid`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dynamic::DynamicSIUnit;
 use crate::fluid::units::*;
 use crate::fluid::*;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `DynamicViscosity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DynamicViscosity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<DYNAMIC_VISCOSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<DYNAMIC_VISCOSITY, N>;
+        fn value(&self, quantity: SIQuantity<DYNAMIC_VISCOSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum DynamicViscosityUnit {
     #[default]
-    #[unit(PascalSecond)]
+    #[value(PASCAL_SECOND)]
     PascalSecond,
-    #[unit(Poise)]
+    #[value(POISE)]
     Poise,
-    #[unit(PoundPerFootSecond)]
+    #[value(POUND_PER_FOOT_SECOND)]
     PoundPerFootSecond,
-    #[unit(SlugPerFootSecond)]
+    #[value(SLUG_PER_FOOT_SECOND)]
     SlugPerFootSecond,
-    #[unit(GramPerCentimetreSecond)]
+    #[value(GRAM_PER_CENTIMETRE_SECOND)]
     GramPerCentimetreSecond,
-}
-
-impl From<DynamicViscosityUnit> for DynamicSIUnit {
-    fn from(unit: DynamicViscosityUnit) -> Self {
-        match unit {
-            DynamicViscosityUnit::PascalSecond => PascalSecond {}.into(),
-            DynamicViscosityUnit::Poise => Poise {}.into(),
-            DynamicViscosityUnit::PoundPerFootSecond => PoundPerFootSecond {}.into(),
-            DynamicViscosityUnit::SlugPerFootSecond => SlugPerFootSecond {}.into(),
-            DynamicViscosityUnit::GramPerCentimetreSecond => GramPerCentimetreSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `KinematicViscosity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = KinematicViscosity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<KINEMATIC_VISCOSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<KINEMATIC_VISCOSITY, N>;
+        fn value(&self, quantity: SIQuantity<KINEMATIC_VISCOSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum KinematicViscosityUnit {
     #[default]
-    #[unit(KinematicViscositySquareMetrePerSecond)]
+    #[value(KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND)]
     SquareMetrePerSecond,
-    #[unit(KinematicViscosityStokes)]
+    #[value(KINEMATIC_VISCOSITY_STOKES)]
     Stokes,
-}
-
-impl From<KinematicViscosityUnit> for DynamicSIUnit {
-    fn from(unit: KinematicViscosityUnit) -> Self {
-        match unit {
-            KinematicViscosityUnit::SquareMetrePerSecond => {
-                KinematicViscositySquareMetrePerSecond {}.into()
-            }
-            KinematicViscosityUnit::Stokes => KinematicViscosityStokes {}.into(),
-        }
-    }
 }
 
 /// The units of `SurfaceTension`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SurfaceTension<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<SURFACE_TENSION, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<SURFACE_TENSION, N>;
+        fn value(&self, quantity: SIQuantity<SURFACE_TENSION, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum SurfaceTensionUnit {
     #[default]
-    #[unit(NewtonPerMetre)]
+    #[value(NEWTON_PER_METRE)]
     NewtonPerMetre,
-    #[unit(KilogramForcePerMetre)]
+    #[value(KILOGRAM_FORCE_PER_METRE)]
     KilogramForcePerMetre,
-    #[unit(OunceForcePerInch)]
+    #[value(OUNCE_FORCE_PER_INCH)]
     OunceForcePerInch,
-    #[unit(PoundalPerInch)]
+    #[value(POUNDAL_PER_INCH)]
     PoundalPerInch,
-    #[unit(PoundForcePerInch)]
+    #[value(POUND_FORCE_PER_INCH)]
     PoundForcePerInch,
-    #[unit(JoulePerSquareMetre)]
+    #[value(JOULE_PER_SQUARE_METRE)]
     JoulePerSquareMetre,
-}
-
-impl From<SurfaceTensionUnit> for DynamicSIUnit {
-    fn from(unit: SurfaceTensionUnit) -> Self {
-        match unit {
-            SurfaceTensionUnit::NewtonPerMetre => NewtonPerMetre {}.into(),
-            SurfaceTensionUnit::KilogramForcePerMetre => KilogramForcePerMetre {}.into(),
-            SurfaceTensionUnit::OunceForcePerInch => OunceForcePerInch {}.into(),
-            SurfaceTensionUnit::PoundalPerInch => PoundalPerInch {}.into(),
-            SurfaceTensionUnit::PoundForcePerInch => PoundForcePerInch {}.into(),
-            SurfaceTensionUnit::JoulePerSquareMetre => JoulePerSquareMetre {}.into(),
-        }
-    }
 }
 
 /// The units of `CompressibilityCoefficient`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CompressibilityCoefficient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<COMPRESSIBILITY_COEFFICIENT, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<COMPRESSIBILITY_COEFFICIENT, N>;
+        fn value(&self, quantity: SIQuantity<COMPRESSIBILITY_COEFFICIENT, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum CompressibilityCoefficientUnit {
     #[default]
-    #[unit(PerPascal)]
+    #[value(PER_PASCAL)]
     PerPascal,
-    #[unit(PerAtmosphere)]
+    #[value(PER_ATMOSPHERE)]
     PerAtmosphere,
-    #[unit(PerAtmosphereTechnical)]
+    #[value(PER_ATMOSPHERE_TECHNICAL)]
     PerAtmosphereTechnical,
-    #[unit(PerBar)]
+    #[value(PER_BAR)]
     PerBar,
-}
-
-impl From<CompressibilityCoefficientUnit> for DynamicSIUnit {
-    fn from(unit: CompressibilityCoefficientUnit) -> Self {
-        match unit {
-            CompressibilityCoefficientUnit::PerPascal => PerPascal {}.into(),
-            CompressibilityCoefficientUnit::PerAtmosphere => PerAtmosphere {}.into(),
-            CompressibilityCoefficientUnit::PerAtmosphereTechnical => {
-                PerAtmosphereTechnical {}.into()
-            }
-            CompressibilityCoefficientUnit::PerBar => PerBar {}.into(),
-        }
-    }
 }
 
 /// The units of `MassRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MASS_RATE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MASS_RATE, N>;
+        fn value(&self, quantity: SIQuantity<MASS_RATE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MassRateUnit {
     #[default]
-    #[unit(KilogramPerSecond)]
+    #[value(KILOGRAM_PER_SECOND)]
     KilogramPerSecond,
-    #[unit(GramPerSecond)]
+    #[value(GRAM_PER_SECOND)]
     GramPerSecond,
-    #[unit(GramPerMinute)]
+    #[value(GRAM_PER_MINUTE)]
     GramPerMinute,
-    #[unit(GramPerHour)]
+    #[value(GRAM_PER_HOUR)]
     GramPerHour,
-    #[unit(GramPerDay)]
+    #[value(GRAM_PER_DAY)]
     GramPerDay,
-    #[unit(CaratPerSecond)]
+    #[value(CARAT_PER_SECOND)]
     CaratPerSecond,
-    #[unit(GrainPerSecond)]
+    #[value(GRAIN_PER_SECOND)]
     GrainPerSecond,
-    #[unit(HundredweightLongPerSecond)]
+    #[value(HUNDREDWEIGHT_LONG_PER_SECOND)]
     HundredweightLongPerSecond,
-    #[unit(HundredweightShortPerSecond)]
+    #[value(HUNDREDWEIGHT_SHORT_PER_SECOND)]
     HundredweightShortPerSecond,
-    #[unit(OuncePerSecond)]
+    #[value(OUNCE_PER_SECOND)]
     OuncePerSecond,
-    #[unit(OunceTroyPerSecond)]
+    #[value(OUNCE_TROY_PER_SECOND)]
     OunceTroyPerSecond,
-    #[unit(PennyweightPerSecond)]
+    #[value(PENNYWEIGHT_PER_SECOND)]
     PennyweightPerSecond,
-    #[unit(PoundPerSecond)]
+    #[value(POUND_PER_SECOND)]
     PoundPerSecond,
-    #[unit(PoundPerMinute)]
+    #[value(POUND_PER_MINUTE)]
     PoundPerMinute,
-    #[unit(PoundPerHour)]
+    #[value(POUND_PER_HOUR)]
     PoundPerHour,
-    #[unit(PoundPerDay)]
+    #[value(POUND_PER_DAY)]
     PoundPerDay,
-    #[unit(PoundTroyPerSecond)]
+    #[value(POUND_TROY_PER_SECOND)]
     PoundTroyPerSecond,
-    #[unit(SlugPerSecond)]
+    #[value(SLUG_PER_SECOND)]
     SlugPerSecond,
-    #[unit(TonAssayPerSecond)]
+    #[value(TON_ASSAY_PER_SECOND)]
     TonAssayPerSecond,
-    #[unit(TonLongPerSecond)]
+    #[value(TON_LONG_PER_SECOND)]
     TonLongPerSecond,
-    #[unit(TonShortPerSecond)]
+    #[value(TON_SHORT_PER_SECOND)]
     TonShortPerSecond,
-    #[unit(TonShortPerHour)]
+    #[value(TON_SHORT_PER_HOUR)]
     TonShortPerHour,
-    #[unit(TonPerSecond)]
+    #[value(TON_PER_SECOND)]
     TonPerSecond,
-    #[unit(TonPerMinute)]
+    #[value(TON_PER_MINUTE)]
     TonPerMinute,
-    #[unit(TonPerHour)]
+    #[value(TON_PER_HOUR)]
     TonPerHour,
-    #[unit(TonPerDay)]
+    #[value(TON_PER_DAY)]
     TonPerDay,
-}
-
-impl From<MassRateUnit> for DynamicSIUnit {
-    fn from(unit: MassRateUnit) -> Self {
-        match unit {
-            MassRateUnit::KilogramPerSecond => KilogramPerSecond {}.into(),
-            MassRateUnit::GramPerSecond => GramPerSecond {}.into(),
-            MassRateUnit::GramPerMinute => GramPerMinute {}.into(),
-            MassRateUnit::GramPerHour => GramPerHour {}.into(),
-            MassRateUnit::GramPerDay => GramPerDay {}.into(),
-            MassRateUnit::CaratPerSecond => CaratPerSecond {}.into(),
-            MassRateUnit::GrainPerSecond => GrainPerSecond {}.into(),
-            MassRateUnit::HundredweightLongPerSecond => HundredweightLongPerSecond {}.into(),
-            MassRateUnit::HundredweightShortPerSecond => HundredweightShortPerSecond {}.into(),
-            MassRateUnit::OuncePerSecond => OuncePerSecond {}.into(),
-            MassRateUnit::OunceTroyPerSecond => OunceTroyPerSecond {}.into(),
-            MassRateUnit::PennyweightPerSecond => PennyweightPerSecond {}.into(),
-            MassRateUnit::PoundPerSecond => PoundPerSecond {}.into(),
-            MassRateUnit::PoundPerMinute => PoundPerMinute {}.into(),
-            MassRateUnit::PoundPerHour => PoundPerHour {}.into(),
-            MassRateUnit::PoundPerDay => PoundPerDay {}.into(),
-            MassRateUnit::PoundTroyPerSecond => PoundTroyPerSecond {}.into(),
-            MassRateUnit::SlugPerSecond => SlugPerSecond {}.into(),
-            MassRateUnit::TonAssayPerSecond => TonAssayPerSecond {}.into(),
-            MassRateUnit::TonLongPerSecond => TonLongPerSecond {}.into(),
-            MassRateUnit::TonShortPerSecond => TonShortPerSecond {}.into(),
-            MassRateUnit::TonShortPerHour => TonShortPerHour {}.into(),
-            MassRateUnit::TonPerSecond => TonPerSecond {}.into(),
-            MassRateUnit::TonPerMinute => TonPerMinute {}.into(),
-            MassRateUnit::TonPerHour => TonPerHour {}.into(),
-            MassRateUnit::TonPerDay => TonPerDay {}.into(),
-        }
-    }
 }
 
 /// The units of `VolumeRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumeRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<VOLUME_RATE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<VOLUME_RATE, N>;
+        fn value(&self, quantity: SIQuantity<VOLUME_RATE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumeRateUnit {
     #[default]
-    #[unit(CubicMetrePerSecond)]
+    #[value(CUBIC_METRE_PER_SECOND)]
     CubicMetrePerSecond,
-    #[unit(CubicMetrePerMinute)]
+    #[value(CUBIC_METRE_PER_MINUTE)]
     CubicMetrePerMinute,
-    #[unit(CubicMetrePerHour)]
+    #[value(CUBIC_METRE_PER_HOUR)]
     CubicMetrePerHour,
-    #[unit(LitrePerSecond)]
+    #[value(LITRE_PER_SECOND)]
     LitrePerSecond,
-    #[unit(LitrePerMinute)]
+    #[value(LITRE_PER_MINUTE)]
     LitrePerMinute,
-    #[unit(AcreFootPerSecond)]
+    #[value(ACRE_FOOT_PER_SECOND)]
     AcreFootPerSecond,
-    #[unit(BarrelPerSecond)]
+    #[value(BARREL_PER_SECOND)]
     BarrelPerSecond,
-    #[unit(BushelPerSecond)]
+    #[value(BUSHEL_PER_SECOND)]
     BushelPerSecond,
-    #[unit(CordPerSecond)]
+    #[value(CORD_PER_SECOND)]
     CordPerSecond,
-    #[unit(CubicFootPerSecond)]
+    #[value(CUBIC_FOOT_PER_SECOND)]
     CubicFootPerSecond,
-    #[unit(CubicFootPerMinute)]
+    #[value(CUBIC_FOOT_PER_MINUTE)]
     CubicFootPerMinute,
-    #[unit(CubicInchPerSecond)]
+    #[value(CUBIC_INCH_PER_SECOND)]
     CubicInchPerSecond,
-    #[unit(CubicInchPerMinute)]
+    #[value(CUBIC_INCH_PER_MINUTE)]
     CubicInchPerMinute,
-    #[unit(CubicMilePerSecond)]
+    #[value(CUBIC_MILE_PER_SECOND)]
     CubicMilePerSecond,
-    #[unit(CubicYardPerSecond)]
+    #[value(CUBIC_YARD_PER_SECOND)]
     CubicYardPerSecond,
-    #[unit(CubicYardPerMinute)]
+    #[value(CUBIC_YARD_PER_MINUTE)]
     CubicYardPerMinute,
-    #[unit(CupPerSecond)]
+    #[value(CUP_PER_SECOND)]
     CupPerSecond,
-    #[unit(FluidOuncePerSecond)]
+    #[value(FLUID_OUNCE_PER_SECOND)]
     FluidOuncePerSecond,
-    #[unit(FluidOunceImperialPerSecond)]
+    #[value(FLUID_OUNCE_IMPERIAL_PER_SECOND)]
     FluidOunceImperialPerSecond,
-    #[unit(GallonImperialPerSecond)]
+    #[value(GALLON_IMPERIAL_PER_SECOND)]
     GallonImperialPerSecond,
-    #[unit(GallonPerSecond)]
+    #[value(GALLON_PER_SECOND)]
     GallonPerSecond,
-    #[unit(GallonPerMinute)]
+    #[value(GALLON_PER_MINUTE)]
     GallonPerMinute,
-    #[unit(GallonPerDay)]
+    #[value(GALLON_PER_DAY)]
     GallonPerDay,
-    #[unit(GillImperialPerSecond)]
+    #[value(GILL_IMPERIAL_PER_SECOND)]
     GillImperialPerSecond,
-    #[unit(GillPerSecond)]
+    #[value(GILL_PER_SECOND)]
     GillPerSecond,
-    #[unit(PeckPerSecond)]
+    #[value(PECK_PER_SECOND)]
     PeckPerSecond,
-    #[unit(PintDryPerSecond)]
+    #[value(PINT_DRY_PER_SECOND)]
     PintDryPerSecond,
-    #[unit(PintLiquidPerSecond)]
+    #[value(PINT_LIQUID_PER_SECOND)]
     PintLiquidPerSecond,
-    #[unit(QuartDryPerSecond)]
+    #[value(QUART_DRY_PER_SECOND)]
     QuartDryPerSecond,
-    #[unit(QuartLiquidPerSecond)]
+    #[value(QUART_LIQUID_PER_SECOND)]
     QuartLiquidPerSecond,
-    #[unit(SterePerSecond)]
+    #[value(STERE_PER_SECOND)]
     SterePerSecond,
-    #[unit(TablespoonPerSecond)]
+    #[value(TABLESPOON_PER_SECOND)]
     TablespoonPerSecond,
-    #[unit(TeaspoonPerSecond)]
+    #[value(TEASPOON_PER_SECOND)]
     TeaspoonPerSecond,
-    #[unit(RegisterTonPerSecond)]
+    #[value(REGISTER_TON_PER_SECOND)]
     RegisterTonPerSecond,
-}
-
-impl From<VolumeRateUnit> for DynamicSIUnit {
-    fn from(unit: VolumeRateUnit) -> Self {
-        match unit {
-            VolumeRateUnit::CubicMetrePerSecond => CubicMetrePerSecond {}.into(),
-            VolumeRateUnit::CubicMetrePerMinute => CubicMetrePerMinute {}.into(),
-            VolumeRateUnit::CubicMetrePerHour => CubicMetrePerHour {}.into(),
-            VolumeRateUnit::LitrePerSecond => LitrePerSecond {}.into(),
-            VolumeRateUnit::LitrePerMinute => LitrePerMinute {}.into(),
-            VolumeRateUnit::AcreFootPerSecond => AcreFootPerSecond {}.into(),
-            VolumeRateUnit::BarrelPerSecond => BarrelPerSecond {}.into(),
-            VolumeRateUnit::BushelPerSecond => BushelPerSecond {}.into(),
-            VolumeRateUnit::CordPerSecond => CordPerSecond {}.into(),
-            VolumeRateUnit::CubicFootPerSecond => CubicFootPerSecond {}.into(),
-            VolumeRateUnit::CubicFootPerMinute => CubicFootPerMinute {}.into(),
-            VolumeRateUnit::CubicInchPerSecond => CubicInchPerSecond {}.into(),
-            VolumeRateUnit::CubicInchPerMinute => CubicInchPerMinute {}.into(),
-            VolumeRateUnit::CubicMilePerSecond => CubicMilePerSecond {}.into(),
-            VolumeRateUnit::CubicYardPerSecond => CubicYardPerSecond {}.into(),
-            VolumeRateUnit::CubicYardPerMinute => CubicYardPerMinute {}.into(),
-            VolumeRateUnit::CupPerSecond => CupPerSecond {}.into(),
-            VolumeRateUnit::FluidOuncePerSecond => FluidOuncePerSecond {}.into(),
-            VolumeRateUnit::FluidOunceImperialPerSecond => FluidOunceImperialPerSecond {}.into(),
-            VolumeRateUnit::GallonImperialPerSecond => GallonImperialPerSecond {}.into(),
-            VolumeRateUnit::GallonPerSecond => GallonPerSecond {}.into(),
-            VolumeRateUnit::GallonPerMinute => GallonPerMinute {}.into(),
-            VolumeRateUnit::GallonPerDay => GallonPerDay {}.into(),
-            VolumeRateUnit::GillImperialPerSecond => GillImperialPerSecond {}.into(),
-            VolumeRateUnit::GillPerSecond => GillPerSecond {}.into(),
-            VolumeRateUnit::PeckPerSecond => PeckPerSecond {}.into(),
-            VolumeRateUnit::PintDryPerSecond => PintDryPerSecond {}.into(),
-            VolumeRateUnit::PintLiquidPerSecond => PintLiquidPerSecond {}.into(),
-            VolumeRateUnit::QuartDryPerSecond => QuartDryPerSecond {}.into(),
-            VolumeRateUnit::QuartLiquidPerSecond => QuartLiquidPerSecond {}.into(),
-            VolumeRateUnit::SterePerSecond => SterePerSecond {}.into(),
-            VolumeRateUnit::TablespoonPerSecond => TablespoonPerSecond {}.into(),
-            VolumeRateUnit::TeaspoonPerSecond => TeaspoonPerSecond {}.into(),
-            VolumeRateUnit::RegisterTonPerSecond => RegisterTonPerSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `MassFlux`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassFlux<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MASS_FLUX, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MASS_FLUX, N>;
+        fn value(&self, quantity: SIQuantity<MASS_FLUX, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MassFluxUnit {
     #[default]
-    #[unit(KilogramPerSquareMetreSecond)]
+    #[value(KILOGRAM_PER_SQUARE_METRE_SECOND)]
     KilogramPerSquareMetreSecond,
-}
-
-impl From<MassFluxUnit> for DynamicSIUnit {
-    fn from(unit: MassFluxUnit) -> Self {
-        match unit {
-            MassFluxUnit::KilogramPerSquareMetreSecond => KilogramPerSquareMetreSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `MassPerEnergy`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassPerEnergy<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MASS_PER_ENERGY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MASS_PER_ENERGY, N>;
+        fn value(&self, quantity: SIQuantity<MASS_PER_ENERGY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MassPerEnergyUnit {
     #[default]
-    #[unit(KilogramPerJoule)]
+    #[value(KILOGRAM_PER_JOULE)]
     KilogramPerJoule,
-    #[unit(GramPerJoule)]
+    #[value(GRAM_PER_JOULE)]
     GramPerJoule,
-    #[unit(PoundPerJoule)]
+    #[value(POUND_PER_JOULE)]
     PoundPerJoule,
-    #[unit(PoundPerWattHour)]
+    #[value(POUND_PER_WATT_HOUR)]
     PoundPerWattHour,
-    #[unit(GramPerWattHour)]
+    #[value(GRAM_PER_WATT_HOUR)]
     GramPerWattHour,
-}
-
-impl From<MassPerEnergyUnit> for DynamicSIUnit {
-    fn from(unit: MassPerEnergyUnit) -> Self {
-        match unit {
-            MassPerEnergyUnit::KilogramPerJoule => KilogramPerJoule {}.into(),
-            MassPerEnergyUnit::GramPerJoule => GramPerJoule {}.into(),
-            MassPerEnergyUnit::PoundPerJoule => PoundPerJoule {}.into(),
-            MassPerEnergyUnit::PoundPerWattHour => PoundPerWattHour {}.into(),
-            MassPerEnergyUnit::GramPerWattHour => GramPerWattHour {}.into(),
-        }
-    }
 }
 
 /// The units of `DiffusionCoefficient`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DiffusionCoefficient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<DIFFUSION_COEFFICIENT, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<DIFFUSION_COEFFICIENT, N>;
+        fn value(&self, quantity: SIQuantity<DIFFUSION_COEFFICIENT, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum DiffusionCoefficientUnit {
     #[default]
-    #[unit(DiffusionCoefficientSquareMetrePerSecond)]
+    #[value(DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND)]
     SquareMetrePerSecond,
-    #[unit(DiffusionCoefficientStokes)]
+    #[value(DIFFUSION_COEFFICIENT_STOKES)]
     Stokes,
-}
-
-impl From<DiffusionCoefficientUnit> for DynamicSIUnit {
-    fn from(unit: DiffusionCoefficientUnit) -> Self {
-        match unit {
-            DiffusionCoefficientUnit::SquareMetrePerSecond => {
-                DiffusionCoefficientSquareMetrePerSecond {}.into()
-            }
-            DiffusionCoefficientUnit::Stokes => DiffusionCoefficientStokes {}.into(),
-        }
-    }
 }

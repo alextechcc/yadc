@@ -1,153 +1,134 @@
 //! The units of `intcust`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dynamic::DynamicUcumUnit;
 use crate::intcust::units::*;
 use crate::intcust::*;
-use core::marker::Destruct;
+use crate::{Exact, Qty, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `Area`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Area<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<AREA, N>, N> {
+        fn quantity(&self, value: N) -> Qty<AREA, N>;
+        fn value(&self, quantity: Qty<AREA, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AreaUnit {
     #[default]
-    #[unit(SquareInch)]
+    #[value(SQUARE_INCH)]
     SquareInch,
-    #[unit(SquareFoot)]
+    #[value(SQUARE_FOOT)]
     SquareFoot,
-    #[unit(SquareYard)]
+    #[value(SQUARE_YARD)]
     SquareYard,
-    #[unit(CircularMil)]
+    #[value(CIRCULAR_MIL)]
     CircularMil,
-}
-
-impl From<AreaUnit> for DynamicUcumUnit {
-    fn from(unit: AreaUnit) -> Self {
-        match unit {
-            AreaUnit::SquareInch => SquareInch {}.into(),
-            AreaUnit::SquareFoot => SquareFoot {}.into(),
-            AreaUnit::SquareYard => SquareYard {}.into(),
-            AreaUnit::CircularMil => CircularMil {}.into(),
-        }
-    }
 }
 
 /// The units of `DepthOfWater`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DepthOfWater<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<DEPTH_OF_WATER, N>, N> {
+        fn quantity(&self, value: N) -> Qty<DEPTH_OF_WATER, N>;
+        fn value(&self, quantity: Qty<DEPTH_OF_WATER, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum DepthOfWaterUnit {
     #[default]
-    #[unit(Fathom)]
+    #[value(FATHOM)]
     Fathom,
-}
-
-impl From<DepthOfWaterUnit> for DynamicUcumUnit {
-    fn from(unit: DepthOfWaterUnit) -> Self {
-        match unit {
-            DepthOfWaterUnit::Fathom => Fathom {}.into(),
-        }
-    }
 }
 
 /// The units of `HeightOfHorses`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeightOfHorses<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<HEIGHT_OF_HORSES, N>, N> {
+        fn quantity(&self, value: N) -> Qty<HEIGHT_OF_HORSES, N>;
+        fn value(&self, quantity: Qty<HEIGHT_OF_HORSES, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum HeightOfHorsesUnit {
     #[default]
-    #[unit(Hand)]
+    #[value(HAND)]
     Hand,
-}
-
-impl From<HeightOfHorsesUnit> for DynamicUcumUnit {
-    fn from(unit: HeightOfHorsesUnit) -> Self {
-        match unit {
-            HeightOfHorsesUnit::Hand => Hand {}.into(),
-        }
-    }
 }
 
 /// The units of `Length`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Length<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<LENGTH, N>, N> {
+        fn quantity(&self, value: N) -> Qty<LENGTH, N>;
+        fn value(&self, quantity: Qty<LENGTH, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LengthUnit {
     #[default]
-    #[unit(Inch)]
+    #[value(INCH)]
     Inch,
-    #[unit(Foot)]
+    #[value(FOOT)]
     Foot,
-    #[unit(Yard)]
+    #[value(YARD)]
     Yard,
-    #[unit(Mile)]
+    #[value(MILE)]
     Mile,
-    #[unit(NauticalMile)]
+    #[value(NAUTICAL_MILE)]
     NauticalMile,
-    #[unit(Mil)]
+    #[value(MIL)]
     Mil,
-}
-
-impl From<LengthUnit> for DynamicUcumUnit {
-    fn from(unit: LengthUnit) -> Self {
-        match unit {
-            LengthUnit::Inch => Inch {}.into(),
-            LengthUnit::Foot => Foot {}.into(),
-            LengthUnit::Yard => Yard {}.into(),
-            LengthUnit::Mile => Mile {}.into(),
-            LengthUnit::NauticalMile => NauticalMile {}.into(),
-            LengthUnit::Mil => Mil {}.into(),
-        }
-    }
 }
 
 /// The units of `Velocity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Velocity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<VELOCITY, N>, N> {
+        fn quantity(&self, value: N) -> Qty<VELOCITY, N>;
+        fn value(&self, quantity: Qty<VELOCITY, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VelocityUnit {
     #[default]
-    #[unit(Knot)]
+    #[value(KNOT)]
     Knot,
-}
-
-impl From<VelocityUnit> for DynamicUcumUnit {
-    fn from(unit: VelocityUnit) -> Self {
-        match unit {
-            VelocityUnit::Knot => Knot {}.into(),
-        }
-    }
 }
 
 /// The units of `Volume`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Volume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<VOLUME, N>, N> {
+        fn quantity(&self, value: N) -> Qty<VOLUME, N>;
+        fn value(&self, quantity: Qty<VOLUME, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumeUnit {
     #[default]
-    #[unit(CubicInch)]
+    #[value(CUBIC_INCH)]
     CubicInch,
-    #[unit(CubicFoot)]
+    #[value(CUBIC_FOOT)]
     CubicFoot,
-    #[unit(CubicYard)]
+    #[value(CUBIC_YARD)]
     CubicYard,
-    #[unit(BoardFoot)]
+    #[value(BOARD_FOOT)]
     BoardFoot,
-    #[unit(Cord)]
+    #[value(CORD)]
     Cord,
-}
-
-impl From<VolumeUnit> for DynamicUcumUnit {
-    fn from(unit: VolumeUnit) -> Self {
-        match unit {
-            VolumeUnit::CubicInch => CubicInch {}.into(),
-            VolumeUnit::CubicFoot => CubicFoot {}.into(),
-            VolumeUnit::CubicYard => CubicYard {}.into(),
-            VolumeUnit::BoardFoot => BoardFoot {}.into(),
-            VolumeUnit::Cord => Cord {}.into(),
-        }
-    }
 }

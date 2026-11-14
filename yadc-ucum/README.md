@@ -8,27 +8,28 @@ unit system: generated from the official `ucum-essence.xml` by
   per UCUM base unit: `m`, `s`, `g`, `rad`, `K`, `C` (the coulomb) and `cd`.
   The mole is a number, as UCUM defines it (6.02214076 × 10²³), and an
   ampere is a coulomb per second.
-- **Every unit is a type, its value exact.** A unit is a `UcumUnit<D, C>`,
-  its definition `C` a `UcumUnitConsts` - the XML's value read exactly as
-  the unit's size in coherent units, a zero, its code and its name:
-  `intcust::units::Inch` is 0.0254 m (`Exact::dec(254, -4)`), the US survey
-  inch `us::units::Inch` 100/3937 m. It counts in any number type the exact
-  size converts to: `Inch {}.quantity(3.0_f64)` builds, `Inch {}.value(d)`
-  reads.
+- **Every unit is a constant, its value exact.** A unit is a constant of a
+  `UcumUnit<D, C>`, its type carrying its dimension and its definition `C`, a
+  `UcumUnitConsts` - the XML's value read exactly as the unit's size in
+  coherent units, a zero, its code and its name: `intcust::units::INCH` is
+  0.0254 m (`Exact::dec(254, -4)`), the US survey inch `us::units::INCH`
+  100/3937 m. It counts in any number type the exact size converts to:
+  `INCH.quantity(3.0_f64)` builds, `INCH.value(d)` reads.
 - **Units are UCUM codes.** A unit prints its case-sensitive UCUM code
   (`[in_i]`, `Cel`), `{:#}` its name; each quantity's unit enum prints and
-  parses them (`"[in_i]".parse::<LengthUnit>()`) and counts in any number
-  type (`LengthUnit::Inch.quantity(3.0_f64)`).
+  parses them (`"[in_i]".parse::<LengthUnit>()`, made with `dynamickit`'s
+  `#[derive(Values)]`) and counts in any number type
+  (`LengthUnit::Inch.quantity(3.0_f64)`).
 - **One module per UCUM class**, each a Cargo feature: `si`, `heat`,
   `iso1000`, `intcust`, `cgs`, `infotech`, `us`, `british`, `clinical`,
-  `constants`, `misc`. A family module (`intcust`) holds its quantity
-  aliases and its `units`; its unit enums are in the dynamic half, beside
+  `constants`, `misc`. A family module (`intcust`) holds its quantities'
+  dimension constants (a quantity is `Qty<LENGTH, f64>`) and its `units`; its unit enums are in the dynamic half, beside
   the dynamic quantity `DynQty` and the dynamic unit `DynamicUcumUnit` -
   what is chosen at run time, a dimension or a unit:
   `yadc_ucum::dynamic::intcust::LengthUnit`. Special units (logarithms, pH)
   and arbitrary ones (international units) are left out; Celsius and
-  Fahrenheit are units with a zero (`heat::units::Celsius`, `Fahrenheit`;
-  `KelvinScale` beside them).
+  Fahrenheit are units with a zero (`heat::units::CELSIUS`, `FAHRENHEIT`;
+  `KELVIN_SCALE` beside them).
 
 ## Updating
 

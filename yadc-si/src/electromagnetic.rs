@@ -1,65 +1,58 @@
-use crate::{ISQ, SIQuantity};
+use crate::ISQ;
 use yadc::Dimension;
 
-/// The dimension of `ElectricCharge`.
+/// The dimension of `ElectricCharge`: `SIQuantity<ELECTRIC_CHARGE, N>` is one.
 pub const ELECTRIC_CHARGE: ISQ = ISQ {
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricCharge<N> = SIQuantity<ELECTRIC_CHARGE, N>;
 
-/// The dimension of `ElectricChargeArealDensity`.
+/// The dimension of `ElectricChargeArealDensity`: `SIQuantity<ELECTRIC_CHARGE_AREAL_DENSITY, N>` is one.
 pub const ELECTRIC_CHARGE_AREAL_DENSITY: ISQ = ISQ {
     m: -2,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricChargeArealDensity<N> = SIQuantity<ELECTRIC_CHARGE_AREAL_DENSITY, N>;
 
-/// The dimension of `ElectricChargeLinearDensity`.
+/// The dimension of `ElectricChargeLinearDensity`: `SIQuantity<ELECTRIC_CHARGE_LINEAR_DENSITY, N>` is one.
 pub const ELECTRIC_CHARGE_LINEAR_DENSITY: ISQ = ISQ {
     m: -1,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricChargeLinearDensity<N> = SIQuantity<ELECTRIC_CHARGE_LINEAR_DENSITY, N>;
 
-/// The dimension of `ElectricChargeVolumetricDensity`.
+/// The dimension of `ElectricChargeVolumetricDensity`: `SIQuantity<ELECTRIC_CHARGE_VOLUMETRIC_DENSITY, N>` is one.
 pub const ELECTRIC_CHARGE_VOLUMETRIC_DENSITY: ISQ = ISQ {
     m: -3,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricChargeVolumetricDensity<N> = SIQuantity<ELECTRIC_CHARGE_VOLUMETRIC_DENSITY, N>;
 
-/// The dimension of `ElectricCurrent`.
+/// The dimension of `ElectricCurrent`: `SIQuantity<ELECTRIC_CURRENT, N>` is one.
 pub const ELECTRIC_CURRENT: ISQ = ISQ {
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricCurrent<N> = SIQuantity<ELECTRIC_CURRENT, N>;
 
-/// The dimension of `ElectricCurrentDensity`.
+/// The dimension of `ElectricCurrentDensity`: `SIQuantity<ELECTRIC_CURRENT_DENSITY, N>` is one.
 pub const ELECTRIC_CURRENT_DENSITY: ISQ = ISQ {
     m: -2,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricCurrentDensity<N> = SIQuantity<ELECTRIC_CURRENT_DENSITY, N>;
 
-/// The dimension of `SurfaceElectricCurrentDensity`.
+/// The dimension of `SurfaceElectricCurrentDensity`: `SIQuantity<SURFACE_ELECTRIC_CURRENT_DENSITY, N>` is one.
 pub const SURFACE_ELECTRIC_CURRENT_DENSITY: ISQ = ISQ {
     m: -1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type SurfaceElectricCurrentDensity<N> = SIQuantity<SURFACE_ELECTRIC_CURRENT_DENSITY, N>;
 
-/// The dimension of `ElectricPotential`.
+/// The dimension of `ElectricPotential`: `SIQuantity<ELECTRIC_POTENTIAL, N>` is one.
 pub const ELECTRIC_POTENTIAL: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -67,9 +60,8 @@ pub const ELECTRIC_POTENTIAL: ISQ = ISQ {
     A: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricPotential<N> = SIQuantity<ELECTRIC_POTENTIAL, N>;
 
-/// The dimension of `ElectricField`.
+/// The dimension of `ElectricField`: `SIQuantity<ELECTRIC_FIELD, N>` is one.
 pub const ELECTRIC_FIELD: ISQ = ISQ {
     m: 1,
     kg: 1,
@@ -77,18 +69,16 @@ pub const ELECTRIC_FIELD: ISQ = ISQ {
     A: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricField<N> = SIQuantity<ELECTRIC_FIELD, N>;
 
-/// The dimension of `ElectricDisplacementField`.
+/// The dimension of `ElectricDisplacementField`: `SIQuantity<ELECTRIC_DISPLACEMENT_FIELD, N>` is one.
 pub const ELECTRIC_DISPLACEMENT_FIELD: ISQ = ISQ {
     m: -2,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricDisplacementField<N> = SIQuantity<ELECTRIC_DISPLACEMENT_FIELD, N>;
 
-/// The dimension of `ElectricFlux`.
+/// The dimension of `ElectricFlux`: `SIQuantity<ELECTRIC_FLUX, N>` is one.
 pub const ELECTRIC_FLUX: ISQ = ISQ {
     m: 3,
     kg: 1,
@@ -96,27 +86,24 @@ pub const ELECTRIC_FLUX: ISQ = ISQ {
     A: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricFlux<N> = SIQuantity<ELECTRIC_FLUX, N>;
 
-/// The dimension of `ElectricDipoleMoment`.
+/// The dimension of `ElectricDipoleMoment`: `SIQuantity<ELECTRIC_DIPOLE_MOMENT, N>` is one.
 pub const ELECTRIC_DIPOLE_MOMENT: ISQ = ISQ {
     m: 1,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricDipoleMoment<N> = SIQuantity<ELECTRIC_DIPOLE_MOMENT, N>;
 
-/// The dimension of `ElectricQuadrupoleMoment`.
+/// The dimension of `ElectricQuadrupoleMoment`: `SIQuantity<ELECTRIC_QUADRUPOLE_MOMENT, N>` is one.
 pub const ELECTRIC_QUADRUPOLE_MOMENT: ISQ = ISQ {
     m: 2,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricQuadrupoleMoment<N> = SIQuantity<ELECTRIC_QUADRUPOLE_MOMENT, N>;
 
-/// The dimension of `ElectricPermittivity`.
+/// The dimension of `ElectricPermittivity`: `SIQuantity<ELECTRIC_PERMITTIVITY, N>` is one.
 pub const ELECTRIC_PERMITTIVITY: ISQ = ISQ {
     m: -3,
     kg: -1,
@@ -124,9 +111,8 @@ pub const ELECTRIC_PERMITTIVITY: ISQ = ISQ {
     A: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricPermittivity<N> = SIQuantity<ELECTRIC_PERMITTIVITY, N>;
 
-/// The dimension of `ElectricalConductance`.
+/// The dimension of `ElectricalConductance`: `SIQuantity<ELECTRICAL_CONDUCTANCE, N>` is one.
 pub const ELECTRICAL_CONDUCTANCE: ISQ = ISQ {
     m: -2,
     kg: -1,
@@ -134,9 +120,8 @@ pub const ELECTRICAL_CONDUCTANCE: ISQ = ISQ {
     A: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricalConductance<N> = SIQuantity<ELECTRICAL_CONDUCTANCE, N>;
 
-/// The dimension of `ElectricalConductivity`.
+/// The dimension of `ElectricalConductivity`: `SIQuantity<ELECTRICAL_CONDUCTIVITY, N>` is one.
 pub const ELECTRICAL_CONDUCTIVITY: ISQ = ISQ {
     m: -3,
     kg: -1,
@@ -144,18 +129,16 @@ pub const ELECTRICAL_CONDUCTIVITY: ISQ = ISQ {
     A: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricalConductivity<N> = SIQuantity<ELECTRICAL_CONDUCTIVITY, N>;
 
-/// The dimension of `ElectricalMobility`.
+/// The dimension of `ElectricalMobility`: `SIQuantity<ELECTRICAL_MOBILITY, N>` is one.
 pub const ELECTRICAL_MOBILITY: ISQ = ISQ {
     kg: -1,
     s: 2,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricalMobility<N> = SIQuantity<ELECTRICAL_MOBILITY, N>;
 
-/// The dimension of `ElectricalResistance`.
+/// The dimension of `ElectricalResistance`: `SIQuantity<ELECTRICAL_RESISTANCE, N>` is one.
 pub const ELECTRICAL_RESISTANCE: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -163,9 +146,8 @@ pub const ELECTRICAL_RESISTANCE: ISQ = ISQ {
     A: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricalResistance<N> = SIQuantity<ELECTRICAL_RESISTANCE, N>;
 
-/// The dimension of `ElectricalResistivity`.
+/// The dimension of `ElectricalResistivity`: `SIQuantity<ELECTRICAL_RESISTIVITY, N>` is one.
 pub const ELECTRICAL_RESISTIVITY: ISQ = ISQ {
     m: 3,
     kg: 1,
@@ -173,9 +155,8 @@ pub const ELECTRICAL_RESISTIVITY: ISQ = ISQ {
     A: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type ElectricalResistivity<N> = SIQuantity<ELECTRICAL_RESISTIVITY, N>;
 
-/// The dimension of `Capacitance`.
+/// The dimension of `Capacitance`: `SIQuantity<CAPACITANCE, N>` is one.
 pub const CAPACITANCE: ISQ = ISQ {
     m: -2,
     kg: -1,
@@ -183,9 +164,8 @@ pub const CAPACITANCE: ISQ = ISQ {
     A: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Capacitance<N> = SIQuantity<CAPACITANCE, N>;
 
-/// The dimension of `Inductance`.
+/// The dimension of `Inductance`: `SIQuantity<INDUCTANCE, N>` is one.
 pub const INDUCTANCE: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -193,17 +173,15 @@ pub const INDUCTANCE: ISQ = ISQ {
     A: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type Inductance<N> = SIQuantity<INDUCTANCE, N>;
 
-/// The dimension of `MagneticFieldStrength`.
+/// The dimension of `MagneticFieldStrength`: `SIQuantity<MAGNETIC_FIELD_STRENGTH, N>` is one.
 pub const MAGNETIC_FIELD_STRENGTH: ISQ = ISQ {
     m: -1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MagneticFieldStrength<N> = SIQuantity<MAGNETIC_FIELD_STRENGTH, N>;
 
-/// The dimension of `MagneticFlux`.
+/// The dimension of `MagneticFlux`: `SIQuantity<MAGNETIC_FLUX, N>` is one.
 pub const MAGNETIC_FLUX: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -211,26 +189,23 @@ pub const MAGNETIC_FLUX: ISQ = ISQ {
     A: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MagneticFlux<N> = SIQuantity<MAGNETIC_FLUX, N>;
 
-/// The dimension of `MagneticFluxDensity`.
+/// The dimension of `MagneticFluxDensity`: `SIQuantity<MAGNETIC_FLUX_DENSITY, N>` is one.
 pub const MAGNETIC_FLUX_DENSITY: ISQ = ISQ {
     kg: 1,
     s: -2,
     A: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MagneticFluxDensity<N> = SIQuantity<MAGNETIC_FLUX_DENSITY, N>;
 
-/// The dimension of `MagneticMoment`.
+/// The dimension of `MagneticMoment`: `SIQuantity<MAGNETIC_MOMENT, N>` is one.
 pub const MAGNETIC_MOMENT: ISQ = ISQ {
     m: 2,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MagneticMoment<N> = SIQuantity<MAGNETIC_MOMENT, N>;
 
-/// The dimension of `MagneticPermeability`.
+/// The dimension of `MagneticPermeability`: `SIQuantity<MAGNETIC_PERMEABILITY, N>` is one.
 pub const MAGNETIC_PERMEABILITY: ISQ = ISQ {
     m: 1,
     kg: 1,
@@ -238,9 +213,8 @@ pub const MAGNETIC_PERMEABILITY: ISQ = ISQ {
     A: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type MagneticPermeability<N> = SIQuantity<MAGNETIC_PERMEABILITY, N>;
 
-/// The dimension of `GyromagneticRatio`.
+/// The dimension of `GyromagneticRatio`: `SIQuantity<GYROMAGNETIC_RATIO, N>` is one.
 pub const GYROMAGNETIC_RATIO: ISQ = ISQ {
     kg: -1,
     s: 1,
@@ -248,25 +222,24 @@ pub const GYROMAGNETIC_RATIO: ISQ = ISQ {
     rad: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type GyromagneticRatio<N> = SIQuantity<GYROMAGNETIC_RATIO, N>;
 
-/// The dimension of `ReducedGyromagneticRatio`.
+/// The dimension of `ReducedGyromagneticRatio`: `SIQuantity<REDUCED_GYROMAGNETIC_RATIO, N>` is one.
 pub const REDUCED_GYROMAGNETIC_RATIO: ISQ = ISQ {
     kg: -1,
     s: 1,
     A: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ReducedGyromagneticRatio<N> = SIQuantity<REDUCED_GYROMAGNETIC_RATIO, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Coulombs (`C`), a unit of `ElectricCharge`: `n` of them is `n · 1.0` coherent units.
-    pub type Coulomb = SIUnit<
+    pub const COULOMB: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -276,10 +249,10 @@ pub mod units {
                 name: "coulombs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ampere hours (`A · h`), a unit of `ElectricCharge`: `n` of them is `n · 3600.0` coherent units.
-    pub type AmpereHour = SIUnit<
+    pub const AMPERE_HOUR: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -289,10 +262,10 @@ pub mod units {
                 name: "ampere hours",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Elementary charges (`e`), a unit of `ElectricCharge`: `n` of them is `n · 1.602176634e-19` coherent units.
-    pub type ElementaryCharge = SIUnit<
+    pub const ELEMENTARY_CHARGE: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -302,10 +275,10 @@ pub mod units {
                 name: "elementary charges",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of charge (`a.u. of charge`), a unit of `ElectricCharge`: `n` of them is `n · 1.602176634e-19` coherent units.
-    pub type AtomicUnitOfCharge = SIUnit<
+    pub const ATOMIC_UNIT_OF_CHARGE: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -315,10 +288,10 @@ pub mod units {
                 name: "atomic units of charge",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abcoulombs (`abC`), a unit of `ElectricCharge`: `n` of them is `n · 10.0` coherent units.
-    pub type Abcoulomb = SIUnit<
+    pub const ABCOULOMB: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -328,10 +301,10 @@ pub mod units {
                 name: "abcoulombs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Faradays (`F`), a unit of `ElectricCharge`: `n` of them is `n · 1.602176634e-19 * 6.02214076e23` coherent units.
-    pub type Faraday = SIUnit<
+    pub const FARADAY: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -341,10 +314,10 @@ pub mod units {
                 name: "faradays",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Franklins (`Fr`), a unit of `ElectricCharge`: `n` of them is `n · 1.0 / 2997924580.0` coherent units.
-    pub type Franklin = SIUnit<
+    pub const FRANKLIN: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -354,10 +327,10 @@ pub mod units {
                 name: "franklins",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statcoulombs (`statC`), a unit of `ElectricCharge`: `n` of them is `n · 1.0 / 2997924580.0` coherent units.
-    pub type Statcoulomb = SIUnit<
+    pub const STATCOULOMB: SIUnit<
         ELECTRIC_CHARGE,
         {
             SIUnitConsts {
@@ -367,10 +340,10 @@ pub mod units {
                 name: "statcoulombs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Coulombs per square metre (`C/m²`), a unit of `ElectricChargeArealDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type ElectricChargeArealDensityCoulombPerSquareMetre = SIUnit<
+    pub const ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE: SIUnit<
         ELECTRIC_CHARGE_AREAL_DENSITY,
         {
             SIUnitConsts {
@@ -380,10 +353,10 @@ pub mod units {
                 name: "coulombs per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Coulombs per metre (`C/m`), a unit of `ElectricChargeLinearDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type CoulombPerMetre = SIUnit<
+    pub const COULOMB_PER_METRE: SIUnit<
         ELECTRIC_CHARGE_LINEAR_DENSITY,
         {
             SIUnitConsts {
@@ -393,10 +366,10 @@ pub mod units {
                 name: "coulombs per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Coulombs per cubic metre (`C/m³`), a unit of `ElectricChargeVolumetricDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type CoulombPerCubicMetre = SIUnit<
+    pub const COULOMB_PER_CUBIC_METRE: SIUnit<
         ELECTRIC_CHARGE_VOLUMETRIC_DENSITY,
         {
             SIUnitConsts {
@@ -406,10 +379,10 @@ pub mod units {
                 name: "coulombs per cubic metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Amperes (`A`), a unit of `ElectricCurrent`: `n` of them is `n · 1.0` coherent units.
-    pub type Ampere = SIUnit<
+    pub const AMPERE: SIUnit<
         ELECTRIC_CURRENT,
         {
             SIUnitConsts {
@@ -419,10 +392,10 @@ pub mod units {
                 name: "amperes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Elementary charges per second (`e/s`), a unit of `ElectricCurrent`: `n` of them is `n · 1.602176634e-19` coherent units.
-    pub type ElementaryChargePerSecond = SIUnit<
+    pub const ELEMENTARY_CHARGE_PER_SECOND: SIUnit<
         ELECTRIC_CURRENT,
         {
             SIUnitConsts {
@@ -432,10 +405,10 @@ pub mod units {
                 name: "elementary charges per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of charge per second (`a.u. of charge/s`), a unit of `ElectricCurrent`: `n` of them is `n · 1.602176634e-19` coherent units.
-    pub type AtomicUnitOfChargePerSecond = SIUnit<
+    pub const ATOMIC_UNIT_OF_CHARGE_PER_SECOND: SIUnit<
         ELECTRIC_CURRENT,
         {
             SIUnitConsts {
@@ -445,10 +418,10 @@ pub mod units {
                 name: "atomic units of charge per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abamperes (`abA`), a unit of `ElectricCurrent`: `n` of them is `n · 10.0` coherent units.
-    pub type Abampere = SIUnit<
+    pub const ABAMPERE: SIUnit<
         ELECTRIC_CURRENT,
         {
             SIUnitConsts {
@@ -458,10 +431,10 @@ pub mod units {
                 name: "abamperes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gilberts (`Gi`), a unit of `ElectricCurrent`: `n` of them is `n · 10.0 / (4.0 * core::f64::consts::PI)` coherent units.
-    pub type Gilbert = SIUnit<
+    pub const GILBERT: SIUnit<
         ELECTRIC_CURRENT,
         {
             SIUnitConsts {
@@ -471,10 +444,10 @@ pub mod units {
                 name: "gilberts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statamperes (`statA`), a unit of `ElectricCurrent`: `n` of them is `n · 1.0 / 2997924580.0` coherent units.
-    pub type Statampere = SIUnit<
+    pub const STATAMPERE: SIUnit<
         ELECTRIC_CURRENT,
         {
             SIUnitConsts {
@@ -484,10 +457,10 @@ pub mod units {
                 name: "statamperes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Amperes per square metre (`A/m²`), a unit of `ElectricCurrentDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type AmperePerSquareMetre = SIUnit<
+    pub const AMPERE_PER_SQUARE_METRE: SIUnit<
         ELECTRIC_CURRENT_DENSITY,
         {
             SIUnitConsts {
@@ -497,10 +470,10 @@ pub mod units {
                 name: "amperes per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Amperes per metre (`A/m`), a unit of `SurfaceElectricCurrentDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type SurfaceElectricCurrentDensityAmperePerMetre = SIUnit<
+    pub const SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE: SIUnit<
         SURFACE_ELECTRIC_CURRENT_DENSITY,
         {
             SIUnitConsts {
@@ -510,10 +483,10 @@ pub mod units {
                 name: "amperes per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Volts (`V`), a unit of `ElectricPotential`: `n` of them is `n · 1.0` coherent units.
-    pub type Volt = SIUnit<
+    pub const VOLT: SIUnit<
         ELECTRIC_POTENTIAL,
         {
             SIUnitConsts {
@@ -523,10 +496,10 @@ pub mod units {
                 name: "volts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abvolts (`abV`), a unit of `ElectricPotential`: `n` of them is `n · 1e-08` coherent units.
-    pub type Abvolt = SIUnit<
+    pub const ABVOLT: SIUnit<
         ELECTRIC_POTENTIAL,
         {
             SIUnitConsts {
@@ -536,10 +509,10 @@ pub mod units {
                 name: "abvolts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statvolts (`statV`), a unit of `ElectricPotential`: `n` of them is `n · 299.792458` coherent units.
-    pub type Statvolt = SIUnit<
+    pub const STATVOLT: SIUnit<
         ELECTRIC_POTENTIAL,
         {
             SIUnitConsts {
@@ -549,10 +522,10 @@ pub mod units {
                 name: "statvolts",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Volts per metre (`V/m`), a unit of `ElectricField`: `n` of them is `n · 1.0` coherent units.
-    pub type VoltPerMetre = SIUnit<
+    pub const VOLT_PER_METRE: SIUnit<
         ELECTRIC_FIELD,
         {
             SIUnitConsts {
@@ -562,10 +535,10 @@ pub mod units {
                 name: "volts per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Volts per mil (`V/mil`), a unit of `ElectricField`: `n` of them is `n · 1.0 / 2.54e-5` coherent units.
-    pub type VoltPerMil = SIUnit<
+    pub const VOLT_PER_MIL: SIUnit<
         ELECTRIC_FIELD,
         {
             SIUnitConsts {
@@ -575,10 +548,10 @@ pub mod units {
                 name: "volts per mil",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of electric field (`a.u. of electric field`), a unit of `ElectricField`: `n` of them is `n · 4.3597447222071e-18 / (1.602176634e-19 * 5.29177210903e-11)` coherent units.
-    pub type AtomicUnitOfElectricField = SIUnit<
+    pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD: SIUnit<
         ELECTRIC_FIELD,
         {
             SIUnitConsts {
@@ -589,10 +562,10 @@ pub mod units {
                 name: "atomic units of electric field",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Coulombs per square metre (`C/m²`), a unit of `ElectricDisplacementField`: `n` of them is `n · 1.0` coherent units.
-    pub type ElectricDisplacementFieldCoulombPerSquareMetre = SIUnit<
+    pub const ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE: SIUnit<
         ELECTRIC_DISPLACEMENT_FIELD,
         {
             SIUnitConsts {
@@ -602,10 +575,10 @@ pub mod units {
                 name: "coulombs per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Volt metres (`V ⋅ m`), a unit of `ElectricFlux`: `n` of them is `n · 1.0` coherent units.
-    pub type VoltMetre = SIUnit<
+    pub const VOLT_METRE: SIUnit<
         ELECTRIC_FLUX,
         {
             SIUnitConsts {
@@ -615,10 +588,10 @@ pub mod units {
                 name: "volt metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Coulomb metres (`C · m`), a unit of `ElectricDipoleMoment`: `n` of them is `n · 1.0` coherent units.
-    pub type CoulombMetre = SIUnit<
+    pub const COULOMB_METRE: SIUnit<
         ELECTRIC_DIPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -628,10 +601,10 @@ pub mod units {
                 name: "coulomb metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of electric dipole moment (`e · a₀`), a unit of `ElectricDipoleMoment`: `n` of them is `n · 1.602176634e-19 * 5.29177210903e-11` coherent units.
-    pub type AtomicUnitOfElectricDipoleMoment = SIUnit<
+    pub const ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT: SIUnit<
         ELECTRIC_DIPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -641,10 +614,10 @@ pub mod units {
                 name: "atomic units of electric dipole moment",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic unit of charge centimetres (`a.u. of charge · cm`), a unit of `ElectricDipoleMoment`: `n` of them is `n · 1.602176634e-19 * 0.01` coherent units.
-    pub type AtomicUnitOfChargeCentimetre = SIUnit<
+    pub const ATOMIC_UNIT_OF_CHARGE_CENTIMETRE: SIUnit<
         ELECTRIC_DIPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -654,10 +627,10 @@ pub mod units {
                 name: "atomic unit of charge centimetres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Elementary charge centimetres (`e · cm`), a unit of `ElectricDipoleMoment`: `n` of them is `n · 1.602176634e-19 * 0.01` coherent units.
-    pub type ElementaryChargeCentimetre = SIUnit<
+    pub const ELEMENTARY_CHARGE_CENTIMETRE: SIUnit<
         ELECTRIC_DIPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -667,10 +640,10 @@ pub mod units {
                 name: "elementary charge centimetres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Coulomb square metres (`C · m²`), a unit of `ElectricQuadrupoleMoment`: `n` of them is `n · 1.0` coherent units.
-    pub type CoulombSquareMetre = SIUnit<
+    pub const COULOMB_SQUARE_METRE: SIUnit<
         ELECTRIC_QUADRUPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -680,10 +653,10 @@ pub mod units {
                 name: "coulomb square metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Elementary charge barns (`e · b`), a unit of `ElectricQuadrupoleMoment`: `n` of them is `n · 1.602176634e-19 * 1e-28` coherent units.
-    pub type ElementaryChargeBarn = SIUnit<
+    pub const ELEMENTARY_CHARGE_BARN: SIUnit<
         ELECTRIC_QUADRUPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -693,10 +666,10 @@ pub mod units {
                 name: "elementary charge barns",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Atomic units of electric quadrupole moment (`e · a₀²`), a unit of `ElectricQuadrupoleMoment`: `n` of them is `n · 1.602176634e-19 * 5.29177210903e-11 * 5.29177210903e-11` coherent units.
-    pub type AtomicUnitOfElectricQuadrupoleMoment = SIUnit<
+    pub const ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT: SIUnit<
         ELECTRIC_QUADRUPOLE_MOMENT,
         {
             SIUnitConsts {
@@ -708,10 +681,10 @@ pub mod units {
                 name: "atomic units of electric quadrupole moment",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Farads per metre (`F/m`), a unit of `ElectricPermittivity`: `n` of them is `n · 1.0` coherent units.
-    pub type FaradPerMetre = SIUnit<
+    pub const FARAD_PER_METRE: SIUnit<
         ELECTRIC_PERMITTIVITY,
         {
             SIUnitConsts {
@@ -721,10 +694,10 @@ pub mod units {
                 name: "farads per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Vacuum electric permittivity (`ε₀`), a unit of `ElectricPermittivity`: `n` of them is `n · 8.8541878128e-12` coherent units.
-    pub type VacuumPermittivity = SIUnit<
+    pub const VACUUM_PERMITTIVITY: SIUnit<
         ELECTRIC_PERMITTIVITY,
         {
             SIUnitConsts {
@@ -734,10 +707,10 @@ pub mod units {
                 name: "vacuum electric permittivity",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Siemens (`S`), a unit of `ElectricalConductance`: `n` of them is `n · 1.0` coherent units.
-    pub type Siemens = SIUnit<
+    pub const SIEMENS: SIUnit<
         ELECTRICAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -747,10 +720,10 @@ pub mod units {
                 name: "siemens",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Mhos (`℧`), a unit of `ElectricalConductance`: `n` of them is `n · 1.0` coherent units.
-    pub type Mho = SIUnit<
+    pub const MHO: SIUnit<
         ELECTRICAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -760,10 +733,10 @@ pub mod units {
                 name: "mhos",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abmhos (`abmho`), a unit of `ElectricalConductance`: `n` of them is `n · 1000000000.0` coherent units.
-    pub type Abmho = SIUnit<
+    pub const ABMHO: SIUnit<
         ELECTRICAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -773,10 +746,10 @@ pub mod units {
                 name: "abmhos",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abmsiemens (`abS`), a unit of `ElectricalConductance`: `n` of them is `n · 1000000000.0` coherent units.
-    pub type Absiemens = SIUnit<
+    pub const ABSIEMENS: SIUnit<
         ELECTRICAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -786,10 +759,10 @@ pub mod units {
                 name: "abmsiemens",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statsiemens (`statS`), a unit of `ElectricalConductance`: `n` of them is `n · 1.0 / (299.792458 * 2997924580.0)` coherent units.
-    pub type Statsiemens = SIUnit<
+    pub const STATSIEMENS: SIUnit<
         ELECTRICAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -799,10 +772,10 @@ pub mod units {
                 name: "statsiemens",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statmhos (`statmho`), a unit of `ElectricalConductance`: `n` of them is `n · 1.0 / (299.792458 * 2997924580.0)` coherent units.
-    pub type Statmho = SIUnit<
+    pub const STATMHO: SIUnit<
         ELECTRICAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -812,10 +785,10 @@ pub mod units {
                 name: "statmhos",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Siemens per metre (`S/m`), a unit of `ElectricalConductivity`: `n` of them is `n · 1.0` coherent units.
-    pub type SiemensPerMetre = SIUnit<
+    pub const SIEMENS_PER_METRE: SIUnit<
         ELECTRICAL_CONDUCTIVITY,
         {
             SIUnitConsts {
@@ -825,10 +798,10 @@ pub mod units {
                 name: "siemens per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per volt second (`m²/(V · s)`), a unit of `ElectricalMobility`: `n` of them is `n · 1.0` coherent units.
-    pub type SquareMetrePerVoltSecond = SIUnit<
+    pub const SQUARE_METRE_PER_VOLT_SECOND: SIUnit<
         ELECTRICAL_MOBILITY,
         {
             SIUnitConsts {
@@ -838,10 +811,10 @@ pub mod units {
                 name: "square metres per volt second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ohms (`Ω`), a unit of `ElectricalResistance`: `n` of them is `n · 1.0` coherent units.
-    pub type Ohm = SIUnit<
+    pub const OHM: SIUnit<
         ELECTRICAL_RESISTANCE,
         {
             SIUnitConsts {
@@ -851,10 +824,10 @@ pub mod units {
                 name: "ohms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abohms (`abΩ`), a unit of `ElectricalResistance`: `n` of them is `n · 1e-09` coherent units.
-    pub type Abohm = SIUnit<
+    pub const ABOHM: SIUnit<
         ELECTRICAL_RESISTANCE,
         {
             SIUnitConsts {
@@ -864,10 +837,10 @@ pub mod units {
                 name: "abohms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statohms (`statΩ`), a unit of `ElectricalResistance`: `n` of them is `n · 299.792458 * 2997924580.0` coherent units.
-    pub type Statohm = SIUnit<
+    pub const STATOHM: SIUnit<
         ELECTRICAL_RESISTANCE,
         {
             SIUnitConsts {
@@ -877,10 +850,10 @@ pub mod units {
                 name: "statohms",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ohm metres (`Ω · m`), a unit of `ElectricalResistivity`: `n` of them is `n · 1.0` coherent units.
-    pub type OhmMetre = SIUnit<
+    pub const OHM_METRE: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -890,10 +863,10 @@ pub mod units {
                 name: "ohm metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abohm metres (`abΩ · m`), a unit of `ElectricalResistivity`: `n` of them is `n · 1e-09` coherent units.
-    pub type AbohmMetre = SIUnit<
+    pub const ABOHM_METRE: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -903,10 +876,10 @@ pub mod units {
                 name: "abohm metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statohm metres (`statΩ · m`), a unit of `ElectricalResistivity`: `n` of them is `n · 299.792458 * 2997924580.0` coherent units.
-    pub type StatohmMetre = SIUnit<
+    pub const STATOHM_METRE: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -916,10 +889,10 @@ pub mod units {
                 name: "statohm metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ohm inches (`Ω · in`), a unit of `ElectricalResistivity`: `n` of them is `n · 0.0254` coherent units.
-    pub type OhmInch = SIUnit<
+    pub const OHM_INCH: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -929,10 +902,10 @@ pub mod units {
                 name: "ohm inches",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ohm feet (`Ω · ft`), a unit of `ElectricalResistivity`: `n` of them is `n · 0.3048` coherent units.
-    pub type OhmFoot = SIUnit<
+    pub const OHM_FOOT: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -942,10 +915,10 @@ pub mod units {
                 name: "ohm feet",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ohm yards (`Ω · yd`), a unit of `ElectricalResistivity`: `n` of them is `n · 0.9144` coherent units.
-    pub type OhmYard = SIUnit<
+    pub const OHM_YARD: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -955,10 +928,10 @@ pub mod units {
                 name: "ohm yards",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ohm square millimetres per metre (`Ω · mm²/m`), a unit of `ElectricalResistivity`: `n` of them is `n · 1e-06` coherent units.
-    pub type OhmSquareMillimetrePerMetre = SIUnit<
+    pub const OHM_SQUARE_MILLIMETRE_PER_METRE: SIUnit<
         ELECTRICAL_RESISTIVITY,
         {
             SIUnitConsts {
@@ -968,10 +941,10 @@ pub mod units {
                 name: "ohm square millimetres per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Farads (`F`), a unit of `Capacitance`: `n` of them is `n · 1.0` coherent units.
-    pub type Farad = SIUnit<
+    pub const FARAD: SIUnit<
         CAPACITANCE,
         {
             SIUnitConsts {
@@ -981,10 +954,10 @@ pub mod units {
                 name: "farads",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abfarads (`abF`), a unit of `Capacitance`: `n` of them is `n · 1000000000.0` coherent units.
-    pub type Abfarad = SIUnit<
+    pub const ABFARAD: SIUnit<
         CAPACITANCE,
         {
             SIUnitConsts {
@@ -994,10 +967,10 @@ pub mod units {
                 name: "abfarads",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Statfarads (`statF`), a unit of `Capacitance`: `n` of them is `n · 1.0 / (299.792458 * 2997924580.0)` coherent units.
-    pub type Statfarad = SIUnit<
+    pub const STATFARAD: SIUnit<
         CAPACITANCE,
         {
             SIUnitConsts {
@@ -1007,10 +980,10 @@ pub mod units {
                 name: "statfarads",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Henries (`H`), a unit of `Inductance`: `n` of them is `n · 1.0` coherent units.
-    pub type Henry = SIUnit<
+    pub const HENRY: SIUnit<
         INDUCTANCE,
         {
             SIUnitConsts {
@@ -1020,10 +993,10 @@ pub mod units {
                 name: "henries",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Abhenries (`abH`), a unit of `Inductance`: `n` of them is `n · 1e-09` coherent units.
-    pub type Abhenry = SIUnit<
+    pub const ABHENRY: SIUnit<
         INDUCTANCE,
         {
             SIUnitConsts {
@@ -1033,10 +1006,10 @@ pub mod units {
                 name: "abhenries",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Stathenries (`statH`), a unit of `Inductance`: `n` of them is `n · 299.792458 * 2997924580.0` coherent units.
-    pub type Stathenry = SIUnit<
+    pub const STATHENRY: SIUnit<
         INDUCTANCE,
         {
             SIUnitConsts {
@@ -1046,10 +1019,10 @@ pub mod units {
                 name: "stathenries",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Amperes per metre (`A/m`), a unit of `MagneticFieldStrength`: `n` of them is `n · 1.0` coherent units.
-    pub type MagneticFieldStrengthAmperePerMetre = SIUnit<
+    pub const MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE: SIUnit<
         MAGNETIC_FIELD_STRENGTH,
         {
             SIUnitConsts {
@@ -1059,10 +1032,10 @@ pub mod units {
                 name: "amperes per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Oersteds (`Oe`), a unit of `MagneticFieldStrength`: `n` of them is `n · 1000.0 / (4.0 * core::f64::consts::PI)` coherent units.
-    pub type Oersted = SIUnit<
+    pub const OERSTED: SIUnit<
         MAGNETIC_FIELD_STRENGTH,
         {
             SIUnitConsts {
@@ -1072,10 +1045,10 @@ pub mod units {
                 name: "oersteds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Webers (`Wb`), a unit of `MagneticFlux`: `n` of them is `n · 1.0` coherent units.
-    pub type Weber = SIUnit<
+    pub const WEBER: SIUnit<
         MAGNETIC_FLUX,
         {
             SIUnitConsts {
@@ -1085,10 +1058,10 @@ pub mod units {
                 name: "webers",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Maxwells (`Mx`), a unit of `MagneticFlux`: `n` of them is `n · 1e-08` coherent units.
-    pub type Maxwell = SIUnit<
+    pub const MAXWELL: SIUnit<
         MAGNETIC_FLUX,
         {
             SIUnitConsts {
@@ -1098,10 +1071,10 @@ pub mod units {
                 name: "maxwells",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Teslas (`T`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type Tesla = SIUnit<
+    pub const TESLA: SIUnit<
         MAGNETIC_FLUX_DENSITY,
         {
             SIUnitConsts {
@@ -1111,10 +1084,10 @@ pub mod units {
                 name: "teslas",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gammas (`γ`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e-09` coherent units.
-    pub type Gamma = SIUnit<
+    pub const GAMMA: SIUnit<
         MAGNETIC_FLUX_DENSITY,
         {
             SIUnitConsts {
@@ -1124,10 +1097,10 @@ pub mod units {
                 name: "gammas",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gauss (`G`), a unit of `MagneticFluxDensity`: `n` of them is `n · 0.0001` coherent units.
-    pub type Gauss = SIUnit<
+    pub const GAUSS: SIUnit<
         MAGNETIC_FLUX_DENSITY,
         {
             SIUnitConsts {
@@ -1137,10 +1110,10 @@ pub mod units {
                 name: "gauss",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ampere square metres (`A · m²`), a unit of `MagneticMoment`: `n` of them is `n · 1.0` coherent units.
-    pub type AmpereSquareMetre = SIUnit<
+    pub const AMPERE_SQUARE_METRE: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1150,10 +1123,10 @@ pub mod units {
                 name: "ampere square metres",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per tesla (`J/T`), a unit of `MagneticMoment`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerTesla = SIUnit<
+    pub const JOULE_PER_TESLA: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1163,10 +1136,10 @@ pub mod units {
                 name: "joules per tesla",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Newton metres per tesla (`N · m/T`), a unit of `MagneticMoment`: `n` of them is `n · 1.0` coherent units.
-    pub type NewtonMetrePerTesla = SIUnit<
+    pub const NEWTON_METRE_PER_TESLA: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1176,10 +1149,10 @@ pub mod units {
                 name: "newton metres per tesla",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ergs per gauss (`erg/G`), a unit of `MagneticMoment`: `n` of them is `n · 0.001` coherent units.
-    pub type ErgPerGauss = SIUnit<
+    pub const ERG_PER_GAUSS: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1189,10 +1162,10 @@ pub mod units {
                 name: "ergs per gauss",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bohr magnetons (`µ(Bohr)`), a unit of `MagneticMoment`: `n` of them is `n · 9.2740100783e-24` coherent units.
-    pub type BohrMagneton = SIUnit<
+    pub const BOHR_MAGNETON: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1202,10 +1175,10 @@ pub mod units {
                 name: "Bohr magnetons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Nuclear magnetons (`μ(Nuclear)`), a unit of `MagneticMoment`: `n` of them is `n · 5.0507837461e-27` coherent units.
-    pub type NuclearMagneton = SIUnit<
+    pub const NUCLEAR_MAGNETON: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1215,10 +1188,10 @@ pub mod units {
                 name: "nuclear magnetons",
             }
         },
-    >;
+    > = SIUnit;
 
     ///  atomic units of magnetic dipole moment (`ħ · e/mₑ`), a unit of `MagneticMoment`: `n` of them is `n · 1.85480201566e-23` coherent units.
-    pub type AtomicUnitOfMagneticDipoleMoment = SIUnit<
+    pub const ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1228,10 +1201,10 @@ pub mod units {
                 name: " atomic units of magnetic dipole moment",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Deuteron magnetic moments (`μ(deuteron)`), a unit of `MagneticMoment`: `n` of them is `n · 4.330735094e-27` coherent units.
-    pub type DeuteronMagneticMoment = SIUnit<
+    pub const DEUTERON_MAGNETIC_MOMENT: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1241,10 +1214,10 @@ pub mod units {
                 name: "deuteron magnetic moments",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Proton magnetic moments (`μ(proton)`), a unit of `MagneticMoment`: `n` of them is `n · 1.41060679736e-26` coherent units.
-    pub type ProtonMagneticMoment = SIUnit<
+    pub const PROTON_MAGNETIC_MOMENT: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1254,10 +1227,10 @@ pub mod units {
                 name: "proton magnetic moments",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shielded proton magnetic moments (`μ’(proton)`), a unit of `MagneticMoment`: `n` of them is `n · 1.41057056e-26` coherent units.
-    pub type ShieldedProtonMagneticMoment = SIUnit<
+    pub const SHIELDED_PROTON_MAGNETIC_MOMENT: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1267,10 +1240,10 @@ pub mod units {
                 name: "shielded proton magnetic moments",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Triton magnetic moments (`μ(triton)`), a unit of `MagneticMoment`: `n` of them is `n · 1.5046095202e-26` coherent units.
-    pub type TritonMagneticMoment = SIUnit<
+    pub const TRITON_MAGNETIC_MOMENT: SIUnit<
         MAGNETIC_MOMENT,
         {
             SIUnitConsts {
@@ -1280,10 +1253,10 @@ pub mod units {
                 name: "triton magnetic moments",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Henrys per metre (`H/m`), a unit of `MagneticPermeability`: `n` of them is `n · 1.0` coherent units.
-    pub type HenryPerMetre = SIUnit<
+    pub const HENRY_PER_METRE: SIUnit<
         MAGNETIC_PERMEABILITY,
         {
             SIUnitConsts {
@@ -1293,10 +1266,10 @@ pub mod units {
                 name: "henrys per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Vacuum magnetic permeability (`µ₀`), a unit of `MagneticPermeability`: `n` of them is `n · 1.25663706212e-6` coherent units.
-    pub type VacuumPermeability = SIUnit<
+    pub const VACUUM_PERMEABILITY: SIUnit<
         MAGNETIC_PERMEABILITY,
         {
             SIUnitConsts {
@@ -1306,10 +1279,10 @@ pub mod units {
                 name: "vacuum magnetic permeability",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hertz per tesla (`Hz/T`), a unit of `GyromagneticRatio`: `n` of them is `n · 1.0` coherent units.
-    pub type HertzPerTesla = SIUnit<
+    pub const HERTZ_PER_TESLA: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1319,10 +1292,10 @@ pub mod units {
                 name: "hertz per tesla",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Radians per second tesla (`rad/(s · T)`), a unit of `GyromagneticRatio`: `n` of them is `n · 1.0` coherent units.
-    pub type RadianPerSecondTesla = SIUnit<
+    pub const RADIAN_PER_SECOND_TESLA: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1332,10 +1305,10 @@ pub mod units {
                 name: "radians per second tesla",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Proton gyromagnetic ratio (`γₚ`), a unit of `GyromagneticRatio`: `n` of them is `n · 267522187.08` coherent units.
-    pub type ProtonGyromagneticRatio = SIUnit<
+    pub const PROTON_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1345,10 +1318,10 @@ pub mod units {
                 name: "proton gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Neutron gyromagnetic ratio (`γₙ`), a unit of `GyromagneticRatio`: `n` of them is `n · 183247174.0` coherent units.
-    pub type NeutronGyromagneticRatio = SIUnit<
+    pub const NEUTRON_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1358,10 +1331,10 @@ pub mod units {
                 name: "neutron gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Electron gyromagnetic ratio (`γₑ`), a unit of `GyromagneticRatio`: `n` of them is `n · 176085962784.0` coherent units.
-    pub type ElectronGyromagneticRatio = SIUnit<
+    pub const ELECTRON_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1371,10 +1344,10 @@ pub mod units {
                 name: "electron gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shielded proton gyromagnetic ratio (`γ'ₚ`), a unit of `GyromagneticRatio`: `n` of them is `n · 267515319.4` coherent units.
-    pub type ShieldedProtonGyromagneticRatio = SIUnit<
+    pub const SHIELDED_PROTON_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1384,10 +1357,10 @@ pub mod units {
                 name: "shielded proton gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shielded helion gyromagnetic ratio (`γ'ₕ`), a unit of `GyromagneticRatio`: `n` of them is `n · 203789460.78` coherent units.
-    pub type ShieldedHelionGyromagneticRatio = SIUnit<
+    pub const SHIELDED_HELION_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1397,10 +1370,10 @@ pub mod units {
                 name: "shielded helion gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Deuteron gyromagnetic ratio (`γ₂`), a unit of `GyromagneticRatio`: `n` of them is `n · 41066288.8` coherent units.
-    pub type DeuteronGyromagneticRatio = SIUnit<
+    pub const DEUTERON_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1410,10 +1383,10 @@ pub mod units {
                 name: "deuteron gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Triton gyromagnetic ratio (`γ₃`), a unit of `GyromagneticRatio`: `n` of them is `n · 285349844.0` coherent units.
-    pub type TritonGyromagneticRatio = SIUnit<
+    pub const TRITON_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1423,10 +1396,10 @@ pub mod units {
                 name: "triton gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Lithium7 gyromagnetic ratio (`γ₇`), a unit of `GyromagneticRatio`: `n` of them is `n · 103975264.0` coherent units.
-    pub type Lithium7GyromagneticRatio = SIUnit<
+    pub const LITHIUM7_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1436,10 +1409,10 @@ pub mod units {
                 name: "lithium7 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Boron11 gyromagnetic ratio (`γ₁₁`), a unit of `GyromagneticRatio`: `n` of them is `n · 85838414.3` coherent units.
-    pub type Boron11GyromagneticRatio = SIUnit<
+    pub const BORON11_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1449,10 +1422,10 @@ pub mod units {
                 name: "boron11 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Carbon13 gyromagnetic ratio (`γ₁₃`), a unit of `GyromagneticRatio`: `n` of them is `n · 67278754.6` coherent units.
-    pub type Carbon13GyromagneticRatio = SIUnit<
+    pub const CARBON13_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1462,10 +1435,10 @@ pub mod units {
                 name: "carbon13 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Nitrogen14 gyromagnetic ratio (`γ₁₄`), a unit of `GyromagneticRatio`: `n` of them is `n · 19328792.2` coherent units.
-    pub type Nitrogen14GyromagneticRatio = SIUnit<
+    pub const NITROGEN14_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1475,10 +1448,10 @@ pub mod units {
                 name: "nitrogen14 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Flourine19 gyromagnetic ratio (`γ₁₉`), a unit of `GyromagneticRatio`: `n` of them is `n · 251762483.0` coherent units.
-    pub type Flourine19GyromagneticRatio = SIUnit<
+    pub const FLOURINE19_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1488,10 +1461,10 @@ pub mod units {
                 name: "flourine19 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sodium23 gyromagnetic ratio (`γ₂₃`), a unit of `GyromagneticRatio`: `n` of them is `n · 70803541.7` coherent units.
-    pub type Sodium23GyromagneticRatio = SIUnit<
+    pub const SODIUM23_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1501,10 +1474,10 @@ pub mod units {
                 name: "sodium23 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Phosphorus31 gyromagnetic ratio (`γ₃₁`), a unit of `GyromagneticRatio`: `n` of them is `n · 108329419.0` coherent units.
-    pub type Phosphorus31GyromagneticRatio = SIUnit<
+    pub const PHOSPHORUS31_GYROMAGNETIC_RATIO: SIUnit<
         GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1514,10 +1487,10 @@ pub mod units {
                 name: "phosphorus31 gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Proton reduced gyromagnetic ratio (`̅γₚ`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 42577478.461` coherent units.
-    pub type ProtonReducedGyromagneticRatio = SIUnit<
+    pub const PROTON_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1527,10 +1500,10 @@ pub mod units {
                 name: "proton reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Neutron reduced gyromagnetic ratio (`̅γₙ`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 29164693.5` coherent units.
-    pub type NeutronReducedGyromagneticRatio = SIUnit<
+    pub const NEUTRON_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1540,10 +1513,10 @@ pub mod units {
                 name: "neutron reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Electron reduced gyromagnetic ratio (`̅γₑ`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 28024951386.1` coherent units.
-    pub type ElectronReducedGyromagneticRatio = SIUnit<
+    pub const ELECTRON_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1553,10 +1526,10 @@ pub mod units {
                 name: "electron reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shielded proton reduced gyromagnetic ratio (`γ'ₚ`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 42576385.43` coherent units.
-    pub type ShieldedProtonReducedGyromagneticRatio = SIUnit<
+    pub const SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1566,10 +1539,10 @@ pub mod units {
                 name: "shielded proton reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shielded helion reduced gyromagnetic ratio (`γ'ₕ`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 32434100.033` coherent units.
-    pub type ShieldedHelionReducedGyromagneticRatio = SIUnit<
+    pub const SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1579,10 +1552,10 @@ pub mod units {
                 name: "shielded helion reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Deuteron reduced gyromagnetic ratio (`̅γ₂`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 6535902.85` coherent units.
-    pub type DeuteronReducedGyromagneticRatio = SIUnit<
+    pub const DEUTERON_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1592,10 +1565,10 @@ pub mod units {
                 name: "deuteron reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Triton reduced gyromagnetic ratio (`̅γ₃`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 45414838.1` coherent units.
-    pub type TritonReducedGyromagneticRatio = SIUnit<
+    pub const TRITON_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1605,10 +1578,10 @@ pub mod units {
                 name: "triton reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Lithium7 reduced gyromagnetic ratio (`̅γ₇`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 16548177.3` coherent units.
-    pub type Lithium7ReducedGyromagneticRatio = SIUnit<
+    pub const LITHIUM7_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1618,10 +1591,10 @@ pub mod units {
                 name: "lithium7 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Boron11 reduced gyromagnetic ratio (`̅γ₁₁`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 13661608.0` coherent units.
-    pub type Boron11ReducedGyromagneticRatio = SIUnit<
+    pub const BORON11_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1631,10 +1604,10 @@ pub mod units {
                 name: "boron11 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Carbon13 reduced gyromagnetic ratio (`̅γ₁₃`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 10707746.4` coherent units.
-    pub type Carbon13ReducedGyromagneticRatio = SIUnit<
+    pub const CARBON13_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1644,10 +1617,10 @@ pub mod units {
                 name: "carbon13 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Nitrogen14 reduced gyromagnetic ratio (`̅γ₁₄`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 3076272.81` coherent units.
-    pub type Nitrogen14ReducedGyromagneticRatio = SIUnit<
+    pub const NITROGEN14_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1657,10 +1630,10 @@ pub mod units {
                 name: "nitrogen14 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Flourine19 reduced gyromagnetic ratio (`̅γ₁₉`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 40069243.7` coherent units.
-    pub type Flourine19ReducedGyromagneticRatio = SIUnit<
+    pub const FLOURINE19_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1670,10 +1643,10 @@ pub mod units {
                 name: "flourine19 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Sodium23 reduced gyromagnetic ratio (`̅γ₂₃`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 11268733.6` coherent units.
-    pub type Sodium23ReducedGyromagneticRatio = SIUnit<
+    pub const SODIUM23_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1683,10 +1656,10 @@ pub mod units {
                 name: "sodium23 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Phosphorus31 reduced gyromagnetic ratio (`̅γ₃₁`), a unit of `ReducedGyromagneticRatio`: `n` of them is `n · 17241162.5` coherent units.
-    pub type Phosphorus31ReducedGyromagneticRatio = SIUnit<
+    pub const PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO: SIUnit<
         REDUCED_GYROMAGNETIC_RATIO,
         {
             SIUnitConsts {
@@ -1696,5 +1669,5 @@ pub mod units {
                 name: "phosphorus31 reduced gyromagnetic ratio",
             }
         },
-    >;
+    > = SIUnit;
 }

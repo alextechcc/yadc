@@ -13,15 +13,16 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 
+use yadc_si::SIQuantity;
 use yadc_si::Unit;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::electromagnetic::*;
 use yadc_si::dynamic::electromagnetic::*;
-use yadc_si::mechanical::*;
 use yadc_si::dynamic::mechanical::*;
-use yadc_si::thermal::ThermodynamicTemperature;
-use yadc_si::dynamic::thermal::{ThermodynamicTemperatureUnit::{Celsius, Fahrenheit}};
 use yadc_si::dynamic::thermal::TemperatureIntervalUnit;
+use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
+use yadc_si::electromagnetic::*;
+use yadc_si::mechanical::*;
+use yadc_si::thermal::THERMODYNAMIC_TEMPERATURE;
 
 fn main() {
     // 1. Typed Qty<D> -> JSON -> typed Qty<D>. Wire is just the number.
@@ -32,7 +33,7 @@ fn main() {
     let s = serde_json::to_string(&m).expect("serialize Mass");
     println!("Mass(1.5 kg) -> {s}");
 
-    let parsed: Mass<f64> = serde_json::from_str(&s).expect("round-trip Mass");
+    let parsed: SIQuantity<MASS, f64> = serde_json::from_str(&s).expect("round-trip Mass");
     println!("round-trip:    {} {Kilogram:#}\n", Kilogram.value(parsed));
 
     // 2. DynamicSIQuantity carries its dims at runtime - they're serialized as a UCUM
@@ -46,7 +47,7 @@ fn main() {
     println!("DynamicSIQuantity(98.6 °F) ->\n{s}\n");
 
     let parsed: DynamicSIQuantity = serde_json::from_str(&s).unwrap();
-    let t = ThermodynamicTemperature::try_from(parsed).expect("a temperature");
+    let t = SIQuantity::<THERMODYNAMIC_TEMPERATURE, _>::try_from(parsed).expect("a temperature");
     println!(
         "round-trip: {:.1} °F ≡ {:.2} °C\n",
         Fahrenheit.value(t),
@@ -78,10 +79,10 @@ fn main() {
     let parsed: Option<DynamicSIQuantity> = serde_json::from_str(&s).unwrap();
     assert_eq!(parsed, None);
     // A well-formed one round-trips with its dimension: it reads back as a
-    // `Force`.
+    // force.
     let parsed: DynamicSIQuantity =
         serde_json::from_str(&serde_json::to_string(&force).unwrap()).unwrap();
-    let f = Force::try_from(parsed).expect("still a force");
+    let f = SIQuantity::<FORCE, _>::try_from(parsed).expect("still a force");
     println!("round-trip: {} {newton}\n", newton.value(f));
 
     // 4. Holding typed quantities in a serde-derived struct.
@@ -89,8 +90,8 @@ fn main() {
     #[derive(serde::Serialize, serde::Deserialize)]
     struct Reading {
         sensor: String,
-        temperature: ThermodynamicTemperature<f64>,
-        voltage: ElectricPotential<f64>,
+        temperature: SIQuantity<THERMODYNAMIC_TEMPERATURE, f64>,
+        voltage: SIQuantity<ELECTRIC_POTENTIAL, f64>,
     }
 
     let r = Reading {

@@ -87,9 +87,6 @@ fn main() {
     // Two at once.
     let tile = Shape::Square(Square { side: 0.5 });
     for shape in shapes {
-        println!(
-            "{} tiles cover {shape:?}",
-            (shape, tile).visit_with(Covers)
-        );
+        println!("{} tiles cover {shape:?}", (shape, tile).visit_with(Covers));
     }
 }

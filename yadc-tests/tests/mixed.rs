@@ -3,7 +3,14 @@
 //! with std `From<M> for N`.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 #![feature(const_destruct)]
-#![feature(const_cmp, const_default, derive_const, const_ops, const_convert, const_try)]
+#![feature(
+    const_cmp,
+    const_default,
+    derive_const,
+    const_ops,
+    const_convert,
+    const_try
+)]
 #![allow(incomplete_features)]
 
 use core::marker::ConstParamTy;
@@ -20,8 +27,24 @@ pub struct Dim {
 #[quantity(from(f32 => f64), from(i32 => f64))]
 pub struct Qty<const D: Dim, N>(N);
 
-pub type Length<N> = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, N>;
-pub type Time<N> = Qty<{ Dim { s: 1, ..Dim::DIMENSIONLESS } }, N>;
+pub type Length<N> = Qty<
+    {
+        Dim {
+            m: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+    N,
+>;
+pub type Time<N> = Qty<
+    {
+        Dim {
+            s: 1,
+            ..Dim::DIMENSIONLESS
+        }
+    },
+    N,
+>;
 pub type Velocity<N> = Qty<{ Dim { m: 1, s: -1 } }, N>;
 
 pub const METRE: Length<f64> = Qty(1.0);

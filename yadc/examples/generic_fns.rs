@@ -10,10 +10,10 @@
 //! itself", that is one bound, `Q: Quantity`. A single function body works
 //! unchanged regardless of which unit system its arguments come from.
 //!
-//! Every unit meets that one bound: a unit enum, a unit type, and a quantity
-//! constant alike (a quantity is a unit of its own kind), so `convert` below
-//! takes `MassUnit::Kilogram`, `Pound {}`, `KG` or `NAUTICAL_MILE` the same
-//! way.
+//! Every unit meets that one bound: a unit enum, a unit constant, a unit type
+//! and a quantity constant alike (a quantity is a unit of its own kind), so
+//! `convert` below takes `MassUnit::Kilogram`, `POUND`, `KG` or
+//! `NAUTICAL_MILE` the same way.
 //!
 //! This is the capability no other unit library provides: every other library
 //! exposes only concrete types, so a function using their conversion or
@@ -111,15 +111,15 @@ fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q, f64>]) -> String {
 }
 
 // --- Unit system A: yadc-si --------------------------------------------------
-use yadc_si::mechanical::*;
 use yadc_si::dynamic::mechanical::*;
 use yadc_si::dynamic::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
-use yadc_si::mechanical::units::Pound;
-use yadc_si::{Prefix, Prefixed};
+use yadc_si::mechanical::units::POUND;
+use yadc_si::mechanical::*;
+use yadc_si::{Prefix, Prefixed, SIQuantity};
 
-// Quantity constants, built by unit types at compile time: units too.
-const KG: Mass<f64> = units::Kilogram {}.quantity(1.0);
-const LB: Mass<f64> = Pound {}.quantity(1.0);
+// Quantity constants, built by units at compile time: units too.
+const KG: SIQuantity<MASS, f64> = units::KILOGRAM.quantity(1.0);
+const LB: SIQuantity<MASS, f64> = POUND.quantity(1.0);
 
 // --- Unit system B: custom nautical system -----------------------------------
 // A completely separate Dim / Qty / Unit stack, with no labels (no `#[kind]`
@@ -204,17 +204,24 @@ impl Display for Metre {
 }
 impl Display for NauticalMile {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.pad(if f.alternate() { "nautical miles" } else { "nmi" })
+        f.pad(if f.alternate() {
+            "nautical miles"
+        } else {
+            "nmi"
+        })
     }
 }
 
 /// A choice of the two, for a menu or a parser.
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = NavDist, number = f64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<NavDist, f64> {
+    fn quantity(&self, value: f64) -> NavDist;
+    fn value(&self, quantity: NavDist) -> f64;
+}))]
 enum NavDistUnit {
-    #[unit(Metre)]
+    #[value(Metre)]
     Metre,
-    #[unit(NauticalMile)]
+    #[value(NauticalMile)]
     NauticalMile,
 }
 
@@ -236,8 +243,8 @@ fn main() {
     // takes constants: here a reading in fathoms (six feet), `FATHOM`.
     let lb = convert(70.0, KG, LB);
     println!("SI   70 kg          -> {lb:.2} lb (constants)");
-    let lb = convert(70.0, KG, Pound {});
-    println!("SI   70 kg          -> {lb:.2} lb (a unit type)");
+    let lb = convert(70.0, KG, POUND);
+    println!("SI   70 kg          -> {lb:.2} lb (a unit constant)");
     let nmi = convert(1000.0, FATHOM, NAUTICAL_MILE);
     println!("Nav  1000 fathoms   -> {nmi:.3} nmi (constants)");
 
@@ -246,7 +253,10 @@ fn main() {
     // unit of a list picked at run time. A prefix scales an SI unit: `km`
     // is the metre with the prefix kilo.
 
-    let km = Prefixed { prefix: Some(Prefix::Kilo), unit: units::Metre {} };
+    let km = Prefixed {
+        prefix: Some(Prefix::Kilo),
+        unit: units::METRE,
+    };
     let v = km.quantity(90.0) / TimeUnit::Hour.quantity(1.0);
     println!(
         "SI   90 km/h        -> {}",
@@ -315,10 +325,6 @@ fn main() {
     );
     println!(
         "Nav  2 nmi -> 5 nmi   = {} m",
-        change(
-            NAUTICAL_MILE * 2.0,
-            NAUTICAL_MILE * 5.0,
-            NavDistUnit::Metre
-        )
+        change(NAUTICAL_MILE * 2.0, NAUTICAL_MILE * 5.0, NavDistUnit::Metre)
     );
 }

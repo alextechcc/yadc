@@ -32,7 +32,10 @@ pub enum Mark {
     /// Two fields: the contents are a tuple.
     Segment(Line, u32),
     /// Named fields: a tuple too, in order.
-    Label { size: u32, bold: bool },
+    Label {
+        size: u32,
+        bold: bool,
+    },
     Dot,
 }
 
@@ -325,7 +328,10 @@ fn related_by_an_associated_type() {
         Ok("Dark Circle { r: 3 }".to_string())
     );
     // Not a pair: the shape comes back.
-    assert_eq!(Paint::Blue(Blue::Navy).visit_with(Paired(circle)), Err(circle));
+    assert_eq!(
+        Paint::Blue(Blue::Navy).visit_with(Paired(circle)),
+        Err(circle)
+    );
 }
 
 // ===== Members and Via =========================================================
@@ -408,7 +414,10 @@ fn members() {
     // `Crate::Pears` is only taken apart.
     let p = Crate::Pears(Stock(7), Note(3));
     assert_eq!(Pears::try_from(p), Ok(Stock(7)));
-    assert_eq!(Crate::from(Stock::<{ Fruit::Apple }>(1)), Crate::Apples(Stock(1)));
+    assert_eq!(
+        Crate::from(Stock::<{ Fruit::Apple }>(1)),
+        Crate::Apples(Stock(1))
+    );
 }
 
 /// Generic code over a set that computes through a dynamic type names the

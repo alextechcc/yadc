@@ -2,7 +2,8 @@
 //! compile-fail tests in `tests/ui/use` (the "system defined in another
 //! crate" case - those in `tests/ui/define` define their own) and the
 //! run-time tests of the derived impls in `tests/derived.rs`. Its units are
-//! types with a hand-written `impl Unit`, and enums of them.
+//! types with a hand-written `impl Unit`, and enums of them
+//! (`dynamickit::Values`).
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 #![feature(
     const_cmp,
@@ -275,25 +276,34 @@ impl const Unit<Pressure, f64> for Kilopascal {
     }
 }
 
-/// A choice of units, for a menu: each variant names the unit type it is.
-#[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Temperature, number = f64)]
+/// A choice of units, for a menu: each variant names the unit it is.
+#[derive(Copy, Clone, Debug, PartialEq, dynamickit::Values)]
+#[values(delegate(Unit<Temperature, f64> {
+    fn quantity(&self, value: f64) -> Temperature;
+    fn value(&self, quantity: Temperature) -> f64;
+}))]
 pub enum TemperatureUnit {
-    #[unit(KelvinScale)]
+    #[value(KelvinScale)]
     Kelvin,
-    #[unit(Celsius)]
+    #[value(Celsius)]
     Celsius,
-    #[unit(Fahrenheit)]
+    #[value(Fahrenheit)]
     Fahrenheit,
 }
 
 /// Units that do not print: `impl()` writes `Unit` alone.
-#[derive(Copy, Clone, Debug, yadc::Unit)]
-#[unit(of = Pressure, number = f64, impl())]
+#[derive(Copy, Clone, Debug, dynamickit::Values)]
+#[values(
+    delegate(Unit<Pressure, f64> {
+        fn quantity(&self, value: f64) -> Pressure;
+        fn value(&self, quantity: Pressure) -> f64;
+    }),
+    impl()
+)]
 pub enum PressureUnit {
-    #[unit(Kilopascal)]
+    #[value(Kilopascal)]
     Kilopascal,
-    #[unit(Pascal)]
+    #[value(Pascal)]
     Pascal,
 }
 
@@ -329,6 +339,10 @@ impl const Unit<Altitude, f64> for FeetAboveGround {
 
 impl fmt::Display for FeetAboveGround {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.pad(if f.alternate() { "feet above ground level" } else { "ft AGL" })
+        f.pad(if f.alternate() {
+            "feet above ground level"
+        } else {
+            "ft AGL"
+        })
     }
 }

@@ -1,25 +1,25 @@
-use crate::{ISQ, SIQuantity};
+use crate::ISQ;
 use yadc::Dimension;
 
-pub type Information<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
+/// The dimension of `Information`: `SIQuantity<INFORMATION, N>` is one.
+pub const INFORMATION: ISQ = ISQ::DIMENSIONLESS;
 
-/// The dimension of `InformationRate`.
+/// The dimension of `InformationRate`: `SIQuantity<INFORMATION_RATE, N>` is one.
 pub const INFORMATION_RATE: ISQ = ISQ {
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type InformationRate<N> = SIQuantity<INFORMATION_RATE, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
-    use crate::{Exact, ISQ, SIUnit, SIUnitConsts};
-    use yadc::Dimension;
+    use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Bits (`b`), a unit of `Information`: `n` of them is `n · 0.125` coherent units.
-    pub type Bit = SIUnit<
-        { ISQ::DIMENSIONLESS },
+    pub const BIT: SIUnit<
+        INFORMATION,
         {
             SIUnitConsts {
                 size: Exact::dec(125, -3),
@@ -28,11 +28,11 @@ pub mod units {
                 name: "bits",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bytes (`B`), a unit of `Information`: `n` of them is `n · 1.0` coherent units.
-    pub type Byte = SIUnit<
-        { ISQ::DIMENSIONLESS },
+    pub const BYTE: SIUnit<
+        INFORMATION,
         {
             SIUnitConsts {
                 size: Exact::int(1),
@@ -41,11 +41,11 @@ pub mod units {
                 name: "bytes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Octets (`o`), a unit of `Information`: `n` of them is `n · 1.0` coherent units.
-    pub type Octet = SIUnit<
-        { ISQ::DIMENSIONLESS },
+    pub const OCTET: SIUnit<
+        INFORMATION,
         {
             SIUnitConsts {
                 size: Exact::int(1),
@@ -54,11 +54,11 @@ pub mod units {
                 name: "octets",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Nibbles (`nibble`), a unit of `Information`: `n` of them is `n · 0.5` coherent units.
-    pub type Nibble = SIUnit<
-        { ISQ::DIMENSIONLESS },
+    pub const NIBBLE: SIUnit<
+        INFORMATION,
         {
             SIUnitConsts {
                 size: Exact::dec(5, -1),
@@ -67,11 +67,11 @@ pub mod units {
                 name: "nibbles",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Crumbs (`crumb`), a unit of `Information`: `n` of them is `n · 0.25` coherent units.
-    pub type Crumb = SIUnit<
-        { ISQ::DIMENSIONLESS },
+    pub const CRUMB: SIUnit<
+        INFORMATION,
         {
             SIUnitConsts {
                 size: Exact::dec(25, -2),
@@ -80,11 +80,11 @@ pub mod units {
                 name: "crumbs",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Shannons (`Sh`), a unit of `Information`: `n` of them is `n · 0.125` coherent units.
-    pub type Shannon = SIUnit<
-        { ISQ::DIMENSIONLESS },
+    pub const SHANNON: SIUnit<
+        INFORMATION,
         {
             SIUnitConsts {
                 size: Exact::dec(125, -3),
@@ -93,10 +93,10 @@ pub mod units {
                 name: "shannons",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bits per second (`b/s`), a unit of `InformationRate`: `n` of them is `n · 0.125` coherent units.
-    pub type BitPerSecond = SIUnit<
+    pub const BIT_PER_SECOND: SIUnit<
         INFORMATION_RATE,
         {
             SIUnitConsts {
@@ -106,10 +106,10 @@ pub mod units {
                 name: "bits per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bytes per second (`B/s`), a unit of `InformationRate`: `n` of them is `n · 1.0` coherent units.
-    pub type BytePerSecond = SIUnit<
+    pub const BYTE_PER_SECOND: SIUnit<
         INFORMATION_RATE,
         {
             SIUnitConsts {
@@ -119,10 +119,10 @@ pub mod units {
                 name: "bytes per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Octets per second (`o/s`), a unit of `InformationRate`: `n` of them is `n · 1.0` coherent units.
-    pub type OctetPerSecond = SIUnit<
+    pub const OCTET_PER_SECOND: SIUnit<
         INFORMATION_RATE,
         {
             SIUnitConsts {
@@ -132,5 +132,5 @@ pub mod units {
                 name: "octets per second",
             }
         },
-    >;
+    > = SIUnit;
 }

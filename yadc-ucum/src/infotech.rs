@@ -1,25 +1,25 @@
-use crate::{Dim, Qty};
+use crate::Dim;
 use yadc::Dimension;
 
-pub type AmountOfInformation<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
+/// The dimension of `AmountOfInformation`: `Qty<AMOUNT_OF_INFORMATION, N>` is one.
+pub const AMOUNT_OF_INFORMATION: Dim = Dim::DIMENSIONLESS;
 
-/// The dimension of `SignalTransmissionRate`.
+/// The dimension of `SignalTransmissionRate`: `Qty<SIGNAL_TRANSMISSION_RATE, N>` is one.
 pub const SIGNAL_TRANSMISSION_RATE: Dim = Dim {
     s: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type SignalTransmissionRate<N> = Qty<SIGNAL_TRANSMISSION_RATE, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
-    use crate::{Dim, Exact, UcumUnit, UcumUnitConsts};
-    use yadc::Dimension;
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
     /// Bit (`bit`), a unit of `AmountOfInformation`: `n` of them is `n · 1` coherent units.
-    pub type Bit = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const BIT: UcumUnit<
+        AMOUNT_OF_INFORMATION,
         {
             UcumUnitConsts {
                 size: Exact::int(1),
@@ -28,11 +28,11 @@ pub mod units {
                 name: "bit",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Byte (`By`), a unit of `AmountOfInformation`: `n` of them is `n · 8` coherent units.
-    pub type Byte = UcumUnit<
-        { Dim::DIMENSIONLESS },
+    pub const BYTE: UcumUnit<
+        AMOUNT_OF_INFORMATION,
         {
             UcumUnitConsts {
                 size: Exact::int(8),
@@ -41,10 +41,10 @@ pub mod units {
                 name: "byte",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Baud (`Bd`), a unit of `SignalTransmissionRate`: `n` of them is `n · 1` coherent units.
-    pub type Baud = UcumUnit<
+    pub const BAUD: UcumUnit<
         SIGNAL_TRANSMISSION_RATE,
         {
             UcumUnitConsts {
@@ -54,5 +54,5 @@ pub mod units {
                 name: "baud",
             }
         },
-    >;
+    > = UcumUnit;
 }

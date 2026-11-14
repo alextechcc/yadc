@@ -8,6 +8,7 @@ description = "Tests for yadc's derives: every refused operator and the message 
 
 [dependencies]
 yadc = { path = "../yadc" }
+dynamickit = { path = "../dynamickit" }
 
 [dev-dependencies]
 trybuild = "1"

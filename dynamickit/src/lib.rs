@@ -33,7 +33,7 @@
 //! The examples (`cargo run -p dynamickit --example dynamic`, ...) each show one
 //! feature, with the impls the derive writes spelled out by hand beside it:
 //! `dynamic`, `dynamic_const`, `members`, `lifting`, `visit`, `members_via`,
-//! `pairing`, `variants`; and `dynamic_uom` makes another crate's family dynamic.
+//! `pairing`, `variants`, `values`; and `dynamic_uom` makes another crate's family dynamic.
 //!
 //! # The dynamic type: `#[derive(Dynamic)]`
 //!
@@ -230,6 +230,7 @@
 //! | [`Variants`](macro@Variants) | | [`Variants<X>`](trait@Variants): hand every variant's name and constructor to a generic [`VariantVisitor`] |
 //! | [`Members`](macro@Members) | `#[members(member)]`, `#[members(default)]` on fields; `#[members(convert(X, ..))]` | std only: `TryFrom<Enum> for M` per variant's member `M`, and `From<M> for Enum` where the variant's other fields are `#[members(default)]`; to and from `X` through the members |
 //! | [`Via`](macro@Via) | `#[via(X, Add, Sub, Mul<K>, ..)]`; `#[via(keep)]` on fields | std only, the operators listed: `Self ∘ Self` through `X` (`Option<Self>`), `* K` and `/ K` on the member (`Self`) |
+//! | [`Values`](macro@Values) | `#[value(V)]` on variants; `#[values(delegate(Trait { fn .. }), into(X), impl(..), for<..>)]` | for an enum whose variants each name a value: the traits listed, as the variant's value; `From<Enum> for X` through it, `Display` as it, `FromStr` by it ([`NoValue`]) |
 //!
 //! Two values at once come in two forms:
 //!
@@ -268,7 +269,39 @@
 #![no_std]
 #![feature(const_trait_impl)]
 
-pub use dynamickit_derive::{Dynamic, Members, Variants, Via, Visit};
+pub use dynamickit_derive::{Dynamic, Members, Values, Variants, Via, Visit};
+
+/// The error of parsing an enum of values ([`Values`](macro@Values)): no
+/// variant's value prints as the string.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct NoValue;
+
+impl core::fmt::Display for NoValue {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("no value prints as this")
+    }
+}
+
+impl core::error::Error for NoValue {}
+
+/// Whether `value` prints as `s`, compared as it is written - no allocation.
+/// What `#[derive(Values)]`'s `FromStr` asks of each variant's value.
+#[doc(hidden)]
+pub fn __prints_as(value: &dyn core::fmt::Display, s: &str) -> bool {
+    struct Rest<'a>(&'a str, bool);
+    impl core::fmt::Write for Rest<'_> {
+        fn write_str(&mut self, part: &str) -> core::fmt::Result {
+            match self.0.strip_prefix(part) {
+                Some(r) => self.0 = r,
+                None => self.1 = false,
+            }
+            Ok(())
+        }
+    }
+    let mut rest = Rest(s, true);
+    let _ = core::fmt::write(&mut rest, format_args!("{value}"));
+    rest.1 && rest.0.is_empty()
+}
 
 /// Every dynamickit trait, for `use dynamickit::prelude::*`: the methods of
 /// [`Visit`](trait@Visit) (`visit_with`) and [`Variants`](trait@Variants)

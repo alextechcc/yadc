@@ -1,543 +1,426 @@
 //! The units of `density`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::density::units::*;
 use crate::density::*;
 use crate::dynamic::DynamicSIUnit;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `MassDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<MASS_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<MASS_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<MASS_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum MassDensityUnit {
     #[default]
-    #[unit(KilogramPerCubicMetre)]
+    #[value(KILOGRAM_PER_CUBIC_METRE)]
     KilogramPerCubicMetre,
-    #[unit(GramPerCubicMetre)]
+    #[value(GRAM_PER_CUBIC_METRE)]
     GramPerCubicMetre,
-    #[unit(CaratPerCubicMetre)]
+    #[value(CARAT_PER_CUBIC_METRE)]
     CaratPerCubicMetre,
-    #[unit(GrainPerCubicMetre)]
+    #[value(GRAIN_PER_CUBIC_METRE)]
     GrainPerCubicMetre,
-    #[unit(HundredweightLongPerCubicMetre)]
+    #[value(HUNDREDWEIGHT_LONG_PER_CUBIC_METRE)]
     HundredweightLongPerCubicMetre,
-    #[unit(HundredweightShortPerCubicMetre)]
+    #[value(HUNDREDWEIGHT_SHORT_PER_CUBIC_METRE)]
     HundredweightShortPerCubicMetre,
-    #[unit(OuncePerCubicMetre)]
+    #[value(OUNCE_PER_CUBIC_METRE)]
     OuncePerCubicMetre,
-    #[unit(OunceTroyPerCubicMetre)]
+    #[value(OUNCE_TROY_PER_CUBIC_METRE)]
     OunceTroyPerCubicMetre,
-    #[unit(PennyweightPerCubicMetre)]
+    #[value(PENNYWEIGHT_PER_CUBIC_METRE)]
     PennyweightPerCubicMetre,
-    #[unit(PoundPerCubicMetre)]
+    #[value(POUND_PER_CUBIC_METRE)]
     PoundPerCubicMetre,
-    #[unit(PoundTroyPerCubicMetre)]
+    #[value(POUND_TROY_PER_CUBIC_METRE)]
     PoundTroyPerCubicMetre,
-    #[unit(SlugPerCubicMetre)]
+    #[value(SLUG_PER_CUBIC_METRE)]
     SlugPerCubicMetre,
-    #[unit(TonAssayPerCubicMetre)]
+    #[value(TON_ASSAY_PER_CUBIC_METRE)]
     TonAssayPerCubicMetre,
-    #[unit(TonLongPerCubicMetre)]
+    #[value(TON_LONG_PER_CUBIC_METRE)]
     TonLongPerCubicMetre,
-    #[unit(TonShortPerCubicMetre)]
+    #[value(TON_SHORT_PER_CUBIC_METRE)]
     TonShortPerCubicMetre,
-    #[unit(TonPerCubicMetre)]
+    #[value(TON_PER_CUBIC_METRE)]
     TonPerCubicMetre,
-    #[unit(GrainPerGallon)]
+    #[value(GRAIN_PER_GALLON)]
     GrainPerGallon,
-    #[unit(OuncePerCubicInch)]
+    #[value(OUNCE_PER_CUBIC_INCH)]
     OuncePerCubicInch,
-    #[unit(OuncePerGallonImperial)]
+    #[value(OUNCE_PER_GALLON_IMPERIAL)]
     OuncePerGallonImperial,
-    #[unit(OuncePerGallon)]
+    #[value(OUNCE_PER_GALLON)]
     OuncePerGallon,
-    #[unit(PoundPerCubicFoot)]
+    #[value(POUND_PER_CUBIC_FOOT)]
     PoundPerCubicFoot,
-    #[unit(PoundPerCubicInch)]
+    #[value(POUND_PER_CUBIC_INCH)]
     PoundPerCubicInch,
-    #[unit(PoundPerCubicYard)]
+    #[value(POUND_PER_CUBIC_YARD)]
     PoundPerCubicYard,
-    #[unit(PoundPerGallonImperial)]
+    #[value(POUND_PER_GALLON_IMPERIAL)]
     PoundPerGallonImperial,
-    #[unit(PoundPerGallon)]
+    #[value(POUND_PER_GALLON)]
     PoundPerGallon,
-    #[unit(SlugPerCubicFoot)]
+    #[value(SLUG_PER_CUBIC_FOOT)]
     SlugPerCubicFoot,
-    #[unit(TonLongPerCubicYard)]
+    #[value(TON_LONG_PER_CUBIC_YARD)]
     TonLongPerCubicYard,
-    #[unit(TonShortPerCubicYard)]
+    #[value(TON_SHORT_PER_CUBIC_YARD)]
     TonShortPerCubicYard,
-    #[unit(TonLongPerCubicFoot)]
+    #[value(TON_LONG_PER_CUBIC_FOOT)]
     TonLongPerCubicFoot,
-    #[unit(TonShortPerCubicFoot)]
+    #[value(TON_SHORT_PER_CUBIC_FOOT)]
     TonShortPerCubicFoot,
-}
-
-impl From<MassDensityUnit> for DynamicSIUnit {
-    fn from(unit: MassDensityUnit) -> Self {
-        match unit {
-            MassDensityUnit::KilogramPerCubicMetre => KilogramPerCubicMetre {}.into(),
-            MassDensityUnit::GramPerCubicMetre => GramPerCubicMetre {}.into(),
-            MassDensityUnit::CaratPerCubicMetre => CaratPerCubicMetre {}.into(),
-            MassDensityUnit::GrainPerCubicMetre => GrainPerCubicMetre {}.into(),
-            MassDensityUnit::HundredweightLongPerCubicMetre => {
-                HundredweightLongPerCubicMetre {}.into()
-            }
-            MassDensityUnit::HundredweightShortPerCubicMetre => {
-                HundredweightShortPerCubicMetre {}.into()
-            }
-            MassDensityUnit::OuncePerCubicMetre => OuncePerCubicMetre {}.into(),
-            MassDensityUnit::OunceTroyPerCubicMetre => OunceTroyPerCubicMetre {}.into(),
-            MassDensityUnit::PennyweightPerCubicMetre => PennyweightPerCubicMetre {}.into(),
-            MassDensityUnit::PoundPerCubicMetre => PoundPerCubicMetre {}.into(),
-            MassDensityUnit::PoundTroyPerCubicMetre => PoundTroyPerCubicMetre {}.into(),
-            MassDensityUnit::SlugPerCubicMetre => SlugPerCubicMetre {}.into(),
-            MassDensityUnit::TonAssayPerCubicMetre => TonAssayPerCubicMetre {}.into(),
-            MassDensityUnit::TonLongPerCubicMetre => TonLongPerCubicMetre {}.into(),
-            MassDensityUnit::TonShortPerCubicMetre => TonShortPerCubicMetre {}.into(),
-            MassDensityUnit::TonPerCubicMetre => TonPerCubicMetre {}.into(),
-            MassDensityUnit::GrainPerGallon => GrainPerGallon {}.into(),
-            MassDensityUnit::OuncePerCubicInch => OuncePerCubicInch {}.into(),
-            MassDensityUnit::OuncePerGallonImperial => OuncePerGallonImperial {}.into(),
-            MassDensityUnit::OuncePerGallon => OuncePerGallon {}.into(),
-            MassDensityUnit::PoundPerCubicFoot => PoundPerCubicFoot {}.into(),
-            MassDensityUnit::PoundPerCubicInch => PoundPerCubicInch {}.into(),
-            MassDensityUnit::PoundPerCubicYard => PoundPerCubicYard {}.into(),
-            MassDensityUnit::PoundPerGallonImperial => PoundPerGallonImperial {}.into(),
-            MassDensityUnit::PoundPerGallon => PoundPerGallon {}.into(),
-            MassDensityUnit::SlugPerCubicFoot => SlugPerCubicFoot {}.into(),
-            MassDensityUnit::TonLongPerCubicYard => TonLongPerCubicYard {}.into(),
-            MassDensityUnit::TonShortPerCubicYard => TonShortPerCubicYard {}.into(),
-            MassDensityUnit::TonLongPerCubicFoot => TonLongPerCubicFoot {}.into(),
-            MassDensityUnit::TonShortPerCubicFoot => TonShortPerCubicFoot {}.into(),
-        }
-    }
 }
 
 /// The units of `LinearMassDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearMassDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LINEAR_MASS_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LINEAR_MASS_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<LINEAR_MASS_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LinearMassDensityUnit {
     #[default]
-    #[unit(KilogramPerMetre)]
+    #[value(KILOGRAM_PER_METRE)]
     KilogramPerMetre,
-    #[unit(OuncePerFoot)]
+    #[value(OUNCE_PER_FOOT)]
     OuncePerFoot,
-    #[unit(OuncePerInch)]
+    #[value(OUNCE_PER_INCH)]
     OuncePerInch,
-    #[unit(PoundPerYard)]
+    #[value(POUND_PER_YARD)]
     PoundPerYard,
-    #[unit(PoundPerFoot)]
+    #[value(POUND_PER_FOOT)]
     PoundPerFoot,
-    #[unit(PoundPerInch)]
+    #[value(POUND_PER_INCH)]
     PoundPerInch,
-    #[unit(GramPerKilometre)]
+    #[value(GRAM_PER_KILOMETRE)]
     GramPerKilometre,
-    #[unit(GramPerCentimetre)]
+    #[value(GRAM_PER_CENTIMETRE)]
     GramPerCentimetre,
-}
-
-impl From<LinearMassDensityUnit> for DynamicSIUnit {
-    fn from(unit: LinearMassDensityUnit) -> Self {
-        match unit {
-            LinearMassDensityUnit::KilogramPerMetre => KilogramPerMetre {}.into(),
-            LinearMassDensityUnit::OuncePerFoot => OuncePerFoot {}.into(),
-            LinearMassDensityUnit::OuncePerInch => OuncePerInch {}.into(),
-            LinearMassDensityUnit::PoundPerYard => PoundPerYard {}.into(),
-            LinearMassDensityUnit::PoundPerFoot => PoundPerFoot {}.into(),
-            LinearMassDensityUnit::PoundPerInch => PoundPerInch {}.into(),
-            LinearMassDensityUnit::GramPerKilometre => GramPerKilometre {}.into(),
-            LinearMassDensityUnit::GramPerCentimetre => GramPerCentimetre {}.into(),
-        }
-    }
 }
 
 /// The units of `ArealMassDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealMassDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<AREAL_MASS_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<AREAL_MASS_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<AREAL_MASS_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ArealMassDensityUnit {
     #[default]
-    #[unit(KilogramPerSquareMetre)]
+    #[value(KILOGRAM_PER_SQUARE_METRE)]
     KilogramPerSquareMetre,
-    #[unit(GramPerSquareMetre)]
+    #[value(GRAM_PER_SQUARE_METRE)]
     GramPerSquareMetre,
-    #[unit(OuncePerSquareFoot)]
+    #[value(OUNCE_PER_SQUARE_FOOT)]
     OuncePerSquareFoot,
-}
-
-impl From<ArealMassDensityUnit> for DynamicSIUnit {
-    fn from(unit: ArealMassDensityUnit) -> Self {
-        match unit {
-            ArealMassDensityUnit::KilogramPerSquareMetre => KilogramPerSquareMetre {}.into(),
-            ArealMassDensityUnit::GramPerSquareMetre => GramPerSquareMetre {}.into(),
-            ArealMassDensityUnit::OuncePerSquareFoot => OuncePerSquareFoot {}.into(),
-        }
-    }
 }
 
 /// The units of `LinearNumberDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearNumberDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LINEAR_NUMBER_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LINEAR_NUMBER_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<LINEAR_NUMBER_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LinearNumberDensityUnit {
     #[default]
-    #[unit(PerMetre)]
+    #[value(PER_METRE)]
     PerMetre,
-    #[unit(PerFoot)]
+    #[value(PER_FOOT)]
     PerFoot,
-    #[unit(PerFootSurvey)]
+    #[value(PER_FOOT_SURVEY)]
     PerFootSurvey,
-    #[unit(PerInch)]
+    #[value(PER_INCH)]
     PerInch,
-    #[unit(PerMile)]
+    #[value(PER_MILE)]
     PerMile,
-    #[unit(PerMileSurvey)]
+    #[value(PER_MILE_SURVEY)]
     PerMileSurvey,
-    #[unit(PerNauticalMile)]
+    #[value(PER_NAUTICAL_MILE)]
     PerNauticalMile,
-    #[unit(PerYard)]
+    #[value(PER_YARD)]
     PerYard,
-}
-
-impl From<LinearNumberDensityUnit> for DynamicSIUnit {
-    fn from(unit: LinearNumberDensityUnit) -> Self {
-        match unit {
-            LinearNumberDensityUnit::PerMetre => PerMetre {}.into(),
-            LinearNumberDensityUnit::PerFoot => PerFoot {}.into(),
-            LinearNumberDensityUnit::PerFootSurvey => PerFootSurvey {}.into(),
-            LinearNumberDensityUnit::PerInch => PerInch {}.into(),
-            LinearNumberDensityUnit::PerMile => PerMile {}.into(),
-            LinearNumberDensityUnit::PerMileSurvey => PerMileSurvey {}.into(),
-            LinearNumberDensityUnit::PerNauticalMile => PerNauticalMile {}.into(),
-            LinearNumberDensityUnit::PerYard => PerYard {}.into(),
-        }
-    }
 }
 
 /// The units of `ArealNumberDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealNumberDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<AREAL_NUMBER_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<AREAL_NUMBER_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<AREAL_NUMBER_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ArealNumberDensityUnit {
     #[default]
-    #[unit(PerSquareMetre)]
+    #[value(PER_SQUARE_METRE)]
     PerSquareMetre,
-    #[unit(PerAcre)]
+    #[value(PER_ACRE)]
     PerAcre,
-    #[unit(PerAre)]
+    #[value(PER_ARE)]
     PerAre,
-    #[unit(PerBarn)]
+    #[value(PER_BARN)]
     PerBarn,
-    #[unit(PerCircularMil)]
+    #[value(PER_CIRCULAR_MIL)]
     PerCircularMil,
-    #[unit(PerHectare)]
+    #[value(PER_HECTARE)]
     PerHectare,
-    #[unit(PerSquareFoot)]
+    #[value(PER_SQUARE_FOOT)]
     PerSquareFoot,
-    #[unit(PerSquareInch)]
+    #[value(PER_SQUARE_INCH)]
     PerSquareInch,
-    #[unit(PerSquareMile)]
+    #[value(PER_SQUARE_MILE)]
     PerSquareMile,
-    #[unit(PerSquareYard)]
+    #[value(PER_SQUARE_YARD)]
     PerSquareYard,
-}
-
-impl From<ArealNumberDensityUnit> for DynamicSIUnit {
-    fn from(unit: ArealNumberDensityUnit) -> Self {
-        match unit {
-            ArealNumberDensityUnit::PerSquareMetre => PerSquareMetre {}.into(),
-            ArealNumberDensityUnit::PerAcre => PerAcre {}.into(),
-            ArealNumberDensityUnit::PerAre => PerAre {}.into(),
-            ArealNumberDensityUnit::PerBarn => PerBarn {}.into(),
-            ArealNumberDensityUnit::PerCircularMil => PerCircularMil {}.into(),
-            ArealNumberDensityUnit::PerHectare => PerHectare {}.into(),
-            ArealNumberDensityUnit::PerSquareFoot => PerSquareFoot {}.into(),
-            ArealNumberDensityUnit::PerSquareInch => PerSquareInch {}.into(),
-            ArealNumberDensityUnit::PerSquareMile => PerSquareMile {}.into(),
-            ArealNumberDensityUnit::PerSquareYard => PerSquareYard {}.into(),
-        }
-    }
 }
 
 /// The units of `VolumetricNumberDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricNumberDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<VOLUMETRIC_NUMBER_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<VOLUMETRIC_NUMBER_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<VOLUMETRIC_NUMBER_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumetricNumberDensityUnit {
     #[default]
-    #[unit(PerCubicMetre)]
+    #[value(PER_CUBIC_METRE)]
     PerCubicMetre,
-    #[unit(PerCubicFoot)]
+    #[value(PER_CUBIC_FOOT)]
     PerCubicFoot,
-    #[unit(PerCubicInch)]
+    #[value(PER_CUBIC_INCH)]
     PerCubicInch,
-    #[unit(PerCubicMile)]
+    #[value(PER_CUBIC_MILE)]
     PerCubicMile,
-    #[unit(PerCubicYard)]
+    #[value(PER_CUBIC_YARD)]
     PerCubicYard,
-    #[unit(PerFluidOunce)]
+    #[value(PER_FLUID_OUNCE)]
     PerFluidOunce,
-    #[unit(PerFluidOunceImperial)]
+    #[value(PER_FLUID_OUNCE_IMPERIAL)]
     PerFluidOunceImperial,
-    #[unit(PerGallonImperial)]
+    #[value(PER_GALLON_IMPERIAL)]
     PerGallonImperial,
-    #[unit(PerGallon)]
+    #[value(PER_GALLON)]
     PerGallon,
-    #[unit(PerLitre)]
+    #[value(PER_LITRE)]
     PerLitre,
-}
-
-impl From<VolumetricNumberDensityUnit> for DynamicSIUnit {
-    fn from(unit: VolumetricNumberDensityUnit) -> Self {
-        match unit {
-            VolumetricNumberDensityUnit::PerCubicMetre => PerCubicMetre {}.into(),
-            VolumetricNumberDensityUnit::PerCubicFoot => PerCubicFoot {}.into(),
-            VolumetricNumberDensityUnit::PerCubicInch => PerCubicInch {}.into(),
-            VolumetricNumberDensityUnit::PerCubicMile => PerCubicMile {}.into(),
-            VolumetricNumberDensityUnit::PerCubicYard => PerCubicYard {}.into(),
-            VolumetricNumberDensityUnit::PerFluidOunce => PerFluidOunce {}.into(),
-            VolumetricNumberDensityUnit::PerFluidOunceImperial => PerFluidOunceImperial {}.into(),
-            VolumetricNumberDensityUnit::PerGallonImperial => PerGallonImperial {}.into(),
-            VolumetricNumberDensityUnit::PerGallon => PerGallon {}.into(),
-            VolumetricNumberDensityUnit::PerLitre => PerLitre {}.into(),
-        }
-    }
 }
 
 /// The units of `LinearNumberRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearNumberRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LINEAR_NUMBER_RATE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LINEAR_NUMBER_RATE, N>;
+        fn value(&self, quantity: SIQuantity<LINEAR_NUMBER_RATE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LinearNumberRateUnit {
     #[default]
-    #[unit(PerMetreSecond)]
+    #[value(PER_METRE_SECOND)]
     PerMetreSecond,
-    #[unit(PerFootSecond)]
+    #[value(PER_FOOT_SECOND)]
     PerFootSecond,
-    #[unit(PerFootSurveySecond)]
+    #[value(PER_FOOT_SURVEY_SECOND)]
     PerFootSurveySecond,
-    #[unit(PerInchSecond)]
+    #[value(PER_INCH_SECOND)]
     PerInchSecond,
-    #[unit(PerMileSecond)]
+    #[value(PER_MILE_SECOND)]
     PerMileSecond,
-    #[unit(PerMileSurveySecond)]
+    #[value(PER_MILE_SURVEY_SECOND)]
     PerMileSurveySecond,
-    #[unit(PerYardSecond)]
+    #[value(PER_YARD_SECOND)]
     PerYardSecond,
-}
-
-impl From<LinearNumberRateUnit> for DynamicSIUnit {
-    fn from(unit: LinearNumberRateUnit) -> Self {
-        match unit {
-            LinearNumberRateUnit::PerMetreSecond => PerMetreSecond {}.into(),
-            LinearNumberRateUnit::PerFootSecond => PerFootSecond {}.into(),
-            LinearNumberRateUnit::PerFootSurveySecond => PerFootSurveySecond {}.into(),
-            LinearNumberRateUnit::PerInchSecond => PerInchSecond {}.into(),
-            LinearNumberRateUnit::PerMileSecond => PerMileSecond {}.into(),
-            LinearNumberRateUnit::PerMileSurveySecond => PerMileSurveySecond {}.into(),
-            LinearNumberRateUnit::PerYardSecond => PerYardSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `ArealNumberRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealNumberRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<AREAL_NUMBER_RATE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<AREAL_NUMBER_RATE, N>;
+        fn value(&self, quantity: SIQuantity<AREAL_NUMBER_RATE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ArealNumberRateUnit {
     #[default]
-    #[unit(PerSquareMetreSecond)]
+    #[value(PER_SQUARE_METRE_SECOND)]
     PerSquareMetreSecond,
-    #[unit(PerAcreSecond)]
+    #[value(PER_ACRE_SECOND)]
     PerAcreSecond,
-    #[unit(PerAreSecond)]
+    #[value(PER_ARE_SECOND)]
     PerAreSecond,
-    #[unit(PerBarnSecond)]
+    #[value(PER_BARN_SECOND)]
     PerBarnSecond,
-    #[unit(PerCircularMilSecond)]
+    #[value(PER_CIRCULAR_MIL_SECOND)]
     PerCircularMilSecond,
-    #[unit(PerHectareSecond)]
+    #[value(PER_HECTARE_SECOND)]
     PerHectareSecond,
-    #[unit(PerSquareFootSecond)]
+    #[value(PER_SQUARE_FOOT_SECOND)]
     PerSquareFootSecond,
-    #[unit(PerSquareInchSecond)]
+    #[value(PER_SQUARE_INCH_SECOND)]
     PerSquareInchSecond,
-    #[unit(PerSquareMileSecond)]
+    #[value(PER_SQUARE_MILE_SECOND)]
     PerSquareMileSecond,
-    #[unit(PerSquareYardSecond)]
+    #[value(PER_SQUARE_YARD_SECOND)]
     PerSquareYardSecond,
-}
-
-impl From<ArealNumberRateUnit> for DynamicSIUnit {
-    fn from(unit: ArealNumberRateUnit) -> Self {
-        match unit {
-            ArealNumberRateUnit::PerSquareMetreSecond => PerSquareMetreSecond {}.into(),
-            ArealNumberRateUnit::PerAcreSecond => PerAcreSecond {}.into(),
-            ArealNumberRateUnit::PerAreSecond => PerAreSecond {}.into(),
-            ArealNumberRateUnit::PerBarnSecond => PerBarnSecond {}.into(),
-            ArealNumberRateUnit::PerCircularMilSecond => PerCircularMilSecond {}.into(),
-            ArealNumberRateUnit::PerHectareSecond => PerHectareSecond {}.into(),
-            ArealNumberRateUnit::PerSquareFootSecond => PerSquareFootSecond {}.into(),
-            ArealNumberRateUnit::PerSquareInchSecond => PerSquareInchSecond {}.into(),
-            ArealNumberRateUnit::PerSquareMileSecond => PerSquareMileSecond {}.into(),
-            ArealNumberRateUnit::PerSquareYardSecond => PerSquareYardSecond {}.into(),
-        }
-    }
 }
 
 /// The units of `VolumetricNumberRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricNumberRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<VOLUMETRIC_NUMBER_RATE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<VOLUMETRIC_NUMBER_RATE, N>;
+        fn value(&self, quantity: SIQuantity<VOLUMETRIC_NUMBER_RATE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumetricNumberRateUnit {
     #[default]
-    #[unit(PerCubicMetreSecond)]
+    #[value(PER_CUBIC_METRE_SECOND)]
     PerCubicMetreSecond,
-    #[unit(PerCubicFootSecond)]
+    #[value(PER_CUBIC_FOOT_SECOND)]
     PerCubicFootSecond,
-    #[unit(PerCubicInchSecond)]
+    #[value(PER_CUBIC_INCH_SECOND)]
     PerCubicInchSecond,
-    #[unit(PerCubicMileSecond)]
+    #[value(PER_CUBIC_MILE_SECOND)]
     PerCubicMileSecond,
-    #[unit(PerCubicYardSecond)]
+    #[value(PER_CUBIC_YARD_SECOND)]
     PerCubicYardSecond,
-    #[unit(PerFluidOunceSecond)]
+    #[value(PER_FLUID_OUNCE_SECOND)]
     PerFluidOunceSecond,
-    #[unit(PerFluidOunceImperialSecond)]
+    #[value(PER_FLUID_OUNCE_IMPERIAL_SECOND)]
     PerFluidOunceImperialSecond,
-    #[unit(PerGallonImperialSecond)]
+    #[value(PER_GALLON_IMPERIAL_SECOND)]
     PerGallonImperialSecond,
-    #[unit(PerGallonSecond)]
+    #[value(PER_GALLON_SECOND)]
     PerGallonSecond,
-    #[unit(PerLitreSecond)]
+    #[value(PER_LITRE_SECOND)]
     PerLitreSecond,
-    #[unit(BecquerelPerCubicMetre)]
+    #[value(BECQUEREL_PER_CUBIC_METRE)]
     BecquerelPerCubicMetre,
-    #[unit(CuriePerCubicMetre)]
+    #[value(CURIE_PER_CUBIC_METRE)]
     CuriePerCubicMetre,
-    #[unit(DisintegrationsPerMinutePerCubicMetre)]
+    #[value(DISINTEGRATIONS_PER_MINUTE_PER_CUBIC_METRE)]
     DisintegrationsPerMinutePerCubicMetre,
-}
-
-impl From<VolumetricNumberRateUnit> for DynamicSIUnit {
-    fn from(unit: VolumetricNumberRateUnit) -> Self {
-        match unit {
-            VolumetricNumberRateUnit::PerCubicMetreSecond => PerCubicMetreSecond {}.into(),
-            VolumetricNumberRateUnit::PerCubicFootSecond => PerCubicFootSecond {}.into(),
-            VolumetricNumberRateUnit::PerCubicInchSecond => PerCubicInchSecond {}.into(),
-            VolumetricNumberRateUnit::PerCubicMileSecond => PerCubicMileSecond {}.into(),
-            VolumetricNumberRateUnit::PerCubicYardSecond => PerCubicYardSecond {}.into(),
-            VolumetricNumberRateUnit::PerFluidOunceSecond => PerFluidOunceSecond {}.into(),
-            VolumetricNumberRateUnit::PerFluidOunceImperialSecond => {
-                PerFluidOunceImperialSecond {}.into()
-            }
-            VolumetricNumberRateUnit::PerGallonImperialSecond => PerGallonImperialSecond {}.into(),
-            VolumetricNumberRateUnit::PerGallonSecond => PerGallonSecond {}.into(),
-            VolumetricNumberRateUnit::PerLitreSecond => PerLitreSecond {}.into(),
-            VolumetricNumberRateUnit::BecquerelPerCubicMetre => BecquerelPerCubicMetre {}.into(),
-            VolumetricNumberRateUnit::CuriePerCubicMetre => CuriePerCubicMetre {}.into(),
-            VolumetricNumberRateUnit::DisintegrationsPerMinutePerCubicMetre => {
-                DisintegrationsPerMinutePerCubicMetre {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `LinearDensityOfStates`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearDensityOfStates<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LINEAR_DENSITY_OF_STATES, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LINEAR_DENSITY_OF_STATES, N>;
+        fn value(&self, quantity: SIQuantity<LINEAR_DENSITY_OF_STATES, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LinearDensityOfStatesUnit {
     #[default]
-    #[unit(StatePerMetreJoule)]
+    #[value(STATE_PER_METRE_JOULE)]
     StatePerMetreJoule,
-}
-
-impl From<LinearDensityOfStatesUnit> for DynamicSIUnit {
-    fn from(unit: LinearDensityOfStatesUnit) -> Self {
-        match unit {
-            LinearDensityOfStatesUnit::StatePerMetreJoule => StatePerMetreJoule {}.into(),
-        }
-    }
 }
 
 /// The units of `ArealDensityOfStates`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealDensityOfStates<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<AREAL_DENSITY_OF_STATES, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<AREAL_DENSITY_OF_STATES, N>;
+        fn value(&self, quantity: SIQuantity<AREAL_DENSITY_OF_STATES, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ArealDensityOfStatesUnit {
     #[default]
-    #[unit(StatePerSquareMetreJoule)]
+    #[value(STATE_PER_SQUARE_METRE_JOULE)]
     StatePerSquareMetreJoule,
-}
-
-impl From<ArealDensityOfStatesUnit> for DynamicSIUnit {
-    fn from(unit: ArealDensityOfStatesUnit) -> Self {
-        match unit {
-            ArealDensityOfStatesUnit::StatePerSquareMetreJoule => {
-                StatePerSquareMetreJoule {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `VolumetricDensityOfStates`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricDensityOfStates<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<VOLUMETRIC_DENSITY_OF_STATES, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<VOLUMETRIC_DENSITY_OF_STATES, N>;
+        fn value(&self, quantity: SIQuantity<VOLUMETRIC_DENSITY_OF_STATES, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumetricDensityOfStatesUnit {
     #[default]
-    #[unit(StatePerCubicMetreJoule)]
+    #[value(STATE_PER_CUBIC_METRE_JOULE)]
     StatePerCubicMetreJoule,
-}
-
-impl From<VolumetricDensityOfStatesUnit> for DynamicSIUnit {
-    fn from(unit: VolumetricDensityOfStatesUnit) -> Self {
-        match unit {
-            VolumetricDensityOfStatesUnit::StatePerCubicMetreJoule => {
-                StatePerCubicMetreJoule {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `LinearPowerDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearPowerDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<LINEAR_POWER_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<LINEAR_POWER_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<LINEAR_POWER_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum LinearPowerDensityUnit {
     #[default]
-    #[unit(WattPerMetre)]
+    #[value(WATT_PER_METRE)]
     WattPerMetre,
-}
-
-impl From<LinearPowerDensityUnit> for DynamicSIUnit {
-    fn from(unit: LinearPowerDensityUnit) -> Self {
-        match unit {
-            LinearPowerDensityUnit::WattPerMetre => WattPerMetre {}.into(),
-        }
-    }
 }
 
 /// The units of `VolumetricPowerDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricPowerDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<VOLUMETRIC_POWER_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<VOLUMETRIC_POWER_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<VOLUMETRIC_POWER_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumetricPowerDensityUnit {
     #[default]
-    #[unit(WattPerCubicMetre)]
+    #[value(WATT_PER_CUBIC_METRE)]
     WattPerCubicMetre,
-}
-
-impl From<VolumetricPowerDensityUnit> for DynamicSIUnit {
-    fn from(unit: VolumetricPowerDensityUnit) -> Self {
-        match unit {
-            VolumetricPowerDensityUnit::WattPerCubicMetre => WattPerCubicMetre {}.into(),
-        }
-    }
 }

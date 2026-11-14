@@ -1,48 +1,44 @@
 //! The units of `infotech`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dynamic::DynamicUcumUnit;
 use crate::infotech::units::*;
 use crate::infotech::*;
-use core::marker::Destruct;
+use crate::{Exact, Qty, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `AmountOfInformation`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AmountOfInformation<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<AMOUNT_OF_INFORMATION, N>, N> {
+        fn quantity(&self, value: N) -> Qty<AMOUNT_OF_INFORMATION, N>;
+        fn value(&self, quantity: Qty<AMOUNT_OF_INFORMATION, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum AmountOfInformationUnit {
     #[default]
-    #[unit(Bit)]
+    #[value(BIT)]
     Bit,
-    #[unit(Byte)]
+    #[value(BYTE)]
     Byte,
-}
-
-impl From<AmountOfInformationUnit> for DynamicUcumUnit {
-    fn from(unit: AmountOfInformationUnit) -> Self {
-        match unit {
-            AmountOfInformationUnit::Bit => Bit {}.into(),
-            AmountOfInformationUnit::Byte => Byte {}.into(),
-        }
-    }
 }
 
 /// The units of `SignalTransmissionRate`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SignalTransmissionRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<Qty<SIGNAL_TRANSMISSION_RATE, N>, N> {
+        fn quantity(&self, value: N) -> Qty<SIGNAL_TRANSMISSION_RATE, N>;
+        fn value(&self, quantity: Qty<SIGNAL_TRANSMISSION_RATE, N>) -> N;
+    }),
+    into(DynamicUcumUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum SignalTransmissionRateUnit {
     #[default]
-    #[unit(Baud)]
+    #[value(BAUD)]
     Baud,
-}
-
-impl From<SignalTransmissionRateUnit> for DynamicUcumUnit {
-    fn from(unit: SignalTransmissionRateUnit) -> Self {
-        match unit {
-            SignalTransmissionRateUnit::Baud => Baud {}.into(),
-        }
-    }
 }

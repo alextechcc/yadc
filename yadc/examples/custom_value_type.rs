@@ -8,8 +8,8 @@
 //! Every quantity constant is a unit counted in the quantity's own numbers:
 //! `KILOMETRE.quantity(MyF64(2.5))` is 2.5 km and `KILOMETRE.value(d)` is a
 //! `MyF64`. A unit type of ours (`Celsius`: kelvins from the ice point)
-//! counts in `MyF64` by its `impl Unit<Temperature, MyF64>`, and a unit enum
-//! says what its numbers are with `number = MyF64` in its `#[unit(..)]`. The
+//! counts in `MyF64` by its `impl Unit<Temperature, MyF64>`, and an enum of
+//! units (`dynamickit::Values`) delegates `Unit<Temperature, MyF64>`. The
 //! numbers stay `MyF64` throughout, with no `From<f64>` required.
 //!
 //! Run with: cargo run -p yadc --example custom_value_type
@@ -41,52 +41,52 @@ impl std::fmt::Display for MyF64 {
     }
 }
 
-const impl Add for MyF64 {
+impl const Add for MyF64 {
     type Output = Self;
     fn add(self, r: Self) -> Self {
         Self(self.0 + r.0)
     }
 }
-const impl Sub for MyF64 {
+impl const Sub for MyF64 {
     type Output = Self;
     fn sub(self, r: Self) -> Self {
         Self(self.0 - r.0)
     }
 }
-const impl Mul for MyF64 {
+impl const Mul for MyF64 {
     type Output = Self;
     fn mul(self, r: Self) -> Self {
         Self(self.0 * r.0)
     }
 }
-const impl Div for MyF64 {
+impl const Div for MyF64 {
     type Output = Self;
     fn div(self, r: Self) -> Self {
         Self(self.0 / r.0)
     }
 }
-const impl Neg for MyF64 {
+impl const Neg for MyF64 {
     type Output = Self;
     fn neg(self) -> Self {
         Self(-self.0)
     }
 }
-const impl AddAssign for MyF64 {
+impl const AddAssign for MyF64 {
     fn add_assign(&mut self, r: Self) {
         self.0 += r.0;
     }
 }
-const impl SubAssign for MyF64 {
+impl const SubAssign for MyF64 {
     fn sub_assign(&mut self, r: Self) {
         self.0 -= r.0;
     }
 }
-const impl MulAssign for MyF64 {
+impl const MulAssign for MyF64 {
     fn mul_assign(&mut self, r: Self) {
         self.0 *= r.0;
     }
 }
-const impl DivAssign for MyF64 {
+impl const DivAssign for MyF64 {
     fn div_assign(&mut self, r: Self) {
         self.0 /= r.0;
     }
@@ -233,31 +233,40 @@ unit!(SquareMetre: Area = SQUARE_METRE, "m²", "square metres");
 unit!(SquareKilometre: Area = SQUARE_KILOMETRE, "km²", "square kilometres");
 
 /// The temperature units, for printing and for a menu.
-#[derive(Copy, Clone, Unit)]
-#[unit(of = Temperature, number = MyF64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Temperature, MyF64> {
+    fn quantity(&self, value: MyF64) -> Temperature;
+    fn value(&self, quantity: Temperature) -> MyF64;
+}))]
 pub enum TemperatureUnit {
-    #[unit(KelvinScale)]
+    #[value(KelvinScale)]
     Kelvin,
-    #[unit(Celsius)]
+    #[value(Celsius)]
     Celsius,
 }
 
 /// A choice of units, for a menu.
-#[derive(Copy, Clone, Unit)]
-#[unit(of = Length, number = MyF64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Length, MyF64> {
+    fn quantity(&self, value: MyF64) -> Length;
+    fn value(&self, quantity: Length) -> MyF64;
+}))]
 pub enum LengthUnit {
-    #[unit(Metre)]
+    #[value(Metre)]
     Metre,
-    #[unit(Kilometre)]
+    #[value(Kilometre)]
     Kilometre,
 }
 
-#[derive(Copy, Clone, Unit)]
-#[unit(of = Area, number = MyF64)]
+#[derive(Copy, Clone, dynamickit::Values)]
+#[values(delegate(Unit<Area, MyF64> {
+    fn quantity(&self, value: MyF64) -> Area;
+    fn value(&self, quantity: Area) -> MyF64;
+}))]
 pub enum AreaUnit {
-    #[unit(SquareMetre)]
+    #[value(SquareMetre)]
     SquareMetre,
-    #[unit(SquareKilometre)]
+    #[value(SquareKilometre)]
     SquareKilometre,
 }
 

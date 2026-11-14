@@ -128,8 +128,9 @@ pub struct QuantityDef {
 ///
 /// A unit is its size and its zero in the quantity's coherent unit: a number
 /// `n` in it is `n · m + z` coherent units (`m = "0.0254"` for the inch, `m =
-/// "1.0", z = "273.15"` for the Celsius scale). It is a type,
-/// `SIUnit<D, SIUnitConsts { .. }>`, named by `t` or its variant.
+/// "1.0", z = "273.15"` for the Celsius scale). It is a constant of its own
+/// type, `SIUnit<D, { SIUnitConsts { .. } }>`, named by `t` or its variant in
+/// SCREAMING_SNAKE_CASE.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct UnitDef {
@@ -149,7 +150,8 @@ pub struct UnitDef {
     /// Long plural name, e.g. `"kilometres"`.
     #[serde(rename = "l")]
     pub long: String,
-    /// The unit type's name when not the variant's: `t = "CelsiusScale"`.
+    /// The unit's name when not the variant's: `t = "KelvinScale"` names the
+    /// constant `KELVIN_SCALE`.
     #[serde(rename = "t", default)]
     pub type_name: Option<String>,
 }

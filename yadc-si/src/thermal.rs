@@ -1,37 +1,33 @@
-use crate::{ISQ, Kind, SIQuantity};
+use crate::{ISQ, Kind};
 use yadc::Dimension;
 
-/// The dimension of `ThermodynamicTemperature`.
+/// The dimension of `ThermodynamicTemperature`: `SIQuantity<THERMODYNAMIC_TEMPERATURE, N>` is one.
 pub const THERMODYNAMIC_TEMPERATURE: ISQ = ISQ {
     K: 1,
     kind: Kind::Absolute,
     ..ISQ::DIMENSIONLESS
 };
-pub type ThermodynamicTemperature<N> = SIQuantity<THERMODYNAMIC_TEMPERATURE, N>;
 
-/// The dimension of `TemperatureInterval`.
+/// The dimension of `TemperatureInterval`: `SIQuantity<TEMPERATURE_INTERVAL, N>` is one.
 pub const TEMPERATURE_INTERVAL: ISQ = ISQ {
     K: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type TemperatureInterval<N> = SIQuantity<TEMPERATURE_INTERVAL, N>;
 
-/// The dimension of `TemperatureCoefficient`.
+/// The dimension of `TemperatureCoefficient`: `SIQuantity<TEMPERATURE_COEFFICIENT, N>` is one.
 pub const TEMPERATURE_COEFFICIENT: ISQ = ISQ {
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type TemperatureCoefficient<N> = SIQuantity<TEMPERATURE_COEFFICIENT, N>;
 
-/// The dimension of `TemperatureGradient`.
+/// The dimension of `TemperatureGradient`: `SIQuantity<TEMPERATURE_GRADIENT, N>` is one.
 pub const TEMPERATURE_GRADIENT: ISQ = ISQ {
     m: -1,
     K: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type TemperatureGradient<N> = SIQuantity<TEMPERATURE_GRADIENT, N>;
 
-/// The dimension of `HeatCapacity`.
+/// The dimension of `HeatCapacity`: `SIQuantity<HEAT_CAPACITY, N>` is one.
 pub const HEAT_CAPACITY: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -39,26 +35,23 @@ pub const HEAT_CAPACITY: ISQ = ISQ {
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type HeatCapacity<N> = SIQuantity<HEAT_CAPACITY, N>;
 
-/// The dimension of `HeatFluxDensity`.
+/// The dimension of `HeatFluxDensity`: `SIQuantity<HEAT_FLUX_DENSITY, N>` is one.
 pub const HEAT_FLUX_DENSITY: ISQ = ISQ {
     kg: 1,
     s: -3,
     ..ISQ::DIMENSIONLESS
 };
-pub type HeatFluxDensity<N> = SIQuantity<HEAT_FLUX_DENSITY, N>;
 
-/// The dimension of `HeatTransfer`.
+/// The dimension of `HeatTransfer`: `SIQuantity<HEAT_TRANSFER, N>` is one.
 pub const HEAT_TRANSFER: ISQ = ISQ {
     kg: 1,
     s: -3,
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type HeatTransfer<N> = SIQuantity<HEAT_TRANSFER, N>;
 
-/// The dimension of `ThermalConductance`.
+/// The dimension of `ThermalConductance`: `SIQuantity<THERMAL_CONDUCTANCE, N>` is one.
 pub const THERMAL_CONDUCTANCE: ISQ = ISQ {
     m: 2,
     kg: 1,
@@ -66,9 +59,8 @@ pub const THERMAL_CONDUCTANCE: ISQ = ISQ {
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ThermalConductance<N> = SIQuantity<THERMAL_CONDUCTANCE, N>;
 
-/// The dimension of `ThermalConductivity`.
+/// The dimension of `ThermalConductivity`: `SIQuantity<THERMAL_CONDUCTIVITY, N>` is one.
 pub const THERMAL_CONDUCTIVITY: ISQ = ISQ {
     m: 1,
     kg: 1,
@@ -76,9 +68,8 @@ pub const THERMAL_CONDUCTIVITY: ISQ = ISQ {
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ThermalConductivity<N> = SIQuantity<THERMAL_CONDUCTIVITY, N>;
 
-/// The dimension of `ThermalResistance`.
+/// The dimension of `ThermalResistance`: `SIQuantity<THERMAL_RESISTANCE, N>` is one.
 pub const THERMAL_RESISTANCE: ISQ = ISQ {
     m: -2,
     kg: -1,
@@ -86,27 +77,24 @@ pub const THERMAL_RESISTANCE: ISQ = ISQ {
     K: 1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ThermalResistance<N> = SIQuantity<THERMAL_RESISTANCE, N>;
 
-/// The dimension of `SpecificHeatCapacity`.
+/// The dimension of `SpecificHeatCapacity`: `SIQuantity<SPECIFIC_HEAT_CAPACITY, N>` is one.
 pub const SPECIFIC_HEAT_CAPACITY: ISQ = ISQ {
     m: 2,
     s: -2,
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type SpecificHeatCapacity<N> = SIQuantity<SPECIFIC_HEAT_CAPACITY, N>;
 
-/// The dimension of `ArealHeatCapacity`.
+/// The dimension of `ArealHeatCapacity`: `SIQuantity<AREAL_HEAT_CAPACITY, N>` is one.
 pub const AREAL_HEAT_CAPACITY: ISQ = ISQ {
     kg: 1,
     s: -2,
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type ArealHeatCapacity<N> = SIQuantity<AREAL_HEAT_CAPACITY, N>;
 
-/// The dimension of `VolumetricHeatCapacity`.
+/// The dimension of `VolumetricHeatCapacity`: `SIQuantity<VOLUMETRIC_HEAT_CAPACITY, N>` is one.
 pub const VOLUMETRIC_HEAT_CAPACITY: ISQ = ISQ {
     m: -1,
     kg: 1,
@@ -114,25 +102,24 @@ pub const VOLUMETRIC_HEAT_CAPACITY: ISQ = ISQ {
     K: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type VolumetricHeatCapacity<N> = SIQuantity<VOLUMETRIC_HEAT_CAPACITY, N>;
 
-/// The dimension of `StefanBoltzmannCoefficient`.
+/// The dimension of `StefanBoltzmannCoefficient`: `SIQuantity<STEFAN_BOLTZMANN_COEFFICIENT, N>` is one.
 pub const STEFAN_BOLTZMANN_COEFFICIENT: ISQ = ISQ {
     kg: 1,
     s: -3,
     K: -4,
     ..ISQ::DIMENSIONLESS
 };
-pub type StefanBoltzmannCoefficient<N> = SIQuantity<STEFAN_BOLTZMANN_COEFFICIENT, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Kelvin (`K`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 1.0` coherent units.
-    pub type KelvinScale = SIUnit<
+    pub const KELVIN_SCALE: SIUnit<
         THERMODYNAMIC_TEMPERATURE,
         {
             SIUnitConsts {
@@ -142,10 +129,10 @@ pub mod units {
                 name: "kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees Celsius (`°C`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 1.0 + 273.15` coherent units.
-    pub type Celsius = SIUnit<
+    pub const CELSIUS: SIUnit<
         THERMODYNAMIC_TEMPERATURE,
         {
             SIUnitConsts {
@@ -155,10 +142,10 @@ pub mod units {
                 name: "degrees Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees Fahrenheit (`°F`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 5.0 / 9.0 + 273.15 - 32.0 * 5.0 / 9.0` coherent units.
-    pub type Fahrenheit = SIUnit<
+    pub const FAHRENHEIT: SIUnit<
         THERMODYNAMIC_TEMPERATURE,
         {
             SIUnitConsts {
@@ -168,10 +155,10 @@ pub mod units {
                 name: "degrees Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees Rankine (`°R`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 5.0 / 9.0` coherent units.
-    pub type Rankine = SIUnit<
+    pub const RANKINE: SIUnit<
         THERMODYNAMIC_TEMPERATURE,
         {
             SIUnitConsts {
@@ -181,10 +168,10 @@ pub mod units {
                 name: "degrees Rankine",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kelvin (`K`), a unit of `TemperatureInterval`: `n` of them is `n · 1.0` coherent units.
-    pub type Kelvin = SIUnit<
+    pub const KELVIN: SIUnit<
         TEMPERATURE_INTERVAL,
         {
             SIUnitConsts {
@@ -194,10 +181,10 @@ pub mod units {
                 name: "kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees Celsius (`°C`), a unit of `TemperatureInterval`: `n` of them is `n · 1.0` coherent units.
-    pub type DegreeCelsius = SIUnit<
+    pub const DEGREE_CELSIUS: SIUnit<
         TEMPERATURE_INTERVAL,
         {
             SIUnitConsts {
@@ -207,10 +194,10 @@ pub mod units {
                 name: "degrees Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees Fahrenheit (`°F`), a unit of `TemperatureInterval`: `n` of them is `n · 5.0 / 9.0` coherent units.
-    pub type DegreeFahrenheit = SIUnit<
+    pub const DEGREE_FAHRENHEIT: SIUnit<
         TEMPERATURE_INTERVAL,
         {
             SIUnitConsts {
@@ -220,10 +207,10 @@ pub mod units {
                 name: "degrees Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Degrees Rankine (`°R`), a unit of `TemperatureInterval`: `n` of them is `n · 5.0 / 9.0` coherent units.
-    pub type DegreeRankine = SIUnit<
+    pub const DEGREE_RANKINE: SIUnit<
         TEMPERATURE_INTERVAL,
         {
             SIUnitConsts {
@@ -233,10 +220,10 @@ pub mod units {
                 name: "degrees Rankine",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per kelvin (`K⁻¹`), a unit of `TemperatureCoefficient`: `n` of them is `n · 1.0` coherent units.
-    pub type PerKelvin = SIUnit<
+    pub const PER_KELVIN: SIUnit<
         TEMPERATURE_COEFFICIENT,
         {
             SIUnitConsts {
@@ -246,10 +233,10 @@ pub mod units {
                 name: "per kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ppm per kelvin (`ppm/K`), a unit of `TemperatureCoefficient`: `n` of them is `n · 1e-06` coherent units.
-    pub type PpmPerKelvin = SIUnit<
+    pub const PPM_PER_KELVIN: SIUnit<
         TEMPERATURE_COEFFICIENT,
         {
             SIUnitConsts {
@@ -259,10 +246,10 @@ pub mod units {
                 name: "ppm per kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ppm per degree Celsius (`ppm/°C`), a unit of `TemperatureCoefficient`: `n` of them is `n · 1e-06` coherent units.
-    pub type PpmPerDegreeCelsius = SIUnit<
+    pub const PPM_PER_DEGREE_CELSIUS: SIUnit<
         TEMPERATURE_COEFFICIENT,
         {
             SIUnitConsts {
@@ -272,10 +259,10 @@ pub mod units {
                 name: "ppm per degree Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kelvins per metre (`K/m`), a unit of `TemperatureGradient`: `n` of them is `n · 1.0` coherent units.
-    pub type KelvinPerMetre = SIUnit<
+    pub const KELVIN_PER_METRE: SIUnit<
         TEMPERATURE_GRADIENT,
         {
             SIUnitConsts {
@@ -285,10 +272,10 @@ pub mod units {
                 name: "kelvins per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilogram square metres per second squared kelvin (`kg · m²/(s² · K)`), a unit of `HeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramSquareMetrePerSecondSquaredKelvin = SIUnit<
+    pub const KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -298,10 +285,10 @@ pub mod units {
                 name: "kilogram square metres per second squared kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gram square metres per second squared kelvin (`g · m²/(s² · K)`), a unit of `HeatCapacity`: `n` of them is `n · 0.001` coherent units.
-    pub type GramSquareMetrePerSecondSquaredKelvin = SIUnit<
+    pub const GRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -311,10 +298,10 @@ pub mod units {
                 name: "gram square metres per second squared kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per kelvin (`J/K`), a unit of `HeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerKelvin = SIUnit<
+    pub const JOULE_PER_KELVIN: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -324,10 +311,10 @@ pub mod units {
                 name: "joules per kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per degree celsius (`J/°C`), a unit of `HeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerDegreeCelsius = SIUnit<
+    pub const JOULE_PER_DEGREE_CELSIUS: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -337,10 +324,10 @@ pub mod units {
                 name: "joules per degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per degree Fahrenheit (`Btu/°F`), a unit of `HeatCapacity`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (5.0 / 9.0)` coherent units.
-    pub type BtuPerDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -351,10 +338,10 @@ pub mod units {
                 name: "British thermal units per degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per degree Fahrenheit (`Btu (IT)/°F`), a unit of `HeatCapacity`: `n` of them is `n · 1055.05585262 / (5.0 / 9.0)` coherent units.
-    pub type BtuItPerDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -364,10 +351,10 @@ pub mod units {
                 name: "British thermal units (IT) per degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Boltzmann constants (`k`), a unit of `HeatCapacity`: `n` of them is `n · 1.380649e-23` coherent units.
-    pub type BoltzmannConstant = SIUnit<
+    pub const BOLTZMANN_CONSTANT: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -377,10 +364,10 @@ pub mod units {
                 name: "Boltzmann constants",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories per kelvin (`cal/K`), a unit of `HeatCapacity`: `n` of them is `n · 4.184` coherent units.
-    pub type CaloriePerKelvin = SIUnit<
+    pub const CALORIE_PER_KELVIN: SIUnit<
         HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -390,10 +377,10 @@ pub mod units {
                 name: "calories per kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per square metre (`W/m²`), a unit of `HeatFluxDensity`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerSquareMetre = SIUnit<
+    pub const WATT_PER_SQUARE_METRE: SIUnit<
         HEAT_FLUX_DENSITY,
         {
             SIUnitConsts {
@@ -403,10 +390,10 @@ pub mod units {
                 name: "watts per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per second cubed kelvin (`kg/(s³ · K)`), a unit of `HeatTransfer`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerSecondCubedKelvin = SIUnit<
+    pub const KILOGRAM_PER_SECOND_CUBED_KELVIN: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -416,10 +403,10 @@ pub mod units {
                 name: "kilograms per second cubed kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per second cubed kelvin (`g/(s³ · K)`), a unit of `HeatTransfer`: `n` of them is `n · 0.001` coherent units.
-    pub type GramPerSecondCubedKelvin = SIUnit<
+    pub const GRAM_PER_SECOND_CUBED_KELVIN: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -429,10 +416,10 @@ pub mod units {
                 name: "grams per second cubed kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per second cubed degree celsius (`kg/(s³ · °C)`), a unit of `HeatTransfer`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerSecondCubedDegreeCelsius = SIUnit<
+    pub const KILOGRAM_PER_SECOND_CUBED_DEGREE_CELSIUS: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -442,10 +429,10 @@ pub mod units {
                 name: "kilograms per second cubed degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per square metre kelvin (`W/(m² · K)`), a unit of `HeatTransfer`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerSquareMetreKelvin = SIUnit<
+    pub const WATT_PER_SQUARE_METRE_KELVIN: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -455,10 +442,10 @@ pub mod units {
                 name: "watts per square metre kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per square metre degree celsius (`W/(m² · °C)`), a unit of `HeatTransfer`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerSquareMetreDegreeCelsius = SIUnit<
+    pub const WATT_PER_SQUARE_METRE_DEGREE_CELSIUS: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -468,10 +455,10 @@ pub mod units {
                 name: "watts per square metre degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per second square metre kelvin (`J/(s · m² · K)`), a unit of `HeatTransfer`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerSecondSquareMetreKelvin = SIUnit<
+    pub const JOULE_PER_SECOND_SQUARE_METRE_KELVIN: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -481,10 +468,10 @@ pub mod units {
                 name: "joules per second square metre kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per second square metre degree celsius (`J/(s · m² · °C)`), a unit of `HeatTransfer`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerSecondSquareMetreDegreeCelsius = SIUnit<
+    pub const JOULE_PER_SECOND_SQUARE_METRE_DEGREE_CELSIUS: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -494,10 +481,10 @@ pub mod units {
                 name: "joules per second square metre degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per hour square foot degree Fahrenheit (`Btu (IT)/(hr · ft² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · 1055.05585262 / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerHourSquareFootDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -511,10 +498,10 @@ pub mod units {
                 name: "British thermal units (IT) per hour square foot degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per hour square inch degree Fahrenheit (`Btu (IT)/(hr · in² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · 1055.05585262 / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerHourSquareInchDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -528,10 +515,10 @@ pub mod units {
                 name: "British thermal units (IT) per hour square inch degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per minute square foot degree Fahrenheit (`Btu (IT)/(min · ft² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · 1055.05585262 / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerMinuteSquareFootDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -545,10 +532,10 @@ pub mod units {
                 name: "British thermal units (IT) per minute square foot degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per minute square inch degree Fahrenheit (`Btu (IT)/(min · in² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · 1055.05585262 / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerMinuteSquareInchDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -562,10 +549,10 @@ pub mod units {
                 name: "British thermal units (IT) per minute square inch degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per second square foot degree Fahrenheit (`Btu (IT)/(s · ft² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · 1055.05585262 / (0.3048 * 0.3048 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerSecondSquareFootDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -578,10 +565,10 @@ pub mod units {
                 name: "British thermal units (IT) per second square foot degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per second square inch degree Fahrenheit (`Btu (IT)/(s · in² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · 1055.05585262 / (0.0254 * 0.0254 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerSecondSquareInchDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -592,10 +579,10 @@ pub mod units {
                 name: "British thermal units (IT) per second square inch degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per hour square foot degree Fahrenheit (`Btu/(hr · ft² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerHourSquareFootDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -609,10 +596,10 @@ pub mod units {
                 name: "British thermal units per hour square foot degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per hour square inch degree Fahrenheit (`Btu/(hr · in² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerHourSquareInchDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -626,10 +613,10 @@ pub mod units {
                 name: "British thermal units per hour square inch degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per minute square foot degree Fahrenheit (`Btu/(min · ft² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerMinuteSquareFootDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -643,10 +630,10 @@ pub mod units {
                 name: "British thermal units per minute square foot degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per minute square inch degree Fahrenheit (`Btu/(min · in² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerMinuteSquareInchDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -660,10 +647,10 @@ pub mod units {
                 name: "British thermal units per minute square inch degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per second square foot degree Fahrenheit (`Btu/(s · ft² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (0.3048 * 0.3048 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerSecondSquareFootDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -676,10 +663,10 @@ pub mod units {
                 name: "British thermal units per second square foot degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per second square inch degree Fahrenheit (`Btu/(s · in² · °F)`), a unit of `HeatTransfer`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (0.0254 * 0.0254 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerSecondSquareInchDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT: SIUnit<
         HEAT_TRANSFER,
         {
             SIUnitConsts {
@@ -690,10 +677,10 @@ pub mod units {
                 name: "British thermal units per second square inch degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms metre squared per second cubed kelvin (`kg · m²/(s³ · K)`), a unit of `ThermalConductance`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramMetreSquaredPerSecondCubedKelvin = SIUnit<
+    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -703,10 +690,10 @@ pub mod units {
                 name: "kilograms metre squared per second cubed kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams metre squared per second cubed kelvin (`g · m/(s³ · K)`), a unit of `ThermalConductance`: `n` of them is `n · 0.001` coherent units.
-    pub type GramMetreSquaredPerSecondCubedKelvin = SIUnit<
+    pub const GRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -716,10 +703,10 @@ pub mod units {
                 name: "grams metre squared per second cubed kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per kelvin (`W/K`), a unit of `ThermalConductance`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerKelvin = SIUnit<
+    pub const WATT_PER_KELVIN: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -729,10 +716,10 @@ pub mod units {
                 name: "watts per kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms metre squared per second cubed degree Celsius (`kg · m²/(s³ · °C)`), a unit of `ThermalConductance`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramMetreSquaredPerSecondCubedDegreeCelsius = SIUnit<
+    pub const KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_DEGREE_CELSIUS: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -742,10 +729,10 @@ pub mod units {
                 name: "kilograms metre squared per second cubed degree Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per degree Celsius (`W/°C`), a unit of `ThermalConductance`: `n` of them is `n · 1.0` coherent units.
-    pub type ThermalConductanceWattPerMetreDegreeCelsius = SIUnit<
+    pub const THERMAL_CONDUCTANCE_WATT_PER_METRE_DEGREE_CELSIUS: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -755,10 +742,10 @@ pub mod units {
                 name: "watts per degree Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilowatts per degree Celsius (`kW/°C`), a unit of `ThermalConductance`: `n` of them is `n · 1000.0` coherent units.
-    pub type KilowattPerDegreeCelsius = SIUnit<
+    pub const KILOWATT_PER_DEGREE_CELSIUS: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -768,10 +755,10 @@ pub mod units {
                 name: "kilowatts per degree Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Milliwatts per degree Celsius (`mW/°C`), a unit of `ThermalConductance`: `n` of them is `n · 0.001` coherent units.
-    pub type MilliwattPerDegreeCelsius = SIUnit<
+    pub const MILLIWATT_PER_DEGREE_CELSIUS: SIUnit<
         THERMAL_CONDUCTANCE,
         {
             SIUnitConsts {
@@ -781,10 +768,10 @@ pub mod units {
                 name: "milliwatts per degree Celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms metre per second cubed kelvin (`kg · m/(s³ · K)`), a unit of `ThermalConductivity`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramMetrePerSecondCubedKelvin = SIUnit<
+    pub const KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN: SIUnit<
         THERMAL_CONDUCTIVITY,
         {
             SIUnitConsts {
@@ -794,10 +781,10 @@ pub mod units {
                 name: "kilograms metre per second cubed kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams metre per second cubed kelvin (`g · m/(s³ · K)`), a unit of `ThermalConductivity`: `n` of them is `n · 0.001` coherent units.
-    pub type GramMetrePerSecondCubedKelvin = SIUnit<
+    pub const GRAM_METRE_PER_SECOND_CUBED_KELVIN: SIUnit<
         THERMAL_CONDUCTIVITY,
         {
             SIUnitConsts {
@@ -807,10 +794,10 @@ pub mod units {
                 name: "grams metre per second cubed kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per metre kelvin (`W/(m · K)`), a unit of `ThermalConductivity`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerMetreKelvin = SIUnit<
+    pub const WATT_PER_METRE_KELVIN: SIUnit<
         THERMAL_CONDUCTIVITY,
         {
             SIUnitConsts {
@@ -820,10 +807,10 @@ pub mod units {
                 name: "watts per metre kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms metre per second cubed degree celsius (`kg · m/(s³ · °C)`), a unit of `ThermalConductivity`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramMetrePerSecondCubedDegreeCelsius = SIUnit<
+    pub const KILOGRAM_METRE_PER_SECOND_CUBED_DEGREE_CELSIUS: SIUnit<
         THERMAL_CONDUCTIVITY,
         {
             SIUnitConsts {
@@ -833,10 +820,10 @@ pub mod units {
                 name: "kilograms metre per second cubed degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per metre degree celsius (`W/(m · °C)`), a unit of `ThermalConductivity`: `n` of them is `n · 1.0` coherent units.
-    pub type ThermalConductivityWattPerMetreDegreeCelsius = SIUnit<
+    pub const THERMAL_CONDUCTIVITY_WATT_PER_METRE_DEGREE_CELSIUS: SIUnit<
         THERMAL_CONDUCTIVITY,
         {
             SIUnitConsts {
@@ -846,10 +833,10 @@ pub mod units {
                 name: "watts per metre degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kelvins per watt (`K/W`), a unit of `ThermalResistance`: `n` of them is `n · 1.0` coherent units.
-    pub type KelvinPerWatt = SIUnit<
+    pub const KELVIN_PER_WATT: SIUnit<
         THERMAL_RESISTANCE,
         {
             SIUnitConsts {
@@ -859,10 +846,10 @@ pub mod units {
                 name: "kelvins per watt",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kelvins per kilowatt (`K/kW`), a unit of `ThermalResistance`: `n` of them is `n · 0.001` coherent units.
-    pub type KelvinPerKilowatt = SIUnit<
+    pub const KELVIN_PER_KILOWATT: SIUnit<
         THERMAL_RESISTANCE,
         {
             SIUnitConsts {
@@ -872,10 +859,10 @@ pub mod units {
                 name: "kelvins per kilowatt",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per second squared kelvin (`m²/(s² · K)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type SquareMetrePerSecondSquaredKelvin = SIUnit<
+    pub const SQUARE_METRE_PER_SECOND_SQUARED_KELVIN: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -885,10 +872,10 @@ pub mod units {
                 name: "square metres per second squared kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per kilogram kelvin (`J/(kg · K)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerKilogramKelvin = SIUnit<
+    pub const JOULE_PER_KILOGRAM_KELVIN: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -898,10 +885,10 @@ pub mod units {
                 name: "joules per kilogram kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per kilogram degree celsius (`J/(kg · °C)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerKilogramDegreeCelsius = SIUnit<
+    pub const JOULE_PER_KILOGRAM_DEGREE_CELSIUS: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -911,10 +898,10 @@ pub mod units {
                 name: "joules per kilogram degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per gram degree celsius (`J/(g · °C)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 1000.0` coherent units.
-    pub type JoulePerGramDegreeCelsius = SIUnit<
+    pub const JOULE_PER_GRAM_DEGREE_CELSIUS: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -924,10 +911,10 @@ pub mod units {
                 name: "joules per gram degree celsius",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per ounce degree Fahrenheit (`Btu/(oz · °F)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 16.0 * 4184.0` coherent units.
-    pub type BtuPerOunceDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_OUNCE_DEGREE_FAHRENHEIT: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -937,10 +924,10 @@ pub mod units {
                 name: "British thermal units per ounce degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per ounce degree Fahrenheit (`Btu (IT)/(oz · °F)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 16.0 * 4186.8` coherent units.
-    pub type BtuItPerOunceDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -950,10 +937,10 @@ pub mod units {
                 name: "British thermal units (IT) per ounce degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per pound degree Fahrenheit (`Btu/(lb · °F)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 4184.0` coherent units.
-    pub type BtuPerPoundDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_POUND_DEGREE_FAHRENHEIT: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -963,10 +950,10 @@ pub mod units {
                 name: "British thermal units per pound degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per pound degree Fahrenheit (`Btu (IT)/(lb · °F)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 4186.8` coherent units.
-    pub type BtuItPerPoundDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_POUND_DEGREE_FAHRENHEIT: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -976,10 +963,10 @@ pub mod units {
                 name: "British thermal units (IT) per pound degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units per ton degree Fahrenheit (`Btu/(t · °F)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · (4184.0 * 0.45359237 / 1.8) / (1000.0 * (5.0 / 9.0))` coherent units.
-    pub type BtuPerTonDegreeFahrenheit = SIUnit<
+    pub const BTU_PER_TON_DEGREE_FAHRENHEIT: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -990,10 +977,10 @@ pub mod units {
                 name: "British thermal units per ton degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// British thermal units (IT) per ton degree Fahrenheit (`Btu (IT)/(t · °F)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 1055.05585262 / (1000.0 * (5.0 / 9.0))` coherent units.
-    pub type BtuItPerTonDegreeFahrenheit = SIUnit<
+    pub const BTU_IT_PER_TON_DEGREE_FAHRENHEIT: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -1004,10 +991,10 @@ pub mod units {
                 name: "British thermal units (IT) per ton degree Fahrenheit",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories per gram kelvin (`cal/(g · K)`), a unit of `SpecificHeatCapacity`: `n` of them is `n · 4184.0` coherent units.
-    pub type CaloriePerGramKelvin = SIUnit<
+    pub const CALORIE_PER_GRAM_KELVIN: SIUnit<
         SPECIFIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -1017,10 +1004,10 @@ pub mod units {
                 name: "calories per gram kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per square metre kelvin (`J/(m² · K)`), a unit of `ArealHeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerSquareMetreKelvin = SIUnit<
+    pub const JOULE_PER_SQUARE_METRE_KELVIN: SIUnit<
         AREAL_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -1030,10 +1017,10 @@ pub mod units {
                 name: "joules per square metre kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per cubic metre kelvin (`J/(m³ · K)`), a unit of `VolumetricHeatCapacity`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerCubicMetreKelvin = SIUnit<
+    pub const JOULE_PER_CUBIC_METRE_KELVIN: SIUnit<
         VOLUMETRIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -1043,10 +1030,10 @@ pub mod units {
                 name: "joules per cubic metre kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Calories per cubic metre kelvin (`cal/(m³ · K)`), a unit of `VolumetricHeatCapacity`: `n` of them is `n · 4.184` coherent units.
-    pub type CaloriePerCubicMetreKelvin = SIUnit<
+    pub const CALORIE_PER_CUBIC_METRE_KELVIN: SIUnit<
         VOLUMETRIC_HEAT_CAPACITY,
         {
             SIUnitConsts {
@@ -1056,10 +1043,10 @@ pub mod units {
                 name: "calories per cubic metre kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Watts per square metre quartic kelvin (`W/(m² · K⁴)`), a unit of `StefanBoltzmannCoefficient`: `n` of them is `n · 1.0` coherent units.
-    pub type WattPerSquareMetreQuarticKelvin = SIUnit<
+    pub const WATT_PER_SQUARE_METRE_QUARTIC_KELVIN: SIUnit<
         STEFAN_BOLTZMANN_COEFFICIENT,
         {
             SIUnitConsts {
@@ -1069,10 +1056,10 @@ pub mod units {
                 name: "watts per square metre quartic kelvin",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Stefan-Boltzmann constants (`σ`), a unit of `StefanBoltzmannCoefficient`: `n` of them is `n · 5.670374419e-8` coherent units.
-    pub type StefanBoltzmannConstant = SIUnit<
+    pub const STEFAN_BOLTZMANN_CONSTANT: SIUnit<
         STEFAN_BOLTZMANN_COEFFICIENT,
         {
             SIUnitConsts {
@@ -1082,5 +1069,5 @@ pub mod units {
                 name: "Stefan-Boltzmann constants",
             }
         },
-    >;
+    > = SIUnit;
 }

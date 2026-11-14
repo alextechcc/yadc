@@ -1,57 +1,52 @@
-use crate::{Dim, Qty};
+use crate::Dim;
 use yadc::Dimension;
 
-/// The dimension of `Area`.
+/// The dimension of `Area`: `Qty<AREA, N>` is one.
 pub const AREA: Dim = Dim {
     m: 2,
     ..Dim::DIMENSIONLESS
 };
-pub type Area<N> = Qty<AREA, N>;
 
-/// The dimension of `DepthOfWater`.
+/// The dimension of `DepthOfWater`: `Qty<DEPTH_OF_WATER, N>` is one.
 pub const DEPTH_OF_WATER: Dim = Dim {
     m: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type DepthOfWater<N> = Qty<DEPTH_OF_WATER, N>;
 
-/// The dimension of `HeightOfHorses`.
+/// The dimension of `HeightOfHorses`: `Qty<HEIGHT_OF_HORSES, N>` is one.
 pub const HEIGHT_OF_HORSES: Dim = Dim {
     m: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type HeightOfHorses<N> = Qty<HEIGHT_OF_HORSES, N>;
 
-/// The dimension of `Length`.
+/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
 pub const LENGTH: Dim = Dim {
     m: 1,
     ..Dim::DIMENSIONLESS
 };
-pub type Length<N> = Qty<LENGTH, N>;
 
-/// The dimension of `Velocity`.
+/// The dimension of `Velocity`: `Qty<VELOCITY, N>` is one.
 pub const VELOCITY: Dim = Dim {
     m: 1,
     s: -1,
     ..Dim::DIMENSIONLESS
 };
-pub type Velocity<N> = Qty<VELOCITY, N>;
 
-/// The dimension of `Volume`.
+/// The dimension of `Volume`: `Qty<VOLUME, N>` is one.
 pub const VOLUME: Dim = Dim {
     m: 3,
     ..Dim::DIMENSIONLESS
 };
-pub type Volume<N> = Qty<VOLUME, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, UcumUnit, UcumUnitConsts};
 
     /// Square inch (`[sin_i]`), a unit of `Area`: `n` of them is `n · 64516e-8` coherent units.
-    pub type SquareInch = UcumUnit<
+    pub const SQUARE_INCH: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -61,10 +56,10 @@ pub mod units {
                 name: "square inch",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Square foot (`[sft_i]`), a unit of `Area`: `n` of them is `n · 9290304e-8` coherent units.
-    pub type SquareFoot = UcumUnit<
+    pub const SQUARE_FOOT: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -74,10 +69,10 @@ pub mod units {
                 name: "square foot",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Square yard (`[syd_i]`), a unit of `Area`: `n` of them is `n · 83612736e-8` coherent units.
-    pub type SquareYard = UcumUnit<
+    pub const SQUARE_YARD: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -87,10 +82,10 @@ pub mod units {
                 name: "square yard",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Circular mil (`[cml_i]`), a unit of `Area`: `n` of them is `n · 16129e-14 * core::f64::consts::PI` coherent units.
-    pub type CircularMil = UcumUnit<
+    pub const CIRCULAR_MIL: UcumUnit<
         AREA,
         {
             UcumUnitConsts {
@@ -100,10 +95,10 @@ pub mod units {
                 name: "circular mil",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Fathom (`[fth_i]`), a unit of `DepthOfWater`: `n` of them is `n · 18288e-4` coherent units.
-    pub type Fathom = UcumUnit<
+    pub const FATHOM: UcumUnit<
         DEPTH_OF_WATER,
         {
             UcumUnitConsts {
@@ -113,10 +108,10 @@ pub mod units {
                 name: "fathom",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Hand (`[hd_i]`), a unit of `HeightOfHorses`: `n` of them is `n · 1016e-4` coherent units.
-    pub type Hand = UcumUnit<
+    pub const HAND: UcumUnit<
         HEIGHT_OF_HORSES,
         {
             UcumUnitConsts {
@@ -126,10 +121,10 @@ pub mod units {
                 name: "hand",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Inch (`[in_i]`), a unit of `Length`: `n` of them is `n · 254e-4` coherent units.
-    pub type Inch = UcumUnit<
+    pub const INCH: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -139,10 +134,10 @@ pub mod units {
                 name: "inch",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Foot (`[ft_i]`), a unit of `Length`: `n` of them is `n · 3048e-4` coherent units.
-    pub type Foot = UcumUnit<
+    pub const FOOT: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -152,10 +147,10 @@ pub mod units {
                 name: "foot",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Yard (`[yd_i]`), a unit of `Length`: `n` of them is `n · 9144e-4` coherent units.
-    pub type Yard = UcumUnit<
+    pub const YARD: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -165,10 +160,10 @@ pub mod units {
                 name: "yard",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mile (`[mi_i]`), a unit of `Length`: `n` of them is `n · 1609344e-3` coherent units.
-    pub type Mile = UcumUnit<
+    pub const MILE: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -178,10 +173,10 @@ pub mod units {
                 name: "mile",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Nautical mile (`[nmi_i]`), a unit of `Length`: `n` of them is `n · 1852` coherent units.
-    pub type NauticalMile = UcumUnit<
+    pub const NAUTICAL_MILE: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -191,10 +186,10 @@ pub mod units {
                 name: "nautical mile",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Mil (`[mil_i]`), a unit of `Length`: `n` of them is `n · 254e-7` coherent units.
-    pub type Mil = UcumUnit<
+    pub const MIL: UcumUnit<
         LENGTH,
         {
             UcumUnitConsts {
@@ -204,10 +199,10 @@ pub mod units {
                 name: "mil",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Knot (`[kn_i]`), a unit of `Velocity`: `n` of them is `n · 463 / 900` coherent units.
-    pub type Knot = UcumUnit<
+    pub const KNOT: UcumUnit<
         VELOCITY,
         {
             UcumUnitConsts {
@@ -217,10 +212,10 @@ pub mod units {
                 name: "knot",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Cubic inch (`[cin_i]`), a unit of `Volume`: `n` of them is `n · 16387064e-12` coherent units.
-    pub type CubicInch = UcumUnit<
+    pub const CUBIC_INCH: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -230,10 +225,10 @@ pub mod units {
                 name: "cubic inch",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Cubic foot (`[cft_i]`), a unit of `Volume`: `n` of them is `n · 28316846592e-12` coherent units.
-    pub type CubicFoot = UcumUnit<
+    pub const CUBIC_FOOT: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -243,10 +238,10 @@ pub mod units {
                 name: "cubic foot",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Cubic yard (`[cyd_i]`), a unit of `Volume`: `n` of them is `n · 764554857984e-12` coherent units.
-    pub type CubicYard = UcumUnit<
+    pub const CUBIC_YARD: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -256,10 +251,10 @@ pub mod units {
                 name: "cubic yard",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Board foot (`[bf_i]`), a unit of `Volume`: `n` of them is `n · 2359737216e-12` coherent units.
-    pub type BoardFoot = UcumUnit<
+    pub const BOARD_FOOT: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -269,10 +264,10 @@ pub mod units {
                 name: "board foot",
             }
         },
-    >;
+    > = UcumUnit;
 
     /// Cord (`[cr_i]`), a unit of `Volume`: `n` of them is `n · 3624556363776e-12` coherent units.
-    pub type Cord = UcumUnit<
+    pub const CORD: UcumUnit<
         VOLUME,
         {
             UcumUnitConsts {
@@ -282,5 +277,5 @@ pub mod units {
                 name: "cord",
             }
         },
-    >;
+    > = UcumUnit;
 }

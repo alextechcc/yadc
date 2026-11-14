@@ -64,7 +64,8 @@ fn choices<E: Variants<Choices<E>>>() -> Vec<E> {
 struct Groups<E>(Vec<(&'static str, Vec<E>)>);
 impl<E, T: Variants<Choices<T>>> VariantVisitor<E, T> for Groups<E> {
     fn visit(&mut self, name: &'static str, make: fn(T) -> E) {
-        self.0.push((name, choices::<T>().into_iter().map(make).collect()));
+        self.0
+            .push((name, choices::<T>().into_iter().map(make).collect()));
     }
 }
 

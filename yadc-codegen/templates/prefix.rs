@@ -1,11 +1,10 @@
 //! The SI prefixes, once: exact powers of ten that scale a unit
-//! (`Prefixed { prefix: Some(Prefix::Kilo), unit: Metre {} }`, and
+//! (`Prefixed { prefix: Some(Prefix::Kilo), unit: METRE }`, and
 //! `"km".parse::<Prefixed<LengthUnit>>()`).
 
-use crate::Exact;
+use crate::{Exact, Unit};
 use core::fmt;
 use core::str::FromStr;
-use yadc::{Unit, UnknownUnit};
 
 /// An SI prefix: a power of ten a unit is scaled by.
 #[derive_const(PartialEq)]
@@ -167,9 +166,9 @@ const SYMBOLS: [&str; 20] = {
 /// A unit enum's value with an optional prefix: `km` is `Prefixed { prefix:
 /// Some(Prefix::Kilo), unit: LengthUnit::Metre }`. The prefix scales the
 /// unit's first symbol with its power - `km²` is (10³ m)², a million square
-/// metres; `km/s²` a thousand metres per second squared. It is a unit of what
-/// the enum's values are, and parses and prints with the prefix's symbol and
-/// name.
+/// metres; `km/s²` a thousand metres per second squared. It is a unit of
+/// what its unit measures - `km.quantity(3.0)`, `km.value(d)` - and parses
+/// and prints with the prefix's symbol and name.
 #[derive(Copy, Clone, Debug, PartialEq, Default)]
 pub struct Prefixed<U> {
     /// The prefix, if any.
@@ -207,16 +206,10 @@ where
     N: From<Exact> + core::ops::Mul<Output = N> + core::ops::Div<Output = N>,
 {
     fn quantity(&self, value: N) -> Q {
-        match self.prefix {
-            None => self.unit.quantity(value),
-            Some(_) => self.unit.quantity(value * N::from(self.factor())),
-        }
+        self.unit.quantity(value * N::from(self.factor()))
     }
     fn value(&self, quantity: Q) -> N {
-        match self.prefix {
-            None => self.unit.value(quantity),
-            Some(_) => self.unit.value(quantity) / N::from(self.factor()),
-        }
+        self.unit.value(quantity) / N::from(self.factor())
     }
 }
 
@@ -280,23 +273,22 @@ impl<U: fmt::Display> fmt::Display for Prefixed<U> {
     }
 }
 
-impl<U> FromStr for Prefixed<U>
-where
-    U: FromStr<Err = UnknownUnit>,
-{
-    type Err = UnknownUnit;
+impl<U: FromStr> FromStr for Prefixed<U> {
+    type Err = U::Err;
 
     /// A unit's own symbol first (`M` is the nautical mile, `Pa` the pascal,
-    /// `min` the minute), then a prefix and a unit's symbol (`km`, `mPa`).
-    fn from_str(s: &str) -> Result<Self, UnknownUnit> {
-        if let Ok(unit) = s.parse::<U>() {
-            return Ok(Prefixed { prefix: None, unit });
-        }
+    /// `min` the minute), then a prefix and a unit's symbol (`km`, `mPa`);
+    /// the unit's own error when neither is.
+    fn from_str(s: &str) -> Result<Self, U::Err> {
+        let error = match s.parse::<U>() {
+            Ok(unit) => return Ok(Prefixed { prefix: None, unit }),
+            Err(e) => e,
+        };
         Prefix::split(s)
             .find_map(|(p, rest)| {
                 let unit = rest.parse::<U>().ok()?;
                 Some(Prefixed { prefix: Some(p), unit })
             })
-            .ok_or(UnknownUnit)
+            .ok_or(error)
     }
 }

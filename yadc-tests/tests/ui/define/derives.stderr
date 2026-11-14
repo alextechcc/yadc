@@ -58,55 +58,6 @@ error: `Zero` is not an extra of `#[derive(Quantity)]`; expected one of Display,
 95 | #[quantity(impl(Neg, Zero))]
    |                      ^^^^
 
-error: #[derive(Unit)] is for an enum of unit types (`#[unit(Mile)] Mile`); a unit type of its own has a hand-written `impl Unit`
-   --> tests/ui/define/derives.rs:114:12
-    |
-114 | pub struct NotAnEnum;
-    |            ^^^^^^^^^
-
-error: say what these units measure and in which numbers: `#[unit(of = Q, number = N)]`
-   --> tests/ui/define/derives.rs:119:10
-    |
-119 | pub enum NoTarget {
-    |          ^^^^^^^^
-
-error: say which numbers these units count in: `#[unit(number = N)]` (with `for<N>` to stay generic)
-   --> tests/ui/define/derives.rs:127:10
-    |
-127 | pub enum NoNumber {
-    |          ^^^^^^^^
-
-error: a variant of a unit enum has no fields: it names a unit type, `#[unit(Mile)]`
-   --> tests/ui/define/derives.rs:136:5
-    |
-136 | /     #[unit(Metre)]
-137 | |     Metre(f64),
-    | |______________^
-
-error: name the unit type this variant is: `#[unit(Mile)]`
-   --> tests/ui/define/derives.rs:144:5
-    |
-144 |     Metre,
-    |     ^^^^^
-
-error: unknown `#[unit(..)]` item `by`; expected `of = ..`, `number = ..`, `impl(..)`, `for<..> where ..`
-   --> tests/ui/define/derives.rs:149:32
-    |
-149 | #[unit(of = f64, number = f64, by = 1.0)]
-    |                                ^^
-
-error: `Debug` is not an extra of `#[derive(Unit)]`; expected one of Display, FromStr
-   --> tests/ui/define/derives.rs:157:37
-    |
-157 | #[unit(of = f64, number = f64, impl(Debug))]
-    |                                     ^^^^^
-
-error: an enum of units has no generics of its own: the impl's are `#[unit(for<..>)]`
-   --> tests/ui/define/derives.rs:166:17
-    |
-166 | pub enum Generic<T> {
-    |                 ^^^
-
 warning: unused import: `yadc::Dimension`
  --> tests/ui/define/derives.rs:7:5
   |
@@ -114,25 +65,3 @@ warning: unused import: `yadc::Dimension`
   |     ^^^^^^^^^^^^^^^
   |
   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
-
-error[E0277]: `NotAUnit` is not a unit of `f64` counted in `f64`
-   --> tests/ui/define/derives.rs:177:23
-    |
-177 | #[derive(Copy, Clone, yadc::Unit)]
-    |                       ^^^^^^^^^^ not a unit of this quantity in these numbers
-    |
-help: the trait `Unit<f64, f64>` is not implemented for `NotAUnit`
-   --> tests/ui/define/derives.rs:175:1
-    |
-175 | pub struct NotAUnit;
-    | ^^^^^^^^^^^^^^^^^^^
-    = note: a unit declares what it measures with a hand-written `impl Unit<Q, N>`, or - an enum of units - with `#[unit(of = Q, number = N)]` on its `#[derive(Unit)]`
-help: the following other types implement trait `Unit<Q, N>`
-   --> tests/ui/define/derives.rs:102:1
-    |
-102 | impl yadc::Unit<f64, f64> for Metre {
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Metre`
-...
-177 | #[derive(Copy, Clone, yadc::Unit)]
-    |                       ^^^^^^^^^^ `NamesNoUnit`
-    = note: this error originates in the derive macro `yadc::Unit` (in Nightly builds, run with -Z macro-backtrace for more info)

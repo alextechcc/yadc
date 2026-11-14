@@ -1041,7 +1041,7 @@ name = "ThermodynamicTemperature"
 dims = {K = 1}
 kind = "Absolute"
 # A temperature is counted in steps from a zero, both in kelvins from absolute
-# zero: `Celsius {}.quantity(25.0)` builds, `Celsius {}.value(t)` reads.
+# zero: `CELSIUS.quantity(25.0)` builds, `CELSIUS.value(t)` reads.
 units = [
     {v = "Kelvin", m = "1.0", s = "K", l = "kelvin", t = "KelvinScale"},
     # 0 °C, the ice point of water: 273.15 K.

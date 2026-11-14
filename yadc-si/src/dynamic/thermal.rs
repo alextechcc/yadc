@@ -1,511 +1,358 @@
 //! The units of `thermal`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::Exact;
 use crate::dynamic::DynamicSIUnit;
 use crate::thermal::units::*;
 use crate::thermal::*;
-use core::marker::Destruct;
+use crate::{Exact, SIQuantity, Unit};
 use core::ops::{Add, Div, Mul, Sub};
 
 /// The units of `ThermodynamicTemperature`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermodynamicTemperature<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<THERMODYNAMIC_TEMPERATURE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<THERMODYNAMIC_TEMPERATURE, N>;
+        fn value(&self, quantity: SIQuantity<THERMODYNAMIC_TEMPERATURE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ThermodynamicTemperatureUnit {
     #[default]
-    #[unit(KelvinScale)]
+    #[value(KELVIN_SCALE)]
     Kelvin,
-    #[unit(Celsius)]
+    #[value(CELSIUS)]
     Celsius,
-    #[unit(Fahrenheit)]
+    #[value(FAHRENHEIT)]
     Fahrenheit,
-    #[unit(Rankine)]
+    #[value(RANKINE)]
     Rankine,
-}
-
-impl From<ThermodynamicTemperatureUnit> for DynamicSIUnit {
-    fn from(unit: ThermodynamicTemperatureUnit) -> Self {
-        match unit {
-            ThermodynamicTemperatureUnit::Kelvin => KelvinScale {}.into(),
-            ThermodynamicTemperatureUnit::Celsius => Celsius {}.into(),
-            ThermodynamicTemperatureUnit::Fahrenheit => Fahrenheit {}.into(),
-            ThermodynamicTemperatureUnit::Rankine => Rankine {}.into(),
-        }
-    }
 }
 
 /// The units of `TemperatureInterval`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureInterval<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<TEMPERATURE_INTERVAL, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<TEMPERATURE_INTERVAL, N>;
+        fn value(&self, quantity: SIQuantity<TEMPERATURE_INTERVAL, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum TemperatureIntervalUnit {
     #[default]
-    #[unit(Kelvin)]
+    #[value(KELVIN)]
     Kelvin,
-    #[unit(DegreeCelsius)]
+    #[value(DEGREE_CELSIUS)]
     Celsius,
-    #[unit(DegreeFahrenheit)]
+    #[value(DEGREE_FAHRENHEIT)]
     Fahrenheit,
-    #[unit(DegreeRankine)]
+    #[value(DEGREE_RANKINE)]
     Rankine,
-}
-
-impl From<TemperatureIntervalUnit> for DynamicSIUnit {
-    fn from(unit: TemperatureIntervalUnit) -> Self {
-        match unit {
-            TemperatureIntervalUnit::Kelvin => Kelvin {}.into(),
-            TemperatureIntervalUnit::Celsius => DegreeCelsius {}.into(),
-            TemperatureIntervalUnit::Fahrenheit => DegreeFahrenheit {}.into(),
-            TemperatureIntervalUnit::Rankine => DegreeRankine {}.into(),
-        }
-    }
 }
 
 /// The units of `TemperatureCoefficient`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureCoefficient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<TEMPERATURE_COEFFICIENT, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<TEMPERATURE_COEFFICIENT, N>;
+        fn value(&self, quantity: SIQuantity<TEMPERATURE_COEFFICIENT, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum TemperatureCoefficientUnit {
     #[default]
-    #[unit(PerKelvin)]
+    #[value(PER_KELVIN)]
     PerKelvin,
-    #[unit(PpmPerKelvin)]
+    #[value(PPM_PER_KELVIN)]
     PpmPerKelvin,
-    #[unit(PpmPerDegreeCelsius)]
+    #[value(PPM_PER_DEGREE_CELSIUS)]
     PpmPerDegreeCelsius,
-}
-
-impl From<TemperatureCoefficientUnit> for DynamicSIUnit {
-    fn from(unit: TemperatureCoefficientUnit) -> Self {
-        match unit {
-            TemperatureCoefficientUnit::PerKelvin => PerKelvin {}.into(),
-            TemperatureCoefficientUnit::PpmPerKelvin => PpmPerKelvin {}.into(),
-            TemperatureCoefficientUnit::PpmPerDegreeCelsius => PpmPerDegreeCelsius {}.into(),
-        }
-    }
 }
 
 /// The units of `TemperatureGradient`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = TemperatureGradient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<TEMPERATURE_GRADIENT, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<TEMPERATURE_GRADIENT, N>;
+        fn value(&self, quantity: SIQuantity<TEMPERATURE_GRADIENT, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum TemperatureGradientUnit {
     #[default]
-    #[unit(KelvinPerMetre)]
+    #[value(KELVIN_PER_METRE)]
     KelvinPerMetre,
-}
-
-impl From<TemperatureGradientUnit> for DynamicSIUnit {
-    fn from(unit: TemperatureGradientUnit) -> Self {
-        match unit {
-            TemperatureGradientUnit::KelvinPerMetre => KelvinPerMetre {}.into(),
-        }
-    }
 }
 
 /// The units of `HeatCapacity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatCapacity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<HEAT_CAPACITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<HEAT_CAPACITY, N>;
+        fn value(&self, quantity: SIQuantity<HEAT_CAPACITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum HeatCapacityUnit {
     #[default]
-    #[unit(KilogramSquareMetrePerSecondSquaredKelvin)]
+    #[value(KILOGRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
     KilogramSquareMetrePerSecondSquaredKelvin,
-    #[unit(GramSquareMetrePerSecondSquaredKelvin)]
+    #[value(GRAM_SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
     GramSquareMetrePerSecondSquaredKelvin,
-    #[unit(JoulePerKelvin)]
+    #[value(JOULE_PER_KELVIN)]
     JoulePerKelvin,
-    #[unit(JoulePerDegreeCelsius)]
+    #[value(JOULE_PER_DEGREE_CELSIUS)]
     JoulePerDegreeCelsius,
-    #[unit(BtuPerDegreeFahrenheit)]
+    #[value(BTU_PER_DEGREE_FAHRENHEIT)]
     BtuPerDegreeFahrenheit,
-    #[unit(BtuItPerDegreeFahrenheit)]
+    #[value(BTU_IT_PER_DEGREE_FAHRENHEIT)]
     BtuItPerDegreeFahrenheit,
-    #[unit(BoltzmannConstant)]
+    #[value(BOLTZMANN_CONSTANT)]
     BoltzmannConstant,
-    #[unit(CaloriePerKelvin)]
+    #[value(CALORIE_PER_KELVIN)]
     CaloriePerKelvin,
-}
-
-impl From<HeatCapacityUnit> for DynamicSIUnit {
-    fn from(unit: HeatCapacityUnit) -> Self {
-        match unit {
-            HeatCapacityUnit::KilogramSquareMetrePerSecondSquaredKelvin => {
-                KilogramSquareMetrePerSecondSquaredKelvin {}.into()
-            }
-            HeatCapacityUnit::GramSquareMetrePerSecondSquaredKelvin => {
-                GramSquareMetrePerSecondSquaredKelvin {}.into()
-            }
-            HeatCapacityUnit::JoulePerKelvin => JoulePerKelvin {}.into(),
-            HeatCapacityUnit::JoulePerDegreeCelsius => JoulePerDegreeCelsius {}.into(),
-            HeatCapacityUnit::BtuPerDegreeFahrenheit => BtuPerDegreeFahrenheit {}.into(),
-            HeatCapacityUnit::BtuItPerDegreeFahrenheit => BtuItPerDegreeFahrenheit {}.into(),
-            HeatCapacityUnit::BoltzmannConstant => BoltzmannConstant {}.into(),
-            HeatCapacityUnit::CaloriePerKelvin => CaloriePerKelvin {}.into(),
-        }
-    }
 }
 
 /// The units of `HeatFluxDensity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatFluxDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<HEAT_FLUX_DENSITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<HEAT_FLUX_DENSITY, N>;
+        fn value(&self, quantity: SIQuantity<HEAT_FLUX_DENSITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum HeatFluxDensityUnit {
     #[default]
-    #[unit(WattPerSquareMetre)]
+    #[value(WATT_PER_SQUARE_METRE)]
     WattPerSquareMetre,
-}
-
-impl From<HeatFluxDensityUnit> for DynamicSIUnit {
-    fn from(unit: HeatFluxDensityUnit) -> Self {
-        match unit {
-            HeatFluxDensityUnit::WattPerSquareMetre => WattPerSquareMetre {}.into(),
-        }
-    }
 }
 
 /// The units of `HeatTransfer`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = HeatTransfer<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<HEAT_TRANSFER, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<HEAT_TRANSFER, N>;
+        fn value(&self, quantity: SIQuantity<HEAT_TRANSFER, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum HeatTransferUnit {
     #[default]
-    #[unit(KilogramPerSecondCubedKelvin)]
+    #[value(KILOGRAM_PER_SECOND_CUBED_KELVIN)]
     KilogramPerSecondCubedKelvin,
-    #[unit(GramPerSecondCubedKelvin)]
+    #[value(GRAM_PER_SECOND_CUBED_KELVIN)]
     GramPerSecondCubedKelvin,
-    #[unit(KilogramPerSecondCubedDegreeCelsius)]
+    #[value(KILOGRAM_PER_SECOND_CUBED_DEGREE_CELSIUS)]
     KilogramPerSecondCubedDegreeCelsius,
-    #[unit(WattPerSquareMetreKelvin)]
+    #[value(WATT_PER_SQUARE_METRE_KELVIN)]
     WattPerSquareMetreKelvin,
-    #[unit(WattPerSquareMetreDegreeCelsius)]
+    #[value(WATT_PER_SQUARE_METRE_DEGREE_CELSIUS)]
     WattPerSquareMetreDegreeCelsius,
-    #[unit(JoulePerSecondSquareMetreKelvin)]
+    #[value(JOULE_PER_SECOND_SQUARE_METRE_KELVIN)]
     JoulePerSecondSquareMetreKelvin,
-    #[unit(JoulePerSecondSquareMetreDegreeCelsius)]
+    #[value(JOULE_PER_SECOND_SQUARE_METRE_DEGREE_CELSIUS)]
     JoulePerSecondSquareMetreDegreeCelsius,
-    #[unit(BtuItPerHourSquareFootDegreeFahrenheit)]
+    #[value(BTU_IT_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
     BtuItPerHourSquareFootDegreeFahrenheit,
-    #[unit(BtuItPerHourSquareInchDegreeFahrenheit)]
+    #[value(BTU_IT_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT)]
     BtuItPerHourSquareInchDegreeFahrenheit,
-    #[unit(BtuItPerMinuteSquareFootDegreeFahrenheit)]
+    #[value(BTU_IT_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
     BtuItPerMinuteSquareFootDegreeFahrenheit,
-    #[unit(BtuItPerMinuteSquareInchDegreeFahrenheit)]
+    #[value(BTU_IT_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT)]
     BtuItPerMinuteSquareInchDegreeFahrenheit,
-    #[unit(BtuItPerSecondSquareFootDegreeFahrenheit)]
+    #[value(BTU_IT_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
     BtuItPerSecondSquareFootDegreeFahrenheit,
-    #[unit(BtuItPerSecondSquareInchDegreeFahrenheit)]
+    #[value(BTU_IT_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT)]
     BtuItPerSecondSquareInchDegreeFahrenheit,
-    #[unit(BtuPerHourSquareFootDegreeFahrenheit)]
+    #[value(BTU_PER_HOUR_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
     BtuPerHourSquareFootDegreeFahrenheit,
-    #[unit(BtuPerHourSquareInchDegreeFahrenheit)]
+    #[value(BTU_PER_HOUR_SQUARE_INCH_DEGREE_FAHRENHEIT)]
     BtuPerHourSquareInchDegreeFahrenheit,
-    #[unit(BtuPerMinuteSquareFootDegreeFahrenheit)]
+    #[value(BTU_PER_MINUTE_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
     BtuPerMinuteSquareFootDegreeFahrenheit,
-    #[unit(BtuPerMinuteSquareInchDegreeFahrenheit)]
+    #[value(BTU_PER_MINUTE_SQUARE_INCH_DEGREE_FAHRENHEIT)]
     BtuPerMinuteSquareInchDegreeFahrenheit,
-    #[unit(BtuPerSecondSquareFootDegreeFahrenheit)]
+    #[value(BTU_PER_SECOND_SQUARE_FOOT_DEGREE_FAHRENHEIT)]
     BtuPerSecondSquareFootDegreeFahrenheit,
-    #[unit(BtuPerSecondSquareInchDegreeFahrenheit)]
+    #[value(BTU_PER_SECOND_SQUARE_INCH_DEGREE_FAHRENHEIT)]
     BtuPerSecondSquareInchDegreeFahrenheit,
-}
-
-impl From<HeatTransferUnit> for DynamicSIUnit {
-    fn from(unit: HeatTransferUnit) -> Self {
-        match unit {
-            HeatTransferUnit::KilogramPerSecondCubedKelvin => {
-                KilogramPerSecondCubedKelvin {}.into()
-            }
-            HeatTransferUnit::GramPerSecondCubedKelvin => GramPerSecondCubedKelvin {}.into(),
-            HeatTransferUnit::KilogramPerSecondCubedDegreeCelsius => {
-                KilogramPerSecondCubedDegreeCelsius {}.into()
-            }
-            HeatTransferUnit::WattPerSquareMetreKelvin => WattPerSquareMetreKelvin {}.into(),
-            HeatTransferUnit::WattPerSquareMetreDegreeCelsius => {
-                WattPerSquareMetreDegreeCelsius {}.into()
-            }
-            HeatTransferUnit::JoulePerSecondSquareMetreKelvin => {
-                JoulePerSecondSquareMetreKelvin {}.into()
-            }
-            HeatTransferUnit::JoulePerSecondSquareMetreDegreeCelsius => {
-                JoulePerSecondSquareMetreDegreeCelsius {}.into()
-            }
-            HeatTransferUnit::BtuItPerHourSquareFootDegreeFahrenheit => {
-                BtuItPerHourSquareFootDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuItPerHourSquareInchDegreeFahrenheit => {
-                BtuItPerHourSquareInchDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuItPerMinuteSquareFootDegreeFahrenheit => {
-                BtuItPerMinuteSquareFootDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuItPerMinuteSquareInchDegreeFahrenheit => {
-                BtuItPerMinuteSquareInchDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuItPerSecondSquareFootDegreeFahrenheit => {
-                BtuItPerSecondSquareFootDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuItPerSecondSquareInchDegreeFahrenheit => {
-                BtuItPerSecondSquareInchDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuPerHourSquareFootDegreeFahrenheit => {
-                BtuPerHourSquareFootDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuPerHourSquareInchDegreeFahrenheit => {
-                BtuPerHourSquareInchDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuPerMinuteSquareFootDegreeFahrenheit => {
-                BtuPerMinuteSquareFootDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuPerMinuteSquareInchDegreeFahrenheit => {
-                BtuPerMinuteSquareInchDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuPerSecondSquareFootDegreeFahrenheit => {
-                BtuPerSecondSquareFootDegreeFahrenheit {}.into()
-            }
-            HeatTransferUnit::BtuPerSecondSquareInchDegreeFahrenheit => {
-                BtuPerSecondSquareInchDegreeFahrenheit {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `ThermalConductance`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalConductance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<THERMAL_CONDUCTANCE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<THERMAL_CONDUCTANCE, N>;
+        fn value(&self, quantity: SIQuantity<THERMAL_CONDUCTANCE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ThermalConductanceUnit {
     #[default]
-    #[unit(KilogramMetreSquaredPerSecondCubedKelvin)]
+    #[value(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
     KilogramMetreSquaredPerSecondCubedKelvin,
-    #[unit(GramMetreSquaredPerSecondCubedKelvin)]
+    #[value(GRAM_METRE_SQUARED_PER_SECOND_CUBED_KELVIN)]
     GramMetreSquaredPerSecondCubedKelvin,
-    #[unit(WattPerKelvin)]
+    #[value(WATT_PER_KELVIN)]
     WattPerKelvin,
-    #[unit(KilogramMetreSquaredPerSecondCubedDegreeCelsius)]
+    #[value(KILOGRAM_METRE_SQUARED_PER_SECOND_CUBED_DEGREE_CELSIUS)]
     KilogramMetreSquaredPerSecondCubedDegreeCelsius,
-    #[unit(ThermalConductanceWattPerMetreDegreeCelsius)]
+    #[value(THERMAL_CONDUCTANCE_WATT_PER_METRE_DEGREE_CELSIUS)]
     WattPerMetreDegreeCelsius,
-    #[unit(KilowattPerDegreeCelsius)]
+    #[value(KILOWATT_PER_DEGREE_CELSIUS)]
     KilowattPerDegreeCelsius,
-    #[unit(MilliwattPerDegreeCelsius)]
+    #[value(MILLIWATT_PER_DEGREE_CELSIUS)]
     MilliwattPerDegreeCelsius,
-}
-
-impl From<ThermalConductanceUnit> for DynamicSIUnit {
-    fn from(unit: ThermalConductanceUnit) -> Self {
-        match unit {
-            ThermalConductanceUnit::KilogramMetreSquaredPerSecondCubedKelvin => {
-                KilogramMetreSquaredPerSecondCubedKelvin {}.into()
-            }
-            ThermalConductanceUnit::GramMetreSquaredPerSecondCubedKelvin => {
-                GramMetreSquaredPerSecondCubedKelvin {}.into()
-            }
-            ThermalConductanceUnit::WattPerKelvin => WattPerKelvin {}.into(),
-            ThermalConductanceUnit::KilogramMetreSquaredPerSecondCubedDegreeCelsius => {
-                KilogramMetreSquaredPerSecondCubedDegreeCelsius {}.into()
-            }
-            ThermalConductanceUnit::WattPerMetreDegreeCelsius => {
-                ThermalConductanceWattPerMetreDegreeCelsius {}.into()
-            }
-            ThermalConductanceUnit::KilowattPerDegreeCelsius => KilowattPerDegreeCelsius {}.into(),
-            ThermalConductanceUnit::MilliwattPerDegreeCelsius => {
-                MilliwattPerDegreeCelsius {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `ThermalConductivity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalConductivity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<THERMAL_CONDUCTIVITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<THERMAL_CONDUCTIVITY, N>;
+        fn value(&self, quantity: SIQuantity<THERMAL_CONDUCTIVITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ThermalConductivityUnit {
     #[default]
-    #[unit(KilogramMetrePerSecondCubedKelvin)]
+    #[value(KILOGRAM_METRE_PER_SECOND_CUBED_KELVIN)]
     KilogramMetrePerSecondCubedKelvin,
-    #[unit(GramMetrePerSecondCubedKelvin)]
+    #[value(GRAM_METRE_PER_SECOND_CUBED_KELVIN)]
     GramMetrePerSecondCubedKelvin,
-    #[unit(WattPerMetreKelvin)]
+    #[value(WATT_PER_METRE_KELVIN)]
     WattPerMetreKelvin,
-    #[unit(KilogramMetrePerSecondCubedDegreeCelsius)]
+    #[value(KILOGRAM_METRE_PER_SECOND_CUBED_DEGREE_CELSIUS)]
     KilogramMetrePerSecondCubedDegreeCelsius,
-    #[unit(ThermalConductivityWattPerMetreDegreeCelsius)]
+    #[value(THERMAL_CONDUCTIVITY_WATT_PER_METRE_DEGREE_CELSIUS)]
     WattPerMetreDegreeCelsius,
-}
-
-impl From<ThermalConductivityUnit> for DynamicSIUnit {
-    fn from(unit: ThermalConductivityUnit) -> Self {
-        match unit {
-            ThermalConductivityUnit::KilogramMetrePerSecondCubedKelvin => {
-                KilogramMetrePerSecondCubedKelvin {}.into()
-            }
-            ThermalConductivityUnit::GramMetrePerSecondCubedKelvin => {
-                GramMetrePerSecondCubedKelvin {}.into()
-            }
-            ThermalConductivityUnit::WattPerMetreKelvin => WattPerMetreKelvin {}.into(),
-            ThermalConductivityUnit::KilogramMetrePerSecondCubedDegreeCelsius => {
-                KilogramMetrePerSecondCubedDegreeCelsius {}.into()
-            }
-            ThermalConductivityUnit::WattPerMetreDegreeCelsius => {
-                ThermalConductivityWattPerMetreDegreeCelsius {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `ThermalResistance`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ThermalResistance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<THERMAL_RESISTANCE, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<THERMAL_RESISTANCE, N>;
+        fn value(&self, quantity: SIQuantity<THERMAL_RESISTANCE, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ThermalResistanceUnit {
     #[default]
-    #[unit(KelvinPerWatt)]
+    #[value(KELVIN_PER_WATT)]
     KelvinPerWatt,
-    #[unit(KelvinPerKilowatt)]
+    #[value(KELVIN_PER_KILOWATT)]
     KelvinPerKilowatt,
-}
-
-impl From<ThermalResistanceUnit> for DynamicSIUnit {
-    fn from(unit: ThermalResistanceUnit) -> Self {
-        match unit {
-            ThermalResistanceUnit::KelvinPerWatt => KelvinPerWatt {}.into(),
-            ThermalResistanceUnit::KelvinPerKilowatt => KelvinPerKilowatt {}.into(),
-        }
-    }
 }
 
 /// The units of `SpecificHeatCapacity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificHeatCapacity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<SPECIFIC_HEAT_CAPACITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<SPECIFIC_HEAT_CAPACITY, N>;
+        fn value(&self, quantity: SIQuantity<SPECIFIC_HEAT_CAPACITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum SpecificHeatCapacityUnit {
     #[default]
-    #[unit(SquareMetrePerSecondSquaredKelvin)]
+    #[value(SQUARE_METRE_PER_SECOND_SQUARED_KELVIN)]
     SquareMetrePerSecondSquaredKelvin,
-    #[unit(JoulePerKilogramKelvin)]
+    #[value(JOULE_PER_KILOGRAM_KELVIN)]
     JoulePerKilogramKelvin,
-    #[unit(JoulePerKilogramDegreeCelsius)]
+    #[value(JOULE_PER_KILOGRAM_DEGREE_CELSIUS)]
     JoulePerKilogramDegreeCelsius,
-    #[unit(JoulePerGramDegreeCelsius)]
+    #[value(JOULE_PER_GRAM_DEGREE_CELSIUS)]
     JoulePerGramDegreeCelsius,
-    #[unit(BtuPerOunceDegreeFahrenheit)]
+    #[value(BTU_PER_OUNCE_DEGREE_FAHRENHEIT)]
     BtuPerOunceDegreeFahrenheit,
-    #[unit(BtuItPerOunceDegreeFahrenheit)]
+    #[value(BTU_IT_PER_OUNCE_DEGREE_FAHRENHEIT)]
     BtuItPerOunceDegreeFahrenheit,
-    #[unit(BtuPerPoundDegreeFahrenheit)]
+    #[value(BTU_PER_POUND_DEGREE_FAHRENHEIT)]
     BtuPerPoundDegreeFahrenheit,
-    #[unit(BtuItPerPoundDegreeFahrenheit)]
+    #[value(BTU_IT_PER_POUND_DEGREE_FAHRENHEIT)]
     BtuItPerPoundDegreeFahrenheit,
-    #[unit(BtuPerTonDegreeFahrenheit)]
+    #[value(BTU_PER_TON_DEGREE_FAHRENHEIT)]
     BtuPerTonDegreeFahrenheit,
-    #[unit(BtuItPerTonDegreeFahrenheit)]
+    #[value(BTU_IT_PER_TON_DEGREE_FAHRENHEIT)]
     BtuItPerTonDegreeFahrenheit,
-    #[unit(CaloriePerGramKelvin)]
+    #[value(CALORIE_PER_GRAM_KELVIN)]
     CaloriePerGramKelvin,
-}
-
-impl From<SpecificHeatCapacityUnit> for DynamicSIUnit {
-    fn from(unit: SpecificHeatCapacityUnit) -> Self {
-        match unit {
-            SpecificHeatCapacityUnit::SquareMetrePerSecondSquaredKelvin => {
-                SquareMetrePerSecondSquaredKelvin {}.into()
-            }
-            SpecificHeatCapacityUnit::JoulePerKilogramKelvin => JoulePerKilogramKelvin {}.into(),
-            SpecificHeatCapacityUnit::JoulePerKilogramDegreeCelsius => {
-                JoulePerKilogramDegreeCelsius {}.into()
-            }
-            SpecificHeatCapacityUnit::JoulePerGramDegreeCelsius => {
-                JoulePerGramDegreeCelsius {}.into()
-            }
-            SpecificHeatCapacityUnit::BtuPerOunceDegreeFahrenheit => {
-                BtuPerOunceDegreeFahrenheit {}.into()
-            }
-            SpecificHeatCapacityUnit::BtuItPerOunceDegreeFahrenheit => {
-                BtuItPerOunceDegreeFahrenheit {}.into()
-            }
-            SpecificHeatCapacityUnit::BtuPerPoundDegreeFahrenheit => {
-                BtuPerPoundDegreeFahrenheit {}.into()
-            }
-            SpecificHeatCapacityUnit::BtuItPerPoundDegreeFahrenheit => {
-                BtuItPerPoundDegreeFahrenheit {}.into()
-            }
-            SpecificHeatCapacityUnit::BtuPerTonDegreeFahrenheit => {
-                BtuPerTonDegreeFahrenheit {}.into()
-            }
-            SpecificHeatCapacityUnit::BtuItPerTonDegreeFahrenheit => {
-                BtuItPerTonDegreeFahrenheit {}.into()
-            }
-            SpecificHeatCapacityUnit::CaloriePerGramKelvin => CaloriePerGramKelvin {}.into(),
-        }
-    }
 }
 
 /// The units of `ArealHeatCapacity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealHeatCapacity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<AREAL_HEAT_CAPACITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<AREAL_HEAT_CAPACITY, N>;
+        fn value(&self, quantity: SIQuantity<AREAL_HEAT_CAPACITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum ArealHeatCapacityUnit {
     #[default]
-    #[unit(JoulePerSquareMetreKelvin)]
+    #[value(JOULE_PER_SQUARE_METRE_KELVIN)]
     JoulePerSquareMetreKelvin,
-}
-
-impl From<ArealHeatCapacityUnit> for DynamicSIUnit {
-    fn from(unit: ArealHeatCapacityUnit) -> Self {
-        match unit {
-            ArealHeatCapacityUnit::JoulePerSquareMetreKelvin => JoulePerSquareMetreKelvin {}.into(),
-        }
-    }
 }
 
 /// The units of `VolumetricHeatCapacity`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricHeatCapacity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<VOLUMETRIC_HEAT_CAPACITY, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<VOLUMETRIC_HEAT_CAPACITY, N>;
+        fn value(&self, quantity: SIQuantity<VOLUMETRIC_HEAT_CAPACITY, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum VolumetricHeatCapacityUnit {
     #[default]
-    #[unit(JoulePerCubicMetreKelvin)]
+    #[value(JOULE_PER_CUBIC_METRE_KELVIN)]
     JoulePerCubicMetreKelvin,
-    #[unit(CaloriePerCubicMetreKelvin)]
+    #[value(CALORIE_PER_CUBIC_METRE_KELVIN)]
     CaloriePerCubicMetreKelvin,
-}
-
-impl From<VolumetricHeatCapacityUnit> for DynamicSIUnit {
-    fn from(unit: VolumetricHeatCapacityUnit) -> Self {
-        match unit {
-            VolumetricHeatCapacityUnit::JoulePerCubicMetreKelvin => {
-                JoulePerCubicMetreKelvin {}.into()
-            }
-            VolumetricHeatCapacityUnit::CaloriePerCubicMetreKelvin => {
-                CaloriePerCubicMetreKelvin {}.into()
-            }
-        }
-    }
 }
 
 /// The units of `StefanBoltzmannCoefficient`, in any number type they count in.
 #[derive_const(Default)]
-#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = StefanBoltzmannCoefficient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
+#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[values(
+    delegate(Unit<SIQuantity<STEFAN_BOLTZMANN_COEFFICIENT, N>, N> {
+        fn quantity(&self, value: N) -> SIQuantity<STEFAN_BOLTZMANN_COEFFICIENT, N>;
+        fn value(&self, quantity: SIQuantity<STEFAN_BOLTZMANN_COEFFICIENT, N>) -> N;
+    }),
+    into(DynamicSIUnit),
+    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+)]
 pub enum StefanBoltzmannCoefficientUnit {
     #[default]
-    #[unit(WattPerSquareMetreQuarticKelvin)]
+    #[value(WATT_PER_SQUARE_METRE_QUARTIC_KELVIN)]
     WattPerSquareMetreQuarticKelvin,
-    #[unit(StefanBoltzmannConstant)]
+    #[value(STEFAN_BOLTZMANN_CONSTANT)]
     StefanBoltzmannConstant,
-}
-
-impl From<StefanBoltzmannCoefficientUnit> for DynamicSIUnit {
-    fn from(unit: StefanBoltzmannCoefficientUnit) -> Self {
-        match unit {
-            StefanBoltzmannCoefficientUnit::WattPerSquareMetreQuarticKelvin => {
-                WattPerSquareMetreQuarticKelvin {}.into()
-            }
-            StefanBoltzmannCoefficientUnit::StefanBoltzmannConstant => {
-                StefanBoltzmannConstant {}.into()
-            }
-        }
-    }
 }

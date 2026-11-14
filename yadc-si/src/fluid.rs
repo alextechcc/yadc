@@ -1,89 +1,81 @@
-use crate::{ISQ, SIQuantity};
+use crate::ISQ;
 use yadc::Dimension;
 
-/// The dimension of `DynamicViscosity`.
+/// The dimension of `DynamicViscosity`: `SIQuantity<DYNAMIC_VISCOSITY, N>` is one.
 pub const DYNAMIC_VISCOSITY: ISQ = ISQ {
     m: -1,
     kg: 1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type DynamicViscosity<N> = SIQuantity<DYNAMIC_VISCOSITY, N>;
 
-/// The dimension of `KinematicViscosity`.
+/// The dimension of `KinematicViscosity`: `SIQuantity<KINEMATIC_VISCOSITY, N>` is one.
 pub const KINEMATIC_VISCOSITY: ISQ = ISQ {
     m: 2,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type KinematicViscosity<N> = SIQuantity<KINEMATIC_VISCOSITY, N>;
 
-/// The dimension of `SurfaceTension`.
+/// The dimension of `SurfaceTension`: `SIQuantity<SURFACE_TENSION, N>` is one.
 pub const SURFACE_TENSION: ISQ = ISQ {
     kg: 1,
     s: -2,
     ..ISQ::DIMENSIONLESS
 };
-pub type SurfaceTension<N> = SIQuantity<SURFACE_TENSION, N>;
 
-/// The dimension of `CompressibilityCoefficient`.
+/// The dimension of `CompressibilityCoefficient`: `SIQuantity<COMPRESSIBILITY_COEFFICIENT, N>` is one.
 pub const COMPRESSIBILITY_COEFFICIENT: ISQ = ISQ {
     m: 1,
     kg: -1,
     s: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type CompressibilityCoefficient<N> = SIQuantity<COMPRESSIBILITY_COEFFICIENT, N>;
 
-/// The dimension of `MassRate`.
+/// The dimension of `MassRate`: `SIQuantity<MASS_RATE, N>` is one.
 pub const MASS_RATE: ISQ = ISQ {
     kg: 1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MassRate<N> = SIQuantity<MASS_RATE, N>;
 
-/// The dimension of `VolumeRate`.
+/// The dimension of `VolumeRate`: `SIQuantity<VOLUME_RATE, N>` is one.
 pub const VOLUME_RATE: ISQ = ISQ {
     m: 3,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type VolumeRate<N> = SIQuantity<VOLUME_RATE, N>;
 
-/// The dimension of `MassFlux`.
+/// The dimension of `MassFlux`: `SIQuantity<MASS_FLUX, N>` is one.
 pub const MASS_FLUX: ISQ = ISQ {
     m: -2,
     kg: 1,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type MassFlux<N> = SIQuantity<MASS_FLUX, N>;
 
-/// The dimension of `MassPerEnergy`.
+/// The dimension of `MassPerEnergy`: `SIQuantity<MASS_PER_ENERGY, N>` is one.
 pub const MASS_PER_ENERGY: ISQ = ISQ {
     m: -2,
     s: 2,
     ..ISQ::DIMENSIONLESS
 };
-pub type MassPerEnergy<N> = SIQuantity<MASS_PER_ENERGY, N>;
 
-/// The dimension of `DiffusionCoefficient`.
+/// The dimension of `DiffusionCoefficient`: `SIQuantity<DIFFUSION_COEFFICIENT, N>` is one.
 pub const DIFFUSION_COEFFICIENT: ISQ = ISQ {
     m: 2,
     s: -1,
     ..ISQ::DIMENSIONLESS
 };
-pub type DiffusionCoefficient<N> = SIQuantity<DIFFUSION_COEFFICIENT, N>;
 
-/// The units of this module's quantities: a type each, its size and zero
-/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+/// The units of this module's quantities: each a constant of its own unit
+/// type, its size and zero in its quantity's coherent unit, exact
+/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
 pub mod units {
     use super::*;
     use crate::{Exact, SIUnit, SIUnitConsts};
 
     /// Pascal seconds (`Pa · s`), a unit of `DynamicViscosity`: `n` of them is `n · 1.0` coherent units.
-    pub type PascalSecond = SIUnit<
+    pub const PASCAL_SECOND: SIUnit<
         DYNAMIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -93,10 +85,10 @@ pub mod units {
                 name: "pascal seconds",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Poises (`P`), a unit of `DynamicViscosity`: `n` of them is `n · 0.1` coherent units.
-    pub type Poise = SIUnit<
+    pub const POISE: SIUnit<
         DYNAMIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -106,10 +98,10 @@ pub mod units {
                 name: "poises",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per foot second (`lb/(ft · s)`), a unit of `DynamicViscosity`: `n` of them is `n · 0.45359237 / 0.3048` coherent units.
-    pub type PoundPerFootSecond = SIUnit<
+    pub const POUND_PER_FOOT_SECOND: SIUnit<
         DYNAMIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -119,10 +111,10 @@ pub mod units {
                 name: "pounds per foot second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slugs per foot second (`slug/(ft · s)`), a unit of `DynamicViscosity`: `n` of them is `n · (0.45359237 * 9.80665 / 0.3048) / 0.3048` coherent units.
-    pub type SlugPerFootSecond = SIUnit<
+    pub const SLUG_PER_FOOT_SECOND: SIUnit<
         DYNAMIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -133,10 +125,10 @@ pub mod units {
                 name: "slugs per foot second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per centimetre second (`g/(cm · s)`), a unit of `DynamicViscosity`: `n` of them is `n · 0.1` coherent units.
-    pub type GramPerCentimetreSecond = SIUnit<
+    pub const GRAM_PER_CENTIMETRE_SECOND: SIUnit<
         DYNAMIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -146,10 +138,10 @@ pub mod units {
                 name: "grams per centimetre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per second (`m²/s`), a unit of `KinematicViscosity`: `n` of them is `n · 1.0` coherent units.
-    pub type KinematicViscositySquareMetrePerSecond = SIUnit<
+    pub const KINEMATIC_VISCOSITY_SQUARE_METRE_PER_SECOND: SIUnit<
         KINEMATIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -159,10 +151,10 @@ pub mod units {
                 name: "square metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Stokes (`St`), a unit of `KinematicViscosity`: `n` of them is `n · 0.0001` coherent units.
-    pub type KinematicViscosityStokes = SIUnit<
+    pub const KINEMATIC_VISCOSITY_STOKES: SIUnit<
         KINEMATIC_VISCOSITY,
         {
             SIUnitConsts {
@@ -172,10 +164,10 @@ pub mod units {
                 name: "stokes",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Newtons per metre (`N/m`), a unit of `SurfaceTension`: `n` of them is `n · 1.0` coherent units.
-    pub type NewtonPerMetre = SIUnit<
+    pub const NEWTON_PER_METRE: SIUnit<
         SURFACE_TENSION,
         {
             SIUnitConsts {
@@ -185,10 +177,10 @@ pub mod units {
                 name: "newtons per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms-force per metre (`kgf/m`), a unit of `SurfaceTension`: `n` of them is `n · 9.80665` coherent units.
-    pub type KilogramForcePerMetre = SIUnit<
+    pub const KILOGRAM_FORCE_PER_METRE: SIUnit<
         SURFACE_TENSION,
         {
             SIUnitConsts {
@@ -198,10 +190,10 @@ pub mod units {
                 name: "kilograms-force per metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces-force per inch (`ozf/in`), a unit of `SurfaceTension`: `n` of them is `n · (0.45359237 * 9.80665 / 16.0) / 0.0254` coherent units.
-    pub type OunceForcePerInch = SIUnit<
+    pub const OUNCE_FORCE_PER_INCH: SIUnit<
         SURFACE_TENSION,
         {
             SIUnitConsts {
@@ -212,10 +204,10 @@ pub mod units {
                 name: "ounces-force per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Poundals per inch (`pdl/in`), a unit of `SurfaceTension`: `n` of them is `n · (0.45359237 * 0.3048) / 0.0254` coherent units.
-    pub type PoundalPerInch = SIUnit<
+    pub const POUNDAL_PER_INCH: SIUnit<
         SURFACE_TENSION,
         {
             SIUnitConsts {
@@ -225,10 +217,10 @@ pub mod units {
                 name: "poundals per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds-force per inch (`lbf/in`), a unit of `SurfaceTension`: `n` of them is `n · (0.45359237 * 9.80665) / 0.0254` coherent units.
-    pub type PoundForcePerInch = SIUnit<
+    pub const POUND_FORCE_PER_INCH: SIUnit<
         SURFACE_TENSION,
         {
             SIUnitConsts {
@@ -238,10 +230,10 @@ pub mod units {
                 name: "pounds-force per inch",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Joules per square metre (`J/m²`), a unit of `SurfaceTension`: `n` of them is `n · 1.0` coherent units.
-    pub type JoulePerSquareMetre = SIUnit<
+    pub const JOULE_PER_SQUARE_METRE: SIUnit<
         SURFACE_TENSION,
         {
             SIUnitConsts {
@@ -251,10 +243,10 @@ pub mod units {
                 name: "joules per square metre",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per pascal (`Pa⁻¹`), a unit of `CompressibilityCoefficient`: `n` of them is `n · 1.0` coherent units.
-    pub type PerPascal = SIUnit<
+    pub const PER_PASCAL: SIUnit<
         COMPRESSIBILITY_COEFFICIENT,
         {
             SIUnitConsts {
@@ -264,10 +256,10 @@ pub mod units {
                 name: "per pascal",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per atmosphere (`atm⁻¹`), a unit of `CompressibilityCoefficient`: `n` of them is `n · 1.0 / 101325.0` coherent units.
-    pub type PerAtmosphere = SIUnit<
+    pub const PER_ATMOSPHERE: SIUnit<
         COMPRESSIBILITY_COEFFICIENT,
         {
             SIUnitConsts {
@@ -277,10 +269,10 @@ pub mod units {
                 name: "per atmosphere",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per atmosphere (technical) (`at⁻¹`), a unit of `CompressibilityCoefficient`: `n` of them is `n · 1.0 / 98066.5` coherent units.
-    pub type PerAtmosphereTechnical = SIUnit<
+    pub const PER_ATMOSPHERE_TECHNICAL: SIUnit<
         COMPRESSIBILITY_COEFFICIENT,
         {
             SIUnitConsts {
@@ -290,10 +282,10 @@ pub mod units {
                 name: "per atmosphere (technical)",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Per bar (`bar⁻¹`), a unit of `CompressibilityCoefficient`: `n` of them is `n · 1e-05` coherent units.
-    pub type PerBar = SIUnit<
+    pub const PER_BAR: SIUnit<
         COMPRESSIBILITY_COEFFICIENT,
         {
             SIUnitConsts {
@@ -303,10 +295,10 @@ pub mod units {
                 name: "per bar",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per second (`kg/s`), a unit of `MassRate`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerSecond = SIUnit<
+    pub const KILOGRAM_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -316,10 +308,10 @@ pub mod units {
                 name: "kilograms per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per second (`g/s`), a unit of `MassRate`: `n` of them is `n · 0.001` coherent units.
-    pub type GramPerSecond = SIUnit<
+    pub const GRAM_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -329,10 +321,10 @@ pub mod units {
                 name: "grams per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per minute (`g/min`), a unit of `MassRate`: `n` of them is `n · 0.001 / 60.0` coherent units.
-    pub type GramPerMinute = SIUnit<
+    pub const GRAM_PER_MINUTE: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -342,10 +334,10 @@ pub mod units {
                 name: "grams per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per hour (`g/h`), a unit of `MassRate`: `n` of them is `n · 0.001 / 3600.0` coherent units.
-    pub type GramPerHour = SIUnit<
+    pub const GRAM_PER_HOUR: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -355,10 +347,10 @@ pub mod units {
                 name: "grams per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per day (`g/d`), a unit of `MassRate`: `n` of them is `n · 0.001 / 86400.0` coherent units.
-    pub type GramPerDay = SIUnit<
+    pub const GRAM_PER_DAY: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -368,10 +360,10 @@ pub mod units {
                 name: "grams per day",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Carats per second (`ct/s`), a unit of `MassRate`: `n` of them is `n · 0.0002` coherent units.
-    pub type CaratPerSecond = SIUnit<
+    pub const CARAT_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -381,10 +373,10 @@ pub mod units {
                 name: "carats per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grains per second (`gr/s`), a unit of `MassRate`: `n` of them is `n · 6.479891e-05` coherent units.
-    pub type GrainPerSecond = SIUnit<
+    pub const GRAIN_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -394,10 +386,10 @@ pub mod units {
                 name: "grains per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hundredweight (long) per second (`cwt long/s`), a unit of `MassRate`: `n` of them is `n · 50.80234544` coherent units.
-    pub type HundredweightLongPerSecond = SIUnit<
+    pub const HUNDREDWEIGHT_LONG_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -407,10 +399,10 @@ pub mod units {
                 name: "hundredweight (long) per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Hundredweight (short) per second (`cwt short/s`), a unit of `MassRate`: `n` of them is `n · 45.359237` coherent units.
-    pub type HundredweightShortPerSecond = SIUnit<
+    pub const HUNDREDWEIGHT_SHORT_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -420,10 +412,10 @@ pub mod units {
                 name: "hundredweight (short) per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Ounces per second (`oz/s`), a unit of `MassRate`: `n` of them is `n · 0.028349523125` coherent units.
-    pub type OuncePerSecond = SIUnit<
+    pub const OUNCE_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -433,10 +425,10 @@ pub mod units {
                 name: "ounces per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Troy ounces per second (`oz t/s`), a unit of `MassRate`: `n` of them is `n · 0.0311034768` coherent units.
-    pub type OunceTroyPerSecond = SIUnit<
+    pub const OUNCE_TROY_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -446,10 +438,10 @@ pub mod units {
                 name: "troy ounces per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pennyweight per second (`dwt/s`), a unit of `MassRate`: `n` of them is `n · 0.00155517384` coherent units.
-    pub type PennyweightPerSecond = SIUnit<
+    pub const PENNYWEIGHT_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -459,10 +451,10 @@ pub mod units {
                 name: "pennyweight per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per second (`lb/s`), a unit of `MassRate`: `n` of them is `n · 0.45359237` coherent units.
-    pub type PoundPerSecond = SIUnit<
+    pub const POUND_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -472,10 +464,10 @@ pub mod units {
                 name: "pounds per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per minute (`lb/min`), a unit of `MassRate`: `n` of them is `n · 0.45359237 / 60.0` coherent units.
-    pub type PoundPerMinute = SIUnit<
+    pub const POUND_PER_MINUTE: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -485,10 +477,10 @@ pub mod units {
                 name: "pounds per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per hour (`lb/h`), a unit of `MassRate`: `n` of them is `n · 0.45359237 / 3600.0` coherent units.
-    pub type PoundPerHour = SIUnit<
+    pub const POUND_PER_HOUR: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -498,10 +490,10 @@ pub mod units {
                 name: "pounds per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per day (`lb/d`), a unit of `MassRate`: `n` of them is `n · 0.45359237 / 86400.0` coherent units.
-    pub type PoundPerDay = SIUnit<
+    pub const POUND_PER_DAY: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -511,10 +503,10 @@ pub mod units {
                 name: "pounds per day",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Troy pounds per second (`lb t/s`), a unit of `MassRate`: `n` of them is `n · 0.3732417216` coherent units.
-    pub type PoundTroyPerSecond = SIUnit<
+    pub const POUND_TROY_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -524,10 +516,10 @@ pub mod units {
                 name: "troy pounds per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Slugs per second (`slug/s`), a unit of `MassRate`: `n` of them is `n · 0.45359237 * 9.80665 / 0.3048` coherent units.
-    pub type SlugPerSecond = SIUnit<
+    pub const SLUG_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -537,10 +529,10 @@ pub mod units {
                 name: "slugs per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Assay tons per second (`AT/s`), a unit of `MassRate`: `n` of them is `n · 0.175 / 6.0` coherent units.
-    pub type TonAssayPerSecond = SIUnit<
+    pub const TON_ASSAY_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -550,10 +542,10 @@ pub mod units {
                 name: "assay tons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Long tons per second (`2240 lb/s`), a unit of `MassRate`: `n` of them is `n · 1016.0469088` coherent units.
-    pub type TonLongPerSecond = SIUnit<
+    pub const TON_LONG_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -563,10 +555,10 @@ pub mod units {
                 name: "long tons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Short tons per second (`2000 lb/s`), a unit of `MassRate`: `n` of them is `n · 907.18474` coherent units.
-    pub type TonShortPerSecond = SIUnit<
+    pub const TON_SHORT_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -576,10 +568,10 @@ pub mod units {
                 name: "short tons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Short tons per hour (`2000 lb/h`), a unit of `MassRate`: `n` of them is `n · 907.18474 / 3600.0` coherent units.
-    pub type TonShortPerHour = SIUnit<
+    pub const TON_SHORT_PER_HOUR: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -589,10 +581,10 @@ pub mod units {
                 name: "short tons per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons per second (`t/s`), a unit of `MassRate`: `n` of them is `n · 1000.0` coherent units.
-    pub type TonPerSecond = SIUnit<
+    pub const TON_PER_SECOND: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -602,10 +594,10 @@ pub mod units {
                 name: "tons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons per minute (`t/min`), a unit of `MassRate`: `n` of them is `n · 1000.0 / 60.0` coherent units.
-    pub type TonPerMinute = SIUnit<
+    pub const TON_PER_MINUTE: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -615,10 +607,10 @@ pub mod units {
                 name: "tons per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons per hour (`t/h`), a unit of `MassRate`: `n` of them is `n · 1000.0 / 3600.0` coherent units.
-    pub type TonPerHour = SIUnit<
+    pub const TON_PER_HOUR: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -628,10 +620,10 @@ pub mod units {
                 name: "tons per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tons per day (`t/d`), a unit of `MassRate`: `n` of them is `n · 1000.0 / 86400.0` coherent units.
-    pub type TonPerDay = SIUnit<
+    pub const TON_PER_DAY: SIUnit<
         MASS_RATE,
         {
             SIUnitConsts {
@@ -641,10 +633,10 @@ pub mod units {
                 name: "tons per day",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per second (`m³/s`), a unit of `VolumeRate`: `n` of them is `n · 1.0` coherent units.
-    pub type CubicMetrePerSecond = SIUnit<
+    pub const CUBIC_METRE_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -654,10 +646,10 @@ pub mod units {
                 name: "cubic metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per minute (`m³/min`), a unit of `VolumeRate`: `n` of them is `n · 1.0 / 60.0` coherent units.
-    pub type CubicMetrePerMinute = SIUnit<
+    pub const CUBIC_METRE_PER_MINUTE: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -667,10 +659,10 @@ pub mod units {
                 name: "cubic metres per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic metres per hour (`m³/h`), a unit of `VolumeRate`: `n` of them is `n · 1.0 / 3600.0` coherent units.
-    pub type CubicMetrePerHour = SIUnit<
+    pub const CUBIC_METRE_PER_HOUR: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -680,10 +672,10 @@ pub mod units {
                 name: "cubic metres per hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Litres per second (`L/s`), a unit of `VolumeRate`: `n` of them is `n · 0.001` coherent units.
-    pub type LitrePerSecond = SIUnit<
+    pub const LITRE_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -693,10 +685,10 @@ pub mod units {
                 name: "litres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Litres per minute (`L/min`), a unit of `VolumeRate`: `n` of them is `n · 0.001 / 60.0` coherent units.
-    pub type LitrePerMinute = SIUnit<
+    pub const LITRE_PER_MINUTE: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -706,10 +698,10 @@ pub mod units {
                 name: "litres per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Acre-feet per second (`ac · ft/s`), a unit of `VolumeRate`: `n` of them is `n · 43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0)` coherent units.
-    pub type AcreFootPerSecond = SIUnit<
+    pub const ACRE_FOOT_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -722,10 +714,10 @@ pub mod units {
                 name: "acre-feet per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Barrels per second (`bbl/s`), a unit of `VolumeRate`: `n` of them is `n · 0.158987294928` coherent units.
-    pub type BarrelPerSecond = SIUnit<
+    pub const BARREL_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -735,10 +727,10 @@ pub mod units {
                 name: "barrels per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Bushels per second (`bu/s`), a unit of `VolumeRate`: `n` of them is `n · 0.03523907016688` coherent units.
-    pub type BushelPerSecond = SIUnit<
+    pub const BUSHEL_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -748,10 +740,10 @@ pub mod units {
                 name: "bushels per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cords per second (`cords/s`), a unit of `VolumeRate`: `n` of them is `n · 128.0 * 0.3048 * 0.3048 * 0.3048` coherent units.
-    pub type CordPerSecond = SIUnit<
+    pub const CORD_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -764,10 +756,10 @@ pub mod units {
                 name: "cords per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feet per second (`ft³/s`), a unit of `VolumeRate`: `n` of them is `n · 0.3048 * 0.3048 * 0.3048` coherent units.
-    pub type CubicFootPerSecond = SIUnit<
+    pub const CUBIC_FOOT_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -777,10 +769,10 @@ pub mod units {
                 name: "cubic feet per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic feet per minute (`ft³/min`), a unit of `VolumeRate`: `n` of them is `n · 0.3048 * 0.3048 * 0.3048 / 60.0` coherent units.
-    pub type CubicFootPerMinute = SIUnit<
+    pub const CUBIC_FOOT_PER_MINUTE: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -791,10 +783,10 @@ pub mod units {
                 name: "cubic feet per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic inches per second (`in³/s`), a unit of `VolumeRate`: `n` of them is `n · 0.0254 * 0.0254 * 0.0254` coherent units.
-    pub type CubicInchPerSecond = SIUnit<
+    pub const CUBIC_INCH_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -804,10 +796,10 @@ pub mod units {
                 name: "cubic inches per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic inches per minute (`in³/min`), a unit of `VolumeRate`: `n` of them is `n · 0.0254 * 0.0254 * 0.0254 / 60.0` coherent units.
-    pub type CubicInchPerMinute = SIUnit<
+    pub const CUBIC_INCH_PER_MINUTE: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -818,10 +810,10 @@ pub mod units {
                 name: "cubic inches per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic miles per second (`mi³/s`), a unit of `VolumeRate`: `n` of them is `n · 1609.344 * 1609.344 * 1609.344` coherent units.
-    pub type CubicMilePerSecond = SIUnit<
+    pub const CUBIC_MILE_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -831,10 +823,10 @@ pub mod units {
                 name: "cubic miles per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic yards per second (`yd³/s`), a unit of `VolumeRate`: `n` of them is `n · 0.9144 * 0.9144 * 0.9144` coherent units.
-    pub type CubicYardPerSecond = SIUnit<
+    pub const CUBIC_YARD_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -844,10 +836,10 @@ pub mod units {
                 name: "cubic yards per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cubic yards per minute (`yd³/min`), a unit of `VolumeRate`: `n` of them is `n · 0.9144 * 0.9144 * 0.9144 / 60.0` coherent units.
-    pub type CubicYardPerMinute = SIUnit<
+    pub const CUBIC_YARD_PER_MINUTE: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -858,10 +850,10 @@ pub mod units {
                 name: "cubic yards per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Cups per second (`cup/s`), a unit of `VolumeRate`: `n` of them is `n · 0.0002365882365` coherent units.
-    pub type CupPerSecond = SIUnit<
+    pub const CUP_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -871,10 +863,10 @@ pub mod units {
                 name: "cups per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Fluid ounces per second (`fl oz/s`), a unit of `VolumeRate`: `n` of them is `n · 2.95735295625e-05` coherent units.
-    pub type FluidOuncePerSecond = SIUnit<
+    pub const FLUID_OUNCE_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -884,10 +876,10 @@ pub mod units {
                 name: "fluid ounces per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial fluid ounces per second (`fl oz (UK)/s`), a unit of `VolumeRate`: `n` of them is `n · 2.84130625e-05` coherent units.
-    pub type FluidOunceImperialPerSecond = SIUnit<
+    pub const FLUID_OUNCE_IMPERIAL_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -897,10 +889,10 @@ pub mod units {
                 name: "Imperial fluid ounces per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial gallons per second (`gal (UK)/s`), a unit of `VolumeRate`: `n` of them is `n · 0.00454609` coherent units.
-    pub type GallonImperialPerSecond = SIUnit<
+    pub const GALLON_IMPERIAL_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -910,10 +902,10 @@ pub mod units {
                 name: "Imperial gallons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons per second (`gal/s`), a unit of `VolumeRate`: `n` of them is `n · 0.003785411784` coherent units.
-    pub type GallonPerSecond = SIUnit<
+    pub const GALLON_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -923,10 +915,10 @@ pub mod units {
                 name: "gallons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons per minute (`gal/min`), a unit of `VolumeRate`: `n` of them is `n · 0.003785411784 / 60.0` coherent units.
-    pub type GallonPerMinute = SIUnit<
+    pub const GALLON_PER_MINUTE: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -936,10 +928,10 @@ pub mod units {
                 name: "gallons per minute",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gallons per day (`gal/d`), a unit of `VolumeRate`: `n` of them is `n · 0.003785411784 / 86400.0` coherent units.
-    pub type GallonPerDay = SIUnit<
+    pub const GALLON_PER_DAY: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -949,10 +941,10 @@ pub mod units {
                 name: "gallons per day",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Imperial gills per second (`gi (UK)/s`), a unit of `VolumeRate`: `n` of them is `n · 0.0001420653125` coherent units.
-    pub type GillImperialPerSecond = SIUnit<
+    pub const GILL_IMPERIAL_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -962,10 +954,10 @@ pub mod units {
                 name: "Imperial gills per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Gills per second (`gi/s`), a unit of `VolumeRate`: `n` of them is `n · 0.00011829411825` coherent units.
-    pub type GillPerSecond = SIUnit<
+    pub const GILL_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -975,10 +967,10 @@ pub mod units {
                 name: "gills per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pecks per second (`pk/s`), a unit of `VolumeRate`: `n` of them is `n · 0.00880976754172` coherent units.
-    pub type PeckPerSecond = SIUnit<
+    pub const PECK_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -988,10 +980,10 @@ pub mod units {
                 name: "pecks per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dry pints per second (`dry pt/s`), a unit of `VolumeRate`: `n` of them is `n · 0.0005506104713575` coherent units.
-    pub type PintDryPerSecond = SIUnit<
+    pub const PINT_DRY_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1001,10 +993,10 @@ pub mod units {
                 name: "dry pints per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Liquid pints per second (`liq pt/s`), a unit of `VolumeRate`: `n` of them is `n · 0.000473176473` coherent units.
-    pub type PintLiquidPerSecond = SIUnit<
+    pub const PINT_LIQUID_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1014,10 +1006,10 @@ pub mod units {
                 name: "liquid pints per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Dry quarts per second (`dry qt/s`), a unit of `VolumeRate`: `n` of them is `n · 0.001101220942715` coherent units.
-    pub type QuartDryPerSecond = SIUnit<
+    pub const QUART_DRY_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1027,10 +1019,10 @@ pub mod units {
                 name: "dry quarts per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Liquid quarts per second (`liq qt/s`), a unit of `VolumeRate`: `n` of them is `n · 0.000946352946` coherent units.
-    pub type QuartLiquidPerSecond = SIUnit<
+    pub const QUART_LIQUID_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1040,10 +1032,10 @@ pub mod units {
                 name: "liquid quarts per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Steres per second (`st/s`), a unit of `VolumeRate`: `n` of them is `n · 1.0` coherent units.
-    pub type SterePerSecond = SIUnit<
+    pub const STERE_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1053,10 +1045,10 @@ pub mod units {
                 name: "steres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Tablespoons per second (`tbsp/s`), a unit of `VolumeRate`: `n` of them is `n · 1.478676478125e-05` coherent units.
-    pub type TablespoonPerSecond = SIUnit<
+    pub const TABLESPOON_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1066,10 +1058,10 @@ pub mod units {
                 name: "tablespoons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Teaspoons per second (`tsp/s`), a unit of `VolumeRate`: `n` of them is `n · 4.92892159375e-06` coherent units.
-    pub type TeaspoonPerSecond = SIUnit<
+    pub const TEASPOON_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1079,10 +1071,10 @@ pub mod units {
                 name: "teaspoons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Register tons per second (`RT/s`), a unit of `VolumeRate`: `n` of them is `n · 100.0 * 0.3048 * 0.3048 * 0.3048` coherent units.
-    pub type RegisterTonPerSecond = SIUnit<
+    pub const REGISTER_TON_PER_SECOND: SIUnit<
         VOLUME_RATE,
         {
             SIUnitConsts {
@@ -1095,10 +1087,10 @@ pub mod units {
                 name: "register tons per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per square metre second (`kg/(m² · s)`), a unit of `MassFlux`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerSquareMetreSecond = SIUnit<
+    pub const KILOGRAM_PER_SQUARE_METRE_SECOND: SIUnit<
         MASS_FLUX,
         {
             SIUnitConsts {
@@ -1108,10 +1100,10 @@ pub mod units {
                 name: "kilograms per square metre second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Kilograms per joule (`kg/J`), a unit of `MassPerEnergy`: `n` of them is `n · 1.0` coherent units.
-    pub type KilogramPerJoule = SIUnit<
+    pub const KILOGRAM_PER_JOULE: SIUnit<
         MASS_PER_ENERGY,
         {
             SIUnitConsts {
@@ -1121,10 +1113,10 @@ pub mod units {
                 name: "kilograms per joule",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per joule (`g/J`), a unit of `MassPerEnergy`: `n` of them is `n · 0.001` coherent units.
-    pub type GramPerJoule = SIUnit<
+    pub const GRAM_PER_JOULE: SIUnit<
         MASS_PER_ENERGY,
         {
             SIUnitConsts {
@@ -1134,10 +1126,10 @@ pub mod units {
                 name: "grams per joule",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per joule (`lb/J`), a unit of `MassPerEnergy`: `n` of them is `n · 0.45359237` coherent units.
-    pub type PoundPerJoule = SIUnit<
+    pub const POUND_PER_JOULE: SIUnit<
         MASS_PER_ENERGY,
         {
             SIUnitConsts {
@@ -1147,10 +1139,10 @@ pub mod units {
                 name: "pounds per joule",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Pounds per watt hour (`lb/Wh`), a unit of `MassPerEnergy`: `n` of them is `n · 0.45359237 / 3600.0` coherent units.
-    pub type PoundPerWattHour = SIUnit<
+    pub const POUND_PER_WATT_HOUR: SIUnit<
         MASS_PER_ENERGY,
         {
             SIUnitConsts {
@@ -1160,10 +1152,10 @@ pub mod units {
                 name: "pounds per watt hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Grams per watt hour (`g/Wh`), a unit of `MassPerEnergy`: `n` of them is `n · 0.001 / 3600.0` coherent units.
-    pub type GramPerWattHour = SIUnit<
+    pub const GRAM_PER_WATT_HOUR: SIUnit<
         MASS_PER_ENERGY,
         {
             SIUnitConsts {
@@ -1173,10 +1165,10 @@ pub mod units {
                 name: "grams per watt hour",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Square metres per second (`m²/s`), a unit of `DiffusionCoefficient`: `n` of them is `n · 1.0` coherent units.
-    pub type DiffusionCoefficientSquareMetrePerSecond = SIUnit<
+    pub const DIFFUSION_COEFFICIENT_SQUARE_METRE_PER_SECOND: SIUnit<
         DIFFUSION_COEFFICIENT,
         {
             SIUnitConsts {
@@ -1186,10 +1178,10 @@ pub mod units {
                 name: "square metres per second",
             }
         },
-    >;
+    > = SIUnit;
 
     /// Stokes (`St`), a unit of `DiffusionCoefficient`: `n` of them is `n · 0.0001` coherent units.
-    pub type DiffusionCoefficientStokes = SIUnit<
+    pub const DIFFUSION_COEFFICIENT_STOKES: SIUnit<
         DIFFUSION_COEFFICIENT,
         {
             SIUnitConsts {
@@ -1199,5 +1191,5 @@ pub mod units {
                 name: "Stokes",
             }
         },
-    >;
+    > = SIUnit;
 }

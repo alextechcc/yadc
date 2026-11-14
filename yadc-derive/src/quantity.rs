@@ -833,8 +833,13 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         };
         // `self` is `left`, the right operand `right`; `body` builds the
         // result from the two numbers, both already counted in `N`.
-        let op = |left: &TokenStream2, right: &TokenStream2, tr: &str, out: &TokenStream2,
-                  refusals: Vec<TokenStream2>, left_up: bool, sym: TokenStream2| {
+        let op = |left: &TokenStream2,
+                  right: &TokenStream2,
+                  tr: &str,
+                  out: &TokenStream2,
+                  refusals: Vec<TokenStream2>,
+                  left_up: bool,
+                  sym: TokenStream2| {
             let t = syn::Ident::new(tr, Span::call_site());
             let f = syn::Ident::new(&tr.to_lowercase(), Span::call_site());
             let (l, r) = if left_up {
@@ -843,7 +848,11 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
                 (quote! { self.#member }, up(quote! { rhs.#member }))
             };
             let build = ctor(quote! { #l #sym #r });
-            let mut preds = vec![quote! { #out: ::core::marker::Sized }, conv.clone(), num(tr)];
+            let mut preds = vec![
+                quote! { #out: ::core::marker::Sized },
+                conv.clone(),
+                num(tr),
+            ];
             preds.extend(refusals);
             quote! {
                 #h_ab_prim ::core::ops::#t<#right> for #left where #(#preds,)* {
@@ -857,11 +866,43 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         let add_r = pair(ADD, &a_n, &b_n);
         let sub_r = pair(SUB, &a_n, &b_n);
         for (left, right, left_up) in [(&a_m, &b_n, true), (&a_n, &b_m, false)] {
-            mixed.extend(op(left, right, "Mul", &mul_n, mul_r.clone(), left_up, quote! { * }));
-            mixed.extend(op(left, right, "Div", &div_n, div_r.clone(), left_up, quote! { / }));
+            mixed.extend(op(
+                left,
+                right,
+                "Mul",
+                &mul_n,
+                mul_r.clone(),
+                left_up,
+                quote! { * },
+            ));
+            mixed.extend(op(
+                left,
+                right,
+                "Div",
+                &div_n,
+                div_r.clone(),
+                left_up,
+                quote! { / },
+            ));
             // A sum keeps its left operand's dimension, counted in `N`.
-            mixed.extend(op(left, right, "Add", &a_n, add_r.clone(), left_up, quote! { + }));
-            mixed.extend(op(left, right, "Sub", &sub_n, sub_r.clone(), left_up, quote! { - }));
+            mixed.extend(op(
+                left,
+                right,
+                "Add",
+                &a_n,
+                add_r.clone(),
+                left_up,
+                quote! { + },
+            ));
+            mixed.extend(op(
+                left,
+                right,
+                "Sub",
+                &sub_n,
+                sub_r.clone(),
+                left_up,
+                quote! { - },
+            ));
         }
         // In place, into the `N` side.
         if opts.has("AddAssign") {
@@ -915,7 +956,12 @@ pub(crate) fn expand_quantity(input: &DeriveInput) -> syn::Result<TokenStream2> 
         });
         let w_unit = {
             let mut p = scale.clone();
-            p.extend([conv.clone(), num("Mul"), num("Div"), quote! { #m: ::core::marker::Copy }]);
+            p.extend([
+                conv.clone(),
+                num("Mul"),
+                num("Div"),
+                quote! { #m: ::core::marker::Copy },
+            ]);
             quote! { where #(#p,)* }
         };
         mixed.extend(quote! {
@@ -1022,11 +1068,7 @@ const ADD: &[&str] = &[
     "AddInOrder",
     "AddLabels",
 ];
-const SUB: &[&str] = &[
-    "SubSameDimension",
-    "SubNotFromAmount",
-    "SubLabels",
-];
+const SUB: &[&str] = &["SubSameDimension", "SubNotFromAmount", "SubLabels"];
 const SCALE: &[&str] = &["ScaleNotPoint", "ScaleLabel"];
 
 /// The primitive number types: the impls a generic number type cannot have
@@ -1065,7 +1107,9 @@ struct Options {
 impl Options {
     /// Listed in `#[quantity(impl(..))]`, not just on by default.
     fn explicit(&self, name: &str) -> bool {
-        self.extras.as_ref().is_some_and(|l| l.iter().any(|e| e == name))
+        self.extras
+            .as_ref()
+            .is_some_and(|l| l.iter().any(|e| e == name))
     }
 
     fn has(&self, name: &str) -> bool {
@@ -1114,14 +1158,20 @@ impl Options {
                                 "a number type meets itself already: list other types",
                             ));
                         }
-                        if from.iter().any(|(m, n)| key(m) == key(&target) && key(n) == key(&source)) {
+                        if from
+                            .iter()
+                            .any(|(m, n)| key(m) == key(&target) && key(n) == key(&source))
+                        {
                             return Err(syn::Error::new_spanned(
                                 &target,
                                 "`from` runs one way: a pair listed both ways would give two \
                                  results for one sum",
                             ));
                         }
-                        if from.iter().any(|(m, n)| key(m) == key(&source) && key(n) == key(&target)) {
+                        if from
+                            .iter()
+                            .any(|(m, n)| key(m) == key(&source) && key(n) == key(&target))
+                        {
                             return Err(syn::Error::new_spanned(&target, "listed twice"));
                         }
                         from.push((source.clone(), target));

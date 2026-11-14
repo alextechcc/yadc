@@ -1,18 +1,20 @@
 //! The derives behind `dynamickit`: [`Dynamic`](macro@Dynamic) for the dynamic
 //! type, [`Visit`](macro@Visit), [`Variants`](macro@Variants),
-//! [`Members`](macro@Members) and [`Via`](macro@Via) for closed sets.
+//! [`Members`](macro@Members), [`Via`](macro@Via) and
+//! [`Values`](macro@Values) for closed sets.
 //! `Visit` and `Variants` write the dynamickit trait they are named after;
 //! `Members` and `Via` write std impls only; `Dynamic` writes std impls plus
 //! the traits you name in its `impl(..)`. See the `dynamickit` crate for the
 //! traits and the examples.
 //!
-//! `Visit` and `Variants` take `#[dynamickit(crate = "path")]` to name the
+//! `Visit`, `Variants` and `Values` take `#[dynamickit(crate = "path")]` to name the
 //! `dynamickit` crate (default `::dynamickit`). Every derive passes the type's
 //! generic parameters and where clause through to every impl. Each derive's
 //! attributes are namespaced by it: `#[dynamic(..)]`, `#[members(..)]`,
 //! `#[via(..)]`.
 
 mod dynamic;
+mod values;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
@@ -1032,6 +1034,63 @@ fn expand_via(input: &DeriveInput) -> syn::Result<TokenStream2> {
 pub fn derive_dynamic(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     dynamic::expand(&input)
+        .unwrap_or_else(|e| e.to_compile_error())
+        .into()
+}
+
+// ===== Values ================================================================
+
+/// An enum whose variants each name a value: a choice among them, made at
+/// run time. The enum implements the traits it lists as its variant's value
+/// does, prints and parses as it, and converts through it.
+///
+/// ```ignore
+/// #[derive(Copy, Clone, Values)]
+/// #[values(
+///     delegate(Unit<Length<N>, N> {
+///         fn quantity(&self, value: N) -> Length<N>;
+///         fn value(&self, quantity: Length<N>) -> N;
+///     }),
+///     into(AnyUnit),
+///     for<N: Number>
+/// )]
+/// enum LengthUnit { #[value(METRE)] Metre, #[value(MILE)] Mile }
+///
+/// let setting: LengthUnit = "mi".parse()?;   // the value that prints as "mi"
+/// let d = setting.quantity(3.0);             // as `MILE.quantity(3.0)`
+/// ```
+///
+/// Each `#[value(..)]` is an expression - a constant, usually - and the
+/// enum's variants have no fields. On the enum, `#[values(..)]` lists:
+///
+/// - `delegate(Trait { fn m(&self, ..) -> R; .. })`: `impl Trait for Enum`,
+///   each method listed calling the variant's value's (`&self` or `self`);
+/// - `into(X)`: `From<Enum> for X`, through `X::from(value)`;
+/// - `impl(..)`: of `Display` (the value's own) and `FromStr` (the first
+///   variant whose value prints as the string, else
+///   [`NoValue`](../dynamickit/struct.NoValue.html)), exactly those listed;
+///   both by default;
+/// - `for<..> where ..`: the impls' generics and their bounds - last, as a
+///   where clause takes the rest.
+///
+/// Not `const`: a choice is made at run time.
+///
+/// By hand:
+///
+/// ```ignore
+/// impl<N: Number> Unit<Length<N>, N> for LengthUnit {
+///     fn quantity(&self, value: N) -> Length<N> {
+///         match self { LengthUnit::Metre => METRE.quantity(value), LengthUnit::Mile => MILE.quantity(value) }
+///     }
+///     fn value(&self, quantity: Length<N>) -> N { /* alike */ }
+/// }
+/// // From<LengthUnit> for AnyUnit; Display; FromStr
+/// ```
+#[proc_macro_derive(Values, attributes(dynamickit, values, value))]
+pub fn derive_values(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    krate(&input)
+        .and_then(|k| values::expand(&input, &k))
         .unwrap_or_else(|e| e.to_compile_error())
         .into()
 }
