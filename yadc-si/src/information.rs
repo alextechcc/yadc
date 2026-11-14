@@ -1,136 +1,48 @@
-use crate::ISQ;
-use yadc::Dimension;
+//! The quantities of `information` and their units.
 
-/// The dimension of `Information`: `SIQuantity<INFORMATION, N>` is one.
-pub const INFORMATION: ISQ = ISQ::DIMENSIONLESS;
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `InformationRate`: `SIQuantity<INFORMATION_RATE, N>` is one.
-pub const INFORMATION_RATE: ISQ = ISQ {
-    s: -1,
-    ..ISQ::DIMENSIONLESS
-};
+/// An information, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Information<N, const U: SIUnit = { SIUnit::ONE }, const IS_BASE: bool = true> =
+    SIQuantity<U, N, IS_BASE>;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, SIUnit, SIUnitConsts};
+/// Bits (`b`), a unit of `Information`: `n` of them is `n · 0.125` base units.
+pub const BIT: SIQuantity<{ SIUnit::scaled("b", Exact::dec(125, -3), SIUnit::ONE) }, Exact, false> =
+    SIQuantity::ONE;
 
-    /// Bits (`b`), a unit of `Information`: `n` of them is `n · 0.125` coherent units.
-    pub const BIT: SIUnit<
-        INFORMATION,
-        {
-            SIUnitConsts {
-                size: Exact::dec(125, -3),
-                zero: Exact::ZERO,
-                symbol: "b",
-                name: "bits",
-            }
-        },
-    > = SIUnit;
+/// Bytes (`B`), a unit of `Information`: the coherent unit, a product of base units.
+pub const BYTE: SIQuantity<{ SIUnit::ONE }, Exact, true> = SIQuantity::ONE;
 
-    /// Bytes (`B`), a unit of `Information`: `n` of them is `n · 1.0` coherent units.
-    pub const BYTE: SIUnit<
-        INFORMATION,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "B",
-                name: "bytes",
-            }
-        },
-    > = SIUnit;
+/// Octets (`o`), a unit of `Information`: the coherent unit, a product of base units.
+pub const OCTET: SIQuantity<{ SIUnit::ONE }, Exact, true> = SIQuantity::ONE;
 
-    /// Octets (`o`), a unit of `Information`: `n` of them is `n · 1.0` coherent units.
-    pub const OCTET: SIUnit<
-        INFORMATION,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "o",
-                name: "octets",
-            }
-        },
-    > = SIUnit;
+/// Nibbles (`nibble`), a unit of `Information`: `n` of them is `n · 0.5` base units.
+pub const NIBBLE: SIQuantity<
+    { SIUnit::scaled("nibble", Exact::dec(5, -1), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Nibbles (`nibble`), a unit of `Information`: `n` of them is `n · 0.5` coherent units.
-    pub const NIBBLE: SIUnit<
-        INFORMATION,
-        {
-            SIUnitConsts {
-                size: Exact::dec(5, -1),
-                zero: Exact::ZERO,
-                symbol: "nibble",
-                name: "nibbles",
-            }
-        },
-    > = SIUnit;
+/// Crumbs (`crumb`), a unit of `Information`: `n` of them is `n · 0.25` base units.
+pub const CRUMB: SIQuantity<
+    { SIUnit::scaled("crumb", Exact::dec(25, -2), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Crumbs (`crumb`), a unit of `Information`: `n` of them is `n · 0.25` coherent units.
-    pub const CRUMB: SIUnit<
-        INFORMATION,
-        {
-            SIUnitConsts {
-                size: Exact::dec(25, -2),
-                zero: Exact::ZERO,
-                symbol: "crumb",
-                name: "crumbs",
-            }
-        },
-    > = SIUnit;
+/// Shannons (`Sh`), a unit of `Information`: `n` of them is `n · 0.125` base units.
+pub const SHANNON: SIQuantity<
+    { SIUnit::scaled("Sh", Exact::dec(125, -3), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Shannons (`Sh`), a unit of `Information`: `n` of them is `n · 0.125` coherent units.
-    pub const SHANNON: SIUnit<
-        INFORMATION,
-        {
-            SIUnitConsts {
-                size: Exact::dec(125, -3),
-                zero: Exact::ZERO,
-                symbol: "Sh",
-                name: "shannons",
-            }
-        },
-    > = SIUnit;
-
-    /// Bits per second (`b/s`), a unit of `InformationRate`: `n` of them is `n · 0.125` coherent units.
-    pub const BIT_PER_SECOND: SIUnit<
-        INFORMATION_RATE,
-        {
-            SIUnitConsts {
-                size: Exact::dec(125, -3),
-                zero: Exact::ZERO,
-                symbol: "b/s",
-                name: "bits per second",
-            }
-        },
-    > = SIUnit;
-
-    /// Bytes per second (`B/s`), a unit of `InformationRate`: `n` of them is `n · 1.0` coherent units.
-    pub const BYTE_PER_SECOND: SIUnit<
-        INFORMATION_RATE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "B/s",
-                name: "bytes per second",
-            }
-        },
-    > = SIUnit;
-
-    /// Octets per second (`o/s`), a unit of `InformationRate`: `n` of them is `n · 1.0` coherent units.
-    pub const OCTET_PER_SECOND: SIUnit<
-        INFORMATION_RATE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "o/s",
-                name: "octets per second",
-            }
-        },
-    > = SIUnit;
-}
+/// An information rate, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type InformationRate<
+    N,
+    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -1) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;

@@ -1,648 +1,405 @@
 //! The units of `electromagnetic`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicSIUnit;
-use crate::electromagnetic::units::*;
+#[allow(unused_imports)]
 use crate::electromagnetic::*;
-use crate::{Exact, SIQuantity, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `ElectricCharge`, in any number type they count in.
+/// The units of `ElectricCharge`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_CHARGE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_CHARGE, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_CHARGE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricChargeUnit {
     #[default]
-    #[value(COULOMB)]
+    #[value(COULOMB.unit())]
     Coulomb,
-    #[value(AMPERE_HOUR)]
+    #[value(AMPERE_HOUR.unit())]
     AmpereHour,
-    #[value(ELEMENTARY_CHARGE)]
+    #[value(ELEMENTARY_CHARGE.unit())]
     ElementaryCharge,
-    #[value(ATOMIC_UNIT_OF_CHARGE)]
+    #[value(ATOMIC_UNIT_OF_CHARGE.unit())]
     AtomicUnitOfCharge,
-    #[value(ABCOULOMB)]
+    #[value(ABCOULOMB.unit())]
     Abcoulomb,
-    #[value(FARADAY)]
+    #[value(FARADAY.unit())]
     Faraday,
-    #[value(FRANKLIN)]
+    #[value(FRANKLIN.unit())]
     Franklin,
-    #[value(STATCOULOMB)]
+    #[value(STATCOULOMB.unit())]
     Statcoulomb,
 }
 
-/// The units of `ElectricChargeArealDensity`, in any number type they count in.
+/// The units of `ElectricCurrent`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_CHARGE_AREAL_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_CHARGE_AREAL_DENSITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_CHARGE_AREAL_DENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum ElectricChargeArealDensityUnit {
-    #[default]
-    #[value(ELECTRIC_CHARGE_AREAL_DENSITY_COULOMB_PER_SQUARE_METRE)]
-    CoulombPerSquareMetre,
-}
-
-/// The units of `ElectricChargeLinearDensity`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_CHARGE_LINEAR_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_CHARGE_LINEAR_DENSITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_CHARGE_LINEAR_DENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum ElectricChargeLinearDensityUnit {
-    #[default]
-    #[value(COULOMB_PER_METRE)]
-    CoulombPerMetre,
-}
-
-/// The units of `ElectricChargeVolumetricDensity`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_CHARGE_VOLUMETRIC_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_CHARGE_VOLUMETRIC_DENSITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_CHARGE_VOLUMETRIC_DENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum ElectricChargeVolumetricDensityUnit {
-    #[default]
-    #[value(COULOMB_PER_CUBIC_METRE)]
-    CoulombPerCubicMetre,
-}
-
-/// The units of `ElectricCurrent`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_CURRENT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_CURRENT, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_CURRENT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ElectricCurrentUnit {
     #[default]
-    #[value(AMPERE)]
+    #[value(AMPERE.unit())]
     Ampere,
-    #[value(ELEMENTARY_CHARGE_PER_SECOND)]
-    ElementaryChargePerSecond,
-    #[value(ATOMIC_UNIT_OF_CHARGE_PER_SECOND)]
-    AtomicUnitOfChargePerSecond,
-    #[value(ABAMPERE)]
+    #[value(ABAMPERE.unit())]
     Abampere,
-    #[value(GILBERT)]
+    #[value(GILBERT.unit())]
     Gilbert,
-    #[value(STATAMPERE)]
+    #[value(STATAMPERE.unit())]
     Statampere,
 }
 
-/// The units of `ElectricCurrentDensity`, in any number type they count in.
+/// The units of `ElectricPotential`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_CURRENT_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_CURRENT_DENSITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_CURRENT_DENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum ElectricCurrentDensityUnit {
-    #[default]
-    #[value(AMPERE_PER_SQUARE_METRE)]
-    AmperePerSquareMetre,
-}
-
-/// The units of `SurfaceElectricCurrentDensity`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<SURFACE_ELECTRIC_CURRENT_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<SURFACE_ELECTRIC_CURRENT_DENSITY, N>;
-        fn value(&self, quantity: SIQuantity<SURFACE_ELECTRIC_CURRENT_DENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum SurfaceElectricCurrentDensityUnit {
-    #[default]
-    #[value(SURFACE_ELECTRIC_CURRENT_DENSITY_AMPERE_PER_METRE)]
-    AmperePerMetre,
-}
-
-/// The units of `ElectricPotential`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_POTENTIAL, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_POTENTIAL, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_POTENTIAL, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ElectricPotentialUnit {
     #[default]
-    #[value(VOLT)]
+    #[value(VOLT.unit())]
     Volt,
-    #[value(ABVOLT)]
+    #[value(ABVOLT.unit())]
     Abvolt,
-    #[value(STATVOLT)]
+    #[value(STATVOLT.unit())]
     Statvolt,
 }
 
-/// The units of `ElectricField`, in any number type they count in.
+/// The units of `ElectricField`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_FIELD, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_FIELD, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_FIELD, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricFieldUnit {
     #[default]
-    #[value(VOLT_PER_METRE)]
-    VoltPerMetre,
-    #[value(VOLT_PER_MIL)]
-    VoltPerMil,
-    #[value(ATOMIC_UNIT_OF_ELECTRIC_FIELD)]
+    #[value(ATOMIC_UNIT_OF_ELECTRIC_FIELD.unit())]
     AtomicUnitOfElectricField,
 }
 
-/// The units of `ElectricDisplacementField`, in any number type they count in.
+/// The units of `ElectricFlux`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_DISPLACEMENT_FIELD, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_DISPLACEMENT_FIELD, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_DISPLACEMENT_FIELD, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum ElectricDisplacementFieldUnit {
-    #[default]
-    #[value(ELECTRIC_DISPLACEMENT_FIELD_COULOMB_PER_SQUARE_METRE)]
-    CoulombPerSquareMetre,
-}
-
-/// The units of `ElectricFlux`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_FLUX, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_FLUX, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_FLUX, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ElectricFluxUnit {
     #[default]
-    #[value(VOLT_METRE)]
+    #[value(VOLT_METRE.unit())]
     VoltMetre,
 }
 
-/// The units of `ElectricDipoleMoment`, in any number type they count in.
+/// The units of `ElectricDipoleMoment`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_DIPOLE_MOMENT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_DIPOLE_MOMENT, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_DIPOLE_MOMENT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricDipoleMomentUnit {
     #[default]
-    #[value(COULOMB_METRE)]
+    #[value(COULOMB_METRE.unit())]
     CoulombMetre,
-    #[value(ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT)]
+    #[value(ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOMENT.unit())]
     AtomicUnitOfElectricDipoleMoment,
-    #[value(ATOMIC_UNIT_OF_CHARGE_CENTIMETRE)]
+    #[value(ATOMIC_UNIT_OF_CHARGE_CENTIMETRE.unit())]
     AtomicUnitOfChargeCentimetre,
-    #[value(ELEMENTARY_CHARGE_CENTIMETRE)]
+    #[value(ELEMENTARY_CHARGE_CENTIMETRE.unit())]
     ElementaryChargeCentimetre,
 }
 
-/// The units of `ElectricQuadrupoleMoment`, in any number type they count in.
+/// The units of `ElectricQuadrupoleMoment`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_QUADRUPOLE_MOMENT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_QUADRUPOLE_MOMENT, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_QUADRUPOLE_MOMENT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricQuadrupoleMomentUnit {
     #[default]
-    #[value(COULOMB_SQUARE_METRE)]
+    #[value(COULOMB_SQUARE_METRE.unit())]
     CoulombSquareMetre,
-    #[value(ELEMENTARY_CHARGE_BARN)]
+    #[value(ELEMENTARY_CHARGE_BARN.unit())]
     ElementaryChargeBarn,
-    #[value(ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT)]
+    #[value(ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOMENT.unit())]
     AtomicUnitOfElectricQuadrupoleMoment,
 }
 
-/// The units of `ElectricPermittivity`, in any number type they count in.
+/// The units of `ElectricPermittivity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRIC_PERMITTIVITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRIC_PERMITTIVITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRIC_PERMITTIVITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricPermittivityUnit {
     #[default]
-    #[value(FARAD_PER_METRE)]
-    FaradPerMetre,
-    #[value(VACUUM_PERMITTIVITY)]
+    #[value(VACUUM_PERMITTIVITY.unit())]
     VacuumPermittivity,
 }
 
-/// The units of `ElectricalConductance`, in any number type they count in.
+/// The units of `ElectricalConductance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRICAL_CONDUCTANCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRICAL_CONDUCTANCE, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRICAL_CONDUCTANCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricalConductanceUnit {
     #[default]
-    #[value(SIEMENS)]
+    #[value(SIEMENS.unit())]
     Siemens,
-    #[value(MHO)]
+    #[value(MHO.unit())]
     Mho,
-    #[value(ABMHO)]
+    #[value(ABMHO.unit())]
     Abmho,
-    #[value(ABSIEMENS)]
+    #[value(ABSIEMENS.unit())]
     Absiemens,
-    #[value(STATSIEMENS)]
+    #[value(STATSIEMENS.unit())]
     Statsiemens,
-    #[value(STATMHO)]
+    #[value(STATMHO.unit())]
     Statmho,
 }
 
-/// The units of `ElectricalConductivity`, in any number type they count in.
+/// The units of `ElectricalResistance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRICAL_CONDUCTIVITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRICAL_CONDUCTIVITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRICAL_CONDUCTIVITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum ElectricalConductivityUnit {
-    #[default]
-    #[value(SIEMENS_PER_METRE)]
-    SiemensPerMetre,
-}
-
-/// The units of `ElectricalMobility`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRICAL_MOBILITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRICAL_MOBILITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRICAL_MOBILITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum ElectricalMobilityUnit {
-    #[default]
-    #[value(SQUARE_METRE_PER_VOLT_SECOND)]
-    SquareMetrePerVoltSecond,
-}
-
-/// The units of `ElectricalResistance`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRICAL_RESISTANCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRICAL_RESISTANCE, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRICAL_RESISTANCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ElectricalResistanceUnit {
     #[default]
-    #[value(OHM)]
+    #[value(OHM.unit())]
     Ohm,
-    #[value(ABOHM)]
+    #[value(ABOHM.unit())]
     Abohm,
-    #[value(STATOHM)]
+    #[value(STATOHM.unit())]
     Statohm,
 }
 
-/// The units of `ElectricalResistivity`, in any number type they count in.
+/// The units of `ElectricalResistivity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ELECTRICAL_RESISTIVITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ELECTRICAL_RESISTIVITY, N>;
-        fn value(&self, quantity: SIQuantity<ELECTRICAL_RESISTIVITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ElectricalResistivityUnit {
     #[default]
-    #[value(OHM_METRE)]
+    #[value(OHM_METRE.unit())]
     OhmMetre,
-    #[value(ABOHM_METRE)]
+    #[value(ABOHM_METRE.unit())]
     AbohmMetre,
-    #[value(STATOHM_METRE)]
+    #[value(STATOHM_METRE.unit())]
     StatohmMetre,
-    #[value(OHM_INCH)]
+    #[value(OHM_INCH.unit())]
     OhmInch,
-    #[value(OHM_FOOT)]
+    #[value(OHM_FOOT.unit())]
     OhmFoot,
-    #[value(OHM_YARD)]
+    #[value(OHM_YARD.unit())]
     OhmYard,
-    #[value(OHM_SQUARE_MILLIMETRE_PER_METRE)]
-    OhmSquareMillimetrePerMetre,
 }
 
-/// The units of `Capacitance`, in any number type they count in.
+/// The units of `Capacitance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<CAPACITANCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<CAPACITANCE, N>;
-        fn value(&self, quantity: SIQuantity<CAPACITANCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum CapacitanceUnit {
     #[default]
-    #[value(FARAD)]
+    #[value(FARAD.unit())]
     Farad,
-    #[value(ABFARAD)]
+    #[value(ABFARAD.unit())]
     Abfarad,
-    #[value(STATFARAD)]
+    #[value(STATFARAD.unit())]
     Statfarad,
 }
 
-/// The units of `Inductance`, in any number type they count in.
+/// The units of `Inductance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<INDUCTANCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<INDUCTANCE, N>;
-        fn value(&self, quantity: SIQuantity<INDUCTANCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum InductanceUnit {
     #[default]
-    #[value(HENRY)]
+    #[value(HENRY.unit())]
     Henry,
-    #[value(ABHENRY)]
+    #[value(ABHENRY.unit())]
     Abhenry,
-    #[value(STATHENRY)]
+    #[value(STATHENRY.unit())]
     Stathenry,
 }
 
-/// The units of `MagneticFieldStrength`, in any number type they count in.
+/// The units of `MagneticFieldStrength`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MAGNETIC_FIELD_STRENGTH, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MAGNETIC_FIELD_STRENGTH, N>;
-        fn value(&self, quantity: SIQuantity<MAGNETIC_FIELD_STRENGTH, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MagneticFieldStrengthUnit {
     #[default]
-    #[value(MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE)]
-    AmperePerMetre,
-    #[value(OERSTED)]
+    #[value(OERSTED.unit())]
     Oersted,
 }
 
-/// The units of `MagneticFlux`, in any number type they count in.
+/// The units of `MagneticFlux`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MAGNETIC_FLUX, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MAGNETIC_FLUX, N>;
-        fn value(&self, quantity: SIQuantity<MAGNETIC_FLUX, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MagneticFluxUnit {
     #[default]
-    #[value(WEBER)]
+    #[value(WEBER.unit())]
     Weber,
-    #[value(MAXWELL)]
+    #[value(MAXWELL.unit())]
     Maxwell,
 }
 
-/// The units of `MagneticFluxDensity`, in any number type they count in.
+/// The units of `MagneticFluxDensity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MAGNETIC_FLUX_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MAGNETIC_FLUX_DENSITY, N>;
-        fn value(&self, quantity: SIQuantity<MAGNETIC_FLUX_DENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MagneticFluxDensityUnit {
     #[default]
-    #[value(TESLA)]
+    #[value(TESLA.unit())]
     Tesla,
-    #[value(GAMMA)]
+    #[value(GAMMA.unit())]
     Gamma,
-    #[value(GAUSS)]
+    #[value(GAUSS.unit())]
     Gauss,
 }
 
-/// The units of `MagneticMoment`, in any number type they count in.
+/// The units of `MagneticMoment`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MAGNETIC_MOMENT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MAGNETIC_MOMENT, N>;
-        fn value(&self, quantity: SIQuantity<MAGNETIC_MOMENT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MagneticMomentUnit {
     #[default]
-    #[value(AMPERE_SQUARE_METRE)]
+    #[value(AMPERE_SQUARE_METRE.unit())]
     AmpereSquareMetre,
-    #[value(JOULE_PER_TESLA)]
-    JoulePerTesla,
-    #[value(NEWTON_METRE_PER_TESLA)]
-    NewtonMetrePerTesla,
-    #[value(ERG_PER_GAUSS)]
-    ErgPerGauss,
-    #[value(BOHR_MAGNETON)]
+    #[value(BOHR_MAGNETON.unit())]
     BohrMagneton,
-    #[value(NUCLEAR_MAGNETON)]
+    #[value(NUCLEAR_MAGNETON.unit())]
     NuclearMagneton,
-    #[value(ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT)]
+    #[value(ATOMIC_UNIT_OF_MAGNETIC_DIPOLE_MOMENT.unit())]
     AtomicUnitOfMagneticDipoleMoment,
-    #[value(DEUTERON_MAGNETIC_MOMENT)]
+    #[value(DEUTERON_MAGNETIC_MOMENT.unit())]
     DeuteronMagneticMoment,
-    #[value(PROTON_MAGNETIC_MOMENT)]
+    #[value(PROTON_MAGNETIC_MOMENT.unit())]
     ProtonMagneticMoment,
-    #[value(SHIELDED_PROTON_MAGNETIC_MOMENT)]
+    #[value(SHIELDED_PROTON_MAGNETIC_MOMENT.unit())]
     ShieldedProtonMagneticMoment,
-    #[value(TRITON_MAGNETIC_MOMENT)]
+    #[value(TRITON_MAGNETIC_MOMENT.unit())]
     TritonMagneticMoment,
 }
 
-/// The units of `MagneticPermeability`, in any number type they count in.
+/// The units of `MagneticPermeability`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MAGNETIC_PERMEABILITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MAGNETIC_PERMEABILITY, N>;
-        fn value(&self, quantity: SIQuantity<MAGNETIC_PERMEABILITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MagneticPermeabilityUnit {
     #[default]
-    #[value(HENRY_PER_METRE)]
-    HenryPerMetre,
-    #[value(VACUUM_PERMEABILITY)]
+    #[value(VACUUM_PERMEABILITY.unit())]
     VacuumPermeability,
 }
 
-/// The units of `GyromagneticRatio`, in any number type they count in.
+/// The units of `GyromagneticRatio`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<GYROMAGNETIC_RATIO, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<GYROMAGNETIC_RATIO, N>;
-        fn value(&self, quantity: SIQuantity<GYROMAGNETIC_RATIO, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum GyromagneticRatioUnit {
     #[default]
-    #[value(HERTZ_PER_TESLA)]
-    HertzPerTesla,
-    #[value(RADIAN_PER_SECOND_TESLA)]
-    RadianPerSecondTesla,
-    #[value(PROTON_GYROMAGNETIC_RATIO)]
+    #[value(PROTON_GYROMAGNETIC_RATIO.unit())]
     ProtonGyromagneticRatio,
-    #[value(NEUTRON_GYROMAGNETIC_RATIO)]
+    #[value(NEUTRON_GYROMAGNETIC_RATIO.unit())]
     NeutronGyromagneticRatio,
-    #[value(ELECTRON_GYROMAGNETIC_RATIO)]
+    #[value(ELECTRON_GYROMAGNETIC_RATIO.unit())]
     ElectronGyromagneticRatio,
-    #[value(SHIELDED_PROTON_GYROMAGNETIC_RATIO)]
+    #[value(SHIELDED_PROTON_GYROMAGNETIC_RATIO.unit())]
     ShieldedProtonGyromagneticRatio,
-    #[value(SHIELDED_HELION_GYROMAGNETIC_RATIO)]
+    #[value(SHIELDED_HELION_GYROMAGNETIC_RATIO.unit())]
     ShieldedHelionGyromagneticRatio,
-    #[value(DEUTERON_GYROMAGNETIC_RATIO)]
+    #[value(DEUTERON_GYROMAGNETIC_RATIO.unit())]
     DeuteronGyromagneticRatio,
-    #[value(TRITON_GYROMAGNETIC_RATIO)]
+    #[value(TRITON_GYROMAGNETIC_RATIO.unit())]
     TritonGyromagneticRatio,
-    #[value(LITHIUM7_GYROMAGNETIC_RATIO)]
+    #[value(LITHIUM7_GYROMAGNETIC_RATIO.unit())]
     Lithium7GyromagneticRatio,
-    #[value(BORON11_GYROMAGNETIC_RATIO)]
+    #[value(BORON11_GYROMAGNETIC_RATIO.unit())]
     Boron11GyromagneticRatio,
-    #[value(CARBON13_GYROMAGNETIC_RATIO)]
+    #[value(CARBON13_GYROMAGNETIC_RATIO.unit())]
     Carbon13GyromagneticRatio,
-    #[value(NITROGEN14_GYROMAGNETIC_RATIO)]
+    #[value(NITROGEN14_GYROMAGNETIC_RATIO.unit())]
     Nitrogen14GyromagneticRatio,
-    #[value(FLOURINE19_GYROMAGNETIC_RATIO)]
+    #[value(FLOURINE19_GYROMAGNETIC_RATIO.unit())]
     Flourine19GyromagneticRatio,
-    #[value(SODIUM23_GYROMAGNETIC_RATIO)]
+    #[value(SODIUM23_GYROMAGNETIC_RATIO.unit())]
     Sodium23GyromagneticRatio,
-    #[value(PHOSPHORUS31_GYROMAGNETIC_RATIO)]
+    #[value(PHOSPHORUS31_GYROMAGNETIC_RATIO.unit())]
     Phosphorus31GyromagneticRatio,
 }
 
-/// The units of `ReducedGyromagneticRatio`, in any number type they count in.
+/// The units of `ReducedGyromagneticRatio`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<REDUCED_GYROMAGNETIC_RATIO, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<REDUCED_GYROMAGNETIC_RATIO, N>;
-        fn value(&self, quantity: SIQuantity<REDUCED_GYROMAGNETIC_RATIO, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum ReducedGyromagneticRatioUnit {
     #[default]
-    #[value(PROTON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(PROTON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     ProtonReducedGyromagneticRatio,
-    #[value(NEUTRON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(NEUTRON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     NeutronReducedGyromagneticRatio,
-    #[value(ELECTRON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(ELECTRON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     ElectronReducedGyromagneticRatio,
-    #[value(SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(SHIELDED_PROTON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     ShieldedProtonReducedGyromagneticRatio,
-    #[value(SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(SHIELDED_HELION_REDUCED_GYROMAGNETIC_RATIO.unit())]
     ShieldedHelionReducedGyromagneticRatio,
-    #[value(DEUTERON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(DEUTERON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     DeuteronReducedGyromagneticRatio,
-    #[value(TRITON_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(TRITON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     TritonReducedGyromagneticRatio,
-    #[value(LITHIUM7_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(LITHIUM7_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Lithium7ReducedGyromagneticRatio,
-    #[value(BORON11_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(BORON11_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Boron11ReducedGyromagneticRatio,
-    #[value(CARBON13_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(CARBON13_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Carbon13ReducedGyromagneticRatio,
-    #[value(NITROGEN14_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(NITROGEN14_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Nitrogen14ReducedGyromagneticRatio,
-    #[value(FLOURINE19_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(FLOURINE19_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Flourine19ReducedGyromagneticRatio,
-    #[value(SODIUM23_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(SODIUM23_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Sodium23ReducedGyromagneticRatio,
-    #[value(PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO)]
+    #[value(PHOSPHORUS31_REDUCED_GYROMAGNETIC_RATIO.unit())]
     Phosphorus31ReducedGyromagneticRatio,
 }

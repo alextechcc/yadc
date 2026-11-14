@@ -1,0 +1,13 @@
+error[E0080]: evaluation panicked: `Bag<F>` and `Bowl` have the same facts, so the way back could not tell them apart: their constants must differ (checked for each member of `Bag<F>`)
+  --> tests/ui/per_member.rs:27:10
+   |
+27 | #[derive(const_derive_more::Dynamic)]
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `<AnyBag as std::convert::From<Bag<Fake>>>::from::{constant#0}` failed here
+
+note: erroneous constant encountered
+  --> tests/ui/per_member.rs:27:10
+   |
+27 | #[derive(const_derive_more::Dynamic)]
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this note originates in the derive macro `const_derive_more::Dynamic` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,31 +1,56 @@
-//! The open type: `DynamicSIQuantity` holds a quantity of *any* dimension,
+//! The open type: `DynamicSIQuantity` holds a quantity of *any* unit,
 //! decided at run time - what a calculator, a parser or a config file needs.
 //!
-//! A static quantity (`SIQuantity<PRESSURE, f64>`, ...) has its dimension in its type,
-//! so the compiler checks every operator. The open type keeps the dimension
-//! in a field instead, and checks at run time: any operator may have no
-//! result (`None`) - a sum of two dimensions, a product with a level, a root
-//! that does not divide. Into it is std `From`; back out is std `TryFrom`,
-//! which checks the dimension and hands the value back on a mismatch.
+//! A static quantity (`Pressure<f64>`, ...) has its unit in its type, so the
+//! compiler checks every operator. The open type keeps the unit in a field
+//! instead, and checks at run time: any operator may have no result
+//! (`None`): a sum of two units, a product with a unit that has a zero or a
+//! log scale. Into it is std `From`; back out is std `TryFrom`, which checks the
+//! unit and hands the value back on a mismatch.
 //!
-//! Numbers go in and out through units: `DynamicSIUnit`, a unit of any
-//! dimension, builds an open quantity from a number and reads one back -
-//! `None` for a quantity of another dimension, or for no quantity, so it
-//! reads an operator's result as it comes.
+//! Numbers go in and out through units chosen at run time - the unit enums,
+//! each variant an `SIUnit`: `to_base` counts a number of a unit in base
+//! units, `from_base` back.
 //!
 //! Run with: cargo run -p yadc-si --example open
 #![feature(generic_const_exprs, const_trait_impl)]
 #![allow(incomplete_features)]
 
-use yadc::{PartialPowi, PartialRoot, Unit};
-use yadc_si::SIQuantity;
-use yadc_si::dynamic::mechanical::{
-    AreaUnit, ForceUnit, GainUnit, LengthUnit, PowerLevelUnit, PressureUnit, TimeUnit, VolumeUnit,
-};
+use yadc_si::SIUnit;
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::dynamic::dimensionless::DimensionlessUnit;
+use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PowerUnit, PressureUnit};
 use yadc_si::dynamic::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
-use yadc_si::dynamic::{DynamicSIQuantity, DynamicSIUnit};
-use yadc_si::mechanical::units::{BAR, PSI, UNIX_SECOND};
-use yadc_si::mechanical::{LENGTH, PRESSURE};
+use yadc_si::mechanical::{BAR, Length, PSI, Pressure};
+
+/// The product of base units a unit is counted in: kilometres' metres,
+/// bars' kg·m⁻¹·s⁻².
+fn base_of(unit: SIUnit) -> SIUnit {
+    let (symbols, powers) = unit.in_base();
+    symbols
+        .iter()
+        .zip(powers)
+        .filter(|(_, p)| *p != 0)
+        .fold(SIUnit::ONE, |u, (s, p)| u.times(SIUnit::base(s), p))
+}
+
+/// `n` of a unit chosen at run time, as an open quantity in base units.
+fn open(unit: impl Into<SIUnit>, n: f64) -> DynamicSIQuantity {
+    let unit = unit.into();
+    DynamicSIQuantity {
+        unit: base_of(unit),
+        is_base: true,
+        value: unit.to_base(n),
+    }
+}
+
+/// The number of a unit an operator's result is: `None` for no result, or
+/// for a quantity of another dimension.
+fn read(unit: impl Into<SIUnit>, q: Option<DynamicSIQuantity>) -> Option<f64> {
+    let unit = unit.into();
+    q.filter(|q| q.unit.same_dimension(unit))
+        .map(|q| unit.from_base(q.unit.to_base(q.value)))
+}
 
 /// Generic over any dynamic version of `T`: in, and back.
 fn round_trip<T, X: From<T>>(t: T) -> Result<T, X>
@@ -36,96 +61,81 @@ where
 }
 
 fn main() {
-    let bar = DynamicSIUnit::from(BAR);
-    let square_metre = DynamicSIUnit::from(AreaUnit::SquareMetre);
-    let newton = DynamicSIUnit::from(ForceUnit::Newton);
-    let p = bar.quantity(Some(1.01325)).unwrap();
-    let a = square_metre.quantity(Some(0.5)).unwrap();
+    let bar = BAR.unit();
+    let square_metre = AreaUnit::SquareMetre;
+    let newton = ForceUnit::Newton;
+    let p = open(bar, 1.01325);
+    let a = open(square_metre, 0.5);
 
-    // Arithmetic decided at run time: every operator may have no result. An
-    // amount times an amount has one ...
-    println!("p × a       = {:.1?} {newton}", newton.value(p * a));
-    // ... `+` only for one dimension; scaling keeps the dimension.
+    // Arithmetic decided at run time: every operator may have no result. A
+    // product of two linear units has one ...
+    println!("p × a       = {:.1?} {newton}", read(newton, p * a));
+    // ... `+` only for one unit; scaling keeps the unit.
     println!("p + a       = {:?}", p + a);
-    println!("p × 2       = {:?} {bar}", bar.value(p * 2.0));
+    println!("p × 2       = {:?} {bar}", read(bar, p * 2.0));
     // A unit of another dimension reads nothing.
-    println!("p in m²     = {:?}", square_metre.value(Some(p)));
+    println!("p in m²     = {:?}", read(square_metre, Some(p)));
     // `?` stops a chain at the first step that has no result.
     let chain = || ((p * a)? + (p * a)?)? * 2.0;
-    println!("(p×a + p×a)×2 = {:.1?} {newton}", newton.value(chain()));
-
-    // Powers and roots with an exponent known only at run time: a root
-    // exists only where every exponent divides.
-    let metre = DynamicSIUnit::from(LengthUnit::Metre);
-    let side = a.partial_root(2).unwrap();
-    println!("√a          = {:.4?} {metre}", metre.value(Some(side)));
-    println!("√√a         = {:?}", side.partial_root(2));
-    println!("a³ exists   = {:?}", a.partial_powi(3).is_some());
-    let cubic_metre = DynamicSIUnit::from(VolumeUnit::CubicMetre);
+    println!("(p×a + p×a)×2 = {:.1?} {newton}", read(newton, chain()));
+    // A quantity kept in its own unit is not in base units: the open type
+    // combines only values that agree in that.
+    let in_bar = DynamicSIQuantity::from(1.01325_f64 * BAR);
     println!(
-        "a × √a      = {:.4?} {cubic_metre}",
-        cubic_metre.value(a * side)
+        "1.01325 bar = {} {}, in base units: {}",
+        in_bar.value, in_bar.unit, in_bar.is_base
     );
+    println!("(p in bar) × a = {:?}", in_bar * a);
 
-    // A bare number is the same value as a dimensionless quantity, both
-    // ways.
-    let ratio = (p / bar.quantity(Some(1.0)).unwrap()).unwrap();
+    // A bare number is the same value as a quantity of the plain number's
+    // unit, both ways.
+    let ratio = (p / open(bar, 1.0)).unwrap();
     println!("p / 1 bar   = {:?}", f64::try_from(ratio));
     println!(
         "a × 0.5     = {:?} {square_metre}",
-        square_metre.value(a * DynamicSIQuantity::from(0.5))
+        read(square_metre, a * DynamicSIQuantity::from(0.5))
     );
 
-    // The way back to a static quantity: std `TryFrom` checks the dimension,
-    // and a mismatch hands the value back.
-    let back: SIQuantity<PRESSURE, f64> = p.try_into().unwrap();
+    // The way back to a static quantity: std `TryFrom` checks the unit, and
+    // a mismatch hands the value back.
+    let back = Pressure::<f64>::try_from(p).unwrap();
+    println!("back        = {back:.3}");
+    println!("as a length = {:?}", Length::<f64>::try_from(p).is_ok());
+    let kept = round_trip::<Pressure<f64>, DynamicSIQuantity>(back);
     println!(
-        "back        = {:.3} {}",
-        PressureUnit::Pascal.value(back),
-        PressureUnit::Pascal
+        "round trip  = {:.3?} {}",
+        read(PSI.unit(), kept.ok().map(DynamicSIQuantity::from)),
+        PressureUnit::Psi
     );
-    println!(
-        "as a length = {:?}",
-        SIQuantity::<LENGTH, _>::try_from(p).is_ok()
-    );
-    let kept = round_trip::<SIQuantity<PRESSURE, f64>, DynamicSIQuantity>(back);
-    println!("round trip  = {:.3?} psi", kept.map(|q| PSI.value(q)));
 
-    // A temperature is an amount kept apart from its differences: it scales
-    // and averages as a temperature, and two differ by an interval.
-    let celsius = DynamicSIUnit::from(ThermodynamicTemperatureUnit::Celsius);
-    let kelvin = DynamicSIUnit::from(TemperatureIntervalUnit::Kelvin);
-    let t = celsius.quantity(Some(25.0)).unwrap();
-    let ice = celsius.quantity(Some(0.0)).unwrap();
+    // A temperature in degrees Celsius counts from a zero: in the open type
+    // it is in kelvin, where it averages, differs and scales as numbers do.
+    let celsius = ThermodynamicTemperatureUnit::Celsius;
+    let kelvin = TemperatureIntervalUnit::Kelvin;
+    let t = open(celsius, 25.0);
+    let ice = open(celsius, 0.0);
     println!(
         "(t + ice)/2 = {:.2?} {celsius}",
-        celsius.value((t + ice).and_then(|s| s / 2.0))
+        read(celsius, (t + ice).and_then(|s| s / 2.0))
     );
-    println!("t - ice     = {:?} {kelvin}", kelvin.value(t - ice));
-    println!("t × 2       = {:.2?} {celsius}", celsius.value(t * 2.0));
+    println!("t - ice     = {:?} {kelvin}", read(kelvin, t - ice));
+    println!("t × 2       = {:.2?} {celsius}", read(celsius, t * 2.0));
+    // Kept in degrees Celsius, it has no products.
+    let in_celsius = DynamicSIQuantity::from(25.0_f64 * yadc_si::thermal::CELSIUS);
+    println!("25 °C × 25 °C = {:?}", in_celsius * in_celsius);
 
-    // A power level is a logarithm: a gain moves it, and it has no products
-    // and cannot be scaled.
-    let dbm = DynamicSIUnit::from(PowerLevelUnit::DecibelMilliwatt);
-    let decibel = DynamicSIUnit::from(GainUnit::Decibel);
-    let level = dbm.quantity(Some(30.0)).unwrap();
-    let gain = decibel.quantity(Some(13.0)).unwrap();
-    println!("30 dBm+13dB = {:.1?} {dbm}", dbm.value(level + gain));
-    println!("level × a   = {:?}", level * a);
-    println!("level × 2   = {:?}", level * 2.0);
+    // A power level is a log unit of power, a gain a log unit of the plain
+    // number: in base units, a gain multiplies a power.
+    let dbm = PowerUnit::DecibelMilliwatt;
+    let decibel = DimensionlessUnit::Decibel;
+    let level = open(dbm, 30.0);
+    let gain = open(decibel, 13.0);
+    println!("30 dBm × 13 dB = {:.1?} {dbm}", read(dbm, level * gain));
+    // Kept in dBm, it has no products.
+    let in_dbm = DynamicSIQuantity::from(30.0_f64 * yadc_si::mechanical::DECIBEL_MILLIWATT);
+    println!("30 dBm × 30 dBm = {:?}", in_dbm * in_dbm);
 
-    // An instant is a point: two differ by a time, a time moves one, and it
-    // has no sum with another, no products and no scaling.
-    let unix = DynamicSIUnit::from(UNIX_SECOND);
-    let hour = DynamicSIUnit::from(TimeUnit::Hour);
-    let launch = unix.quantity(Some(1_700_000_000.0)).unwrap();
-    let later = (launch + hour.quantity(Some(2.0)).unwrap()).unwrap();
-    println!("later       = {:?} {unix:#}", unix.value(Some(later)));
-    println!("later - t0  = {:?} {hour}", hour.value(later - launch));
-    println!("t0 + later  = {:?}", launch + later);
-    println!("t0 × 2      = {:?}", launch * 2.0);
-
-    // Values of one dimension are ordered; of two, not.
+    // Values of one unit are ordered; of two, not.
     println!("p < 2p      = {:?}", p < (p * 2.0).unwrap());
     println!("p vs a      = {:?}", p.partial_cmp(&a));
 }

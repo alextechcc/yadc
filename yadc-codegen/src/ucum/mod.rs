@@ -7,7 +7,7 @@ mod resolve;
 use std::path::Path;
 
 use crate::model::{
-    DimConfig, DimensionlessDef, KindConfig, SystemConfig, UcumSection, UnitSystem,
+    DimConfig, DimensionlessDef, SystemConfig, UcumSection, UnitSystem,
 };
 
 const GITHUB_RELEASES_API: &str = "https://api.github.com/repos/ucum-org/ucum/releases/latest";
@@ -15,13 +15,12 @@ const UCUM_RAW_BASE: &str = "https://raw.githubusercontent.com/ucum-org/ucum";
 
 /// Fetch (or read locally), parse, resolve, and build a `UnitSystem` from UCUM data.
 ///
-/// The caller supplies the config sections from the TOML (`[system]`, `[kind]`,
+/// The caller supplies the config sections from the TOML (`[system]`,
 /// `[dim]`, `[dimensionless]`); this function generates the family data from UCUM and
 /// returns a complete `UnitSystem` ready for `codegen::write_crate`.
 pub fn build(
     ucum: &UcumSection,
     system_cfg: SystemConfig,
-    kind_cfg: KindConfig,
     dim_cfg: DimConfig,
     dimless: DimensionlessDef,
 ) -> Result<UnitSystem, Box<dyn std::error::Error>> {
@@ -54,7 +53,7 @@ pub fn build(
     );
 
     Ok(convert::to_unit_system(
-        &essence, &resolved, system_cfg, kind_cfg, dim_cfg, dimless,
+        &essence, &resolved, system_cfg, dim_cfg, dimless,
     ))
 }
 
@@ -62,12 +61,11 @@ pub fn build(
 pub fn run(
     ucum: &UcumSection,
     system_cfg: SystemConfig,
-    kind_cfg: KindConfig,
     dim_cfg: DimConfig,
     dimless: DimensionlessDef,
     output_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let system = build(ucum, system_cfg, kind_cfg, dim_cfg, dimless)?;
+    let system = build(ucum, system_cfg, dim_cfg, dimless)?;
     crate::codegen::write_crate(&system, output_dir)?;
     Ok(())
 }

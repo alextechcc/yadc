@@ -1,534 +1,517 @@
-use crate::Dim;
-use yadc::Dimension;
+//! The quantities of `si` and their units.
 
-/// The dimension of `AmountOfSubstance`: `Qty<AMOUNT_OF_SUBSTANCE, N>` is one.
-pub const AMOUNT_OF_SUBSTANCE: Dim = Dim::DIMENSIONLESS;
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `DoseEquivalent`: `Qty<DOSE_EQUIVALENT, N>` is one.
-pub const DOSE_EQUIVALENT: Dim = Dim {
-    m: 2,
-    s: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// An amount of substance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type AmountOfSubstance<N, const U: UcumUnit = { UcumUnit::ONE }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-/// The dimension of `ElectricCapacitance`: `Qty<ELECTRIC_CAPACITANCE, N>` is one.
-pub const ELECTRIC_CAPACITANCE: Dim = Dim {
-    m: -2,
-    s: 2,
-    g: -1,
-    C: 2,
-    ..Dim::DIMENSIONLESS
-};
+/// Mole (`mol`), a unit of `AmountOfSubstance`: `n` of them is `n · 602214076e15` base units.
+pub const MOLE: Qty<
+    { UcumUnit::scaled("mol", Exact::int(602214076000000000000000), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `ElectricCharge`: `Qty<ELECTRIC_CHARGE, N>` is one.
-pub const ELECTRIC_CHARGE: Dim = Dim {
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// A dose equivalent, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type DoseEquivalent<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `ElectricConductance`: `Qty<ELECTRIC_CONDUCTANCE, N>` is one.
-pub const ELECTRIC_CONDUCTANCE: Dim = Dim {
-    m: -2,
-    s: 1,
-    g: -1,
-    C: 2,
-    ..Dim::DIMENSIONLESS
-};
+/// Sievert (`Sv`), a unit of `DoseEquivalent`: the coherent unit, a product of base units.
+pub const SIEVERT: Qty<
+    {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+    },
+    Exact,
+    true,
+> = Qty::ONE;
 
-/// The dimension of `ElectricCurrent`: `Qty<ELECTRIC_CURRENT, N>` is one.
-pub const ELECTRIC_CURRENT: Dim = Dim {
-    s: -1,
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric capacitance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricCapacitance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(SECOND.unit(), 2)
+            .times(GRAM.unit(), -1)
+            .times(COULOMB.unit(), 2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `ElectricPotential`: `Qty<ELECTRIC_POTENTIAL, N>` is one.
-pub const ELECTRIC_POTENTIAL: Dim = Dim {
-    m: 2,
-    s: -2,
-    g: 1,
-    C: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Farad (`F`), a unit of `ElectricCapacitance`: `n` of them is `n · 1e-3` base units.
+pub const FARAD: Qty<
+    {
+        UcumUnit::scaled(
+            "F",
+            Exact::dec(1, -3),
+            UcumUnit::ONE
+                .times(METER.unit(), -2)
+                .times(SECOND.unit(), 2)
+                .times(GRAM.unit(), -1)
+                .times(COULOMB.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `ElectricResistance`: `Qty<ELECTRIC_RESISTANCE, N>` is one.
-pub const ELECTRIC_RESISTANCE: Dim = Dim {
-    m: 2,
-    s: -1,
-    g: 1,
-    C: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric charge, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricCharge<N, const U: UcumUnit = { COULOMB.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-/// The dimension of `Energy`: `Qty<ENERGY, N>` is one.
-pub const ENERGY: Dim = Dim {
-    m: 2,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric conductance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricConductance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(SECOND.unit(), 1)
+            .times(GRAM.unit(), -1)
+            .times(COULOMB.unit(), 2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `EnergyDose`: `Qty<ENERGY_DOSE, N>` is one.
-pub const ENERGY_DOSE: Dim = Dim {
-    m: 2,
-    s: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// Siemens (`S`), a unit of `ElectricConductance`: `n` of them is `n · 1e-3` base units.
+pub const SIEMENS: Qty<
+    {
+        UcumUnit::scaled(
+            "S",
+            Exact::dec(1, -3),
+            UcumUnit::ONE
+                .times(METER.unit(), -2)
+                .times(SECOND.unit(), 1)
+                .times(GRAM.unit(), -1)
+                .times(COULOMB.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Force`: `Qty<FORCE, N>` is one.
-pub const FORCE: Dim = Dim {
-    m: 1,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric current, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricCurrent<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(SECOND.unit(), -1)
+            .times(COULOMB.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Frequency`: `Qty<FREQUENCY, N>` is one.
-pub const FREQUENCY: Dim = Dim {
-    s: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Ampère (`A`), a unit of `ElectricCurrent`: the coherent unit, a product of base units.
+pub const AMPERE: Qty<
+    {
+        UcumUnit::ONE
+            .times(SECOND.unit(), -1)
+            .times(COULOMB.unit(), 1)
+    },
+    Exact,
+    true,
+> = Qty::ONE;
 
-/// The dimension of `Illuminance`: `Qty<ILLUMINANCE, N>` is one.
-pub const ILLUMINANCE: Dim = Dim {
-    m: -2,
-    rad: 2,
-    cd: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric potential, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricPotential<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Inductance`: `Qty<INDUCTANCE, N>` is one.
-pub const INDUCTANCE: Dim = Dim {
-    m: 2,
-    g: 1,
-    C: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// Volt (`V`), a unit of `ElectricPotential`: `n` of them is `n · 1e3` base units.
+pub const VOLT: Qty<
+    {
+        UcumUnit::scaled(
+            "V",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
-pub const LENGTH: Dim = Dim {
-    m: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric resistance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricResistance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `LuminousFlux`: `Qty<LUMINOUS_FLUX, N>` is one.
-pub const LUMINOUS_FLUX: Dim = Dim {
-    rad: 2,
-    cd: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Ohm (`Ohm`), a unit of `ElectricResistance`: `n` of them is `n · 1e3` base units.
+pub const OHM: Qty<
+    {
+        UcumUnit::scaled(
+            "Ohm",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `LuminousIntensity`: `Qty<LUMINOUS_INTENSITY, N>` is one.
-pub const LUMINOUS_INTENSITY: Dim = Dim {
-    cd: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An energy, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Energy<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `MagneticFlux`: `Qty<MAGNETIC_FLUX, N>` is one.
-pub const MAGNETIC_FLUX: Dim = Dim {
-    m: 2,
-    s: -1,
-    g: 1,
-    C: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Joule (`J`), a unit of `Energy`: `n` of them is `n · 1e3` base units.
+pub const JOULE: Qty<
+    {
+        UcumUnit::scaled(
+            "J",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `MagneticFluxDensity`: `Qty<MAGNETIC_FLUX_DENSITY, N>` is one.
-pub const MAGNETIC_FLUX_DENSITY: Dim = Dim {
-    s: -1,
-    g: 1,
-    C: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// An energy dose, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type EnergyDose<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Mass`: `Qty<MASS, N>` is one.
-pub const MASS: Dim = Dim {
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Gray (`Gy`), a unit of `EnergyDose`: the coherent unit, a product of base units.
+pub const GRAY: Qty<
+    {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+    },
+    Exact,
+    true,
+> = Qty::ONE;
 
-/// The dimension of `PlaneAngle`: `Qty<PLANE_ANGLE, N>` is one.
-pub const PLANE_ANGLE: Dim = Dim {
-    rad: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// A force, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Force<
+    N,
+    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Power`: `Qty<POWER, N>` is one.
-pub const POWER: Dim = Dim {
-    m: 2,
-    s: -3,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Newton (`N`), a unit of `Force`: `n` of them is `n · 1e3` base units.
+pub const NEWTON: Qty<
+    {
+        UcumUnit::scaled(
+            "N",
+            Exact::int(1000),
+            METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Pressure`: `Qty<PRESSURE, N>` is one.
-pub const PRESSURE: Dim = Dim {
-    m: -1,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// A frequency, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Frequency<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Radioactivity`: `Qty<RADIOACTIVITY, N>` is one.
-pub const RADIOACTIVITY: Dim = Dim {
-    s: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Hertz (`Hz`), a unit of `Frequency`: the coherent unit, a product of base units.
+pub const HERTZ: Qty<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, Exact, true> = Qty::ONE;
 
-/// The dimension of `SolidAngle`: `Qty<SOLID_ANGLE, N>` is one.
-pub const SOLID_ANGLE: Dim = Dim {
-    rad: 2,
-    ..Dim::DIMENSIONLESS
-};
+/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Illuminance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(RADIAN.unit(), 2)
+            .times(CANDELA.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Time`: `Qty<TIME, N>` is one.
-pub const TIME: Dim = Dim {
-    s: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Lux (`lx`), a unit of `Illuminance`: the coherent unit, a product of base units.
+pub const LUX: Qty<
+    {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(RADIAN.unit(), 2)
+            .times(CANDELA.unit(), 1)
+    },
+    Exact,
+    true,
+> = Qty::ONE;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, UcumUnit, UcumUnitConsts};
+/// An inductance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Inductance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Mole (`mol`), a unit of `AmountOfSubstance`: `n` of them is `n · 602214076e15` coherent units.
-    pub const MOLE: UcumUnit<
-        AMOUNT_OF_SUBSTANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(602214076000000000000000),
-                zero: Exact::ZERO,
-                symbol: "mol",
-                name: "mole",
-            }
-        },
-    > = UcumUnit;
+/// Henry (`H`), a unit of `Inductance`: `n` of them is `n · 1e3` base units.
+pub const HENRY: Qty<
+    {
+        UcumUnit::scaled(
+            "H",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Sievert (`Sv`), a unit of `DoseEquivalent`: `n` of them is `n · 1` coherent units.
-    pub const SIEVERT: UcumUnit<
-        DOSE_EQUIVALENT,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "Sv",
-                name: "sievert",
-            }
-        },
-    > = UcumUnit;
+/// A length, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Length<N, const U: UcumUnit = { METER.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Farad (`F`), a unit of `ElectricCapacitance`: `n` of them is `n · 1e-3` coherent units.
-    pub const FARAD: UcumUnit<
-        ELECTRIC_CAPACITANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "F",
-                name: "farad",
-            }
-        },
-    > = UcumUnit;
+/// A luminous flux, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type LuminousFlux<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(RADIAN.unit(), 2)
+            .times(CANDELA.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Coulomb (`C`), a unit of `ElectricCharge`: `n` of them is `n · 1` coherent units.
-    pub const COULOMB: UcumUnit<
-        ELECTRIC_CHARGE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "C",
-                name: "coulomb",
-            }
-        },
-    > = UcumUnit;
+/// Lumen (`lm`), a unit of `LuminousFlux`: the coherent unit, a product of base units.
+pub const LUMEN: Qty<
+    {
+        UcumUnit::ONE
+            .times(RADIAN.unit(), 2)
+            .times(CANDELA.unit(), 1)
+    },
+    Exact,
+    true,
+> = Qty::ONE;
 
-    /// Siemens (`S`), a unit of `ElectricConductance`: `n` of them is `n · 1e-3` coherent units.
-    pub const SIEMENS: UcumUnit<
-        ELECTRIC_CONDUCTANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "S",
-                name: "siemens",
-            }
-        },
-    > = UcumUnit;
+/// A luminous intensity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type LuminousIntensity<N, const U: UcumUnit = { CANDELA.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Ampère (`A`), a unit of `ElectricCurrent`: `n` of them is `n · 1` coherent units.
-    pub const AMPERE: UcumUnit<
-        ELECTRIC_CURRENT,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "A",
-                name: "ampère",
-            }
-        },
-    > = UcumUnit;
+/// A magnetic flux, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MagneticFlux<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Volt (`V`), a unit of `ElectricPotential`: `n` of them is `n · 1e3` coherent units.
-    pub const VOLT: UcumUnit<
-        ELECTRIC_POTENTIAL,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "V",
-                name: "volt",
-            }
-        },
-    > = UcumUnit;
+/// Weber (`Wb`), a unit of `MagneticFlux`: `n` of them is `n · 1e3` base units.
+pub const WEBER: Qty<
+    {
+        UcumUnit::scaled(
+            "Wb",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Ohm (`Ohm`), a unit of `ElectricResistance`: `n` of them is `n · 1e3` coherent units.
-    pub const OHM: UcumUnit<
-        ELECTRIC_RESISTANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "Ohm",
-                name: "ohm",
-            }
-        },
-    > = UcumUnit;
+/// A magnetic flux density, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MagneticFluxDensity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Joule (`J`), a unit of `Energy`: `n` of them is `n · 1e3` coherent units.
-    pub const JOULE: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "J",
-                name: "joule",
-            }
-        },
-    > = UcumUnit;
+/// Tesla (`T`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e3` base units.
+pub const TESLA: Qty<
+    {
+        UcumUnit::scaled(
+            "T",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Gray (`Gy`), a unit of `EnergyDose`: `n` of them is `n · 1` coherent units.
-    pub const GRAY: UcumUnit<
-        ENERGY_DOSE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "Gy",
-                name: "gray",
-            }
-        },
-    > = UcumUnit;
+/// A mass, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Mass<N, const U: UcumUnit = { GRAM.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Newton (`N`), a unit of `Force`: `n` of them is `n · 1e3` coherent units.
-    pub const NEWTON: UcumUnit<
-        FORCE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "N",
-                name: "newton",
-            }
-        },
-    > = UcumUnit;
+/// A plane angle, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type PlaneAngle<N, const U: UcumUnit = { RADIAN.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Hertz (`Hz`), a unit of `Frequency`: `n` of them is `n · 1` coherent units.
-    pub const HERTZ: UcumUnit<
-        FREQUENCY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "Hz",
-                name: "hertz",
-            }
-        },
-    > = UcumUnit;
+/// A power, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Power<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -3)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Lux (`lx`), a unit of `Illuminance`: `n` of them is `n · 1` coherent units.
-    pub const LUX: UcumUnit<
-        ILLUMINANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "lx",
-                name: "lux",
-            }
-        },
-    > = UcumUnit;
+/// Watt (`W`), a unit of `Power`: `n` of them is `n · 1e3` base units.
+pub const WATT: Qty<
+    {
+        UcumUnit::scaled(
+            "W",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -3)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Henry (`H`), a unit of `Inductance`: `n` of them is `n · 1e3` coherent units.
-    pub const HENRY: UcumUnit<
-        INDUCTANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "H",
-                name: "henry",
-            }
-        },
-    > = UcumUnit;
+/// A pressure, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Pressure<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -1)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Meter (`m`), a unit of `Length`: `n` of them is `n · 1` coherent units.
-    pub const METER: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "m",
-                name: "meter",
-            }
-        },
-    > = UcumUnit;
+/// Pascal (`Pa`), a unit of `Pressure`: `n` of them is `n · 1e3` base units.
+pub const PASCAL: Qty<
+    {
+        UcumUnit::scaled(
+            "Pa",
+            Exact::int(1000),
+            UcumUnit::ONE
+                .times(METER.unit(), -1)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Lumen (`lm`), a unit of `LuminousFlux`: `n` of them is `n · 1` coherent units.
-    pub const LUMEN: UcumUnit<
-        LUMINOUS_FLUX,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "lm",
-                name: "lumen",
-            }
-        },
-    > = UcumUnit;
+/// A radioactivity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Radioactivity<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Candela (`cd`), a unit of `LuminousIntensity`: `n` of them is `n · 1` coherent units.
-    pub const CANDELA: UcumUnit<
-        LUMINOUS_INTENSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "cd",
-                name: "candela",
-            }
-        },
-    > = UcumUnit;
+/// Becquerel (`Bq`), a unit of `Radioactivity`: the coherent unit, a product of base units.
+pub const BECQUEREL: Qty<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, Exact, true> = Qty::ONE;
 
-    /// Weber (`Wb`), a unit of `MagneticFlux`: `n` of them is `n · 1e3` coherent units.
-    pub const WEBER: UcumUnit<
-        MAGNETIC_FLUX,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "Wb",
-                name: "weber",
-            }
-        },
-    > = UcumUnit;
+/// A solid angle, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type SolidAngle<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(RADIAN.unit(), 2) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Tesla (`T`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e3` coherent units.
-    pub const TESLA: UcumUnit<
-        MAGNETIC_FLUX_DENSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "T",
-                name: "tesla",
-            }
-        },
-    > = UcumUnit;
+/// Steradian (`sr`), a unit of `SolidAngle`: the coherent unit, a product of base units.
+pub const STERADIAN: Qty<{ UcumUnit::ONE.times(RADIAN.unit(), 2) }, Exact, true> = Qty::ONE;
 
-    /// Gram (`g`), a unit of `Mass`: `n` of them is `n · 1` coherent units.
-    pub const GRAM: UcumUnit<
-        MASS,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "g",
-                name: "gram",
-            }
-        },
-    > = UcumUnit;
-
-    /// Radian (`rad`), a unit of `PlaneAngle`: `n` of them is `n · 1` coherent units.
-    pub const RADIAN: UcumUnit<
-        PLANE_ANGLE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "rad",
-                name: "radian",
-            }
-        },
-    > = UcumUnit;
-
-    /// Watt (`W`), a unit of `Power`: `n` of them is `n · 1e3` coherent units.
-    pub const WATT: UcumUnit<
-        POWER,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "W",
-                name: "watt",
-            }
-        },
-    > = UcumUnit;
-
-    /// Pascal (`Pa`), a unit of `Pressure`: `n` of them is `n · 1e3` coherent units.
-    pub const PASCAL: UcumUnit<
-        PRESSURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1000),
-                zero: Exact::ZERO,
-                symbol: "Pa",
-                name: "pascal",
-            }
-        },
-    > = UcumUnit;
-
-    /// Becquerel (`Bq`), a unit of `Radioactivity`: `n` of them is `n · 1` coherent units.
-    pub const BECQUEREL: UcumUnit<
-        RADIOACTIVITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "Bq",
-                name: "becquerel",
-            }
-        },
-    > = UcumUnit;
-
-    /// Steradian (`sr`), a unit of `SolidAngle`: `n` of them is `n · 1` coherent units.
-    pub const STERADIAN: UcumUnit<
-        SOLID_ANGLE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "sr",
-                name: "steradian",
-            }
-        },
-    > = UcumUnit;
-
-    /// Second (`s`), a unit of `Time`: `n` of them is `n · 1` coherent units.
-    pub const SECOND: UcumUnit<
-        TIME,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "s",
-                name: "second",
-            }
-        },
-    > = UcumUnit;
-}
+/// A time, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Time<N, const U: UcumUnit = { SECOND.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;

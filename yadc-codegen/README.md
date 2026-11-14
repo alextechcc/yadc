@@ -1,300 +1,154 @@
 # yadc-codegen
 
-Code generator for [yadc](../yadc/) unit systems.
+Writes a [yadc](../) unit-system crate from a TOML description.
 
 ```
 yadc-codegen <INPUT.toml> [-o <output-dir>]
 cargo run -p yadc-codegen -- yadc-codegen/si.toml -o <output-dir>   # from the workspace root
 ```
 
-yadc gives you traits and derives to build *your own* unit system; this tool
-writes the boilerplate of one from a TOML description. The output is ordinary
-Rust - every type and every `#[derive]` is visible in the generated files - so
-you can also use it once as a starting point and maintain the result by hand.
-[`yadc-si`](../yadc-si/) is produced from [`si.toml`](si.toml) in this directory.
+The output is ordinary Rust: every type and every `#[derive]` is in the
+generated files, so you can also use it once as a starting point and
+maintain the result by hand. [`yadc-si`](../yadc-si/) is generated from
+[`si.toml`](si.toml), [`yadc-ucum`](../yadc-ucum/) from
+[`ucum.toml`](ucum.toml).
 
-The TOML file is always the single input. It drives two generation modes:
+The TOML file drives one of two modes:
 
 | Mode | Trigger | Use when |
 |------|---------|----------|
-| **Manual** | `[[family]]` sections present | full control over quantity names, grouping, and unit set |
-| **UCUM** | `[ucum]` table present | you want a complete unit library from the authoritative UCUM source |
+| **Manual** | `[[family]]` sections present | you choose the quantities, their grouping and their units |
+| **UCUM** | `[ucum]` table present | you want every unit of the UCUM source |
 
-Both modes emit a ready-to-compile crate (`Cargo.toml` + `src/`) that depends
-only on `yadc` and `dynamickit` (and optionally `serde`). The output directory
-defaults to `crate_name` from `[system]`. The `src/*.rs` files are laid out by
-`rustfmt` (if it is on the `PATH`), so the same input always gives the same,
-fmt-clean files.
+Both write a crate (`Cargo.toml` + `src/`) that depends on
+`const_derive_more` and `num-traits` (and optionally `serde`). The output
+directory defaults to `crate_name` from `[system]`. The `src/*.rs` files are
+laid out by `rustfmt` (if it is on the `PATH`), so the same input always
+gives the same files.
 
 ## What gets generated
 
+The names below are `yadc-si`'s; `[system]` names the types.
+
+- `src/unit.rs` (from [`templates/unit.rs`](templates/unit.rs)) - the unit
+  type `SIUnit`: a product of named units to integer powers, a
+  `ConstParamTy`. Base units define the dimensions (`SIUnit::base("m")`);
+  every other named unit is a size times other units
+  (`SIUnit::scaled("h", Exact::int(3600), SECOND.unit())`), and may count
+  from a zero (`SIUnit::offset`) or on a log scale (`SIUnit::from_log`). A
+  prefix (`SIUnit::prefix`) fuses with the one unprefixed named unit it
+  multiplies. Its std `* / + -` are `const impl`s returning `Option`: `*`
+  and `/` are `None` for a unit with a zero or a log scale, `+` and `-` are
+  `Some` for one unit only. Also `times`, `same_dimension`,
+  `to_base` / `from_base` (a number in base units and back) and `Display`.
+- `src/exact.rs` (from [`templates/exact.rs`](templates/exact.rs)) -
+  `Exact`, the exact number unit sizes are written in (`num/den · 10ⁿ ·
+  πᵏ`), with `const` arithmetic and std `From` to `f64`, `f32` (the nearest,
+  rounded once) and every primitive integer (the nearest, ties to even; a
+  panic where it does not fit - in a `const`, a compile error).
 - `src/lib.rs` -
-  - the label enum `Kind` (`#[derive(Dimension)]`, the `[kind] default`
-    variant marked `#[default]`, the `[kind] affine` and `log` variants
-    `#[kind(affine)]` and `#[kind(log)]`, each variant's `rules` in its
-    `#[kind(..)]`);
-  - the dimension struct (`#[derive(Dimension)]`: one `i8` per `[dim]` field
-    and a `#[kind]` field);
-  - the static quantity `Qty<const D: Dim, N>(N)` (`#[derive(Quantity)]`:
-    its operators, `Quantity` - every quantity value a unit of its own kind -
-    and the extras, `Display` among them; the field is private to the crate);
-  - the unit type: `QtyUnitConsts { size: Exact, zero: Exact, symbol, name }`, a
-    unit's definition, and `QtyUnit<const D: Dim, const C: QtyUnitConsts>`,
-    a unit struct whose constants are the units, with its one `impl Unit` written out - `n` in a unit is
-    `n · size + zero` coherent units, in any `N: From<Exact>` with `+ - * /`,
-    the size and zero converted with `N::from` - and its `Display`
-    (`{}` the symbol, `{:#}` the name). That impl is the only place a number
-    becomes a quantity;
-  - one `pub mod` per family, per `extra_modules` entry and for
-    `dimensionless` and `dynamic`.
-- `src/dynamic/mod.rs` - the dynamic half: what is chosen at run time, a
-  quantity's dimension or a unit. It declares one module of unit enums per
-  family (`dynamic::mechanical`, behind the family's feature, and
-  `dynamic::dimensionless`), and holds the dynamic quantity,
-  `#[derive(dynamickit::Dynamic)]` on a struct
-  `DynQty { dim: Dim, value: f64 }`, with no hand-written impl:
+  - the quantity, `SIQuantity<const U: SIUnit, N, const IS_BASE: bool>(N)`
+    with `#[derive(const_derive_more::ConstOps)]` (mixed with `Exact` for
+    every primitive number type), `Display` (`2 km`), and serde as its number
+    behind the `serde` feature. `IS_BASE` says whether `U` is a base unit or
+    a product of base units;
+  - two blanket `From` impls: `SIQuantity<U, N, false>` into
+    `SIQuantity<V, N, true>` where `U` and `V` have one dimension, and back;
+    the target type picks the unit;
+  - the 20 SI prefixes (`KILO`) and the base units (`METRE`), as constants;
+  - the `named` coherent units' symbols, for `Display`;
+  - `pub mod` for each family (behind its feature), `dimensionless`,
+    `dynamic` and each `extra_modules` entry.
+- `src/<family>.rs` and `src/dimensionless.rs` - per quantity, an alias
+  whose unit defaults to its base unit, and a constant per unit, one of it:
 
   ```rust
-  #[dynamic(Qty<const D: Dim, f64> => { dim: D, value: .0 })]
-  #[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]
-  #[dynamic(impl(
-      Mul -> Option<Self>,
-      Div -> Option<Self>,
-      Add -> Option<Self>,
-      Sub -> Option<Self>,
-      Mul<f64> -> Option<Self>,
-      Div<f64> -> Option<Self>,
-      PartialOrd,
-      yadc::PartialRoot::partial_root(self, n: i8) -> Option<Self>,
-      yadc::PartialPowi::partial_powi(self, n: i8) -> Option<Self>,
-  ))]
+  /// A length, in `N`s of the unit `U`: by default its coherent unit, a
+  /// product of base units.
+  pub type Length<N, const U: SIUnit = { METRE.unit() }, const IS_BASE: bool = true> =
+      SIQuantity<U, N, IS_BASE>;
+
+  /// Kilometres (`km`), a unit of `Length`: `n` of them is `n · 1000.0` base units.
+  pub const KILOMETRE: SIQuantity<
+      { SIUnit::scaled("km", Exact::int(1000), METRE.unit()) },
+      Exact,
+      false,
+  > = SIQuantity::ONE;
   ```
 
-  (converting moves the number and records `D`; `TryFrom` checks it on the
-  way back; a bare `f64` is the same value as a dimensionless quantity;
-  every operator and method is the fields' own, its output stated - `Mul`
-  and `Div` are `-> Option<Self>`, since a dimension with a kind has
-  partial products), with the dimension's own `* f64` and
-  `/ f64` beside it (a dimension scales where it adds to itself as itself);
-  and the dynamic unit, `DynamicQtyUnit { dim: Dim, consts: QtyUnitConsts }`,
-  `#[dynamic(QtyUnit<const D: Dim, const C: QtyUnitConsts> => { dim: D, consts: C })]`,
-  a unit of `Option<DynQty>` counted in `Option<f64>` (`value` is `None`
-  for another dimension).
-- `src/dimensionless.rs` - `pub const DIMENSIONLESS: Dim = Dim::DIMENSIONLESS;`
-  and its `units`; `src/dynamic/dimensionless.rs` - its unit enum.
-- `src/<family>.rs` - each quantity's dimension constant (a quantity is
-  `Qty<LENGTH, N>`), and a
-  `units` module with one constant per unit, its type carrying the unit's
-  dimension and definition:
-
-```rust
-use crate::{Dim, Qty};
-use yadc::Dimension;
-
-/// The dimension of `Length`.
-pub const LENGTH: Dim = Dim { m: 1, ..Dim::DIMENSIONLESS };
-
-pub mod units {
-    use super::*;
-    use crate::{Exact, QtyUnit, QtyUnitConsts};
-
-    /// Inches (`in`), a unit of `Length`: `n` of them is `n · 0.0254` coherent units.
-    pub const INCH: QtyUnit<
-        LENGTH,
-        { QtyUnitConsts { size: Exact::dec(254, -4), zero: Exact::ZERO, symbol: "in", name: "inches" } },
-    > = QtyUnit;
-}
-```
-
-- `src/dynamic/<family>.rs` - each quantity's unit enum, each variant
-  naming its unit constant (`dynamic::mechanical::LengthUnit`), made with
-  `dynamickit`'s `#[derive(Values)]`:
-
-```rust
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone)]
-#[values(
-    delegate(Unit<Qty<LENGTH, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LENGTH, N>;
-        fn value(&self, quantity: Qty<LENGTH, N>) -> N;
-    }),
-    into(DynamicQtyUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum LengthUnit {
-    #[default]
-    #[value(METRE)]
-    Metre,
-    #[value(INCH)]
-    Inch,
-}
-```
-
-  The enum derives `dynamickit::Values` and `dynamickit::Variants` plus
-  `unit_derives`, and `Default` with the coherent unit (the first) as
-  `#[default]` - what a menu starts on; `Variants` lists the units for one.
-  `Values` writes `Unit` as each variant's unit's, with exactly the bounds
-  `QtyUnit`'s `impl Unit` needs of `N`; `Display` and `FromStr` as its units'
-  (`LengthUnit::Inch.quantity(3.0_f64)`, `"in".parse::<LengthUnit>()`); and
-  `From<LengthUnit> for DynamicQtyUnit`.
-
-- `src/prefix.rs` (written from `templates/prefix.rs`, beside `src/exact.rs`) -
-  the 20 SI prefixes as the enum `Prefix` (`Prefix::Kilo`, an exact
-  `factor()`), and `Prefixed<U>`, a unit with an optional `Prefix` - a unit
-  of what `U` measures - which parses a leading prefix on a unit's own
-  symbol: `km` as the kilo of `LengthUnit::Metre`. A prefixed unit has no
-  constant of its own (see [below](#prefixed-units)).
-
+- `src/dynamic/mod.rs` - the dynamic quantity, `DynamicSIQuantity { unit:
+  SIUnit, is_base: bool, value: f64 }` with `#[derive(const_derive_more::Dynamic)]`:
+  `From` any `SIQuantity<U, f64, IS_BASE>`, `TryFrom` back (checked), and
+  `* / + -`, scaling by an `f64` and `PartialOrd`, each returning `Option`.
+- `src/dynamic/<family>.rs` - per quantity, a unit enum
+  (`dynamic::mechanical::LengthUnit`) with `const_derive_more`'s `Values`
+  and `Variants` plus `unit_derives`: each variant names its unit
+  (`#[value(KILOMETRE.unit())]`), `Display` and `FromStr` are its unit's
+  symbol, `From<LengthUnit> for SIUnit` converts it, and `Default` is the
+  base unit.
 - `Cargo.toml` - a starting manifest: one feature per family (all on by
-  default), `std`, `libm` and `serde`. It knows nothing about the
-  `extra_modules`' needs; `yadc-si`'s own manifest is maintained by hand, so
-  regenerate into another directory and copy `src/*.rs` and
-  `src/dynamic/*.rs` (see
-  [`yadc-si`](../yadc-si/README.md#regenerating)).
+  default), `std`, `libm` (one of the two is needed by log units) and
+  `serde`. `yadc-si`'s own manifest is maintained by hand (see
+  [Regenerating](../yadc-si/README.md#regenerating)).
 
-`QtyUnit`, `QtyUnitConsts` and `DynamicQtyUnit` are named by `unit_type`
-(`yadc-si`: `SIUnit`, `SIUnitConsts`, `DynamicSIUnit`). The generated crate
-root needs the features a crate *defining* a system needs (see yadc's
-README). A crate that only uses the generated one needs `generic_const_exprs`,
-plus `const_trait_impl` to build quantities in `const` items.
-
-`src/exact.rs` (written from `templates/exact.rs`) holds `Exact`, the exact
-number a unit's size and zero are written in, with std `From` to `f64`,
-`f32` (the nearest, rounded once) and every primitive integer (the nearest,
-ties to even; a panic where it does not fit - in a `const`, a compile error).
-
-### Unit sizes and zeros
-
-A unit's `m` and `z` are its exact definition in coherent units - `"0.0254"`,
-`"1000.0 / 3600.0"`, `"core::f64::consts::PI / 180.0"` (numbers, `+ - * /`,
-parentheses and π) - never a rounded result. The generator writes their
-literals as `Exact`s (`0.0254` is `Exact::dec(254, -4)`,
-`core::f64::consts::PI` is `Exact::PI`) and the expression is evaluated
-exactly, at compile time.
-
-A unit's constant is its `t`, or else its variant, in SCREAMING_SNAKE_CASE
-(`KilometrePerHour` is `KILOMETRE_PER_HOUR`); where two quantities of one
-module share a name, the constant is prefixed with its quantity's
-(`TEMPERATURE_INTERVAL_KELVIN`) unless a `t` names it.
-
-### Prefixed units
-
-The input lists no unit whose symbol is a prefix on another unit's:
-`Prefixed<LengthUnit>` parses `km` and `km²`. The generator emits exactly the
-units its input lists; `si.toml` lists ~840: the units with no leading SI
-prefix, those that keep one in their name - a coherent unit (`KILOGRAM`), a
-unit whose prefix scales no unit of its quantity (`MILLIMETRE_OF_MERCURY`) -
-and those with a prefix on one factor of the symbol (`KILOMETRE_PER_HOUR`,
-km/h).
+A crate that defines a system needs the features at the top of the
+generated `lib.rs`; a crate that only uses one needs `generic_const_exprs`.
 
 ## TOML reference
 
-`[system]`, `[kind]`, `[dim]` and `[dimensionless]` are shared
-between both modes.
+`[system]`, `[dim]` and `[dimensionless]` are shared between both modes.
 
 ### `[system]`
 
 ```toml
 [system]
-crate_name   = "yadc-si"                    # output crate name (and default output dir)
-family_order = ["mechanical", "angular"]    # order of features and `pub mod`s
-dim_type     = "ISQ"                        # dimension struct name      (default "Dim")
-qty_type     = "SIQuantity"           # static quantity name       (default "Qty")
-dynqty_type  = "DynamicSIQuantity"          # dynamic quantity name      (default "DynQty")
-unit_type    = "SIUnit"                     # unit type name (default "QtyUnit"); its definition
-                                            # is `SIUnitConsts`, its dynamic version `DynamicSIUnit`
-unit_derives = ["Copy", "Clone"]            # extra derives on every unit enum
-extra_modules = [                           # hand-written modules: declared, never written
-    { name = "level",      feature = "mechanical" },
+crate_name    = "yadc-si"                  # output crate name (and default output dir)
+family_order  = ["mechanical", "angular"]  # order of features and `pub mod`s
+qty_type      = "SIQuantity"               # quantity type       (default "Qty")
+dynqty_type   = "DynamicSIQuantity"        # dynamic quantity    (default "DynQty")
+unit_type     = "SIUnit"                   # unit type           (default "QtyUnit")
+unit_derives  = ["Copy", "Clone", "PartialEq", "Eq", "Hash", "Debug"]  # on every unit enum
+named         = ["N", "J", "W", "Pa"]      # coherent units printed by name
+extra_modules = [                          # hand-written modules: declared, never written
     { name = "uom_bridge", feature = "uom" },
 ]
 ```
 
-`unit_derives` should include `Copy` and `Clone`: `Values` does not write
-them, and a menu copies its units.
+- `unit_derives` should include `Copy` and `Clone`: `Values` does not write
+  them.
+- `named` lists symbols of size-one units of quantities with a dimension: a
+  quantity in that product of base units prints the symbol (`6 N`, not
+  `6 kg·m·s^-2`). The first listed wins where two share a product.
+- `extra_modules` are files you maintain in `src/` yourself. The generated
+  `lib.rs` declares each as `pub mod` (behind `feature` when given); the
+  generator never writes them.
 
-`extra_modules` lists files you maintain in the crate's `src/` yourself. The
-generated `lib.rs` declares each as `pub mod` (behind `feature` when given), but
-the generator never writes or overwrites them, so regenerating preserves them.
-
-### `[kind]`
-
-The variants of the enum `Kind`: how a quantity behaves under `+` and `-`,
-beside its exponents.
-
-```toml
-[kind]
-variants = ["Linear", "Affine", "Log"]
-default  = "Linear"     # an ordinary amount: `#[default]`
-affine   = "Affine"     # points
-log      = "Log"        # levels and gains
-```
-
-- **`default`** is the kind of an ordinary amount: it adds to its own kind,
-  scales and multiplies.
-- **`affine`** names the kind of a point, measured from a zero somebody chose
-  (an altitude, an instant): two points differ by an ordinary amount and an
-  amount moves a point; a point has no sum with another, no scaling and no
-  products.
-- **`log`** names the kind of a logarithm (a level, a gain): adding logarithms
-  multiplies what they are the logarithms of, so `+` and `-` add and subtract
-  the exponents. A gain (no exponents) scales and leaves a product as a label
-  does; a level (with exponents) has no products.
-
-Both are optional, and emitted on the variants they name: `#[kind(affine)]`,
-`#[kind(log)]`. Naming either
-makes the dimension's `*` and `/` partial - a product with a point or a level
-has no result - so the generated dynamic type's `*` and `/` return `Option`
-too.
-
-A variant may also be a label of the system's own, with `rules` - its sums,
-emitted verbatim as that variant's `#[kind(..)]`:
+### `[dim]`
 
 ```toml
-variants = ["Linear", "Affine", "Log", "Rank"]
-rules    = { Rank = ["add(Rank) = invalid"] }
+[dim]
+fields = ["m", "kg", "s", "A", "K", "mol", "cd", "rad"]
 ```
 
-`si.toml` names both - its affine quantity is the `Instant`, its logarithmic
-ones the `Gain` and the `PowerLevel` - and makes a temperature a label of its
-own: an amount with a true zero, which scales and multiplies (`n * R * t`),
-kept apart from its differences. `absolute` marks such a label, short for its
-three rules: two differ by a plain amount (`sub(X) = Linear`), and a plain
-amount moves one (`add(Linear) = X`, `sub(Linear) = X`).
-
-```toml
-[kind]
-variants = ["Linear", "Absolute", "Affine", "Log"]
-default  = "Linear"
-affine   = "Affine"
-log      = "Log"
-absolute = ["Absolute"]
-```
-
-A rule is `add(X) = Y` or `sub(X) = Y`, where `X` is a variant and `Y` a
-variant or `invalid` (no result; it revokes a default). Without rules a label
-adds to and subtracts from itself, and survives `*` and `/` only beside a
-plain number. There is no `Invalid` variant: a sum with no result is `None`.
-The generator checks this before writing anything: a `default`, `affine`,
-`log`, `absolute` or rule key that is not one of `variants`, an `absolute`
-that is the default, affine or log variant, a `mul` / `div` rule
-(products and quotients are not declarable), a rule that is not `op(X) = Y`,
-or an operand that is not a variant.
+The base units' symbols. Each is the symbol of a size-one unit of a
+quantity whose `dims` are that field alone (`Length`, `dims = {m = 1}`,
+`Metre`); that unit's constant (`METRE`) is declared at the crate root.
+Whether mass is based on the gram or the kilogram, or angle is a base unit
+at all, is this list.
 
 ### `[dimensionless]`
 
-Units of the always-present `Dimensionless` quantity, in the same format as a
-quantity's `units` (below).
+The units of a plain number, in the `dimensionless` module, as a
+quantity's `units`:
 
 ```toml
 [dimensionless]
 units = [
-    {v = "Ratio",   m = "1.0",    s = "",   l = ""},
-    {v = "Percent", m = "1.0e-2", s = "%",  l = "percent"},
+    {v = "Ratio",   m = "1.0",  s = "",  l = ""},
+    {v = "Percent", m = "0.01", s = "%", l = "percent"},
+    {v = "Decibel", m = "1.0", log = "10.0", per = "10.0", s = "dB", l = "decibels"},
 ]
 ```
-
----
 
 ## Manual mode
 
@@ -306,139 +160,50 @@ name = "mechanical"           # a Cargo feature and a module
 
 [[family.quantity]]
 name = "Length"
-dims = {m = 1}                # non-zero exponents; absent axes are 0
+dims = {m = 1}                # non-zero exponents of [dim] fields
 units = [
-    {v = "Metre", m = "1.0",    s = "m",  l = "metres"},
-    {v = "Inch",  m = "0.0254", s = "in", l = "inches"},
+    {v = "Metre",     m = "1.0",    s = "m",  l = "metres"},
+    {v = "Kilometre", m = "1000.0", s = "km", l = "kilometres"},
+    {v = "Inch",      m = "0.0254", s = "in", l = "inches"},
 ]
 ```
-
-A quantity may also carry `kind = "Absolute"` (a `[kind]` variant).
 
 ### Unit fields
 
 | Key | Meaning |
 |---|---|
-| `v` | the enum variant, and the unit constant's name unless `t` gives one |
-| `m` | the size in coherent units, an exact expression (`"0.0254"`, `"5.0 / 9.0"`) |
-| `z` | the zero in coherent units, the same way (`"273.15"`); `0` when absent |
-| `s`, `l` | the symbol and the long plural name: `Display` (`{}`, `{:#}`) and `FromStr` |
-| `t` | the unit constant's name, when not the variant's (`t = "KelvinScale"`, the constant `KELVIN_SCALE`) |
+| `v` | the enum variant, and the constant's name unless `t` gives one |
+| `m` | the size in base units (for a log unit, its reference), an exact expression |
+| `z` | the zero in base units, the same way (`"273.15"`) |
+| `log`, `per` | a log scale, both or neither: `n` of the unit is `m · log^(n / per)` base units |
+| `s` | the symbol: `Display` and `FromStr` |
+| `l` | the long plural name, in the constant's doc comment |
+| `t` | the constant's name, when not the variant's (`t = "DegreeCelsius"`, `DEGREE_CELSIUS`) |
 
-A number `n` in a unit is `n · m + z` coherent units. Any other key is an
-error.
+A unit has a zero, a log scale, or neither; any other key is an error. A
+number `n` of a unit with a zero is `n · m + z` base units. A unit of size
+one with neither is its quantity's base unit, `IS_BASE`.
 
-### `kind` on a quantity
-
-A quantity whose `kind` is not the default gets it in its dimension constant
-(`Dim { kind: Kind::Log, ..Dim::DIMENSIONLESS }`), and its units are units of
-that kind: a plain number becomes a gain through a unit, `BEL.quantity(n)`.
-A quantity of the affine kind has no "one of it": every unit of it says, by
-its zero, which point its numbers count from.
-
-#### Angle: an axis, not a label
-
-`yadc-si` counts radians on an exponent axis (`rad` in `[dim]`): angles
-multiply like exponents (rad² is the steradian, torque is J/rad), so rad/s never
-mixes with Hz, nor torque with energy. Where a textbook silently sets rad = 1
-(s = r·θ, v = ω·r), the code divides by a radian explicitly. Whether angle is
-an axis or not is the system's choice: drop `rad` from `[dim]` and an angle
-is a plain ratio.
-
-### Temperatures: units with a zero
-
-A temperature has the `Absolute` label and is read in units with a zero; a
-temperature difference is a step, an ordinary amount, read in units without
-one. In `si.toml`:
+`m`, `z`, `log` and `per` are exact expressions - numbers, `+ - * /`,
+parentheses and `core::f64::consts::PI` - written out as `Exact`s (`0.0254`
+is `Exact::dec(254, -4)`) and evaluated at compile time:
 
 ```toml
-[[family.quantity]]
-name = "ThermodynamicTemperature"
-dims = {K = 1}
-kind = "Absolute"
-units = [
-    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin", t = "KelvinScale"},
-    {v = "Celsius", m = "1.0", z = "273.15", s = "°C", l = "degrees Celsius"},
-    {v = "Fahrenheit", m = "5.0 / 9.0", z = "273.15 - 32.0 * 5.0 / 9.0", s = "°F", l = "degrees Fahrenheit"},
-    {v = "Rankine", m = "5.0 / 9.0", s = "°R", l = "degrees Rankine"},
-]
-
-[[family.quantity]]
-name = "TemperatureInterval"
-dims = {K = 1}
-units = [
-    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin"},
-    {v = "Celsius", m = "1.0", s = "°C", l = "degrees Celsius", t = "DegreeCelsius"},
-    {v = "Fahrenheit", m = "5.0 / 9.0", s = "°F", l = "degrees Fahrenheit", t = "DegreeFahrenheit"},
-    {v = "Rankine", m = "5.0 / 9.0", s = "°R", l = "degrees Rankine", t = "DegreeRankine"},
-]
+{v = "Celsius",          m = "1.0", z = "273.15", s = "°C", l = "degrees Celsius"},
+{v = "Fahrenheit",       m = "5.0 / 9.0", z = "273.15 - 32.0 * 5.0 / 9.0", s = "°F", l = "degrees Fahrenheit"},
+{v = "DecibelMilliwatt", m = "0.001", log = "10.0", per = "10.0", s = "dBm", l = "decibels-milliwatt"},
+{v = "Parsec",           m = "149597870700.0 * 648000.0 / core::f64::consts::PI", s = "pc", l = "parsecs"},
 ```
 
-which generates the temperature units `KELVIN_SCALE`, `CELSIUS`, `FAHRENHEIT`
-and `RANKINE`, and the step units `KELVIN`, `DEGREE_CELSIUS`,
-`DEGREE_FAHRENHEIT` and `DEGREE_RANKINE`; the enums keep the variant names
-(`ThermodynamicTemperatureUnit::Celsius`, `TemperatureIntervalUnit::Celsius`).
-
-### Instants: points on a line
-
-A point - the `affine` kind - is stored from the zero of its coherent unit:
-what it prints and serializes as. Every unit is a size and a zero on that one
-line. In `si.toml`:
-
-```toml
-[[family.quantity]]
-name = "Instant"
-dims = {s = 1}
-kind = "Affine"
-units = [
-    {v = "UnixSecond", m = "1.0", s = "s Unix", l = "seconds of Unix time"},
-    {v = "GpsSecond", m = "1.0", z = "315964800.0", s = "s GPS", l = "seconds of GPS time"},
-    {v = "JulianDate", m = "86400.0", z = "-2440587.5 * 86400.0", s = "JD", l = "Julian date"},
-]
-```
-
-Which zero an instant was read from is not in its type: an instant built
-from GPS seconds reads in Unix seconds.
-
-### Levels: gains and logarithmic lines
-
-Decibels count on a logarithmic line, where multiplying is adding. The
-generator computes no logarithm: a level is a quantity of the `log` kind,
-counted in bels, and the one conversion is a hand-written module
-(`extra_modules`).
-
-```toml
-[[family.quantity]]
-name = "Gain"                 # the logarithm of a plain ratio: plain units
-kind = "Log"
-units = [
-    {v = "Bel",     m = "1.0", s = "B",  l = "bels"},
-    {v = "Decibel", m = "0.1", s = "dB", l = "decibels"},
-]
-
-[[family.quantity]]
-name = "PowerLevel"           # the logarithm of a power, in bels from one watt
-dims = {m = 2, kg = 1, s = -3}
-kind = "Log"
-units = [
-    {v = "DecibelWatt",      m = "0.1", s = "dBW", l = "decibels-watt"},
-    {v = "DecibelMilliwatt", m = "0.1", z = "-3.0", s = "dBm", l = "decibels-milliwatt"},
-]
-```
-
-A level carries the exponents of what it is the level of, and the `log` kind
-subtracts them: two power levels differ by a gain (watts over watts), a gain
-moves a level, and two levels do not sum to a level. No rule is written.
-`yadc-si`'s hand-written `level.rs` holds std `From` between `PowerLevel` and
-`Power` (and between `Gain` and a plain ratio).
+A unit's constant is its `t`, or else its variant, in SCREAMING_SNAKE_CASE
+(`KilometrePerHour` is `KILOMETRE_PER_HOUR`); where two quantities of one
+module share a name, it is prefixed with its quantity's (`LENGTH_UNCIA`)
+unless a `t` names it.
 
 ## UCUM mode
 
 Parses `ucum-essence.xml` from the [Unified Code for Units of Measure](https://ucum.org)
-project and generates a complete yadc unit crate, as UCUM defines it. Add a
-`[ucum]` table to your TOML to enable this mode — `ucum.toml` in this
-directory is the canonical example, and generates the workspace's
-`yadc-ucum` crate:
+and generates every unit it defines. `ucum.toml` generates `yadc-ucum`:
 
 ```bash
 cargo run -p yadc-codegen -- yadc-codegen/ucum.toml -o yadc-ucum
@@ -448,66 +213,43 @@ cargo run -p yadc-codegen -- yadc-codegen/ucum.toml -o yadc-ucum
 
 ```toml
 [ucum]
-# A release's ucum-essence.xml, pinned by its tag: the same source gives the
-# same crate. "latest" asks GitHub for the newest release; a file path reads
-# a local copy.
+# A release's ucum-essence.xml, pinned by its tag. "latest" asks GitHub for
+# the newest release; a file path reads a local copy.
 source = "https://raw.githubusercontent.com/ucum-org/ucum/v2.2/ucum-essence.xml"
 ```
 
 Updating to a new UCUM release is changing the tag and regenerating.
 
-### UCUM's base units are the axes
-
-Each of UCUM's seven base units is an axis of the dimension, named by its
-code: `m`, `s`, `g`, `rad`, `K`, `C` (the coulomb: charge, not current),
-`cd`. `[dim].fields` lists them. The mole is no axis: UCUM defines it as a
-number, 6.02214076 × 10²³, so `AmountOfSubstance` is dimensionless. The
-coherent units are UCUM's base units and their products: the newton is a
-size of 1000 (g·m/s²), the ampere a coulomb per second.
-
-### Exact values, UCUM codes
-
-Every value in the XML is a decimal, and is read exactly - as a rational,
-with π (`[pi]`, a long decimal in the XML) kept as a power of π - so each
-unit's size is exact: the international inch is `Exact::dec(254, -4)`
-metres, the US survey inch `Exact::int(100) / Exact::int(3937)`, the degree
-π/180 radians.
-
-A unit prints, and a unit enum's variant prints and parses, as the unit's UCUM code,
-case-sensitive (`[in_i]`, `Cel`, `[degF]`); its name (`{:#}`) is UCUM's
-(`inch`).
-
 ### What gets generated
 
-Units are grouped by UCUM `class` into Cargo feature-gated families, and
-within a family into one quantity per UCUM property, dimension and kind (a
-property name shared by two dimensions gets a dimension suffix,
-`UnclassifiedM3PerKgS2`). Only class `dimless` goes to `dimensionless.rs`;
-a dimensionless unit of another class stays in its family:
+- **UCUM's base units are the base units:** `[dim].fields` lists their
+  codes, `m`, `s`, `g`, `rad`, `K`, `C` (the coulomb) and `cd`. The mole is
+  a number, as UCUM defines it (6.02214076 × 10²³).
+- **Exact values.** Every value in the XML is read exactly - a rational,
+  with π kept as a power of π: the international inch is
+  `Exact::dec(254, -4)` metres, the US survey inch `Exact::int(100) /
+  Exact::int(3937)`.
+- **UCUM codes.** A unit's symbol is its case-sensitive UCUM code
+  (`[in_i]`, `Cel`).
+- **One family per UCUM class**, each a Cargo feature, and within a family
+  one quantity per UCUM property and dimension; class `dimless` goes to
+  `dimensionless.rs`:
 
-| Family | UCUM classes | Contents |
-|--------|-------------|----------|
-| `si` | `si` | SI base and derived quantities |
-| `heat` | `heat` | Thermal energy units + `ThermodynamicTemperature` / `TemperatureInterval` |
-| `iso1000` | `iso1000` | ISO 1000 units (litre, tonne, bar, …) |
-| `intcust` | `intcust` | International customary units |
-| `cgs` | `cgs` | Centimetre-gram-second units |
-| `infotech` | `infotech` | Bit, byte and baud |
-| `us` | `us-lengths`, `us-volumes`, `avoirdupois`, `troy`, `apoth` | US customary and apothecary units |
-| `british` | `brit-length`, `brit-volumes` | British imperial units |
-| `clinical` | `clinical`, `chemical` | Clinical and chemical units |
-| `constants` | `const` | Physical constants as units |
-| `misc` | `misc` | Remaining units |
+  | Family | UCUM classes |
+  |--------|-------------|
+  | `si` | `si` |
+  | `heat` | `heat`, plus `ThermodynamicTemperature` (`CELSIUS`, `FAHRENHEIT`) and `TemperatureInterval` |
+  | `iso1000` | `iso1000` |
+  | `intcust` | `intcust` |
+  | `cgs` | `cgs` |
+  | `infotech` | `infotech` |
+  | `us` | `us-lengths`, `us-volumes`, `us-masses`, `avoirdupois`, `troy`, `apoth` |
+  | `british` | `brit-length`, `brit-volumes` |
+  | `clinical` | `clinical`, `chemical` |
+  | `constants` | `const` |
+  | `misc` | the rest |
 
-A unit gets no prefixed constants or variants: `Prefixed<..Unit>` covers them,
-as in `yadc-si`. The units are constants of `UcumUnit` types (`unit_type = "UcumUnit"`).
-
-### What is skipped
-
-- `isSpecial="yes"` units: logarithmic, non-linear, function-based conversions (pH,
-  Neper, Bel, dB variants, …).  Celsius and Fahrenheit are the exception — they are
-  substituted with hardcoded units with a zero (`CELSIUS`, `FAHRENHEIT`) in the `heat` family.
-- `isArbitrary="yes"` units: titre, international units, etc. whose conversion factor
-  is not defined.
-- Units whose expression cannot be resolved from known symbols: none in
-  UCUM 2.2; the generator prints how many it resolved and skipped.
+- **Skipped:** `isSpecial` units (logarithmic and function-based: pH, B,
+  dB, Np, ...; Celsius and Fahrenheit are written as units with a zero in
+  `heat`), `isArbitrary` units (international units, titres), and units
+  whose expression does not resolve (the generator prints how many).

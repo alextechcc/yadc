@@ -4,14 +4,16 @@
 //! `Quantities` is an enum of yours - the quantities this app measures.
 //! `Units` is another enum of yours: for each quantity, its family of units.
 //! Which quantity a unit family measures is a fact about the types, written
-//! as one: `impl Measures for PressureUnit { type Quantity = SIQuantity<PRESSURE, f64>; }`.
-//! dynamickit gives the plumbing:
+//! as one: `impl Measures for PressureUnit { type Quantity = Pressure<f64>; }`.
+//! const_derive_more gives the plumbing:
 //!
 //! - `Variants` walks the choices: one group per quantity, then the units
 //!   of each - the two menus a UI would render;
 //! - `Visit` hands the chosen unit family to a generic visitor: one builds
 //!   the family's quantity from a number, one reads a quantity if it is the
 //!   family's;
+//! - `Values` makes each unit enum its variant's `SIUnit`: printed and
+//!   parsed as its symbol, and converting numbers to and from base units;
 //! - `Members` and `Via` convert the set through the open type,
 //!   `DynamicSIQuantity`, and borrow its arithmetic.
 //!
@@ -25,19 +27,16 @@
 #![feature(const_convert, const_destruct)]
 #![allow(incomplete_features)]
 
+use const_derive_more::NoValue;
+use const_derive_more::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use core::fmt;
 use core::str::FromStr;
-use dynamickit::NoValue;
-use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
-use yadc::Unit;
-use yadc_si::SIQuantity;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit};
 use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
-use yadc_si::mechanical::units::{BAR, PASCAL, PSI, STANDARD_ATMOSPHERE};
-use yadc_si::mechanical::{AREA, FORCE, PRESSURE};
-use yadc_si::thermal::THERMODYNAMIC_TEMPERATURE;
-use yadc_si::{Exact, SIUnit, SIUnitConsts};
+use yadc_si::mechanical::{Area, BAR, Force, PASCAL, PSI, Pressure, STANDARD_ATMOSPHERE};
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::{Exact, SIQuantity, SIUnit};
 
 /// What the app measures: a closed set. It converts to and from the open
 /// type through its members, and does its arithmetic there.
@@ -45,42 +44,33 @@ use yadc_si::{Exact, SIUnit, SIUnitConsts};
 #[members(convert(DynamicSIQuantity))]
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Quantities {
-    Pressure(SIQuantity<PRESSURE, f64>),
-    Temperature(SIQuantity<THERMODYNAMIC_TEMPERATURE, f64>),
-    Area(SIQuantity<AREA, f64>),
-    Force(SIQuantity<FORCE, f64>),
+    Pressure(Pressure<f64>),
+    Temperature(ThermodynamicTemperature<f64>),
+    Area(Area<f64>),
+    Force(Force<f64>),
 }
 
-/// The app's own unit: a kilopascal, a unit of pressure with an exact size.
-const KILOPASCAL: SIUnit<
-    PRESSURE,
-    {
-        SIUnitConsts {
-            size: Exact::int(1000),
-            zero: Exact::ZERO,
-            symbol: "kPa",
-            name: "kilopascals",
-        }
-    },
-> = SIUnit;
+/// The app's own unit: a kilopascal, a thousand pascals.
+const KILOPASCAL: SIQuantity<
+    { SIUnit::scaled("kPa", Exact::int(1000), PASCAL.unit()) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
 /// The units of pressure the app offers: a family of your own, a unit of
 /// its own among them.
-#[derive(Clone, Copy, PartialEq, Debug, dynamickit::Values, Variants)]
-#[values(delegate(Unit<SIQuantity<PRESSURE, f64>, f64> {
-    fn quantity(&self, value: f64) -> SIQuantity<PRESSURE, f64>;
-    fn value(&self, quantity: SIQuantity<PRESSURE, f64>) -> f64;
-}))]
+#[derive(Clone, Copy, PartialEq, Debug, const_derive_more::Values, Variants)]
+#[values(into(SIUnit))]
 enum PressureUnit {
-    #[value(PASCAL)]
+    #[value(PASCAL.unit())]
     Pascal,
-    #[value(KILOPASCAL)]
+    #[value(KILOPASCAL.unit())]
     Kilopascal,
-    #[value(BAR)]
+    #[value(BAR.unit())]
     Bar,
-    #[value(STANDARD_ATMOSPHERE)]
+    #[value(STANDARD_ATMOSPHERE.unit())]
     StandardAtmosphere,
-    #[value(PSI)]
+    #[value(PSI.unit())]
     Psi,
 }
 
@@ -93,21 +83,42 @@ enum Units {
     Force(ForceUnit),
 }
 
+/// A quantity in base units, for code generic over its unit: built from and
+/// read as a number of base units, through the open type.
+trait InBase: Sized {
+    fn of(base_units: f64) -> Self;
+    fn base_units(self) -> f64;
+}
+
+impl<const U: SIUnit> InBase for SIQuantity<U, f64, true> {
+    fn of(base_units: f64) -> Self {
+        let open = DynamicSIQuantity {
+            unit: U,
+            is_base: true,
+            value: base_units,
+        };
+        Self::try_from(open).unwrap()
+    }
+    fn base_units(self) -> f64 {
+        DynamicSIQuantity::from(self).value
+    }
+}
+
 /// The relation between the two sets: the quantity a unit family measures.
-trait Measures: Unit<Self::Quantity, f64> {
-    type Quantity;
+trait Measures: Into<SIUnit> {
+    type Quantity: InBase;
 }
 impl Measures for PressureUnit {
-    type Quantity = SIQuantity<PRESSURE, f64>;
+    type Quantity = Pressure<f64>;
 }
 impl Measures for ThermodynamicTemperatureUnit {
-    type Quantity = SIQuantity<THERMODYNAMIC_TEMPERATURE, f64>;
+    type Quantity = ThermodynamicTemperature<f64>;
 }
 impl Measures for AreaUnit {
-    type Quantity = SIQuantity<AREA, f64>;
+    type Quantity = Area<f64>;
 }
 impl Measures for ForceUnit {
-    type Quantity = SIQuantity<FORCE, f64>;
+    type Quantity = Force<f64>;
 }
 
 /// Build: a number in a unit is that unit's quantity, put in the set by
@@ -120,7 +131,7 @@ where
 {
     type Output = Quantities;
     fn visit(self, unit: U) -> Quantities {
-        Quantities::from(unit.quantity(self.0))
+        Quantities::from(U::Quantity::of(unit.into().to_base(self.0)))
     }
 }
 
@@ -135,7 +146,7 @@ where
     type Output = Option<f64>;
     fn visit(self, unit: U) -> Option<f64> {
         let quantity = U::Quantity::try_from(self.0).ok()?;
-        Some(unit.value(quantity))
+        Some(unit.into().from_base(quantity.base_units()))
     }
 }
 
@@ -180,8 +191,7 @@ fn menu() -> Vec<(&'static str, Vec<Units>)> {
     groups.0
 }
 
-/// Print whichever unit it is through its own `Display`, the caller's flags
-/// included (`{:#}` is the unit's name).
+/// Print whichever unit it is through its own `Display`.
 struct ShowUnit<'a, 'b>(&'a mut fmt::Formatter<'b>);
 
 impl<U: fmt::Display> Visitor<U> for ShowUnit<'_, '_> {
@@ -191,8 +201,7 @@ impl<U: fmt::Display> Visitor<U> for ShowUnit<'_, '_> {
     }
 }
 
-/// The saved form: `Pressure:kPa`; `{:#}` spells the unit out,
-/// `Pressure:kilopascals`.
+/// The saved form: `Pressure:kPa`.
 impl fmt::Display for Units {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let groups = menu();
@@ -220,10 +229,10 @@ fn main() {
     let quantities: Vec<_> = groups.iter().map(|(name, _)| *name).collect();
     println!("quantities: {quantities:?}");
 
-    // The user picked pressure; menu 2 lists its units, by name.
+    // The user picked pressure; menu 2 lists its units.
     let (picked, units) = &groups[0];
     println!("picked:     {picked}");
-    let some_units: Vec<_> = units.iter().take(4).map(|u| format!("{u:#}")).collect();
+    let some_units: Vec<_> = units.iter().take(4).map(|u| u.to_string()).collect();
     println!("units:      {some_units:?} ...");
 
     // The setting round-trips through a string.
@@ -236,8 +245,8 @@ fn main() {
     let bar: Units = "Pressure:bar".parse().unwrap();
     println!("in bar:     {:?}", bar.try_value(p));
     // A unit of another quantity can't read it.
-    let square_metres: Units = "Area:m²".parse().unwrap();
-    println!("in m²:      {:?}", square_metres.try_value(p));
+    let square_metres: Units = "Area:m^2".parse().unwrap();
+    println!("in m^2:     {:?}", square_metres.try_value(p));
 
     // Arithmetic stays inside the set: pressure × area is a force; pressure
     // × pressure is not in the set.

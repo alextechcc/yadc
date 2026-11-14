@@ -10,82 +10,90 @@
 //! - arithmetic goes through the open type (`Via`); a result of the left
 //!   operand's quantity keeps the left operand's unit (`#[via(keep)]`), a
 //!   new quantity takes its default unit;
-//! - printing is one generic visitor over `(quantity, unit)`.
+//! - printing is one generic function over a quantity and a unit, and a
+//!   `match` handing it each variant's pair.
 //!
 //! Run with: cargo run -p yadc-si --example measurement
-#![feature(generic_const_exprs, const_trait_impl)]
+#![feature(
+    generic_const_exprs,
+    adt_const_params,
+    unsized_const_params,
+    const_trait_impl
+)]
 #![feature(const_convert, const_default, const_destruct)]
 #![allow(incomplete_features)]
 
+use const_derive_more::{Members, Via};
 use core::fmt;
-use dynamickit::{Members, Via, Visit, Visitor};
-use yadc::Unit;
-use yadc_si::SIQuantity;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PressureUnit};
-use yadc_si::mechanical::units::{NEWTON, PASCAL};
-use yadc_si::mechanical::{AREA, FORCE, PRESSURE};
-
-/// The quantities a measurement holds, named once. The `Visit` derive bounds
-/// its impl by each field's type, and a dimension constant written in that
-/// bound is a const expression of the generic impl, which rustc cannot check.
-type Pressure = SIQuantity<PRESSURE, f64>;
-type Area = SIQuantity<AREA, f64>;
-type Force = SIQuantity<FORCE, f64>;
+use yadc_si::mechanical::{Area, Force, NEWTON, PASCAL, Pressure};
+use yadc_si::{SIQuantity, SIUnit};
 
 /// A quantity and the unit it is shown in.
-#[derive(Clone, Copy, Debug, Visit, Members, Via)]
+#[derive(Clone, Copy, Debug, Members, Via)]
 #[members(convert(DynamicSIQuantity))]
 #[via(DynamicSIQuantity, Add, Sub, Mul, Div, Mul<f64>, Div<f64>)]
 enum Measurement {
     Pressure(
-        #[members(member)] Pressure,
+        #[members(member)] Pressure<f64>,
         #[members(default)]
         #[via(keep)]
         PressureUnit,
     ),
     Area(
-        #[members(member)] Area,
+        #[members(member)] Area<f64>,
         #[members(default)]
         #[via(keep)]
         AreaUnit,
     ),
     Force(
-        #[members(member)] Force,
+        #[members(member)] Force<f64>,
         #[members(default)]
         #[via(keep)]
         ForceUnit,
     ),
 }
 
-/// Print a reading: the number its unit reads, with the caller's flags,
-/// then the unit (`{:#}`: its name). Once, for every pair.
-struct Show<'a, 'b>(&'a mut fmt::Formatter<'b>);
+/// `n` of a unit chosen at run time, as a quantity in base units `U`.
+fn quantity<const U: SIUnit>(unit: impl Into<SIUnit>, n: f64) -> SIQuantity<U, f64, true> {
+    let value = unit.into().to_base(n);
+    SIQuantity::try_from(DynamicSIQuantity {
+        unit: U,
+        is_base: true,
+        value,
+    })
+    .unwrap()
+}
 
-impl<Q, U: Unit<Q, f64> + fmt::Display> Visitor<(Q, U)> for Show<'_, '_> {
-    type Output = fmt::Result;
-    fn visit(self, (quantity, unit): (Q, U)) -> fmt::Result {
-        fmt::Display::fmt(&unit.value(quantity), self.0)?;
-        if self.0.alternate() {
-            write!(self.0, " {unit:#}")
-        } else {
-            write!(self.0, " {unit}")
-        }
-    }
+/// Print a reading: the number its unit reads, with the caller's flags,
+/// then the unit. Once, for every pair.
+fn show<const U: SIUnit>(
+    f: &mut fmt::Formatter<'_>,
+    q: SIQuantity<U, f64, true>,
+    unit: impl Into<SIUnit> + fmt::Display + Copy,
+) -> fmt::Result {
+    let base_units = DynamicSIQuantity::from(q).value;
+    fmt::Display::fmt(&unit.into().from_base(base_units), f)?;
+    write!(f, " {unit}")
 }
 
 impl fmt::Display for Measurement {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        (*self).visit_with(Show(f))
+        match *self {
+            Measurement::Pressure(q, u) => show(f, q, u),
+            Measurement::Area(q, u) => show(f, q, u),
+            Measurement::Force(q, u) => show(f, q, u),
+        }
     }
 }
 
 fn main() {
     // A unit builds a quantity from a number.
     let (psi, sq_ft) = (PressureUnit::Psi, AreaUnit::SquareFoot);
-    let p = Measurement::Pressure(psi.quantity(14.7), psi);
-    let a = Measurement::Area(sq_ft.quantity(5.0), sq_ft);
-    println!("p       = {p}  ({p:#})");
+    let p = Measurement::Pressure(quantity(psi, 14.7), psi);
+    let a = Measurement::Area(quantity(sq_ft, 5.0), sq_ft);
+    println!("p       = {p}");
     println!("a       = {a:.3}");
 
     // The same quantity keeps the left operand's unit ...
@@ -97,15 +105,12 @@ fn main() {
     println!("p × p   = {:?}", (p * p).map(|m| m.to_string()));
 
     // From a bare quantity: the default unit.
-    let f = Measurement::from(NEWTON.quantity(2000.0));
+    let f = Measurement::from(2000.0 * NEWTON);
     println!("f       = {f}");
     // Back to the bare quantity, checked.
     println!(
         "as Pa   = {:?}",
-        SIQuantity::<PRESSURE, _>::try_from(p).map(|q| PASCAL.value(q))
+        Pressure::<f64>::try_from(p).map(|q| f64::from(q / (1.0 * PASCAL)))
     );
-    println!(
-        "as N    = {:?}",
-        SIQuantity::<FORCE, f64>::try_from(p).is_ok()
-    );
+    println!("as N    = {:?}", Force::<f64>::try_from(p).is_ok());
 }

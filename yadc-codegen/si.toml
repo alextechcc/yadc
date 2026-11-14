@@ -1,19 +1,21 @@
 [system]
 crate_name   = "yadc-si"
-dim_type     = "ISQ"
 qty_type     = "SIQuantity"
 dynqty_type  = "DynamicSIQuantity"
 unit_type    = "SIUnit"
 # Derived on every unit enum. `Debug` + `PartialEq` are what a runtime unit
 # picker needs (compare the chosen unit, print it).
 unit_derives = ["Copy", "Clone", "PartialEq", "Eq", "Hash", "Debug"]
+# The coherent units printed by name rather than as products of base units:
+# a force prints `N`, not `kg·m·s^-2`.
+named = [
+    "N", "J", "W", "Pa", "Hz", "C", "V", "F", "Ω", "S", "Wb", "T", "H",
+    "sr", "lx", "kat",
+]
 # Hand-written modules the codegen declares but never overwrites. uom_bridge
 # holds orphan-rule From impls that must live beside SIQuantity, so it
 # cannot move to its own crate; this keeps its `pub mod` line across regens.
-# level holds the Power <-> PowerLevel and ratio <-> Gain conversions (a
-# logarithm), which are maths, not data.
 extra_modules = [
-    { name = "level", feature = "mechanical" },
     { name = "uom_bridge", feature = "uom" },
 ]
 family_order = [
@@ -28,41 +30,13 @@ family_order = [
     "information",
 ]
 
-[kind]
-# The kinds: how a quantity behaves under `+` and `-`, beside its exponents.
-#
-# - `Linear` (`#[default]`): an ordinary amount. It adds to its own kind,
-#   scales and multiplies.
-# - `Absolute`: an amount with a true zero that is also read on scales with
-#   other zeros - a temperature (kelvins, °C, °F). It scales and multiplies
-#   as an amount does (`n * R * t`, an average), but two of them differ by a
-#   linear amount and a linear amount moves one, so a scale with a zero never
-#   reads a difference. A label marked `absolute`, whose three rules say so.
-# - `Affine`: a point, measured from a zero somebody chose - an instant, in
-#   seconds from an epoch. Two points of one dimension differ by a linear
-#   amount and an amount moves a point; a point has no sum with another, no
-#   scaling and no products. Which zero is not in the type: every scale of
-#   instants (Unix seconds, Julian days) reads the same line.
-# - `Log`: a logarithm - a level or a gain, in decibels. Adding logarithms
-#   multiplies what they are the logarithms of, so `+` and `-` add and subtract
-#   the exponents: a power level less a power level is the logarithm of a plain
-#   ratio (a gain), and a gain moves a level. A gain scales and, like a label,
-#   leaves a product (`gain / length` is a plain per-length number); a level
-#   has no products.
-#
-# A dimension with a kind has partial `*` and `/` (`Option`): a product with
-# a point or a level has no result.
-variants = ["Linear", "Absolute", "Affine", "Log"]
-default = "Linear"
-absolute = ["Absolute"]
-affine = "Affine"
-log = "Log"
-
 [dim]
 # `rad` is an exponent axis: angles multiply like exponents (rad² is the
 # steradian, torque is J/rad), so rad/s never mixes with Hz, nor torque with
 # energy. Where a textbook silently sets rad = 1 (s = r·θ, v = ω·r, τ = r × F,
 # I = m·r²), the code divides by a radian explicitly.
+# A base unit per field, its symbol: the metre, the kilogram, the second,
+# the ampere, the kelvin, the mole, the candela and the radian.
 fields = ["m", "kg", "s", "A", "K", "mol", "cd", "rad"]
 
 [dimensionless]  # Ratio units, always present in lib.rs.
@@ -78,6 +52,11 @@ units = [
     {v = "PartPerBillion", m = "1e-09", s = "ppb", l = "parts per billion"},
     {v = "PartPerTrillion", m = "1e-12", s = "ppt", l = "parts per trillion"},
     {v = "PartPerQuadrillion", m = "1e-15", s = "ppq", l = "parts per quadrillion"},
+    # Levels of a ratio of powers: the bel is a power of ten, the decibel a
+    # tenth of that, and the neper half a power of e (n Np is e^(2n)).
+    {v = "Bel", m = "1.0", log = "10.0", per = "1.0", s = "B", l = "bels"},
+    {v = "Decibel", m = "1.0", log = "10.0", per = "10.0", s = "dB", l = "decibels"},
+    {v = "Neper", m = "1.0", log = "2.718281828459045", per = "0.5", s = "Np", l = "nepers"},
 ]
 
 # A unit with an exact definition has it written out as its `m`, from the
@@ -96,6 +75,7 @@ name = "Length"
 dims = {m = 1}
 units = [
     {v = "Metre", m = "1.0", s = "m", l = "metres"},
+    {v = "Kilometre", m = "1000.0", s = "km", l = "kilometres"},
     {v = "Angstrom", m = "1e-10", s = "Å", l = "ångströms"},
     {v = "BohrRadius", m = "5.29177210903e-11", s = "a₀", l = "bohr radiuses"},
     {v = "AtomicUnitOfLength", m = "5.29177210903e-11", s = "a.u. of length", l = "atomic units of length"},
@@ -200,14 +180,12 @@ units = [
     {v = "YearTropical", m = "31556930.0", s = "a (tropical)", l = "years (tropical)"},
 ]
 
-# A point in time. There is one line of instants, counted in uniform seconds
-# from the Unix epoch (leap seconds are not modelled); each unit is a step
-# counted from a zero, in seconds from the Unix epoch, and every unit reads
-# the same line, so an instant built from GPS seconds reads in Unix seconds.
+# A point in time, in uniform seconds from the Unix epoch (leap seconds are
+# not modelled): the same type as a `Time`. Each other scale is a step
+# counted from a zero, in seconds from the Unix epoch.
 [[family.quantity]]
 name = "Instant"
 dims = {s = 1}
-kind = "Affine"
 units = [
     {v = "UnixSecond", m = "1.0", s = "s Unix", l = "seconds of Unix time"},
     {v = "UnixMillisecond", m = "0.001", s = "ms Unix", l = "milliseconds of Unix time"},
@@ -309,45 +287,26 @@ units = [
 name = "Velocity"
 dims = {m = 1, s = -1}
 units = [
-    {v = "MetrePerSecond", m = "1.0", s = "m/s", l = "metres per second"},
-    {v = "FootPerHour", m = "0.3048 / 3600.0", s = "ft/h", l = "feet per hour"},
-    {v = "FootPerMinute", m = "0.00508", s = "ft/min", l = "feet per minute"},
-    {v = "FootPerSecond", m = "0.3048", s = "ft/s", l = "feet per second"},
-    {v = "InchPerSecond", m = "0.0254", s = "in/s", l = "inches per second"},
-    {v = "InchPerMinute", m = "0.0254 / 60.0", s = "in/min", l = "inches per minute"},
     {v = "Knot", m = "1852.0 / 3600.0", s = "kn", l = "knots"},
-    {v = "MilePerHour", m = "0.44704", s = "mi/h", l = "miles per hour"},
-    {v = "MilePerMinute", m = "26.8224", s = "mi/min", l = "miles per minute"},
-    {v = "MilePerSecond", m = "1609.344", s = "mi/s", l = "miles per second"},
     {v = "AtomicUnitOfVelocity", m = "2187691.26364", s = "a₀ · Eₕ/ħ", l = "atomic units of velocity"},
     {v = "NaturalUnitOfVelocity", m = "299792458.0", s = "c", l = "natural units of velocity"},
     # Physical constant (exact, SI defining constant): `consts::SPEED_OF_LIGHT`.
     {v = "SpeedOfLight", m = "299792458.0", s = "c", l = "speeds of light in vacuum"},
-    {v = "KilometrePerHour", m = "1000.0 / 3600.0", s = "km/h", l = "kilometres per hour"},
-    {v = "MillimetrePerMinute", m = "0.001 / 60.0", s = "mm/min", l = "millimetres per minute"},
 ]
 
 [[family.quantity]]
 name = "Acceleration"
 dims = {m = 1, s = -2}
 units = [
-    {v = "MetrePerSecondSquared", m = "1.0", s = "m/s²", l = "metres per second squared"},
-    {v = "FootPerSecondSquared", m = "0.3048", s = "ft/s²", l = "feet per second squared"},
     {v = "Galileo", m = "0.01", s = "Gal", l = "galileos"},
-    {v = "InchPerSecondSquared", m = "0.0254", s = "in/s²", l = "inches per second squared"},
     # Physical constant (exact, by convention): `consts::STANDARD_GRAVITY`.
     {v = "StandardGravity", m = "9.80665", s = "g₀", l = "standard accelerations of gravity"},
-    {v = "MillimetrePerMinuteSquared", m = "0.001 / (60.0 * 60.0)", s = "mm/min²", l = "millimetres per minute squared"},
 ]
 
 [[family.quantity]]
 name = "Jerk"
 dims = {m = 1, s = -3}
 units = [
-    {v = "MetrePerSecondCubed", m = "1.0", s = "m/s³", l = "metres per second cubed"},
-    {v = "FootPerSecondCubed", m = "0.3048", s = "ft/s³", l = "feet per second cubed"},
-    {v = "InchPerSecondCubed", m = "0.0254", s = "in/s³", l = "inches per second cubed"},
-    {v = "KilometrePerMinuteCubed", m = "1000.0 / (60.0 * 60.0 * 60.0)", s = "km/min³", l = "kilometres per minute cubed"},
 ]
 
 [[family.quantity]]
@@ -364,16 +323,6 @@ units = [
 name = "InverseVelocity"
 dims = {m = -1, s = 1}
 units = [
-    {v = "SecondPerMetre", m = "1.0", s = "s/m", l = "seconds per metre"},
-    {v = "HourPerFoot", m = "3600.0 / 0.3048", s = "h/ft", l = "hours per foot"},
-    {v = "MinutePerFoot", m = "60.0 / 0.3048", s = "min/ft", l = "minutes per foot"},
-    {v = "SecondPerFoot", m = "1.0 / 0.3048", s = "s/ft", l = "seconds per foot"},
-    {v = "SecondPerInch", m = "1.0 / 0.0254", s = "s/in", l = "seconds per inch"},
-    {v = "HourPerMile", m = "3600.0 / 1609.344", s = "h/mi", l = "hours per mile"},
-    {v = "MinutePerMile", m = "60.0 / 1609.344", s = "min/mi", l = "minutes per mile"},
-    {v = "SecondPerMile", m = "1.0 / 1609.344", s = "s/mi", l = "seconds per mile"},
-    {v = "MinutePerKilometre", m = "0.06", s = "min/km", l = "minutes per kilometre"},
-    {v = "HourPerKilometre", m = "3.6", s = "h/km", l = "hours per kilometre"},
 ]
 
 [[family.quantity]]
@@ -394,16 +343,6 @@ units = [
 name = "Momentum"
 dims = {m = 1, kg = 1, s = -1}
 units = [
-    {v = "KilogramMetrePerSecond", m = "1.0", s = "kg · m/s", l = "kilogram metres per second"},
-    {v = "GramMetrePerSecond", m = "0.001", s = "g · m/s", l = "gram metres per second"},
-    {v = "TonMetrePerSecond", m = "1000.0", s = "t · m/s", l = "ton metres per second"},
-    {v = "KilogramMetrePerMinute", m = "1.0 / 60.0", s = "kg · m/min", l = "kilogram metres per minute"},
-    {v = "KilogramMetrePerHour", m = "1.0 / 3600.0", s = "kg · m/h", l = "kilogram metres per hour"},
-    {v = "KilogramMetrePerDay", m = "1.0 / 86400.0", s = "kg · m/d", l = "kilogram metres per day"},
-    {v = "SlugFootPerSecond", m = "(0.45359237 * 9.80665 / 0.3048) * 0.3048", s = "slug · ft/s", l = "slug feet per second"},
-    {v = "SlugInchPerSecond", m = "(0.45359237 * 9.80665 / 0.3048) * 0.0254", s = "slug · in/s", l = "slug inches per second"},
-    {v = "PoundFootPerSecond", m = "0.138254954376", s = "lb · ft/s", l = "pound feet per second"},
-    {v = "PoundInchPerSecond", m = "0.011521246198", s = "lb · in/s", l = "pound inches per second"},
 ]
 
 [[family.quantity]]
@@ -434,12 +373,6 @@ units = [
 name = "AvailableEnergy"
 dims = {m = 2, s = -2}
 units = [
-    {v = "JoulePerKilogram", m = "1.0", s = "J/kg", l = "joules per kilogram"},
-    {v = "JoulePerGram", m = "1000.0", s = "J/g", l = "joules per gram"},
-    {v = "BtuItPerPound", m = "2326.0", s = "Btu (IT)/lb", l = "British thermal units (IT) per pound"},
-    {v = "BtuPerPound", m = "4184.0 / 1.8", s = "Btu/lb", l = "British thermal units per pound"},
-    {v = "CalorieItPerGram", m = "4186.8", s = "cal (IT)/g", l = "calories (IT) per gram"},
-    {v = "CaloriePerGram", m = "4184.0", s = "cal/g", l = "calories per gram"},
 ]
 
 [[family.quantity]]
@@ -447,58 +380,21 @@ name = "Power"
 dims = {m = 2, kg = 1, s = -3}
 units = [
     {v = "Watt", m = "1.0", s = "W", l = "watts"},
-    {v = "ErgPerSecond", m = "1e-07", s = "erg/s", l = "ergs per second"},
-    {v = "FootPoundPerHour", m = "(0.3048 * 0.45359237 * 9.80665) / 3600.0", s = "ft · lbf/h", l = "foot pounds-force per hour"},
-    {v = "FootPoundPerMinute", m = "(0.3048 * 0.45359237 * 9.80665) / 60.0", s = "ft · lbf/min", l = "foot pounds-force per minute"},
-    {v = "FootPoundPerSecond", m = "0.3048 * 0.45359237 * 9.80665", s = "ft · lbf/s", l = "foot pounds-force per second"},
     {v = "Horsepower", m = "550.0 * 0.3048 * 0.45359237 * 9.80665", s = "hp", l = "horsepower"},
     {v = "HorsepowerBoiler", m = "9809.5", s = "hp (S)", l = "horsepower (boiler)"},
     {v = "HorsepowerElectric", m = "746.0", s = "hp (E)", l = "horsepower (electric)"},
     {v = "HorsepowerMetric", m = "75.0 * 9.80665", s = "hp (M)", l = "metric horsepower"},
     {v = "HorsepowerImperial", m = "745.7", s = "hp (I)", l = "horsepower (Imperial)"},
     {v = "HydraulicHorsepower", m = "746.043", s = "hp (hydraulic)", l = "hydraulic horsepower"},
-]
-
-# A gain: the logarithm of a power ratio. The bel is ten times, the decibel a
-# tenth of that, and the neper e² times (1 Np = 2 / ln 10 B ≈ 8.686 dB).
-# `level.rs` converts to and from a plain ratio.
-[[family.quantity]]
-name = "Gain"
-kind = "Log"
-units = [
-    {v = "Bel", m = "1.0", s = "B", l = "bels"},
-    {v = "Decibel", m = "0.1", s = "dB", l = "decibels"},
-    {v = "Neper", m = "0.8685889638065036", s = "Np", l = "nepers"},
-]
-
-# A power level: the logarithm of a power, so it carries power's exponents.
-# Two levels differ by a gain (the exponents subtract: watts over watts) and a
-# gain moves a level. Its number is bels from one watt; dBW counts decibels
-# from one watt, dBm decibels from one milliwatt.
-# `level.rs` converts to and from `Power`.
-[[family.quantity]]
-name = "PowerLevel"
-dims = {m = 2, kg = 1, s = -3}
-kind = "Log"
-units = [
-    {v = "DecibelWatt",      m = "0.1", s = "dBW", l = "decibels-watt"},
-    # One milliwatt: 30 dB below a watt.
-    {v = "DecibelMilliwatt", m = "0.1", z = "-3.0", s = "dBm", l = "decibels-milliwatt"},
+    # Power levels: decibels from a watt, and from a milliwatt.
+    {v = "DecibelWatt", m = "1.0", log = "10.0", per = "10.0", s = "dBW", l = "decibels-watt"},
+    {v = "DecibelMilliwatt", m = "0.001", log = "10.0", per = "10.0", s = "dBm", l = "decibels-milliwatt"},
 ]
 
 [[family.quantity]]
 name = "PowerRate"
 dims = {m = 2, kg = 1, s = -4}
 units = [
-    {v = "WattPerSecond", m = "1.0", s = "W/s", l = "watts per second"},
-    {v = "ErgPerSecondSquared", m = "1e-07", s = "erg/s²", l = "ergs per second squared"},
-    {v = "FootPoundPerSecondSquared", m = "0.3048 * 0.45359237 * 9.80665", s = "ft · lbf/s²", l = "foot pounds-force per second squared"},
-    {v = "HorsepowerPerSecond", m = "550.0 * 0.3048 * 0.45359237 * 9.80665", s = "hp/s", l = "horsepower per second"},
-    {v = "HorsepowerPerSecondBoiler", m = "9809.5", s = "hp/s (S)", l = "horsepower per second (boiler)"},
-    {v = "HorsepowerPerSecondElectric", m = "746.0", s = "hp/s (E)", l = "horsepower per second (electric)"},
-    {v = "HorsepowerPerSecondMetric", m = "75.0 * 9.80665", s = "hp/s (M)", l = "metric horsepower per second"},
-    {v = "HorsepowerPerSecondImperial", m = "745.7", s = "hp/s (I)", l = "horsepower per second (Imperial)"},
-    {v = "HydraulicHorsepowerPerSecond", m = "746.043", s = "hp/s (hydraulic)", l = "hydraulic horsepower per second"},
 ]
 
 [[family.quantity]]
@@ -548,16 +444,10 @@ units = [
     {v = "FootOfWater", m = "9.80665 * 304.8", s = "ft H₂O", l = "feet of water"},
     {v = "InchOfMercury", m = "133.322387415 * 25.4", s = "in Hg", l = "inches of mercury"},
     {v = "InchOfWater", m = "9.80665 * 25.4", s = "in H₂O", l = "inches of water"},
-    {v = "KipPerSquareInch", m = "(1000.0 * 0.45359237 * 9.80665) / (0.0254 * 0.0254)", s = "kip/in²", l = "kips per square inch"},
     {v = "MillimetreOfMercury", m = "133.322387415", s = "mm Hg", l = "millimetres of mercury"},
     {v = "MillimetreOfWater", m = "9.80665", s = "mm H₂O", l = "millimetres of water"},
-    {v = "PoundalPerSquareFoot", m = "(0.45359237 * 0.3048) / (0.3048 * 0.3048)", s = "pdl/ft²", l = "poundals per square foot"},
-    {v = "PoundForcePerSquareFoot", m = "(0.45359237 * 9.80665) / (0.3048 * 0.3048)", s = "lbf/ft²", l = "pounds-force per square foot"},
-    {v = "PoundForcePerSquareInch", m = "(0.45359237 * 9.80665) / (0.0254 * 0.0254)", s = "lbf/in²", l = "pounds-force per square inch"},
     {v = "Psi", m = "0.45359237 * 9.80665 / (0.0254 * 0.0254)", s = "psi", l = "pounds-force per square inch"},
     {v = "Torr", m = "101325.0 / 760.0", s = "Torr", l = "torr"},
-    {v = "DynePerSquareCentimetre", m = "0.1", s = "dyn/cm²", l = "dynes per square centimetre"},
-    {v = "NewtonPerSquareMillimetre", m = "1000000.0", s = "N/mm²", l = "newtons per square millimetre"},
 ]
 
 [[family.quantity]]
@@ -565,18 +455,12 @@ name = "Frequency"
 dims = {s = -1}
 units = [
     {v = "Hertz", m = "1.0", s = "Hz", l = "hertz"},
-    {v = "CyclePerDay", m = "1.0 / 86400.0", s = "1/d", l = "cycles per day"},
-    {v = "CyclePerHour", m = "1.0 / 3600.0", s = "1/h", l = "cycles per hour"},
-    {v = "CyclePerMinute", m = "1.0 / 60.0", s = "1/min", l = "cycles per minute"},
-    {v = "CyclePerShake", m = "100000000.0", s = "100 MHz", l = "cycles per shake"},
-    {v = "CyclePerYear", m = "1.0 / 31536000.0", s = "1/a", l = "cycles per year"},
 ]
 
 [[family.quantity]]
 name = "FrequencyDrift"
 dims = {s = -2}
 units = [
-    {v = "HertzPerSecond", m = "1.0", s = "Hz/s", l = "hertz per second"},
 ]
 
 [[family.quantity]]
@@ -593,70 +477,24 @@ units = [
 name = "Curvature"
 dims = {m = -1, rad = 1}
 units = [
-    {v = "RadianPerMetre", m = "1.0", s = "rad/m", l = "radians per metre"},
-    {v = "DegreePerMetre", m = "core::f64::consts::PI / 180.0", s = "°/m", l = "degrees per metre"},
 ]
 
 [[family.quantity]]
 name = "SpecificArea"
 dims = {m = 2, kg = -1}
 units = [
-    {v = "SquareMetrePerKilogram", m = "1.0", s = "m²/kg", l = "square metres per kilogram"},
-    {v = "SquareMetrePerGram", m = "1000.0", s = "m²/g", l = "square metres per gram"},
 ]
 
 [[family.quantity]]
 name = "SpecificVolume"
 dims = {m = 3, kg = -1}
 units = [
-    {v = "CubicMetrePerKilogram", m = "1.0", s = "m³/kg", l = "cubic metres per kilogram"},
-    {v = "CubicMetrePerGram", m = "1000.0", s = "m³/g", l = "cubic metres per gram"},
-    {v = "CubicMetrePerCarat", m = "5000.0", s = "m³/ct", l = "cubic metres per carat"},
-    {v = "CubicMetrePerGrain", m = "1.0 / 6.479891e-05", s = "m³/gr", l = "cubic metres per grain"},
-    {v = "CubicMetrePerHundredweightLong", m = "1.0 / 50.80234544", s = "m³/cwt long", l = "cubic metres per hundredweight (long)"},
-    {v = "CubicMetrePerHundredweightShort", m = "1.0 / 45.359237", s = "m³/cwt short", l = "cubic metres per hundredweight (short)"},
-    {v = "CubicMetrePerOunce", m = "1.0 / 0.028349523125", s = "m³/oz", l = "cubic metres per ounce"},
-    {v = "CubicMetrePerOunceTroy", m = "1.0 / 0.0311034768", s = "m³/oz t", l = "cubic metres per troy ounce"},
-    {v = "CubicMetrePerPennyweight", m = "1.0 / 0.00155517384", s = "m³/dwt", l = "cubic metres per pennyweight"},
-    {v = "CubicMetrePerPound", m = "1.0 / 0.45359237", s = "m³/lb", l = "cubic metres per pound"},
-    {v = "CubicMetrePerPoundTroy", m = "1.0 / 0.3732417216", s = "m³/lb t", l = "cubic metres per troy pound"},
-    {v = "CubicMetrePerSlug", m = "1.0 / (0.45359237 * 9.80665 / 0.3048)", s = "m³/slug", l = "cubic metres per slug"},
-    {v = "CubicMetrePerTonAssay", m = "1.0 / (0.175 / 6.0)", s = "m³/AT", l = "cubic metres per assay ton"},
-    {v = "CubicMetrePerTonLong", m = "1.0 / 1016.0469088", s = "m³/2240 lb", l = "cubic metres per long ton"},
-    {v = "CubicMetrePerTonShort", m = "1.0 / 907.18474", s = "m³/2000 lb", l = "cubic metres per short ton"},
-    {v = "CubicMetrePerTon", m = "0.001", s = "m³/t", l = "cubic metres per ton"},
-    {v = "GallonPerGrain", m = "0.003785411784 / 6.479891e-05", s = "gal/gr", l = "gallons per grain"},
-    {v = "CubicInchPerOunce", m = "0.0254 * 0.0254 * 0.0254 / 0.028349523125", s = "in³/oz", l = "cubic inches per ounce"},
-    {v = "GallonImperialPerOunce", m = "0.00454609 / 0.028349523125", s = "gal (UK)/oz", l = "Imperial gallons per ounce"},
-    {v = "GallonPerOunce", m = "0.003785411784 / 0.028349523125", s = "gal/oz", l = "gallons per ounce"},
-    {v = "CubicFootPerPound", m = "(0.3048 * 0.3048 * 0.3048) / 0.45359237", s = "ft³/lb", l = "cubic feet per pound"},
-    {v = "CubicInchPerPound", m = "(0.0254 * 0.0254 * 0.0254) / 0.45359237", s = "in³/lb", l = "cubic inches per pound"},
-    {v = "CubicYardPerPound", m = "(0.9144 * 0.9144 * 0.9144) / 0.45359237", s = "yd³/lb", l = "cubic yards per pound"},
-    {v = "GallonImperialPerPound", m = "0.00454609 / 0.45359237", s = "gal (UK)/lb", l = "Imperial gallons per pound"},
-    {v = "GallonPerPound", m = "0.003785411784 / 0.45359237", s = "gal/lb", l = "gallons per pound"},
-    {v = "CubicFootPerSlug", m = "0.3048 * 0.3048 * 0.3048 / (0.45359237 * 9.80665 / 0.3048)", s = "ft³/slug", l = "cubic feett per slug"},
-    {v = "CubicYardPerTonLong", m = "(0.9144 * 0.9144 * 0.9144) / 1016.0469088", s = "yd³/2240 lb", l = "cubic yards per long ton"},
-    {v = "CubicYardPerTonShort", m = "(0.9144 * 0.9144 * 0.9144) / 907.18474", s = "yd³/2000 lb", l = "cubic yards per short ton"},
-    {v = "CubicFootPerTonLong", m = "(0.3048 * 0.3048 * 0.3048) / 1016.0469088", s = "ft³/2240 lb", l = "cubic feet per long ton"},
-    {v = "CubicFootPerTonShort", m = "(0.3048 * 0.3048 * 0.3048) / 907.18474", s = "ft³/2000 lb", l = "cubic feet per short ton"},
 ]
 
 [[family.quantity]]
 name = "SpecificPower"
 dims = {m = 2, s = -3}
 units = [
-    {v = "WattPerKilogram", m = "1.0", s = "W/kg", l = "watts per kilogram"},
-    {v = "SquareMetrePerCubicSecond", m = "1.0", s = "m² · s⁻³", l = "square metres per cubic second"},
-    {v = "ErgPerSecondPerKilogram", m = "1e-07", s = "(erg/s)/kg", l = "ergs per second per kilogram"},
-    {v = "FootPoundPerHourPerPound", m = "(0.3048 * 0.45359237 * 9.80665) / (3600.0 * 0.45359237)", s = "(ft · lbf/h)/lb", l = "foot pounds-force per hour per pound"},
-    {v = "FootPoundPerMinutePerPound", m = "(0.3048 * 0.45359237 * 9.80665) / (60.0 * 0.45359237)", s = "(ft · lbf/min)/lb", l = "foot pounds-force per minute per pound"},
-    {v = "FootPoundPerSecondPerPound", m = "(0.3048 * 0.45359237 * 9.80665) / 0.45359237", s = "(ft · lbf/s)/lb", l = "foot pounds-force per second per pound"},
-    {v = "HorsepowerPerPound", m = "(550.0 * 0.3048 * 0.45359237 * 9.80665) / 0.45359237", s = "hp/lb", l = "horsepower per pound"},
-    {v = "HorsepowerBoilerPerPound", m = "9809.5 / 0.45359237", s = "(hp (S))/lb", l = "horsepower (boiler) per pound"},
-    {v = "HorsepowerElectricPerPound", m = "746.0 / 0.45359237", s = "(hp (E))/lb", l = "horsepower (electric) per pound"},
-    {v = "HorsepowerMetricPerPound", m = "(75.0 * 9.80665) / 0.45359237", s = "(hp (M))/lb", l = "metric horsepower per pound"},
-    {v = "HorsepowerImperialPerPound", m = "745.7 / 0.45359237", s = "(hp (I))/lb", l = "horsepower (Imperial) per pound"},
-    {v = "HydraulicHorsepowerPerPound", m = "746.043 / 0.45359237", s = "(hp (hydraulic))/lb", l = "hydraulic horsepower per pound"},
 ]
 
 # G's dimension: m³/(kg·s²). The standard gravitational parameter μ = GM is
@@ -665,7 +503,6 @@ units = [
 name = "SpecificGravitationalParameter"
 dims = {m = 3, kg = -1, s = -2}
 units = [
-    {v = "CubicMetrePerKilogramSecondSquared", m = "1.0", s = "m³/(kg · s²)", l = "cubic metres per kilogram second squared"},
     # Physical constant (CODATA 2018): `consts::GRAVITATIONAL_CONSTANT`.
     {v = "GravitationalConstant", m = "6.6743e-11", s = "G", l = "Newtonian constants of gravitation"},
 ]
@@ -703,27 +540,18 @@ units = [
 name = "AngularVelocity"
 dims = {s = -1, rad = 1}
 units = [
-    {v = "RadianPerSecond", m = "1.0", s = "rad/s", l = "radians per second"},
-    {v = "DegreePerSecond", m = "core::f64::consts::PI / 180.0", s = "°/s", l = "degrees per second"},
-    {v = "RevolutionPerSecond", m = "2.0 * core::f64::consts::PI", s = "rps", l = "revolutions per second"},
-    {v = "RevolutionPerMinute", m = "2.0 * core::f64::consts::PI / 60.0", s = "rpm", l = "revolutions per minute"},
-    {v = "RevolutionPerHour", m = "2.0 * core::f64::consts::PI / 3600.0", s = "rph", l = "revolutions per hour"},
 ]
 
 [[family.quantity]]
 name = "AngularAcceleration"
 dims = {s = -2, rad = 1}
 units = [
-    {v = "RadianPerSecondSquared", m = "1.0", s = "rad/s²", l = "radians per second squared"},
-    {v = "DegreePerSecondSquared", m = "core::f64::consts::PI / 180.0", s = "°/s²", l = "degrees per second squared"},
 ]
 
 [[family.quantity]]
 name = "AngularJerk"
 dims = {s = -3, rad = 1}
 units = [
-    {v = "RadianPerSecondCubed", m = "1.0", s = "rad/s³", l = "radians per second cubed"},
-    {v = "DegreePerSecondCubed", m = "core::f64::consts::PI / 180.0", s = "°/s³", l = "degrees per second cubed"},
 ]
 
 [[family.quantity]]
@@ -739,7 +567,6 @@ name = "AngularMomentum"
 dims = {m = 2, kg = 1, s = -1, rad = -1}
 units = [
     {v = "ReducedPlanckConstant", m = "6.62607015e-34 / (2.0 * core::f64::consts::PI)", s = "ħ", l = "reduced Planck constants"},
-    {v = "KilogramSquareMetrePerSecond", m = "1.0", s = "kg · m²/s", l = "kilogram square metres per second"},
     {v = "NewtonMetreSecond", m = "1.0", s = "N · m · s", l = "newton metre seconds"},
 ]
 
@@ -767,21 +594,18 @@ units = [
 name = "ElectricChargeArealDensity"
 dims = {m = -2, s = 1, A = 1}
 units = [
-    {v = "CoulombPerSquareMetre", m = "1.0", s = "C/m²", l = "coulombs per square metre"},
 ]
 
 [[family.quantity]]
 name = "ElectricChargeLinearDensity"
 dims = {m = -1, s = 1, A = 1}
 units = [
-    {v = "CoulombPerMetre", m = "1.0", s = "C/m", l = "coulombs per metre"},
 ]
 
 [[family.quantity]]
 name = "ElectricChargeVolumetricDensity"
 dims = {m = -3, s = 1, A = 1}
 units = [
-    {v = "CoulombPerCubicMetre", m = "1.0", s = "C/m³", l = "coulombs per cubic metre"},
 ]
 
 [[family.quantity]]
@@ -789,8 +613,6 @@ name = "ElectricCurrent"
 dims = {A = 1}
 units = [
     {v = "Ampere", m = "1.0", s = "A", l = "amperes"},
-    {v = "ElementaryChargePerSecond", m = "1.602176634e-19", s = "e/s", l = "elementary charges per second"},
-    {v = "AtomicUnitOfChargePerSecond", m = "1.602176634e-19", s = "a.u. of charge/s", l = "atomic units of charge per second"},
     {v = "Abampere", m = "10.0", s = "abA", l = "abamperes"},
     {v = "Gilbert", m = "10.0 / (4.0 * core::f64::consts::PI)", s = "Gi", l = "gilberts"},
     {v = "Statampere", m = "1.0 / 2997924580.0", s = "statA", l = "statamperes"},
@@ -800,14 +622,12 @@ units = [
 name = "ElectricCurrentDensity"
 dims = {m = -2, A = 1}
 units = [
-    {v = "AmperePerSquareMetre", m = "1.0", s = "A/m²", l = "amperes per square metre"},
 ]
 
 [[family.quantity]]
 name = "SurfaceElectricCurrentDensity"
 dims = {m = -1, A = 1}
 units = [
-    {v = "AmperePerMetre", m = "1.0", s = "A/m", l = "amperes per metre"},
 ]
 
 [[family.quantity]]
@@ -823,8 +643,6 @@ units = [
 name = "ElectricField"
 dims = {m = 1, kg = 1, s = -3, A = -1}
 units = [
-    {v = "VoltPerMetre", m = "1.0", s = "V/m", l = "volts per metre"},
-    {v = "VoltPerMil", m = "1.0 / 2.54e-5", s = "V/mil", l = "volts per mil"},
     {v = "AtomicUnitOfElectricField", m = "4.3597447222071e-18 / (1.602176634e-19 * 5.29177210903e-11)", s = "a.u. of electric field", l = "atomic units of electric field"},
 ]
 
@@ -832,7 +650,6 @@ units = [
 name = "ElectricDisplacementField"
 dims = {m = -2, s = 1, A = 1}
 units = [
-    {v = "CoulombPerSquareMetre", m = "1.0", s = "C/m²", l = "coulombs per square metre"},
 ]
 
 [[family.quantity]]
@@ -865,7 +682,6 @@ units = [
 name = "ElectricPermittivity"
 dims = {m = -3, kg = -1, s = 4, A = 2}
 units = [
-    {v = "FaradPerMetre", m = "1.0", s = "F/m", l = "farads per metre"},
     # Physical constant (CODATA 2018): `consts::VACUUM_PERMITTIVITY`.
     {v = "VacuumPermittivity", m = "8.8541878128e-12", s = "ε₀", l = "vacuum electric permittivity"},
 ]
@@ -886,14 +702,12 @@ units = [
 name = "ElectricalConductivity"
 dims = {m = -3, kg = -1, s = 3, A = 2}
 units = [
-    {v = "SiemensPerMetre", m = "1.0", s = "S/m", l = "siemens per metre"},
 ]
 
 [[family.quantity]]
 name = "ElectricalMobility"
 dims = {kg = -1, s = 2, A = 1}
 units = [
-    {v = "SquareMetrePerVoltSecond", m = "1.0", s = "m²/(V · s)", l = "square metres per volt second"},
 ]
 
 [[family.quantity]]
@@ -915,7 +729,6 @@ units = [
     {v = "OhmInch", m = "0.0254", s = "Ω · in", l = "ohm inches"},
     {v = "OhmFoot", m = "0.3048", s = "Ω · ft", l = "ohm feet"},
     {v = "OhmYard", m = "0.9144", s = "Ω · yd", l = "ohm yards"},
-    {v = "OhmSquareMillimetrePerMetre", m = "1e-06", s = "Ω · mm²/m", l = "ohm square millimetres per metre"},
 ]
 
 [[family.quantity]]
@@ -940,7 +753,6 @@ units = [
 name = "MagneticFieldStrength"
 dims = {m = -1, A = 1}
 units = [
-    {v = "AmperePerMetre", m = "1.0", s = "A/m", l = "amperes per metre"},
     {v = "Oersted", m = "1000.0 / (4.0 * core::f64::consts::PI)", s = "Oe", l = "oersteds"},
 ]
 
@@ -966,9 +778,6 @@ name = "MagneticMoment"
 dims = {m = 2, A = 1}
 units = [
     {v = "AmpereSquareMetre", m = "1.0", s = "A · m²", l = "ampere square metres"},
-    {v = "JoulePerTesla", m = "1.0", s = "J/T", l = "joules per tesla"},
-    {v = "NewtonMetrePerTesla", m = "1.0", s = "N · m/T", l = "newton metres per tesla"},
-    {v = "ErgPerGauss", m = "0.001", s = "erg/G", l = "ergs per gauss"},
     {v = "BohrMagneton", m = "9.2740100783e-24", s = "µ(Bohr)", l = "Bohr magnetons"},
     {v = "NuclearMagneton", m = "5.0507837461e-27", s = "μ(Nuclear)", l = "nuclear magnetons"},
     {v = "AtomicUnitOfMagneticDipoleMoment", m = "1.85480201566e-23", s = "ħ · e/mₑ", l = " atomic units of magnetic dipole moment"},
@@ -982,7 +791,6 @@ units = [
 name = "MagneticPermeability"
 dims = {m = 1, kg = 1, s = -2, A = -2}
 units = [
-    {v = "HenryPerMetre", m = "1.0", s = "H/m", l = "henrys per metre"},
     # Physical constant (CODATA 2018): `consts::VACUUM_PERMEABILITY`.
     {v = "VacuumPermeability", m = "1.25663706212e-6", s = "µ₀", l = "vacuum magnetic permeability"},
 ]
@@ -991,8 +799,6 @@ units = [
 name = "GyromagneticRatio"
 dims = {kg = -1, s = 1, A = 1, rad = 1}
 units = [
-    {v = "HertzPerTesla", m = "1.0", s = "Hz/T", l = "hertz per tesla"},
-    {v = "RadianPerSecondTesla", m = "1.0", s = "rad/(s · T)", l = "radians per second tesla"},
     {v = "ProtonGyromagneticRatio", m = "267522187.08", s = "γₚ", l = "proton gyromagnetic ratio"},
     {v = "NeutronGyromagneticRatio", m = "183247174.0", s = "γₙ", l = "neutron gyromagnetic ratio"},
     {v = "ElectronGyromagneticRatio", m = "176085962784.0", s = "γₑ", l = "electron gyromagnetic ratio"},
@@ -1039,11 +845,10 @@ name = "thermal"
 [[family.quantity]]
 name = "ThermodynamicTemperature"
 dims = {K = 1}
-kind = "Absolute"
-# A temperature is counted in steps from a zero, both in kelvins from absolute
-# zero: `CELSIUS.quantity(25.0)` builds, `CELSIUS.value(t)` reads.
+# A temperature, in kelvins from absolute zero; the scales with another zero
+# are offsets of the kelvin. The same type as a `TemperatureInterval`.
 units = [
-    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin", t = "KelvinScale"},
+    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin"},
     # 0 °C, the ice point of water: 273.15 K.
     {v = "Celsius", m = "1.0", z = "273.15", s = "°C", l = "degrees Celsius"},
     # 0 °F: 32 °F below the ice point.
@@ -1051,8 +856,8 @@ units = [
     {v = "Rankine", m = "5.0 / 9.0", s = "°R", l = "degrees Rankine"},
 ]
 
-# A temperature difference: the kelvin and the degree Celsius are one step,
-# the degree Fahrenheit and the degree Rankine another.
+# A temperature difference: the degree Celsius is the kelvin, the degree
+# Fahrenheit and the degree Rankine five ninths of it.
 [[family.quantity]]
 name = "TemperatureInterval"
 dims = {K = 1}
@@ -1067,128 +872,69 @@ units = [
 name = "TemperatureCoefficient"
 dims = {K = -1}
 units = [
-    {v = "PerKelvin", m = "1.0", s = "K⁻¹", l = "per kelvin"},
-    {v = "PpmPerKelvin", m = "1e-06", s = "ppm/K", l = "ppm per kelvin"},
-    {v = "PpmPerDegreeCelsius", m = "1e-06", s = "ppm/°C", l = "ppm per degree Celsius"},
 ]
 
 [[family.quantity]]
 name = "TemperatureGradient"
 dims = {m = -1, K = 1}
 units = [
-    {v = "KelvinPerMetre", m = "1.0", s = "K/m", l = "kelvins per metre"},
 ]
 
 [[family.quantity]]
 name = "HeatCapacity"
 dims = {m = 2, kg = 1, s = -2, K = -1}
 units = [
-    {v = "KilogramSquareMetrePerSecondSquaredKelvin", m = "1.0", s = "kg · m²/(s² · K)", l = "kilogram square metres per second squared kelvin"},
-    {v = "GramSquareMetrePerSecondSquaredKelvin", m = "0.001", s = "g · m²/(s² · K)", l = "gram square metres per second squared kelvin"},
-    {v = "JoulePerKelvin", m = "1.0", s = "J/K", l = "joules per kelvin"},
-    {v = "JoulePerDegreeCelsius", m = "1.0", s = "J/°C", l = "joules per degree celsius"},
-    {v = "BtuPerDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (5.0 / 9.0)", s = "Btu/°F", l = "British thermal units per degree Fahrenheit"},
-    {v = "BtuItPerDegreeFahrenheit", m = "1055.05585262 / (5.0 / 9.0)", s = "Btu (IT)/°F", l = "British thermal units (IT) per degree Fahrenheit"},
     # Physical constant (exact, SI defining constant), per kelvin of temperature
     # *interval*: `BOLTZMANN_CONSTANT * TemperatureInterval` is an energy.
     {v = "BoltzmannConstant", m = "1.380649e-23", s = "k", l = "Boltzmann constants"},
-    {v = "CaloriePerKelvin", m = "4.184", s = "cal/K", l = "calories per kelvin"},
 ]
 
 [[family.quantity]]
 name = "HeatFluxDensity"
 dims = {kg = 1, s = -3}
 units = [
-    {v = "WattPerSquareMetre", m = "1.0", s = "W/m²", l = "watts per square metre"},
 ]
 
 [[family.quantity]]
 name = "HeatTransfer"
 dims = {kg = 1, s = -3, K = -1}
 units = [
-    {v = "KilogramPerSecondCubedKelvin", m = "1.0", s = "kg/(s³ · K)", l = "kilograms per second cubed kelvin"},
-    {v = "GramPerSecondCubedKelvin", m = "0.001", s = "g/(s³ · K)", l = "grams per second cubed kelvin"},
-    {v = "KilogramPerSecondCubedDegreeCelsius", m = "1.0", s = "kg/(s³ · °C)", l = "kilograms per second cubed degree celsius"},
-    {v = "WattPerSquareMetreKelvin", m = "1.0", s = "W/(m² · K)", l = "watts per square metre kelvin"},
-    {v = "WattPerSquareMetreDegreeCelsius", m = "1.0", s = "W/(m² · °C)", l = "watts per square metre degree celsius"},
-    {v = "JoulePerSecondSquareMetreKelvin", m = "1.0", s = "J/(s · m² · K)", l = "joules per second square metre kelvin"},
-    {v = "JoulePerSecondSquareMetreDegreeCelsius", m = "1.0", s = "J/(s · m² · °C)", l = "joules per second square metre degree celsius"},
-    {v = "BtuItPerHourSquareFootDegreeFahrenheit", m = "1055.05585262 / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0))", s = "Btu (IT)/(hr · ft² · °F)", l = "British thermal units (IT) per hour square foot degree Fahrenheit"},
-    {v = "BtuItPerHourSquareInchDegreeFahrenheit", m = "1055.05585262 / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0))", s = "Btu (IT)/(hr · in² · °F)", l = "British thermal units (IT) per hour square inch degree Fahrenheit"},
-    {v = "BtuItPerMinuteSquareFootDegreeFahrenheit", m = "1055.05585262 / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0))", s = "Btu (IT)/(min · ft² · °F)", l = "British thermal units (IT) per minute square foot degree Fahrenheit"},
-    {v = "BtuItPerMinuteSquareInchDegreeFahrenheit", m = "1055.05585262 / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0))", s = "Btu (IT)/(min · in² · °F)", l = "British thermal units (IT) per minute square inch degree Fahrenheit"},
-    {v = "BtuItPerSecondSquareFootDegreeFahrenheit", m = "1055.05585262 / (0.3048 * 0.3048 * (5.0 / 9.0))", s = "Btu (IT)/(s · ft² · °F)", l = "British thermal units (IT) per second square foot degree Fahrenheit"},
-    {v = "BtuItPerSecondSquareInchDegreeFahrenheit", m = "1055.05585262 / (0.0254 * 0.0254 * (5.0 / 9.0))", s = "Btu (IT)/(s · in² · °F)", l = "British thermal units (IT) per second square inch degree Fahrenheit"},
-    {v = "BtuPerHourSquareFootDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.3048 * 0.3048 * (5.0 / 9.0))", s = "Btu/(hr · ft² · °F)", l = "British thermal units per hour square foot degree Fahrenheit"},
-    {v = "BtuPerHourSquareInchDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (3600.0 * 0.0254 * 0.0254 * (5.0 / 9.0))", s = "Btu/(hr · in² · °F)", l = "British thermal units per hour square inch degree Fahrenheit"},
-    {v = "BtuPerMinuteSquareFootDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (60.0 * 0.3048 * 0.3048 * (5.0 / 9.0))", s = "Btu/(min · ft² · °F)", l = "British thermal units per minute square foot degree Fahrenheit"},
-    {v = "BtuPerMinuteSquareInchDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (60.0 * 0.0254 * 0.0254 * (5.0 / 9.0))", s = "Btu/(min · in² · °F)", l = "British thermal units per minute square inch degree Fahrenheit"},
-    {v = "BtuPerSecondSquareFootDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (0.3048 * 0.3048 * (5.0 / 9.0))", s = "Btu/(s · ft² · °F)", l = "British thermal units per second square foot degree Fahrenheit"},
-    {v = "BtuPerSecondSquareInchDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (0.0254 * 0.0254 * (5.0 / 9.0))", s = "Btu/(s · in² · °F)", l = "British thermal units per second square inch degree Fahrenheit"},
 ]
 
 [[family.quantity]]
 name = "ThermalConductance"
 dims = {m = 2, kg = 1, s = -3, K = -1}
 units = [
-    {v = "KilogramMetreSquaredPerSecondCubedKelvin", m = "1.0", s = "kg · m²/(s³ · K)", l = "kilograms metre squared per second cubed kelvin"},
-    {v = "GramMetreSquaredPerSecondCubedKelvin", m = "0.001", s = "g · m/(s³ · K)", l = "grams metre squared per second cubed kelvin"},
-    {v = "WattPerKelvin", m = "1.0", s = "W/K", l = "watts per kelvin"},
-    {v = "KilogramMetreSquaredPerSecondCubedDegreeCelsius", m = "1.0", s = "kg · m²/(s³ · °C)", l = "kilograms metre squared per second cubed degree Celsius"},
-    {v = "WattPerMetreDegreeCelsius", m = "1.0", s = "W/°C", l = "watts per degree Celsius"},
-    {v = "KilowattPerDegreeCelsius", m = "1000.0", s = "kW/°C", l = "kilowatts per degree Celsius"},
-    {v = "MilliwattPerDegreeCelsius", m = "0.001", s = "mW/°C", l = "milliwatts per degree Celsius"},
 ]
 
 [[family.quantity]]
 name = "ThermalConductivity"
 dims = {m = 1, kg = 1, s = -3, K = -1}
 units = [
-    {v = "KilogramMetrePerSecondCubedKelvin", m = "1.0", s = "kg · m/(s³ · K)", l = "kilograms metre per second cubed kelvin"},
-    {v = "GramMetrePerSecondCubedKelvin", m = "0.001", s = "g · m/(s³ · K)", l = "grams metre per second cubed kelvin"},
-    {v = "WattPerMetreKelvin", m = "1.0", s = "W/(m · K)", l = "watts per metre kelvin"},
-    {v = "KilogramMetrePerSecondCubedDegreeCelsius", m = "1.0", s = "kg · m/(s³ · °C)", l = "kilograms metre per second cubed degree celsius"},
-    {v = "WattPerMetreDegreeCelsius", m = "1.0", s = "W/(m · °C)", l = "watts per metre degree celsius"},
 ]
 
 [[family.quantity]]
 name = "ThermalResistance"
 dims = {m = -2, kg = -1, s = 3, K = 1}
 units = [
-    {v = "KelvinPerWatt", m = "1.0", s = "K/W", l = "kelvins per watt"},
-    {v = "KelvinPerKilowatt", m = "0.001", s = "K/kW", l = "kelvins per kilowatt"},
 ]
 
 [[family.quantity]]
 name = "SpecificHeatCapacity"
 dims = {m = 2, s = -2, K = -1}
 units = [
-    {v = "SquareMetrePerSecondSquaredKelvin", m = "1.0", s = "m²/(s² · K)", l = "square metres per second squared kelvin"},
-    {v = "JoulePerKilogramKelvin", m = "1.0", s = "J/(kg · K)", l = "joules per kilogram kelvin"},
-    {v = "JoulePerKilogramDegreeCelsius", m = "1.0", s = "J/(kg · °C)", l = "joules per kilogram degree celsius"},
-    {v = "JoulePerGramDegreeCelsius", m = "1000.0", s = "J/(g · °C)", l = "joules per gram degree celsius"},
-    {v = "BtuPerOunceDegreeFahrenheit", m = "16.0 * 4184.0", s = "Btu/(oz · °F)", l = "British thermal units per ounce degree Fahrenheit"},
-    {v = "BtuItPerOunceDegreeFahrenheit", m = "16.0 * 4186.8", s = "Btu (IT)/(oz · °F)", l = "British thermal units (IT) per ounce degree Fahrenheit"},
-    {v = "BtuPerPoundDegreeFahrenheit", m = "4184.0", s = "Btu/(lb · °F)", l = "British thermal units per pound degree Fahrenheit"},
-    {v = "BtuItPerPoundDegreeFahrenheit", m = "4186.8", s = "Btu (IT)/(lb · °F)", l = "British thermal units (IT) per pound degree Fahrenheit"},
-    {v = "BtuPerTonDegreeFahrenheit", m = "(4184.0 * 0.45359237 / 1.8) / (1000.0 * (5.0 / 9.0))", s = "Btu/(t · °F)", l = "British thermal units per ton degree Fahrenheit"},
-    {v = "BtuItPerTonDegreeFahrenheit", m = "1055.05585262 / (1000.0 * (5.0 / 9.0))", s = "Btu (IT)/(t · °F)", l = "British thermal units (IT) per ton degree Fahrenheit"},
-    {v = "CaloriePerGramKelvin", m = "4184.0", s = "cal/(g · K)", l = "calories per gram kelvin"},
 ]
 
 [[family.quantity]]
 name = "ArealHeatCapacity"
 dims = {kg = 1, s = -2, K = -1}
 units = [
-    {v = "JoulePerSquareMetreKelvin", m = "1.0", s = "J/(m² · K)", l = "joules per square metre kelvin"},
 ]
 
 [[family.quantity]]
 name = "VolumetricHeatCapacity"
 dims = {m = -1, kg = 1, s = -2, K = -1}
 units = [
-    {v = "JoulePerCubicMetreKelvin", m = "1.0", s = "J/(m³ · K)", l = "joules per cubic metre kelvin"},
-    {v = "CaloriePerCubicMetreKelvin", m = "4.184", s = "cal/(m³ · K)", l = "calories per cubic metre kelvin"},
 ]
 
 # σ's dimension: W/(m²·K⁴), K a temperature interval. Not in uom; named here.
@@ -1196,7 +942,6 @@ units = [
 name = "StefanBoltzmannCoefficient"
 dims = {kg = 1, s = -3, K = -4}
 units = [
-    {v = "WattPerSquareMetreQuarticKelvin", m = "1.0", s = "W/(m² · K⁴)", l = "watts per square metre quartic kelvin"},
     # Physical constant (CODATA 2018; exact in the 2019 SI, but not a finite
     # decimal): `consts::STEFAN_BOLTZMANN_CONSTANT`.
     {v = "StefanBoltzmannConstant", m = "5.670374419e-8", s = "σ", l = "Stefan-Boltzmann constants"},
@@ -1213,16 +958,12 @@ dims = {m = -1, kg = 1, s = -1}
 units = [
     {v = "PascalSecond", m = "1.0", s = "Pa · s", l = "pascal seconds"},
     {v = "Poise", m = "0.1", s = "P", l = "poises"},
-    {v = "PoundPerFootSecond", m = "0.45359237 / 0.3048", s = "lb/(ft · s)", l = "pounds per foot second"},
-    {v = "SlugPerFootSecond", m = "(0.45359237 * 9.80665 / 0.3048) / 0.3048", s = "slug/(ft · s)", l = "slugs per foot second"},
-    {v = "GramPerCentimetreSecond", m = "0.1", s = "g/(cm · s)", l = "grams per centimetre second"},
 ]
 
 [[family.quantity]]
 name = "KinematicViscosity"
 dims = {m = 2, s = -1}
 units = [
-    {v = "SquareMetrePerSecond", m = "1.0", s = "m²/s", l = "square metres per second"},
     {v = "Stokes", m = "0.0001", s = "St", l = "stokes"},
 ]
 
@@ -1230,119 +971,42 @@ units = [
 name = "SurfaceTension"
 dims = {kg = 1, s = -2}
 units = [
-    {v = "NewtonPerMetre", m = "1.0", s = "N/m", l = "newtons per metre"},
-    {v = "KilogramForcePerMetre", m = "9.80665", s = "kgf/m", l = "kilograms-force per metre"},
-    {v = "OunceForcePerInch", m = "(0.45359237 * 9.80665 / 16.0) / 0.0254", s = "ozf/in", l = "ounces-force per inch"},
-    {v = "PoundalPerInch", m = "(0.45359237 * 0.3048) / 0.0254", s = "pdl/in", l = "poundals per inch"},
-    {v = "PoundForcePerInch", m = "(0.45359237 * 9.80665) / 0.0254", s = "lbf/in", l = "pounds-force per inch"},
-    {v = "JoulePerSquareMetre", m = "1.0", s = "J/m²", l = "joules per square metre"},
 ]
 
 [[family.quantity]]
 name = "CompressibilityCoefficient"
 dims = {m = 1, kg = -1, s = 2}
 units = [
-    {v = "PerPascal", m = "1.0", s = "Pa⁻¹", l = "per pascal"},
-    {v = "PerAtmosphere", m = "1.0 / 101325.0", s = "atm⁻¹", l = "per atmosphere"},
-    {v = "PerAtmosphereTechnical", m = "1.0 / 98066.5", s = "at⁻¹", l = "per atmosphere (technical)"},
-    {v = "PerBar", m = "1e-05", s = "bar⁻¹", l = "per bar"},
 ]
 
 [[family.quantity]]
 name = "MassRate"
 dims = {kg = 1, s = -1}
 units = [
-    {v = "KilogramPerSecond", m = "1.0", s = "kg/s", l = "kilograms per second"},
-    {v = "GramPerSecond", m = "0.001", s = "g/s", l = "grams per second"},
-    {v = "GramPerMinute", m = "0.001 / 60.0", s = "g/min", l = "grams per minute"},
-    {v = "GramPerHour", m = "0.001 / 3600.0", s = "g/h", l = "grams per hour"},
-    {v = "GramPerDay", m = "0.001 / 86400.0", s = "g/d", l = "grams per day"},
-    {v = "CaratPerSecond", m = "0.0002", s = "ct/s", l = "carats per second"},
-    {v = "GrainPerSecond", m = "6.479891e-05", s = "gr/s", l = "grains per second"},
-    {v = "HundredweightLongPerSecond", m = "50.80234544", s = "cwt long/s", l = "hundredweight (long) per second"},
-    {v = "HundredweightShortPerSecond", m = "45.359237", s = "cwt short/s", l = "hundredweight (short) per second"},
-    {v = "OuncePerSecond", m = "0.028349523125", s = "oz/s", l = "ounces per second"},
-    {v = "OunceTroyPerSecond", m = "0.0311034768", s = "oz t/s", l = "troy ounces per second"},
-    {v = "PennyweightPerSecond", m = "0.00155517384", s = "dwt/s", l = "pennyweight per second"},
-    {v = "PoundPerSecond", m = "0.45359237", s = "lb/s", l = "pounds per second"},
-    {v = "PoundPerMinute", m = "0.45359237 / 60.0", s = "lb/min", l = "pounds per minute"},
-    {v = "PoundPerHour", m = "0.45359237 / 3600.0", s = "lb/h", l = "pounds per hour"},
-    {v = "PoundPerDay", m = "0.45359237 / 86400.0", s = "lb/d", l = "pounds per day"},
-    {v = "PoundTroyPerSecond", m = "0.3732417216", s = "lb t/s", l = "troy pounds per second"},
-    {v = "SlugPerSecond", m = "0.45359237 * 9.80665 / 0.3048", s = "slug/s", l = "slugs per second"},
-    {v = "TonAssayPerSecond", m = "0.175 / 6.0", s = "AT/s", l = "assay tons per second"},
-    {v = "TonLongPerSecond", m = "1016.0469088", s = "2240 lb/s", l = "long tons per second"},
-    {v = "TonShortPerSecond", m = "907.18474", s = "2000 lb/s", l = "short tons per second"},
-    {v = "TonShortPerHour", m = "907.18474 / 3600.0", s = "2000 lb/h", l = "short tons per hour"},
-    {v = "TonPerSecond", m = "1000.0", s = "t/s", l = "tons per second"},
-    {v = "TonPerMinute", m = "1000.0 / 60.0", s = "t/min", l = "tons per minute"},
-    {v = "TonPerHour", m = "1000.0 / 3600.0", s = "t/h", l = "tons per hour"},
-    {v = "TonPerDay", m = "1000.0 / 86400.0", s = "t/d", l = "tons per day"},
 ]
 
 [[family.quantity]]
 name = "VolumeRate"
 dims = {m = 3, s = -1}
 units = [
-    {v = "CubicMetrePerSecond", m = "1.0", s = "m³/s", l = "cubic metres per second"},
-    {v = "CubicMetrePerMinute", m = "1.0 / 60.0", s = "m³/min", l = "cubic metres per minute"},
-    {v = "CubicMetrePerHour", m = "1.0 / 3600.0", s = "m³/h", l = "cubic metres per hour"},
-    {v = "LitrePerSecond", m = "0.001", s = "L/s", l = "litres per second"},
-    {v = "LitrePerMinute", m = "0.001 / 60.0", s = "L/min", l = "litres per minute"},
-    {v = "AcreFootPerSecond", m = "43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0)", s = "ac · ft/s", l = "acre-feet per second"},
-    {v = "BarrelPerSecond", m = "0.158987294928", s = "bbl/s", l = "barrels per second"},
-    {v = "BushelPerSecond", m = "0.03523907016688", s = "bu/s", l = "bushels per second"},
-    {v = "CordPerSecond", m = "128.0 * 0.3048 * 0.3048 * 0.3048", s = "cords/s", l = "cords per second"},
-    {v = "CubicFootPerSecond", m = "0.3048 * 0.3048 * 0.3048", s = "ft³/s", l = "cubic feet per second"},
-    {v = "CubicFootPerMinute", m = "0.3048 * 0.3048 * 0.3048 / 60.0", s = "ft³/min", l = "cubic feet per minute"},
-    {v = "CubicInchPerSecond", m = "0.0254 * 0.0254 * 0.0254", s = "in³/s", l = "cubic inches per second"},
-    {v = "CubicInchPerMinute", m = "0.0254 * 0.0254 * 0.0254 / 60.0", s = "in³/min", l = "cubic inches per minute"},
-    {v = "CubicMilePerSecond", m = "1609.344 * 1609.344 * 1609.344", s = "mi³/s", l = "cubic miles per second"},
-    {v = "CubicYardPerSecond", m = "0.9144 * 0.9144 * 0.9144", s = "yd³/s", l = "cubic yards per second"},
-    {v = "CubicYardPerMinute", m = "0.9144 * 0.9144 * 0.9144 / 60.0", s = "yd³/min", l = "cubic yards per minute"},
-    {v = "CupPerSecond", m = "0.0002365882365", s = "cup/s", l = "cups per second"},
-    {v = "FluidOuncePerSecond", m = "2.95735295625e-05", s = "fl oz/s", l = "fluid ounces per second"},
-    {v = "FluidOunceImperialPerSecond", m = "2.84130625e-05", s = "fl oz (UK)/s", l = "Imperial fluid ounces per second"},
-    {v = "GallonImperialPerSecond", m = "0.00454609", s = "gal (UK)/s", l = "Imperial gallons per second"},
-    {v = "GallonPerSecond", m = "0.003785411784", s = "gal/s", l = "gallons per second"},
-    {v = "GallonPerMinute", m = "0.003785411784 / 60.0", s = "gal/min", l = "gallons per minute"},
-    {v = "GallonPerDay", m = "0.003785411784 / 86400.0", s = "gal/d", l = "gallons per day"},
-    {v = "GillImperialPerSecond", m = "0.0001420653125", s = "gi (UK)/s", l = "Imperial gills per second"},
-    {v = "GillPerSecond", m = "0.00011829411825", s = "gi/s", l = "gills per second"},
-    {v = "PeckPerSecond", m = "0.00880976754172", s = "pk/s", l = "pecks per second"},
-    {v = "PintDryPerSecond", m = "0.0005506104713575", s = "dry pt/s", l = "dry pints per second"},
-    {v = "PintLiquidPerSecond", m = "0.000473176473", s = "liq pt/s", l = "liquid pints per second"},
-    {v = "QuartDryPerSecond", m = "0.001101220942715", s = "dry qt/s", l = "dry quarts per second"},
-    {v = "QuartLiquidPerSecond", m = "0.000946352946", s = "liq qt/s", l = "liquid quarts per second"},
-    {v = "SterePerSecond", m = "1.0", s = "st/s", l = "steres per second"},
-    {v = "TablespoonPerSecond", m = "1.478676478125e-05", s = "tbsp/s", l = "tablespoons per second"},
-    {v = "TeaspoonPerSecond", m = "4.92892159375e-06", s = "tsp/s", l = "teaspoons per second"},
-    {v = "RegisterTonPerSecond", m = "100.0 * 0.3048 * 0.3048 * 0.3048", s = "RT/s", l = "register tons per second"},
 ]
 
 [[family.quantity]]
 name = "MassFlux"
 dims = {m = -2, kg = 1, s = -1}
 units = [
-    {v = "KilogramPerSquareMetreSecond", m = "1.0", s = "kg/(m² · s)", l = "kilograms per square metre second"},
 ]
 
 [[family.quantity]]
 name = "MassPerEnergy"
 dims = {m = -2, s = 2}
 units = [
-    {v = "KilogramPerJoule", m = "1.0", s = "kg/J", l = "kilograms per joule"},
-    {v = "GramPerJoule", m = "0.001", s = "g/J", l = "grams per joule"},
-    {v = "PoundPerJoule", m = "0.45359237", s = "lb/J", l = "pounds per joule"},
-    {v = "PoundPerWattHour", m = "0.45359237 / 3600.0", s = "lb/Wh", l = "pounds per watt hour"},
-    {v = "GramPerWattHour", m = "0.001 / 3600.0", s = "g/Wh", l = "grams per watt hour"},
 ]
 
 [[family.quantity]]
 name = "DiffusionCoefficient"
 dims = {m = 2, s = -1}
 units = [
-    {v = "SquareMetrePerSecond", m = "1.0", s = "m²/s", l = "square metres per second"},
     {v = "Stokes", m = "0.0001", s = "St", l = "Stokes"},
 ]
 
@@ -1355,188 +1019,84 @@ name = "density"
 name = "MassDensity"
 dims = {m = -3, kg = 1}
 units = [
-    {v = "KilogramPerCubicMetre", m = "1.0", s = "kg/m³", l = "kilograms per cubic metre"},
-    {v = "GramPerCubicMetre", m = "0.001", s = "g/m³", l = "grams per cubic metre"},
-    {v = "CaratPerCubicMetre", m = "0.0002", s = "ct/m³", l = "carats per cubic metre"},
-    {v = "GrainPerCubicMetre", m = "6.479891e-05", s = "gr/m³", l = "grains per cubic metre"},
-    {v = "HundredweightLongPerCubicMetre", m = "50.80234544", s = "cwt long/m³", l = "hundredweight (long) per cubic metre"},
-    {v = "HundredweightShortPerCubicMetre", m = "45.359237", s = "cwt short/m³", l = "hundredweight (short) per cubic metre"},
-    {v = "OuncePerCubicMetre", m = "0.028349523125", s = "oz/m³", l = "ounces per cubic metre"},
-    {v = "OunceTroyPerCubicMetre", m = "0.0311034768", s = "oz t/m³", l = "troy ounces per cubic metre"},
-    {v = "PennyweightPerCubicMetre", m = "0.00155517384", s = "dwt/m³", l = "pennyweight per cubic metre"},
-    {v = "PoundPerCubicMetre", m = "0.45359237", s = "lb/m³", l = "pounds per cubic metre"},
-    {v = "PoundTroyPerCubicMetre", m = "0.3732417216", s = "lb t/m³", l = "troy pounds per cubic metre"},
-    {v = "SlugPerCubicMetre", m = "0.45359237 * 9.80665 / 0.3048", s = "slug/m³", l = "slugs per cubic metre"},
-    {v = "TonAssayPerCubicMetre", m = "0.175 / 6.0", s = "AT/m³", l = "assay tons per cubic metre"},
-    {v = "TonLongPerCubicMetre", m = "1016.0469088", s = "2240 lb/m³", l = "long tons per cubic metre"},
-    {v = "TonShortPerCubicMetre", m = "907.18474", s = "2000 lb/m³", l = "short tons per cubic metre"},
-    {v = "TonPerCubicMetre", m = "1000.0", s = "t/m³", l = "tons per cubic metre"},
-    {v = "GrainPerGallon", m = "6.479891e-05 / 0.003785411784", s = "gr/gal", l = "grains per gallon"},
-    {v = "OuncePerCubicInch", m = "0.028349523125 / (0.0254 * 0.0254 * 0.0254)", s = "oz/in³", l = "ounces per cubic inch"},
-    {v = "OuncePerGallonImperial", m = "0.028349523125 / 0.00454609", s = "oz/gal (UK)", l = "ounces per Imperial gallon"},
-    {v = "OuncePerGallon", m = "0.028349523125 / 0.003785411784", s = "oz/gal", l = "ounces per gallon"},
-    {v = "PoundPerCubicFoot", m = "0.45359237 / (0.3048 * 0.3048 * 0.3048)", s = "lb/ft³", l = "pounds per cubic foot"},
-    {v = "PoundPerCubicInch", m = "0.45359237 / (0.0254 * 0.0254 * 0.0254)", s = "lb/in³", l = "pounds per cubic inch"},
-    {v = "PoundPerCubicYard", m = "0.45359237 / (0.9144 * 0.9144 * 0.9144)", s = "lb/yd³", l = "pounds per cubic yard"},
-    {v = "PoundPerGallonImperial", m = "0.45359237 / 0.00454609", s = "lb/gal (UK)", l = "pounds per Imperial gallon"},
-    {v = "PoundPerGallon", m = "0.45359237 / 0.003785411784", s = "lb/gal", l = "pounds per gallon"},
-    {v = "SlugPerCubicFoot", m = "(0.45359237 * 9.80665 / 0.3048) / (0.3048 * 0.3048 * 0.3048)", s = "slug/ft³", l = "slugs per cubic foot"},
-    {v = "TonLongPerCubicYard", m = "1016.0469088 / (0.9144 * 0.9144 * 0.9144)", s = "2240 lb/yd³", l = "long tons per cubic yard"},
-    {v = "TonShortPerCubicYard", m = "907.18474 / (0.9144 * 0.9144 * 0.9144)", s = "2000 lb/yd³", l = "short tons per cubic yard"},
-    {v = "TonLongPerCubicFoot", m = "1016.0469088 / (0.3048 * 0.3048 * 0.3048)", s = "2240 lb/ft³", l = "long tons per cubic foot"},
-    {v = "TonShortPerCubicFoot", m = "907.18474 / (0.3048 * 0.3048 * 0.3048)", s = "2000 lb/ft³", l = "short tons per cubic foot"},
 ]
 
 [[family.quantity]]
 name = "LinearMassDensity"
 dims = {m = -1, kg = 1}
 units = [
-    {v = "KilogramPerMetre", m = "1.0", s = "kg/m", l = "kilograms per metre"},
-    {v = "OuncePerFoot", m = "0.028349523125 / 0.3048", s = "oz/ft", l = "ounces per foot"},
-    {v = "OuncePerInch", m = "0.028349523125 / 0.0254", s = "oz/in", l = "ounces per inch"},
-    {v = "PoundPerYard", m = "0.45359237 / 0.9144", s = "lb/yd", l = "pounds per yard"},
-    {v = "PoundPerFoot", m = "0.45359237 / 0.3048", s = "lb/ft", l = "pounds per foot"},
-    {v = "PoundPerInch", m = "0.45359237 / 0.0254", s = "lb/in", l = "pounds per inch"},
-    {v = "GramPerKilometre", m = "1e-06", s = "g/km", l = "grams per kilometre"},
-    {v = "GramPerCentimetre", m = "0.1", s = "g/cm", l = "grams per centimetre"},
 ]
 
 [[family.quantity]]
 name = "ArealMassDensity"
 dims = {m = -2, kg = 1}
 units = [
-    {v = "KilogramPerSquareMetre", m = "1.0", s = "kg/m²", l = "kilograms per square metre"},
-    {v = "GramPerSquareMetre", m = "0.001", s = "g/m²", l = "grams per square metre"},
-    {v = "OuncePerSquareFoot", m = "0.028349523125 / (0.3048 * 0.3048)", s = "oz/ft²", l = "ounces per square foot"},
 ]
 
 [[family.quantity]]
 name = "LinearNumberDensity"
 dims = {m = -1}
 units = [
-    {v = "PerMetre", m = "1.0", s = "m⁻¹", l = "per metre"},
-    {v = "PerFoot", m = "1.0 / 0.3048", s = "ft⁻¹", l = "per foot"},
-    {v = "PerFootSurvey", m = "1.0 / (1200.0 / 3937.0)", s = "ft (U.S. survey)", l = "foot (U.S. survey)"},
-    {v = "PerInch", m = "1.0 / 0.0254", s = "in⁻¹", l = "per inch"},
-    {v = "PerMile", m = "1.0 / 1609.344", s = "mi⁻¹", l = "per mile"},
-    {v = "PerMileSurvey", m = "1.0 / (6336000.0 / 3937.0)", s = "mi⁻¹ (U.S. survey)", l = "per mile (U.S. survey)"},
-    {v = "PerNauticalMile", m = "1.0 / 1852.0", s = "M⁻¹", l = "per nautical mile"},
-    {v = "PerYard", m = "1.0 / 0.9144", s = "yd⁻¹", l = "per yard"},
 ]
 
 [[family.quantity]]
 name = "ArealNumberDensity"
 dims = {m = -2}
 units = [
-    {v = "PerSquareMetre", m = "1.0", s = "m⁻²", l = "per square metre"},
-    {v = "PerAcre", m = "1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))", s = "ac⁻²", l = "per acre"},
-    {v = "PerAre", m = "0.01", s = "a⁻²", l = "per are"},
-    {v = "PerBarn", m = "1e+28", s = "b⁻²", l = "per barn"},
-    {v = "PerCircularMil", m = "4.0 / (core::f64::consts::PI * 2.54e-05 * 2.54e-05)", s = "cmil⁻²", l = "per circular mil"},
-    {v = "PerHectare", m = "0.0001", s = "ha⁻²", l = "per hectare"},
-    {v = "PerSquareFoot", m = "1.0 / (0.3048 * 0.3048)", s = "ft⁻²", l = "per square foot"},
-    {v = "PerSquareInch", m = "1.0 / (0.0254 * 0.0254)", s = "in⁻²", l = "per square inch"},
-    {v = "PerSquareMile", m = "1.0 / (1609.344 * 1609.344)", s = "mi⁻²", l = "per square mile"},
-    {v = "PerSquareYard", m = "1.0 / (0.9144 * 0.9144)", s = "yd⁻²", l = "per square yard"},
 ]
 
 [[family.quantity]]
 name = "VolumetricNumberDensity"
 dims = {m = -3}
 units = [
-    {v = "PerCubicMetre", m = "1.0", s = "m⁻³", l = "per cubic metre"},
-    {v = "PerCubicFoot", m = "1.0 / (0.3048 * 0.3048 * 0.3048)", s = "ft⁻³", l = "per cubic foot"},
-    {v = "PerCubicInch", m = "1.0 / (0.0254 * 0.0254 * 0.0254)", s = "in⁻³", l = "per cubic inch"},
-    {v = "PerCubicMile", m = "1.0 / (1609.344 * 1609.344 * 1609.344)", s = "mi⁻³", l = "per cubic mile"},
-    {v = "PerCubicYard", m = "1.0 / (0.9144 * 0.9144 * 0.9144)", s = "yd⁻³", l = "per cubic yard"},
-    {v = "PerFluidOunce", m = "1.0 / 2.95735295625e-05", s = "per fl oz", l = "per fluid ounce"},
-    {v = "PerFluidOunceImperial", m = "1.0 / 2.84130625e-05", s = "per fl oz (UK)", l = "per Imperial fluid ounce"},
-    {v = "PerGallonImperial", m = "1.0 / 0.00454609", s = "per gal (UK)", l = "per Imperial gallon"},
-    {v = "PerGallon", m = "1.0 / 0.003785411784", s = "per gal", l = "per gallon"},
-    {v = "PerLitre", m = "1000.0", s = "L⁻¹", l = "per litre"},
 ]
 
 [[family.quantity]]
 name = "LinearNumberRate"
 dims = {m = -1, s = -1}
 units = [
-    {v = "PerMetreSecond", m = "1.0", s = "m⁻¹ · s⁻¹", l = "per metre second"},
-    {v = "PerFootSecond", m = "1.0 / 0.3048", s = "ft⁻¹ · s⁻¹", l = "per foot second"},
-    {v = "PerFootSurveySecond", m = "1.0 / (1200.0 / 3937.0)", s = "ft⁻¹ (U.S. survey) · s⁻¹", l = "per foot (U.S. survey) second"},
-    {v = "PerInchSecond", m = "1.0 / 0.0254", s = "in⁻¹ · s⁻¹", l = "per inch second"},
-    {v = "PerMileSecond", m = "1.0 / 1609.344", s = "mi⁻¹ · s⁻¹", l = "per mile second"},
-    {v = "PerMileSurveySecond", m = "1.0 / (6336000.0 / 3937.0)", s = "mi⁻¹ (U.S. survey) · s⁻¹", l = "per mile (U.S. survey) second"},
-    {v = "PerYardSecond", m = "1.0 / 0.9144", s = "yd⁻¹ · s⁻¹", l = "per yard second"},
 ]
 
 [[family.quantity]]
 name = "ArealNumberRate"
 dims = {m = -2, s = -1}
 units = [
-    {v = "PerSquareMetreSecond", m = "1.0", s = "m⁻² · s⁻¹", l = "per square metre second"},
-    {v = "PerAcreSecond", m = "1.0 / (43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0))", s = "ac⁻¹ · s⁻¹", l = "per acre second"},
-    {v = "PerAreSecond", m = "0.01", s = "a⁻¹ · s⁻¹", l = "per are second"},
-    {v = "PerBarnSecond", m = "1e+28", s = "b⁻¹ · s⁻¹", l = "per barn second"},
-    {v = "PerCircularMilSecond", m = "4.0 / (core::f64::consts::PI * 2.54e-05 * 2.54e-05)", s = "cmil⁻¹ · s⁻¹", l = "per circular mil second"},
-    {v = "PerHectareSecond", m = "0.0001", s = "ha⁻¹ · s⁻¹", l = "per hectare second"},
-    {v = "PerSquareFootSecond", m = "1.0 / (0.3048 * 0.3048)", s = "ft⁻² · s⁻¹", l = "per square foot second"},
-    {v = "PerSquareInchSecond", m = "1.0 / (0.0254 * 0.0254)", s = "in⁻² · s⁻¹", l = "per square inch second"},
-    {v = "PerSquareMileSecond", m = "1.0 / (1609.344 * 1609.344)", s = "mi⁻² · s⁻¹", l = "per square mile second"},
-    {v = "PerSquareYardSecond", m = "1.0 / (0.9144 * 0.9144)", s = "yd⁻² · s⁻¹", l = "per square yard second"},
 ]
 
 [[family.quantity]]
 name = "VolumetricNumberRate"
 dims = {m = -3, s = -1}
 units = [
-    {v = "PerCubicMetreSecond", m = "1.0", s = "m⁻³ · s⁻¹", l = "per cubic metre second"},
-    {v = "PerCubicFootSecond", m = "1.0 / (0.3048 * 0.3048 * 0.3048)", s = "ft⁻³ · s⁻¹", l = "per cubic foot second"},
-    {v = "PerCubicInchSecond", m = "1.0 / (0.0254 * 0.0254 * 0.0254)", s = "in⁻³ · s⁻¹", l = "per cubic inch second"},
-    {v = "PerCubicMileSecond", m = "1.0 / (1609.344 * 1609.344 * 1609.344)", s = "mi⁻³ · s⁻¹", l = "per cubic mile second"},
-    {v = "PerCubicYardSecond", m = "1.0 / (0.9144 * 0.9144 * 0.9144)", s = "yd⁻³ · s⁻¹", l = "per cubic yard second"},
-    {v = "PerFluidOunceSecond", m = "1.0 / 2.95735295625e-05", s = "fl oz⁻¹ · s⁻¹", l = "per fluid ounce second"},
-    {v = "PerFluidOunceImperialSecond", m = "1.0 / 2.84130625e-05", s = "fl oz⁻¹ (UK) · s⁻¹", l = "per Imperial fluid ounce second"},
-    {v = "PerGallonImperialSecond", m = "1.0 / 0.00454609", s = "gal⁻¹ (UK) · s⁻¹", l = "per Imperial gallon second"},
-    {v = "PerGallonSecond", m = "1.0 / 0.003785411784", s = "gal⁻¹ · s⁻¹", l = "per gallon second"},
-    {v = "PerLitreSecond", m = "1000.0", s = "L⁻¹ · s⁻¹", l = "per litre second"},
-    {v = "BecquerelPerCubicMetre", m = "1.0", s = "Bq/m³", l = "becquerels per cubic metre"},
-    {v = "CuriePerCubicMetre", m = "37000000000.0", s = "Ci/m³", l = "curies per cubic metre"},
-    {v = "DisintegrationsPerMinutePerCubicMetre", m = "1.0 / 60.0", s = "dpm/m³", l = "disintegrations per minute per cubic metre"},
 ]
 
 [[family.quantity]]
 name = "LinearDensityOfStates"
 dims = {m = -3, kg = -1, s = 2}
 units = [
-    {v = "StatePerMetreJoule", m = "1.0", s = "1/(m · J)", l = "states per metre joule"},
 ]
 
 [[family.quantity]]
 name = "ArealDensityOfStates"
 dims = {m = -4, kg = -1, s = 2}
 units = [
-    {v = "StatePerSquareMetreJoule", m = "1.0", s = "1/(m² · J)", l = "states per square metre joule"},
 ]
 
 [[family.quantity]]
 name = "VolumetricDensityOfStates"
 dims = {m = -5, kg = -1, s = 2}
 units = [
-    {v = "StatePerCubicMetreJoule", m = "1.0", s = "1/(m³ · J)", l = "states per cubic metre joule"},
 ]
 
 [[family.quantity]]
 name = "LinearPowerDensity"
 dims = {m = 1, kg = 1, s = -3}
 units = [
-    {v = "WattPerMetre", m = "1.0", s = "W/m", l = "watts per metre"},
 ]
 
 [[family.quantity]]
 name = "VolumetricPowerDensity"
 dims = {m = -1, kg = 1, s = -3}
 units = [
-    {v = "WattPerCubicMetre", m = "1.0", s = "W/m³", l = "watts per cubic metre"},
 ]
 
 # -- chemistry ----------------------------------------------------------
@@ -1556,57 +1116,24 @@ units = [
 name = "MolarConcentration"
 dims = {m = -3, mol = 1}
 units = [
-    {v = "MolePerCubicMetre", m = "1.0", s = "mol/m³", l = "moles per cubic metre"},
-    {v = "MolePerLitre", m = "1000.0", s = "mol/L", l = "moles per litre"},
-    {v = "ParticlePerCubicMetre", m = "1.0 / 6.02214076e23", s = "particle/m³", l = "particles per cubic metre"},
 ]
 
 [[family.quantity]]
 name = "MolarEnergy"
 dims = {m = 2, kg = 1, s = -2, mol = -1}
 units = [
-    {v = "KilogramSquareMetrePerSecondSquaredMole", m = "1.0", s = "kg · m²/(s² · mol)", l = "kilograms square metre per second squared mole"},
-    {v = "JoulePerMole", m = "1.0", s = "J/mol", l = "joules per mole"},
-    {v = "WattHourPerMole", m = "3600.0", s = "W · h/mol", l = "watt hours per mole"},
-    {v = "BtuItPerMole", m = "1055.05585262", s = "Btu (IT)/mol", l = "British thermal units (IT) per mole"},
-    {v = "BtuPerMole", m = "4184.0 * 0.45359237 / 1.8", s = "Btu/mol", l = "British thermal units per mole"},
-    {v = "CalorieItPerMole", m = "4.1868", s = "cal (IT)/mol", l = "calories (IT) per mole"},
-    {v = "CaloriePerMole", m = "4.184", s = "cal/mol", l = "calories per mole"},
-    {v = "CalorieItNutritionPerMole", m = "4186.8", s = "Cal (IT)/mol", l = "Calories (IT) per mole"},
-    {v = "CalorieNutritionPerMole", m = "4184.0", s = "Cal/mol", l = "Calories per mole"},
-    {v = "ElectronvoltPerMole", m = "1.602176634e-19", s = "eV/mol", l = "electronvolts per mole"},
-    {v = "ErgPerMole", m = "1e-07", s = "erg/mol", l = "ergs per mole"},
-    {v = "FootPoundalPerMole", m = "0.3048 * 0.45359237 * 0.3048", s = "ft · pdl/mol", l = "foot poundals per mole"},
-    {v = "FootPoundForcePerMole", m = "0.3048 * 0.45359237 * 9.80665", s = "ft · lbf/mol", l = "foot pounds-force per mole"},
-    {v = "QuadPerMole", m = "1.05505585262e18", s = "10¹⁵ Btu (IT)/mol", l = "quads per mole"},
-    {v = "ThermEcPerMole", m = "105506000.0", s = "thm (EC)/mol", l = "therms (EC) per mole"},
-    {v = "ThermUsPerMole", m = "105480400.0", s = "thm/mol", l = "therms per mole"},
-    {v = "TonTntPerMole", m = "4184000000.0", s = "t of TNT/mol", l = "tons of TNT per mole"},
-    {v = "WattSecondPerMole", m = "1.0", s = "W · s/mol", l = "watt seconds per mole"},
-    {v = "JoulePerParticle", m = "6.02214076e+23", s = "J/particle", l = "joules per particle"},
-    {v = "ElectronvoltPerParticle", m = "1.602176634e-19 * 6.02214076e23", s = "eV/particle", l = "electronvolts per particle"},
 ]
 
 [[family.quantity]]
 name = "MolarFlux"
 dims = {m = -2, s = -1, mol = 1}
 units = [
-    {v = "MolePerSquareMetreSecond", m = "1.0", s = "mol/(m² · s)", l = "moles per square metre second"},
 ]
 
 [[family.quantity]]
 name = "MolarHeatCapacity"
 dims = {m = 2, kg = 1, s = -2, K = -1, mol = -1}
 units = [
-    {v = "JoulePerKelvinMole", m = "1.0", s = "J/(K · mol)", l = "joules per kelvin mole"},
-    {v = "BtuItPerKelvinMole", m = "1055.05585262", s = "Btu (IT)/(K · mol)", l = "British thermal units (IT) per kelvin mole"},
-    {v = "BtuPerKelvinMole", m = "4184.0 * 0.45359237 / 1.8", s = "Btu/(K · mol)", l = "British thermal units per kelvin mole"},
-    {v = "CalorieItPerKelvinMole", m = "4.1868", s = "cal (IT)/(K · mol)", l = "calories (IT) per kelvin mole"},
-    {v = "CaloriePerKelvinMole", m = "4.184", s = "cal/(K · mol)", l = "calories per kelvin mole"},
-    {v = "CalorieItNutritionPerKelvinMole", m = "4186.8", s = "Cal (IT)/(K · mol)", l = "Calories (IT) per kelvin mole"},
-    {v = "CalorieNutritionPerKelvinMole", m = "4184.0", s = "Cal/(K · mol)", l = "Calories per kelvin mole"},
-    {v = "JoulePerKelvinParticle", m = "6.02214076e+23", s = "J/(K · particle)", l = "joules per kelvin particle"},
-    {v = "ElectronvoltPerKelvinParticle", m = "1.602176634e-19 * 6.02214076e23", s = "eV/(K · particle)", l = "electronvolts per kelvin particle"},
     # Physical constant (CODATA 2018; R = N_A k): `consts::MOLAR_GAS_CONSTANT`.
     {v = "MolarGasConstant", m = "8.314462618", s = "R", l = "molar gas constants"},
 ]
@@ -1615,40 +1142,30 @@ units = [
 name = "MolarMass"
 dims = {kg = 1, mol = -1}
 units = [
-    {v = "KilogramPerMole", m = "1.0", s = "kg/mol", l = "kilograms per mole"},
-    {v = "GramPerMole", m = "0.001", s = "g/mol", l = "grams per mole"},
 ]
 
 [[family.quantity]]
 name = "MolarRadioactivity"
 dims = {s = -1, mol = -1}
 units = [
-    {v = "BecquerelPerMole", m = "1.0", s = "Bq/mol", l = "becquerels per mole"},
-    {v = "CuriePerMole", m = "37000000000.0", s = "Ci/mol", l = "curies per mole"},
-    {v = "DisintegrationsPerMinutePerMole", m = "1.0 / 60.0", s = "dpm/mol", l = "disintegrations per minute per mole"},
 ]
 
 [[family.quantity]]
 name = "MolarVolume"
 dims = {m = 3, mol = -1}
 units = [
-    {v = "CubicMetrePerMole", m = "1.0", s = "m³/mol", l = "cubic metres per mole"},
-    {v = "CubicMetrePerParticle", m = "6.02214076e+23", s = "m³/particle", l = "cubic metres per particle"},
 ]
 
 [[family.quantity]]
 name = "Molality"
 dims = {kg = -1, mol = 1}
 units = [
-    {v = "MolePerKilogram", m = "1.0", s = "mol/kg", l = "moles per kilogram"},
 ]
 
 [[family.quantity]]
 name = "MassConcentration"
 dims = {m = -3, kg = 1}
 units = [
-    {v = "KilogramPerCubicMetre", m = "1.0", s = "kg/m³", l = "kilograms per cubic metre"},
-    {v = "GramPerCubicMetre", m = "0.001", s = "g/m³", l = "grams per cubic metre"},
 ]
 
 [[family.quantity]]
@@ -1656,17 +1173,12 @@ name = "CatalyticActivity"
 dims = {s = -1, mol = 1}
 units = [
     {v = "Katal", m = "1.0", s = "kat", l = "katals"},
-    {v = "ParticlePerSecond", m = "1.0 / 6.02214076e23", s = "particle/s", l = "particles per second"},
-    {v = "MolePerSecond", m = "1.0", s = "mol/s", l = "moles per second"},
 ]
 
 [[family.quantity]]
 name = "CatalyticActivityConcentration"
 dims = {m = -3, s = -1, mol = 1}
 units = [
-    {v = "KatalPerCubicMetre", m = "1.0", s = "kat/m³", l = "katals per cubic metre"},
-    {v = "KatalPerLitre", m = "1000.0", s = "kat/L", l = "katals per litre"},
-    {v = "ParticlePerSecondCubicMetre", m = "1.0 / 6.02214076e23", s = "particle · s⁻¹ · m⁻³", l = "particles per second cubic metre"},
 ]
 
 [[family.quantity]]
@@ -1675,16 +1187,12 @@ dims = {s = -1}
 units = [
     {v = "Becquerel", m = "1.0", s = "Bq", l = "becquerels"},
     {v = "Curie", m = "37000000000.0", s = "Ci", l = "curies"},
-    {v = "DisintegrationsPerMinute", m = "1.0 / 60.0", s = "dpm", l = "disintegrations per minute"},
 ]
 
 [[family.quantity]]
 name = "SpecificRadioactivity"
 dims = {kg = -1, s = -1}
 units = [
-    {v = "BecquerelPerKilogram", m = "1.0", s = "Bq/kg", l = "becquerels per kilogram"},
-    {v = "CuriePerKilogram", m = "37000000000.0", s = "Ci/kg", l = "curie per kilogram"},
-    {v = "DisintegrationsPerMinutePerKilogram", m = "1.0 / 60.0", s = "dpm/kg", l = "disintegrations per minute per kilogram"},
 ]
 
 # Per amount of substance (mol⁻¹), e.g. a count per mole. Not in uom; named here.
@@ -1692,7 +1200,6 @@ units = [
 name = "InverseAmountOfSubstance"
 dims = {mol = -1}
 units = [
-    {v = "PerMole", m = "1.0", s = "mol⁻¹", l = "per mole"},
     # Physical constant (exact, SI defining constant): `consts::AVOGADRO_CONSTANT`.
     {v = "AvogadroConstant", m = "6.02214076e23", s = "N_A", l = "Avogadro constants"},
 ]
@@ -1706,9 +1213,6 @@ name = "photometric"
 name = "Luminance"
 dims = {m = -2, cd = 1}
 units = [
-    {v = "CandelaPerSquareMetre", m = "1.0", s = "cd/m²", l = "candelas per square metre"},
-    {v = "CandelaPerSquareInch", m = "1.0 / (0.0254 * 0.0254)", s = "cd/in²", l = "candelas per square inch"},
-    {v = "CandelaPerSquareFoot", m = "1.0 / (0.3048 * 0.3048)", s = "cd/ft²", l = "candelas per square foot"},
     {v = "Footlambert", m = "1.0 / (core::f64::consts::PI * 0.3048 * 0.3048)", s = "fl", l = "footlamberts"},
     {v = "Lambert", m = "10000.0 / core::f64::consts::PI", s = "la", l = "lamberts"},
     {v = "Stilb", m = "10000.0", s = "sb", l = "stilbs"},
@@ -1734,9 +1238,6 @@ units = [
 name = "RadiantExposure"
 dims = {kg = 1, s = -2}
 units = [
-    {v = "JoulePerSquareMetre", m = "1.0", s = "J/m²", l = "joules per square metre"},
-    {v = "WattHourPerSquareMetre", m = "3600.0", s = "W · h/m²", l = "watt hours per square metre"},
-    {v = "MicrojoulePerSquareMillimetre", m = "1.0", s = "µJ/mm²", l = "microjoules per square millimetre"},
 ]
 
 # -- information ----------------------------------------------------------
@@ -1760,7 +1261,4 @@ units = [
 name = "InformationRate"
 dims = {s = -1}
 units = [
-    {v = "BitPerSecond", m = "0.125", s = "b/s", l = "bits per second"},
-    {v = "BytePerSecond", m = "1.0", s = "B/s", l = "bytes per second"},
-    {v = "OctetPerSecond", m = "1.0", s = "o/s", l = "octets per second"},
 ]

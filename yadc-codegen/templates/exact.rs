@@ -195,6 +195,14 @@ impl Exact {
     }
 
     /// The nearest `f32`, rounded once where there is no π.
+    /// The nearest integer, which must lie in `min..=max`.
+    const fn to_integer(self, min: i128, max: u128) -> i128 {
+        let v = self.to_i128();
+        let fits = if v < 0 { v >= min } else { v as u128 <= max };
+        assert!(fits, "an exact constant outside the range of its integer type");
+        v
+    }
+
     pub const fn to_f32(self) -> f32 {
         if self.num == 0 {
             return 0.0;
@@ -309,54 +317,64 @@ const impl From<Exact> for f32 {
 /// The nearest integer, ties to even; a panic where it does not fit the
 /// type. `KILO * METRE` in `i32` is 1000; an inch in `i32` metres is 0 - the
 /// rounding is yours to choose by the unit you count in.
-macro_rules! to_integer {
-    ($($t:ty),*) => {$(
-        const impl From<Exact> for $t {
-            fn from(x: Exact) -> $t {
-                let v = x.to_i128();
-                let fits = if v < 0 { v >= <$t>::MIN as i128 } else { v as u128 <= <$t>::MAX as u128 };
-                assert!(fits, concat!("an exact constant outside the range of ", stringify!($t)));
-                v as $t
-            }
-        }
-    )*};
-}
-to_integer!(i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
-
-impl yadc::num_traits::Zero for Exact {
-    fn zero() -> Exact {
-        Exact::ZERO
-    }
-    fn is_zero(&self) -> bool {
-        self.num == 0
+const impl From<Exact> for i8 {
+    fn from(x: Exact) -> i8 {
+        x.to_integer(i8::MIN as i128, i8::MAX as u128) as i8
     }
 }
-
-impl yadc::num_traits::One for Exact {
-    fn one() -> Exact {
-        Exact::ONE
+const impl From<Exact> for i16 {
+    fn from(x: Exact) -> i16 {
+        x.to_integer(i16::MIN as i128, i16::MAX as u128) as i16
     }
 }
-
-impl yadc::num_traits::ConstZero for Exact {
-    const ZERO: Exact = Exact::ZERO;
-}
-
-impl yadc::num_traits::ConstOne for Exact {
-    const ONE: Exact = Exact::ONE;
-}
-
-const impl yadc::Cast<f64> for Exact {
-    type Output = f64;
-    fn cast_into(self) -> f64 {
-        self.to_f64()
+const impl From<Exact> for i32 {
+    fn from(x: Exact) -> i32 {
+        x.to_integer(i32::MIN as i128, i32::MAX as u128) as i32
     }
 }
-
-const impl yadc::Cast<f32> for Exact {
-    type Output = f32;
-    fn cast_into(self) -> f32 {
-        self.to_f32()
+const impl From<Exact> for i64 {
+    fn from(x: Exact) -> i64 {
+        x.to_integer(i64::MIN as i128, i64::MAX as u128) as i64
+    }
+}
+const impl From<Exact> for i128 {
+    fn from(x: Exact) -> i128 {
+        x.to_integer(i128::MIN, i128::MAX as u128)
+    }
+}
+const impl From<Exact> for isize {
+    fn from(x: Exact) -> isize {
+        x.to_integer(isize::MIN as i128, isize::MAX as u128) as isize
+    }
+}
+const impl From<Exact> for u8 {
+    fn from(x: Exact) -> u8 {
+        x.to_integer(u8::MIN as i128, u8::MAX as u128) as u8
+    }
+}
+const impl From<Exact> for u16 {
+    fn from(x: Exact) -> u16 {
+        x.to_integer(u16::MIN as i128, u16::MAX as u128) as u16
+    }
+}
+const impl From<Exact> for u32 {
+    fn from(x: Exact) -> u32 {
+        x.to_integer(u32::MIN as i128, u32::MAX as u128) as u32
+    }
+}
+const impl From<Exact> for u64 {
+    fn from(x: Exact) -> u64 {
+        x.to_integer(u64::MIN as i128, u64::MAX as u128) as u64
+    }
+}
+const impl From<Exact> for u128 {
+    fn from(x: Exact) -> u128 {
+        x.to_integer(u128::MIN as i128, u128::MAX) as u128
+    }
+}
+const impl From<Exact> for usize {
+    fn from(x: Exact) -> usize {
+        x.to_integer(usize::MIN as i128, usize::MAX as u128) as usize
     }
 }
 

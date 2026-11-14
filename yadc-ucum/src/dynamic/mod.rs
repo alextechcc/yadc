@@ -1,9 +1,8 @@
-//! The dynamic half: what is chosen at run time - a quantity's dimension
-//! (`DynQty`), a unit of any dimension (`DynamicUcumUnit`), and a choice among a
-//! quantity's units (each module's unit enums, `dynamic::mechanical::LengthUnit`).
+//! The dynamic half: what is chosen at run time - a quantity's unit
+//! (`DynQty`), and a choice among a quantity's units (each module's unit
+//! enums, `dynamic::mechanical::LengthUnit`).
 
-use crate::{Dim, Qty, UcumUnit, UcumUnitConsts};
-use yadc::{Dimension, Unit};
+use crate::{Qty, UcumUnit};
 
 #[cfg(feature = "british")]
 pub mod british;
@@ -29,24 +28,23 @@ pub mod si;
 #[cfg(feature = "us")]
 pub mod us;
 
-/// A quantity of any dimension, decided at run time: the dynamic version of
-/// `Qty<D, f64>`, built with dynamickit. Converting (`From`) moves the number into
-/// `value` and records `D` in `dim`; `TryFrom<DynQty> for Qty<D, f64>` is the
-/// checked way back (the error hands the original back). A bare `f64` is the
-/// same value as a dimensionless quantity (`shared`). Numbers go through
-/// units: a `DynamicUcumUnit` reads and builds it directly.
+/// A quantity of a unit chosen at run time: the dynamic version of
+/// `Qty<U, f64, IS_BASE>`, built with const_derive_more. Converting (`From`)
+/// moves the number into `value` and records `U` in `unit` and `IS_BASE` in
+/// `is_base`; `TryFrom<DynQty> for Qty<U, f64, IS_BASE>` is the checked
+/// way back (the error hands the original
+/// back). A bare `f64` is the same value as a quantity of the plain number's
+/// unit (`shared`).
 ///
-/// Its arithmetic is every field's own: the dimension's operator on `dim`, the
-/// number's on `value`. A product or quotient always exists (`Some`); a sum or a
-/// scaling may not (`None` where the dimensions don't combine), so a calculation
-/// reads `(((a * b)? + c)? * 2.0)?`. Values of one dimension are ordered by number,
-/// `None` otherwise. A root or power with a run-time exponent is the
-/// dimension's and the number's (`None` where the dimension has none).
-/// Scaling by a number is the dimension's own too: its `* f64` and `/ f64`,
-/// which `#[derive(Dimension)]` writes.
-#[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
-#[dynamic(Qty<const D: Dim, f64> => { dim: D, value: .0 })]
-#[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]
+/// Its arithmetic is every field's own: the unit's operator on `unit`, the
+/// number's on `value`. Any of them may have no result - `None` where the
+/// units don't combine: a sum of two units, a product with a unit that has a
+/// zero or a log scale - so a calculation reads `(((a * b)? + c)? * 2.0)?`.
+/// Values of one unit are ordered by number, `None` otherwise. A number in
+/// another unit is `unit.from_base(other.to_base(value))`.
+#[derive(Copy, Clone, PartialEq, Debug, const_derive_more::Dynamic)]
+#[dynamic(Qty<const U: UcumUnit, f64, const IS_BASE: bool> => { unit: U, is_base: IS_BASE, value: .0 })]
+#[dynamic(shared f64 => { unit: UcumUnit::ONE, is_base: true, value: self })]
 #[dynamic(impl(
     Mul -> Option<Self>,
     Div -> Option<Self>,
@@ -55,54 +53,12 @@ pub mod us;
     Mul<f64> -> Option<Self>,
     Div<f64> -> Option<Self>,
     PartialOrd,
-    yadc::PartialRoot::partial_root(self, n: i8) -> Option<Self>,
-    yadc::PartialPowi::partial_powi(self, n: i8) -> Option<Self>,
 ))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DynQty {
-    pub(crate) dim: Dim,
-    pub(crate) value: f64,
-}
-
-/// A unit of any dimension, decided at run time: the dynamic version of
-/// `UcumUnit<D, C>`, built with dynamickit - `From` records `D` and `C`,
-/// `TryFrom<DynamicUcumUnit> for UcumUnit<D, C>` is the checked way back. A
-/// module's unit enum converts to one (`From<LengthUnit>`).
-///
-/// A unit of `Option<DynQty>` counted in `Option<f64>`, the way dynamic
-/// arithmetic results are: `quantity` builds a quantity of its dimension,
-/// and `value` reads one of its dimension - `None` for another, or for
-/// `None`. So a reading takes a calculation's result as it comes:
-/// `unit.value(a * b)`.
-#[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
-#[dynamic(UcumUnit<const D: Dim, const C: UcumUnitConsts> => { dim: D, consts: C })]
-pub struct DynamicUcumUnit {
-    pub dim: Dim,
-    pub consts: UcumUnitConsts,
-}
-
-impl Unit<Option<DynQty>, Option<f64>> for DynamicUcumUnit {
-    fn quantity(&self, value: Option<f64>) -> Option<DynQty> {
-        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
-        Some(DynQty {
-            dim: self.dim,
-            value: value? * size + zero,
-        })
-    }
-    fn value(&self, quantity: Option<DynQty>) -> Option<f64> {
-        let q = quantity?;
-        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
-        (q.dim == self.dim).then(|| (q.value - zero) / size)
-    }
-}
-
-impl core::fmt::Display for DynamicUcumUnit {
-    /// `{}` the symbol, `{:#}` the name; width, fill and alignment apply.
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.pad(if f.alternate() {
-            self.consts.name
-        } else {
-            self.consts.symbol
-        })
-    }
+    pub unit: UcumUnit,
+    /// Whether `unit` is a base unit or a product of base units: operands
+    /// must agree in it, as the static quantities' `IS_BASE` must.
+    #[dynamic(same)]
+    pub is_base: bool,
+    pub value: f64,
 }

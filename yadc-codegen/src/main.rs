@@ -40,7 +40,6 @@ fn main() {
 
     let UnitSystem {
         system,
-        kind,
         dim,
         dimensionless,
         family,
@@ -54,7 +53,7 @@ fn main() {
     eprintln!("writing to {} ...", output_dir.display());
 
     if let Some(ucum_section) = ucum {
-        ucum::run(&ucum_section, system, kind, dim, dimensionless, &output_dir).unwrap_or_else(
+        ucum::run(&ucum_section, system, dim, dimensionless, &output_dir).unwrap_or_else(
             |e| {
                 eprintln!("error: {e}");
                 process::exit(1);
@@ -64,7 +63,6 @@ fn main() {
     } else {
         let system = UnitSystem {
             system,
-            kind,
             dim,
             dimensionless,
             family,

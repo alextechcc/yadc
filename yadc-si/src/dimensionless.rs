@@ -1,158 +1,127 @@
-//! Plain numbers: ratios and their units.
+//! Plain numbers: ratios, levels and their units.
 
-use crate::ISQ;
-use yadc::Dimension;
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `Dimensionless`: `SIQuantity<DIMENSIONLESS, N>` is one.
-pub const DIMENSIONLESS: ISQ = ISQ::DIMENSIONLESS;
+/// A dimensionless, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Dimensionless<N, const U: SIUnit = { SIUnit::ONE }, const IS_BASE: bool = true> =
+    SIQuantity<U, N, IS_BASE>;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, SIUnit, SIUnitConsts};
+/// Ratio, a unit of `Dimensionless`: the coherent unit, a product of base units.
+pub const RATIO: SIQuantity<{ SIUnit::ONE }, Exact, true> = SIQuantity::ONE;
 
-    /// Ratio, a unit of `Dimensionless`: `n` of them is `n · 1.0` coherent units.
-    pub const RATIO: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "",
-                name: "",
-            }
-        },
-    > = SIUnit;
+/// Parts per hundred (`parts per hundred`), a unit of `Dimensionless`: `n` of them is `n · 0.01` base units.
+pub const PART_PER_HUNDRED: SIQuantity<
+    { SIUnit::scaled("parts per hundred", Exact::dec(1, -2), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per hundred (`parts per hundred`), a unit of `Dimensionless`: `n` of them is `n · 0.01` coherent units.
-    pub const PART_PER_HUNDRED: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "parts per hundred",
-                name: "parts per hundred",
-            }
-        },
-    > = SIUnit;
+/// Percent (`%`), a unit of `Dimensionless`: `n` of them is `n · 0.01` base units.
+pub const PERCENT: SIQuantity<
+    { SIUnit::scaled("%", Exact::dec(1, -2), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Percent (`%`), a unit of `Dimensionless`: `n` of them is `n · 0.01` coherent units.
-    pub const PERCENT: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "%",
-                name: "percent",
-            }
-        },
-    > = SIUnit;
+/// Parts per thousand (`parts per thousand`), a unit of `Dimensionless`: `n` of them is `n · 0.001` base units.
+pub const PART_PER_THOUSAND: SIQuantity<
+    { SIUnit::scaled("parts per thousand", Exact::dec(1, -3), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per thousand (`parts per thousand`), a unit of `Dimensionless`: `n` of them is `n · 0.001` coherent units.
-    pub const PART_PER_THOUSAND: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "parts per thousand",
-                name: "parts per thousand",
-            }
-        },
-    > = SIUnit;
+/// Per mille (`‰`), a unit of `Dimensionless`: `n` of them is `n · 0.001` base units.
+pub const PER_MILLE: SIQuantity<
+    { SIUnit::scaled("‰", Exact::dec(1, -3), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Per mille (`‰`), a unit of `Dimensionless`: `n` of them is `n · 0.001` coherent units.
-    pub const PER_MILLE: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "‰",
-                name: "per mille",
-            }
-        },
-    > = SIUnit;
+/// Parts per ten thousand (`parts per ten thousand`), a unit of `Dimensionless`: `n` of them is `n · 1.0e-4` base units.
+pub const PART_PER_TEN_THOUSAND: SIQuantity<
+    { SIUnit::scaled("parts per ten thousand", Exact::dec(1, -4), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per ten thousand (`parts per ten thousand`), a unit of `Dimensionless`: `n` of them is `n · 1.0e-4` coherent units.
-    pub const PART_PER_TEN_THOUSAND: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -4),
-                zero: Exact::ZERO,
-                symbol: "parts per ten thousand",
-                name: "parts per ten thousand",
-            }
-        },
-    > = SIUnit;
+/// Basis points (`bp`), a unit of `Dimensionless`: `n` of them is `n · 1.0e-4` base units.
+pub const BASIS_POINT: SIQuantity<
+    { SIUnit::scaled("bp", Exact::dec(1, -4), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Basis points (`bp`), a unit of `Dimensionless`: `n` of them is `n · 1.0e-4` coherent units.
-    pub const BASIS_POINT: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -4),
-                zero: Exact::ZERO,
-                symbol: "bp",
-                name: "basis points",
-            }
-        },
-    > = SIUnit;
+/// Parts per million (`ppm`), a unit of `Dimensionless`: `n` of them is `n · 1e-06` base units.
+pub const PART_PER_MILLION: SIQuantity<
+    { SIUnit::scaled("ppm", Exact::dec(1, -6), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per million (`ppm`), a unit of `Dimensionless`: `n` of them is `n · 1e-06` coherent units.
-    pub const PART_PER_MILLION: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -6),
-                zero: Exact::ZERO,
-                symbol: "ppm",
-                name: "parts per million",
-            }
-        },
-    > = SIUnit;
+/// Parts per billion (`ppb`), a unit of `Dimensionless`: `n` of them is `n · 1e-09` base units.
+pub const PART_PER_BILLION: SIQuantity<
+    { SIUnit::scaled("ppb", Exact::dec(1, -9), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per billion (`ppb`), a unit of `Dimensionless`: `n` of them is `n · 1e-09` coherent units.
-    pub const PART_PER_BILLION: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -9),
-                zero: Exact::ZERO,
-                symbol: "ppb",
-                name: "parts per billion",
-            }
-        },
-    > = SIUnit;
+/// Parts per trillion (`ppt`), a unit of `Dimensionless`: `n` of them is `n · 1e-12` base units.
+pub const PART_PER_TRILLION: SIQuantity<
+    { SIUnit::scaled("ppt", Exact::dec(1, -12), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per trillion (`ppt`), a unit of `Dimensionless`: `n` of them is `n · 1e-12` coherent units.
-    pub const PART_PER_TRILLION: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -12),
-                zero: Exact::ZERO,
-                symbol: "ppt",
-                name: "parts per trillion",
-            }
-        },
-    > = SIUnit;
+/// Parts per quadrillion (`ppq`), a unit of `Dimensionless`: `n` of them is `n · 1e-15` base units.
+pub const PART_PER_QUADRILLION: SIQuantity<
+    { SIUnit::scaled("ppq", Exact::dec(1, -15), SIUnit::ONE) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Parts per quadrillion (`ppq`), a unit of `Dimensionless`: `n` of them is `n · 1e-15` coherent units.
-    pub const PART_PER_QUADRILLION: SIUnit<
-        DIMENSIONLESS,
-        {
-            SIUnitConsts {
-                size: Exact::dec(1, -15),
-                zero: Exact::ZERO,
-                symbol: "ppq",
-                name: "parts per quadrillion",
-            }
-        },
-    > = SIUnit;
-}
+/// Bels (`B`), a unit of `Dimensionless`: `n` of them is `1.0 · 10.0^(n / 1.0)` base units.
+pub const BEL: SIQuantity<
+    {
+        SIUnit::from_log(
+            "B",
+            Exact::int(10),
+            Exact::int(1),
+            Exact::int(1),
+            SIUnit::ONE,
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
+
+/// Decibels (`dB`), a unit of `Dimensionless`: `n` of them is `1.0 · 10.0^(n / 10.0)` base units.
+pub const DECIBEL: SIQuantity<
+    {
+        SIUnit::from_log(
+            "dB",
+            Exact::int(10),
+            Exact::int(10),
+            Exact::int(1),
+            SIUnit::ONE,
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
+
+/// Nepers (`Np`), a unit of `Dimensionless`: `n` of them is `1.0 · 2.718281828459045^(n / 0.5)` base units.
+pub const NEPER: SIQuantity<
+    {
+        SIUnit::from_log(
+            "Np",
+            Exact::dec(2718281828459045, -15),
+            Exact::dec(5, -1),
+            Exact::int(1),
+            SIUnit::ONE,
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;

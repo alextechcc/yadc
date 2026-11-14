@@ -1,39 +1,34 @@
 //! The units of `dimensionless`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dimensionless::units::*;
+#[allow(unused_imports)]
 use crate::dimensionless::*;
-use crate::dynamic::DynamicUcumUnit;
-use crate::{Exact, Qty, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `Dimensionless`, in any number type they count in.
+/// The units of `Dimensionless`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<DIMENSIONLESS, N>, N> {
-        fn quantity(&self, value: N) -> Qty<DIMENSIONLESS, N>;
-        fn value(&self, quantity: Qty<DIMENSIONLESS, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum DimensionlessUnit {
     #[default]
-    #[value(RATIO)]
+    #[value(RATIO.unit())]
     Ratio,
-    #[value(THE_NUMBER_TEN_FOR_ARBITRARY_POWERS)]
+    #[value(THE_NUMBER_TEN_FOR_ARBITRARY_POWERS.unit())]
     TheNumberTenForArbitraryPowers,
-    #[value(THE_NUMBER_PI)]
+    #[value(THE_NUMBER_PI.unit())]
     TheNumberPi,
-    #[value(PERCENT)]
+    #[value(PERCENT.unit())]
     Percent,
-    #[value(PARTS_PER_THOUSAND)]
+    #[value(PARTS_PER_THOUSAND.unit())]
     PartsPerThousand,
-    #[value(PARTS_PER_MILLION)]
+    #[value(PARTS_PER_MILLION.unit())]
     PartsPerMillion,
-    #[value(PARTS_PER_BILLION)]
+    #[value(PARTS_PER_BILLION.unit())]
     PartsPerBillion,
-    #[value(PARTS_PER_TRILLION)]
+    #[value(PARTS_PER_TRILLION.unit())]
     PartsPerTrillion,
 }

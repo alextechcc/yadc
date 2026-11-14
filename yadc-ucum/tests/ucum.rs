@@ -5,15 +5,15 @@
 
 use yadc_ucum::dynamic::heat::ThermodynamicTemperatureUnit;
 use yadc_ucum::dynamic::intcust::LengthUnit;
-use yadc_ucum::heat::units::{CELSIUS, KELVIN_SCALE};
-use yadc_ucum::intcust::units::{FOOT, INCH};
-use yadc_ucum::si::units::{GRAM, METER, MOLE, NEWTON};
-use yadc_ucum::us::units::INCH as SURVEY_INCH;
-use yadc_ucum::{Exact, UcumUnit, UcumUnitConsts, Unit};
+use yadc_ucum::heat::{CELSIUS, ThermodynamicTemperature};
+use yadc_ucum::intcust::{FOOT, INCH, Length};
+use yadc_ucum::si::{MOLE, NEWTON};
+use yadc_ucum::us::INCH as SURVEY_INCH;
+use yadc_ucum::{Exact, GRAM, KELVIN, METER, Qty, SECOND, UcumUnit};
 
-/// A unit's size in coherent units, read from its type.
-fn size<const D: yadc_ucum::Dim, const C: UcumUnitConsts>(_: UcumUnit<D, C>) -> Exact {
-    C.size
+/// A unit's size in base units, read from its constant's type.
+fn size<const U: UcumUnit, const IS_BASE: bool>(_: Qty<U, Exact, IS_BASE>) -> Exact {
+    U.size()
 }
 
 /// UCUM's values are decimals, read exactly: an inch is 0.0254 m, twelve
@@ -32,7 +32,13 @@ fn base_units_are_ucums() {
     assert_eq!(size(GRAM), Exact::int(1));
     assert_eq!(size(METER), Exact::int(1));
     assert_eq!(size(NEWTON), Exact::int(1000));
+    assert!(
+        NEWTON
+            .unit()
+            .same_dimension((GRAM * METER / (SECOND * SECOND)).unit())
+    );
     assert_eq!(size(MOLE), Exact::int(602_214_076_000_000_000_000_000));
+    assert!(MOLE.unit().same_dimension(UcumUnit::ONE));
 }
 
 /// A unit prints and parses as its UCUM code.
@@ -41,9 +47,24 @@ fn codes_print_and_parse() {
     let inch: LengthUnit = "[in_i]".parse().unwrap();
     assert_eq!(inch, LengthUnit::Inch);
     assert_eq!(inch.to_string(), "[in_i]");
-    assert!((LengthUnit::Foot.value(inch.quantity(24.0_f64)) - 2.0).abs() < 1e-15);
+    let metres = UcumUnit::from(inch).to_base(24.0);
+    assert!((UcumUnit::from(LengthUnit::Foot).from_base(metres) - 2.0).abs() < 1e-15);
     let cel: ThermodynamicTemperatureUnit = "Cel".parse().unwrap();
-    let t = cel.quantity(100.0_f64);
-    assert!((ThermodynamicTemperatureUnit::Kelvin.value(t) - 373.15).abs() < 1e-12);
-    assert!((KELVIN_SCALE.value(CELSIUS.quantity(0.0_f64)) - 273.15).abs() < 1e-12);
+    let kelvin = UcumUnit::from(cel).to_base(100.0);
+    assert!(
+        (UcumUnit::from(ThermodynamicTemperatureUnit::Kelvin).from_base(kelvin) - 373.15).abs()
+            < 1e-12
+    );
+    assert!("[in_x]".parse::<LengthUnit>().is_err());
+}
+
+/// The static quantities convert the same way: through a base unit.
+#[test]
+fn quantities_convert_through_base_units() {
+    let foot: Length<f64> = (2.0_f64 * FOOT).into();
+    let inches: Qty<{ INCH.unit() }, f64, false> = foot.into();
+    assert!((f64::from(inches / (1.0 * INCH)) - 24.0).abs() < 1e-12);
+    let t: ThermodynamicTemperature<f64> = (0.0_f64 * CELSIUS).into();
+    assert!((f64::from(t / (1.0 * KELVIN)) - 273.15).abs() < 1e-12);
+    assert_eq!((24.0_f64 * INCH).to_string(), "24 [in_i]");
 }

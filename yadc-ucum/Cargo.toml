@@ -5,8 +5,8 @@ edition = "2024"
 license = "MIT OR BSD-3-Clause"
 
 [dependencies]
-yadc = { path = "../yadc", default-features = false }
-dynamickit = { path = "../dynamickit" }
+const_derive_more = { path = "../const_derive_more" }
+num-traits = { version = "0.2", default-features = false }
 serde = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 [features]
@@ -24,10 +24,10 @@ default = [
     "constants",
     "misc",
 ]
-std = ["yadc/std", "serde?/std"]
-# Software float math for a `no_std` build: `Real` (and so the nonlinear
-# unit conversions and the dynamic type's roots) needs either this or `std`.
-libm = ["yadc/libm"]
+std = ["num-traits/std", "serde?/std"]
+# Software float math for a `no_std` build: `Real` (and so the log unit
+# conversions) needs either this or `std`.
+libm = ["num-traits/libm"]
 si = []
 heat = []
 iso1000 = []
@@ -39,5 +39,4 @@ british = []
 clinical = []
 constants = []
 misc = []
-# `alloc`: the UCUM (de)serializers build owned `String`s.
-serde = ["dep:serde", "serde/alloc", "yadc/ucum"]
+serde = ["dep:serde"]

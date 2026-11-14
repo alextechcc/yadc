@@ -37,6 +37,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
+name = "const_derive_more"
+version = "0.1.0"
+dependencies = [
+ "const_derive_more-derive",
+ "trybuild",
+ "typenum",
+ "uom",
+]
+
+[[package]]
+name = "const_derive_more-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "crc32fast"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -50,25 +69,6 @@ name = "displaydoc"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97369cbbc041bc366949bc74d34658d6cda5621039731c6310521892a3a20ae0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "dynamickit"
-version = "0.1.0"
-dependencies = [
- "dynamickit-derive",
- "trybuild",
- "typenum",
- "uom",
-]
-
-[[package]]
-name = "dynamickit-derive"
-version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -848,13 +848,10 @@ checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
 name = "yadc"
 version = "0.1.0"
 dependencies = [
- "dynamickit",
- "num-traits",
+ "const_derive_more",
  "serde",
  "serde_json",
  "uom",
- "yadc-derive",
- "yadc-math",
  "yadc-si",
 ]
 
@@ -872,48 +869,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "yadc-derive"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "yadc-math"
-version = "0.1.0"
-dependencies = [
- "libm",
-]
-
-[[package]]
 name = "yadc-si"
 version = "0.1.0"
 dependencies = [
- "dynamickit",
+ "const_derive_more",
+ "num-traits",
  "serde",
  "typenum",
  "uom",
- "yadc",
-]
-
-[[package]]
-name = "yadc-tests"
-version = "0.0.0"
-dependencies = [
- "dynamickit",
- "trybuild",
- "yadc",
 ]
 
 [[package]]
 name = "yadc-ucum"
 version = "0.1.0"
 dependencies = [
- "dynamickit",
+ "const_derive_more",
+ "num-traits",
  "serde",
- "yadc",
 ]
 
 [[package]]

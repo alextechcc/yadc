@@ -1,112 +1,44 @@
-//! serde round-trip with the yadc-si quantities.
+//! serde with `yadc-si` quantities (feature `serde`).
 //!
-//! `SIQuantity<const D: ISQ, N>` serializes transparently as just its inner
-//! number (here `f64`) - the dimension is determined by the target type at
-//! deserialize time.
-//! `DynamicSIQuantity` carries `dim: ISQ` at runtime, and that field is
-//! serialized as a UCUM unit string (e.g. `"m.kg.s-2"` for force, `"K"` for a
-//! temperature interval, `"rad"` for angle, `"1"` for dimensionless). A
-//! rejected combination is `None` from the operator, so it never reaches the
-//! wire as a `DynamicSIQuantity`.
+//! A quantity serializes as just its number: the unit is in the type, so
+//! the deserialization target names it. A struct of quantities derives
+//! `Serialize` and `Deserialize` as usual.
 //!
 //! Run with: cargo run -p yadc --example serde_demo
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 
-use yadc_si::SIQuantity;
-use yadc_si::Unit;
-use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::dynamic::electromagnetic::*;
-use yadc_si::dynamic::mechanical::*;
-use yadc_si::dynamic::thermal::TemperatureIntervalUnit;
-use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit::{Celsius, Fahrenheit};
-use yadc_si::electromagnetic::*;
+use serde::{Deserialize, Serialize};
 use yadc_si::mechanical::*;
-use yadc_si::thermal::THERMODYNAMIC_TEMPERATURE;
+use yadc_si::thermal::*;
+use yadc_si::{KILOGRAM, SIQuantity};
+
+/// A record of quantities: one in a base unit, one in hours.
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+struct Leg {
+    load: Mass<f64>,
+    duration: SIQuantity<{ HOUR.unit() }, f64, false>,
+    outside: ThermodynamicTemperature<f64>,
+}
 
 fn main() {
-    // 1. Typed Qty<D> -> JSON -> typed Qty<D>. Wire is just the number.
-    // A unit builds and reads: `Kilogram.quantity(1.5)` is 1.5 kg, and
-    // `Kilogram.value(m)` reads a mass back.
-    use MassUnit::Kilogram;
-    let m = Kilogram.quantity(1.5);
-    let s = serde_json::to_string(&m).expect("serialize Mass");
-    println!("Mass(1.5 kg) -> {s}");
+    let m: Mass<f64> = 1.5 * KILOGRAM;
+    let s = serde_json::to_string(&m).unwrap();
+    println!("1.5 kg      -> {s}");
+    let back: Mass<f64> = serde_json::from_str(&s).unwrap();
+    println!("round trip  -> {back}");
+    // The number is read in the target's unit.
+    let t: Time<f64> = serde_json::from_str("90").unwrap();
+    println!("90 as Time  -> {t}");
 
-    let parsed: SIQuantity<MASS, f64> = serde_json::from_str(&s).expect("round-trip Mass");
-    println!("round-trip:    {} {Kilogram:#}\n", Kilogram.value(parsed));
-
-    // 2. DynamicSIQuantity carries its dims at runtime - they're serialized as a UCUM
-    //    string via `UcumSerialize`, which extends the string with a `{Name}`
-    //    annotation for any kind but the ordinary one (`K{Absolute}`). This lets a
-    //    temperature survive a DynamicSIQuantity round-trip. Angles need
-    //    no annotation: radians are an axis (`rad`, and `rad2` for steradians).
-    let body = Fahrenheit.quantity(98.6);
-    let body = DynamicSIQuantity::from(body);
-    let s = serde_json::to_string_pretty(&body).unwrap();
-    println!("DynamicSIQuantity(98.6 °F) ->\n{s}\n");
-
-    let parsed: DynamicSIQuantity = serde_json::from_str(&s).unwrap();
-    let t = SIQuantity::<THERMODYNAMIC_TEMPERATURE, _>::try_from(parsed).expect("a temperature");
-    println!(
-        "round-trip: {:.1} °F ≡ {:.2} °C\n",
-        Fahrenheit.value(t),
-        Celsius.value(t),
-    );
-
-    // A temperature step (plain K) serializes without annotation; a
-    // temperature gets {Absolute}.
-    let interval = DynamicSIQuantity::from(TemperatureIntervalUnit::Kelvin.quantity(15.0));
-    println!(
-        "DynamicSIQuantity(a step of 15 K) -> {}\n",
-        serde_json::to_string(&interval).unwrap(),
-    );
-
-    // 3. A more interesting Dim: Force has m*kg*s⁻².
-    let newton = ForceUnit::Newton;
-    let force = DynamicSIQuantity::from(newton.quantity(9.81));
-    println!(
-        "DynamicSIQuantity(9.81 N) -> {}\n",
-        serde_json::to_string(&force).unwrap()
-    );
-
-    // A rejected combination (kg + N) is `None`: there is no quantity to
-    // serialize, and an `Option<DynamicSIQuantity>` goes out as `null`, which
-    // reads back as `None`.
-    let nonsense = DynamicSIQuantity::from(Kilogram.quantity(1.0)) + force;
-    let s = serde_json::to_string(&nonsense).unwrap();
-    println!("DynamicSIQuantity(1 kg + 9.81 N) -> {s}");
-    let parsed: Option<DynamicSIQuantity> = serde_json::from_str(&s).unwrap();
-    assert_eq!(parsed, None);
-    // A well-formed one round-trips with its dimension: it reads back as a
-    // force.
-    let parsed: DynamicSIQuantity =
-        serde_json::from_str(&serde_json::to_string(&force).unwrap()).unwrap();
-    let f = SIQuantity::<FORCE, _>::try_from(parsed).expect("still a force");
-    println!("round-trip: {} {newton}\n", newton.value(f));
-
-    // 4. Holding typed quantities in a serde-derived struct.
-    use ElectricPotentialUnit::Volt;
-    #[derive(serde::Serialize, serde::Deserialize)]
-    struct Reading {
-        sensor: String,
-        temperature: SIQuantity<THERMODYNAMIC_TEMPERATURE, f64>,
-        voltage: SIQuantity<ELECTRIC_POTENTIAL, f64>,
-    }
-
-    let r = Reading {
-        sensor: "thermistor-7".into(),
-        temperature: Celsius.quantity(25.0),
-        voltage: Volt.quantity(3.30),
+    let leg = Leg {
+        load: 20.0 * KILOGRAM,
+        duration: 2.5 * HOUR,
+        outside: (12.0_f64 * CELSIUS).into(),
     };
-    let s = serde_json::to_string_pretty(&r).unwrap();
-    println!("Reading ->\n{s}");
-
-    let back: Reading = serde_json::from_str(&s).unwrap();
-    println!(
-        "read back: {} at {:.1} °C and {:.2} V",
-        back.sensor,
-        Celsius.value(back.temperature),
-        Volt.value(back.voltage),
-    );
+    let json = serde_json::to_string(&leg).unwrap();
+    println!("leg         -> {json}");
+    let parsed: Leg = serde_json::from_str(&json).unwrap();
+    assert_eq!(parsed, leg);
+    println!("parsed      -> {} for {}", parsed.load, parsed.duration);
 }

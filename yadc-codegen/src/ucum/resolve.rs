@@ -142,8 +142,6 @@ pub type DimVec = BTreeMap<String, i32>;
 pub struct Resolved {
     pub dim: DimVec,
     pub multiplier: Factor,
-    /// Kind variant name, or `None` for the default linear kind.
-    pub kind: Option<String>,
 }
 
 impl Resolved {
@@ -151,20 +149,13 @@ impl Resolved {
         Resolved {
             dim: DimVec::new(),
             multiplier: v,
-            kind: None,
         }
-    }
-
-    /// A plain number: no dimension and no label.
-    fn is_plain(&self) -> bool {
-        self.dim.is_empty() && self.kind.is_none()
     }
 
     pub fn mul(self, other: Self) -> Self {
         Resolved {
             dim: dim_add(&self.dim, &other.dim),
             multiplier: self.multiplier.mul(&other.multiplier),
-            kind: kind_mul(&self, &other),
         }
     }
 
@@ -172,7 +163,6 @@ impl Resolved {
         Resolved {
             dim: dim_sub(&self.dim, &other.dim),
             multiplier: self.multiplier.div(&other.multiplier),
-            kind: kind_div(&self, &other),
         }
     }
 
@@ -180,7 +170,6 @@ impl Resolved {
         Resolved {
             dim: dim_scale(&self.dim, n),
             multiplier: self.multiplier.pow(n),
-            kind: kind_pow(self.kind.as_deref(), n),
         }
     }
 }
@@ -205,31 +194,7 @@ fn dim_scale(a: &DimVec, n: i32) -> DimVec {
     a.iter().map(|(k, v)| (k.clone(), v * n)).collect()
 }
 
-// Kinds are labels, as `#[derive(Dimension)]` treats them: a product or
-// quotient keeps a label only beside a plain number (`2.Cel` keeps its label,
-// `Cel.m` does not), a power keeps it only to the first power.
-fn kind_mul(a: &Resolved, b: &Resolved) -> Option<String> {
-    if a.is_plain() {
-        b.kind.clone()
-    } else if b.is_plain() {
-        a.kind.clone()
-    } else {
-        None
-    }
-}
-
-fn kind_div(a: &Resolved, b: &Resolved) -> Option<String> {
-    if b.is_plain() { a.kind.clone() } else { None }
-}
-
-fn kind_pow(k: Option<&str>, n: i32) -> Option<String> {
-    match (k, n) {
-        (Some(s), 1) => Some(s.into()),
-        _ => None,
-    }
-}
-
-/// Resolve all UCUM units to (dimension vector, multiplier, kind): each
+/// Resolve all UCUM units to (dimension vector, multiplier): each
 /// UCUM base unit is its own axis (its code, exponent 1, times one), and
 /// every other unit is resolved from them.
 pub fn resolve_all(essence: &UcumEssence) -> HashMap<String, Resolved> {
@@ -242,7 +207,6 @@ pub fn resolve_all(essence: &UcumEssence) -> HashMap<String, Resolved> {
             Resolved {
                 dim,
                 multiplier: Factor::one(),
-                kind: None,
             },
         );
     }
@@ -501,7 +465,6 @@ mod tests {
         matches!(sym, "m" | "s" | "mol" | "L" | "[pi]").then(|| Resolved {
             dim,
             multiplier: Factor::one(),
-            kind: None,
         })
     }
 

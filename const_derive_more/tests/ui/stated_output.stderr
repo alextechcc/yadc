@@ -1,0 +1,24 @@
+error: unexpected end of input, state `Add`'s output: `-> Self` (each field's own result) or `-> Option<Self>` (`None` if any field's is)
+  --> tests/ui/stated_output.rs:28:19
+   |
+28 | #[dynamic(impl(Add))]
+   |                   ^
+
+error[E0271]: type mismatch resolving `<Dim as Add>::Output == Dim`
+  --> tests/ui/stated_output.rs:18:10
+   |
+18 | #[derive(const_derive_more::Dynamic)]
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch resolving `<Dim as Add>::Output == Dim`
+   |
+note: expected this to be `Dim`
+  --> tests/ui/stated_output.rs:10:19
+   |
+10 |     type Output = Option<Dim>;
+   |                   ^^^^^^^^^^^
+   = note: expected struct `Dim`
+                found enum `Option<Dim>`
+   = note: this error originates in the derive macro `const_derive_more::Dynamic` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: add `#![feature(trivial_bounds)]` to the crate attributes to enable
+   |
+ 6 + #![feature(trivial_bounds)]
+   |

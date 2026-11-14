@@ -1,1207 +1,712 @@
 //! The units of `mechanical`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicSIUnit;
-use crate::mechanical::units::*;
+#[allow(unused_imports)]
 use crate::mechanical::*;
-use crate::{Exact, SIQuantity, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `Length`, in any number type they count in.
+/// The units of `Length`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<LENGTH, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<LENGTH, N>;
-        fn value(&self, quantity: SIQuantity<LENGTH, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum LengthUnit {
     #[default]
-    #[value(METRE)]
+    #[value(METRE.unit())]
     Metre,
-    #[value(ANGSTROM)]
+    #[value(KILOMETRE.unit())]
+    Kilometre,
+    #[value(ANGSTROM.unit())]
     Angstrom,
-    #[value(BOHR_RADIUS)]
+    #[value(BOHR_RADIUS.unit())]
     BohrRadius,
-    #[value(ATOMIC_UNIT_OF_LENGTH)]
+    #[value(ATOMIC_UNIT_OF_LENGTH.unit())]
     AtomicUnitOfLength,
-    #[value(ASTRONOMICAL_UNIT)]
+    #[value(ASTRONOMICAL_UNIT.unit())]
     AstronomicalUnit,
-    #[value(CHAIN)]
+    #[value(CHAIN.unit())]
     Chain,
-    #[value(DATA_MILE)]
+    #[value(DATA_MILE.unit())]
     DataMile,
-    #[value(FATHOM)]
+    #[value(FATHOM.unit())]
     Fathom,
-    #[value(FERMI)]
+    #[value(FERMI.unit())]
     Fermi,
-    #[value(FOOT)]
+    #[value(FOOT.unit())]
     Foot,
-    #[value(FOOT_SURVEY)]
+    #[value(FOOT_SURVEY.unit())]
     FootSurvey,
-    #[value(INCH)]
+    #[value(INCH.unit())]
     Inch,
-    #[value(LIGHT_YEAR)]
+    #[value(LIGHT_YEAR.unit())]
     LightYear,
-    #[value(MICRON)]
+    #[value(MICRON.unit())]
     Micron,
-    #[value(MIL)]
+    #[value(MIL.unit())]
     Mil,
-    #[value(MILE)]
+    #[value(MILE.unit())]
     Mile,
-    #[value(MILE_SURVEY)]
+    #[value(MILE_SURVEY.unit())]
     MileSurvey,
-    #[value(NAUTICAL_MILE)]
+    #[value(NAUTICAL_MILE.unit())]
     NauticalMile,
-    #[value(PARSEC)]
+    #[value(PARSEC.unit())]
     Parsec,
-    #[value(PICA_COMPUTER)]
+    #[value(PICA_COMPUTER.unit())]
     PicaComputer,
-    #[value(PICA_PRINTERS)]
+    #[value(PICA_PRINTERS.unit())]
     PicaPrinters,
-    #[value(POINT_COMPUTER)]
+    #[value(POINT_COMPUTER.unit())]
     PointComputer,
-    #[value(POINT_PRINTERS)]
+    #[value(POINT_PRINTERS.unit())]
     PointPrinters,
-    #[value(ROD)]
+    #[value(ROD.unit())]
     Rod,
-    #[value(YARD)]
+    #[value(YARD.unit())]
     Yard,
-    #[value(LEUGA)]
+    #[value(LEUGA.unit())]
     Leuga,
-    #[value(MILLE_PASSUS)]
+    #[value(MILLE_PASSUS.unit())]
     MillePassus,
-    #[value(STADIUM)]
+    #[value(STADIUM.unit())]
     Stadium,
-    #[value(ACTUS)]
+    #[value(ACTUS.unit())]
     Actus,
-    #[value(DECEMPEDA)]
+    #[value(DECEMPEDA.unit())]
     Decempeda,
-    #[value(PASSUS)]
+    #[value(PASSUS.unit())]
     Passus,
-    #[value(GRADUS)]
+    #[value(GRADUS.unit())]
     Gradus,
-    #[value(CUBITUM)]
+    #[value(CUBITUM.unit())]
     Cubitum,
-    #[value(PALMIPES)]
+    #[value(PALMIPES.unit())]
     Palmipes,
-    #[value(PES)]
+    #[value(PES.unit())]
     Pes,
-    #[value(PALMUS_MAIOR)]
+    #[value(PALMUS_MAIOR.unit())]
     PalmusMaior,
-    #[value(PALMUS)]
+    #[value(PALMUS.unit())]
     Palmus,
-    #[value(LENGTH_UNCIA)]
+    #[value(LENGTH_UNCIA.unit())]
     Uncia,
-    #[value(DIGITUS)]
+    #[value(DIGITUS.unit())]
     Digitus,
 }
 
-/// The units of `Mass`, in any number type they count in.
+/// The units of `Mass`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MASS, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MASS, N>;
-        fn value(&self, quantity: SIQuantity<MASS, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MassUnit {
     #[default]
-    #[value(KILOGRAM)]
+    #[value(KILOGRAM.unit())]
     Kilogram,
-    #[value(GRAM)]
+    #[value(GRAM.unit())]
     Gram,
-    #[value(CARAT)]
+    #[value(CARAT.unit())]
     Carat,
-    #[value(DALTON)]
+    #[value(DALTON.unit())]
     Dalton,
-    #[value(ELECTRON_MASS)]
+    #[value(ELECTRON_MASS.unit())]
     ElectronMass,
-    #[value(PROTON_MASS)]
+    #[value(PROTON_MASS.unit())]
     ProtonMass,
-    #[value(GRAIN)]
+    #[value(GRAIN.unit())]
     Grain,
-    #[value(HUNDREDWEIGHT_LONG)]
+    #[value(HUNDREDWEIGHT_LONG.unit())]
     HundredweightLong,
-    #[value(HUNDREDWEIGHT_SHORT)]
+    #[value(HUNDREDWEIGHT_SHORT.unit())]
     HundredweightShort,
-    #[value(OUNCE)]
+    #[value(OUNCE.unit())]
     Ounce,
-    #[value(OUNCE_TROY)]
+    #[value(OUNCE_TROY.unit())]
     OunceTroy,
-    #[value(PENNYWEIGHT)]
+    #[value(PENNYWEIGHT.unit())]
     Pennyweight,
-    #[value(POUND)]
+    #[value(POUND.unit())]
     Pound,
-    #[value(POUND_TROY)]
+    #[value(POUND_TROY.unit())]
     PoundTroy,
-    #[value(SLUG)]
+    #[value(SLUG.unit())]
     Slug,
-    #[value(TON_ASSAY)]
+    #[value(TON_ASSAY.unit())]
     TonAssay,
-    #[value(TON_LONG)]
+    #[value(TON_LONG.unit())]
     TonLong,
-    #[value(TON_SHORT)]
+    #[value(TON_SHORT.unit())]
     TonShort,
-    #[value(TON)]
+    #[value(TON.unit())]
     Ton,
-    #[value(LIBRA)]
+    #[value(LIBRA.unit())]
     Libra,
-    #[value(MASS_DEUNX)]
+    #[value(MASS_DEUNX.unit())]
     Deunx,
-    #[value(MASS_DEXTANS)]
+    #[value(MASS_DEXTANS.unit())]
     Dextans,
-    #[value(MASS_DODRANS)]
+    #[value(MASS_DODRANS.unit())]
     Dodrans,
-    #[value(MASS_BES)]
+    #[value(MASS_BES.unit())]
     Bes,
-    #[value(MASS_SEPTUNX)]
+    #[value(MASS_SEPTUNX.unit())]
     Septunx,
-    #[value(MASS_SEMIS)]
+    #[value(MASS_SEMIS.unit())]
     Semis,
-    #[value(MASS_QUINCUNX)]
+    #[value(MASS_QUINCUNX.unit())]
     Quincunx,
-    #[value(MASS_TRIENS)]
+    #[value(MASS_TRIENS.unit())]
     Triens,
-    #[value(QUADRANS_TERUNCIUS)]
+    #[value(QUADRANS_TERUNCIUS.unit())]
     QuadransTeruncius,
-    #[value(MASS_SEXTANS)]
+    #[value(MASS_SEXTANS.unit())]
     Sextans,
-    #[value(SESCUNCIA)]
+    #[value(SESCUNCIA.unit())]
     Sescuncia,
-    #[value(MASS_UNCIA)]
+    #[value(MASS_UNCIA.unit())]
     Uncia,
-    #[value(SEMUNCIA)]
+    #[value(SEMUNCIA.unit())]
     Semuncia,
-    #[value(DUELLA)]
+    #[value(DUELLA.unit())]
     Duella,
-    #[value(MASS_SICILICUS)]
+    #[value(MASS_SICILICUS.unit())]
     Sicilicus,
-    #[value(MASS_SEXTULA)]
+    #[value(MASS_SEXTULA.unit())]
     Sextula,
-    #[value(SEMISEXTULA)]
+    #[value(SEMISEXTULA.unit())]
     Semisextula,
-    #[value(MASS_SCRUPULUM)]
+    #[value(MASS_SCRUPULUM.unit())]
     Scrupulum,
-    #[value(OBOLUS)]
+    #[value(OBOLUS.unit())]
     Obolus,
-    #[value(SILIQUA)]
+    #[value(SILIQUA.unit())]
     Siliqua,
 }
 
-/// The units of `Time`, in any number type they count in.
+/// The units of `Time`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<TIME, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<TIME, N>;
-        fn value(&self, quantity: SIQuantity<TIME, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum TimeUnit {
     #[default]
-    #[value(SECOND)]
+    #[value(SECOND.unit())]
     Second,
-    #[value(SECOND_SIDEREAL)]
+    #[value(SECOND_SIDEREAL.unit())]
     SecondSidereal,
-    #[value(DAY)]
+    #[value(DAY.unit())]
     Day,
-    #[value(DAY_SIDEREAL)]
+    #[value(DAY_SIDEREAL.unit())]
     DaySidereal,
-    #[value(HOUR)]
+    #[value(HOUR.unit())]
     Hour,
-    #[value(HOUR_SIDEREAL)]
+    #[value(HOUR_SIDEREAL.unit())]
     HourSidereal,
-    #[value(MINUTE)]
+    #[value(MINUTE.unit())]
     Minute,
-    #[value(SHAKE)]
+    #[value(SHAKE.unit())]
     Shake,
-    #[value(YEAR)]
+    #[value(YEAR.unit())]
     Year,
-    #[value(YEAR_SIDEREAL)]
+    #[value(YEAR_SIDEREAL.unit())]
     YearSidereal,
-    #[value(YEAR_TROPICAL)]
+    #[value(YEAR_TROPICAL.unit())]
     YearTropical,
 }
 
-/// The units of `Instant`, in any number type they count in.
+/// The units of `Instant`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<INSTANT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<INSTANT, N>;
-        fn value(&self, quantity: SIQuantity<INSTANT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum InstantUnit {
     #[default]
-    #[value(UNIX_SECOND)]
+    #[value(UNIX_SECOND.unit())]
     UnixSecond,
-    #[value(UNIX_MILLISECOND)]
+    #[value(UNIX_MILLISECOND.unit())]
     UnixMillisecond,
-    #[value(GPS_SECOND)]
+    #[value(GPS_SECOND.unit())]
     GpsSecond,
-    #[value(JULIAN_DATE)]
+    #[value(JULIAN_DATE.unit())]
     JulianDate,
-    #[value(MODIFIED_JULIAN_DATE)]
+    #[value(MODIFIED_JULIAN_DATE.unit())]
     ModifiedJulianDate,
 }
 
-/// The units of `Area`, in any number type they count in.
+/// The units of `Area`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<AREA, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<AREA, N>;
-        fn value(&self, quantity: SIQuantity<AREA, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum AreaUnit {
     #[default]
-    #[value(SQUARE_METRE)]
+    #[value(SQUARE_METRE.unit())]
     SquareMetre,
-    #[value(ACRE)]
+    #[value(ACRE.unit())]
     Acre,
-    #[value(ARE)]
+    #[value(ARE.unit())]
     Are,
-    #[value(BARN)]
+    #[value(BARN.unit())]
     Barn,
-    #[value(CIRCULAR_MIL)]
+    #[value(CIRCULAR_MIL.unit())]
     CircularMil,
-    #[value(HECTARE)]
+    #[value(HECTARE.unit())]
     Hectare,
-    #[value(SQUARE_FOOT)]
+    #[value(SQUARE_FOOT.unit())]
     SquareFoot,
-    #[value(SQUARE_INCH)]
+    #[value(SQUARE_INCH.unit())]
     SquareInch,
-    #[value(SQUARE_MILE)]
+    #[value(SQUARE_MILE.unit())]
     SquareMile,
-    #[value(SQUARE_YARD)]
+    #[value(SQUARE_YARD.unit())]
     SquareYard,
-    #[value(SALTUS)]
+    #[value(SALTUS.unit())]
     Saltus,
-    #[value(CENTURIA)]
+    #[value(CENTURIA.unit())]
     Centuria,
-    #[value(HEREDIUM)]
+    #[value(HEREDIUM.unit())]
     Heredium,
-    #[value(JUGERUM)]
+    #[value(JUGERUM.unit())]
     Jugerum,
-    #[value(AREA_DEUNX)]
+    #[value(AREA_DEUNX.unit())]
     Deunx,
-    #[value(AREA_DEXTANS)]
+    #[value(AREA_DEXTANS.unit())]
     Dextans,
-    #[value(AREA_DODRANS)]
+    #[value(AREA_DODRANS.unit())]
     Dodrans,
-    #[value(AREA_BES)]
+    #[value(AREA_BES.unit())]
     Bes,
-    #[value(AREA_SEPTUNX)]
+    #[value(AREA_SEPTUNX.unit())]
     Septunx,
-    #[value(AREA_SEMIS)]
+    #[value(AREA_SEMIS.unit())]
     Semis,
-    #[value(ACTUS_QUADRATUS)]
+    #[value(ACTUS_QUADRATUS.unit())]
     ActusQuadratus,
-    #[value(AREA_QUINCUNX)]
+    #[value(AREA_QUINCUNX.unit())]
     Quincunx,
-    #[value(AREA_TRIENS)]
+    #[value(AREA_TRIENS.unit())]
     Triens,
-    #[value(QUADRANS)]
+    #[value(QUADRANS.unit())]
     Quadrans,
-    #[value(AREA_SEXTANS)]
+    #[value(AREA_SEXTANS.unit())]
     Sextans,
-    #[value(CLIMA)]
+    #[value(CLIMA.unit())]
     Clima,
-    #[value(AREA_UNCIA)]
+    #[value(AREA_UNCIA.unit())]
     Uncia,
-    #[value(SEMIUNCIA)]
+    #[value(SEMIUNCIA.unit())]
     Semiuncia,
-    #[value(AREA_SICILICUS)]
+    #[value(AREA_SICILICUS.unit())]
     Sicilicus,
-    #[value(ACTUS_SIMPLEX)]
+    #[value(ACTUS_SIMPLEX.unit())]
     ActusSimplex,
-    #[value(AREA_SEXTULA)]
+    #[value(AREA_SEXTULA.unit())]
     Sextula,
-    #[value(DUO_SCRUPULUM)]
+    #[value(DUO_SCRUPULUM.unit())]
     DuoScrupulum,
-    #[value(AREA_SCRUPULUM)]
+    #[value(AREA_SCRUPULUM.unit())]
     Scrupulum,
-    #[value(DIMIDIUM_SCRUPULUM)]
+    #[value(DIMIDIUM_SCRUPULUM.unit())]
     DimidiumScrupulum,
-    #[value(PES_QUADRATUS)]
+    #[value(PES_QUADRATUS.unit())]
     PesQuadratus,
 }
 
-/// The units of `Volume`, in any number type they count in.
+/// The units of `Volume`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<VOLUME, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<VOLUME, N>;
-        fn value(&self, quantity: SIQuantity<VOLUME, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(CUBIC_METRE)]
+    #[value(CUBIC_METRE.unit())]
     CubicMetre,
-    #[value(ACRE_FOOT)]
+    #[value(ACRE_FOOT.unit())]
     AcreFoot,
-    #[value(BARREL)]
+    #[value(BARREL.unit())]
     Barrel,
-    #[value(BUSHEL)]
+    #[value(BUSHEL.unit())]
     Bushel,
-    #[value(CORD)]
+    #[value(CORD.unit())]
     Cord,
-    #[value(CUBIC_FOOT)]
+    #[value(CUBIC_FOOT.unit())]
     CubicFoot,
-    #[value(CUBIC_INCH)]
+    #[value(CUBIC_INCH.unit())]
     CubicInch,
-    #[value(CUBIC_MILE)]
+    #[value(CUBIC_MILE.unit())]
     CubicMile,
-    #[value(CUBIC_YARD)]
+    #[value(CUBIC_YARD.unit())]
     CubicYard,
-    #[value(CUP)]
+    #[value(CUP.unit())]
     Cup,
-    #[value(FLUID_OUNCE)]
+    #[value(FLUID_OUNCE.unit())]
     FluidOunce,
-    #[value(FLUID_OUNCE_IMPERIAL)]
+    #[value(FLUID_OUNCE_IMPERIAL.unit())]
     FluidOunceImperial,
-    #[value(GALLON_IMPERIAL)]
+    #[value(GALLON_IMPERIAL.unit())]
     GallonImperial,
-    #[value(GALLON)]
+    #[value(GALLON.unit())]
     Gallon,
-    #[value(GILL_IMPERIAL)]
+    #[value(GILL_IMPERIAL.unit())]
     GillImperial,
-    #[value(GILL)]
+    #[value(GILL.unit())]
     Gill,
-    #[value(LITRE)]
+    #[value(LITRE.unit())]
     Litre,
-    #[value(PECK)]
+    #[value(PECK.unit())]
     Peck,
-    #[value(PINT_DRY)]
+    #[value(PINT_DRY.unit())]
     PintDry,
-    #[value(PINT_LIQUID)]
+    #[value(PINT_LIQUID.unit())]
     PintLiquid,
-    #[value(QUART_DRY)]
+    #[value(QUART_DRY.unit())]
     QuartDry,
-    #[value(QUART_LIQUID)]
+    #[value(QUART_LIQUID.unit())]
     QuartLiquid,
-    #[value(STERE)]
+    #[value(STERE.unit())]
     Stere,
-    #[value(TABLESPOON)]
+    #[value(TABLESPOON.unit())]
     Tablespoon,
-    #[value(TEASPOON)]
+    #[value(TEASPOON.unit())]
     Teaspoon,
-    #[value(REGISTER_TON)]
+    #[value(REGISTER_TON.unit())]
     RegisterTon,
-    #[value(CULEUS)]
+    #[value(CULEUS.unit())]
     Culeus,
-    #[value(AMPHORA_QUADRANTAL)]
+    #[value(AMPHORA_QUADRANTAL.unit())]
     AmphoraQuadrantal,
-    #[value(URNA)]
+    #[value(URNA.unit())]
     Urna,
-    #[value(MODIUS_CASTRENSIS)]
+    #[value(MODIUS_CASTRENSIS.unit())]
     ModiusCastrensis,
-    #[value(MODIUS)]
+    #[value(MODIUS.unit())]
     Modius,
-    #[value(SEMIMODIUS)]
+    #[value(SEMIMODIUS.unit())]
     Semimodius,
-    #[value(CONGIUS)]
+    #[value(CONGIUS.unit())]
     Congius,
-    #[value(SEXTARIUS)]
+    #[value(SEXTARIUS.unit())]
     Sextarius,
-    #[value(HEMINA)]
+    #[value(HEMINA.unit())]
     Hemina,
-    #[value(QUARTARIUS)]
+    #[value(QUARTARIUS.unit())]
     Quartarius,
-    #[value(ACETABULUM)]
+    #[value(ACETABULUM.unit())]
     Acetabulum,
-    #[value(CYATHUS)]
+    #[value(CYATHUS.unit())]
     Cyathus,
-    #[value(LIGULA)]
+    #[value(LIGULA.unit())]
     Ligula,
 }
 
-/// The units of `Velocity`, in any number type they count in.
+/// The units of `Velocity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<VELOCITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<VELOCITY, N>;
-        fn value(&self, quantity: SIQuantity<VELOCITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum VelocityUnit {
     #[default]
-    #[value(METRE_PER_SECOND)]
-    MetrePerSecond,
-    #[value(FOOT_PER_HOUR)]
-    FootPerHour,
-    #[value(FOOT_PER_MINUTE)]
-    FootPerMinute,
-    #[value(FOOT_PER_SECOND)]
-    FootPerSecond,
-    #[value(INCH_PER_SECOND)]
-    InchPerSecond,
-    #[value(INCH_PER_MINUTE)]
-    InchPerMinute,
-    #[value(KNOT)]
+    #[value(KNOT.unit())]
     Knot,
-    #[value(MILE_PER_HOUR)]
-    MilePerHour,
-    #[value(MILE_PER_MINUTE)]
-    MilePerMinute,
-    #[value(MILE_PER_SECOND)]
-    MilePerSecond,
-    #[value(ATOMIC_UNIT_OF_VELOCITY)]
+    #[value(ATOMIC_UNIT_OF_VELOCITY.unit())]
     AtomicUnitOfVelocity,
-    #[value(NATURAL_UNIT_OF_VELOCITY)]
+    #[value(NATURAL_UNIT_OF_VELOCITY.unit())]
     NaturalUnitOfVelocity,
-    #[value(SPEED_OF_LIGHT)]
+    #[value(SPEED_OF_LIGHT.unit())]
     SpeedOfLight,
-    #[value(KILOMETRE_PER_HOUR)]
-    KilometrePerHour,
-    #[value(MILLIMETRE_PER_MINUTE)]
-    MillimetrePerMinute,
 }
 
-/// The units of `Acceleration`, in any number type they count in.
+/// The units of `Acceleration`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ACCELERATION, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ACCELERATION, N>;
-        fn value(&self, quantity: SIQuantity<ACCELERATION, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum AccelerationUnit {
     #[default]
-    #[value(METRE_PER_SECOND_SQUARED)]
-    MetrePerSecondSquared,
-    #[value(FOOT_PER_SECOND_SQUARED)]
-    FootPerSecondSquared,
-    #[value(GALILEO)]
+    #[value(GALILEO.unit())]
     Galileo,
-    #[value(INCH_PER_SECOND_SQUARED)]
-    InchPerSecondSquared,
-    #[value(STANDARD_GRAVITY)]
+    #[value(STANDARD_GRAVITY.unit())]
     StandardGravity,
-    #[value(MILLIMETRE_PER_MINUTE_SQUARED)]
-    MillimetrePerMinuteSquared,
 }
 
-/// The units of `Jerk`, in any number type they count in.
+/// The units of `Absement`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<JERK, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<JERK, N>;
-        fn value(&self, quantity: SIQuantity<JERK, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum JerkUnit {
-    #[default]
-    #[value(METRE_PER_SECOND_CUBED)]
-    MetrePerSecondCubed,
-    #[value(FOOT_PER_SECOND_CUBED)]
-    FootPerSecondCubed,
-    #[value(INCH_PER_SECOND_CUBED)]
-    InchPerSecondCubed,
-    #[value(KILOMETRE_PER_MINUTE_CUBED)]
-    KilometrePerMinuteCubed,
-}
-
-/// The units of `Absement`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ABSEMENT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ABSEMENT, N>;
-        fn value(&self, quantity: SIQuantity<ABSEMENT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum AbsementUnit {
     #[default]
-    #[value(METRE_SECOND)]
+    #[value(METRE_SECOND.unit())]
     MetreSecond,
-    #[value(FOOT_SECOND)]
+    #[value(FOOT_SECOND.unit())]
     FootSecond,
-    #[value(INCH_SECOND)]
+    #[value(INCH_SECOND.unit())]
     InchSecond,
-    #[value(KILOMETRE_HOUR)]
+    #[value(KILOMETRE_HOUR.unit())]
     KilometreHour,
 }
 
-/// The units of `InverseVelocity`, in any number type they count in.
+/// The units of `Force`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<INVERSE_VELOCITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<INVERSE_VELOCITY, N>;
-        fn value(&self, quantity: SIQuantity<INVERSE_VELOCITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum InverseVelocityUnit {
-    #[default]
-    #[value(SECOND_PER_METRE)]
-    SecondPerMetre,
-    #[value(HOUR_PER_FOOT)]
-    HourPerFoot,
-    #[value(MINUTE_PER_FOOT)]
-    MinutePerFoot,
-    #[value(SECOND_PER_FOOT)]
-    SecondPerFoot,
-    #[value(SECOND_PER_INCH)]
-    SecondPerInch,
-    #[value(HOUR_PER_MILE)]
-    HourPerMile,
-    #[value(MINUTE_PER_MILE)]
-    MinutePerMile,
-    #[value(SECOND_PER_MILE)]
-    SecondPerMile,
-    #[value(MINUTE_PER_KILOMETRE)]
-    MinutePerKilometre,
-    #[value(HOUR_PER_KILOMETRE)]
-    HourPerKilometre,
-}
-
-/// The units of `Force`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<FORCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<FORCE, N>;
-        fn value(&self, quantity: SIQuantity<FORCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ForceUnit {
     #[default]
-    #[value(NEWTON)]
+    #[value(NEWTON.unit())]
     Newton,
-    #[value(DYNE)]
+    #[value(DYNE.unit())]
     Dyne,
-    #[value(KILOGRAM_FORCE)]
+    #[value(KILOGRAM_FORCE.unit())]
     KilogramForce,
-    #[value(KIP)]
+    #[value(KIP.unit())]
     Kip,
-    #[value(OUNCE_FORCE)]
+    #[value(OUNCE_FORCE.unit())]
     OunceForce,
-    #[value(POUNDAL)]
+    #[value(POUNDAL.unit())]
     Poundal,
-    #[value(POUND_FORCE)]
+    #[value(POUND_FORCE.unit())]
     PoundForce,
-    #[value(TON_FORCE)]
+    #[value(TON_FORCE.unit())]
     TonForce,
 }
 
-/// The units of `Momentum`, in any number type they count in.
+/// The units of `Energy`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MOMENTUM, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MOMENTUM, N>;
-        fn value(&self, quantity: SIQuantity<MOMENTUM, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum MomentumUnit {
-    #[default]
-    #[value(KILOGRAM_METRE_PER_SECOND)]
-    KilogramMetrePerSecond,
-    #[value(GRAM_METRE_PER_SECOND)]
-    GramMetrePerSecond,
-    #[value(TON_METRE_PER_SECOND)]
-    TonMetrePerSecond,
-    #[value(KILOGRAM_METRE_PER_MINUTE)]
-    KilogramMetrePerMinute,
-    #[value(KILOGRAM_METRE_PER_HOUR)]
-    KilogramMetrePerHour,
-    #[value(KILOGRAM_METRE_PER_DAY)]
-    KilogramMetrePerDay,
-    #[value(SLUG_FOOT_PER_SECOND)]
-    SlugFootPerSecond,
-    #[value(SLUG_INCH_PER_SECOND)]
-    SlugInchPerSecond,
-    #[value(POUND_FOOT_PER_SECOND)]
-    PoundFootPerSecond,
-    #[value(POUND_INCH_PER_SECOND)]
-    PoundInchPerSecond,
-}
-
-/// The units of `Energy`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ENERGY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ENERGY, N>;
-        fn value(&self, quantity: SIQuantity<ENERGY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum EnergyUnit {
     #[default]
-    #[value(JOULE)]
+    #[value(JOULE.unit())]
     Joule,
-    #[value(WATT_HOUR)]
+    #[value(WATT_HOUR.unit())]
     WattHour,
-    #[value(ELECTRONVOLT)]
+    #[value(ELECTRONVOLT.unit())]
     Electronvolt,
-    #[value(HARTREE)]
+    #[value(HARTREE.unit())]
     Hartree,
-    #[value(BTU_IT)]
+    #[value(BTU_IT.unit())]
     BtuIt,
-    #[value(BTU)]
+    #[value(BTU.unit())]
     Btu,
-    #[value(CALORIE_IT)]
+    #[value(CALORIE_IT.unit())]
     CalorieIt,
-    #[value(CALORIE)]
+    #[value(CALORIE.unit())]
     Calorie,
-    #[value(CALORIE_IT_NUTRITION)]
+    #[value(CALORIE_IT_NUTRITION.unit())]
     CalorieItNutrition,
-    #[value(CALORIE_NUTRITION)]
+    #[value(CALORIE_NUTRITION.unit())]
     CalorieNutrition,
-    #[value(ERG)]
+    #[value(ERG.unit())]
     Erg,
-    #[value(FOOT_POUNDAL)]
+    #[value(FOOT_POUNDAL.unit())]
     FootPoundal,
-    #[value(FOOT_POUND)]
+    #[value(FOOT_POUND.unit())]
     FootPound,
-    #[value(QUAD)]
+    #[value(QUAD.unit())]
     Quad,
-    #[value(THERM_EC)]
+    #[value(THERM_EC.unit())]
     ThermEc,
-    #[value(THERM_US)]
+    #[value(THERM_US.unit())]
     ThermUs,
-    #[value(TON_TNT)]
+    #[value(TON_TNT.unit())]
     TonTnt,
-    #[value(WATT_SECOND)]
+    #[value(WATT_SECOND.unit())]
     WattSecond,
 }
 
-/// The units of `AvailableEnergy`, in any number type they count in.
+/// The units of `Power`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<AVAILABLE_ENERGY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<AVAILABLE_ENERGY, N>;
-        fn value(&self, quantity: SIQuantity<AVAILABLE_ENERGY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum AvailableEnergyUnit {
-    #[default]
-    #[value(JOULE_PER_KILOGRAM)]
-    JoulePerKilogram,
-    #[value(JOULE_PER_GRAM)]
-    JoulePerGram,
-    #[value(BTU_IT_PER_POUND)]
-    BtuItPerPound,
-    #[value(BTU_PER_POUND)]
-    BtuPerPound,
-    #[value(CALORIE_IT_PER_GRAM)]
-    CalorieItPerGram,
-    #[value(CALORIE_PER_GRAM)]
-    CaloriePerGram,
-}
-
-/// The units of `Power`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<POWER, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<POWER, N>;
-        fn value(&self, quantity: SIQuantity<POWER, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum PowerUnit {
     #[default]
-    #[value(WATT)]
+    #[value(WATT.unit())]
     Watt,
-    #[value(ERG_PER_SECOND)]
-    ErgPerSecond,
-    #[value(FOOT_POUND_PER_HOUR)]
-    FootPoundPerHour,
-    #[value(FOOT_POUND_PER_MINUTE)]
-    FootPoundPerMinute,
-    #[value(FOOT_POUND_PER_SECOND)]
-    FootPoundPerSecond,
-    #[value(HORSEPOWER)]
+    #[value(HORSEPOWER.unit())]
     Horsepower,
-    #[value(HORSEPOWER_BOILER)]
+    #[value(HORSEPOWER_BOILER.unit())]
     HorsepowerBoiler,
-    #[value(HORSEPOWER_ELECTRIC)]
+    #[value(HORSEPOWER_ELECTRIC.unit())]
     HorsepowerElectric,
-    #[value(HORSEPOWER_METRIC)]
+    #[value(HORSEPOWER_METRIC.unit())]
     HorsepowerMetric,
-    #[value(HORSEPOWER_IMPERIAL)]
+    #[value(HORSEPOWER_IMPERIAL.unit())]
     HorsepowerImperial,
-    #[value(HYDRAULIC_HORSEPOWER)]
+    #[value(HYDRAULIC_HORSEPOWER.unit())]
     HydraulicHorsepower,
-}
-
-/// The units of `Gain`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<GAIN, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<GAIN, N>;
-        fn value(&self, quantity: SIQuantity<GAIN, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum GainUnit {
-    #[default]
-    #[value(BEL)]
-    Bel,
-    #[value(DECIBEL)]
-    Decibel,
-    #[value(NEPER)]
-    Neper,
-}
-
-/// The units of `PowerLevel`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<POWER_LEVEL, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<POWER_LEVEL, N>;
-        fn value(&self, quantity: SIQuantity<POWER_LEVEL, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum PowerLevelUnit {
-    #[default]
-    #[value(DECIBEL_WATT)]
+    #[value(DECIBEL_WATT.unit())]
     DecibelWatt,
-    #[value(DECIBEL_MILLIWATT)]
+    #[value(DECIBEL_MILLIWATT.unit())]
     DecibelMilliwatt,
 }
 
-/// The units of `PowerRate`, in any number type they count in.
+/// The units of `Action`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<POWER_RATE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<POWER_RATE, N>;
-        fn value(&self, quantity: SIQuantity<POWER_RATE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum PowerRateUnit {
-    #[default]
-    #[value(WATT_PER_SECOND)]
-    WattPerSecond,
-    #[value(ERG_PER_SECOND_SQUARED)]
-    ErgPerSecondSquared,
-    #[value(FOOT_POUND_PER_SECOND_SQUARED)]
-    FootPoundPerSecondSquared,
-    #[value(HORSEPOWER_PER_SECOND)]
-    HorsepowerPerSecond,
-    #[value(HORSEPOWER_PER_SECOND_BOILER)]
-    HorsepowerPerSecondBoiler,
-    #[value(HORSEPOWER_PER_SECOND_ELECTRIC)]
-    HorsepowerPerSecondElectric,
-    #[value(HORSEPOWER_PER_SECOND_METRIC)]
-    HorsepowerPerSecondMetric,
-    #[value(HORSEPOWER_PER_SECOND_IMPERIAL)]
-    HorsepowerPerSecondImperial,
-    #[value(HYDRAULIC_HORSEPOWER_PER_SECOND)]
-    HydraulicHorsepowerPerSecond,
-}
-
-/// The units of `Action`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ACTION, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ACTION, N>;
-        fn value(&self, quantity: SIQuantity<ACTION, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ActionUnit {
     #[default]
-    #[value(JOULE_SECOND)]
+    #[value(JOULE_SECOND.unit())]
     JouleSecond,
-    #[value(ATOMIC_UNIT_OF_ACTION)]
+    #[value(ATOMIC_UNIT_OF_ACTION.unit())]
     AtomicUnitOfAction,
-    #[value(PLANCK_CONSTANT)]
+    #[value(PLANCK_CONSTANT.unit())]
     PlanckConstant,
-    #[value(ERG_SECOND)]
+    #[value(ERG_SECOND.unit())]
     ErgSecond,
-    #[value(ELECTRONVOLT_SECOND)]
+    #[value(ELECTRONVOLT_SECOND.unit())]
     ElectronvoltSecond,
 }
 
-/// The units of `Torque`, in any number type they count in.
+/// The units of `Torque`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<TORQUE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<TORQUE, N>;
-        fn value(&self, quantity: SIQuantity<TORQUE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum TorqueUnit {
     #[default]
-    #[value(NEWTON_METRE)]
+    #[value(NEWTON_METRE.unit())]
     NewtonMetre,
-    #[value(DYNE_METRE)]
+    #[value(DYNE_METRE.unit())]
     DyneMetre,
-    #[value(KILOGRAM_FORCE_METRE)]
+    #[value(KILOGRAM_FORCE_METRE.unit())]
     KilogramForceMetre,
-    #[value(OUNCE_FORCE_INCH)]
+    #[value(OUNCE_FORCE_INCH.unit())]
     OunceForceInch,
-    #[value(POUND_FORCE_FOOT)]
+    #[value(POUND_FORCE_FOOT.unit())]
     PoundForceFoot,
-    #[value(POUND_FORCE_INCH)]
+    #[value(POUND_FORCE_INCH.unit())]
     PoundForceInch,
 }
 
-/// The units of `MomentOfInertia`, in any number type they count in.
+/// The units of `MomentOfInertia`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<MOMENT_OF_INERTIA, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<MOMENT_OF_INERTIA, N>;
-        fn value(&self, quantity: SIQuantity<MOMENT_OF_INERTIA, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum MomentOfInertiaUnit {
     #[default]
-    #[value(KILOGRAM_SQUARE_METRE)]
+    #[value(KILOGRAM_SQUARE_METRE.unit())]
     KilogramSquareMetre,
-    #[value(DALTON_SQUARE_ANGSTROM)]
+    #[value(DALTON_SQUARE_ANGSTROM.unit())]
     DaltonSquareAngstrom,
 }
 
-/// The units of `Pressure`, in any number type they count in.
+/// The units of `Pressure`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<PRESSURE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<PRESSURE, N>;
-        fn value(&self, quantity: SIQuantity<PRESSURE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(PASCAL)]
+    #[value(PASCAL.unit())]
     Pascal,
-    #[value(STANDARD_ATMOSPHERE)]
+    #[value(STANDARD_ATMOSPHERE.unit())]
     StandardAtmosphere,
-    #[value(ATMOSPHERE_TECHNICAL)]
+    #[value(ATMOSPHERE_TECHNICAL.unit())]
     AtmosphereTechnical,
-    #[value(BAR)]
+    #[value(BAR.unit())]
     Bar,
-    #[value(CENTIMETRE_OF_MERCURY)]
+    #[value(CENTIMETRE_OF_MERCURY.unit())]
     CentimetreOfMercury,
-    #[value(CENTIMETRE_OF_WATER)]
+    #[value(CENTIMETRE_OF_WATER.unit())]
     CentimetreOfWater,
-    #[value(FOOT_OF_MERCURY)]
+    #[value(FOOT_OF_MERCURY.unit())]
     FootOfMercury,
-    #[value(FOOT_OF_WATER)]
+    #[value(FOOT_OF_WATER.unit())]
     FootOfWater,
-    #[value(INCH_OF_MERCURY)]
+    #[value(INCH_OF_MERCURY.unit())]
     InchOfMercury,
-    #[value(INCH_OF_WATER)]
+    #[value(INCH_OF_WATER.unit())]
     InchOfWater,
-    #[value(KIP_PER_SQUARE_INCH)]
-    KipPerSquareInch,
-    #[value(MILLIMETRE_OF_MERCURY)]
+    #[value(MILLIMETRE_OF_MERCURY.unit())]
     MillimetreOfMercury,
-    #[value(MILLIMETRE_OF_WATER)]
+    #[value(MILLIMETRE_OF_WATER.unit())]
     MillimetreOfWater,
-    #[value(POUNDAL_PER_SQUARE_FOOT)]
-    PoundalPerSquareFoot,
-    #[value(POUND_FORCE_PER_SQUARE_FOOT)]
-    PoundForcePerSquareFoot,
-    #[value(POUND_FORCE_PER_SQUARE_INCH)]
-    PoundForcePerSquareInch,
-    #[value(PSI)]
+    #[value(PSI.unit())]
     Psi,
-    #[value(TORR)]
+    #[value(TORR.unit())]
     Torr,
-    #[value(DYNE_PER_SQUARE_CENTIMETRE)]
-    DynePerSquareCentimetre,
-    #[value(NEWTON_PER_SQUARE_MILLIMETRE)]
-    NewtonPerSquareMillimetre,
 }
 
-/// The units of `Frequency`, in any number type they count in.
+/// The units of `Frequency`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<FREQUENCY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<FREQUENCY, N>;
-        fn value(&self, quantity: SIQuantity<FREQUENCY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum FrequencyUnit {
     #[default]
-    #[value(HERTZ)]
+    #[value(HERTZ.unit())]
     Hertz,
-    #[value(CYCLE_PER_DAY)]
-    CyclePerDay,
-    #[value(CYCLE_PER_HOUR)]
-    CyclePerHour,
-    #[value(CYCLE_PER_MINUTE)]
-    CyclePerMinute,
-    #[value(CYCLE_PER_SHAKE)]
-    CyclePerShake,
-    #[value(CYCLE_PER_YEAR)]
-    CyclePerYear,
 }
 
-/// The units of `FrequencyDrift`, in any number type they count in.
+/// The units of `ReciprocalLength`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<FREQUENCY_DRIFT, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<FREQUENCY_DRIFT, N>;
-        fn value(&self, quantity: SIQuantity<FREQUENCY_DRIFT, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum FrequencyDriftUnit {
-    #[default]
-    #[value(HERTZ_PER_SECOND)]
-    HertzPerSecond,
-}
-
-/// The units of `ReciprocalLength`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<RECIPROCAL_LENGTH, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<RECIPROCAL_LENGTH, N>;
-        fn value(&self, quantity: SIQuantity<RECIPROCAL_LENGTH, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum ReciprocalLengthUnit {
     #[default]
-    #[value(RECIPROCAL_METRE)]
+    #[value(RECIPROCAL_METRE.unit())]
     ReciprocalMetre,
-    #[value(RECIPROCAL_ANGSTROM)]
+    #[value(RECIPROCAL_ANGSTROM.unit())]
     ReciprocalAngstrom,
-    #[value(DIOPTER)]
+    #[value(DIOPTER.unit())]
     Diopter,
-    #[value(RYDBERG_CONSTANT)]
+    #[value(RYDBERG_CONSTANT.unit())]
     RydbergConstant,
 }
 
-/// The units of `Curvature`, in any number type they count in.
+/// The units of `SpecificGravitationalParameter`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<CURVATURE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<CURVATURE, N>;
-        fn value(&self, quantity: SIQuantity<CURVATURE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
-pub enum CurvatureUnit {
-    #[default]
-    #[value(RADIAN_PER_METRE)]
-    RadianPerMetre,
-    #[value(DEGREE_PER_METRE)]
-    DegreePerMetre,
-}
-
-/// The units of `SpecificArea`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<SPECIFIC_AREA, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<SPECIFIC_AREA, N>;
-        fn value(&self, quantity: SIQuantity<SPECIFIC_AREA, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum SpecificAreaUnit {
-    #[default]
-    #[value(SQUARE_METRE_PER_KILOGRAM)]
-    SquareMetrePerKilogram,
-    #[value(SQUARE_METRE_PER_GRAM)]
-    SquareMetrePerGram,
-}
-
-/// The units of `SpecificVolume`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<SPECIFIC_VOLUME, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<SPECIFIC_VOLUME, N>;
-        fn value(&self, quantity: SIQuantity<SPECIFIC_VOLUME, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum SpecificVolumeUnit {
-    #[default]
-    #[value(CUBIC_METRE_PER_KILOGRAM)]
-    CubicMetrePerKilogram,
-    #[value(CUBIC_METRE_PER_GRAM)]
-    CubicMetrePerGram,
-    #[value(CUBIC_METRE_PER_CARAT)]
-    CubicMetrePerCarat,
-    #[value(CUBIC_METRE_PER_GRAIN)]
-    CubicMetrePerGrain,
-    #[value(CUBIC_METRE_PER_HUNDREDWEIGHT_LONG)]
-    CubicMetrePerHundredweightLong,
-    #[value(CUBIC_METRE_PER_HUNDREDWEIGHT_SHORT)]
-    CubicMetrePerHundredweightShort,
-    #[value(CUBIC_METRE_PER_OUNCE)]
-    CubicMetrePerOunce,
-    #[value(CUBIC_METRE_PER_OUNCE_TROY)]
-    CubicMetrePerOunceTroy,
-    #[value(CUBIC_METRE_PER_PENNYWEIGHT)]
-    CubicMetrePerPennyweight,
-    #[value(CUBIC_METRE_PER_POUND)]
-    CubicMetrePerPound,
-    #[value(CUBIC_METRE_PER_POUND_TROY)]
-    CubicMetrePerPoundTroy,
-    #[value(CUBIC_METRE_PER_SLUG)]
-    CubicMetrePerSlug,
-    #[value(CUBIC_METRE_PER_TON_ASSAY)]
-    CubicMetrePerTonAssay,
-    #[value(CUBIC_METRE_PER_TON_LONG)]
-    CubicMetrePerTonLong,
-    #[value(CUBIC_METRE_PER_TON_SHORT)]
-    CubicMetrePerTonShort,
-    #[value(CUBIC_METRE_PER_TON)]
-    CubicMetrePerTon,
-    #[value(GALLON_PER_GRAIN)]
-    GallonPerGrain,
-    #[value(CUBIC_INCH_PER_OUNCE)]
-    CubicInchPerOunce,
-    #[value(GALLON_IMPERIAL_PER_OUNCE)]
-    GallonImperialPerOunce,
-    #[value(GALLON_PER_OUNCE)]
-    GallonPerOunce,
-    #[value(CUBIC_FOOT_PER_POUND)]
-    CubicFootPerPound,
-    #[value(CUBIC_INCH_PER_POUND)]
-    CubicInchPerPound,
-    #[value(CUBIC_YARD_PER_POUND)]
-    CubicYardPerPound,
-    #[value(GALLON_IMPERIAL_PER_POUND)]
-    GallonImperialPerPound,
-    #[value(GALLON_PER_POUND)]
-    GallonPerPound,
-    #[value(CUBIC_FOOT_PER_SLUG)]
-    CubicFootPerSlug,
-    #[value(CUBIC_YARD_PER_TON_LONG)]
-    CubicYardPerTonLong,
-    #[value(CUBIC_YARD_PER_TON_SHORT)]
-    CubicYardPerTonShort,
-    #[value(CUBIC_FOOT_PER_TON_LONG)]
-    CubicFootPerTonLong,
-    #[value(CUBIC_FOOT_PER_TON_SHORT)]
-    CubicFootPerTonShort,
-}
-
-/// The units of `SpecificPower`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<SPECIFIC_POWER, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<SPECIFIC_POWER, N>;
-        fn value(&self, quantity: SIQuantity<SPECIFIC_POWER, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum SpecificPowerUnit {
-    #[default]
-    #[value(WATT_PER_KILOGRAM)]
-    WattPerKilogram,
-    #[value(SQUARE_METRE_PER_CUBIC_SECOND)]
-    SquareMetrePerCubicSecond,
-    #[value(ERG_PER_SECOND_PER_KILOGRAM)]
-    ErgPerSecondPerKilogram,
-    #[value(FOOT_POUND_PER_HOUR_PER_POUND)]
-    FootPoundPerHourPerPound,
-    #[value(FOOT_POUND_PER_MINUTE_PER_POUND)]
-    FootPoundPerMinutePerPound,
-    #[value(FOOT_POUND_PER_SECOND_PER_POUND)]
-    FootPoundPerSecondPerPound,
-    #[value(HORSEPOWER_PER_POUND)]
-    HorsepowerPerPound,
-    #[value(HORSEPOWER_BOILER_PER_POUND)]
-    HorsepowerBoilerPerPound,
-    #[value(HORSEPOWER_ELECTRIC_PER_POUND)]
-    HorsepowerElectricPerPound,
-    #[value(HORSEPOWER_METRIC_PER_POUND)]
-    HorsepowerMetricPerPound,
-    #[value(HORSEPOWER_IMPERIAL_PER_POUND)]
-    HorsepowerImperialPerPound,
-    #[value(HYDRAULIC_HORSEPOWER_PER_POUND)]
-    HydraulicHorsepowerPerPound,
-}
-
-/// The units of `SpecificGravitationalParameter`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<SPECIFIC_GRAVITATIONAL_PARAMETER, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<SPECIFIC_GRAVITATIONAL_PARAMETER, N>;
-        fn value(&self, quantity: SIQuantity<SPECIFIC_GRAVITATIONAL_PARAMETER, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
+#[values(into(SIUnit))]
 pub enum SpecificGravitationalParameterUnit {
     #[default]
-    #[value(CUBIC_METRE_PER_KILOGRAM_SECOND_SQUARED)]
-    CubicMetrePerKilogramSecondSquared,
-    #[value(GRAVITATIONAL_CONSTANT)]
+    #[value(GRAVITATIONAL_CONSTANT.unit())]
     GravitationalConstant,
 }

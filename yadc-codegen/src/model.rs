@@ -5,9 +5,8 @@ use std::collections::BTreeMap;
 #[derive(Deserialize, Debug)]
 pub struct UnitSystem {
     pub system: SystemConfig,
-    pub kind: KindConfig,
     pub dim: DimConfig,
-    /// Units to place in the always-present `Dimensionless` type alias.
+    /// The units of a plain number, in the always-present `dimensionless` module.
     pub dimensionless: DimensionlessDef,
     /// One entry per quantity family (absent when `[ucum]` drives generation).
     #[serde(default)]
@@ -26,20 +25,24 @@ pub struct SystemConfig {
     /// Extra traits to derive on every unit enum, e.g. `["Debug", "Clone", "Hash"]`.
     #[serde(default)]
     pub unit_derives: Vec<String>,
-    /// Name for the generated dimension struct. Defaults to `"Dim"`.
-    #[serde(default)]
-    pub dim_type: Option<String>,
-    /// Name for the generated static-quantity tuple struct. Defaults to `"Qty"`.
+    /// Name for the quantity type, `<name><const U: <unit>, N>`. Defaults to
+    /// `"Qty"`.
     #[serde(default)]
     pub qty_type: Option<String>,
-    /// Name for the generated dynamic-quantity struct. Defaults to `"DynQty"`.
+    /// Name for the dynamic quantity type. Defaults to `"DynQty"`.
     #[serde(default)]
     pub dynqty_type: Option<String>,
-    /// Name for the generated unit type, `<name><D, C>`; its const parameter is
-    /// `<name>Consts` and its dynamic version `Dynamic<name>`. Defaults to
-    /// `"QtyUnit"`.
+    /// Name for the unit type, the quantity type's const parameter. Defaults
+    /// to `"QtyUnit"`.
     #[serde(default)]
     pub unit_type: Option<String>,
+    /// Symbols of coherent units printed by name: a quantity printed in the
+    /// coherent unit of a unit listed here (`"N"`, `"J"`, ..) prints its
+    /// symbol rather than the product of base units. Each names a unit of
+    /// size one in its quantity; the first listed wins where two share a
+    /// coherent unit.
+    #[serde(default)]
+    pub named: Vec<String>,
     /// Hand-written modules that live in the crate's `src/` but are NOT generated
     /// (e.g. a `uom_bridge` whose orphan-rule impls must sit beside the quantity
     /// type). The codegen emits a `pub mod` declaration for each in `lib.rs` but
@@ -60,40 +63,10 @@ pub struct ExtraModule {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct KindConfig {
-    /// Variant names for the `Kind` label enum, in declaration order.
-    pub variants: Vec<String>,
-    /// The plain label: the variant marked `#[default]` (dimension one's
-    /// label, what `*` and `/` leave beside anything but a plain number) -
-    /// the kind of an ordinary, linear amount.
-    pub default: String,
-    /// The affine kind: the variant whose quantities are points - two differ
-    /// by a plain amount, a plain amount moves one, and one has no sum with
-    /// another, no scaling and no products. Marked on its variant,
-    /// `#[kind(affine)]`.
-    #[serde(default)]
-    pub affine: Option<String>,
-    /// The logarithmic kind: the variant whose quantities are logarithms -
-    /// levels and gains, whose `+` and `-` add and subtract the exponents.
-    /// Marked on its variant, `#[kind(log)]`.
-    #[serde(default)]
-    pub log: Option<String>,
-    /// Labels of amounts with a true zero, read on scales with other zeros (a
-    /// temperature): two differ by a plain amount, and a plain amount moves
-    /// one. Marked on the variant, `#[kind(absolute)]`.
-    #[serde(default)]
-    pub absolute: Vec<String>,
-    /// The sums of a label of the system's own, emitted verbatim as that
-    /// variant's `#[kind(..)]`: `Rank = ["add(Rank) = invalid"]`. Labels: `*`
-    /// and `/` are fixed, so a rule is an `add(..)` or `sub(..)` entry, its
-    /// result a variant or `invalid` (`None`).
-    #[serde(default)]
-    pub rules: BTreeMap<String, Vec<String>>,
-}
-
-#[derive(Deserialize, Debug)]
 pub struct DimConfig {
-    /// Base dimension field names for the `Dim` struct, in declaration order.
+    /// The base units' symbols, in order: a base unit per field, the unit
+    /// whose symbol it is in the quantity of that field alone (`"m"`,
+    /// `METRE`).
     pub fields: Vec<String>,
 }
 
@@ -117,9 +90,6 @@ pub struct QuantityDef {
     /// Non-zero dimension exponents; absent fields are 0.
     #[serde(default)]
     pub dims: BTreeMap<String, i64>,
-    /// Optional kind variant name (without `Kind::` prefix).
-    /// `None` means the plain label of `Dim::DIMENSIONLESS`.
-    pub kind: Option<String>,
     pub units: Vec<UnitDef>,
 }
 
@@ -128,8 +98,11 @@ pub struct QuantityDef {
 ///
 /// A unit is its size and its zero in the quantity's coherent unit: a number
 /// `n` in it is `n · m + z` coherent units (`m = "0.0254"` for the inch, `m =
-/// "1.0", z = "273.15"` for the Celsius scale). It is a constant of its own
-/// type, `SIUnit<D, { SIUnitConsts { .. } }>`, named by `t` or its variant in
+/// "1.0", z = "273.15"` for the Celsius scale). A unit on a logarithmic
+/// scale has a `log` base and a `per`: `n` of it is `m · log^(n / per)`
+/// coherent units (dBm: `m = "0.001"`, `log = "10"`, `per = "10"`). A unit of
+/// size one, without a zero or a scale, is the coherent unit itself. Each is
+/// a constant quantity of one of it, named by `t` or its variant in
 /// SCREAMING_SNAKE_CASE.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
@@ -137,21 +110,29 @@ pub struct UnitDef {
     /// PascalCase enum variant name, e.g. `"Kilometre"`.
     #[serde(rename = "v")]
     pub variant: String,
-    /// The size in coherent units, a Rust expression of number literals and
-    /// `core::f64::consts::PI`, read exactly: `"1000.0"`, `"5.0 / 9.0"`.
+    /// The size in coherent units (the reference of a log unit), a Rust
+    /// expression of number literals and `core::f64::consts::PI`, read
+    /// exactly: `"1000.0"`, `"5.0 / 9.0"`.
     #[serde(rename = "m")]
     pub multiplier: String,
     /// The zero in coherent units, the same way: `"273.15"`. None is `0`.
     #[serde(rename = "z", default)]
     pub zero: Option<String>,
+    /// The base of a log unit, the same way: `"10"`.
+    #[serde(default)]
+    pub log: Option<String>,
+    /// How many of a log unit make one power of its base: `"10"` for a
+    /// decibel.
+    #[serde(default)]
+    pub per: Option<String>,
     /// Short symbol string, e.g. `"km"`.
     #[serde(rename = "s")]
     pub symbol: String,
     /// Long plural name, e.g. `"kilometres"`.
     #[serde(rename = "l")]
     pub long: String,
-    /// The unit's name when not the variant's: `t = "KelvinScale"` names the
-    /// constant `KELVIN_SCALE`.
+    /// The unit's name when not the variant's: `t = "DegreeCelsius"` names
+    /// the constant `DEGREE_CELSIUS`.
     #[serde(rename = "t", default)]
     pub type_name: Option<String>,
 }

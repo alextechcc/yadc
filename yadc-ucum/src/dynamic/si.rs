@@ -1,450 +1,345 @@
 //! The units of `si`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicUcumUnit;
-use crate::si::units::*;
+#[allow(unused_imports)]
 use crate::si::*;
-use crate::{Exact, Qty, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `AmountOfSubstance`, in any number type they count in.
+/// The units of `AmountOfSubstance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<AMOUNT_OF_SUBSTANCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<AMOUNT_OF_SUBSTANCE, N>;
-        fn value(&self, quantity: Qty<AMOUNT_OF_SUBSTANCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum AmountOfSubstanceUnit {
     #[default]
-    #[value(MOLE)]
+    #[value(MOLE.unit())]
     Mole,
 }
 
-/// The units of `DoseEquivalent`, in any number type they count in.
+/// The units of `DoseEquivalent`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<DOSE_EQUIVALENT, N>, N> {
-        fn quantity(&self, value: N) -> Qty<DOSE_EQUIVALENT, N>;
-        fn value(&self, quantity: Qty<DOSE_EQUIVALENT, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum DoseEquivalentUnit {
     #[default]
-    #[value(SIEVERT)]
+    #[value(SIEVERT.unit())]
     Sievert,
 }
 
-/// The units of `ElectricCapacitance`, in any number type they count in.
+/// The units of `ElectricCapacitance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ELECTRIC_CAPACITANCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ELECTRIC_CAPACITANCE, N>;
-        fn value(&self, quantity: Qty<ELECTRIC_CAPACITANCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ElectricCapacitanceUnit {
     #[default]
-    #[value(FARAD)]
+    #[value(FARAD.unit())]
     Farad,
 }
 
-/// The units of `ElectricCharge`, in any number type they count in.
+/// The units of `ElectricCharge`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ELECTRIC_CHARGE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ELECTRIC_CHARGE, N>;
-        fn value(&self, quantity: Qty<ELECTRIC_CHARGE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ElectricChargeUnit {
     #[default]
-    #[value(COULOMB)]
+    #[value(COULOMB.unit())]
     Coulomb,
 }
 
-/// The units of `ElectricConductance`, in any number type they count in.
+/// The units of `ElectricConductance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ELECTRIC_CONDUCTANCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ELECTRIC_CONDUCTANCE, N>;
-        fn value(&self, quantity: Qty<ELECTRIC_CONDUCTANCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ElectricConductanceUnit {
     #[default]
-    #[value(SIEMENS)]
+    #[value(SIEMENS.unit())]
     Siemens,
 }
 
-/// The units of `ElectricCurrent`, in any number type they count in.
+/// The units of `ElectricCurrent`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ELECTRIC_CURRENT, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ELECTRIC_CURRENT, N>;
-        fn value(&self, quantity: Qty<ELECTRIC_CURRENT, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ElectricCurrentUnit {
     #[default]
-    #[value(AMPERE)]
+    #[value(AMPERE.unit())]
     Ampere,
 }
 
-/// The units of `ElectricPotential`, in any number type they count in.
+/// The units of `ElectricPotential`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ELECTRIC_POTENTIAL, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ELECTRIC_POTENTIAL, N>;
-        fn value(&self, quantity: Qty<ELECTRIC_POTENTIAL, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ElectricPotentialUnit {
     #[default]
-    #[value(VOLT)]
+    #[value(VOLT.unit())]
     Volt,
 }
 
-/// The units of `ElectricResistance`, in any number type they count in.
+/// The units of `ElectricResistance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ELECTRIC_RESISTANCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ELECTRIC_RESISTANCE, N>;
-        fn value(&self, quantity: Qty<ELECTRIC_RESISTANCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ElectricResistanceUnit {
     #[default]
-    #[value(OHM)]
+    #[value(OHM.unit())]
     Ohm,
 }
 
-/// The units of `Energy`, in any number type they count in.
+/// The units of `Energy`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ENERGY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ENERGY, N>;
-        fn value(&self, quantity: Qty<ENERGY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
-    #[value(JOULE)]
+    #[value(JOULE.unit())]
     Joule,
 }
 
-/// The units of `EnergyDose`, in any number type they count in.
+/// The units of `EnergyDose`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ENERGY_DOSE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ENERGY_DOSE, N>;
-        fn value(&self, quantity: Qty<ENERGY_DOSE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum EnergyDoseUnit {
     #[default]
-    #[value(GRAY)]
+    #[value(GRAY.unit())]
     Gray,
 }
 
-/// The units of `Force`, in any number type they count in.
+/// The units of `Force`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<FORCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<FORCE, N>;
-        fn value(&self, quantity: Qty<FORCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ForceUnit {
     #[default]
-    #[value(NEWTON)]
+    #[value(NEWTON.unit())]
     Newton,
 }
 
-/// The units of `Frequency`, in any number type they count in.
+/// The units of `Frequency`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<FREQUENCY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<FREQUENCY, N>;
-        fn value(&self, quantity: Qty<FREQUENCY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum FrequencyUnit {
     #[default]
-    #[value(HERTZ)]
+    #[value(HERTZ.unit())]
     Hertz,
 }
 
-/// The units of `Illuminance`, in any number type they count in.
+/// The units of `Illuminance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ILLUMINANCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ILLUMINANCE, N>;
-        fn value(&self, quantity: Qty<ILLUMINANCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum IlluminanceUnit {
     #[default]
-    #[value(LUX)]
+    #[value(LUX.unit())]
     Lux,
 }
 
-/// The units of `Inductance`, in any number type they count in.
+/// The units of `Inductance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<INDUCTANCE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<INDUCTANCE, N>;
-        fn value(&self, quantity: Qty<INDUCTANCE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum InductanceUnit {
     #[default]
-    #[value(HENRY)]
+    #[value(HENRY.unit())]
     Henry,
 }
 
-/// The units of `Length`, in any number type they count in.
+/// The units of `Length`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<LENGTH, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LENGTH, N>;
-        fn value(&self, quantity: Qty<LENGTH, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
-    #[value(METER)]
+    #[value(METER.unit())]
     Meter,
 }
 
-/// The units of `LuminousFlux`, in any number type they count in.
+/// The units of `LuminousFlux`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<LUMINOUS_FLUX, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LUMINOUS_FLUX, N>;
-        fn value(&self, quantity: Qty<LUMINOUS_FLUX, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum LuminousFluxUnit {
     #[default]
-    #[value(LUMEN)]
+    #[value(LUMEN.unit())]
     Lumen,
 }
 
-/// The units of `LuminousIntensity`, in any number type they count in.
+/// The units of `LuminousIntensity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<LUMINOUS_INTENSITY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LUMINOUS_INTENSITY, N>;
-        fn value(&self, quantity: Qty<LUMINOUS_INTENSITY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum LuminousIntensityUnit {
     #[default]
-    #[value(CANDELA)]
+    #[value(CANDELA.unit())]
     Candela,
 }
 
-/// The units of `MagneticFlux`, in any number type they count in.
+/// The units of `MagneticFlux`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<MAGNETIC_FLUX, N>, N> {
-        fn quantity(&self, value: N) -> Qty<MAGNETIC_FLUX, N>;
-        fn value(&self, quantity: Qty<MAGNETIC_FLUX, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum MagneticFluxUnit {
     #[default]
-    #[value(WEBER)]
+    #[value(WEBER.unit())]
     Weber,
 }
 
-/// The units of `MagneticFluxDensity`, in any number type they count in.
+/// The units of `MagneticFluxDensity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<MAGNETIC_FLUX_DENSITY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<MAGNETIC_FLUX_DENSITY, N>;
-        fn value(&self, quantity: Qty<MAGNETIC_FLUX_DENSITY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum MagneticFluxDensityUnit {
     #[default]
-    #[value(TESLA)]
+    #[value(TESLA.unit())]
     Tesla,
 }
 
-/// The units of `Mass`, in any number type they count in.
+/// The units of `Mass`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<MASS, N>, N> {
-        fn quantity(&self, value: N) -> Qty<MASS, N>;
-        fn value(&self, quantity: Qty<MASS, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum MassUnit {
     #[default]
-    #[value(GRAM)]
+    #[value(GRAM.unit())]
     Gram,
 }
 
-/// The units of `PlaneAngle`, in any number type they count in.
+/// The units of `PlaneAngle`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<PLANE_ANGLE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<PLANE_ANGLE, N>;
-        fn value(&self, quantity: Qty<PLANE_ANGLE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum PlaneAngleUnit {
     #[default]
-    #[value(RADIAN)]
+    #[value(RADIAN.unit())]
     Radian,
 }
 
-/// The units of `Power`, in any number type they count in.
+/// The units of `Power`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<POWER, N>, N> {
-        fn quantity(&self, value: N) -> Qty<POWER, N>;
-        fn value(&self, quantity: Qty<POWER, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum PowerUnit {
     #[default]
-    #[value(WATT)]
+    #[value(WATT.unit())]
     Watt,
 }
 
-/// The units of `Pressure`, in any number type they count in.
+/// The units of `Pressure`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<PRESSURE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<PRESSURE, N>;
-        fn value(&self, quantity: Qty<PRESSURE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(PASCAL)]
+    #[value(PASCAL.unit())]
     Pascal,
 }
 
-/// The units of `Radioactivity`, in any number type they count in.
+/// The units of `Radioactivity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<RADIOACTIVITY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<RADIOACTIVITY, N>;
-        fn value(&self, quantity: Qty<RADIOACTIVITY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum RadioactivityUnit {
     #[default]
-    #[value(BECQUEREL)]
+    #[value(BECQUEREL.unit())]
     Becquerel,
 }
 
-/// The units of `SolidAngle`, in any number type they count in.
+/// The units of `SolidAngle`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<SOLID_ANGLE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<SOLID_ANGLE, N>;
-        fn value(&self, quantity: Qty<SOLID_ANGLE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum SolidAngleUnit {
     #[default]
-    #[value(STERADIAN)]
+    #[value(STERADIAN.unit())]
     Steradian,
 }
 
-/// The units of `Time`, in any number type they count in.
+/// The units of `Time`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<TIME, N>, N> {
-        fn quantity(&self, value: N) -> Qty<TIME, N>;
-        fn value(&self, quantity: Qty<TIME, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum TimeUnit {
     #[default]
-    #[value(SECOND)]
+    #[value(SECOND.unit())]
     Second,
 }

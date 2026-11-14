@@ -1,8 +1,9 @@
 //! Blanket [`From`] / [`Into`] / [`TryFrom`] impls bridging yadc-si's
-//! const-generic [`ISQ`] and uom's typenum-based ISQ dimension system.
+//! const-generic [`SIUnit`] (a quantity's coherent unit) and uom's
+//! typenum-based ISQ dimension system.
 //!
 //! Each typenum exponent type (`P1`, `Z0`, `N1`, ...) carries a `const I8: i8`
-//! via [`typenum::Integer`], so the const-generic ISQ value can be computed
+//! via [`typenum::Integer`], so the const-generic unit can be computed
 //! directly from the type-level exponents without any runtime overhead.
 //!
 //! uom stores quantities in SI-base units in its `pub value: f64` field
@@ -25,18 +26,19 @@ use typenum::Integer;
 use uom::si::{Quantity, Units, marker};
 
 use crate::dynamic::DynamicSIQuantity;
-use crate::{ISQ, Kind, SIQuantity};
+use crate::{
+    AMPERE, CANDELA, KELVIN, KILOGRAM, METRE, MOLE, RADIAN, SECOND, SIQuantity, SIUnit,
+};
 
 // --- Kind mapping -------------------------------------------------------------
 
-/// Maps a uom kind marker (as a `dyn` trait object type) to the corresponding
-/// yadc [`Kind`] variant, and says how the kind stands for radians.
+/// Says how a uom kind marker (as a `dyn` trait object type) stands for
+/// radians.
 ///
 /// uom follows the SI: angles are dimensionless, told apart by a kind. yadc-si
 /// counts radians on an exponent axis instead, so a uom angle kind becomes a
 /// `rad` exponent - which one depends on the quantity (see [`rad_of`]).
 pub trait UomKindMapping {
-    const YADC_KIND: Kind;
     /// How this kind stands for radians.
     const RADIANS: Radians = Radians::None;
 }
@@ -80,43 +82,27 @@ pub const fn rad_of(m: i8, kg: i8, s: i8, a: i8, k: i8, mol: i8, cd: i8, radians
     }
 }
 
-impl UomKindMapping for dyn uom::Kind {
-    const YADC_KIND: Kind = Kind::Linear;
-}
+impl UomKindMapping for dyn uom::Kind {}
 impl UomKindMapping for dyn marker::AngleKind {
-    const YADC_KIND: Kind = Kind::Linear;
     const RADIANS: Radians = Radians::Angle;
 }
 impl UomKindMapping for dyn marker::SolidAngleKind {
-    const YADC_KIND: Kind = Kind::Linear;
     const RADIANS: Radians = Radians::Squared;
 }
-impl UomKindMapping for dyn marker::TemperatureKind {
-    const YADC_KIND: Kind = Kind::Absolute;
-}
-impl UomKindMapping for dyn marker::InformationKind {
-    const YADC_KIND: Kind = Kind::Linear;
-}
-impl UomKindMapping for dyn marker::ConstituentConcentrationKind {
-    const YADC_KIND: Kind = Kind::Linear;
-}
-impl UomKindMapping for dyn marker::SurfaceTensionKind {
-    const YADC_KIND: Kind = Kind::Linear;
-}
-impl UomKindMapping for dyn marker::KinematicViscosityKind {
-    const YADC_KIND: Kind = Kind::Linear;
-}
+impl UomKindMapping for dyn marker::TemperatureKind {}
+impl UomKindMapping for dyn marker::InformationKind {}
+impl UomKindMapping for dyn marker::ConstituentConcentrationKind {}
+impl UomKindMapping for dyn marker::SurfaceTensionKind {}
+impl UomKindMapping for dyn marker::KinematicViscosityKind {}
 impl UomKindMapping for dyn marker::IlluminanceKind {
-    const YADC_KIND: Kind = Kind::Linear;
     const RADIANS: Radians = Radians::Squared;
 }
 
 // --- Const-generic helper -----------------------------------------------------
 
-// Direct struct literals are not yet supported in generic-const positions
-// (rustc: "overly complex generic constant"), but const-fn calls are.
-#[allow(non_snake_case, clippy::too_many_arguments)]
-const fn isq_of(
+/// The coherent unit of these exponents: the product of the base units.
+#[allow(clippy::too_many_arguments)]
+const fn unit_of(
     m: i8,
     kg: i8,
     s: i8,
@@ -124,20 +110,27 @@ const fn isq_of(
     k: i8,
     mol: i8,
     cd: i8,
-    kind: Kind,
     radians: Radians,
-) -> ISQ {
-    ISQ {
-        m,
-        kg,
-        s,
-        A: a,
-        K: k,
-        mol,
-        cd,
-        rad: rad_of(m, kg, s, a, k, mol, cd, radians),
-        kind,
+) -> SIUnit {
+    let parts = [
+        (METRE.unit(), m),
+        (KILOGRAM.unit(), kg),
+        (SECOND.unit(), s),
+        (AMPERE.unit(), a),
+        (KELVIN.unit(), k),
+        (MOLE.unit(), mol),
+        (CANDELA.unit(), cd),
+        (RADIAN.unit(), rad_of(m, kg, s, a, k, mol, cd, radians)),
+    ];
+    let mut u = SIUnit::ONE;
+    let mut i = 0;
+    while i < parts.len() {
+        if parts[i].1 != 0 {
+            u = u.times(parts[i].0, parts[i].1);
+        }
+        i += 1;
     }
+    u
 }
 
 // --- uom -> yadc-si -----------------------------------------------------------
@@ -146,7 +139,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
     From<Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>>
     for SIQuantity<
         {
-            isq_of(
+            unit_of(
                 <Ld as Integer>::I8,
                 <Md as Integer>::I8,
                 <Td as Integer>::I8,
@@ -154,11 +147,11 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
                 <Thd as Integer>::I8,
                 <Nd as Integer>::I8,
                 <Jd as Integer>::I8,
-                <Kd as UomKindMapping>::YADC_KIND,
                 <Kd as UomKindMapping>::RADIANS,
             )
         },
         f64,
+        true,
     >
 where
     Ld: Integer,
@@ -185,7 +178,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>
     From<
         SIQuantity<
             {
-                isq_of(
+                unit_of(
                     <Ld as Integer>::I8,
                     <Md as Integer>::I8,
                     <Td as Integer>::I8,
@@ -193,11 +186,11 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>
                     <Thd as Integer>::I8,
                     <Nd as Integer>::I8,
                     <Jd as Integer>::I8,
-                    <Kd as UomKindMapping>::YADC_KIND,
                     <Kd as UomKindMapping>::RADIANS,
                 )
             },
             f64,
+            true,
         >,
     > for Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, uom::si::SI<f64>, f64>
 where
@@ -213,7 +206,7 @@ where
     fn from(
         sq: SIQuantity<
             {
-                isq_of(
+                unit_of(
                     <Ld as Integer>::I8,
                     <Md as Integer>::I8,
                     <Td as Integer>::I8,
@@ -221,11 +214,11 @@ where
                     <Thd as Integer>::I8,
                     <Nd as Integer>::I8,
                     <Jd as Integer>::I8,
-                    <Kd as UomKindMapping>::YADC_KIND,
                     <Kd as UomKindMapping>::RADIANS,
                 )
             },
             f64,
+            true,
         >,
     ) -> Self {
         Quantity {
@@ -238,7 +231,7 @@ where
 
 // --- uom -> DynamicSIQuantity -------------------------------------------------
 
-// No const-generic position involved, so the ISQ struct literal is fine here.
+// No const-generic position involved: the unit is computed at run time.
 impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
     From<Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>> for DynamicSIQuantity
 where
@@ -254,8 +247,9 @@ where
 {
     fn from(q: Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>) -> Self {
         DynamicSIQuantity {
+            is_base: true,
             value: q.value,
-            dim: isq_of(
+            unit: unit_of(
                 Ld::I8,
                 Md::I8,
                 Td::I8,
@@ -263,7 +257,6 @@ where
                 Thd::I8,
                 Nd::I8,
                 Jd::I8,
-                <Kd as UomKindMapping>::YADC_KIND,
                 <Kd as UomKindMapping>::RADIANS,
             ),
         }
@@ -272,7 +265,7 @@ where
 
 // --- DynamicSIQuantity -> uom -------------------------------------------------
 
-// `TryFrom` because the runtime dim may not match the target uom type.
+// `TryFrom` because the run-time unit may not be the target uom type's.
 // Returns the original `DynamicSIQuantity` as the error so callers can recover it.
 impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd> TryFrom<DynamicSIQuantity>
     for Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, uom::si::SI<f64>, f64>
@@ -289,7 +282,7 @@ where
     type Error = DynamicSIQuantity;
 
     fn try_from(dq: DynamicSIQuantity) -> Result<Self, DynamicSIQuantity> {
-        let expected = isq_of(
+        let expected = unit_of(
             Ld::I8,
             Md::I8,
             Td::I8,
@@ -297,10 +290,9 @@ where
             Thd::I8,
             Nd::I8,
             Jd::I8,
-            <Kd as UomKindMapping>::YADC_KIND,
             <Kd as UomKindMapping>::RADIANS,
         );
-        if dq.dim == expected {
+        if dq.unit == expected && dq.is_base {
             Ok(Quantity {
                 value: dq.value,
                 dimension: PhantomData,

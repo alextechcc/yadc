@@ -5,8 +5,7 @@ use std::collections::{BTreeMap, HashMap};
 use super::parse::{UcumEssence, Unit};
 use super::resolve::{DimVec, Factor, Resolved};
 use crate::model::{
-    DimConfig, DimensionlessDef, FamilyDef, KindConfig, QuantityDef, SystemConfig, UnitDef,
-    UnitSystem,
+    DimConfig, DimensionlessDef, FamilyDef, QuantityDef, SystemConfig, UnitDef, UnitSystem,
 };
 
 fn class_to_family(class: &str) -> &'static str {
@@ -66,6 +65,8 @@ fn unit_def(variant: &str, m: &str, z: Option<&str>, symbol: &str, long: &str) -
         variant: variant.into(),
         multiplier: m.into(),
         zero: z.map(Into::into),
+        log: None,
+        per: None,
         symbol: symbol.into(),
         long: long.into(),
         type_name: None,
@@ -81,21 +82,16 @@ fn named(t: &str, unit: UnitDef) -> UnitDef {
 }
 
 /// Hardcoded temperature quantities - Celsius/Fahrenheit are isSpecial in
-/// UCUM. An absolute temperature has the config's absolute kind (or its
-/// affine one) and is read on scales, each a size and a zero in kelvins; a
-/// temperature step is a multiple of the kelvin.
-fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
+/// UCUM. A temperature is read on scales, each a size and a zero in kelvins;
+/// a temperature step is a multiple of the kelvin.
+fn temperature_quantities() -> Vec<QuantityDef> {
     let k_dim: BTreeMap<String, i64> = [("K".to_string(), 1i64)].into();
     vec![
         QuantityDef {
             name: "ThermodynamicTemperature".to_string(),
             dims: k_dim.clone(),
-            kind: Some(kind.to_string()),
             units: vec![
-                named(
-                    "KelvinScale",
-                    unit_def("Kelvin", "1.0", None, "K", "kelvin"),
-                ),
+                unit_def("Kelvin", "1.0", None, "K", "kelvin"),
                 named(
                     "Celsius",
                     unit_def(
@@ -131,7 +127,6 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
         QuantityDef {
             name: "TemperatureInterval".to_string(),
             dims: k_dim,
-            kind: None,
             units: vec![
                 unit_def("Kelvin", "1.0", None, "K", "kelvin"),
                 unit_def(
@@ -147,13 +142,12 @@ fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
 }
 
 /// Key for grouping units into a single `QuantityDef`: one quantity per
-/// family, UCUM property, dimension and kind.
+/// family, UCUM property and dimension.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 struct GroupKey {
     family: String,
     name: String,
     dim: DimVec,
-    kind: Option<String>,
 }
 
 /// Add `unit` to its group, unless the group already has a unit of that name.
@@ -165,9 +159,9 @@ fn push_unit(groups: &mut BTreeMap<GroupKey, Vec<UnitDef>>, key: &GroupKey, unit
 }
 
 /// A name suffix that tells apart quantities of one property by their
-/// dimension and kind, its axes in `[dim]` order: `KgPerM3`, `PerS`, `One`
+/// dimension, its axes in `[dim]` order: `KgPerM3`, `PerS`, `One`
 /// for dimension one.
-fn dim_suffix(dim: &DimVec, kind: Option<&str>, fields: &[String]) -> String {
+fn dim_suffix(dim: &DimVec, fields: &[String]) -> String {
     let part = |positive: bool| -> String {
         fields
             .iter()
@@ -189,9 +183,6 @@ fn dim_suffix(dim: &DimVec, kind: Option<&str>, fields: &[String]) -> String {
         s += "Per";
         s += &den;
     }
-    if let Some(k) = kind {
-        s += k;
-    }
     s
 }
 
@@ -199,7 +190,6 @@ pub fn to_unit_system(
     essence: &UcumEssence,
     resolved: &HashMap<String, Resolved>,
     system_cfg: SystemConfig,
-    kind_cfg: KindConfig,
     dim_cfg: DimConfig,
     dimless: DimensionlessDef,
 ) -> UnitSystem {
@@ -220,7 +210,6 @@ pub fn to_unit_system(
             family: "si".to_string(),
             name,
             dim: r.dim.clone(),
-            kind: r.kind.clone(),
         };
         push_unit(
             &mut groups,
@@ -237,7 +226,8 @@ pub fn to_unit_system(
     }
 
     for unit in &essence.units {
-        if unit.is_arbitrary || unit.is_special {
+        // A quotient of other units (`km/h`) is written as one: `KILOMETRE / HOUR`.
+        if unit.is_arbitrary || unit.is_special || unit.code.contains('/') {
             continue;
         }
         let Some(r) = resolved.get(&unit.code) else {
@@ -251,11 +241,10 @@ pub fn to_unit_system(
         let family = class_to_family(&unit.class);
         if family == "dimless" {
             assert!(
-                r.dim.is_empty() && r.kind.is_none(),
-                "UCUM unit `{}` is of class `dimless` but resolves to dimension {:?}, kind {:?}",
+                r.dim.is_empty(),
+                "UCUM unit `{}` is of class `dimless` but resolves to dimension {:?}",
                 unit.code,
                 r.dim,
-                r.kind,
             );
             dimless_units.push(make_unit_def(unit, &r.multiplier));
             continue;
@@ -265,12 +254,11 @@ pub fn to_unit_system(
             family: family.to_string(),
             name,
             dim: r.dim.clone(),
-            kind: r.kind.clone(),
         };
         push_unit(&mut groups, &key, make_unit_def(unit, &r.multiplier));
     }
 
-    // A property name shared by groups of different dimensions or kinds in
+    // A property name shared by groups of different dimensions in
     // one family is told apart by a dimension suffix on each.
     let mut name_count: BTreeMap<(&str, &str), usize> = BTreeMap::new();
     for key in groups.keys() {
@@ -282,7 +270,7 @@ pub fn to_unit_system(
             format!(
                 "{}{}",
                 key.name,
-                dim_suffix(&key.dim, key.kind.as_deref(), &dim_cfg.fields)
+                dim_suffix(&key.dim, &dim_cfg.fields)
             )
         } else {
             key.name.clone()
@@ -293,25 +281,15 @@ pub fn to_unit_system(
             .push(QuantityDef {
                 name,
                 dims: to_qty_dims(&key.dim),
-                kind: key.kind.clone(),
                 units: units.clone(),
             });
     }
 
     // Insert hardcoded temperature quantities into "heat" family
-    let absolute = kind_cfg
-        .absolute
-        .first()
-        .or(kind_cfg.affine.as_ref())
-        .cloned()
-        .expect(
-            "UCUM's absolute temperatures need a kind of their own: name one in [kind] `absolute` \
-             (or `affine`)",
-        );
     family_qtys
         .entry("heat".to_string())
         .or_default()
-        .extend(temperature_quantities(&absolute));
+        .extend(temperature_quantities());
 
     for (fam_name, qtys) in &mut family_qtys {
         assert!(
@@ -341,7 +319,6 @@ pub fn to_unit_system(
 
     UnitSystem {
         system: system_cfg,
-        kind: kind_cfg,
         dim: dim_cfg,
         dimensionless: DimensionlessDef {
             units: dimless_units,

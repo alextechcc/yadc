@@ -1,119 +1,95 @@
-//! A unit is a constant whose type is its dimension and definition,
-//! `SIUnit<D, C>`: `MILE.quantity(3.0)` builds, `MILE.value(d)` reads, in any
-//! number type its size converts to. An enum of them is a run-time choice,
-//! a unit the same way; `DynamicSIUnit` is a unit of any dimension.
-#![feature(generic_const_exprs, const_trait_impl)]
+//! A unit is in a quantity's type: `SIQuantity<U, N, IS_BASE>` is a number
+//! of `U`s. Every unit is a constant, one of it; a number times it is a
+//! quantity, `From` converts to a base unit of its dimension and back, and
+//! products of base units are base units.
+#![feature(generic_const_exprs, const_trait_impl, const_ops)]
 #![allow(incomplete_features)]
 
-use core::ops::{Add, Div, Mul, Sub};
-use yadc_si::SIQuantity;
-use yadc_si::dynamic::DynamicSIUnit;
-use yadc_si::dynamic::mechanical::{LengthUnit, VelocityUnit};
-use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
-use yadc_si::mechanical::units::{
-    DECIBEL_MILLIWATT, FOOT, INCH, JULIAN_DATE, KILOMETRE_PER_HOUR, METRE, METRE_PER_SECOND, MILE,
-    UNIX_SECOND, WATT,
-};
-use yadc_si::mechanical::{LENGTH, POWER};
-use yadc_si::thermal::units::{CELSIUS, FAHRENHEIT, KELVIN_SCALE};
-use yadc_si::{Exact, Unit};
-use yadc_si::{Prefix, Prefixed, SIUnit};
+use yadc_si::dynamic::DynamicSIQuantity;
+use yadc_si::dynamic::mechanical::LengthUnit;
+use yadc_si::mechanical::*;
+use yadc_si::thermal::*;
+use yadc_si::*;
 
 #[test]
-fn a_unit_builds_and_reads() {
-    let d = MILE.quantity(3.0_f64);
-    assert!((METRE.value(d) - 4828.032).abs() < 1e-9);
-    assert!((MILE.value(d) - 3.0).abs() < 1e-15);
-    assert!((METRE_PER_SECOND.value(KILOMETRE_PER_HOUR.quantity(36.0_f64)) - 10.0).abs() < 1e-12);
+fn user_code() {
+    let distance: Length<f64> = (2.0_f64 * KILOMETRE).into();
+    let time: Time<f64> = 100.0 * SECOND;
+    let speed: Velocity<f64> = distance / time;
+    assert_eq!(f64::from(speed / (1.0 * METRE / SECOND)), 20.0);
+    let mass: Mass<f64> = 2.0 * KILOGRAM;
+    let acceleration: Acceleration<f64> = speed / time;
+    let force: Force<f64> = mass * acceleration;
+    assert_eq!(f64::from(force / (1.0 * NEWTON)), 0.4);
+    let n = f64::from(distance / (1.0 * METRE));
+    assert_eq!(n, 2000.0);
 }
 
 #[test]
-fn any_number_type() {
-    let d: SIQuantity<LENGTH, f32> = INCH.quantity(10.0_f32);
-    assert!((METRE.value(d) - 0.254).abs() < 1e-6);
-    // An integer counts whole metres.
-    let k: SIQuantity<LENGTH, i32> = METRE.quantity(1609);
-    assert_eq!(METRE.value(k), 1609);
-}
-
-/// Folded at compile time.
-const MARATHON: SIQuantity<LENGTH, f64> = METRE.quantity(42195.0);
-
-#[test]
-fn const_units() {
-    assert!((MILE.value(MARATHON) - 26.218757).abs() < 1e-6);
-}
-
-/// Generic over the number type: what a unit asks of it.
-fn in_miles<
-    N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>,
->(
-    d: SIQuantity<LENGTH, N>,
-) -> N {
-    MILE.value(d)
-}
-
-/// Generic over the unit: any unit of lengths.
-fn round_trip<U: Unit<SIQuantity<LENGTH, f64>, f64>>(u: U, n: f64) -> f64 {
-    u.value(u.quantity(n))
+fn a_unit_with_a_zero() {
+    let t: ThermodynamicTemperature<f64> = (25.0_f64 * CELSIUS).into();
+    assert!((f64::from(t / (1.0 * KELVIN)) - 298.15).abs() < 1e-9);
+    // A unit with a zero has no quotient: a number of it is compared.
+    let back: SIQuantity<{ CELSIUS.unit() }, f64, false> = t.into();
+    assert!(back > 24.999 * CELSIUS && back < 25.001 * CELSIUS);
 }
 
 #[test]
-fn generic_code() {
-    assert!((in_miles(MARATHON) - 26.218757).abs() < 1e-6);
-    assert!((round_trip(FOOT, 2.5) - 2.5).abs() < 1e-12);
-    assert!((round_trip(LengthUnit::Inch, 2.5) - 2.5).abs() < 1e-12);
+fn a_log_unit() {
+    let p: Power<f64> = (30.0_f64 * DECIBEL_MILLIWATT).into();
+    assert!((f64::from(p / (1.0 * WATT)) - 1.0).abs() < 1e-12);
+    let level: SIQuantity<{ DECIBEL_MILLIWATT.unit() }, f64, false> = (2.0_f64 * WATT).into();
+    assert!(level > 33.0102 * DECIBEL_MILLIWATT && level < 33.0104 * DECIBEL_MILLIWATT);
 }
 
 #[test]
-fn zeros() {
-    let t = CELSIUS.quantity(25.0_f64);
-    assert!((KELVIN_SCALE.value(t) - 298.15).abs() < 1e-12);
-    assert!((FAHRENHEIT.value(t) - 77.0).abs() < 1e-12);
-    assert!(UNIX_SECOND.value(JULIAN_DATE.quantity(2440587.5_f64)).abs() < 1e-6);
-    let p = SIQuantity::<POWER, f64>::from(DECIBEL_MILLIWATT.quantity(30.0_f64));
-    assert!((WATT.value(p) - 1.0).abs() < 1e-12);
+fn kilogram_is_kilo_gram() {
+    let kilo_gram: Mass<Exact> = (KILO * GRAM).into();
+    assert_eq!(KILOGRAM, kilo_gram);
+    let force: Force<f64> = (3.0 * KILOGRAM) * (2.0 * METRE / (SECOND * SECOND));
+    assert_eq!(force, 6.0 * NEWTON);
+}
+
+/// A quotient of two unit constants, as a constant of its own.
+const KILOMETRE_PER_HOUR: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, Exact, false> =
+    KILOMETRE / HOUR;
+
+#[test]
+fn a_quotient_of_units() {
+    let v = Velocity::<f64>::from(36.0 * KILOMETRE_PER_HOUR);
+    assert!((f64::from(v / (1.0 * METRE / SECOND)) - 10.0).abs() < 1e-12);
+    assert_eq!((36.0_f64 * KILOMETRE_PER_HOUR).to_string(), "36 h^-1·km");
 }
 
 #[test]
-fn prints_and_parses() {
-    assert_eq!(format!("{MILE} / {MILE:#}"), "mi / miles");
-    assert_eq!("ft".parse::<LengthUnit>(), Ok(LengthUnit::Foot));
-    assert_eq!(LengthUnit::Foot.to_string(), "ft");
-    assert_eq!(
-        "km/h".parse::<VelocityUnit>(),
-        Ok(VelocityUnit::KilometrePerHour)
-    );
+fn display() {
+    assert_eq!((2.0_f64 * KILOMETRE).to_string(), "2 km");
+    let force: Force<f64> = (3.0 * KILOGRAM) * (2.0 * METRE / (SECOND * SECOND));
+    assert_eq!(force.to_string(), "6 N");
+    assert_eq!((1.5_f64 * METRE / SECOND).to_string(), "1.5 m·s^-1");
 }
 
 #[test]
-fn an_enum_is_a_run_time_choice() {
-    let setting = LengthUnit::Inch;
-    assert!((setting.value(FOOT.quantity(1.0_f64)) - 12.0).abs() < 1e-12);
-    let c = ThermodynamicTemperatureUnit::Celsius;
-    assert!(c.value(KELVIN_SCALE.quantity(273.15_f64)).abs() < 1e-12);
+fn unit_enum_round_trip() {
+    let u: LengthUnit = "km".parse().unwrap();
+    assert_eq!(u, LengthUnit::Kilometre);
+    assert_eq!(u.to_string(), "km");
+    assert_eq!(SIUnit::from(u), KILOMETRE.unit());
+    let unit = SIUnit::from(u);
+    assert_eq!(unit.from_base(unit.to_base(3.0)), 3.0);
+    assert_eq!(METRE.unit().from_base(unit.to_base(3.0)), 3000.0);
 }
 
 #[test]
-fn a_prefixed_unit() {
-    let km = Prefixed {
-        prefix: Some(Prefix::Kilo),
-        unit: LengthUnit::Metre,
-    };
-    assert!((METRE.value(km.quantity(3.0_f64)) - 3000.0).abs() < 1e-9);
-    assert!((km.value(MILE.quantity(1.0_f64)) - 1.609344).abs() < 1e-12);
-    assert_eq!(km.to_string(), "km");
-    assert_eq!("km".parse::<Prefixed<LengthUnit>>(), Ok(km));
-}
-
-/// The open level: a unit of any dimension.
-#[test]
-fn a_dynamic_unit() {
-    let mile = DynamicSIUnit::from(MILE);
-    let metre = DynamicSIUnit::from(LengthUnit::Metre);
-    let d = mile.quantity(Some(2.0));
-    assert!((metre.value(d).unwrap() - 3218.688).abs() < 1e-9);
-    assert_eq!(DynamicSIUnit::from(CELSIUS).value(d), None);
-    assert!(SIUnit::try_from(mile).is_ok_and(|u: SIUnit<_, _>| u == MILE));
-    assert_eq!(mile.to_string(), "mi");
+fn dynamic_arithmetic() {
+    let d = DynamicSIQuantity::from(3.0 * METRE);
+    let t = DynamicSIQuantity::from(2.0 * SECOND);
+    let v = (d / t).unwrap();
+    assert_eq!(v.unit, (METRE / SECOND).unit());
+    assert_eq!(v.value, 1.5);
+    assert!(v.is_base);
+    assert!((d + t).is_none());
+    let twice = (d + d).unwrap();
+    assert_eq!(Length::<f64>::try_from(twice).unwrap(), 6.0 * METRE);
+    assert!((DynamicSIQuantity::from(1.0 * CELSIUS) * d).is_none());
 }

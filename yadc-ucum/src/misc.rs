@@ -1,368 +1,281 @@
-use crate::Dim;
-use yadc::Dimension;
+//! The quantities of `misc` and their units.
 
-/// The dimension of `ActionArea`: `Qty<ACTION_AREA, N>` is one.
-pub const ACTION_AREA: Dim = Dim {
-    m: 2,
-    ..Dim::DIMENSIONLESS
-};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `ElectricConductance`: `Qty<ELECTRIC_CONDUCTANCE, N>` is one.
-pub const ELECTRIC_CONDUCTANCE: Dim = Dim {
-    m: -2,
-    s: 1,
-    g: -1,
-    C: 2,
-    ..Dim::DIMENSIONLESS
-};
+/// An action area, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ActionArea<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 2) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
-pub const LENGTH: Dim = Dim {
-    m: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Barn (`b`), a unit of `ActionArea`: `n` of them is `n · 1e-28` base units.
+pub const BARN: Qty<
+    {
+        UcumUnit::scaled(
+            "b",
+            Exact::dec(1, -28),
+            UcumUnit::ONE.times(METER.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Mass`: `Qty<MASS, N>` is one.
-pub const MASS: Dim = Dim {
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric conductance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricConductance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(SECOND.unit(), 1)
+            .times(GRAM.unit(), -1)
+            .times(COULOMB.unit(), 2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `MassFraction`: `Qty<MASS_FRACTION, N>` is one.
-pub const MASS_FRACTION: Dim = Dim::DIMENSIONLESS;
+/// Mho (`mho`), a unit of `ElectricConductance`: `n` of them is `n · 1e-3` base units.
+pub const MHO: Qty<
+    {
+        UcumUnit::scaled(
+            "mho",
+            Exact::dec(1, -3),
+            UcumUnit::ONE
+                .times(METER.unit(), -2)
+                .times(SECOND.unit(), 1)
+                .times(GRAM.unit(), -1)
+                .times(COULOMB.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `PlaneAngle`: `Qty<PLANE_ANGLE, N>` is one.
-pub const PLANE_ANGLE: Dim = Dim {
-    rad: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// A length, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Length<N, const U: UcumUnit = { METER.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-/// The dimension of `Pressure`: `Qty<PRESSURE, N>` is one.
-pub const PRESSURE: Dim = Dim {
-    m: -1,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Line (`[lne]`), a unit of `Length`: `n` of them is `n · 127 / 60000` base units.
+pub const LINE: Qty<
+    { UcumUnit::scaled("[lne]", Exact::int(127) / Exact::int(60000), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `SolidAngle`: `Qty<SOLID_ANGLE, N>` is one.
-pub const SOLID_ANGLE: Dim = Dim {
-    rad: 2,
-    ..Dim::DIMENSIONLESS
-};
+/// Point (`[pnt]`), a unit of `Length`: `n` of them is `n · 127 / 360000` base units.
+pub const POINT: Qty<
+    { UcumUnit::scaled("[pnt]", Exact::int(127) / Exact::int(360000), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Turbidity`: `Qty<TURBIDITY, N>` is one.
-pub const TURBIDITY: Dim = Dim::DIMENSIONLESS;
+/// Pica (`[pca]`), a unit of `Length`: `n` of them is `n · 127 / 30000` base units.
+pub const PICA: Qty<
+    { UcumUnit::scaled("[pca]", Exact::int(127) / Exact::int(30000), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Volume`: `Qty<VOLUME, N>` is one.
-pub const VOLUME: Dim = Dim {
-    m: 3,
-    ..Dim::DIMENSIONLESS
-};
+/// Printer's point (`[pnt_pr]`), a unit of `Length`: `n` of them is `n · 3514598e-10` base units.
+pub const PRINTER_S_POINT: Qty<
+    { UcumUnit::scaled("[pnt_pr]", Exact::dec(3514598, -10), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, UcumUnit, UcumUnitConsts};
+/// Printer's pica (`[pca_pr]`), a unit of `Length`: `n` of them is `n · 42175176e-10` base units.
+pub const PRINTER_S_PICA: Qty<
+    { UcumUnit::scaled("[pca_pr]", Exact::dec(42175176, -10), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Barn (`b`), a unit of `ActionArea`: `n` of them is `n · 1e-28` coherent units.
-    pub const BARN: UcumUnit<
-        ACTION_AREA,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -28),
-                zero: Exact::ZERO,
-                symbol: "b",
-                name: "barn",
-            }
-        },
-    > = UcumUnit;
+/// French foot (`[pied]`), a unit of `Length`: `n` of them is `n · 3248e-4` base units.
+pub const FRENCH_FOOT: Qty<
+    { UcumUnit::scaled("[pied]", Exact::dec(3248, -4), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Mho (`mho`), a unit of `ElectricConductance`: `n` of them is `n · 1e-3` coherent units.
-    pub const MHO: UcumUnit<
-        ELECTRIC_CONDUCTANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "mho",
-                name: "mho",
-            }
-        },
-    > = UcumUnit;
+/// French inch (`[pouce]`), a unit of `Length`: `n` of them is `n · 203 / 7500` base units.
+pub const FRENCH_INCH: Qty<
+    { UcumUnit::scaled("[pouce]", Exact::int(203) / Exact::int(7500), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Line (`[lne]`), a unit of `Length`: `n` of them is `n · 127 / 60000` coherent units.
-    pub const LINE: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(127) / Exact::int(60000),
-                zero: Exact::ZERO,
-                symbol: "[lne]",
-                name: "line",
-            }
-        },
-    > = UcumUnit;
+/// French line (`[ligne]`), a unit of `Length`: `n` of them is `n · 203 / 90000` base units.
+pub const FRENCH_LINE: Qty<
+    { UcumUnit::scaled("[ligne]", Exact::int(203) / Exact::int(90000), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Point (`[pnt]`), a unit of `Length`: `n` of them is `n · 127 / 360000` coherent units.
-    pub const POINT: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(127) / Exact::int(360000),
-                zero: Exact::ZERO,
-                symbol: "[pnt]",
-                name: "point",
-            }
-        },
-    > = UcumUnit;
+/// Didot's point (`[didot]`), a unit of `Length`: `n` of them is `n · 203 / 540000` base units.
+pub const DIDOT_S_POINT: Qty<
+    {
+        UcumUnit::scaled(
+            "[didot]",
+            Exact::int(203) / Exact::int(540000),
+            METER.unit(),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Pica (`[pca]`), a unit of `Length`: `n` of them is `n · 127 / 30000` coherent units.
-    pub const PICA: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(127) / Exact::int(30000),
-                zero: Exact::ZERO,
-                symbol: "[pca]",
-                name: "pica",
-            }
-        },
-    > = UcumUnit;
+/// Didot's pica (`[cicero]`), a unit of `Length`: `n` of them is `n · 203 / 45000` base units.
+pub const DIDOT_S_PICA: Qty<
+    {
+        UcumUnit::scaled(
+            "[cicero]",
+            Exact::int(203) / Exact::int(45000),
+            METER.unit(),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Printer's point (`[pnt_pr]`), a unit of `Length`: `n` of them is `n · 3514598e-10` coherent units.
-    pub const PRINTER_S_POINT: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(3514598, -10),
-                zero: Exact::ZERO,
-                symbol: "[pnt_pr]",
-                name: "Printer's point",
-            }
-        },
-    > = UcumUnit;
+/// Ångström (`Ao`), a unit of `Length`: `n` of them is `n · 1e-10` base units.
+pub const ANGSTROM: Qty<
+    { UcumUnit::scaled("Ao", Exact::dec(1, -10), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Printer's pica (`[pca_pr]`), a unit of `Length`: `n` of them is `n · 42175176e-10` coherent units.
-    pub const PRINTER_S_PICA: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(42175176, -10),
-                zero: Exact::ZERO,
-                symbol: "[pca_pr]",
-                name: "Printer's pica",
-            }
-        },
-    > = UcumUnit;
+/// Smoot (`[smoot]`), a unit of `Length`: `n` of them is `n · 17018e-4` base units.
+pub const SMOOT: Qty<
+    { UcumUnit::scaled("[smoot]", Exact::dec(17018, -4), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// French foot (`[pied]`), a unit of `Length`: `n` of them is `n · 3248e-4` coherent units.
-    pub const FRENCH_FOOT: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(3248, -4),
-                zero: Exact::ZERO,
-                symbol: "[pied]",
-                name: "French foot",
-            }
-        },
-    > = UcumUnit;
+/// A mass, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Mass<N, const U: UcumUnit = { GRAM.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// French inch (`[pouce]`), a unit of `Length`: `n` of them is `n · 203 / 7500` coherent units.
-    pub const FRENCH_INCH: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(203) / Exact::int(7500),
-                zero: Exact::ZERO,
-                symbol: "[pouce]",
-                name: "French inch",
-            }
-        },
-    > = UcumUnit;
+/// Metric carat (`[car_m]`), a unit of `Mass`: `n` of them is `n · 2e-1` base units.
+pub const METRIC_CARAT: Qty<
+    { UcumUnit::scaled("[car_m]", Exact::dec(2, -1), GRAM.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// French line (`[ligne]`), a unit of `Length`: `n` of them is `n · 203 / 90000` coherent units.
-    pub const FRENCH_LINE: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(203) / Exact::int(90000),
-                zero: Exact::ZERO,
-                symbol: "[ligne]",
-                name: "French line",
-            }
-        },
-    > = UcumUnit;
+/// A mass fraction, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MassFraction<N, const U: UcumUnit = { UcumUnit::ONE }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Didot's point (`[didot]`), a unit of `Length`: `n` of them is `n · 203 / 540000` coherent units.
-    pub const DIDOT_S_POINT: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(203) / Exact::int(540000),
-                zero: Exact::ZERO,
-                symbol: "[didot]",
-                name: "Didot's point",
-            }
-        },
-    > = UcumUnit;
+/// Carat of gold alloys (`[car_Au]`), a unit of `MassFraction`: `n` of them is `n · 1 / 24` base units.
+pub const CARAT_OF_GOLD_ALLOYS: Qty<
+    { UcumUnit::scaled("[car_Au]", Exact::int(1) / Exact::int(24), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Didot's pica (`[cicero]`), a unit of `Length`: `n` of them is `n · 203 / 45000` coherent units.
-    pub const DIDOT_S_PICA: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(203) / Exact::int(45000),
-                zero: Exact::ZERO,
-                symbol: "[cicero]",
-                name: "Didot's pica",
-            }
-        },
-    > = UcumUnit;
+/// A plane angle, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type PlaneAngle<N, const U: UcumUnit = { RADIAN.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Ångström (`Ao`), a unit of `Length`: `n` of them is `n · 1e-10` coherent units.
-    pub const ANGSTROM: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -10),
-                zero: Exact::ZERO,
-                symbol: "Ao",
-                name: "Ångström",
-            }
-        },
-    > = UcumUnit;
+/// Circle (`circ`), a unit of `PlaneAngle`: `n` of them is `n · 2 * core::f64::consts::PI` base units.
+pub const CIRCLE: Qty<
+    { UcumUnit::scaled("circ", Exact::int(2) * Exact::PI, RADIAN.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Smoot (`[smoot]`), a unit of `Length`: `n` of them is `n · 17018e-4` coherent units.
-    pub const SMOOT: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(17018, -4),
-                zero: Exact::ZERO,
-                symbol: "[smoot]",
-                name: "Smoot",
-            }
-        },
-    > = UcumUnit;
+/// A pressure, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Pressure<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -1)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Metric carat (`[car_m]`), a unit of `Mass`: `n` of them is `n · 2e-1` coherent units.
-    pub const METRIC_CARAT: UcumUnit<
-        MASS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(2, -1),
-                zero: Exact::ZERO,
-                symbol: "[car_m]",
-                name: "metric carat",
-            }
-        },
-    > = UcumUnit;
+/// Technical atmosphere (`att`), a unit of `Pressure`: `n` of them is `n · 980665e2` base units.
+pub const TECHNICAL_ATMOSPHERE: Qty<
+    {
+        UcumUnit::scaled(
+            "att",
+            Exact::int(98066500),
+            UcumUnit::ONE
+                .times(METER.unit(), -1)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Carat of gold alloys (`[car_Au]`), a unit of `MassFraction`: `n` of them is `n · 1 / 24` coherent units.
-    pub const CARAT_OF_GOLD_ALLOYS: UcumUnit<
-        MASS_FRACTION,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1) / Exact::int(24),
-                zero: Exact::ZERO,
-                symbol: "[car_Au]",
-                name: "carat of gold alloys",
-            }
-        },
-    > = UcumUnit;
+/// Pound per square inch (`[psi]`), a unit of `Pressure`: `n` of them is `n · 8896443230521 / 1290320` base units.
+pub const POUND_PER_SQUARE_INCH: Qty<
+    {
+        UcumUnit::scaled(
+            "[psi]",
+            Exact::int(8896443230521) / Exact::int(1290320),
+            UcumUnit::ONE
+                .times(METER.unit(), -1)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Circle (`circ`), a unit of `PlaneAngle`: `n` of them is `n · 2 * core::f64::consts::PI` coherent units.
-    pub const CIRCLE: UcumUnit<
-        PLANE_ANGLE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(2) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "circ",
-                name: "circle",
-            }
-        },
-    > = UcumUnit;
+/// A solid angle, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type SolidAngle<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(RADIAN.unit(), 2) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Technical atmosphere (`att`), a unit of `Pressure`: `n` of them is `n · 980665e2` coherent units.
-    pub const TECHNICAL_ATMOSPHERE: UcumUnit<
-        PRESSURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(98066500),
-                zero: Exact::ZERO,
-                symbol: "att",
-                name: "technical atmosphere",
-            }
-        },
-    > = UcumUnit;
+/// Sphere (`sph`), a unit of `SolidAngle`: `n` of them is `n · 4 * core::f64::consts::PI` base units.
+pub const SPHERE: Qty<
+    {
+        UcumUnit::scaled(
+            "sph",
+            Exact::int(4) * Exact::PI,
+            UcumUnit::ONE.times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Pound per square inch (`[psi]`), a unit of `Pressure`: `n` of them is `n · 8896443230521 / 1290320` coherent units.
-    pub const POUND_PER_SQUARE_INCH: UcumUnit<
-        PRESSURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(8896443230521) / Exact::int(1290320),
-                zero: Exact::ZERO,
-                symbol: "[psi]",
-                name: "pound per square inch",
-            }
-        },
-    > = UcumUnit;
+/// A turbidity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Turbidity<N, const U: UcumUnit = { UcumUnit::ONE }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Sphere (`sph`), a unit of `SolidAngle`: `n` of them is `n · 4 * core::f64::consts::PI` coherent units.
-    pub const SPHERE: UcumUnit<
-        SOLID_ANGLE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(4) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "sph",
-                name: "sphere",
-            }
-        },
-    > = UcumUnit;
+/// Nephelometric Turbidity Unit (`[NTU]`), a unit of `Turbidity`: the coherent unit, a product of base units.
+pub const NEPHELOMETRIC_TURBIDITY_UNIT: Qty<{ UcumUnit::ONE }, Exact, true> = Qty::ONE;
 
-    /// Nephelometric Turbidity Unit (`[NTU]`), a unit of `Turbidity`: `n` of them is `n · 1` coherent units.
-    pub const NEPHELOMETRIC_TURBIDITY_UNIT: UcumUnit<
-        TURBIDITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "[NTU]",
-                name: "Nephelometric Turbidity Unit",
-            }
-        },
-    > = UcumUnit;
+/// Formazin Nephelometric Unit (`[FNU]`), a unit of `Turbidity`: the coherent unit, a product of base units.
+pub const FORMAZIN_NEPHELOMETRIC_UNIT: Qty<{ UcumUnit::ONE }, Exact, true> = Qty::ONE;
 
-    /// Formazin Nephelometric Unit (`[FNU]`), a unit of `Turbidity`: `n` of them is `n · 1` coherent units.
-    pub const FORMAZIN_NEPHELOMETRIC_UNIT: UcumUnit<
-        TURBIDITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "[FNU]",
-                name: "Formazin Nephelometric Unit",
-            }
-        },
-    > = UcumUnit;
+/// A volume, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Volume<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 3) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Stere (`st`), a unit of `Volume`: `n` of them is `n · 1` coherent units.
-    pub const STERE: UcumUnit<
-        VOLUME,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "st",
-                name: "stere",
-            }
-        },
-    > = UcumUnit;
-}
+/// Stere (`st`), a unit of `Volume`: the coherent unit, a product of base units.
+pub const STERE: Qty<{ UcumUnit::ONE.times(METER.unit(), 3) }, Exact, true> = Qty::ONE;

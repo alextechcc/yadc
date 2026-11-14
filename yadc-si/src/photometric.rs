@@ -1,207 +1,121 @@
-use crate::ISQ;
-use yadc::Dimension;
+//! The quantities of `photometric` and their units.
 
-/// The dimension of `Luminance`: `SIQuantity<LUMINANCE, N>` is one.
-pub const LUMINANCE: ISQ = ISQ {
-    m: -2,
-    cd: 1,
-    ..ISQ::DIMENSIONLESS
-};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `LuminousIntensity`: `SIQuantity<LUMINOUS_INTENSITY, N>` is one.
-pub const LUMINOUS_INTENSITY: ISQ = ISQ {
-    cd: 1,
-    ..ISQ::DIMENSIONLESS
-};
+/// A luminance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Luminance<
+    N,
+    const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-/// The dimension of `Illuminance`: `SIQuantity<ILLUMINANCE, N>` is one.
-pub const ILLUMINANCE: ISQ = ISQ {
-    m: -2,
-    cd: 1,
-    rad: 2,
-    ..ISQ::DIMENSIONLESS
-};
+/// Footlamberts (`fl`), a unit of `Luminance`: `n` of them is `n · 1.0 / (core::f64::consts::PI * 0.3048 * 0.3048)` base units.
+pub const FOOTLAMBERT: SIQuantity<
+    {
+        SIUnit::scaled(
+            "fl",
+            Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4)),
+            SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The dimension of `RadiantExposure`: `SIQuantity<RADIANT_EXPOSURE, N>` is one.
-pub const RADIANT_EXPOSURE: ISQ = ISQ {
-    kg: 1,
-    s: -2,
-    ..ISQ::DIMENSIONLESS
-};
+/// Lamberts (`la`), a unit of `Luminance`: `n` of them is `n · 10000.0 / core::f64::consts::PI` base units.
+pub const LAMBERT: SIQuantity<
+    {
+        SIUnit::scaled(
+            "la",
+            Exact::int(10000) / Exact::PI,
+            SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, SIUnit, SIUnitConsts};
+/// Stilbs (`sb`), a unit of `Luminance`: `n` of them is `n · 10000.0` base units.
+pub const STILB: SIQuantity<
+    {
+        SIUnit::scaled(
+            "sb",
+            Exact::int(10000),
+            SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Candelas per square metre (`cd/m²`), a unit of `Luminance`: `n` of them is `n · 1.0` coherent units.
-    pub const CANDELA_PER_SQUARE_METRE: SIUnit<
-        LUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "cd/m²",
-                name: "candelas per square metre",
-            }
-        },
-    > = SIUnit;
+/// A luminous intensity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type LuminousIntensity<N, const U: SIUnit = { CANDELA.unit() }, const IS_BASE: bool = true> =
+    SIQuantity<U, N, IS_BASE>;
 
-    /// Candelas per square inch (`cd/in²`), a unit of `Luminance`: `n` of them is `n · 1.0 / (0.0254 * 0.0254)` coherent units.
-    pub const CANDELA_PER_SQUARE_INCH: SIUnit<
-        LUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4)),
-                zero: Exact::ZERO,
-                symbol: "cd/in²",
-                name: "candelas per square inch",
-            }
-        },
-    > = SIUnit;
+/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Illuminance<
+    N,
+    const U: SIUnit = {
+        SIUnit::ONE
+            .times(METRE.unit(), -2)
+            .times(CANDELA.unit(), 1)
+            .times(RADIAN.unit(), 2)
+    },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Candelas per square foot (`cd/ft²`), a unit of `Luminance`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` coherent units.
-    pub const CANDELA_PER_SQUARE_FOOT: SIUnit<
-        LUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)),
-                zero: Exact::ZERO,
-                symbol: "cd/ft²",
-                name: "candelas per square foot",
-            }
-        },
-    > = SIUnit;
+/// Lux (`lx`), a unit of `Illuminance`: the coherent unit, a product of base units.
+pub const LUX: SIQuantity<
+    {
+        SIUnit::ONE
+            .times(METRE.unit(), -2)
+            .times(CANDELA.unit(), 1)
+            .times(RADIAN.unit(), 2)
+    },
+    Exact,
+    true,
+> = SIQuantity::ONE;
 
-    /// Footlamberts (`fl`), a unit of `Luminance`: `n` of them is `n · 1.0 / (core::f64::consts::PI * 0.3048 * 0.3048)` coherent units.
-    pub const FOOTLAMBERT: SIUnit<
-        LUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4)),
-                zero: Exact::ZERO,
-                symbol: "fl",
-                name: "footlamberts",
-            }
-        },
-    > = SIUnit;
+/// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 10000.0` base units.
+pub const PHOT: SIQuantity<
+    {
+        SIUnit::scaled(
+            "ph",
+            Exact::int(10000),
+            SIUnit::ONE
+                .times(METRE.unit(), -2)
+                .times(CANDELA.unit(), 1)
+                .times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Lamberts (`la`), a unit of `Luminance`: `n` of them is `n · 10000.0 / core::f64::consts::PI` coherent units.
-    pub const LAMBERT: SIUnit<
-        LUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(10000) / Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "la",
-                name: "lamberts",
-            }
-        },
-    > = SIUnit;
+/// Footcandles (`fc`), a unit of `Illuminance`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` base units.
+pub const FOOTCANDLE: SIQuantity<
+    {
+        SIUnit::scaled(
+            "fc",
+            Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)),
+            SIUnit::ONE
+                .times(METRE.unit(), -2)
+                .times(CANDELA.unit(), 1)
+                .times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Stilbs (`sb`), a unit of `Luminance`: `n` of them is `n · 10000.0` coherent units.
-    pub const STILB: SIUnit<
-        LUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(10000),
-                zero: Exact::ZERO,
-                symbol: "sb",
-                name: "stilbs",
-            }
-        },
-    > = SIUnit;
-
-    /// Candelas (`cd`), a unit of `LuminousIntensity`: `n` of them is `n · 1.0` coherent units.
-    pub const CANDELA: SIUnit<
-        LUMINOUS_INTENSITY,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "cd",
-                name: "candelas",
-            }
-        },
-    > = SIUnit;
-
-    /// Lux (`lx`), a unit of `Illuminance`: `n` of them is `n · 1.0` coherent units.
-    pub const LUX: SIUnit<
-        ILLUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "lx",
-                name: "lux",
-            }
-        },
-    > = SIUnit;
-
-    /// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 10000.0` coherent units.
-    pub const PHOT: SIUnit<
-        ILLUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(10000),
-                zero: Exact::ZERO,
-                symbol: "ph",
-                name: "phot",
-            }
-        },
-    > = SIUnit;
-
-    /// Footcandles (`fc`), a unit of `Illuminance`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` coherent units.
-    pub const FOOTCANDLE: SIUnit<
-        ILLUMINANCE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)),
-                zero: Exact::ZERO,
-                symbol: "fc",
-                name: "footcandles",
-            }
-        },
-    > = SIUnit;
-
-    /// Joules per square metre (`J/m²`), a unit of `RadiantExposure`: `n` of them is `n · 1.0` coherent units.
-    pub const JOULE_PER_SQUARE_METRE: SIUnit<
-        RADIANT_EXPOSURE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "J/m²",
-                name: "joules per square metre",
-            }
-        },
-    > = SIUnit;
-
-    /// Watt hours per square metre (`W · h/m²`), a unit of `RadiantExposure`: `n` of them is `n · 3600.0` coherent units.
-    pub const WATT_HOUR_PER_SQUARE_METRE: SIUnit<
-        RADIANT_EXPOSURE,
-        {
-            SIUnitConsts {
-                size: Exact::int(3600),
-                zero: Exact::ZERO,
-                symbol: "W · h/m²",
-                name: "watt hours per square metre",
-            }
-        },
-    > = SIUnit;
-
-    /// Microjoules per square millimetre (`µJ/mm²`), a unit of `RadiantExposure`: `n` of them is `n · 1.0` coherent units.
-    pub const MICROJOULE_PER_SQUARE_MILLIMETRE: SIUnit<
-        RADIANT_EXPOSURE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "µJ/mm²",
-                name: "microjoules per square millimetre",
-            }
-        },
-    > = SIUnit;
-}
+/// A radiant exposure, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type RadiantExposure<
+    N,
+    const U: SIUnit = { KILOGRAM.unit().times(SECOND.unit(), -2) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;

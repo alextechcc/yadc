@@ -1,397 +1,214 @@
-use crate::ISQ;
-use yadc::Dimension;
+//! The quantities of `angular` and their units.
 
-/// The dimension of `Angle`: `SIQuantity<ANGLE, N>` is one.
-pub const ANGLE: ISQ = ISQ {
-    rad: 1,
-    ..ISQ::DIMENSIONLESS
-};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `SolidAngle`: `SIQuantity<SOLID_ANGLE, N>` is one.
-pub const SOLID_ANGLE: ISQ = ISQ {
-    rad: 2,
-    ..ISQ::DIMENSIONLESS
-};
+/// An angle, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Angle<N, const U: SIUnit = { RADIAN.unit() }, const IS_BASE: bool = true> =
+    SIQuantity<U, N, IS_BASE>;
 
-/// The dimension of `AngularVelocity`: `SIQuantity<ANGULAR_VELOCITY, N>` is one.
-pub const ANGULAR_VELOCITY: ISQ = ISQ {
-    s: -1,
-    rad: 1,
-    ..ISQ::DIMENSIONLESS
-};
+/// Revolutions (`r`), a unit of `Angle`: `n` of them is `n · 2.0 * core::f64::consts::PI` base units.
+pub const REVOLUTION: SIQuantity<
+    { SIUnit::scaled("r", Exact::int(2) * Exact::PI, RADIAN.unit()) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The dimension of `AngularAcceleration`: `SIQuantity<ANGULAR_ACCELERATION, N>` is one.
-pub const ANGULAR_ACCELERATION: ISQ = ISQ {
-    s: -2,
-    rad: 1,
-    ..ISQ::DIMENSIONLESS
-};
+/// Degrees (`°`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 180.0` base units.
+pub const DEGREE: SIQuantity<
+    { SIUnit::scaled("°", Exact::PI / Exact::int(180), RADIAN.unit()) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The dimension of `AngularJerk`: `SIQuantity<ANGULAR_JERK, N>` is one.
-pub const ANGULAR_JERK: ISQ = ISQ {
-    s: -3,
-    rad: 1,
-    ..ISQ::DIMENSIONLESS
-};
+/// Gons (`gon`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 200.0` base units.
+pub const GON: SIQuantity<
+    { SIUnit::scaled("gon", Exact::PI / Exact::int(200), RADIAN.unit()) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The dimension of `AngularAbsement`: `SIQuantity<ANGULAR_ABSEMENT, N>` is one.
-pub const ANGULAR_ABSEMENT: ISQ = ISQ {
-    s: 1,
-    rad: 1,
-    ..ISQ::DIMENSIONLESS
-};
+/// Mils (`mil`), a unit of `Angle`: `n` of them is `n · 2.0 * core::f64::consts::PI / 6400.0` base units.
+pub const MIL: SIQuantity<
+    {
+        SIUnit::scaled(
+            "mil",
+            Exact::int(2) * Exact::PI / Exact::int(6400),
+            RADIAN.unit(),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The dimension of `AngularMomentum`: `SIQuantity<ANGULAR_MOMENTUM, N>` is one.
-pub const ANGULAR_MOMENTUM: ISQ = ISQ {
-    m: 2,
-    kg: 1,
-    s: -1,
-    rad: -1,
-    ..ISQ::DIMENSIONLESS
-};
+/// Minutes (`′`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 10800.0` base units.
+pub const MINUTE: SIQuantity<
+    { SIUnit::scaled("′", Exact::PI / Exact::int(10800), RADIAN.unit()) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, SIUnit, SIUnitConsts};
+/// Seconds (`″`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 648000.0` base units.
+pub const ANGLE_SECOND: SIQuantity<
+    { SIUnit::scaled("″", Exact::PI / Exact::int(648000), RADIAN.unit()) },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Radians (`rad`), a unit of `Angle`: `n` of them is `n · 1.0` coherent units.
-    pub const RADIAN: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "rad",
-                name: "radians",
-            }
-        },
-    > = SIUnit;
+/// A solid angle, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type SolidAngle<
+    N,
+    const U: SIUnit = { SIUnit::ONE.times(RADIAN.unit(), 2) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Revolutions (`r`), a unit of `Angle`: `n` of them is `n · 2.0 * core::f64::consts::PI` coherent units.
-    pub const REVOLUTION: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::int(2) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "r",
-                name: "revolutions",
-            }
-        },
-    > = SIUnit;
+/// Steradians (`sr`), a unit of `SolidAngle`: the coherent unit, a product of base units.
+pub const STERADIAN: SIQuantity<{ SIUnit::ONE.times(RADIAN.unit(), 2) }, Exact, true> =
+    SIQuantity::ONE;
 
-    /// Degrees (`°`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 180.0` coherent units.
-    pub const DEGREE: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(180),
-                zero: Exact::ZERO,
-                symbol: "°",
-                name: "degrees",
-            }
-        },
-    > = SIUnit;
+/// Spats (`sp`), a unit of `SolidAngle`: `n` of them is `n · 4.0 * core::f64::consts::PI` base units.
+pub const SPAT: SIQuantity<
+    {
+        SIUnit::scaled(
+            "sp",
+            Exact::int(4) * Exact::PI,
+            SIUnit::ONE.times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Gons (`gon`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 200.0` coherent units.
-    pub const GON: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(200),
-                zero: Exact::ZERO,
-                symbol: "gon",
-                name: "gons",
-            }
-        },
-    > = SIUnit;
+/// Square degrees (`°²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 180.0) * (core::f64::consts::PI / 180.0)` base units.
+pub const SQUARE_DEGREE: SIQuantity<
+    {
+        SIUnit::scaled(
+            "°²",
+            (Exact::PI / Exact::int(180)) * (Exact::PI / Exact::int(180)),
+            SIUnit::ONE.times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Mils (`mil`), a unit of `Angle`: `n` of them is `n · 2.0 * core::f64::consts::PI / 6400.0` coherent units.
-    pub const MIL: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::int(2) * Exact::PI / Exact::int(6400),
-                zero: Exact::ZERO,
-                symbol: "mil",
-                name: "mils",
-            }
-        },
-    > = SIUnit;
+/// Square minutes (`′²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 10800.0) * (core::f64::consts::PI / 10800.0)` base units.
+pub const SQUARE_MINUTE: SIQuantity<
+    {
+        SIUnit::scaled(
+            "′²",
+            (Exact::PI / Exact::int(10800)) * (Exact::PI / Exact::int(10800)),
+            SIUnit::ONE.times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Minutes (`′`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 10800.0` coherent units.
-    pub const MINUTE: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(10800),
-                zero: Exact::ZERO,
-                symbol: "′",
-                name: "minutes",
-            }
-        },
-    > = SIUnit;
+/// Square seconds (`″²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 648000.0) * (core::f64::consts::PI / 648000.0)` base units.
+pub const SQUARE_SECOND: SIQuantity<
+    {
+        SIUnit::scaled(
+            "″²",
+            (Exact::PI / Exact::int(648000)) * (Exact::PI / Exact::int(648000)),
+            SIUnit::ONE.times(RADIAN.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Seconds (`″`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 648000.0` coherent units.
-    pub const SECOND: SIUnit<
-        ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(648000),
-                zero: Exact::ZERO,
-                symbol: "″",
-                name: "seconds",
-            }
-        },
-    > = SIUnit;
+/// An angular velocity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type AngularVelocity<
+    N,
+    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -1).times(RADIAN.unit(), 1) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Steradians (`sr`), a unit of `SolidAngle`: `n` of them is `n · 1.0` coherent units.
-    pub const STERADIAN: SIUnit<
-        SOLID_ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "sr",
-                name: "steradians",
-            }
-        },
-    > = SIUnit;
+/// An angular acceleration, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type AngularAcceleration<
+    N,
+    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -2).times(RADIAN.unit(), 1) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Spats (`sp`), a unit of `SolidAngle`: `n` of them is `n · 4.0 * core::f64::consts::PI` coherent units.
-    pub const SPAT: SIUnit<
-        SOLID_ANGLE,
-        {
-            SIUnitConsts {
-                size: Exact::int(4) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "sp",
-                name: "spats",
-            }
-        },
-    > = SIUnit;
+/// An angular jerk, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type AngularJerk<
+    N,
+    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -3).times(RADIAN.unit(), 1) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Square degrees (`°²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 180.0) * (core::f64::consts::PI / 180.0)` coherent units.
-    pub const SQUARE_DEGREE: SIUnit<
-        SOLID_ANGLE,
-        {
-            SIUnitConsts {
-                size: (Exact::PI / Exact::int(180)) * (Exact::PI / Exact::int(180)),
-                zero: Exact::ZERO,
-                symbol: "°²",
-                name: "square degrees",
-            }
-        },
-    > = SIUnit;
+/// An angular absement, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type AngularAbsement<
+    N,
+    const U: SIUnit = { SECOND.unit().times(RADIAN.unit(), 1) },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Square minutes (`′²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 10800.0) * (core::f64::consts::PI / 10800.0)` coherent units.
-    pub const SQUARE_MINUTE: SIUnit<
-        SOLID_ANGLE,
-        {
-            SIUnitConsts {
-                size: (Exact::PI / Exact::int(10800)) * (Exact::PI / Exact::int(10800)),
-                zero: Exact::ZERO,
-                symbol: "′²",
-                name: "square minutes",
-            }
-        },
-    > = SIUnit;
+/// Radian seconds (`rad · s`), a unit of `AngularAbsement`: the coherent unit, a product of base units.
+pub const RADIAN_SECOND: SIQuantity<{ SECOND.unit().times(RADIAN.unit(), 1) }, Exact, true> =
+    SIQuantity::ONE;
 
-    /// Square seconds (`″²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 648000.0) * (core::f64::consts::PI / 648000.0)` coherent units.
-    pub const SQUARE_SECOND: SIUnit<
-        SOLID_ANGLE,
-        {
-            SIUnitConsts {
-                size: (Exact::PI / Exact::int(648000)) * (Exact::PI / Exact::int(648000)),
-                zero: Exact::ZERO,
-                symbol: "″²",
-                name: "square seconds",
-            }
-        },
-    > = SIUnit;
+/// Degree seconds (`° · s`), a unit of `AngularAbsement`: `n` of them is `n · core::f64::consts::PI / 180.0` base units.
+pub const DEGREE_SECOND: SIQuantity<
+    {
+        SIUnit::scaled(
+            "° · s",
+            Exact::PI / Exact::int(180),
+            SECOND.unit().times(RADIAN.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Radians per second (`rad/s`), a unit of `AngularVelocity`: `n` of them is `n · 1.0` coherent units.
-    pub const RADIAN_PER_SECOND: SIUnit<
-        ANGULAR_VELOCITY,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "rad/s",
-                name: "radians per second",
-            }
-        },
-    > = SIUnit;
+/// An angular momentum, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type AngularMomentum<
+    N,
+    const U: SIUnit = {
+        SIUnit::ONE
+            .times(METRE.unit(), 2)
+            .times(KILOGRAM.unit(), 1)
+            .times(SECOND.unit(), -1)
+            .times(RADIAN.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = SIQuantity<U, N, IS_BASE>;
 
-    /// Degrees per second (`°/s`), a unit of `AngularVelocity`: `n` of them is `n · core::f64::consts::PI / 180.0` coherent units.
-    pub const DEGREE_PER_SECOND: SIUnit<
-        ANGULAR_VELOCITY,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(180),
-                zero: Exact::ZERO,
-                symbol: "°/s",
-                name: "degrees per second",
-            }
-        },
-    > = SIUnit;
+/// Reduced Planck constants (`ħ`), a unit of `AngularMomentum`: `n` of them is `n · 6.62607015e-34 / (2.0 * core::f64::consts::PI)` base units.
+pub const REDUCED_PLANCK_CONSTANT: SIQuantity<
+    {
+        SIUnit::scaled(
+            "ħ",
+            Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI),
+            SIUnit::ONE
+                .times(METRE.unit(), 2)
+                .times(KILOGRAM.unit(), 1)
+                .times(SECOND.unit(), -1)
+                .times(RADIAN.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = SIQuantity::ONE;
 
-    /// Revolutions per second (`rps`), a unit of `AngularVelocity`: `n` of them is `n · 2.0 * core::f64::consts::PI` coherent units.
-    pub const REVOLUTION_PER_SECOND: SIUnit<
-        ANGULAR_VELOCITY,
-        {
-            SIUnitConsts {
-                size: Exact::int(2) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "rps",
-                name: "revolutions per second",
-            }
-        },
-    > = SIUnit;
-
-    /// Revolutions per minute (`rpm`), a unit of `AngularVelocity`: `n` of them is `n · 2.0 * core::f64::consts::PI / 60.0` coherent units.
-    pub const REVOLUTION_PER_MINUTE: SIUnit<
-        ANGULAR_VELOCITY,
-        {
-            SIUnitConsts {
-                size: Exact::int(2) * Exact::PI / Exact::int(60),
-                zero: Exact::ZERO,
-                symbol: "rpm",
-                name: "revolutions per minute",
-            }
-        },
-    > = SIUnit;
-
-    /// Revolutions per hour (`rph`), a unit of `AngularVelocity`: `n` of them is `n · 2.0 * core::f64::consts::PI / 3600.0` coherent units.
-    pub const REVOLUTION_PER_HOUR: SIUnit<
-        ANGULAR_VELOCITY,
-        {
-            SIUnitConsts {
-                size: Exact::int(2) * Exact::PI / Exact::int(3600),
-                zero: Exact::ZERO,
-                symbol: "rph",
-                name: "revolutions per hour",
-            }
-        },
-    > = SIUnit;
-
-    /// Radians per second squared (`rad/s²`), a unit of `AngularAcceleration`: `n` of them is `n · 1.0` coherent units.
-    pub const RADIAN_PER_SECOND_SQUARED: SIUnit<
-        ANGULAR_ACCELERATION,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "rad/s²",
-                name: "radians per second squared",
-            }
-        },
-    > = SIUnit;
-
-    /// Degrees per second squared (`°/s²`), a unit of `AngularAcceleration`: `n` of them is `n · core::f64::consts::PI / 180.0` coherent units.
-    pub const DEGREE_PER_SECOND_SQUARED: SIUnit<
-        ANGULAR_ACCELERATION,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(180),
-                zero: Exact::ZERO,
-                symbol: "°/s²",
-                name: "degrees per second squared",
-            }
-        },
-    > = SIUnit;
-
-    /// Radians per second cubed (`rad/s³`), a unit of `AngularJerk`: `n` of them is `n · 1.0` coherent units.
-    pub const RADIAN_PER_SECOND_CUBED: SIUnit<
-        ANGULAR_JERK,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "rad/s³",
-                name: "radians per second cubed",
-            }
-        },
-    > = SIUnit;
-
-    /// Degrees per second cubed (`°/s³`), a unit of `AngularJerk`: `n` of them is `n · core::f64::consts::PI / 180.0` coherent units.
-    pub const DEGREE_PER_SECOND_CUBED: SIUnit<
-        ANGULAR_JERK,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(180),
-                zero: Exact::ZERO,
-                symbol: "°/s³",
-                name: "degrees per second cubed",
-            }
-        },
-    > = SIUnit;
-
-    /// Radian seconds (`rad · s`), a unit of `AngularAbsement`: `n` of them is `n · 1.0` coherent units.
-    pub const RADIAN_SECOND: SIUnit<
-        ANGULAR_ABSEMENT,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "rad · s",
-                name: "radian seconds",
-            }
-        },
-    > = SIUnit;
-
-    /// Degree seconds (`° · s`), a unit of `AngularAbsement`: `n` of them is `n · core::f64::consts::PI / 180.0` coherent units.
-    pub const DEGREE_SECOND: SIUnit<
-        ANGULAR_ABSEMENT,
-        {
-            SIUnitConsts {
-                size: Exact::PI / Exact::int(180),
-                zero: Exact::ZERO,
-                symbol: "° · s",
-                name: "degree seconds",
-            }
-        },
-    > = SIUnit;
-
-    /// Reduced Planck constants (`ħ`), a unit of `AngularMomentum`: `n` of them is `n · 6.62607015e-34 / (2.0 * core::f64::consts::PI)` coherent units.
-    pub const REDUCED_PLANCK_CONSTANT: SIUnit<
-        ANGULAR_MOMENTUM,
-        {
-            SIUnitConsts {
-                size: Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI),
-                zero: Exact::ZERO,
-                symbol: "ħ",
-                name: "reduced Planck constants",
-            }
-        },
-    > = SIUnit;
-
-    /// Kilogram square metres per second (`kg · m²/s`), a unit of `AngularMomentum`: `n` of them is `n · 1.0` coherent units.
-    pub const KILOGRAM_SQUARE_METRE_PER_SECOND: SIUnit<
-        ANGULAR_MOMENTUM,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "kg · m²/s",
-                name: "kilogram square metres per second",
-            }
-        },
-    > = SIUnit;
-
-    /// Newton metre seconds (`N · m · s`), a unit of `AngularMomentum`: `n` of them is `n · 1.0` coherent units.
-    pub const NEWTON_METRE_SECOND: SIUnit<
-        ANGULAR_MOMENTUM,
-        {
-            SIUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "N · m · s",
-                name: "newton metre seconds",
-            }
-        },
-    > = SIUnit;
-}
+/// Newton metre seconds (`N · m · s`), a unit of `AngularMomentum`: the coherent unit, a product of base units.
+pub const NEWTON_METRE_SECOND: SIQuantity<
+    {
+        SIUnit::ONE
+            .times(METRE.unit(), 2)
+            .times(KILOGRAM.unit(), 1)
+            .times(SECOND.unit(), -1)
+            .times(RADIAN.unit(), -1)
+    },
+    Exact,
+    true,
+> = SIQuantity::ONE;

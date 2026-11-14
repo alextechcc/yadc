@@ -1,282 +1,293 @@
-use crate::Dim;
-use yadc::Dimension;
+//! The quantities of `constants` and their units.
 
-/// The dimension of `Acceleration`: `Qty<ACCELERATION, N>` is one.
-pub const ACCELERATION: Dim = Dim {
-    m: 1,
-    s: -2,
-    ..Dim::DIMENSIONLESS
-};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `Action`: `Qty<ACTION, N>` is one.
-pub const ACTION: Dim = Dim {
-    m: 2,
-    s: -1,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An acceleration, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Acceleration<
+    N,
+    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `ElectricCharge`: `Qty<ELECTRIC_CHARGE, N>` is one.
-pub const ELECTRIC_CHARGE: Dim = Dim {
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Standard acceleration of free fall (`[g]`), a unit of `Acceleration`: `n` of them is `n · 980665e-5` base units.
+pub const STANDARD_ACCELERATION_OF_FREE_FALL: Qty<
+    {
+        UcumUnit::scaled(
+            "[g]",
+            Exact::dec(980665, -5),
+            METER.unit().times(SECOND.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `ElectricPermittivity`: `Qty<ELECTRIC_PERMITTIVITY, N>` is one.
-pub const ELECTRIC_PERMITTIVITY: Dim = Dim {
-    m: -3,
-    s: 2,
-    g: -1,
-    C: 2,
-    ..Dim::DIMENSIONLESS
-};
+/// An action, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Action<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Force`: `Qty<FORCE, N>` is one.
-pub const FORCE: Dim = Dim {
-    m: 1,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Planck constant (`[h]`), a unit of `Action`: `n` of them is `n · 662607015e-39` base units.
+pub const PLANCK_CONSTANT: Qty<
+    {
+        UcumUnit::scaled(
+            "[h]",
+            Exact::dec(662607015, -39),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Length`: `Qty<LENGTH, N>` is one.
-pub const LENGTH: Dim = Dim {
-    m: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric charge, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricCharge<N, const U: UcumUnit = { COULOMB.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-/// The dimension of `MagneticPermeability`: `Qty<MAGNETIC_PERMEABILITY, N>` is one.
-pub const MAGNETIC_PERMEABILITY: Dim = Dim {
-    m: 1,
-    g: 1,
-    C: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// Elementary charge (`[e]`), a unit of `ElectricCharge`: `n` of them is `n · 1602176634e-28` base units.
+pub const ELEMENTARY_CHARGE: Qty<
+    { UcumUnit::scaled("[e]", Exact::dec(1602176634, -28), COULOMB.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Mass`: `Qty<MASS, N>` is one.
-pub const MASS: Dim = Dim {
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric permittivity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricPermittivity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -3)
+            .times(SECOND.unit(), 2)
+            .times(GRAM.unit(), -1)
+            .times(COULOMB.unit(), 2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Pressure`: `Qty<PRESSURE, N>` is one.
-pub const PRESSURE: Dim = Dim {
-    m: -1,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Permittivity of vacuum (`[eps_0]`), a unit of `ElectricPermittivity`: `n` of them is `n · 8854187817e-24` base units.
+pub const PERMITTIVITY_OF_VACUUM: Qty<
+    {
+        UcumUnit::scaled(
+            "[eps_0]",
+            Exact::dec(8854187817, -24),
+            UcumUnit::ONE
+                .times(METER.unit(), -3)
+                .times(SECOND.unit(), 2)
+                .times(GRAM.unit(), -1)
+                .times(COULOMB.unit(), 2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `UnclassifiedM2GPerS2K`: `Qty<UNCLASSIFIED_M2_G_PER_S2_K, N>` is one.
-pub const UNCLASSIFIED_M2_G_PER_S2_K: Dim = Dim {
-    m: 2,
-    s: -2,
-    g: 1,
-    K: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// A force, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Force<
+    N,
+    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `UnclassifiedM3PerS2G`: `Qty<UNCLASSIFIED_M3_PER_S2_G, N>` is one.
-pub const UNCLASSIFIED_M3_PER_S2_G: Dim = Dim {
-    m: 3,
-    s: -2,
-    g: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Gram-force (`gf`), a unit of `Force`: `n` of them is `n · 980665e-5` base units.
+pub const GRAM_FORCE: Qty<
+    {
+        UcumUnit::scaled(
+            "gf",
+            Exact::dec(980665, -5),
+            METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Velocity`: `Qty<VELOCITY, N>` is one.
-pub const VELOCITY: Dim = Dim {
-    m: 1,
-    s: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Pound force (`[lbf_av]`), a unit of `Force`: `n` of them is `n · 44482216152605e-10` base units.
+pub const POUND_FORCE: Qty<
+    {
+        UcumUnit::scaled(
+            "[lbf_av]",
+            Exact::dec(44482216152605, -10),
+            METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, UcumUnit, UcumUnitConsts};
+/// A length, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Length<N, const U: UcumUnit = { METER.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Standard acceleration of free fall (`[g]`), a unit of `Acceleration`: `n` of them is `n · 980665e-5` coherent units.
-    pub const STANDARD_ACCELERATION_OF_FREE_FALL: UcumUnit<
-        ACCELERATION,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(980665, -5),
-                zero: Exact::ZERO,
-                symbol: "[g]",
-                name: "standard acceleration of free fall",
-            }
-        },
-    > = UcumUnit;
+/// Light-year (`[ly]`), a unit of `Length`: `n` of them is `n · 94607304725808e2` base units.
+pub const LIGHT_YEAR: Qty<
+    { UcumUnit::scaled("[ly]", Exact::int(9460730472580800), METER.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Planck constant (`[h]`), a unit of `Action`: `n` of them is `n · 662607015e-39` coherent units.
-    pub const PLANCK_CONSTANT: UcumUnit<
-        ACTION,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(662607015, -39),
-                zero: Exact::ZERO,
-                symbol: "[h]",
-                name: "Planck constant",
-            }
-        },
-    > = UcumUnit;
+/// A magnetic permeability, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MagneticPermeability<
+    N,
+    const U: UcumUnit = { METER.unit().times(GRAM.unit(), 1).times(COULOMB.unit(), -2) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Elementary charge (`[e]`), a unit of `ElectricCharge`: `n` of them is `n · 1602176634e-28` coherent units.
-    pub const ELEMENTARY_CHARGE: UcumUnit<
-        ELECTRIC_CHARGE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1602176634, -28),
-                zero: Exact::ZERO,
-                symbol: "[e]",
-                name: "elementary charge",
-            }
-        },
-    > = UcumUnit;
+/// Permeability of vacuum (`[mu_0]`), a unit of `MagneticPermeability`: `n` of them is `n · 4e-4 * core::f64::consts::PI` base units.
+pub const PERMEABILITY_OF_VACUUM: Qty<
+    {
+        UcumUnit::scaled(
+            "[mu_0]",
+            Exact::dec(4, -4) * Exact::PI,
+            METER.unit().times(GRAM.unit(), 1).times(COULOMB.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Permittivity of vacuum (`[eps_0]`), a unit of `ElectricPermittivity`: `n` of them is `n · 8854187817e-24` coherent units.
-    pub const PERMITTIVITY_OF_VACUUM: UcumUnit<
-        ELECTRIC_PERMITTIVITY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(8854187817, -24),
-                zero: Exact::ZERO,
-                symbol: "[eps_0]",
-                name: "permittivity of vacuum",
-            }
-        },
-    > = UcumUnit;
+/// A mass, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Mass<N, const U: UcumUnit = { GRAM.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Gram-force (`gf`), a unit of `Force`: `n` of them is `n · 980665e-5` coherent units.
-    pub const GRAM_FORCE: UcumUnit<
-        FORCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(980665, -5),
-                zero: Exact::ZERO,
-                symbol: "gf",
-                name: "gram-force",
-            }
-        },
-    > = UcumUnit;
+/// Electron mass (`[m_e]`), a unit of `Mass`: `n` of them is `n · 91093837139e-38` base units.
+pub const ELECTRON_MASS: Qty<
+    { UcumUnit::scaled("[m_e]", Exact::dec(91093837139, -38), GRAM.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Pound force (`[lbf_av]`), a unit of `Force`: `n` of them is `n · 44482216152605e-10` coherent units.
-    pub const POUND_FORCE: UcumUnit<
-        FORCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(44482216152605, -10),
-                zero: Exact::ZERO,
-                symbol: "[lbf_av]",
-                name: "pound force",
-            }
-        },
-    > = UcumUnit;
+/// Proton mass (`[m_p]`), a unit of `Mass`: `n` of them is `n · 167262192595e-35` base units.
+pub const PROTON_MASS: Qty<
+    { UcumUnit::scaled("[m_p]", Exact::dec(167262192595, -35), GRAM.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Light-year (`[ly]`), a unit of `Length`: `n` of them is `n · 94607304725808e2` coherent units.
-    pub const LIGHT_YEAR: UcumUnit<
-        LENGTH,
-        {
-            UcumUnitConsts {
-                size: Exact::int(9460730472580800),
-                zero: Exact::ZERO,
-                symbol: "[ly]",
-                name: "light-year",
-            }
-        },
-    > = UcumUnit;
+/// A pressure, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Pressure<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -1)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Permeability of vacuum (`[mu_0]`), a unit of `MagneticPermeability`: `n` of them is `n · 4e-4 * core::f64::consts::PI` coherent units.
-    pub const PERMEABILITY_OF_VACUUM: UcumUnit<
-        MAGNETIC_PERMEABILITY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(4, -4) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "[mu_0]",
-                name: "permeability of vacuum",
-            }
-        },
-    > = UcumUnit;
+/// Standard atmosphere (`atm`), a unit of `Pressure`: `n` of them is `n · 101325e3` base units.
+pub const STANDARD_ATMOSPHERE: Qty<
+    {
+        UcumUnit::scaled(
+            "atm",
+            Exact::int(101325000),
+            UcumUnit::ONE
+                .times(METER.unit(), -1)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Electron mass (`[m_e]`), a unit of `Mass`: `n` of them is `n · 91093837139e-38` coherent units.
-    pub const ELECTRON_MASS: UcumUnit<
-        MASS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(91093837139, -38),
-                zero: Exact::ZERO,
-                symbol: "[m_e]",
-                name: "electron mass",
-            }
-        },
-    > = UcumUnit;
+/// An unclassified m2 g per s2 k, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type UnclassifiedM2GPerS2K<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+            .times(KELVIN.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Proton mass (`[m_p]`), a unit of `Mass`: `n` of them is `n · 167262192595e-35` coherent units.
-    pub const PROTON_MASS: UcumUnit<
-        MASS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(167262192595, -35),
-                zero: Exact::ZERO,
-                symbol: "[m_p]",
-                name: "proton mass",
-            }
-        },
-    > = UcumUnit;
+/// Boltzmann constant (`[k]`), a unit of `UnclassifiedM2GPerS2K`: `n` of them is `n · 1380649e-26` base units.
+pub const BOLTZMANN_CONSTANT: Qty<
+    {
+        UcumUnit::scaled(
+            "[k]",
+            Exact::dec(1380649, -26),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1)
+                .times(KELVIN.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Standard atmosphere (`atm`), a unit of `Pressure`: `n` of them is `n · 101325e3` coherent units.
-    pub const STANDARD_ATMOSPHERE: UcumUnit<
-        PRESSURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(101325000),
-                zero: Exact::ZERO,
-                symbol: "atm",
-                name: "standard atmosphere",
-            }
-        },
-    > = UcumUnit;
+/// An unclassified m3 per s2 g, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type UnclassifiedM3PerS2G<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 3)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Boltzmann constant (`[k]`), a unit of `UnclassifiedM2GPerS2K`: `n` of them is `n · 1380649e-26` coherent units.
-    pub const BOLTZMANN_CONSTANT: UcumUnit<
-        UNCLASSIFIED_M2_G_PER_S2_K,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1380649, -26),
-                zero: Exact::ZERO,
-                symbol: "[k]",
-                name: "Boltzmann constant",
-            }
-        },
-    > = UcumUnit;
+/// Newtonian constant of gravitation (`[G]`), a unit of `UnclassifiedM3PerS2G`: `n` of them is `n · 66743e-18` base units.
+pub const NEWTONIAN_CONSTANT_OF_GRAVITATION: Qty<
+    {
+        UcumUnit::scaled(
+            "[G]",
+            Exact::dec(66743, -18),
+            UcumUnit::ONE
+                .times(METER.unit(), 3)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Newtonian constant of gravitation (`[G]`), a unit of `UnclassifiedM3PerS2G`: `n` of them is `n · 66743e-18` coherent units.
-    pub const NEWTONIAN_CONSTANT_OF_GRAVITATION: UcumUnit<
-        UNCLASSIFIED_M3_PER_S2_G,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(66743, -18),
-                zero: Exact::ZERO,
-                symbol: "[G]",
-                name: "Newtonian constant of gravitation",
-            }
-        },
-    > = UcumUnit;
+/// A velocity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Velocity<
+    N,
+    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Velocity of light (`[c]`), a unit of `Velocity`: `n` of them is `n · 299792458` coherent units.
-    pub const VELOCITY_OF_LIGHT: UcumUnit<
-        VELOCITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(299792458),
-                zero: Exact::ZERO,
-                symbol: "[c]",
-                name: "velocity of light",
-            }
-        },
-    > = UcumUnit;
-}
+/// Velocity of light (`[c]`), a unit of `Velocity`: `n` of them is `n · 299792458` base units.
+pub const VELOCITY_OF_LIGHT: Qty<
+    {
+        UcumUnit::scaled(
+            "[c]",
+            Exact::int(299792458),
+            METER.unit().times(SECOND.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;

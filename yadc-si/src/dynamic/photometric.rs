@@ -1,94 +1,54 @@
 //! The units of `photometric`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicSIUnit;
-use crate::photometric::units::*;
+#[allow(unused_imports)]
 use crate::photometric::*;
-use crate::{Exact, SIQuantity, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `Luminance`, in any number type they count in.
+/// The units of `Luminance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<LUMINANCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<LUMINANCE, N>;
-        fn value(&self, quantity: SIQuantity<LUMINANCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum LuminanceUnit {
     #[default]
-    #[value(CANDELA_PER_SQUARE_METRE)]
-    CandelaPerSquareMetre,
-    #[value(CANDELA_PER_SQUARE_INCH)]
-    CandelaPerSquareInch,
-    #[value(CANDELA_PER_SQUARE_FOOT)]
-    CandelaPerSquareFoot,
-    #[value(FOOTLAMBERT)]
+    #[value(FOOTLAMBERT.unit())]
     Footlambert,
-    #[value(LAMBERT)]
+    #[value(LAMBERT.unit())]
     Lambert,
-    #[value(STILB)]
+    #[value(STILB.unit())]
     Stilb,
 }
 
-/// The units of `LuminousIntensity`, in any number type they count in.
+/// The units of `LuminousIntensity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<LUMINOUS_INTENSITY, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<LUMINOUS_INTENSITY, N>;
-        fn value(&self, quantity: SIQuantity<LUMINOUS_INTENSITY, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum LuminousIntensityUnit {
     #[default]
-    #[value(CANDELA)]
+    #[value(CANDELA.unit())]
     Candela,
 }
 
-/// The units of `Illuminance`, in any number type they count in.
+/// The units of `Illuminance`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<ILLUMINANCE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<ILLUMINANCE, N>;
-        fn value(&self, quantity: SIQuantity<ILLUMINANCE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(SIUnit))]
 pub enum IlluminanceUnit {
     #[default]
-    #[value(LUX)]
+    #[value(LUX.unit())]
     Lux,
-    #[value(PHOT)]
+    #[value(PHOT.unit())]
     Phot,
-    #[value(FOOTCANDLE)]
+    #[value(FOOTCANDLE.unit())]
     Footcandle,
-}
-
-/// The units of `RadiantExposure`, in any number type they count in.
-#[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<SIQuantity<RADIANT_EXPOSURE, N>, N> {
-        fn quantity(&self, value: N) -> SIQuantity<RADIANT_EXPOSURE, N>;
-        fn value(&self, quantity: SIQuantity<RADIANT_EXPOSURE, N>) -> N;
-    }),
-    into(DynamicSIUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
-)]
-pub enum RadiantExposureUnit {
-    #[default]
-    #[value(JOULE_PER_SQUARE_METRE)]
-    JoulePerSquareMetre,
-    #[value(WATT_HOUR_PER_SQUARE_METRE)]
-    WattHourPerSquareMetre,
-    #[value(MICROJOULE_PER_SQUARE_MILLIMETRE)]
-    MicrojoulePerSquareMillimetre,
 }

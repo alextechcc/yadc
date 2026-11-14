@@ -18,14 +18,6 @@ family_order = [
 unit_type    = "UcumUnit"
 unit_derives = ["Copy", "Clone", "PartialEq", "Eq", "Hash", "Debug"]
 
-[kind]
-# `Absolute`: an amount with a true zero that is also read on scales with
-# other zeros - a temperature (kelvins, °C, °F). Two of them differ by a
-# linear amount and a linear amount moves one.
-variants = ["Linear", "Absolute"]
-default = "Linear"
-absolute = ["Absolute"]
-
 # UCUM's base units, one axis each.
 [dim]
 fields = ["m", "s", "g", "rad", "K", "C", "cd"]

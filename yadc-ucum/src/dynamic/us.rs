@@ -1,200 +1,175 @@
 //! The units of `us`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicUcumUnit;
-use crate::us::units::*;
+#[allow(unused_imports)]
 use crate::us::*;
-use crate::{Exact, Qty, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `Area`, in any number type they count in.
+/// The units of `Area`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<AREA, N>, N> {
-        fn quantity(&self, value: N) -> Qty<AREA, N>;
-        fn value(&self, quantity: Qty<AREA, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
-    #[value(ACRE)]
+    #[value(ACRE.unit())]
     Acre,
-    #[value(SQUARE_ROD)]
+    #[value(SQUARE_ROD.unit())]
     SquareRod,
-    #[value(SQUARE_MILE)]
+    #[value(SQUARE_MILE.unit())]
     SquareMile,
-    #[value(SECTION)]
+    #[value(SECTION.unit())]
     Section,
-    #[value(TOWNSHIP)]
+    #[value(TOWNSHIP.unit())]
     Township,
 }
 
-/// The units of `DryVolume`, in any number type they count in.
+/// The units of `DryVolume`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<DRY_VOLUME, N>, N> {
-        fn quantity(&self, value: N) -> Qty<DRY_VOLUME, N>;
-        fn value(&self, quantity: Qty<DRY_VOLUME, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum DryVolumeUnit {
     #[default]
-    #[value(BUSHEL)]
+    #[value(BUSHEL.unit())]
     Bushel,
-    #[value(HISTORICAL_WINCHESTER_GALLON)]
+    #[value(HISTORICAL_WINCHESTER_GALLON.unit())]
     HistoricalWinchesterGallon,
-    #[value(PECK)]
+    #[value(PECK.unit())]
     Peck,
-    #[value(DRY_QUART)]
+    #[value(DRY_QUART.unit())]
     DryQuart,
-    #[value(DRY_PINT)]
+    #[value(DRY_PINT.unit())]
     DryPint,
 }
 
-/// The units of `FluidVolume`, in any number type they count in.
+/// The units of `FluidVolume`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<FLUID_VOLUME, N>, N> {
-        fn quantity(&self, value: N) -> Qty<FLUID_VOLUME, N>;
-        fn value(&self, quantity: Qty<FLUID_VOLUME, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum FluidVolumeUnit {
     #[default]
-    #[value(QUEEN_ANNE_S_WINE_GALLON)]
+    #[value(QUEEN_ANNE_S_WINE_GALLON.unit())]
     QueenAnneSWineGallon,
-    #[value(BARREL)]
+    #[value(BARREL.unit())]
     Barrel,
-    #[value(QUART)]
+    #[value(QUART.unit())]
     Quart,
-    #[value(PINT)]
+    #[value(PINT.unit())]
     Pint,
-    #[value(GILL)]
+    #[value(GILL.unit())]
     Gill,
-    #[value(FLUID_OUNCE)]
+    #[value(FLUID_OUNCE.unit())]
     FluidOunce,
-    #[value(FLUID_DRAM)]
+    #[value(FLUID_DRAM.unit())]
     FluidDram,
-    #[value(MINIM)]
+    #[value(MINIM.unit())]
     Minim,
-    #[value(CORD)]
+    #[value(CORD.unit())]
     Cord,
-    #[value(METRIC_FLUID_OUNCE)]
+    #[value(METRIC_FLUID_OUNCE.unit())]
     MetricFluidOunce,
 }
 
-/// The units of `Length`, in any number type they count in.
+/// The units of `Length`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<LENGTH, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LENGTH, N>;
-        fn value(&self, quantity: Qty<LENGTH, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
-    #[value(FOOT)]
+    #[value(FOOT.unit())]
     Foot,
-    #[value(YARD)]
+    #[value(YARD.unit())]
     Yard,
-    #[value(INCH)]
+    #[value(INCH.unit())]
     Inch,
-    #[value(ROD)]
+    #[value(ROD.unit())]
     Rod,
-    #[value(SURVEYOR_S_CHAIN)]
+    #[value(SURVEYOR_S_CHAIN.unit())]
     SurveyorSChain,
-    #[value(LINK_FOR_GUNTER_S_CHAIN)]
+    #[value(LINK_FOR_GUNTER_S_CHAIN.unit())]
     LinkForGunterSChain,
-    #[value(ENGINEER_S_CHAIN)]
+    #[value(ENGINEER_S_CHAIN.unit())]
     EngineerSChain,
-    #[value(LINK_FOR_RAMDEN_S_CHAIN)]
+    #[value(LINK_FOR_RAMDEN_S_CHAIN.unit())]
     LinkForRamdenSChain,
-    #[value(FATHOM)]
+    #[value(FATHOM.unit())]
     Fathom,
-    #[value(FURLONG)]
+    #[value(FURLONG.unit())]
     Furlong,
-    #[value(MILE)]
+    #[value(MILE.unit())]
     Mile,
-    #[value(MIL)]
+    #[value(MIL.unit())]
     Mil,
 }
 
-/// The units of `Mass`, in any number type they count in.
+/// The units of `Mass`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<MASS, N>, N> {
-        fn quantity(&self, value: N) -> Qty<MASS, N>;
-        fn value(&self, quantity: Qty<MASS, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum MassUnit {
     #[default]
-    #[value(GRAIN)]
+    #[value(GRAIN.unit())]
     Grain,
-    #[value(POUND)]
+    #[value(POUND.unit())]
     Pound,
-    #[value(OUNCE)]
+    #[value(OUNCE.unit())]
     Ounce,
-    #[value(DRAM)]
+    #[value(DRAM.unit())]
     Dram,
-    #[value(US_HUNDREDWEIGHT)]
+    #[value(US_HUNDREDWEIGHT.unit())]
     USHundredweight,
-    #[value(BRITISH_HUNDREDWEIGHT)]
+    #[value(BRITISH_HUNDREDWEIGHT.unit())]
     BritishHundredweight,
-    #[value(US_TON)]
+    #[value(US_TON.unit())]
     USTon,
-    #[value(BRITISH_TON)]
+    #[value(BRITISH_TON.unit())]
     BritishTon,
-    #[value(BRITISH_STONE)]
+    #[value(BRITISH_STONE.unit())]
     BritishStone,
-    #[value(PENNYWEIGHT)]
+    #[value(PENNYWEIGHT.unit())]
     Pennyweight,
-    #[value(SCRUPLE)]
+    #[value(SCRUPLE.unit())]
     Scruple,
-    #[value(DRACHM)]
+    #[value(DRACHM.unit())]
     Drachm,
-    #[value(METRIC_OUNCE)]
+    #[value(METRIC_OUNCE.unit())]
     MetricOunce,
 }
 
-/// The units of `Volume`, in any number type they count in.
+/// The units of `Volume`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<VOLUME, N>, N> {
-        fn quantity(&self, value: N) -> Qty<VOLUME, N>;
-        fn value(&self, quantity: Qty<VOLUME, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(TABLESPOON)]
+    #[value(TABLESPOON.unit())]
     Tablespoon,
-    #[value(TEASPOON)]
+    #[value(TEASPOON.unit())]
     Teaspoon,
-    #[value(CUP)]
+    #[value(CUP.unit())]
     Cup,
-    #[value(METRIC_CUP)]
+    #[value(METRIC_CUP.unit())]
     MetricCup,
-    #[value(METRIC_TEASPOON)]
+    #[value(METRIC_TEASPOON.unit())]
     MetricTeaspoon,
-    #[value(METRIC_TABLESPOON)]
+    #[value(METRIC_TABLESPOON.unit())]
     MetricTablespoon,
 }

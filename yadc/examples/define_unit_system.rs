@@ -1,230 +1,191 @@
-//! Define a unit system from scratch: a kind, a dimension, a quantity family,
-//! a few constants and units. No `yadc-si` - every type below is ours.
+//! A unit system written by hand, in yadc's pattern. Everything below is
+//! this file's own:
 //!
-//! The base constants (`METRE`, `SECOND`, `KELVIN`, `ABSOLUTE_ZERO`) write
-//! the field; every other constant is defined from them. A quantity value is
-//! a unit of its own kind: `KILOMETRE * 3.0` (or `KILOMETRE.quantity(3.0)`)
-//! is three kilometres, `MILE.value(d)` is how many miles `d` is.
+//! - `Dim`, the dimension: std operators whose outputs are `Option`s (`None`
+//!   where two dimensions do not combine), and `Dim::ONE`, a plain number's;
+//! - `Qty<D, N>`, the quantity, its operators lifted from `N`'s and `Dim`'s
+//!   by `#[derive(const_derive_more::ConstOps)]`;
+//! - the constants and the aliases;
+//! - `From` impls, for degrees Celsius;
+//! - `Display`.
 //!
-//! A unit is also a type of ours with an `impl Unit<Q, N>`: degrees Celsius
-//! add a zero to kelvins, and the length units of a menu are values an enum
-//! names (`dynamickit::Values`), each printing its symbol.
+//! A quantity is counted in the base units (metres, seconds, kelvins); every
+//! other unit is a constant, a number reads through it (`f64::from(d /
+//! MILE)`).
 //!
 //! Run with: cargo run -p yadc --example define_unit_system
-#![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 #![feature(
-    const_cmp,
-    const_default,
-    derive_const,
+    generic_const_exprs,
+    adt_const_params,
+    const_trait_impl,
     const_ops,
-    const_convert,
-    const_try
+    const_cmp
 )]
+#![feature(derive_const, const_destruct, const_convert)]
 #![allow(incomplete_features)]
 
+use const_derive_more::ConstOps;
 use core::fmt;
 use core::marker::ConstParamTy;
-use yadc::{Dimension, Unit};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// How a quantity behaves. `Linear` is an ordinary amount: it adds, scales
-/// and multiplies. `Affine` is a point, measured from a zero somebody chose:
-/// two temperatures differ by a step, a step moves one, and nothing else.
-#[derive_const(PartialEq, Default)]
-#[derive(Copy, Clone, Debug, Eq, ConstParamTy, Dimension)]
-pub enum Kind {
-    #[default]
-    Linear,
-    #[kind(affine)]
-    Affine,
-}
-
-/// One exponent per base unit, and the kind. `#[derive(Dimension)]` writes
-/// the algebra: exponents add under `*` and must match under `+`.
+/// The exponents of metres, seconds and kelvins.
 #[derive_const(PartialEq)]
-#[derive(Copy, Clone, Debug, Eq, ConstParamTy, Dimension)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
 pub struct Dim {
     pub m: i8,
     pub s: i8,
     pub k: i8,
-    #[kind]
-    pub kind: Kind,
 }
 
-/// The quantity family: one type per dimension. Only this crate can write
-/// the field: the base constants below write it, and every other number
-/// becomes a quantity through a unit.
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
-pub struct Qty<const D: Dim>(f64);
+impl Dim {
+    /// A plain number's dimension.
+    pub const ONE: Dim = Dim { m: 0, s: 0, k: 0 };
+}
 
-pub type Length = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
+/// Exponents add; `None` where one does not fit an `i8`.
+const impl Mul for Dim {
+    type Output = Option<Dim>;
+    fn mul(self, o: Dim) -> Option<Dim> {
+        match (
+            self.m.checked_add(o.m),
+            self.s.checked_add(o.s),
+            self.k.checked_add(o.k),
+        ) {
+            (Some(m), Some(s), Some(k)) => Some(Dim { m, s, k }),
+            _ => None,
         }
-    },
->;
-pub type Time = Qty<
-    {
-        Dim {
-            s: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
-pub type Velocity = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
-pub type TemperatureStep = Qty<
-    {
-        Dim {
-            k: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
-pub type Temperature = Qty<
-    {
-        Dim {
-            k: 1,
-            kind: Kind::Affine,
-            ..Dim::DIMENSIONLESS
-        }
-    },
->;
-
-// The base constants.
-pub const METRE: Length = Qty(1.0);
-pub const SECOND: Time = Qty(1.0);
-pub const KELVIN: TemperatureStep = Qty(1.0);
-pub const ABSOLUTE_ZERO: Temperature = Qty(0.0);
-
-// Everything else, from them.
-pub const KILOMETRE: Length = 1000.0 * METRE;
-pub const MILE: Length = 1609.344 * METRE;
-pub const HOUR: Time = 3600.0 * SECOND;
-pub const KILOMETRE_PER_HOUR: Velocity = KILOMETRE / HOUR;
-pub const ICE_POINT: Temperature = ABSOLUTE_ZERO + 273.15 * KELVIN;
-
-/// Degrees Celsius: kelvins counted from the ice point. A number `n` is
-/// `ICE_POINT + n · KELVIN`.
-#[derive(Copy, Clone, Debug)]
-pub struct Celsius;
-
-impl const Unit<Temperature, f64> for Celsius {
-    fn quantity(&self, value: f64) -> Temperature {
-        ICE_POINT + KELVIN.quantity(value)
     }
-    fn value(&self, quantity: Temperature) -> f64 {
-        KELVIN.value(quantity - ICE_POINT)
+}
+const impl Div for Dim {
+    type Output = Option<Dim>;
+    fn div(self, o: Dim) -> Option<Dim> {
+        match (
+            self.m.checked_sub(o.m),
+            self.s.checked_sub(o.s),
+            self.k.checked_sub(o.k),
+        ) {
+            (Some(m), Some(s), Some(k)) => Some(Dim { m, s, k }),
+            _ => None,
+        }
+    }
+}
+/// Only one dimension adds to itself.
+const impl Add for Dim {
+    type Output = Option<Dim>;
+    fn add(self, o: Dim) -> Option<Dim> {
+        if self == o { Some(self) } else { None }
+    }
+}
+const impl Sub for Dim {
+    type Output = Option<Dim>;
+    fn sub(self, o: Dim) -> Option<Dim> {
+        if self == o { Some(self) } else { None }
     }
 }
 
-/// Metres, kilometres and miles as types: each counts through its constant,
-/// and prints its symbol (`{}`) or name (`{:#}`).
-#[derive(Copy, Clone, Debug)]
-pub struct Metre;
-#[derive(Copy, Clone, Debug)]
-pub struct Kilometre;
-#[derive(Copy, Clone, Debug)]
-pub struct Mile;
-
-impl const Unit<Length, f64> for Metre {
-    fn quantity(&self, value: f64) -> Length {
-        METRE.quantity(value)
-    }
-    fn value(&self, quantity: Length) -> f64 {
-        METRE.value(quantity)
-    }
-}
-impl const Unit<Length, f64> for Kilometre {
-    fn quantity(&self, value: f64) -> Length {
-        KILOMETRE.quantity(value)
-    }
-    fn value(&self, quantity: Length) -> f64 {
-        KILOMETRE.value(quantity)
-    }
-}
-impl const Unit<Length, f64> for Mile {
-    fn quantity(&self, value: f64) -> Length {
-        MILE.quantity(value)
-    }
-    fn value(&self, quantity: Length) -> f64 {
-        MILE.value(quantity)
-    }
-}
-
-impl fmt::Display for Metre {
+/// `m·s⁻¹`; nothing for a plain number.
+impl fmt::Display for Dim {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.pad(if f.alternate() { "metres" } else { "m" })
-    }
-}
-impl fmt::Display for Kilometre {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.pad(if f.alternate() { "kilometres" } else { "km" })
-    }
-}
-impl fmt::Display for Mile {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.pad(if f.alternate() { "miles" } else { "mi" })
+        let mut first = true;
+        for (symbol, power) in [("m", self.m), ("s", self.s), ("K", self.k)] {
+            if power == 0 {
+                continue;
+            }
+            if !first {
+                f.write_str("·")?;
+            }
+            first = false;
+            f.write_str(symbol)?;
+            if power != 1 {
+                for c in power.to_string().chars() {
+                    f.write_str(match c {
+                        '-' => "⁻",
+                        '1' => "¹",
+                        '2' => "²",
+                        '3' => "³",
+                        '4' => "⁴",
+                        '5' => "⁵",
+                        '6' => "⁶",
+                        '7' => "⁷",
+                        '8' => "⁸",
+                        '9' => "⁹",
+                        _ => "⁰",
+                    })?;
+                }
+            }
+        }
+        Ok(())
     }
 }
 
-/// A choice of units, for a menu or a parser: each variant names the unit
-/// it is. The derive writes `Unit` by delegating to that unit, and `Display`
-/// and `FromStr` from its `Display`.
-#[derive(Copy, Clone, Debug, dynamickit::Values)]
-#[values(delegate(Unit<Length, f64> {
-    fn quantity(&self, value: f64) -> Length;
-    fn value(&self, quantity: Length) -> f64;
-}))]
-pub enum LengthUnit {
-    #[value(Metre)]
-    Metre,
-    #[value(Kilometre)]
-    Kilometre,
-    #[value(Mile)]
-    Mile,
+/// A number of base units of the dimension `D`, counted in `N`.
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
+#[const_ops(one = Dim::ONE)]
+pub struct Qty<const D: Dim, N>(N);
+
+/// The number and the dimension: `9.81 m·s⁻²`.
+impl<const D: Dim, N: fmt::Display> fmt::Display for Qty<D, N> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)?;
+        if D != Dim::ONE {
+            write!(f, " {D}")?;
+        }
+        Ok(())
+    }
 }
 
-/// Computed by the compiler: the operators and units are `const`.
-pub const BOILING: Temperature = Celsius.quantity(100.0);
+pub type Length<N> = Qty<{ Dim { m: 1, s: 0, k: 0 } }, N>;
+pub type Time<N> = Qty<{ Dim { m: 0, s: 1, k: 0 } }, N>;
+pub type Velocity<N> = Qty<{ Dim { m: 1, s: -1, k: 0 } }, N>;
+pub type Temperature<N> = Qty<{ Dim { m: 0, s: 0, k: 1 } }, N>;
+
+// The base units write the field ...
+pub const METRE: Length<f64> = Qty(1.0);
+pub const SECOND: Time<f64> = Qty(1.0);
+pub const KELVIN: Temperature<f64> = Qty(1.0);
+
+// ... and the others are built from them.
+pub const KILOMETRE: Length<f64> = 1000.0 * METRE;
+pub const MILE: Length<f64> = 1609.344 * METRE;
+pub const HOUR: Time<f64> = 3600.0 * SECOND;
+pub const KILOMETRE_PER_HOUR: Velocity<f64> = KILOMETRE / HOUR;
+
+/// A number of degrees Celsius: kelvins from the ice point. It is not a
+/// multiple of the kelvin, so it converts with std `From`.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Celsius(pub f64);
+
+impl From<Celsius> for Temperature<f64> {
+    fn from(c: Celsius) -> Self {
+        Qty(c.0 + 273.15)
+    }
+}
+impl From<Temperature<f64>> for Celsius {
+    fn from(t: Temperature<f64>) -> Self {
+        Celsius(t.0 - 273.15)
+    }
+}
+
+/// Computed by the compiler: every operator above is `const`.
+const SPEED_LIMIT: Velocity<f64> = 50.0 * KILOMETRE_PER_HOUR;
 
 fn main() {
-    // Build with a unit, compute on quantities, read with a unit.
-    let distance = KILOMETRE * 42.195;
-    let time = HOUR * 3.5;
-    let speed: Velocity = distance / time;
+    // A number times a unit is a quantity; a quantity over a unit is a plain
+    // number.
+    let distance = 42.195 * KILOMETRE;
+    let time = 3.5 * HOUR;
+    let speed: Velocity<f64> = distance / time;
     println!(
-        "{:.2} mi in {} h: {:.2} km/h",
-        MILE.value(distance),
-        HOUR.value(time),
-        KILOMETRE_PER_HOUR.value(speed)
+        "{:.2} mi in {} h: {:.2} km/h ({speed:.3})",
+        f64::from(distance / MILE),
+        f64::from(time / HOUR),
+        f64::from(speed / KILOMETRE_PER_HOUR),
     );
-    // let nope = distance + time;           // error: cannot add: the dimensions differ
+    println!("over the limit: {}", speed > SPEED_LIMIT);
+    // let nope = distance + time;  // error: cannot add: `+` of these parameters has no result
 
-    // A temperature is a point: two differ by a step, a step moves one.
-    let morning = Celsius.quantity(12.0);
-    let noon = morning + 9.5 * KELVIN;
-    let rise: TemperatureStep = noon - morning;
-    println!(
-        "noon is {:.1} °C, {:.1} K warmer",
-        Celsius.value(noon),
-        KELVIN.value(rise)
-    );
-    println!(
-        "water boils at {:.2} K",
-        KELVIN.value(BOILING - ABSOLUTE_ZERO)
-    );
-    // let nope = 2.0 * noon;                // error: a point cannot be scaled
-
-    // A unit picked at run time, by its symbol.
-    let unit: LengthUnit = "mi".parse().unwrap();
-    println!("{:.3} {unit} ({unit:#})", unit.value(distance));
+    let noon: Temperature<f64> = Celsius(21.5).into();
+    let warmer = noon + 2.0 * KELVIN;
+    println!("{noon:.2} is {:?}; 2 K more is {:?}", Celsius::from(noon), Celsius::from(warmer));
 }

@@ -1,376 +1,474 @@
-use crate::Dim;
-use yadc::Dimension;
+//! The quantities of `cgs` and their units.
 
-/// The dimension of `Acceleration`: `Qty<ACCELERATION, N>` is one.
-pub const ACCELERATION: Dim = Dim {
-    m: 1,
-    s: -2,
-    ..Dim::DIMENSIONLESS
-};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `Brightness`: `Qty<BRIGHTNESS, N>` is one.
-pub const BRIGHTNESS: Dim = Dim {
-    m: -2,
-    cd: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An acceleration, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Acceleration<
+    N,
+    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `DoseEquivalent`: `Qty<DOSE_EQUIVALENT, N>` is one.
-pub const DOSE_EQUIVALENT: Dim = Dim {
-    m: 2,
-    s: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// Gal (`Gal`), a unit of `Acceleration`: `n` of them is `n · 1e-2` base units.
+pub const GAL: Qty<
+    {
+        UcumUnit::scaled(
+            "Gal",
+            Exact::dec(1, -2),
+            METER.unit().times(SECOND.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `DynamicViscosity`: `Qty<DYNAMIC_VISCOSITY, N>` is one.
-pub const DYNAMIC_VISCOSITY: Dim = Dim {
-    m: -1,
-    s: -1,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// A brightness, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Brightness<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(CANDELA.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `ElectricCurrent`: `Qty<ELECTRIC_CURRENT, N>` is one.
-pub const ELECTRIC_CURRENT: Dim = Dim {
-    s: -1,
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Lambert (`Lmb`), a unit of `Brightness`: `n` of them is `n · 1e4 / core::f64::consts::PI` base units.
+pub const LAMBERT: Qty<
+    {
+        UcumUnit::scaled(
+            "Lmb",
+            Exact::int(10000) / Exact::PI,
+            UcumUnit::ONE
+                .times(METER.unit(), -2)
+                .times(CANDELA.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Energy`: `Qty<ENERGY, N>` is one.
-pub const ENERGY: Dim = Dim {
-    m: 2,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// A dose equivalent, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type DoseEquivalent<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `EnergyDose`: `Qty<ENERGY_DOSE, N>` is one.
-pub const ENERGY_DOSE: Dim = Dim {
-    m: 2,
-    s: -2,
-    ..Dim::DIMENSIONLESS
-};
+/// Radiation equivalent man (`REM`), a unit of `DoseEquivalent`: `n` of them is `n · 1e-2` base units.
+pub const RADIATION_EQUIVALENT_MAN: Qty<
+    {
+        UcumUnit::scaled(
+            "REM",
+            Exact::dec(1, -2),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `FluxOfMagneticInduction`: `Qty<FLUX_OF_MAGNETIC_INDUCTION, N>` is one.
-pub const FLUX_OF_MAGNETIC_INDUCTION: Dim = Dim {
-    m: 2,
-    s: -1,
-    g: 1,
-    C: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// A dynamic viscosity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type DynamicViscosity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -1)
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Force`: `Qty<FORCE, N>` is one.
-pub const FORCE: Dim = Dim {
-    m: 1,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Poise (`P`), a unit of `DynamicViscosity`: `n` of them is `n · 1e2` base units.
+pub const POISE: Qty<
+    {
+        UcumUnit::scaled(
+            "P",
+            Exact::int(100),
+            UcumUnit::ONE
+                .times(METER.unit(), -1)
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Illuminance`: `Qty<ILLUMINANCE, N>` is one.
-pub const ILLUMINANCE: Dim = Dim {
-    m: -2,
-    rad: 2,
-    cd: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An electric current, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ElectricCurrent<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(SECOND.unit(), -1)
+            .times(COULOMB.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `IonDose`: `Qty<ION_DOSE, N>` is one.
-pub const ION_DOSE: Dim = Dim {
-    g: -1,
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Biot (`Bi`), a unit of `ElectricCurrent`: `n` of them is `n · 1e1` base units.
+pub const BIOT: Qty<
+    {
+        UcumUnit::scaled(
+            "Bi",
+            Exact::int(10),
+            UcumUnit::ONE
+                .times(SECOND.unit(), -1)
+                .times(COULOMB.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `KinematicViscosity`: `Qty<KINEMATIC_VISCOSITY, N>` is one.
-pub const KINEMATIC_VISCOSITY: Dim = Dim {
-    m: 2,
-    s: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// An energy, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Energy<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `LineicNumber`: `Qty<LINEIC_NUMBER, N>` is one.
-pub const LINEIC_NUMBER: Dim = Dim {
-    m: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// Erg (`erg`), a unit of `Energy`: `n` of them is `n · 1e-4` base units.
+pub const ERG: Qty<
+    {
+        UcumUnit::scaled(
+            "erg",
+            Exact::dec(1, -4),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `LumIntensityDensity`: `Qty<LUM_INTENSITY_DENSITY, N>` is one.
-pub const LUM_INTENSITY_DENSITY: Dim = Dim {
-    m: -2,
-    cd: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An energy dose, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type EnergyDose<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `MagneticFieldIntensity`: `Qty<MAGNETIC_FIELD_INTENSITY, N>` is one.
-pub const MAGNETIC_FIELD_INTENSITY: Dim = Dim {
-    m: -1,
-    s: -1,
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Radiation absorbed dose (`RAD`), a unit of `EnergyDose`: `n` of them is `n · 1e-2` base units.
+pub const RADIATION_ABSORBED_DOSE: Qty<
+    {
+        UcumUnit::scaled(
+            "RAD",
+            Exact::dec(1, -2),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `MagneticFluxDensity`: `Qty<MAGNETIC_FLUX_DENSITY, N>` is one.
-pub const MAGNETIC_FLUX_DENSITY: Dim = Dim {
-    s: -1,
-    g: 1,
-    C: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// A flux of magnetic induction, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type FluxOfMagneticInduction<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `MagneticTension`: `Qty<MAGNETIC_TENSION, N>` is one.
-pub const MAGNETIC_TENSION: Dim = Dim {
-    s: -1,
-    C: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Maxwell (`Mx`), a unit of `FluxOfMagneticInduction`: `n` of them is `n · 1e-5` base units.
+pub const MAXWELL: Qty<
+    {
+        UcumUnit::scaled(
+            "Mx",
+            Exact::dec(1, -5),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `Radioactivity`: `Qty<RADIOACTIVITY, N>` is one.
-pub const RADIOACTIVITY: Dim = Dim {
-    s: -1,
-    ..Dim::DIMENSIONLESS
-};
+/// A force, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Force<
+    N,
+    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, UcumUnit, UcumUnitConsts};
+/// Dyne (`dyn`), a unit of `Force`: `n` of them is `n · 1e-2` base units.
+pub const DYNE: Qty<
+    {
+        UcumUnit::scaled(
+            "dyn",
+            Exact::dec(1, -2),
+            METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Gal (`Gal`), a unit of `Acceleration`: `n` of them is `n · 1e-2` coherent units.
-    pub const GAL: UcumUnit<
-        ACCELERATION,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "Gal",
-                name: "Gal",
-            }
-        },
-    > = UcumUnit;
+/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Illuminance<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(RADIAN.unit(), 2)
+            .times(CANDELA.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Lambert (`Lmb`), a unit of `Brightness`: `n` of them is `n · 1e4 / core::f64::consts::PI` coherent units.
-    pub const LAMBERT: UcumUnit<
-        BRIGHTNESS,
-        {
-            UcumUnitConsts {
-                size: Exact::int(10000) / Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "Lmb",
-                name: "Lambert",
-            }
-        },
-    > = UcumUnit;
+/// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 1e-4` base units.
+pub const PHOT: Qty<
+    {
+        UcumUnit::scaled(
+            "ph",
+            Exact::dec(1, -4),
+            UcumUnit::ONE
+                .times(METER.unit(), -2)
+                .times(RADIAN.unit(), 2)
+                .times(CANDELA.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Radiation equivalent man (`REM`), a unit of `DoseEquivalent`: `n` of them is `n · 1e-2` coherent units.
-    pub const RADIATION_EQUIVALENT_MAN: UcumUnit<
-        DOSE_EQUIVALENT,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "REM",
-                name: "radiation equivalent man",
-            }
-        },
-    > = UcumUnit;
+/// An ion dose, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type IonDose<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(GRAM.unit(), -1)
+            .times(COULOMB.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Poise (`P`), a unit of `DynamicViscosity`: `n` of them is `n · 1e2` coherent units.
-    pub const POISE: UcumUnit<
-        DYNAMIC_VISCOSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(100),
-                zero: Exact::ZERO,
-                symbol: "P",
-                name: "Poise",
-            }
-        },
-    > = UcumUnit;
+/// Roentgen (`R`), a unit of `IonDose`: `n` of them is `n · 258e-9` base units.
+pub const ROENTGEN: Qty<
+    {
+        UcumUnit::scaled(
+            "R",
+            Exact::dec(258, -9),
+            UcumUnit::ONE
+                .times(GRAM.unit(), -1)
+                .times(COULOMB.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Biot (`Bi`), a unit of `ElectricCurrent`: `n` of them is `n · 1e1` coherent units.
-    pub const BIOT: UcumUnit<
-        ELECTRIC_CURRENT,
-        {
-            UcumUnitConsts {
-                size: Exact::int(10),
-                zero: Exact::ZERO,
-                symbol: "Bi",
-                name: "Biot",
-            }
-        },
-    > = UcumUnit;
+/// A kinematic viscosity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type KinematicViscosity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Erg (`erg`), a unit of `Energy`: `n` of them is `n · 1e-4` coherent units.
-    pub const ERG: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -4),
-                zero: Exact::ZERO,
-                symbol: "erg",
-                name: "erg",
-            }
-        },
-    > = UcumUnit;
+/// Stokes (`St`), a unit of `KinematicViscosity`: `n` of them is `n · 1e-4` base units.
+pub const STOKES: Qty<
+    {
+        UcumUnit::scaled(
+            "St",
+            Exact::dec(1, -4),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Radiation absorbed dose (`RAD`), a unit of `EnergyDose`: `n` of them is `n · 1e-2` coherent units.
-    pub const RADIATION_ABSORBED_DOSE: UcumUnit<
-        ENERGY_DOSE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "RAD",
-                name: "radiation absorbed dose",
-            }
-        },
-    > = UcumUnit;
+/// A lineic number, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type LineicNumber<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), -1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Maxwell (`Mx`), a unit of `FluxOfMagneticInduction`: `n` of them is `n · 1e-5` coherent units.
-    pub const MAXWELL: UcumUnit<
-        FLUX_OF_MAGNETIC_INDUCTION,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -5),
-                zero: Exact::ZERO,
-                symbol: "Mx",
-                name: "Maxwell",
-            }
-        },
-    > = UcumUnit;
+/// Kayser (`Ky`), a unit of `LineicNumber`: `n` of them is `n · 1e2` base units.
+pub const KAYSER: Qty<
+    { UcumUnit::scaled("Ky", Exact::int(100), UcumUnit::ONE.times(METER.unit(), -1)) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Dyne (`dyn`), a unit of `Force`: `n` of them is `n · 1e-2` coherent units.
-    pub const DYNE: UcumUnit<
-        FORCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "dyn",
-                name: "dyne",
-            }
-        },
-    > = UcumUnit;
+/// A lum intensity density, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type LumIntensityDensity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -2)
+            .times(CANDELA.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 1e-4` coherent units.
-    pub const PHOT: UcumUnit<
-        ILLUMINANCE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -4),
-                zero: Exact::ZERO,
-                symbol: "ph",
-                name: "phot",
-            }
-        },
-    > = UcumUnit;
+/// Stilb (`sb`), a unit of `LumIntensityDensity`: `n` of them is `n · 1e4` base units.
+pub const STILB: Qty<
+    {
+        UcumUnit::scaled(
+            "sb",
+            Exact::int(10000),
+            UcumUnit::ONE
+                .times(METER.unit(), -2)
+                .times(CANDELA.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Roentgen (`R`), a unit of `IonDose`: `n` of them is `n · 258e-9` coherent units.
-    pub const ROENTGEN: UcumUnit<
-        ION_DOSE,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(258, -9),
-                zero: Exact::ZERO,
-                symbol: "R",
-                name: "Roentgen",
-            }
-        },
-    > = UcumUnit;
+/// A magnetic field intensity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MagneticFieldIntensity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), -1)
+            .times(SECOND.unit(), -1)
+            .times(COULOMB.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Stokes (`St`), a unit of `KinematicViscosity`: `n` of them is `n · 1e-4` coherent units.
-    pub const STOKES: UcumUnit<
-        KINEMATIC_VISCOSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -4),
-                zero: Exact::ZERO,
-                symbol: "St",
-                name: "Stokes",
-            }
-        },
-    > = UcumUnit;
+/// Oersted (`Oe`), a unit of `MagneticFieldIntensity`: `n` of them is `n · 25e1 / core::f64::consts::PI` base units.
+pub const OERSTED: Qty<
+    {
+        UcumUnit::scaled(
+            "Oe",
+            Exact::int(250) / Exact::PI,
+            UcumUnit::ONE
+                .times(METER.unit(), -1)
+                .times(SECOND.unit(), -1)
+                .times(COULOMB.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Kayser (`Ky`), a unit of `LineicNumber`: `n` of them is `n · 1e2` coherent units.
-    pub const KAYSER: UcumUnit<
-        LINEIC_NUMBER,
-        {
-            UcumUnitConsts {
-                size: Exact::int(100),
-                zero: Exact::ZERO,
-                symbol: "Ky",
-                name: "Kayser",
-            }
-        },
-    > = UcumUnit;
+/// A magnetic flux density, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MagneticFluxDensity<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(SECOND.unit(), -1)
+            .times(GRAM.unit(), 1)
+            .times(COULOMB.unit(), -1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Stilb (`sb`), a unit of `LumIntensityDensity`: `n` of them is `n · 1e4` coherent units.
-    pub const STILB: UcumUnit<
-        LUM_INTENSITY_DENSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(10000),
-                zero: Exact::ZERO,
-                symbol: "sb",
-                name: "stilb",
-            }
-        },
-    > = UcumUnit;
+/// Gauss (`G`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e-1` base units.
+pub const GAUSS: Qty<
+    {
+        UcumUnit::scaled(
+            "G",
+            Exact::dec(1, -1),
+            UcumUnit::ONE
+                .times(SECOND.unit(), -1)
+                .times(GRAM.unit(), 1)
+                .times(COULOMB.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Oersted (`Oe`), a unit of `MagneticFieldIntensity`: `n` of them is `n · 25e1 / core::f64::consts::PI` coherent units.
-    pub const OERSTED: UcumUnit<
-        MAGNETIC_FIELD_INTENSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(250) / Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "Oe",
-                name: "Oersted",
-            }
-        },
-    > = UcumUnit;
+/// A magnetic tension, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type MagneticTension<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(SECOND.unit(), -1)
+            .times(COULOMB.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Gauss (`G`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e-1` coherent units.
-    pub const GAUSS: UcumUnit<
-        MAGNETIC_FLUX_DENSITY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -1),
-                zero: Exact::ZERO,
-                symbol: "G",
-                name: "Gauss",
-            }
-        },
-    > = UcumUnit;
+/// Gilbert (`Gb`), a unit of `MagneticTension`: `n` of them is `n · 25e-1 / core::f64::consts::PI` base units.
+pub const GILBERT: Qty<
+    {
+        UcumUnit::scaled(
+            "Gb",
+            Exact::dec(25, -1) / Exact::PI,
+            UcumUnit::ONE
+                .times(SECOND.unit(), -1)
+                .times(COULOMB.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Gilbert (`Gb`), a unit of `MagneticTension`: `n` of them is `n · 25e-1 / core::f64::consts::PI` coherent units.
-    pub const GILBERT: UcumUnit<
-        MAGNETIC_TENSION,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(25, -1) / Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "Gb",
-                name: "Gilbert",
-            }
-        },
-    > = UcumUnit;
+/// A radioactivity, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Radioactivity<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Curie (`Ci`), a unit of `Radioactivity`: `n` of them is `n · 37e9` coherent units.
-    pub const CURIE: UcumUnit<
-        RADIOACTIVITY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(37000000000),
-                zero: Exact::ZERO,
-                symbol: "Ci",
-                name: "Curie",
-            }
-        },
-    > = UcumUnit;
-}
+/// Curie (`Ci`), a unit of `Radioactivity`: `n` of them is `n · 37e9` base units.
+pub const CURIE: Qty<
+    {
+        UcumUnit::scaled(
+            "Ci",
+            Exact::int(37000000000),
+            UcumUnit::ONE.times(SECOND.unit(), -1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;

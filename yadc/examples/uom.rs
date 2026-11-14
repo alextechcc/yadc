@@ -1,70 +1,39 @@
-//! Demonstrates `From`/`Into`/`TryFrom` between `uom`'s SI quantities and
-//! both `yadc_si::SIQuantity` and `yadc_si::DynamicSIQuantity`.
+//! `From`/`Into`/`TryFrom` between `uom`'s SI quantities and `yadc-si`'s
+//! (feature `uom`): both store the number in SI base units, so it moves as
+//! it is.
 //!
 //! Run with: cargo run -p yadc --example uom
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 
-use std::convert::TryFrom;
-
-use uom::si::f64::{Length, Mass, Velocity};
-use uom::si::length::{kilometer, meter};
+use uom::si::f64 as u;
+use uom::si::length::kilometer;
 use uom::si::mass::kilogram;
 use uom::si::velocity::meter_per_second;
-use yadc::Unit;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::dynamic::mechanical::{MassUnit::Kilogram, VelocityUnit::MetrePerSecond};
-use yadc_si::mechanical::MASS;
-use yadc_si::{Prefix, Prefixed, SIQuantity};
+use yadc_si::mechanical::*;
+use yadc_si::{METRE, SECOND};
 
 fn main() {
-    // -- uom -> SIQuantity (From, infallible) -----------------------------
-    let uom_dist = Length::new::<kilometer>(42.195);
-    let static_dist: SIQuantity<_, f64> = uom_dist.into();
-    let km = Prefixed {
-        prefix: Some(Prefix::Kilo),
-        unit: yadc_si::dynamic::mechanical::LengthUnit::Metre,
-    };
-    println!(
-        "marathon (static, from uom): {} {km}",
-        km.value(static_dist)
-    );
+    // uom -> yadc-si: the base unit of the dimension.
+    let marathon: Length<f64> = u::Length::new::<kilometer>(42.195).into();
+    println!("marathon (from uom) = {marathon}");
 
-    // -- SIQuantity -> uom (Into, infallible) ----------------------------
-    // A unit builds it: 25 of `MetrePerSecond`.
-    let yadc_v = MetrePerSecond.quantity(25.0);
-    let uom_v: Velocity = yadc_v.into();
-    println!("velocity (to uom): {} m/s", uom_v.get::<meter_per_second>());
+    // yadc-si -> uom: from a base unit; another unit converts first.
+    let v: Velocity<f64> = 25.0 * METRE / SECOND;
+    let uom_v: u::Velocity = v.into();
+    println!("velocity (to uom)   = {} m/s", uom_v.get::<meter_per_second>());
+    let mile: Length<f64> = (1.0_f64 * MILE).into();
+    let uom_mile: u::Length = mile.into();
+    println!("a mile (to uom)     = {} km", uom_mile.get::<kilometer>());
 
-    // -- uom -> DynamicSIQuantity (From, infallible) ---------------------------
-    // Reading a runtime-dimensioned quantity in a unit goes through the static
-    // quantity, checked: `SIQuantity::<MASS, _>::try_from(d)` is `Err(d)` if the dimension does
-    // not match.
-    let uom_mass = Mass::new::<kilogram>(70.0);
-    let dyn_mass: DynamicSIQuantity = uom_mass.into();
-    println!(
-        "mass (dynamic, from uom): {:?}",
-        SIQuantity::<MASS, _>::try_from(dyn_mass).map(|m| Kilogram.value(m))
-    );
-
-    // -- DynamicSIQuantity -> uom (TryFrom, runtime dim check) -----------------
-    let dyn_dist: DynamicSIQuantity = uom_dist.into();
-    match Length::try_from(dyn_dist) {
-        Ok(l) => println!(
-            "round-trip DynamicSIQuantity -> uom Length: {} m",
-            l.get::<meter>()
-        ),
-        Err(_) => println!("dim mismatch"),
-    }
-
-    // Dim mismatch: DynamicSIQuantity holding a mass can't convert to Length.
-    // The error *is* the original `DynamicSIQuantity`, so nothing is lost.
-    let dyn_mass2: DynamicSIQuantity = Mass::new::<kilogram>(5.0).into();
-    match Length::try_from(dyn_mass2) {
-        Ok(_) => println!("unexpected success"),
-        Err(recovered) => println!(
-            "dim mismatch recovered mass: {:?}",
-            SIQuantity::<MASS, _>::try_from(recovered).map(|m| Kilogram.value(m))
-        ),
-    }
+    // uom -> DynamicSIQuantity, and back with a check of the unit.
+    let d = DynamicSIQuantity::from(u::Mass::new::<kilogram>(72.5));
+    println!("dynamic (from uom)  = {} {}", d.value, d.unit);
+    let m = u::Mass::try_from(d).unwrap();
+    println!("back to uom         = {} kg", m.get::<kilogram>());
+    let not_a_length = u::Length::try_from(d);
+    println!("as a length         = {:?}", not_a_length.is_ok());
+    let static_mass: Mass<f64> = d.try_into().unwrap();
+    println!("as a static mass    = {static_mass}");
 }

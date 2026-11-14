@@ -1,345 +1,352 @@
-use crate::{Dim, Kind};
-use yadc::Dimension;
+//! The quantities of `heat` and their units.
 
-/// The dimension of `Energy`: `Qty<ENERGY, N>` is one.
-pub const ENERGY: Dim = Dim {
-    m: 2,
-    s: -2,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `LinearMassDensityOfTextileThread`: `Qty<LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD, N>` is one.
-pub const LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD: Dim = Dim {
-    m: -1,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// An energy, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Energy<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -2)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-/// The dimension of `Power`: `Qty<POWER, N>` is one.
-pub const POWER: Dim = Dim {
-    m: 2,
-    s: -3,
-    g: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Calorie at 15 °C (`cal_[15]`), a unit of `Energy`: `n` of them is `n · 41858e-1` base units.
+pub const CALORIE_AT15_DEGREE_C: Qty<
+    {
+        UcumUnit::scaled(
+            "cal_[15]",
+            Exact::dec(41858, -1),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `TemperatureInterval`: `Qty<TEMPERATURE_INTERVAL, N>` is one.
-pub const TEMPERATURE_INTERVAL: Dim = Dim {
-    K: 1,
-    ..Dim::DIMENSIONLESS
-};
+/// Calorie at 20 °C (`cal_[20]`), a unit of `Energy`: `n` of them is `n · 41819e-1` base units.
+pub const CALORIE_AT20_DEGREE_C: Qty<
+    {
+        UcumUnit::scaled(
+            "cal_[20]",
+            Exact::dec(41819, -1),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The dimension of `ThermodynamicTemperature`: `Qty<THERMODYNAMIC_TEMPERATURE, N>` is one.
-pub const THERMODYNAMIC_TEMPERATURE: Dim = Dim {
-    K: 1,
-    kind: Kind::Absolute,
-    ..Dim::DIMENSIONLESS
-};
+/// Mean calorie (`cal_m`), a unit of `Energy`: `n` of them is `n · 419002e-2` base units.
+pub const MEAN_CALORIE: Qty<
+    {
+        UcumUnit::scaled(
+            "cal_m",
+            Exact::dec(419002, -2),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, UcumUnit, UcumUnitConsts};
+/// International table calorie (`cal_IT`), a unit of `Energy`: `n` of them is `n · 41868e-1` base units.
+pub const INTERNATIONAL_TABLE_CALORIE: Qty<
+    {
+        UcumUnit::scaled(
+            "cal_IT",
+            Exact::dec(41868, -1),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Calorie at 15 °C (`cal_[15]`), a unit of `Energy`: `n` of them is `n · 41858e-1` coherent units.
-    pub const CALORIE_AT15_DEGREE_C: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(41858, -1),
-                zero: Exact::ZERO,
-                symbol: "cal_[15]",
-                name: "calorie at 15 °C",
-            }
-        },
-    > = UcumUnit;
+/// Thermochemical calorie (`cal_th`), a unit of `Energy`: `n` of them is `n · 4184` base units.
+pub const THERMOCHEMICAL_CALORIE: Qty<
+    {
+        UcumUnit::scaled(
+            "cal_th",
+            Exact::int(4184),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Calorie at 20 °C (`cal_[20]`), a unit of `Energy`: `n` of them is `n · 41819e-1` coherent units.
-    pub const CALORIE_AT20_DEGREE_C: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(41819, -1),
-                zero: Exact::ZERO,
-                symbol: "cal_[20]",
-                name: "calorie at 20 °C",
-            }
-        },
-    > = UcumUnit;
+/// Calorie (`cal`), a unit of `Energy`: `n` of them is `n · 4184` base units.
+pub const CALORIE: Qty<
+    {
+        UcumUnit::scaled(
+            "cal",
+            Exact::int(4184),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Mean calorie (`cal_m`), a unit of `Energy`: `n` of them is `n · 419002e-2` coherent units.
-    pub const MEAN_CALORIE: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(419002, -2),
-                zero: Exact::ZERO,
-                symbol: "cal_m",
-                name: "mean calorie",
-            }
-        },
-    > = UcumUnit;
+/// Nutrition label Calories (`[Cal]`), a unit of `Energy`: `n` of them is `n · 4184e3` base units.
+pub const NUTRITION_LABEL_CALORIES: Qty<
+    {
+        UcumUnit::scaled(
+            "[Cal]",
+            Exact::int(4184000),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// International table calorie (`cal_IT`), a unit of `Energy`: `n` of them is `n · 41868e-1` coherent units.
-    pub const INTERNATIONAL_TABLE_CALORIE: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(41868, -1),
-                zero: Exact::ZERO,
-                symbol: "cal_IT",
-                name: "international table calorie",
-            }
-        },
-    > = UcumUnit;
+/// British thermal unit at 39 °F (`[Btu_39]`), a unit of `Energy`: `n` of them is `n · 105967e1` base units.
+pub const BRITISH_THERMAL_UNIT_AT39_DEGREE_F: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu_39]",
+            Exact::int(1059670),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Thermochemical calorie (`cal_th`), a unit of `Energy`: `n` of them is `n · 4184` coherent units.
-    pub const THERMOCHEMICAL_CALORIE: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(4184),
-                zero: Exact::ZERO,
-                symbol: "cal_th",
-                name: "thermochemical calorie",
-            }
-        },
-    > = UcumUnit;
+/// British thermal unit at 59 °F (`[Btu_59]`), a unit of `Energy`: `n` of them is `n · 10548e2` base units.
+pub const BRITISH_THERMAL_UNIT_AT59_DEGREE_F: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu_59]",
+            Exact::int(1054800),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Calorie (`cal`), a unit of `Energy`: `n` of them is `n · 4184` coherent units.
-    pub const CALORIE: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(4184),
-                zero: Exact::ZERO,
-                symbol: "cal",
-                name: "calorie",
-            }
-        },
-    > = UcumUnit;
+/// British thermal unit at 60 °F (`[Btu_60]`), a unit of `Energy`: `n` of them is `n · 105468e1` base units.
+pub const BRITISH_THERMAL_UNIT_AT60_DEGREE_F: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu_60]",
+            Exact::int(1054680),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Nutrition label Calories (`[Cal]`), a unit of `Energy`: `n` of them is `n · 4184e3` coherent units.
-    pub const NUTRITION_LABEL_CALORIES: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(4184000),
-                zero: Exact::ZERO,
-                symbol: "[Cal]",
-                name: "nutrition label Calories",
-            }
-        },
-    > = UcumUnit;
+/// Mean British thermal unit (`[Btu_m]`), a unit of `Energy`: `n` of them is `n · 105587e1` base units.
+pub const MEAN_BRITISH_THERMAL_UNIT: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu_m]",
+            Exact::int(1055870),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// British thermal unit at 39 °F (`[Btu_39]`), a unit of `Energy`: `n` of them is `n · 105967e1` coherent units.
-    pub const BRITISH_THERMAL_UNIT_AT39_DEGREE_F: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1059670),
-                zero: Exact::ZERO,
-                symbol: "[Btu_39]",
-                name: "British thermal unit at 39 °F",
-            }
-        },
-    > = UcumUnit;
+/// International table British thermal unit (`[Btu_IT]`), a unit of `Energy`: `n` of them is `n · 105505585262e-5` base units.
+pub const INTERNATIONAL_TABLE_BRITISH_THERMAL_UNIT: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu_IT]",
+            Exact::dec(105505585262, -5),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// British thermal unit at 59 °F (`[Btu_59]`), a unit of `Energy`: `n` of them is `n · 10548e2` coherent units.
-    pub const BRITISH_THERMAL_UNIT_AT59_DEGREE_F: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1054800),
-                zero: Exact::ZERO,
-                symbol: "[Btu_59]",
-                name: "British thermal unit at 59 °F",
-            }
-        },
-    > = UcumUnit;
+/// Thermochemical British thermal unit (`[Btu_th]`), a unit of `Energy`: `n` of them is `n · 105435e1` base units.
+pub const THERMOCHEMICAL_BRITISH_THERMAL_UNIT: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu_th]",
+            Exact::int(1054350),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// British thermal unit at 60 °F (`[Btu_60]`), a unit of `Energy`: `n` of them is `n · 105468e1` coherent units.
-    pub const BRITISH_THERMAL_UNIT_AT60_DEGREE_F: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1054680),
-                zero: Exact::ZERO,
-                symbol: "[Btu_60]",
-                name: "British thermal unit at 60 °F",
-            }
-        },
-    > = UcumUnit;
+/// British thermal unit (`[Btu]`), a unit of `Energy`: `n` of them is `n · 105435e1` base units.
+pub const BRITISH_THERMAL_UNIT: Qty<
+    {
+        UcumUnit::scaled(
+            "[Btu]",
+            Exact::int(1054350),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -2)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Mean British thermal unit (`[Btu_m]`), a unit of `Energy`: `n` of them is `n · 105587e1` coherent units.
-    pub const MEAN_BRITISH_THERMAL_UNIT: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1055870),
-                zero: Exact::ZERO,
-                symbol: "[Btu_m]",
-                name: "mean British thermal unit",
-            }
-        },
-    > = UcumUnit;
+/// A linear mass density of textile thread, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type LinearMassDensityOfTextileThread<
+    N,
+    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), -1).times(GRAM.unit(), 1) },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// International table British thermal unit (`[Btu_IT]`), a unit of `Energy`: `n` of them is `n · 105505585262e-5` coherent units.
-    pub const INTERNATIONAL_TABLE_BRITISH_THERMAL_UNIT: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(105505585262, -5),
-                zero: Exact::ZERO,
-                symbol: "[Btu_IT]",
-                name: "international table British thermal unit",
-            }
-        },
-    > = UcumUnit;
+/// Tex (`tex`), a unit of `LinearMassDensityOfTextileThread`: `n` of them is `n · 1e-3` base units.
+pub const TEX: Qty<
+    {
+        UcumUnit::scaled(
+            "tex",
+            Exact::dec(1, -3),
+            UcumUnit::ONE.times(METER.unit(), -1).times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Thermochemical British thermal unit (`[Btu_th]`), a unit of `Energy`: `n` of them is `n · 105435e1` coherent units.
-    pub const THERMOCHEMICAL_BRITISH_THERMAL_UNIT: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1054350),
-                zero: Exact::ZERO,
-                symbol: "[Btu_th]",
-                name: "thermochemical British thermal unit",
-            }
-        },
-    > = UcumUnit;
+/// Denier (`[den]`), a unit of `LinearMassDensityOfTextileThread`: `n` of them is `n · 1 / 9000` base units.
+pub const DENIER: Qty<
+    {
+        UcumUnit::scaled(
+            "[den]",
+            Exact::int(1) / Exact::int(9000),
+            UcumUnit::ONE.times(METER.unit(), -1).times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// British thermal unit (`[Btu]`), a unit of `Energy`: `n` of them is `n · 105435e1` coherent units.
-    pub const BRITISH_THERMAL_UNIT: UcumUnit<
-        ENERGY,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1054350),
-                zero: Exact::ZERO,
-                symbol: "[Btu]",
-                name: "British thermal unit",
-            }
-        },
-    > = UcumUnit;
+/// A power, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Power<
+    N,
+    const U: UcumUnit = {
+        UcumUnit::ONE
+            .times(METER.unit(), 2)
+            .times(SECOND.unit(), -3)
+            .times(GRAM.unit(), 1)
+    },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Tex (`tex`), a unit of `LinearMassDensityOfTextileThread`: `n` of them is `n · 1e-3` coherent units.
-    pub const TEX: UcumUnit<
-        LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "tex",
-                name: "tex",
-            }
-        },
-    > = UcumUnit;
+/// Horsepower (`[HP]`), a unit of `Power`: `n` of them is `n · 74569987158227022e-11` base units.
+pub const HORSEPOWER: Qty<
+    {
+        UcumUnit::scaled(
+            "[HP]",
+            Exact::dec(74569987158227022, -11),
+            UcumUnit::ONE
+                .times(METER.unit(), 2)
+                .times(SECOND.unit(), -3)
+                .times(GRAM.unit(), 1),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Denier (`[den]`), a unit of `LinearMassDensityOfTextileThread`: `n` of them is `n · 1 / 9000` coherent units.
-    pub const DENIER: UcumUnit<
-        LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1) / Exact::int(9000),
-                zero: Exact::ZERO,
-                symbol: "[den]",
-                name: "Denier",
-            }
-        },
-    > = UcumUnit;
+/// A temperature interval, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type TemperatureInterval<N, const U: UcumUnit = { KELVIN.unit() }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-    /// Horsepower (`[HP]`), a unit of `Power`: `n` of them is `n · 74569987158227022e-11` coherent units.
-    pub const HORSEPOWER: UcumUnit<
-        POWER,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(74569987158227022, -11),
-                zero: Exact::ZERO,
-                symbol: "[HP]",
-                name: "horsepower",
-            }
-        },
-    > = UcumUnit;
+/// Degrees Fahrenheit (`[degF]`), a unit of `TemperatureInterval`: `n` of them is `n · 5.0 / 9.0` base units.
+pub const DEGREE_FAHRENHEIT: Qty<
+    { UcumUnit::scaled("[degF]", Exact::int(5) / Exact::int(9), KELVIN.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Kelvin (`K`), a unit of `TemperatureInterval`: `n` of them is `n · 1.0` coherent units.
-    pub const KELVIN: UcumUnit<
-        TEMPERATURE_INTERVAL,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "K",
-                name: "kelvin",
-            }
-        },
-    > = UcumUnit;
+/// A thermodynamic temperature, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type ThermodynamicTemperature<
+    N,
+    const U: UcumUnit = { KELVIN.unit() },
+    const IS_BASE: bool = true,
+> = Qty<U, N, IS_BASE>;
 
-    /// Degrees Fahrenheit (`[degF]`), a unit of `TemperatureInterval`: `n` of them is `n · 5.0 / 9.0` coherent units.
-    pub const DEGREE_FAHRENHEIT: UcumUnit<
-        TEMPERATURE_INTERVAL,
-        {
-            UcumUnitConsts {
-                size: Exact::int(5) / Exact::int(9),
-                zero: Exact::ZERO,
-                symbol: "[degF]",
-                name: "degrees Fahrenheit",
-            }
-        },
-    > = UcumUnit;
+/// Degrees Celsius (`Cel`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 1.0 + 273.15` base units.
+pub const CELSIUS: Qty<
+    { UcumUnit::offset("Cel", Exact::int(1), Exact::dec(27315, -2), KELVIN.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Kelvin (`K`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 1.0` coherent units.
-    pub const KELVIN_SCALE: UcumUnit<
-        THERMODYNAMIC_TEMPERATURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "K",
-                name: "kelvin",
-            }
-        },
-    > = UcumUnit;
+/// Degrees Fahrenheit (`[degF]`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 5.0 / 9.0 + 459.67 * 5.0 / 9.0` base units.
+pub const FAHRENHEIT: Qty<
+    {
+        UcumUnit::offset(
+            "[degF]",
+            Exact::int(5) / Exact::int(9),
+            Exact::dec(45967, -2) * Exact::int(5) / Exact::int(9),
+            KELVIN.unit(),
+        )
+    },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Degrees Celsius (`Cel`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 1.0 + 273.15` coherent units.
-    pub const CELSIUS: UcumUnit<
-        THERMODYNAMIC_TEMPERATURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::dec(27315, -2),
-                symbol: "Cel",
-                name: "degrees Celsius",
-            }
-        },
-    > = UcumUnit;
-
-    /// Degrees Fahrenheit (`[degF]`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 5.0 / 9.0 + 459.67 * 5.0 / 9.0` coherent units.
-    pub const FAHRENHEIT: UcumUnit<
-        THERMODYNAMIC_TEMPERATURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(5) / Exact::int(9),
-                zero: Exact::dec(45967, -2) * Exact::int(5) / Exact::int(9),
-                symbol: "[degF]",
-                name: "degrees Fahrenheit",
-            }
-        },
-    > = UcumUnit;
-
-    /// Degrees Rankine (`[degR]`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 5.0 / 9.0` coherent units.
-    pub const RANKINE: UcumUnit<
-        THERMODYNAMIC_TEMPERATURE,
-        {
-            UcumUnitConsts {
-                size: Exact::int(5) / Exact::int(9),
-                zero: Exact::ZERO,
-                symbol: "[degR]",
-                name: "degrees Rankine",
-            }
-        },
-    > = UcumUnit;
-}
+/// Degrees Rankine (`[degR]`), a unit of `ThermodynamicTemperature`: `n` of them is `n · 5.0 / 9.0` base units.
+pub const RANKINE: Qty<
+    { UcumUnit::scaled("[degR]", Exact::int(5) / Exact::int(9), KELVIN.unit()) },
+    Exact,
+    false,
+> = Qty::ONE;

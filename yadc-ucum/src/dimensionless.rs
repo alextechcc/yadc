@@ -1,119 +1,58 @@
-//! Plain numbers: ratios and their units.
+//! Plain numbers: ratios, levels and their units.
 
-use crate::Dim;
-use yadc::Dimension;
+#[allow(unused_imports)]
+use crate::*;
 
-/// The dimension of `Dimensionless`: `Qty<DIMENSIONLESS, N>` is one.
-pub const DIMENSIONLESS: Dim = Dim::DIMENSIONLESS;
+/// A dimensionless, in `N`s of the unit `U`: by default its coherent unit, a
+/// product of base units.
+pub type Dimensionless<N, const U: UcumUnit = { UcumUnit::ONE }, const IS_BASE: bool = true> =
+    Qty<U, N, IS_BASE>;
 
-/// The units of this module's quantities: each a constant of its own unit
-/// type, its size and zero in its quantity's coherent unit, exact
-/// (`MILE.quantity(3.0)`, `MILE.value(d)`).
-pub mod units {
-    use super::*;
-    use crate::{Exact, UcumUnit, UcumUnitConsts};
+/// Ratio, a unit of `Dimensionless`: the coherent unit, a product of base units.
+pub const RATIO: Qty<{ UcumUnit::ONE }, Exact, true> = Qty::ONE;
 
-    /// Ratio, a unit of `Dimensionless`: `n` of them is `n · 1.0` coherent units.
-    pub const RATIO: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1),
-                zero: Exact::ZERO,
-                symbol: "",
-                name: "",
-            }
-        },
-    > = UcumUnit;
+/// The number ten for arbitrary powers (`10*`), a unit of `Dimensionless`: `n` of them is `n · 1e1` base units.
+pub const THE_NUMBER_TEN_FOR_ARBITRARY_POWERS: Qty<
+    { UcumUnit::scaled("10*", Exact::int(10), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// The number ten for arbitrary powers (`10*`), a unit of `Dimensionless`: `n` of them is `n · 1e1` coherent units.
-    pub const THE_NUMBER_TEN_FOR_ARBITRARY_POWERS: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::int(10),
-                zero: Exact::ZERO,
-                symbol: "10*",
-                name: "the number ten for arbitrary powers",
-            }
-        },
-    > = UcumUnit;
+/// The number pi (`[pi]`), a unit of `Dimensionless`: `n` of them is `n · 1 * core::f64::consts::PI` base units.
+pub const THE_NUMBER_PI: Qty<
+    { UcumUnit::scaled("[pi]", Exact::int(1) * Exact::PI, UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// The number pi (`[pi]`), a unit of `Dimensionless`: `n` of them is `n · 1 * core::f64::consts::PI` coherent units.
-    pub const THE_NUMBER_PI: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::int(1) * Exact::PI,
-                zero: Exact::ZERO,
-                symbol: "[pi]",
-                name: "the number pi",
-            }
-        },
-    > = UcumUnit;
+/// Percent (`%`), a unit of `Dimensionless`: `n` of them is `n · 1e-2` base units.
+pub const PERCENT: Qty<{ UcumUnit::scaled("%", Exact::dec(1, -2), UcumUnit::ONE) }, Exact, false> =
+    Qty::ONE;
 
-    /// Percent (`%`), a unit of `Dimensionless`: `n` of them is `n · 1e-2` coherent units.
-    pub const PERCENT: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -2),
-                zero: Exact::ZERO,
-                symbol: "%",
-                name: "percent",
-            }
-        },
-    > = UcumUnit;
+/// Parts per thousand (`[ppth]`), a unit of `Dimensionless`: `n` of them is `n · 1e-3` base units.
+pub const PARTS_PER_THOUSAND: Qty<
+    { UcumUnit::scaled("[ppth]", Exact::dec(1, -3), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Parts per thousand (`[ppth]`), a unit of `Dimensionless`: `n` of them is `n · 1e-3` coherent units.
-    pub const PARTS_PER_THOUSAND: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -3),
-                zero: Exact::ZERO,
-                symbol: "[ppth]",
-                name: "parts per thousand",
-            }
-        },
-    > = UcumUnit;
+/// Parts per million (`[ppm]`), a unit of `Dimensionless`: `n` of them is `n · 1e-6` base units.
+pub const PARTS_PER_MILLION: Qty<
+    { UcumUnit::scaled("[ppm]", Exact::dec(1, -6), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Parts per million (`[ppm]`), a unit of `Dimensionless`: `n` of them is `n · 1e-6` coherent units.
-    pub const PARTS_PER_MILLION: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -6),
-                zero: Exact::ZERO,
-                symbol: "[ppm]",
-                name: "parts per million",
-            }
-        },
-    > = UcumUnit;
+/// Parts per billion (`[ppb]`), a unit of `Dimensionless`: `n` of them is `n · 1e-9` base units.
+pub const PARTS_PER_BILLION: Qty<
+    { UcumUnit::scaled("[ppb]", Exact::dec(1, -9), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;
 
-    /// Parts per billion (`[ppb]`), a unit of `Dimensionless`: `n` of them is `n · 1e-9` coherent units.
-    pub const PARTS_PER_BILLION: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -9),
-                zero: Exact::ZERO,
-                symbol: "[ppb]",
-                name: "parts per billion",
-            }
-        },
-    > = UcumUnit;
-
-    /// Parts per trillion (`[pptr]`), a unit of `Dimensionless`: `n` of them is `n · 1e-12` coherent units.
-    pub const PARTS_PER_TRILLION: UcumUnit<
-        DIMENSIONLESS,
-        {
-            UcumUnitConsts {
-                size: Exact::dec(1, -12),
-                zero: Exact::ZERO,
-                symbol: "[pptr]",
-                name: "parts per trillion",
-            }
-        },
-    > = UcumUnit;
-}
+/// Parts per trillion (`[pptr]`), a unit of `Dimensionless`: `n` of them is `n · 1e-12` base units.
+pub const PARTS_PER_TRILLION: Qty<
+    { UcumUnit::scaled("[pptr]", Exact::dec(1, -12), UcumUnit::ONE) },
+    Exact,
+    false,
+> = Qty::ONE;

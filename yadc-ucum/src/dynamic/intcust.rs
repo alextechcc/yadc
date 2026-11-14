@@ -1,134 +1,109 @@
 //! The units of `intcust`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicUcumUnit;
-use crate::intcust::units::*;
+#[allow(unused_imports)]
 use crate::intcust::*;
-use crate::{Exact, Qty, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `Area`, in any number type they count in.
+/// The units of `Area`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<AREA, N>, N> {
-        fn quantity(&self, value: N) -> Qty<AREA, N>;
-        fn value(&self, quantity: Qty<AREA, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
-    #[value(SQUARE_INCH)]
+    #[value(SQUARE_INCH.unit())]
     SquareInch,
-    #[value(SQUARE_FOOT)]
+    #[value(SQUARE_FOOT.unit())]
     SquareFoot,
-    #[value(SQUARE_YARD)]
+    #[value(SQUARE_YARD.unit())]
     SquareYard,
-    #[value(CIRCULAR_MIL)]
+    #[value(CIRCULAR_MIL.unit())]
     CircularMil,
 }
 
-/// The units of `DepthOfWater`, in any number type they count in.
+/// The units of `DepthOfWater`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<DEPTH_OF_WATER, N>, N> {
-        fn quantity(&self, value: N) -> Qty<DEPTH_OF_WATER, N>;
-        fn value(&self, quantity: Qty<DEPTH_OF_WATER, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum DepthOfWaterUnit {
     #[default]
-    #[value(FATHOM)]
+    #[value(FATHOM.unit())]
     Fathom,
 }
 
-/// The units of `HeightOfHorses`, in any number type they count in.
+/// The units of `HeightOfHorses`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<HEIGHT_OF_HORSES, N>, N> {
-        fn quantity(&self, value: N) -> Qty<HEIGHT_OF_HORSES, N>;
-        fn value(&self, quantity: Qty<HEIGHT_OF_HORSES, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum HeightOfHorsesUnit {
     #[default]
-    #[value(HAND)]
+    #[value(HAND.unit())]
     Hand,
 }
 
-/// The units of `Length`, in any number type they count in.
+/// The units of `Length`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<LENGTH, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LENGTH, N>;
-        fn value(&self, quantity: Qty<LENGTH, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
-    #[value(INCH)]
+    #[value(INCH.unit())]
     Inch,
-    #[value(FOOT)]
+    #[value(FOOT.unit())]
     Foot,
-    #[value(YARD)]
+    #[value(YARD.unit())]
     Yard,
-    #[value(MILE)]
+    #[value(MILE.unit())]
     Mile,
-    #[value(NAUTICAL_MILE)]
+    #[value(NAUTICAL_MILE.unit())]
     NauticalMile,
-    #[value(MIL)]
+    #[value(MIL.unit())]
     Mil,
 }
 
-/// The units of `Velocity`, in any number type they count in.
+/// The units of `Velocity`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<VELOCITY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<VELOCITY, N>;
-        fn value(&self, quantity: Qty<VELOCITY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum VelocityUnit {
     #[default]
-    #[value(KNOT)]
+    #[value(KNOT.unit())]
     Knot,
 }
 
-/// The units of `Volume`, in any number type they count in.
+/// The units of `Volume`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<VOLUME, N>, N> {
-        fn quantity(&self, value: N) -> Qty<VOLUME, N>;
-        fn value(&self, quantity: Qty<VOLUME, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(CUBIC_INCH)]
+    #[value(CUBIC_INCH.unit())]
     CubicInch,
-    #[value(CUBIC_FOOT)]
+    #[value(CUBIC_FOOT.unit())]
     CubicFoot,
-    #[value(CUBIC_YARD)]
+    #[value(CUBIC_YARD.unit())]
     CubicYard,
-    #[value(BOARD_FOOT)]
+    #[value(BOARD_FOOT.unit())]
     BoardFoot,
-    #[value(CORD)]
+    #[value(CORD.unit())]
     Cord,
 }

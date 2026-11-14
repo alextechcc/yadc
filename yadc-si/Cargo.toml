@@ -6,8 +6,8 @@ license = "MIT OR BSD-3-Clause"
 description = "An SI unit system built with yadc: quantities, units and physical constants, static and dynamic."
 
 [dependencies]
-yadc = { path = "../yadc", default-features = false }
-dynamickit = { path = "../dynamickit" }
+const_derive_more = { path = "../const_derive_more" }
+num-traits = { version = "0.2", default-features = false }
 serde = { version = "1", default-features = false, features = ["derive"], optional = true }
 uom = { version = "0.38.0", features = ["si", "f64"], optional = true }
 typenum = { version = "1", optional = true }
@@ -25,10 +25,10 @@ default = [
     "photometric",
     "information",
 ]
-std = ["yadc/std", "serde?/std"]
-# Software float math for a `no_std` build: `Real` (and so the nonlinear
-# unit conversions and the dynamic type's roots) needs either this or `std`.
-libm = ["yadc/libm"]
+std = ["num-traits/std", "serde?/std"]
+# Software float math for a `no_std` build: `Real` (and so the log units'
+# conversions) needs either this or `std`.
+libm = ["num-traits/libm"]
 mechanical = []
 angular = []
 electromagnetic = []
@@ -38,8 +38,7 @@ density = []
 chemistry = []
 photometric = []
 information = []
-# `alloc`: the UCUM (de)serializers build owned `String`s.
-serde = ["dep:serde", "serde/alloc", "yadc/ucum"]
+serde = ["dep:serde"]
 uom = ["dep:uom", "dep:typenum"]
 
 [[test]]
@@ -51,7 +50,7 @@ required-features = ["uom", "mechanical", "angular", "thermal"]
 name = "integration"
 required-features = ["mechanical", "angular", "electromagnetic", "thermal", "fluid", "chemistry"]
 
-# Unit `Display` / `FromStr`, a kindless dimension, a generic value type.
+# Unit `Display` / `FromStr`, a unit of a user's own, generic number types.
 [[test]]
 name = "units"
 required-features = ["mechanical"]
@@ -61,7 +60,7 @@ name = "sets"
 required-features = ["mechanical", "thermal"]
 
 # A settings menu: a closed set of quantities and the set of their units,
-# visited and listed with `dynamickit`.
+# visited and listed with `const_derive_more`.
 [[example]]
 name = "sets"
 required-features = ["mechanical", "thermal"]

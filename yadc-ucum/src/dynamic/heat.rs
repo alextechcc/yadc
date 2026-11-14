@@ -1,129 +1,108 @@
 //! The units of `heat`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::dynamic::DynamicUcumUnit;
-use crate::heat::units::*;
+#[allow(unused_imports)]
 use crate::heat::*;
-use crate::{Exact, Qty, Unit};
-use core::ops::{Add, Div, Mul, Sub};
+#[allow(unused_imports)]
+use crate::*;
 
-/// The units of `Energy`, in any number type they count in.
+/// The units of `Energy`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<ENERGY, N>, N> {
-        fn quantity(&self, value: N) -> Qty<ENERGY, N>;
-        fn value(&self, quantity: Qty<ENERGY, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
-    #[value(CALORIE_AT15_DEGREE_C)]
+    #[value(CALORIE_AT15_DEGREE_C.unit())]
     CalorieAt15DegreeC,
-    #[value(CALORIE_AT20_DEGREE_C)]
+    #[value(CALORIE_AT20_DEGREE_C.unit())]
     CalorieAt20DegreeC,
-    #[value(MEAN_CALORIE)]
+    #[value(MEAN_CALORIE.unit())]
     MeanCalorie,
-    #[value(INTERNATIONAL_TABLE_CALORIE)]
+    #[value(INTERNATIONAL_TABLE_CALORIE.unit())]
     InternationalTableCalorie,
-    #[value(THERMOCHEMICAL_CALORIE)]
+    #[value(THERMOCHEMICAL_CALORIE.unit())]
     ThermochemicalCalorie,
-    #[value(CALORIE)]
+    #[value(CALORIE.unit())]
     Calorie,
-    #[value(NUTRITION_LABEL_CALORIES)]
+    #[value(NUTRITION_LABEL_CALORIES.unit())]
     NutritionLabelCalories,
-    #[value(BRITISH_THERMAL_UNIT_AT39_DEGREE_F)]
+    #[value(BRITISH_THERMAL_UNIT_AT39_DEGREE_F.unit())]
     BritishThermalUnitAt39DegreeF,
-    #[value(BRITISH_THERMAL_UNIT_AT59_DEGREE_F)]
+    #[value(BRITISH_THERMAL_UNIT_AT59_DEGREE_F.unit())]
     BritishThermalUnitAt59DegreeF,
-    #[value(BRITISH_THERMAL_UNIT_AT60_DEGREE_F)]
+    #[value(BRITISH_THERMAL_UNIT_AT60_DEGREE_F.unit())]
     BritishThermalUnitAt60DegreeF,
-    #[value(MEAN_BRITISH_THERMAL_UNIT)]
+    #[value(MEAN_BRITISH_THERMAL_UNIT.unit())]
     MeanBritishThermalUnit,
-    #[value(INTERNATIONAL_TABLE_BRITISH_THERMAL_UNIT)]
+    #[value(INTERNATIONAL_TABLE_BRITISH_THERMAL_UNIT.unit())]
     InternationalTableBritishThermalUnit,
-    #[value(THERMOCHEMICAL_BRITISH_THERMAL_UNIT)]
+    #[value(THERMOCHEMICAL_BRITISH_THERMAL_UNIT.unit())]
     ThermochemicalBritishThermalUnit,
-    #[value(BRITISH_THERMAL_UNIT)]
+    #[value(BRITISH_THERMAL_UNIT.unit())]
     BritishThermalUnit,
 }
 
-/// The units of `LinearMassDensityOfTextileThread`, in any number type they count in.
+/// The units of `LinearMassDensityOfTextileThread`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD, N>, N> {
-        fn quantity(&self, value: N) -> Qty<LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD, N>;
-        fn value(&self, quantity: Qty<LINEAR_MASS_DENSITY_OF_TEXTILE_THREAD, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum LinearMassDensityOfTextileThreadUnit {
     #[default]
-    #[value(TEX)]
+    #[value(TEX.unit())]
     Tex,
-    #[value(DENIER)]
+    #[value(DENIER.unit())]
     Denier,
 }
 
-/// The units of `Power`, in any number type they count in.
+/// The units of `Power`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<POWER, N>, N> {
-        fn quantity(&self, value: N) -> Qty<POWER, N>;
-        fn value(&self, quantity: Qty<POWER, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum PowerUnit {
     #[default]
-    #[value(HORSEPOWER)]
+    #[value(HORSEPOWER.unit())]
     Horsepower,
 }
 
-/// The units of `TemperatureInterval`, in any number type they count in.
+/// The units of `TemperatureInterval`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<TEMPERATURE_INTERVAL, N>, N> {
-        fn quantity(&self, value: N) -> Qty<TEMPERATURE_INTERVAL, N>;
-        fn value(&self, quantity: Qty<TEMPERATURE_INTERVAL, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum TemperatureIntervalUnit {
     #[default]
-    #[value(KELVIN)]
+    #[value(KELVIN.unit())]
     Kelvin,
-    #[value(DEGREE_FAHRENHEIT)]
+    #[value(DEGREE_FAHRENHEIT.unit())]
     DegreeFahrenheit,
 }
 
-/// The units of `ThermodynamicTemperature`, in any number type they count in.
+/// The units of `ThermodynamicTemperature`: a choice among them, printed and parsed as its
+/// unit, and converted to it.
 #[derive_const(Default)]
-#[derive(dynamickit::Values, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[values(
-    delegate(Unit<Qty<THERMODYNAMIC_TEMPERATURE, N>, N> {
-        fn quantity(&self, value: N) -> Qty<THERMODYNAMIC_TEMPERATURE, N>;
-        fn value(&self, quantity: Qty<THERMODYNAMIC_TEMPERATURE, N>) -> N;
-    }),
-    into(DynamicUcumUnit),
-    for<N: From<Exact> + Add<Output = N> + Sub<Output = N> + Mul<Output = N> + Div<Output = N>>
+#[derive(
+    const_derive_more::Values, const_derive_more::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug,
 )]
+#[values(into(UcumUnit))]
 pub enum ThermodynamicTemperatureUnit {
     #[default]
-    #[value(KELVIN_SCALE)]
+    #[value(KELVIN.unit())]
     Kelvin,
-    #[value(CELSIUS)]
+    #[value(CELSIUS.unit())]
     DegreeCelsius,
-    #[value(FAHRENHEIT)]
+    #[value(FAHRENHEIT.unit())]
     DegreeFahrenheit,
-    #[value(RANKINE)]
+    #[value(RANKINE.unit())]
     DegreeRankine,
 }

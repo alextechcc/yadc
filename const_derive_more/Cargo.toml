@@ -1,0 +1,14 @@
+[package]
+name = "const_derive_more"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR BSD-3-Clause"
+description = "Derives for families of static types: std operators lifted over a value and a const parameter, a dynamic type holding any of several static types, and closed sets with generic visiting."
+
+[dependencies]
+const_derive_more-derive = { path = "../const_derive_more-derive" }
+
+[dev-dependencies]
+trybuild = "1"
+uom = { version = "0.38.0", features = ["si", "f64"] }
+typenum = "1"
