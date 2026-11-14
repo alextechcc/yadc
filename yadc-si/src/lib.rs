@@ -144,6 +144,11 @@ impl<const U: SIUnit, const B: Base> SIQuantity<U, Exact, B> {
     pub const ONE: Self = SIQuantity(Exact::ONE);
 }
 
+/// One of a unit, counted exactly: every unit constant is one
+/// (`pub const KILOMETRE: Unit<{ (KILO * METRE).unit() }> = Unit::ONE;`), a
+/// base unit marked `BASE`.
+pub type Unit<const U: SIUnit, const B: Base = NOT_BASE> = SIQuantity<U, Exact, B>;
+
 /// The number, a space and the unit: `2 km`, `9.81 N`.
 impl<const U: SIUnit, N: core::fmt::Display, const B: Base> core::fmt::Display
     for SIQuantity<U, N, B>
@@ -385,191 +390,102 @@ where
 
 /// The coherent units printed by name, not as their product of base units.
 static NAMED: [(SIUnit, &str); 16] = [
+    ((METRE * KILOGRAM / (SECOND * SECOND)).unit(), "N"),
+    ((METRE * METRE * KILOGRAM / (SECOND * SECOND)).unit(), "J"),
     (
-        METRE
-            .unit()
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -2),
-        "N",
-    ),
-    (
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -2),
-        "J",
-    ),
-    (
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -3),
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND)).unit(),
         "W",
     ),
-    (
-        SIUnit::ONE
-            .times(METRE.unit(), -1)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -2),
-        "Pa",
-    ),
+    ((KILOGRAM / (METRE * SECOND * SECOND)).unit(), "Pa"),
     (SIUnit::ONE.times(SECOND.unit(), -1), "Hz"),
-    (SECOND.unit().times(AMPERE.unit(), 1), "C"),
+    ((SECOND * AMPERE).unit(), "C"),
     (
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -3)
-            .times(AMPERE.unit(), -1),
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE)).unit(),
         "V",
     ),
     (
-        SIUnit::ONE
-            .times(METRE.unit(), -2)
-            .times(KILOGRAM.unit(), -1)
-            .times(SECOND.unit(), 4)
-            .times(AMPERE.unit(), 2),
+        (SECOND * SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * KILOGRAM)).unit(),
         "F",
     ),
     (
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -3)
-            .times(AMPERE.unit(), -2),
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * AMPERE * AMPERE)).unit(),
         "Ω",
     ),
     (
-        SIUnit::ONE
-            .times(METRE.unit(), -2)
-            .times(KILOGRAM.unit(), -1)
-            .times(SECOND.unit(), 3)
-            .times(AMPERE.unit(), 2),
+        (SECOND * SECOND * SECOND * AMPERE * AMPERE / (METRE * METRE * KILOGRAM)).unit(),
         "S",
     ),
     (
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -2)
-            .times(AMPERE.unit(), -1),
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * AMPERE)).unit(),
         "Wb",
     ),
+    ((KILOGRAM / (SECOND * SECOND * AMPERE)).unit(), "T"),
     (
-        KILOGRAM
-            .unit()
-            .times(SECOND.unit(), -2)
-            .times(AMPERE.unit(), -1),
-        "T",
-    ),
-    (
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -2)
-            .times(AMPERE.unit(), -2),
+        (METRE * METRE * KILOGRAM / (SECOND * SECOND * AMPERE * AMPERE)).unit(),
         "H",
     ),
-    (SIUnit::ONE.times(RADIAN.unit(), 2), "sr"),
-    (
-        SIUnit::ONE
-            .times(METRE.unit(), -2)
-            .times(CANDELA.unit(), 1)
-            .times(RADIAN.unit(), 2),
-        "lx",
-    ),
-    (
-        SIUnit::ONE.times(SECOND.unit(), -1).times(MOLE.unit(), 1),
-        "kat",
-    ),
+    ((RADIAN * RADIAN).unit(), "sr"),
+    ((CANDELA * RADIAN * RADIAN / (METRE * METRE)).unit(), "lx"),
+    ((MOLE / SECOND).unit(), "kat"),
 ];
 
 /// The prefix yotta (`Y`): 10^24.
-pub const YOTTA: SIQuantity<
-    { SIUnit::prefix("Y", Exact::int(1000000000000000000000000)) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const YOTTA: Unit<{ SIUnit::prefix("Y", Exact::int(1000000000000000000000000)) }> = Unit::ONE;
 /// The prefix zetta (`Z`): 10^21.
-pub const ZETTA: SIQuantity<
-    { SIUnit::prefix("Z", Exact::int(1000000000000000000000)) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const ZETTA: Unit<{ SIUnit::prefix("Z", Exact::int(1000000000000000000000)) }> = Unit::ONE;
 /// The prefix exa (`E`): 10^18.
-pub const EXA: SIQuantity<
-    { SIUnit::prefix("E", Exact::int(1000000000000000000)) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const EXA: Unit<{ SIUnit::prefix("E", Exact::int(1000000000000000000)) }> = Unit::ONE;
 /// The prefix peta (`P`): 10^15.
-pub const PETA: SIQuantity<{ SIUnit::prefix("P", Exact::int(1000000000000000)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const PETA: Unit<{ SIUnit::prefix("P", Exact::int(1000000000000000)) }> = Unit::ONE;
 /// The prefix tera (`T`): 10^12.
-pub const TERA: SIQuantity<{ SIUnit::prefix("T", Exact::int(1000000000000)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const TERA: Unit<{ SIUnit::prefix("T", Exact::int(1000000000000)) }> = Unit::ONE;
 /// The prefix giga (`G`): 10^9.
-pub const GIGA: SIQuantity<{ SIUnit::prefix("G", Exact::int(1000000000)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const GIGA: Unit<{ SIUnit::prefix("G", Exact::int(1000000000)) }> = Unit::ONE;
 /// The prefix mega (`M`): 10^6.
-pub const MEGA: SIQuantity<{ SIUnit::prefix("M", Exact::int(1000000)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const MEGA: Unit<{ SIUnit::prefix("M", Exact::int(1000000)) }> = Unit::ONE;
 /// The prefix kilo (`k`): 10^3.
-pub const KILO: SIQuantity<{ SIUnit::prefix("k", Exact::int(1000)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const KILO: Unit<{ SIUnit::prefix("k", Exact::int(1000)) }> = Unit::ONE;
 /// The prefix hecto (`h`): 10^2.
-pub const HECTO: SIQuantity<{ SIUnit::prefix("h", Exact::int(100)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const HECTO: Unit<{ SIUnit::prefix("h", Exact::int(100)) }> = Unit::ONE;
 /// The prefix deca (`da`): 10^1.
-pub const DECA: SIQuantity<{ SIUnit::prefix("da", Exact::int(10)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const DECA: Unit<{ SIUnit::prefix("da", Exact::int(10)) }> = Unit::ONE;
 /// The prefix deci (`d`): 10^-1.
-pub const DECI: SIQuantity<{ SIUnit::prefix("d", Exact::dec(1, -1)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const DECI: Unit<{ SIUnit::prefix("d", Exact::dec(1, -1)) }> = Unit::ONE;
 /// The prefix centi (`c`): 10^-2.
-pub const CENTI: SIQuantity<{ SIUnit::prefix("c", Exact::dec(1, -2)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const CENTI: Unit<{ SIUnit::prefix("c", Exact::dec(1, -2)) }> = Unit::ONE;
 /// The prefix milli (`m`): 10^-3.
-pub const MILLI: SIQuantity<{ SIUnit::prefix("m", Exact::dec(1, -3)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const MILLI: Unit<{ SIUnit::prefix("m", Exact::dec(1, -3)) }> = Unit::ONE;
 /// The prefix micro (`μ`): 10^-6.
-pub const MICRO: SIQuantity<{ SIUnit::prefix("μ", Exact::dec(1, -6)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const MICRO: Unit<{ SIUnit::prefix("μ", Exact::dec(1, -6)) }> = Unit::ONE;
 /// The prefix nano (`n`): 10^-9.
-pub const NANO: SIQuantity<{ SIUnit::prefix("n", Exact::dec(1, -9)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const NANO: Unit<{ SIUnit::prefix("n", Exact::dec(1, -9)) }> = Unit::ONE;
 /// The prefix pico (`p`): 10^-12.
-pub const PICO: SIQuantity<{ SIUnit::prefix("p", Exact::dec(1, -12)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const PICO: Unit<{ SIUnit::prefix("p", Exact::dec(1, -12)) }> = Unit::ONE;
 /// The prefix femto (`f`): 10^-15.
-pub const FEMTO: SIQuantity<{ SIUnit::prefix("f", Exact::dec(1, -15)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const FEMTO: Unit<{ SIUnit::prefix("f", Exact::dec(1, -15)) }> = Unit::ONE;
 /// The prefix atto (`a`): 10^-18.
-pub const ATTO: SIQuantity<{ SIUnit::prefix("a", Exact::dec(1, -18)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const ATTO: Unit<{ SIUnit::prefix("a", Exact::dec(1, -18)) }> = Unit::ONE;
 /// The prefix zepto (`z`): 10^-21.
-pub const ZEPTO: SIQuantity<{ SIUnit::prefix("z", Exact::dec(1, -21)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const ZEPTO: Unit<{ SIUnit::prefix("z", Exact::dec(1, -21)) }> = Unit::ONE;
 /// The prefix yocto (`y`): 10^-24.
-pub const YOCTO: SIQuantity<{ SIUnit::prefix("y", Exact::dec(1, -24)) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const YOCTO: Unit<{ SIUnit::prefix("y", Exact::dec(1, -24)) }> = Unit::ONE;
 
 /// Metres: a base unit, `m`.
-pub const METRE: SIQuantity<{ SIUnit::base("m") }, Exact, BASE> = SIQuantity::ONE;
+pub const METRE: Unit<{ SIUnit::base("m") }, BASE> = Unit::ONE;
 /// Kilograms: a base unit, `kg`.
-pub const KILOGRAM: SIQuantity<{ SIUnit::base("kg") }, Exact, BASE> = SIQuantity::ONE;
+pub const KILOGRAM: Unit<{ SIUnit::base("kg") }, BASE> = Unit::ONE;
 /// Seconds: a base unit, `s`.
-pub const SECOND: SIQuantity<{ SIUnit::base("s") }, Exact, BASE> = SIQuantity::ONE;
+pub const SECOND: Unit<{ SIUnit::base("s") }, BASE> = Unit::ONE;
 /// Amperes: a base unit, `A`.
-pub const AMPERE: SIQuantity<{ SIUnit::base("A") }, Exact, BASE> = SIQuantity::ONE;
+pub const AMPERE: Unit<{ SIUnit::base("A") }, BASE> = Unit::ONE;
 /// Kelvin: a base unit, `K`.
-pub const KELVIN: SIQuantity<{ SIUnit::base("K") }, Exact, BASE> = SIQuantity::ONE;
+pub const KELVIN: Unit<{ SIUnit::base("K") }, BASE> = Unit::ONE;
 /// Moles: a base unit, `mol`.
-pub const MOLE: SIQuantity<{ SIUnit::base("mol") }, Exact, BASE> = SIQuantity::ONE;
+pub const MOLE: Unit<{ SIUnit::base("mol") }, BASE> = Unit::ONE;
 /// Candelas: a base unit, `cd`.
-pub const CANDELA: SIQuantity<{ SIUnit::base("cd") }, Exact, BASE> = SIQuantity::ONE;
+pub const CANDELA: Unit<{ SIUnit::base("cd") }, BASE> = Unit::ONE;
 /// Radians: a base unit, `rad`.
-pub const RADIAN: SIQuantity<{ SIUnit::base("rad") }, Exact, BASE> = SIQuantity::ONE;
+pub const RADIAN: Unit<{ SIUnit::base("rad") }, BASE> = Unit::ONE;
 
 pub mod dimensionless;
 pub mod dynamic;

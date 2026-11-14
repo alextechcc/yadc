@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    #[value(METER_SQUARED.unit())]
     MeterSquared,
     #[value(ARE.unit())]
     Are,
@@ -30,7 +30,7 @@ pub enum AreaUnit {
 #[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_SQUARED.unit())]
     MeterSquaredGramPerSecondSquared,
     #[value(ELECTRONVOLT.unit())]
     Electronvolt,
@@ -100,7 +100,7 @@ pub enum PlaneAngleUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_SECOND_SQUARED.unit())]
     GramPerMeterSecondSquared,
     #[value(BAR.unit())]
     Bar,
@@ -152,7 +152,7 @@ pub enum TimeUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    #[value(METER_CUBED.unit())]
     MeterCubed,
     #[value(LITER.unit())]
     Liter,

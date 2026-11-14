@@ -3,50 +3,31 @@
 #[allow(unused_imports)]
 use crate::*;
 
-/// An information, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Information<N, const U: SIUnit = { SIUnit::ONE }, const B: Base = BASE> =
+/// An information, in `N`s of the unit `U`: by default its base unit, `BYTE`.
+pub type Information<N, const U: SIUnit = { BYTE.unit() }, const B: Base = BASE> =
     SIQuantity<U, N, B>;
 
-/// Bits (`b`), a unit of `Information`: `n` of them is `n · 0.125` base units.
-pub const BIT: SIQuantity<
-    { SIUnit::scaled("b", Exact::dec(125, -3), SIUnit::ONE) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
-
 /// Bytes (`B`), a unit of `Information`: the coherent unit, a product of base units.
-pub const BYTE: SIQuantity<{ SIUnit::ONE }, Exact, BASE> = SIQuantity::ONE;
+pub const BYTE: Unit<{ SIUnit::ONE }, BASE> = Unit::ONE;
+
+/// Bits (`b`), a unit of `Information`: `n` of them is `n · 0.125` base units.
+pub const BIT: Unit<{ SIUnit::scaled("b", Exact::dec(125, -3), BYTE.unit()) }> = Unit::ONE;
 
 /// Octets (`o`), a unit of `Information`: `n` of them is `n · 1.0` base units.
-pub const OCTET: SIQuantity<{ SIUnit::scaled("o", Exact::int(1), SIUnit::ONE) }, Exact, NOT_BASE> =
-    SIQuantity::ONE;
+pub const OCTET: Unit<{ SIUnit::scaled("o", Exact::int(1), BYTE.unit()) }> = Unit::ONE;
 
 /// Nibbles (`nibble`), a unit of `Information`: `n` of them is `n · 0.5` base units.
-pub const NIBBLE: SIQuantity<
-    { SIUnit::scaled("nibble", Exact::dec(5, -1), SIUnit::ONE) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const NIBBLE: Unit<{ SIUnit::scaled("nibble", Exact::dec(5, -1), BYTE.unit()) }> = Unit::ONE;
 
 /// Crumbs (`crumb`), a unit of `Information`: `n` of them is `n · 0.25` base units.
-pub const CRUMB: SIQuantity<
-    { SIUnit::scaled("crumb", Exact::dec(25, -2), SIUnit::ONE) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const CRUMB: Unit<{ SIUnit::scaled("crumb", Exact::dec(25, -2), BYTE.unit()) }> = Unit::ONE;
 
 /// Shannons (`Sh`), a unit of `Information`: `n` of them is `n · 0.125` base units.
-pub const SHANNON: SIQuantity<
-    { SIUnit::scaled("Sh", Exact::dec(125, -3), SIUnit::ONE) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const SHANNON: Unit<{ SIUnit::scaled("Sh", Exact::dec(125, -3), BYTE.unit()) }> = Unit::ONE;
 
-/// An information rate, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type InformationRate<
-    N,
-    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -1) },
-    const B: Base = BASE,
-> = SIQuantity<U, N, B>;
+/// An information rate, in `N`s of the unit `U`: by default its base unit, `PER_SECOND`.
+pub type InformationRate<N, const U: SIUnit = { PER_SECOND.unit() }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
+
+/// The base unit of `InformationRate`: a product of base units.
+pub const PER_SECOND: Unit<{ SIUnit::ONE.times(SECOND.unit(), -1) }, BASE> = Unit::ONE;

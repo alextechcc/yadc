@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum ActionAreaUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    #[value(METER_SQUARED.unit())]
     MeterSquared,
     #[value(BARN.unit())]
     Barn,
@@ -30,7 +30,7 @@ pub enum ActionAreaUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricConductanceUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(SECOND.unit(), 1).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    #[value(SECOND_COULOMB_SQUARED_PER_METER_SQUARED_GRAM.unit())]
     SecondCoulombSquaredPerMeterSquaredGram,
     #[value(MHO.unit())]
     Mho,
@@ -97,7 +97,7 @@ pub enum MassUnit {
 #[values(into(UcumUnit))]
 pub enum MassFractionUnit {
     #[default]
-    #[value(UcumUnit::ONE)]
+    #[value(ONE.unit())]
     One,
     #[value(CARAT_OF_GOLD_ALLOYS.unit())]
     CaratOfGoldAlloys,
@@ -127,7 +127,7 @@ pub enum PlaneAngleUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_SECOND_SQUARED.unit())]
     GramPerMeterSecondSquared,
     #[value(TECHNICAL_ATMOSPHERE.unit())]
     TechnicalAtmosphere,
@@ -144,7 +144,7 @@ pub enum PressureUnit {
 #[values(into(UcumUnit))]
 pub enum SolidAngleUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(RADIAN.unit(), 2))]
+    #[value(RADIAN_SQUARED.unit())]
     RadianSquared,
     #[value(SPHERE.unit())]
     Sphere,

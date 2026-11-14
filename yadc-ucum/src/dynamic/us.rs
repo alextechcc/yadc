@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    #[value(METER_SQUARED.unit())]
     MeterSquared,
     #[value(ACRE.unit())]
     Acre,
@@ -38,7 +38,7 @@ pub enum AreaUnit {
 #[values(into(UcumUnit))]
 pub enum DryVolumeUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    #[value(METER_CUBED.unit())]
     MeterCubed,
     #[value(BUSHEL.unit())]
     Bushel,
@@ -61,7 +61,7 @@ pub enum DryVolumeUnit {
 #[values(into(UcumUnit))]
 pub enum FluidVolumeUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    #[value(METER_CUBED.unit())]
     MeterCubed,
     #[value(QUEEN_ANNE_S_WINE_GALLON.unit())]
     QueenAnneSWineGallon,
@@ -170,7 +170,7 @@ pub enum MassUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    #[value(METER_CUBED.unit())]
     MeterCubed,
     #[value(TABLESPOON.unit())]
     Tablespoon,

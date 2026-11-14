@@ -6,70 +6,50 @@ use crate::*;
 // `Area` is `crate::Area`.
 
 /// Are (`ar`), a unit of `Area`: `n` of them is `n · 1e2` base units.
-pub const ARE: Qty<
-    { UcumUnit::scaled("ar", Exact::int(100), UcumUnit::ONE.times(METER.unit(), 2)) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const ARE: Unit<{ UcumUnit::scaled("ar", Exact::int(100), METER_SQUARED.unit()) }> = Unit::ONE;
 
 // `Energy` is `crate::Energy`.
 
 /// Electronvolt (`eV`), a unit of `Energy`: `n` of them is `n · 1602176634e-25` base units.
-pub const ELECTRONVOLT: Qty<
+pub const ELECTRONVOLT: Unit<
     {
         UcumUnit::scaled(
             "eV",
             Exact::dec(1602176634, -25),
-            UcumUnit::ONE
-                .times(METER.unit(), 2)
-                .times(SECOND.unit(), -2)
-                .times(GRAM.unit(), 1),
+            METER_SQUARED_GRAM_PER_SECOND_SQUARED.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 // `Length` is `crate::Length`.
 
 /// Astronomic unit (`AU`), a unit of `Length`: `n` of them is `n · 149597870691` base units.
-pub const ASTRONOMIC_UNIT: Qty<
+pub const ASTRONOMIC_UNIT: Unit<
     { UcumUnit::scaled("AU", Exact::int(149597870691), METER.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Parsec (`pc`), a unit of `Length`: `n` of them is `n · 3085678e10` base units.
-pub const PARSEC: Qty<
-    { UcumUnit::scaled("pc", Exact::int(30856780000000000), METER.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const PARSEC: Unit<{ UcumUnit::scaled("pc", Exact::int(30856780000000000), METER.unit()) }> =
+    Unit::ONE;
 
 // `Mass` is `crate::Mass`.
 
 /// Tonne (`t`), a unit of `Mass`: `n` of them is `n · 1e6` base units.
-pub const TONNE: Qty<{ UcumUnit::scaled("t", Exact::int(1000000), GRAM.unit()) }, Exact, NOT_BASE> =
-    Qty::ONE;
+pub const TONNE: Unit<{ UcumUnit::scaled("t", Exact::int(1000000), GRAM.unit()) }> = Unit::ONE;
 
 /// Unified atomic mass unit (`u`), a unit of `Mass`: `n` of them is `n · 16605390666e-34` base units.
-pub const UNIFIED_ATOMIC_MASS_UNIT: Qty<
+pub const UNIFIED_ATOMIC_MASS_UNIT: Unit<
     { UcumUnit::scaled("u", Exact::dec(16605390666, -34), GRAM.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 // `PlaneAngle` is `crate::PlaneAngle`.
 
 /// Grade (`gon`), a unit of `PlaneAngle`: `n` of them is `n · 5e-3 * core::f64::consts::PI` base units.
-pub const GRADE: Qty<
-    { UcumUnit::scaled("gon", Exact::dec(5, -3) * Exact::PI, RADIAN.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const GRADE: Unit<{ UcumUnit::scaled("gon", Exact::dec(5, -3) * Exact::PI, RADIAN.unit()) }> =
+    Unit::ONE;
 
 /// Degree (`deg`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 180 * core::f64::consts::PI` base units.
-pub const DEGREE: Qty<
+pub const DEGREE: Unit<
     {
         UcumUnit::scaled(
             "deg",
@@ -77,12 +57,10 @@ pub const DEGREE: Qty<
             RADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Minute (`'`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 10800 * core::f64::consts::PI` base units.
-pub const PLANE_ANGLE_MINUTE: Qty<
+pub const PLANE_ANGLE_MINUTE: Unit<
     {
         UcumUnit::scaled(
             "'",
@@ -90,12 +68,10 @@ pub const PLANE_ANGLE_MINUTE: Qty<
             RADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Second (`''`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 648000 * core::f64::consts::PI` base units.
-pub const PLANE_ANGLE_SECOND: Qty<
+pub const PLANE_ANGLE_SECOND: Unit<
     {
         UcumUnit::scaled(
             "''",
@@ -103,113 +79,71 @@ pub const PLANE_ANGLE_SECOND: Qty<
             RADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 // `Pressure` is `crate::Pressure`.
 
 /// Bar (`bar`), a unit of `Pressure`: `n` of them is `n · 1e8` base units.
-pub const BAR: Qty<
+pub const BAR: Unit<
     {
         UcumUnit::scaled(
             "bar",
             Exact::int(100000000),
-            UcumUnit::ONE
-                .times(METER.unit(), -1)
-                .times(SECOND.unit(), -2)
-                .times(GRAM.unit(), 1),
+            GRAM_PER_METER_SECOND_SQUARED.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 // `Time` is `crate::Time`.
 
 /// Minute (`min`), a unit of `Time`: `n` of them is `n · 6e1` base units.
-pub const TIME_MINUTE: Qty<
-    { UcumUnit::scaled("min", Exact::int(60), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const TIME_MINUTE: Unit<{ UcumUnit::scaled("min", Exact::int(60), SECOND.unit()) }> = Unit::ONE;
 
 /// Hour (`h`), a unit of `Time`: `n` of them is `n · 36e2` base units.
-pub const HOUR: Qty<{ UcumUnit::scaled("h", Exact::int(3600), SECOND.unit()) }, Exact, NOT_BASE> =
-    Qty::ONE;
+pub const HOUR: Unit<{ UcumUnit::scaled("h", Exact::int(3600), SECOND.unit()) }> = Unit::ONE;
 
 /// Day (`d`), a unit of `Time`: `n` of them is `n · 864e2` base units.
-pub const DAY: Qty<{ UcumUnit::scaled("d", Exact::int(86400), SECOND.unit()) }, Exact, NOT_BASE> =
-    Qty::ONE;
+pub const DAY: Unit<{ UcumUnit::scaled("d", Exact::int(86400), SECOND.unit()) }> = Unit::ONE;
 
 /// Tropical year (`a_t`), a unit of `Time`: `n` of them is `n · 31556925216e-3` base units.
-pub const TROPICAL_YEAR: Qty<
+pub const TROPICAL_YEAR: Unit<
     { UcumUnit::scaled("a_t", Exact::dec(31556925216, -3), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Mean Julian year (`a_j`), a unit of `Time`: `n` of them is `n · 315576e2` base units.
-pub const MEAN_JULIAN_YEAR: Qty<
-    { UcumUnit::scaled("a_j", Exact::int(31557600), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const MEAN_JULIAN_YEAR: Unit<{ UcumUnit::scaled("a_j", Exact::int(31557600), SECOND.unit()) }> =
+    Unit::ONE;
 
 /// Mean Gregorian year (`a_g`), a unit of `Time`: `n` of them is `n · 31556952` base units.
-pub const MEAN_GREGORIAN_YEAR: Qty<
+pub const MEAN_GREGORIAN_YEAR: Unit<
     { UcumUnit::scaled("a_g", Exact::int(31556952), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Year (`a`), a unit of `Time`: `n` of them is `n · 315576e2` base units.
-pub const YEAR: Qty<
-    { UcumUnit::scaled("a", Exact::int(31557600), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const YEAR: Unit<{ UcumUnit::scaled("a", Exact::int(31557600), SECOND.unit()) }> = Unit::ONE;
 
 /// Week (`wk`), a unit of `Time`: `n` of them is `n · 6048e2` base units.
-pub const WEEK: Qty<
-    { UcumUnit::scaled("wk", Exact::int(604800), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const WEEK: Unit<{ UcumUnit::scaled("wk", Exact::int(604800), SECOND.unit()) }> = Unit::ONE;
 
 /// Synodal month (`mo_s`), a unit of `Time`: `n` of them is `n · 2551442976e-3` base units.
-pub const SYNODAL_MONTH: Qty<
+pub const SYNODAL_MONTH: Unit<
     { UcumUnit::scaled("mo_s", Exact::dec(2551442976, -3), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Mean Julian month (`mo_j`), a unit of `Time`: `n` of them is `n · 26298e2` base units.
-pub const MEAN_JULIAN_MONTH: Qty<
+pub const MEAN_JULIAN_MONTH: Unit<
     { UcumUnit::scaled("mo_j", Exact::int(2629800), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Mean Gregorian month (`mo_g`), a unit of `Time`: `n` of them is `n · 2629746` base units.
-pub const MEAN_GREGORIAN_MONTH: Qty<
+pub const MEAN_GREGORIAN_MONTH: Unit<
     { UcumUnit::scaled("mo_g", Exact::int(2629746), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+> = Unit::ONE;
 
 /// Month (`mo`), a unit of `Time`: `n` of them is `n · 26298e2` base units.
-pub const MONTH: Qty<
-    { UcumUnit::scaled("mo", Exact::int(2629800), SECOND.unit()) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const MONTH: Unit<{ UcumUnit::scaled("mo", Exact::int(2629800), SECOND.unit()) }> = Unit::ONE;
 
 // `Volume` is `crate::Volume`.
 
 /// Liter (`l`), a unit of `Volume`: `n` of them is `n · 1e-3` base units.
-pub const LITER: Qty<
-    { UcumUnit::scaled("l", Exact::dec(1, -3), UcumUnit::ONE.times(METER.unit(), 3)) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const LITER: Unit<{ UcumUnit::scaled("l", Exact::dec(1, -3), METER_CUBED.unit()) }> = Unit::ONE;

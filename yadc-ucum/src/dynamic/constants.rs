@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AccelerationUnit {
     #[default]
-    #[value(METER.unit().times(SECOND.unit(), -2))]
+    #[value(METER_PER_SECOND_SQUARED.unit())]
     MeterPerSecondSquared,
     #[value(STANDARD_ACCELERATION_OF_FREE_FALL.unit())]
     StandardAccelerationOfFreeFall,
@@ -30,7 +30,7 @@ pub enum AccelerationUnit {
 #[values(into(UcumUnit))]
 pub enum ActionUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1).times(GRAM.unit(), 1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND.unit())]
     MeterSquaredGramPerSecond,
     #[value(PLANCK_CONSTANT.unit())]
     PlanckConstant,
@@ -60,7 +60,7 @@ pub enum ElectricChargeUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricPermittivityUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -3).times(SECOND.unit(), 2).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    #[value(SECOND_SQUARED_COULOMB_SQUARED_PER_METER_CUBED_GRAM.unit())]
     SecondSquaredCoulombSquaredPerMeterCubedGram,
     #[value(PERMITTIVITY_OF_VACUUM.unit())]
     PermittivityOfVacuum,
@@ -75,7 +75,7 @@ pub enum ElectricPermittivityUnit {
 #[values(into(UcumUnit))]
 pub enum ForceUnit {
     #[default]
-    #[value(METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(METER_GRAM_PER_SECOND_SQUARED.unit())]
     MeterGramPerSecondSquared,
     #[value(GRAM_FORCE.unit())]
     GramForce,
@@ -107,7 +107,7 @@ pub enum LengthUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticPermeabilityUnit {
     #[default]
-    #[value(METER.unit().times(GRAM.unit(), 1).times(COULOMB.unit(), -2))]
+    #[value(METER_GRAM_PER_COULOMB_SQUARED.unit())]
     MeterGramPerCoulombSquared,
     #[value(PERMEABILITY_OF_VACUUM.unit())]
     PermeabilityOfVacuum,
@@ -139,7 +139,7 @@ pub enum MassUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_SECOND_SQUARED.unit())]
     GramPerMeterSecondSquared,
     #[value(STANDARD_ATMOSPHERE.unit())]
     StandardAtmosphere,
@@ -154,7 +154,7 @@ pub enum PressureUnit {
 #[values(into(UcumUnit))]
 pub enum UnclassifiedM2GPerS2KUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1).times(KELVIN.unit(), -1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_SQUARED_KELVIN.unit())]
     MeterSquaredGramPerSecondSquaredKelvin,
     #[value(BOLTZMANN_CONSTANT.unit())]
     BoltzmannConstant,
@@ -169,7 +169,7 @@ pub enum UnclassifiedM2GPerS2KUnit {
 #[values(into(UcumUnit))]
 pub enum UnclassifiedM3PerS2GUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3).times(SECOND.unit(), -2).times(GRAM.unit(), -1))]
+    #[value(METER_CUBED_PER_SECOND_SQUARED_GRAM.unit())]
     MeterCubedPerSecondSquaredGram,
     #[value(NEWTONIAN_CONSTANT_OF_GRAVITATION.unit())]
     NewtonianConstantOfGravitation,
@@ -184,7 +184,7 @@ pub enum UnclassifiedM3PerS2GUnit {
 #[values(into(UcumUnit))]
 pub enum VelocityUnit {
     #[default]
-    #[value(METER.unit().times(SECOND.unit(), -1))]
+    #[value(METER_PER_SECOND.unit())]
     MeterPerSecond,
     #[value(VELOCITY_OF_LIGHT.unit())]
     VelocityOfLight,

@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    #[value(METER_SQUARED.unit())]
     MeterSquared,
     #[value(SQUARE_INCH.unit())]
     SquareInch,
@@ -91,7 +91,7 @@ pub enum LengthUnit {
 #[values(into(UcumUnit))]
 pub enum VelocityUnit {
     #[default]
-    #[value(METER.unit().times(SECOND.unit(), -1))]
+    #[value(METER_PER_SECOND.unit())]
     MeterPerSecond,
     #[value(KNOT.unit())]
     Knot,
@@ -106,7 +106,7 @@ pub enum VelocityUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    #[value(METER_CUBED.unit())]
     MeterCubed,
     #[value(CUBIC_INCH.unit())]
     CubicInch,

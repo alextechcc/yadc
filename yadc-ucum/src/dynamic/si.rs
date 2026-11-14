@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AmountOfSubstanceUnit {
     #[default]
-    #[value(UcumUnit::ONE)]
+    #[value(ONE.unit())]
     One,
     #[value(MOLE.unit())]
     Mole,
@@ -43,7 +43,7 @@ pub enum DoseEquivalentUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricCapacitanceUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(SECOND.unit(), 2).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    #[value(SECOND_SQUARED_COULOMB_SQUARED_PER_METER_SQUARED_GRAM.unit())]
     SecondSquaredCoulombSquaredPerMeterSquaredGram,
     #[value(FARAD.unit())]
     Farad,
@@ -71,7 +71,7 @@ pub enum ElectricChargeUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricConductanceUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(SECOND.unit(), 1).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    #[value(SECOND_COULOMB_SQUARED_PER_METER_SQUARED_GRAM.unit())]
     SecondCoulombSquaredPerMeterSquaredGram,
     #[value(SIEMENS.unit())]
     Siemens,
@@ -99,7 +99,7 @@ pub enum ElectricCurrentUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricPotentialUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_SQUARED_COULOMB.unit())]
     MeterSquaredGramPerSecondSquaredCoulomb,
     #[value(VOLT.unit())]
     Volt,
@@ -114,7 +114,7 @@ pub enum ElectricPotentialUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricResistanceUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -2))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_COULOMB_SQUARED.unit())]
     MeterSquaredGramPerSecondCoulombSquared,
     #[value(OHM.unit())]
     Ohm,
@@ -129,7 +129,7 @@ pub enum ElectricResistanceUnit {
 #[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_SQUARED.unit())]
     MeterSquaredGramPerSecondSquared,
     #[value(JOULE.unit())]
     Joule,
@@ -157,7 +157,7 @@ pub enum EnergyDoseUnit {
 #[values(into(UcumUnit))]
 pub enum ForceUnit {
     #[default]
-    #[value(METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(METER_GRAM_PER_SECOND_SQUARED.unit())]
     MeterGramPerSecondSquared,
     #[value(NEWTON.unit())]
     Newton,
@@ -198,7 +198,7 @@ pub enum IlluminanceUnit {
 #[values(into(UcumUnit))]
 pub enum InductanceUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(GRAM.unit(), 1).times(COULOMB.unit(), -2))]
+    #[value(METER_SQUARED_GRAM_PER_COULOMB_SQUARED.unit())]
     MeterSquaredGramPerCoulombSquared,
     #[value(HENRY.unit())]
     Henry,
@@ -252,7 +252,7 @@ pub enum LuminousIntensityUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticFluxUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_COULOMB.unit())]
     MeterSquaredGramPerSecondCoulomb,
     #[value(WEBER.unit())]
     Weber,
@@ -267,7 +267,7 @@ pub enum MagneticFluxUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticFluxDensityUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    #[value(GRAM_PER_SECOND_COULOMB.unit())]
     GramPerSecondCoulomb,
     #[value(TESLA.unit())]
     Tesla,
@@ -308,7 +308,7 @@ pub enum PlaneAngleUnit {
 #[values(into(UcumUnit))]
 pub enum PowerUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -3).times(GRAM.unit(), 1))]
+    #[value(METER_SQUARED_GRAM_PER_SECOND_CUBED.unit())]
     MeterSquaredGramPerSecondCubed,
     #[value(WATT.unit())]
     Watt,
@@ -323,7 +323,7 @@ pub enum PowerUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_SECOND_SQUARED.unit())]
     GramPerMeterSecondSquared,
     #[value(PASCAL.unit())]
     Pascal,

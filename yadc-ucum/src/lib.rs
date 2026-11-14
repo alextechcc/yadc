@@ -142,6 +142,11 @@ impl<const U: UcumUnit, const B: Base> Qty<U, Exact, B> {
     pub const ONE: Self = Qty(Exact::ONE);
 }
 
+/// One of a unit, counted exactly: every unit constant is one
+/// (`pub const KILOMETRE: Unit<{ (KILO * METRE).unit() }> = Unit::ONE;`), a
+/// base unit marked `BASE`.
+pub type Unit<const U: UcumUnit, const B: Base = NOT_BASE> = Qty<U, Exact, B>;
+
 /// The number, a space and the unit: `2 km`, `9.81 N`.
 impl<const U: UcumUnit, N: core::fmt::Display, const B: Base> core::fmt::Display for Qty<U, N, B> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -381,276 +386,230 @@ where
 static NAMED: [(UcumUnit, &str); 0] = [];
 
 /// The prefix yotta (`Y`): 10^24.
-pub const YOTTA: Qty<
-    { UcumUnit::prefix("Y", Exact::int(1000000000000000000000000)) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const YOTTA: Unit<{ UcumUnit::prefix("Y", Exact::int(1000000000000000000000000)) }> = Unit::ONE;
 /// The prefix zetta (`Z`): 10^21.
-pub const ZETTA: Qty<
-    { UcumUnit::prefix("Z", Exact::int(1000000000000000000000)) },
-    Exact,
-    NOT_BASE,
-> = Qty::ONE;
+pub const ZETTA: Unit<{ UcumUnit::prefix("Z", Exact::int(1000000000000000000000)) }> = Unit::ONE;
 /// The prefix exa (`E`): 10^18.
-pub const EXA: Qty<{ UcumUnit::prefix("E", Exact::int(1000000000000000000)) }, Exact, NOT_BASE> =
-    Qty::ONE;
+pub const EXA: Unit<{ UcumUnit::prefix("E", Exact::int(1000000000000000000)) }> = Unit::ONE;
 /// The prefix peta (`P`): 10^15.
-pub const PETA: Qty<{ UcumUnit::prefix("P", Exact::int(1000000000000000)) }, Exact, NOT_BASE> =
-    Qty::ONE;
+pub const PETA: Unit<{ UcumUnit::prefix("P", Exact::int(1000000000000000)) }> = Unit::ONE;
 /// The prefix tera (`T`): 10^12.
-pub const TERA: Qty<{ UcumUnit::prefix("T", Exact::int(1000000000000)) }, Exact, NOT_BASE> =
-    Qty::ONE;
+pub const TERA: Unit<{ UcumUnit::prefix("T", Exact::int(1000000000000)) }> = Unit::ONE;
 /// The prefix giga (`G`): 10^9.
-pub const GIGA: Qty<{ UcumUnit::prefix("G", Exact::int(1000000000)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const GIGA: Unit<{ UcumUnit::prefix("G", Exact::int(1000000000)) }> = Unit::ONE;
 /// The prefix mega (`M`): 10^6.
-pub const MEGA: Qty<{ UcumUnit::prefix("M", Exact::int(1000000)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const MEGA: Unit<{ UcumUnit::prefix("M", Exact::int(1000000)) }> = Unit::ONE;
 /// The prefix kilo (`k`): 10^3.
-pub const KILO: Qty<{ UcumUnit::prefix("k", Exact::int(1000)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const KILO: Unit<{ UcumUnit::prefix("k", Exact::int(1000)) }> = Unit::ONE;
 /// The prefix hecto (`h`): 10^2.
-pub const HECTO: Qty<{ UcumUnit::prefix("h", Exact::int(100)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const HECTO: Unit<{ UcumUnit::prefix("h", Exact::int(100)) }> = Unit::ONE;
 /// The prefix deca (`da`): 10^1.
-pub const DECA: Qty<{ UcumUnit::prefix("da", Exact::int(10)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const DECA: Unit<{ UcumUnit::prefix("da", Exact::int(10)) }> = Unit::ONE;
 /// The prefix deci (`d`): 10^-1.
-pub const DECI: Qty<{ UcumUnit::prefix("d", Exact::dec(1, -1)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const DECI: Unit<{ UcumUnit::prefix("d", Exact::dec(1, -1)) }> = Unit::ONE;
 /// The prefix centi (`c`): 10^-2.
-pub const CENTI: Qty<{ UcumUnit::prefix("c", Exact::dec(1, -2)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const CENTI: Unit<{ UcumUnit::prefix("c", Exact::dec(1, -2)) }> = Unit::ONE;
 /// The prefix milli (`m`): 10^-3.
-pub const MILLI: Qty<{ UcumUnit::prefix("m", Exact::dec(1, -3)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const MILLI: Unit<{ UcumUnit::prefix("m", Exact::dec(1, -3)) }> = Unit::ONE;
 /// The prefix micro (`μ`): 10^-6.
-pub const MICRO: Qty<{ UcumUnit::prefix("μ", Exact::dec(1, -6)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const MICRO: Unit<{ UcumUnit::prefix("μ", Exact::dec(1, -6)) }> = Unit::ONE;
 /// The prefix nano (`n`): 10^-9.
-pub const NANO: Qty<{ UcumUnit::prefix("n", Exact::dec(1, -9)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const NANO: Unit<{ UcumUnit::prefix("n", Exact::dec(1, -9)) }> = Unit::ONE;
 /// The prefix pico (`p`): 10^-12.
-pub const PICO: Qty<{ UcumUnit::prefix("p", Exact::dec(1, -12)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const PICO: Unit<{ UcumUnit::prefix("p", Exact::dec(1, -12)) }> = Unit::ONE;
 /// The prefix femto (`f`): 10^-15.
-pub const FEMTO: Qty<{ UcumUnit::prefix("f", Exact::dec(1, -15)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const FEMTO: Unit<{ UcumUnit::prefix("f", Exact::dec(1, -15)) }> = Unit::ONE;
 /// The prefix atto (`a`): 10^-18.
-pub const ATTO: Qty<{ UcumUnit::prefix("a", Exact::dec(1, -18)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const ATTO: Unit<{ UcumUnit::prefix("a", Exact::dec(1, -18)) }> = Unit::ONE;
 /// The prefix zepto (`z`): 10^-21.
-pub const ZEPTO: Qty<{ UcumUnit::prefix("z", Exact::dec(1, -21)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const ZEPTO: Unit<{ UcumUnit::prefix("z", Exact::dec(1, -21)) }> = Unit::ONE;
 /// The prefix yocto (`y`): 10^-24.
-pub const YOCTO: Qty<{ UcumUnit::prefix("y", Exact::dec(1, -24)) }, Exact, NOT_BASE> = Qty::ONE;
+pub const YOCTO: Unit<{ UcumUnit::prefix("y", Exact::dec(1, -24)) }> = Unit::ONE;
 
 /// Meter: a base unit, `m`.
-pub const METER: Qty<{ UcumUnit::base("m") }, Exact, BASE> = Qty::ONE;
+pub const METER: Unit<{ UcumUnit::base("m") }, BASE> = Unit::ONE;
 /// Second: a base unit, `s`.
-pub const SECOND: Qty<{ UcumUnit::base("s") }, Exact, BASE> = Qty::ONE;
+pub const SECOND: Unit<{ UcumUnit::base("s") }, BASE> = Unit::ONE;
 /// Gram: a base unit, `g`.
-pub const GRAM: Qty<{ UcumUnit::base("g") }, Exact, BASE> = Qty::ONE;
+pub const GRAM: Unit<{ UcumUnit::base("g") }, BASE> = Unit::ONE;
 /// Radian: a base unit, `rad`.
-pub const RADIAN: Qty<{ UcumUnit::base("rad") }, Exact, BASE> = Qty::ONE;
+pub const RADIAN: Unit<{ UcumUnit::base("rad") }, BASE> = Unit::ONE;
 /// Kelvin: a base unit, `K`.
-pub const KELVIN: Qty<{ UcumUnit::base("K") }, Exact, BASE> = Qty::ONE;
+pub const KELVIN: Unit<{ UcumUnit::base("K") }, BASE> = Unit::ONE;
 /// Coulomb: a base unit, `C`.
-pub const COULOMB: Qty<{ UcumUnit::base("C") }, Exact, BASE> = Qty::ONE;
+pub const COULOMB: Unit<{ UcumUnit::base("C") }, BASE> = Unit::ONE;
 /// Candela: a base unit, `cd`.
-pub const CANDELA: Qty<{ UcumUnit::base("cd") }, Exact, BASE> = Qty::ONE;
+pub const CANDELA: Unit<{ UcumUnit::base("cd") }, BASE> = Unit::ONE;
 
-/// An amount of substance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type AmountOfSubstance<N, const U: UcumUnit = { UcumUnit::ONE }, const B: Base = BASE> =
+/// An amount of substance, in `N`s of the unit `U`: by default its base unit, `ONE`.
+pub type AmountOfSubstance<N, const U: UcumUnit = { ONE.unit() }, const B: Base = BASE> =
     Qty<U, N, B>;
+/// The base unit of `AmountOfSubstance`: a product of base units.
+pub const ONE: Unit<{ UcumUnit::ONE }, BASE> = Unit::ONE;
 
-/// A dose equivalent, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A dose equivalent, in `N`s of the unit `U`: by default its base unit, `METER_SQUARED_PER_SECOND_SQUARED`.
 pub type DoseEquivalent<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-    },
+    const U: UcumUnit = { METER_SQUARED_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `DoseEquivalent`: a product of base units.
+pub const METER_SQUARED_PER_SECOND_SQUARED: Unit<
+    { (METER * METER / (SECOND * SECOND)).unit() },
+    BASE,
+> = Unit::ONE;
 
-/// An electric charge, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An electric charge, in `N`s of the unit `U`: by default its base unit, `COULOMB`.
 pub type ElectricCharge<N, const U: UcumUnit = { COULOMB.unit() }, const B: Base = BASE> =
     Qty<U, N, B>;
 
-/// An electric conductance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An electric conductance, in `N`s of the unit `U`: by default its base unit, `SECOND_COULOMB_SQUARED_PER_METER_SQUARED_GRAM`.
 pub type ElectricConductance<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -2)
-            .times(SECOND.unit(), 1)
-            .times(GRAM.unit(), -1)
-            .times(COULOMB.unit(), 2)
-    },
+    const U: UcumUnit = { SECOND_COULOMB_SQUARED_PER_METER_SQUARED_GRAM.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `ElectricConductance`: a product of base units.
+pub const SECOND_COULOMB_SQUARED_PER_METER_SQUARED_GRAM: Unit<
+    { (SECOND * COULOMB * COULOMB / (METER * METER * GRAM)).unit() },
+    BASE,
+> = Unit::ONE;
 
-/// An electric current, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An electric current, in `N`s of the unit `U`: by default its base unit, `COULOMB_PER_SECOND`.
 pub type ElectricCurrent<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(SECOND.unit(), -1)
-            .times(COULOMB.unit(), 1)
-    },
+    const U: UcumUnit = { COULOMB_PER_SECOND.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `ElectricCurrent`: a product of base units.
+pub const COULOMB_PER_SECOND: Unit<{ (COULOMB / SECOND).unit() }, BASE> = Unit::ONE;
 
-/// An energy, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An energy, in `N`s of the unit `U`: by default its base unit, `METER_SQUARED_GRAM_PER_SECOND_SQUARED`.
 pub type Energy<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-            .times(GRAM.unit(), 1)
-    },
+    const U: UcumUnit = { METER_SQUARED_GRAM_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `Energy`: a product of base units.
+pub const METER_SQUARED_GRAM_PER_SECOND_SQUARED: Unit<
+    { (METER * METER * GRAM / (SECOND * SECOND)).unit() },
+    BASE,
+> = Unit::ONE;
 
-/// An energy dose, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An energy dose, in `N`s of the unit `U`: by default its base unit, `METER_SQUARED_PER_SECOND_SQUARED`.
 pub type EnergyDose<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-    },
+    const U: UcumUnit = { METER_SQUARED_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
 
-/// A force, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A force, in `N`s of the unit `U`: by default its base unit, `METER_GRAM_PER_SECOND_SQUARED`.
 pub type Force<
     N,
-    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1) },
+    const U: UcumUnit = { METER_GRAM_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `Force`: a product of base units.
+pub const METER_GRAM_PER_SECOND_SQUARED: Unit<{ (METER * GRAM / (SECOND * SECOND)).unit() }, BASE> =
+    Unit::ONE;
 
-/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An illuminance, in `N`s of the unit `U`: by default its base unit, `RADIAN_SQUARED_CANDELA_PER_METER_SQUARED`.
 pub type Illuminance<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -2)
-            .times(RADIAN.unit(), 2)
-            .times(CANDELA.unit(), 1)
-    },
+    const U: UcumUnit = { RADIAN_SQUARED_CANDELA_PER_METER_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `Illuminance`: a product of base units.
+pub const RADIAN_SQUARED_CANDELA_PER_METER_SQUARED: Unit<
+    { (RADIAN * RADIAN * CANDELA / (METER * METER)).unit() },
+    BASE,
+> = Unit::ONE;
 
-/// A length, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A length, in `N`s of the unit `U`: by default its base unit, `METER`.
 pub type Length<N, const U: UcumUnit = { METER.unit() }, const B: Base = BASE> = Qty<U, N, B>;
 
-/// A magnetic flux density, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A magnetic flux density, in `N`s of the unit `U`: by default its base unit, `GRAM_PER_SECOND_COULOMB`.
 pub type MagneticFluxDensity<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(SECOND.unit(), -1)
-            .times(GRAM.unit(), 1)
-            .times(COULOMB.unit(), -1)
-    },
+    const U: UcumUnit = { GRAM_PER_SECOND_COULOMB.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `MagneticFluxDensity`: a product of base units.
+pub const GRAM_PER_SECOND_COULOMB: Unit<{ (GRAM / (SECOND * COULOMB)).unit() }, BASE> = Unit::ONE;
 
-/// A mass, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A mass, in `N`s of the unit `U`: by default its base unit, `GRAM`.
 pub type Mass<N, const U: UcumUnit = { GRAM.unit() }, const B: Base = BASE> = Qty<U, N, B>;
 
-/// A plane angle, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A plane angle, in `N`s of the unit `U`: by default its base unit, `RADIAN`.
 pub type PlaneAngle<N, const U: UcumUnit = { RADIAN.unit() }, const B: Base = BASE> = Qty<U, N, B>;
 
-/// A power, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A power, in `N`s of the unit `U`: by default its base unit, `METER_SQUARED_GRAM_PER_SECOND_CUBED`.
 pub type Power<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -3)
-            .times(GRAM.unit(), 1)
-    },
+    const U: UcumUnit = { METER_SQUARED_GRAM_PER_SECOND_CUBED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `Power`: a product of base units.
+pub const METER_SQUARED_GRAM_PER_SECOND_CUBED: Unit<
+    { (METER * METER * GRAM / (SECOND * SECOND * SECOND)).unit() },
+    BASE,
+> = Unit::ONE;
 
-/// A pressure, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A pressure, in `N`s of the unit `U`: by default its base unit, `GRAM_PER_METER_SECOND_SQUARED`.
 pub type Pressure<
     N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -1)
-            .times(SECOND.unit(), -2)
-            .times(GRAM.unit(), 1)
-    },
+    const U: UcumUnit = { GRAM_PER_METER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `Pressure`: a product of base units.
+pub const GRAM_PER_METER_SECOND_SQUARED: Unit<{ (GRAM / (METER * SECOND * SECOND)).unit() }, BASE> =
+    Unit::ONE;
 
-/// A radioactivity, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Radioactivity<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
-    const B: Base = BASE,
-> = Qty<U, N, B>;
+/// A radioactivity, in `N`s of the unit `U`: by default its base unit, `PER_SECOND`.
+pub type Radioactivity<N, const U: UcumUnit = { PER_SECOND.unit() }, const B: Base = BASE> =
+    Qty<U, N, B>;
+/// The base unit of `Radioactivity`: a product of base units.
+pub const PER_SECOND: Unit<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, BASE> = Unit::ONE;
 
-/// A solid angle, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type SolidAngle<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(RADIAN.unit(), 2) },
-    const B: Base = BASE,
-> = Qty<U, N, B>;
+/// A solid angle, in `N`s of the unit `U`: by default its base unit, `RADIAN_SQUARED`.
+pub type SolidAngle<N, const U: UcumUnit = { RADIAN_SQUARED.unit() }, const B: Base = BASE> =
+    Qty<U, N, B>;
+/// The base unit of `SolidAngle`: a product of base units.
+pub const RADIAN_SQUARED: Unit<{ (RADIAN * RADIAN).unit() }, BASE> = Unit::ONE;
 
-/// A time, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A time, in `N`s of the unit `U`: by default its base unit, `SECOND`.
 pub type Time<N, const U: UcumUnit = { SECOND.unit() }, const B: Base = BASE> = Qty<U, N, B>;
 
-/// An area, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Area<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 2) },
-    const B: Base = BASE,
-> = Qty<U, N, B>;
+/// An area, in `N`s of the unit `U`: by default its base unit, `METER_SQUARED`.
+pub type Area<N, const U: UcumUnit = { METER_SQUARED.unit() }, const B: Base = BASE> = Qty<U, N, B>;
+/// The base unit of `Area`: a product of base units.
+pub const METER_SQUARED: Unit<{ (METER * METER).unit() }, BASE> = Unit::ONE;
 
-/// A volume, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Volume<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 3) },
-    const B: Base = BASE,
-> = Qty<U, N, B>;
+/// A volume, in `N`s of the unit `U`: by default its base unit, `METER_CUBED`.
+pub type Volume<N, const U: UcumUnit = { METER_CUBED.unit() }, const B: Base = BASE> = Qty<U, N, B>;
+/// The base unit of `Volume`: a product of base units.
+pub const METER_CUBED: Unit<{ (METER * METER * METER).unit() }, BASE> = Unit::ONE;
 
-/// A velocity, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Velocity<
-    N,
-    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -1) },
-    const B: Base = BASE,
-> = Qty<U, N, B>;
+/// A velocity, in `N`s of the unit `U`: by default its base unit, `METER_PER_SECOND`.
+pub type Velocity<N, const U: UcumUnit = { METER_PER_SECOND.unit() }, const B: Base = BASE> =
+    Qty<U, N, B>;
+/// The base unit of `Velocity`: a product of base units.
+pub const METER_PER_SECOND: Unit<{ (METER / SECOND).unit() }, BASE> = Unit::ONE;
 
-/// An acceleration, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An acceleration, in `N`s of the unit `U`: by default its base unit, `METER_PER_SECOND_SQUARED`.
 pub type Acceleration<
     N,
-    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2) },
+    const U: UcumUnit = { METER_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = Qty<U, N, B>;
+/// The base unit of `Acceleration`: a product of base units.
+pub const METER_PER_SECOND_SQUARED: Unit<{ (METER / (SECOND * SECOND)).unit() }, BASE> = Unit::ONE;
 
-/// A lineic number, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type LineicNumber<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), -1) },
-    const B: Base = BASE,
-> = Qty<U, N, B>;
+/// A lineic number, in `N`s of the unit `U`: by default its base unit, `PER_METER`.
+pub type LineicNumber<N, const U: UcumUnit = { PER_METER.unit() }, const B: Base = BASE> =
+    Qty<U, N, B>;
+/// The base unit of `LineicNumber`: a product of base units.
+pub const PER_METER: Unit<{ UcumUnit::ONE.times(METER.unit(), -1) }, BASE> = Unit::ONE;
 
 pub mod dimensionless;
 pub mod dynamic;

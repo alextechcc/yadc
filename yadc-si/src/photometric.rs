@@ -3,119 +3,75 @@
 #[allow(unused_imports)]
 use crate::*;
 
-/// A luminance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A luminance, in `N`s of the unit `U`: by default its base unit, `CANDELA_PER_METRE_SQUARED`.
 pub type Luminance<
     N,
-    const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1) },
+    const U: SIUnit = { CANDELA_PER_METRE_SQUARED.unit() },
     const B: Base = BASE,
 > = SIQuantity<U, N, B>;
 
+/// The base unit of `Luminance`: a product of base units.
+pub const CANDELA_PER_METRE_SQUARED: Unit<{ (CANDELA / (METRE * METRE)).unit() }, BASE> = Unit::ONE;
+
 /// Footlamberts (`fl`), a unit of `Luminance`: `n` of them is `n · 1.0 / (core::f64::consts::PI * 0.3048 * 0.3048)` base units.
-pub const FOOTLAMBERT: SIQuantity<
+pub const FOOTLAMBERT: Unit<
     {
         SIUnit::scaled(
             "fl",
             Exact::int(1) / (Exact::PI * Exact::dec(3048, -4) * Exact::dec(3048, -4)),
-            SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1),
+            CANDELA_PER_METRE_SQUARED.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
 /// Lamberts (`la`), a unit of `Luminance`: `n` of them is `n · 10000.0 / core::f64::consts::PI` base units.
-pub const LAMBERT: SIQuantity<
+pub const LAMBERT: Unit<
     {
         SIUnit::scaled(
             "la",
             Exact::int(10000) / Exact::PI,
-            SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1),
+            CANDELA_PER_METRE_SQUARED.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
 /// Stilbs (`sb`), a unit of `Luminance`: `n` of them is `n · 10000.0` base units.
-pub const STILB: SIQuantity<
-    {
-        SIUnit::scaled(
-            "sb",
-            Exact::int(10000),
-            SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1),
-        )
-    },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const STILB: Unit<
+    { SIUnit::scaled("sb", Exact::int(10000), CANDELA_PER_METRE_SQUARED.unit()) },
+> = Unit::ONE;
 
-/// A luminous intensity, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A luminous intensity, in `N`s of the unit `U`: by default its base unit, `CANDELA`.
 pub type LuminousIntensity<N, const U: SIUnit = { CANDELA.unit() }, const B: Base = BASE> =
     SIQuantity<U, N, B>;
 
-/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Illuminance<
-    N,
-    const U: SIUnit = {
-        SIUnit::ONE
-            .times(METRE.unit(), -2)
-            .times(CANDELA.unit(), 1)
-            .times(RADIAN.unit(), 2)
-    },
-    const B: Base = BASE,
-> = SIQuantity<U, N, B>;
+/// An illuminance, in `N`s of the unit `U`: by default its base unit, `LUX`.
+pub type Illuminance<N, const U: SIUnit = { LUX.unit() }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
 /// Lux (`lx`), a unit of `Illuminance`: the coherent unit, a product of base units.
-pub const LUX: SIQuantity<
-    {
-        SIUnit::ONE
-            .times(METRE.unit(), -2)
-            .times(CANDELA.unit(), 1)
-            .times(RADIAN.unit(), 2)
-    },
-    Exact,
-    BASE,
-> = SIQuantity::ONE;
+pub const LUX: Unit<{ (CANDELA * RADIAN * RADIAN / (METRE * METRE)).unit() }, BASE> = Unit::ONE;
 
 /// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 10000.0` base units.
-pub const PHOT: SIQuantity<
-    {
-        SIUnit::scaled(
-            "ph",
-            Exact::int(10000),
-            SIUnit::ONE
-                .times(METRE.unit(), -2)
-                .times(CANDELA.unit(), 1)
-                .times(RADIAN.unit(), 2),
-        )
-    },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const PHOT: Unit<{ SIUnit::scaled("ph", Exact::int(10000), LUX.unit()) }> = Unit::ONE;
 
 /// Footcandles (`fc`), a unit of `Illuminance`: `n` of them is `n · 1.0 / (0.3048 * 0.3048)` base units.
-pub const FOOTCANDLE: SIQuantity<
+pub const FOOTCANDLE: Unit<
     {
         SIUnit::scaled(
             "fc",
             Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)),
-            SIUnit::ONE
-                .times(METRE.unit(), -2)
-                .times(CANDELA.unit(), 1)
-                .times(RADIAN.unit(), 2),
+            LUX.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
-/// A radiant exposure, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// A radiant exposure, in `N`s of the unit `U`: by default its base unit, `KILOGRAM_PER_SECOND_SQUARED`.
 pub type RadiantExposure<
     N,
-    const U: SIUnit = { KILOGRAM.unit().times(SECOND.unit(), -2) },
+    const U: SIUnit = { KILOGRAM_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = SIQuantity<U, N, B>;
+
+/// The base unit of `RadiantExposure`: a product of base units.
+pub const KILOGRAM_PER_SECOND_SQUARED: Unit<{ (KILOGRAM / (SECOND * SECOND)).unit() }, BASE> =
+    Unit::ONE;

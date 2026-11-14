@@ -3,33 +3,23 @@
 #[allow(unused_imports)]
 use crate::*;
 
-/// An angle, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An angle, in `N`s of the unit `U`: by default its base unit, `RADIAN`.
 pub type Angle<N, const U: SIUnit = { RADIAN.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;
 
 /// Revolutions (`r`), a unit of `Angle`: `n` of them is `n · 2.0 * core::f64::consts::PI` base units.
-pub const REVOLUTION: SIQuantity<
-    { SIUnit::scaled("r", Exact::int(2) * Exact::PI, RADIAN.unit()) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const REVOLUTION: Unit<{ SIUnit::scaled("r", Exact::int(2) * Exact::PI, RADIAN.unit()) }> =
+    Unit::ONE;
 
 /// Degrees (`°`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 180.0` base units.
-pub const DEGREE: SIQuantity<
-    { SIUnit::scaled("°", Exact::PI / Exact::int(180), RADIAN.unit()) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const DEGREE: Unit<{ SIUnit::scaled("°", Exact::PI / Exact::int(180), RADIAN.unit()) }> =
+    Unit::ONE;
 
 /// Gons (`gon`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 200.0` base units.
-pub const GON: SIQuantity<
-    { SIUnit::scaled("gon", Exact::PI / Exact::int(200), RADIAN.unit()) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const GON: Unit<{ SIUnit::scaled("gon", Exact::PI / Exact::int(200), RADIAN.unit()) }> =
+    Unit::ONE;
 
 /// Mils (`mil`), a unit of `Angle`: `n` of them is `n · 2.0 * core::f64::consts::PI / 6400.0` base units.
-pub const MIL: SIQuantity<
+pub const MIL: Unit<
     {
         SIUnit::scaled(
             "mil",
@@ -37,177 +27,122 @@ pub const MIL: SIQuantity<
             RADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
 /// Minutes (`′`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 10800.0` base units.
-pub const MINUTE: SIQuantity<
-    { SIUnit::scaled("′", Exact::PI / Exact::int(10800), RADIAN.unit()) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const MINUTE: Unit<{ SIUnit::scaled("′", Exact::PI / Exact::int(10800), RADIAN.unit()) }> =
+    Unit::ONE;
 
 /// Seconds (`″`), a unit of `Angle`: `n` of them is `n · core::f64::consts::PI / 648000.0` base units.
-pub const ANGLE_SECOND: SIQuantity<
+pub const ANGLE_SECOND: Unit<
     { SIUnit::scaled("″", Exact::PI / Exact::int(648000), RADIAN.unit()) },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
-/// A solid angle, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type SolidAngle<
-    N,
-    const U: SIUnit = { SIUnit::ONE.times(RADIAN.unit(), 2) },
-    const B: Base = BASE,
-> = SIQuantity<U, N, B>;
+/// A solid angle, in `N`s of the unit `U`: by default its base unit, `STERADIAN`.
+pub type SolidAngle<N, const U: SIUnit = { STERADIAN.unit() }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
 /// Steradians (`sr`), a unit of `SolidAngle`: the coherent unit, a product of base units.
-pub const STERADIAN: SIQuantity<{ SIUnit::ONE.times(RADIAN.unit(), 2) }, Exact, BASE> =
-    SIQuantity::ONE;
+pub const STERADIAN: Unit<{ (RADIAN * RADIAN).unit() }, BASE> = Unit::ONE;
 
 /// Spats (`sp`), a unit of `SolidAngle`: `n` of them is `n · 4.0 * core::f64::consts::PI` base units.
-pub const SPAT: SIQuantity<
-    {
-        SIUnit::scaled(
-            "sp",
-            Exact::int(4) * Exact::PI,
-            SIUnit::ONE.times(RADIAN.unit(), 2),
-        )
-    },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const SPAT: Unit<{ SIUnit::scaled("sp", Exact::int(4) * Exact::PI, STERADIAN.unit()) }> =
+    Unit::ONE;
 
 /// Square degrees (`°²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 180.0) * (core::f64::consts::PI / 180.0)` base units.
-pub const SQUARE_DEGREE: SIQuantity<
+pub const SQUARE_DEGREE: Unit<
     {
         SIUnit::scaled(
             "°²",
             (Exact::PI / Exact::int(180)) * (Exact::PI / Exact::int(180)),
-            SIUnit::ONE.times(RADIAN.unit(), 2),
+            STERADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
 /// Square minutes (`′²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 10800.0) * (core::f64::consts::PI / 10800.0)` base units.
-pub const SQUARE_MINUTE: SIQuantity<
+pub const SQUARE_MINUTE: Unit<
     {
         SIUnit::scaled(
             "′²",
             (Exact::PI / Exact::int(10800)) * (Exact::PI / Exact::int(10800)),
-            SIUnit::ONE.times(RADIAN.unit(), 2),
+            STERADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
 /// Square seconds (`″²`), a unit of `SolidAngle`: `n` of them is `n · (core::f64::consts::PI / 648000.0) * (core::f64::consts::PI / 648000.0)` base units.
-pub const SQUARE_SECOND: SIQuantity<
+pub const SQUARE_SECOND: Unit<
     {
         SIUnit::scaled(
             "″²",
             (Exact::PI / Exact::int(648000)) * (Exact::PI / Exact::int(648000)),
-            SIUnit::ONE.times(RADIAN.unit(), 2),
+            STERADIAN.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;
 
-/// An angular velocity, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type AngularVelocity<
-    N,
-    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -1).times(RADIAN.unit(), 1) },
-    const B: Base = BASE,
-> = SIQuantity<U, N, B>;
+/// An angular velocity, in `N`s of the unit `U`: by default its base unit, `RADIAN_PER_SECOND`.
+pub type AngularVelocity<N, const U: SIUnit = { RADIAN_PER_SECOND.unit() }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
-/// An angular acceleration, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// The base unit of `AngularVelocity`: a product of base units.
+pub const RADIAN_PER_SECOND: Unit<{ (RADIAN / SECOND).unit() }, BASE> = Unit::ONE;
+
+/// An angular acceleration, in `N`s of the unit `U`: by default its base unit, `RADIAN_PER_SECOND_SQUARED`.
 pub type AngularAcceleration<
     N,
-    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -2).times(RADIAN.unit(), 1) },
+    const U: SIUnit = { RADIAN_PER_SECOND_SQUARED.unit() },
     const B: Base = BASE,
 > = SIQuantity<U, N, B>;
 
-/// An angular jerk, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// The base unit of `AngularAcceleration`: a product of base units.
+pub const RADIAN_PER_SECOND_SQUARED: Unit<{ (RADIAN / (SECOND * SECOND)).unit() }, BASE> =
+    Unit::ONE;
+
+/// An angular jerk, in `N`s of the unit `U`: by default its base unit, `RADIAN_PER_SECOND_CUBED`.
 pub type AngularJerk<
     N,
-    const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -3).times(RADIAN.unit(), 1) },
+    const U: SIUnit = { RADIAN_PER_SECOND_CUBED.unit() },
     const B: Base = BASE,
 > = SIQuantity<U, N, B>;
 
-/// An angular absement, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type AngularAbsement<
-    N,
-    const U: SIUnit = { SECOND.unit().times(RADIAN.unit(), 1) },
-    const B: Base = BASE,
-> = SIQuantity<U, N, B>;
+/// The base unit of `AngularJerk`: a product of base units.
+pub const RADIAN_PER_SECOND_CUBED: Unit<{ (RADIAN / (SECOND * SECOND * SECOND)).unit() }, BASE> =
+    Unit::ONE;
+
+/// An angular absement, in `N`s of the unit `U`: by default its base unit, `RADIAN_SECOND`.
+pub type AngularAbsement<N, const U: SIUnit = { RADIAN_SECOND.unit() }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
 /// Radian seconds (`rad · s`), a unit of `AngularAbsement`: the coherent unit, a product of base units.
-pub const RADIAN_SECOND: SIQuantity<{ SECOND.unit().times(RADIAN.unit(), 1) }, Exact, BASE> =
-    SIQuantity::ONE;
+pub const RADIAN_SECOND: Unit<{ (SECOND * RADIAN).unit() }, BASE> = Unit::ONE;
 
 /// Degree seconds (`° · s`), a unit of `AngularAbsement`: `n` of them is `n · core::f64::consts::PI / 180.0` base units.
-pub const DEGREE_SECOND: SIQuantity<
-    {
-        SIUnit::scaled(
-            "° · s",
-            Exact::PI / Exact::int(180),
-            SECOND.unit().times(RADIAN.unit(), 1),
-        )
-    },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
+pub const DEGREE_SECOND: Unit<
+    { SIUnit::scaled("° · s", Exact::PI / Exact::int(180), RADIAN_SECOND.unit()) },
+> = Unit::ONE;
 
-/// An angular momentum, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
+/// An angular momentum, in `N`s of the unit `U`: by default its base unit, `NEWTON_METRE_SECOND`.
 pub type AngularMomentum<
     N,
-    const U: SIUnit = {
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -1)
-            .times(RADIAN.unit(), -1)
-    },
+    const U: SIUnit = { NEWTON_METRE_SECOND.unit() },
     const B: Base = BASE,
 > = SIQuantity<U, N, B>;
 
+/// Newton metre seconds (`N · m · s`), a unit of `AngularMomentum`: the coherent unit, a product of base units.
+pub const NEWTON_METRE_SECOND: Unit<
+    { (METRE * METRE * KILOGRAM / (SECOND * RADIAN)).unit() },
+    BASE,
+> = Unit::ONE;
+
 /// Reduced Planck constants (`ħ`), a unit of `AngularMomentum`: `n` of them is `n · 6.62607015e-34 / (2.0 * core::f64::consts::PI)` base units.
-pub const REDUCED_PLANCK_CONSTANT: SIQuantity<
+pub const REDUCED_PLANCK_CONSTANT: Unit<
     {
         SIUnit::scaled(
             "ħ",
             Exact::dec(662607015, -42) / (Exact::int(2) * Exact::PI),
-            SIUnit::ONE
-                .times(METRE.unit(), 2)
-                .times(KILOGRAM.unit(), 1)
-                .times(SECOND.unit(), -1)
-                .times(RADIAN.unit(), -1),
+            NEWTON_METRE_SECOND.unit(),
         )
     },
-    Exact,
-    NOT_BASE,
-> = SIQuantity::ONE;
-
-/// Newton metre seconds (`N · m · s`), a unit of `AngularMomentum`: the coherent unit, a product of base units.
-pub const NEWTON_METRE_SECOND: SIQuantity<
-    {
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -1)
-            .times(RADIAN.unit(), -1)
-    },
-    Exact,
-    BASE,
-> = SIQuantity::ONE;
+> = Unit::ONE;

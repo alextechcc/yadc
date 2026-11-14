@@ -312,24 +312,59 @@ impl<'a> Context<'a> {
             .is_some_and(|r| r.symbol == u.symbol && shape(r) == shape(u))
     }
 
-    /// The coherent unit of these exponents, the product of the base units:
-    /// `METRE.unit().times(SECOND.unit(), -1)`.
+    /// The coherent unit of these exponents, the product of the base-unit
+    /// constants: `(KILOGRAM * METRE / (SECOND * SECOND)).unit()`.
     fn coherent(&self, dims: &[(String, i64)]) -> String {
         let unit = Names::of(&self.system.system).unit;
-        let mut out = String::new();
-        for (f, n) in dims {
-            let c = &self.bases.iter().find(|b| b.symbol == f).unwrap().constant;
-            out = match (out.is_empty(), n) {
-                (true, 1) => format!("{c}.unit()"),
-                (true, _) => format!("{unit}::ONE.times({c}.unit(), {n})"),
-                (false, _) => format!("{out}.times({c}.unit(), {n})"),
-            };
-        }
-        if out.is_empty() {
-            format!("{unit}::ONE")
-        } else {
+        let side = |positive: bool| -> Vec<String> {
+            let mut out = Vec::new();
+            for (f, n) in dims.iter().filter(|(_, n)| (*n > 0) == positive) {
+                let c = &self.bases.iter().find(|b| b.symbol == f).unwrap().constant;
+                for _ in 0..n.unsigned_abs() {
+                    out.push(c.clone());
+                }
+            }
             out
+        };
+        let (num, den) = (side(true), side(false));
+        match (num.len(), den.len()) {
+            (0, 0) => format!("{unit}::ONE"),
+            (1, 0) => format!("{}.unit()", num[0]),
+            (_, 0) => format!("({}).unit()", num.join(" * ")),
+            // No base unit above the line: a reciprocal, by the unit's own algebra.
+            (0, _) => {
+                let mut e = format!("{unit}::ONE");
+                for c in &den {
+                    e = format!("{e}.times({c}.unit(), -1)");
+                }
+                e
+            }
+            (_, 1) => format!("({} / {}).unit()", num.join(" * "), den[0]),
+            (_, _) => format!("({} / ({})).unit()", num.join(" * "), den.join(" * ")),
         }
+    }
+
+    /// A quantity's base-unit constant: its coherent unit's (a base unit's,
+    /// or one of its own units), else one named after its exponents
+    /// (`METRE_PER_SECOND`), which `own_base` says to write.
+    fn base_const(&self, q: &QuantityRef<'_>, names: &BTreeMap<(&str, &str), String>) -> String {
+        match q.units.iter().find(|u| self.is_base(q, u)) {
+            Some(u) => names
+                .get(&(q.name, u.variant.as_str()))
+                .cloned()
+                .unwrap_or_else(|| screaming_of(u)),
+            None => screaming_snake(&coherent_variant(self, &q.dims)),
+        }
+    }
+
+    /// Whether a quantity's base-unit constant is written beside it: it has
+    /// no unit of size one of its own, its exponents are not a base unit's,
+    /// and the crate root doesn't have it (for a quantity several modules
+    /// share).
+    fn own_base(&self, q: &QuantityRef<'_>) -> bool {
+        !q.units.iter().any(|u| self.is_base(q, u))
+            && !self.bases.iter().any(|b| q.dims == vec![(b.symbol.to_string(), 1)])
+            && !self.shared_quantities().iter().any(|(_, d)| *d == q.dims)
     }
 
     /// Whether a unit is its quantity's coherent unit, a base unit or a
@@ -405,12 +440,12 @@ impl<'a> Context<'a> {
 
     /// A unit as a const expression: its shape, of its quantity's coherent
     /// unit.
-    fn unit_expr(&self, q: &QuantityRef<'_>, u: &UnitDef) -> String {
+    fn unit_expr(&self, q: &QuantityRef<'_>, u: &UnitDef, names: &BTreeMap<(&str, &str), String>) -> String {
         let unit = Names::of(&self.system.system).unit;
-        let coherent = self.coherent(&q.dims);
+        let coherent = format!("{}.unit()", self.base_const(q, names));
         let symbol = rust_str(&u.symbol);
         match shape(u) {
-            Shape::Coherent if self.is_base(q, u) => coherent,
+            Shape::Coherent if self.is_base(q, u) => self.coherent(&q.dims),
             Shape::Coherent => format!("{unit}::scaled(\"{symbol}\", Exact::int(1), {coherent})"),
             Shape::Scaled { size } => format!("{unit}::scaled(\"{symbol}\", {size}, {coherent})"),
             Shape::Offset { size, zero } => {
@@ -590,6 +625,11 @@ impl<const U: __UNIT__, const B: Base> __QTY__<U, Exact, B> {
     /// One of the unit.
     pub const ONE: Self = __QTY__(Exact::ONE);
 }
+
+/// One of a unit, counted exactly: every unit constant is one
+/// (`pub const KILOMETRE: Unit<{ (KILO * METRE).unit() }> = Unit::ONE;`), a
+/// base unit marked `BASE`.
+pub type Unit<const U: __UNIT__, const B: Base = NOT_BASE> = __QTY__<U, Exact, B>;
 
 /// The number, a space and the unit: `2 km`, `9.81 N`.
 impl<const U: __UNIT__, N: core::fmt::Display, const B: Base> core::fmt::Display
@@ -779,7 +819,7 @@ fn gen_lib_rs(ctx: &Context<'_>) -> String {
         let size = prefix_size(exp);
         s += &format!("/// The prefix {} (`{symbol}`): 10^{exp}.\n", name.to_lowercase());
         s += &format!(
-            "pub const {}: {qty}<{{ {unit}::prefix(\"{symbol}\", {size}) }}, Exact, NOT_BASE> = {qty}::ONE;\n",
+            "pub const {}: Unit<{{ {unit}::prefix(\"{symbol}\", {size}) }}> = Unit::ONE;\n",
             screaming_snake(name)
         );
     }
@@ -792,7 +832,7 @@ fn gen_lib_rs(ctx: &Context<'_>) -> String {
             b.symbol
         );
         s += &format!(
-            "pub const {}: {qty}<{{ {unit}::base(\"{}\") }}, Exact, BASE> = {qty}::ONE;\n",
+            "pub const {}: Unit<{{ {unit}::base(\"{}\") }}, BASE> = Unit::ONE;\n",
             b.constant,
             rust_str(b.symbol)
         );
@@ -801,17 +841,28 @@ fn gen_lib_rs(ctx: &Context<'_>) -> String {
 
     // The aliases of quantities several modules have.
     let n = Names::of(&ctx.system.system);
+    let mut written: HashSet<String> = HashSet::new();
     for (name, dims) in ctx.shared_quantities() {
+        let single = ctx.bases.iter().find(|b| dims == vec![(b.symbol.to_string(), 1)]);
+        let base = match single {
+            Some(b) => b.constant.clone(),
+            None => screaming_snake(&coherent_variant(ctx, &dims)),
+        };
         s += &format!(
-            "/// {}, in `N`s of the unit `U`: by default its coherent unit, a\n/// product of base units.\n",
+            "/// {}, in `N`s of the unit `U`: by default its base unit, `{base}`.\n",
             article(name)
         );
         s += &format!(
-            "pub type {name}<N, const U: {} = {{ {} }}, const B: Base = BASE> = {}<U, N, B>;\n\n",
-            n.unit,
-            ctx.coherent(&dims),
-            n.qty
+            "pub type {name}<N, const U: {} = {{ {base}.unit() }}, const B: Base = BASE> = {}<U, N, B>;\n",
+            n.unit, n.qty
         );
+        if single.is_none() && written.insert(base.clone()) {
+            s += &format!(
+                "/// The base unit of `{name}`: a product of base units.\npub const {base}: Unit<{{ {} }}, BASE> = Unit::ONE;\n",
+                ctx.coherent(&dims)
+            );
+        }
+        s += "\n";
     }
     s += "pub mod dimensionless;\n";
     s += "pub mod dynamic;\n";
@@ -900,22 +951,35 @@ fn gen_module(ctx: &Context<'_>, m: &ModuleRef<'_>) -> Module {
         s += &format!("//! The quantities of `{}` and their units.\n\n", m.name);
     }
     s += "#[allow(unused_imports)]\nuse crate::*;\n";
+    // Base-unit constants written in this module: two quantities of one
+    // dimension share one.
+    let mut written: HashSet<String> = HashSet::new();
     for q in &m.quantities {
-        let coherent = ctx.coherent(&q.dims);
+        let base = ctx.base_const(q, &names);
         match shared.iter().any(|(name, _)| *name == q.name) {
             true => s += &format!("\n// `{}` is `crate::{}`.\n", q.name, q.name),
             false => {
                 s += &format!(
-                    "\n/// {}, in `N`s of the unit `U`: by default its coherent unit, a\n/// product of base units.\n",
+                    "\n/// {}, in `N`s of the unit `U`: by default its base unit, `{base}`.\n",
                     article(q.name)
                 );
                 s += &format!(
-                    "pub type {}<N, const U: {unit} = {{ {coherent} }}, const B: Base = BASE> = {qty}<U, N, B>;\n",
+                    "pub type {}<N, const U: {unit} = {{ {base}.unit() }}, const B: Base = BASE> = {qty}<U, N, B>;\n",
                     q.name
                 );
+                if ctx.own_base(q) && written.insert(base.clone()) {
+                    s += &format!(
+                        "\n/// The base unit of `{}`: a product of base units.\npub const {base}: Unit<{{ {} }}, BASE> = Unit::ONE;\n",
+                        q.name,
+                        ctx.coherent(&q.dims)
+                    );
+                }
             }
         }
-        for u in &q.units {
+        // The base unit first, then the others.
+        let mut units: Vec<&&UnitDef> = q.units.iter().collect();
+        units.sort_by_key(|u| !ctx.is_base(q, u));
+        for u in units {
             if ctx.is_lib_unit(u) {
                 continue;
             }
@@ -958,15 +1022,12 @@ fn gen_module(ctx: &Context<'_>, m: &ModuleRef<'_>) -> Module {
             s += &match prefixed {
                 Some((p, o)) => {
                     let o = &names[&(q.name, o.variant.as_str())];
-                    format!(
-                        "pub const {name}: {qty}<{{ {p}.unit().times({o}.unit(), 1) }}, Exact, NOT_BASE> = {p} * {o};\n"
-                    )
+                    format!("pub const {name}: Unit<{{ ({p} * {o}).unit() }}> = Unit::ONE;\n")
                 }
-                None => format!(
-                    "pub const {name}: {qty}<{{ {} }}, Exact, {}> = {qty}::ONE;\n",
-                    ctx.unit_expr(q, u),
-                    if ctx.is_base(q, u) { "BASE" } else { "NOT_BASE" }
-                ),
+                None if ctx.is_base(q, u) => {
+                    format!("pub const {name}: Unit<{{ {} }}, BASE> = Unit::ONE;\n", ctx.unit_expr(q, u, &names))
+                }
+                None => format!("pub const {name}: Unit<{{ {} }}> = Unit::ONE;\n", ctx.unit_expr(q, u, &names)),
             };
         }
     }
@@ -1037,7 +1098,7 @@ fn gen_unit_enum(
         if q.units.iter().any(|u| u.variant == name) {
             name = "Coherent".to_string();
         }
-        variants += &format!("    #[default]\n    #[value({})]\n    {name},\n", ctx.coherent(&q.dims));
+        variants += &format!("    #[default]\n    #[value({}.unit())]\n    {name},\n", ctx.base_const(q, names));
     }
     for (i, unit) in q.units.iter().enumerate() {
         let c = &names[&(q.name, unit.variant.as_str())];
@@ -1508,22 +1569,22 @@ units = [
     fn base_units_are_in_the_lib() {
         let (m, lib) = generated();
         assert!(lib.contains(
-            "pub const KILO: SIQuantity<{ SIUnit::prefix(\"k\", Exact::int(1000)) }, Exact, NOT_BASE> = SIQuantity::ONE;"
+            "pub const KILO: Unit<{ SIUnit::prefix(\"k\", Exact::int(1000)) }> = Unit::ONE;"
         ));
         assert!(lib.contains(
-            "pub const MICRO: SIQuantity<{ SIUnit::prefix(\"μ\", Exact::dec(1, -6)) }, Exact, NOT_BASE>"
+            "pub const MICRO: Unit<{ SIUnit::prefix(\"μ\", Exact::dec(1, -6)) }>"
         ));
         assert!(lib.contains(
-            "pub const METRE: SIQuantity<{ SIUnit::base(\"m\") }, Exact, BASE> = SIQuantity::ONE;"
+            "pub const METRE: Unit<{ SIUnit::base(\"m\") }, BASE> = Unit::ONE;"
         ));
         assert!(lib.contains(
-            "pub const KILOGRAM: SIQuantity<{ SIUnit::base(\"kg\") }, Exact, BASE> = SIQuantity::ONE;"
+            "pub const KILOGRAM: Unit<{ SIUnit::base(\"kg\") }, BASE> = Unit::ONE;"
         ));
-        assert!(!m.quantities.contains("pub const METRE"));
+        assert!(!m.quantities.contains("pub const METRE:"));
         assert!(!m.quantities.contains("pub const KELVIN"));
         // The kilogram is a base unit, not a prefixed gram.
         assert!(m.quantities.contains(
-            "pub const GRAM: SIQuantity<{ SIUnit::scaled(\"g\", Exact::dec(1, -3), KILOGRAM.unit()) }, Exact, NOT_BASE> = SIQuantity::ONE;"
+            "pub const GRAM: Unit<{ SIUnit::scaled(\"g\", Exact::dec(1, -3), KILOGRAM.unit()) }> = Unit::ONE;"
         ));
     }
 
@@ -1543,7 +1604,7 @@ units = [
     fn prefixed_units_are_products() {
         let (m, _) = generated();
         assert!(m.quantities.contains(
-            "pub const KILOMETRE: SIQuantity<{ KILO.unit().times(METRE.unit(), 1) }, Exact, NOT_BASE> = KILO * METRE;"
+            "pub const KILOMETRE: Unit<{ (KILO * METRE).unit() }> = Unit::ONE;"
         ));
     }
 
@@ -1553,7 +1614,7 @@ units = [
     fn named_units_of_size_one() {
         let (m, _) = generated();
         assert!(m.quantities.contains(
-            "pub const DEGREE_CELSIUS: SIQuantity<{ SIUnit::scaled(\"°C\", Exact::int(1), KELVIN.unit()) }, Exact, NOT_BASE> = SIQuantity::ONE;"
+            "pub const DEGREE_CELSIUS: Unit<{ SIUnit::scaled(\"°C\", Exact::int(1), KELVIN.unit()) }> = Unit::ONE;"
         ));
     }
 
@@ -1625,11 +1686,11 @@ units = [{v = "Foot", m = "0.3048", s = "ft", l = "feet"}]
             "pub type Length<N, const U: SIUnit = { METRE.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;"
         ));
         assert!(q.contains(
-            "pub type Power<N, const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2).times(KILOGRAM.unit(), 1).times(SECOND.unit(), -3) }, const B: Base = BASE> = SIQuantity<U, N, B>;"
+            "pub type Power<N, const U: SIUnit = { WATT.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;"
         ));
         // A unit of size one is the coherent unit, a base-unit product.
         assert!(q.contains(
-            "pub const WATT: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), 2).times(KILOGRAM.unit(), 1).times(SECOND.unit(), -3) }, Exact, BASE> = SIQuantity::ONE;"
+            "pub const WATT: Unit<{ (METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND)).unit() }, BASE> = Unit::ONE;"
         ));
     }
 
@@ -1640,16 +1701,16 @@ units = [{v = "Foot", m = "0.3048", s = "ft", l = "feet"}]
         let (m, _) = generated();
         let q = &m.quantities;
         assert!(q.contains(
-            "pub const KILOMETRE_PER_HOUR: SIQuantity<{ SIUnit::scaled(\"km/h\", Exact::int(1000) / Exact::int(3600), METRE.unit().times(SECOND.unit(), -1)) }, Exact, NOT_BASE> = SIQuantity::ONE;"
+            "pub const KILOMETRE_PER_HOUR: Unit<{ SIUnit::scaled(\"km/h\", Exact::int(1000) / Exact::int(3600), METRE_PER_SECOND.unit()) }> = Unit::ONE;"
         ));
         assert!(q.contains(
-            "pub const CELSIUS: SIQuantity<{ SIUnit::offset(\"°C\", Exact::int(1), Exact::dec(27315, -2), KELVIN.unit()) }, Exact, NOT_BASE> = SIQuantity::ONE;"
+            "pub const CELSIUS: Unit<{ SIUnit::offset(\"°C\", Exact::int(1), Exact::dec(27315, -2), KELVIN.unit()) }> = Unit::ONE;"
         ));
         assert!(q.contains(
-            "pub const DECIBEL_MILLIWATT: SIQuantity<{ SIUnit::from_log(\"dBm\", Exact::int(10), Exact::int(10), Exact::dec(1, -3), SIUnit::ONE.times(METRE.unit(), 2).times(KILOGRAM.unit(), 1).times(SECOND.unit(), -3)) }, Exact, NOT_BASE>"
+            "pub const DECIBEL_MILLIWATT: Unit<{ SIUnit::from_log(\"dBm\", Exact::int(10), Exact::int(10), Exact::dec(1, -3), WATT.unit()) }>"
         ));
         assert!(q.contains(
-            "pub const RANKINE: SIQuantity<{ SIUnit::scaled(\"°R\", Exact::int(5) / Exact::int(9), KELVIN.unit()) }, Exact, NOT_BASE>"
+            "pub const RANKINE: Unit<{ SIUnit::scaled(\"°R\", Exact::int(5) / Exact::int(9), KELVIN.unit()) }>"
         ));
     }
 
@@ -1661,9 +1722,9 @@ units = [{v = "Foot", m = "0.3048", s = "ft", l = "feet"}]
         let d = ctx.modules().into_iter().next().unwrap();
         let out = gen_module(&ctx, &d);
         assert!(out.quantities.contains(
-            "pub const DECIBEL: SIQuantity<{ SIUnit::from_log(\"dB\", Exact::int(10), Exact::int(10), Exact::int(1), SIUnit::ONE) }, Exact, NOT_BASE>"
+            "pub const DECIBEL: Unit<{ SIUnit::from_log(\"dB\", Exact::int(10), Exact::int(10), Exact::int(1), RATIO.unit()) }>"
         ));
-        assert!(out.quantities.contains("pub const RATIO: SIQuantity<{ SIUnit::ONE }, Exact, BASE>"));
+        assert!(out.quantities.contains("pub const RATIO: Unit<{ SIUnit::ONE }, BASE>"));
     }
 
     /// A listed symbol names its coherent unit in the lib's table.
@@ -1671,7 +1732,7 @@ units = [{v = "Foot", m = "0.3048", s = "ft", l = "feet"}]
     fn named_units_print_by_name() {
         let (_, lib) = generated();
         assert!(lib.contains(
-            "static NAMED: [(SIUnit, &str); 1] = [\n    (SIUnit::ONE.times(METRE.unit(), 2).times(KILOGRAM.unit(), 1).times(SECOND.unit(), -3), \"W\"),\n];"
+            "static NAMED: [(SIUnit, &str); 1] = [\n    ((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND)).unit(), \"W\"),\n];"
         ));
     }
 
@@ -1685,7 +1746,7 @@ units = [{v = "Foot", m = "0.3048", s = "ft", l = "feet"}]
         ));
         // No unit of `Velocity` is its coherent unit: the enum adds it.
         assert!(m.units.contains(
-            "pub enum VelocityUnit {\n    #[default]\n    #[value(METRE.unit().times(SECOND.unit(), -1))]\n    MetrePerSecond,\n    #[value(KILOMETRE_PER_HOUR.unit())]\n    KilometrePerHour,\n}"
+            "pub enum VelocityUnit {\n    #[default]\n    #[value(METRE_PER_SECOND.unit())]\n    MetrePerSecond,\n    #[value(KILOMETRE_PER_HOUR.unit())]\n    KilometrePerHour,\n}"
         ));
     }
 

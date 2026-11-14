@@ -421,7 +421,7 @@ pub enum VolumeUnit {
 #[values(into(SIUnit))]
 pub enum VelocityUnit {
     #[default]
-    #[value(METRE.unit().times(SECOND.unit(), -1))]
+    #[value(METRE_PER_SECOND.unit())]
     MetrePerSecond,
     #[value(KNOT.unit())]
     Knot,
@@ -442,7 +442,7 @@ pub enum VelocityUnit {
 #[values(into(SIUnit))]
 pub enum AccelerationUnit {
     #[default]
-    #[value(METRE.unit().times(SECOND.unit(), -2))]
+    #[value(METRE_PER_SECOND_SQUARED.unit())]
     MetrePerSecondSquared,
     #[value(GALILEO.unit())]
     Galileo,
@@ -711,7 +711,7 @@ pub enum ReciprocalLengthUnit {
 #[values(into(SIUnit))]
 pub enum SpecificGravitationalParameterUnit {
     #[default]
-    #[value(SIUnit::ONE.times(METRE.unit(), 3).times(KILOGRAM.unit(), -1).times(SECOND.unit(), -2))]
+    #[value(METRE_CUBED_PER_KILOGRAM_SECOND_SQUARED.unit())]
     MetreCubedPerKilogramSecondSquared,
     #[value(GRAVITATIONAL_CONSTANT.unit())]
     GravitationalConstant,

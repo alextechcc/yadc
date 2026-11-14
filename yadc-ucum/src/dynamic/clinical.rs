@@ -15,7 +15,7 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AmountOfSubstanceUnit {
     #[default]
-    #[value(UcumUnit::ONE)]
+    #[value(ONE.unit())]
     One,
     #[value(EQUIVALENTS.unit())]
     Equivalents,
@@ -30,7 +30,7 @@ pub enum AmountOfSubstanceUnit {
 #[values(into(UcumUnit))]
 pub enum AmountOfSubstanceDissolvedParticlesUnit {
     #[default]
-    #[value(UcumUnit::ONE)]
+    #[value(ONE.unit())]
     One,
     #[value(OSMOLE.unit())]
     Osmole,
@@ -45,7 +45,7 @@ pub enum AmountOfSubstanceDissolvedParticlesUnit {
 #[values(into(UcumUnit))]
 pub enum CatalyticActivityUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(SECOND.unit(), -1))]
+    #[value(PER_SECOND.unit())]
     PerSecond,
     #[value(KATAL.unit())]
     Katal,
@@ -62,7 +62,7 @@ pub enum CatalyticActivityUnit {
 #[values(into(UcumUnit))]
 pub enum FluidResistanceUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -4).times(SECOND.unit(), -1).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_POW4_SECOND.unit())]
     GramPerMeterPow4Second,
     #[value(PERIPHERAL_VASCULAR_RESISTANCE_UNIT.unit())]
     PeripheralVascularResistanceUnit,
@@ -94,7 +94,7 @@ pub enum GaugeOfCathetersUnit {
 #[values(into(UcumUnit))]
 pub enum LineicNumberUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -1))]
+    #[value(PER_METER.unit())]
     PerMeter,
     #[value(MESH.unit())]
     Mesh,
@@ -109,7 +109,7 @@ pub enum LineicNumberUnit {
 #[values(into(UcumUnit))]
 pub enum MassConcentrationUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -3).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_CUBED.unit())]
     GramPerMeterCubed,
     #[value(GRAM_PERCENT.unit())]
     GramPercent,
@@ -124,7 +124,7 @@ pub enum MassConcentrationUnit {
 #[values(into(UcumUnit))]
 pub enum MetabolicCostOfPhysicalActivityUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3).times(SECOND.unit(), -1).times(GRAM.unit(), -1))]
+    #[value(METER_CUBED_PER_SECOND_GRAM.unit())]
     MeterCubedPerSecondGram,
     #[value(METABOLIC_EQUIVALENT.unit())]
     MetabolicEquivalent,
@@ -139,7 +139,7 @@ pub enum MetabolicCostOfPhysicalActivityUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    #[value(GRAM_PER_METER_SECOND_SQUARED.unit())]
     GramPerMeterSecondSquared,
     #[value(METER_OF_WATER_COLUMN.unit())]
     MeterOfWaterColumn,
@@ -203,7 +203,7 @@ pub enum ViewAreaInMicroscopeUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
-    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    #[value(METER_CUBED.unit())]
     MeterCubed,
     #[value(DROP.unit())]
     Drop,
