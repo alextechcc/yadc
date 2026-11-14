@@ -33,7 +33,7 @@ const EXACT: &str = include_str!("../templates/exact.rs");
 
 /// The unit type, as `src/unit.rs`. `__UNIT__` and `__QTY__` are the
 /// system's type names, `__F__` how many named units a unit holds and
-/// `__B__` how many base units the system has.
+/// `__B__` how many base units its dimension may combine.
 const UNIT: &str = include_str!("../templates/unit.rs");
 
 /// The SI prefixes: name, symbol, power of ten.
@@ -890,10 +890,6 @@ fn gen_lib_rs(ctx: &Context<'_>) -> String {
     }
     s += "];\n\n";
 
-    s += "/// The base units, in `[dim]` order: a unit's powers are counted in these.\n";
-    s += &format!("const BASES: [&str; {}] = [", ctx.bases.len());
-    s += &ctx.bases.iter().map(|b| format!("\"{}\"", rust_str(b.symbol))).collect::<Vec<_>>().join(", ");
-    s += "];\n\n";
     s += "/// The prefixes a unit is printed with: symbol, power of ten.\n";
     s += &format!("static PREFIXES: [(&str, i16); {}] = [\n", PREFIXES.len());
     for (_, symbol, exp) in PREFIXES {
@@ -1699,8 +1695,6 @@ units = [
             "pub const GRAM: Unit<{ (KILOGRAM / KILO).unit() }> = Unit::ONE;"
         ));
         assert!(lib.contains("(\"μ\", -6),"));
-        // `SIUnit::base("m")` finds its slot in this list.
-        assert!(lib.contains("const BASES: [&str; "));
         assert!(lib.contains("(\"kg\", \"g\", Exact::dec(1, -3)),"));
     }
 

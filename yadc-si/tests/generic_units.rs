@@ -153,3 +153,17 @@ fn number_over_unit_and_padding() {
     assert_eq!(format!("[{:<4}]", KILOMETRE.unit()), "[km  ]");
     assert_eq!(format!("{:.1}", KILOMETRE.unit()), "km");
 }
+
+/// A base unit of the user's own: a dimension yadc-si does not list.
+const PIXEL: Unit<{ SIUnit::base("px") }, BASE> = Unit::ONE;
+/// A unit of it: a thousand pixels.
+const KILOPIXEL: Unit<{ (KILO * PIXEL).unit() }> = Unit::ONE;
+
+#[test]
+fn a_users_own_base_unit_is_a_dimension() {
+    assert!(!PIXEL.unit().same_dimension(METRE.unit()));
+    let density = (300.0_f64 * PIXEL) / (2.0_f64 * METRE);
+    assert_eq!(density.to_string(), "150 px/m");
+    let width: SIQuantity<{ PIXEL.unit() }, f64, BASE> = (1.5_f64 * KILOPIXEL).into();
+    assert_eq!(width.to_string(), "1500 px");
+}

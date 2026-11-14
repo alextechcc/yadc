@@ -6,7 +6,7 @@ use core::ops::{Add, Div, Mul, Sub};
 
 /// At most this many named units in a product.
 const F: usize = 7;
-/// The base units: a unit's dimension is its powers of these.
+/// At most this many base units in a unit's dimension.
 const B: usize = 7;
 
 /// A unit: an exact scale times a product of named units to powers -
@@ -27,8 +27,9 @@ const B: usize = 7;
 pub struct UcumUnit {
     scale: Exact,
     factors: [Factor; F],
-    /// Its dimension: powers of the base units, in `crate::BASES` order.
-    powers: [i8; B],
+    /// Its dimension: base-unit symbols with their powers, sorted, empties
+    /// last.
+    powers: [(&'static str, i8); B],
     zero: Exact,
     log_base: Exact,
     log_per: Exact,
@@ -86,30 +87,80 @@ const fn pow(x: Exact, n: i8) -> Exact {
     r
 }
 
+/// Adds `sign` times each base unit of `from` into `into`: merged, without
+/// zeros, sorted, empties last. `None` when there is no room.
+const fn merge<const K: usize>(
+    mut into: [(&'static str, i8); K],
+    from: [(&'static str, i8); K],
+    sign: i8,
+) -> Option<[(&'static str, i8); K]> {
+    let mut i = 0;
+    while i < K {
+        if from[i].1 != 0 {
+            let mut j = 0;
+            let mut placed = false;
+            while j < K && !placed {
+                if into[j].1 != 0 && str_cmp(into[j].0, from[i].0) == 0 {
+                    into[j].1 += sign * from[i].1;
+                    placed = true;
+                }
+                j += 1;
+            }
+            j = 0;
+            while j < K && !placed {
+                if into[j].1 == 0 {
+                    into[j] = (from[i].0, sign * from[i].1);
+                    placed = true;
+                }
+                j += 1;
+            }
+            if !placed {
+                return None;
+            }
+        }
+        i += 1;
+    }
+    let mut k = 0;
+    while k < K {
+        if into[k].1 == 0 {
+            into[k].0 = "";
+        }
+        k += 1;
+    }
+    let mut a = 0;
+    while a < K {
+        let mut b = a + 1;
+        while b < K {
+            if (into[a].1 == 0 && into[b].1 != 0)
+                || (into[a].1 != 0 && into[b].1 != 0 && str_cmp(into[b].0, into[a].0) < 0)
+            {
+                into.swap(a, b);
+            }
+            b += 1;
+        }
+        a += 1;
+    }
+    Some(into)
+}
+
 impl UcumUnit {
     /// The unit of a plain number: no named units, scale one.
     pub const ONE: UcumUnit = UcumUnit {
         scale: Exact::ONE,
         factors: [Factor::NONE; F],
-        powers: [0; B],
+        powers: [("", 0); B],
         zero: Exact::ZERO,
         log_base: Exact::ZERO,
         log_per: Exact::ZERO,
     };
 
-    /// A base unit: a dimension of its own, `METRE`'s `"m"`, one of
-    /// `crate::BASES`. A panic (in a constant, a compile error) for any other
-    /// symbol.
+    /// A base unit: a dimension of its own, named by its symbol - `METRE`'s
+    /// `"m"`, or any other: `base("px")` is a new dimension.
     pub const fn base(symbol: &'static str) -> UcumUnit {
-        let mut i = 0;
-        while i < B && str_cmp(crate::BASES[i], symbol) != 0 {
-            i += 1;
-        }
-        assert!(i < B, "not a base unit of this system");
         let mut u = UcumUnit::ONE;
         u.factors[0].symbol = symbol;
         u.factors[0].power = 1;
-        u.powers[i] = 1;
+        u.powers[0] = (symbol, 1);
         u
     }
 
@@ -167,11 +218,10 @@ impl UcumUnit {
         }
         let mut out = self;
         out.scale = self.scale * pow(other.scale, n);
-        let mut k = 0;
-        while k < B {
-            out.powers[k] += n * other.powers[k];
-            k += 1;
-        }
+        out.powers = match merge(self.powers, other.powers, n) {
+            Some(powers) => powers,
+            None => return None,
+        };
         let mut i = 0;
         while i < F {
             let o = other.factors[i];
@@ -256,14 +306,21 @@ impl UcumUnit {
     /// What it is in base units - its dimension: the base symbols and their
     /// powers.
     pub const fn in_base(self) -> ([&'static str; B], [i8; B]) {
-        (crate::BASES, self.powers)
+        let (mut symbols, mut powers) = ([""; B], [0; B]);
+        let mut i = 0;
+        while i < B {
+            (symbols[i], powers[i]) = self.powers[i];
+            i += 1;
+        }
+        (symbols, powers)
     }
 
     /// Whether two units measure the same dimension.
     pub const fn same_dimension(self, other: UcumUnit) -> bool {
+        let (a, b) = (self.powers, other.powers);
         let mut i = 0;
         while i < B {
-            if self.powers[i] != other.powers[i] {
+            if a[i].1 != b[i].1 || (a[i].1 != 0 && str_cmp(a[i].0, b[i].0) != 0) {
                 return false;
             }
             i += 1;
