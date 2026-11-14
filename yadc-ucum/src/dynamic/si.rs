@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AmountOfSubstanceUnit {
     #[default]
+    #[value(UcumUnit::ONE)]
+    One,
     #[value(MOLE.unit())]
     Mole,
 }
@@ -41,6 +43,8 @@ pub enum DoseEquivalentUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricCapacitanceUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(SECOND.unit(), 2).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    SecondSquaredCoulombSquaredPerMeterSquaredGram,
     #[value(FARAD.unit())]
     Farad,
 }
@@ -67,6 +71,8 @@ pub enum ElectricChargeUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricConductanceUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(SECOND.unit(), 1).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    SecondCoulombSquaredPerMeterSquaredGram,
     #[value(SIEMENS.unit())]
     Siemens,
 }
@@ -93,6 +99,8 @@ pub enum ElectricCurrentUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricPotentialUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    MeterSquaredGramPerSecondSquaredCoulomb,
     #[value(VOLT.unit())]
     Volt,
 }
@@ -106,6 +114,8 @@ pub enum ElectricPotentialUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricResistanceUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -2))]
+    MeterSquaredGramPerSecondCoulombSquared,
     #[value(OHM.unit())]
     Ohm,
 }
@@ -119,6 +129,8 @@ pub enum ElectricResistanceUnit {
 #[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    MeterSquaredGramPerSecondSquared,
     #[value(JOULE.unit())]
     Joule,
 }
@@ -145,6 +157,8 @@ pub enum EnergyDoseUnit {
 #[values(into(UcumUnit))]
 pub enum ForceUnit {
     #[default]
+    #[value(METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    MeterGramPerSecondSquared,
     #[value(NEWTON.unit())]
     Newton,
 }
@@ -184,6 +198,8 @@ pub enum IlluminanceUnit {
 #[values(into(UcumUnit))]
 pub enum InductanceUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(GRAM.unit(), 1).times(COULOMB.unit(), -2))]
+    MeterSquaredGramPerCoulombSquared,
     #[value(HENRY.unit())]
     Henry,
 }
@@ -236,6 +252,8 @@ pub enum LuminousIntensityUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticFluxUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    MeterSquaredGramPerSecondCoulomb,
     #[value(WEBER.unit())]
     Weber,
 }
@@ -249,6 +267,8 @@ pub enum MagneticFluxUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticFluxDensityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    GramPerSecondCoulomb,
     #[value(TESLA.unit())]
     Tesla,
 }
@@ -288,6 +308,8 @@ pub enum PlaneAngleUnit {
 #[values(into(UcumUnit))]
 pub enum PowerUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -3).times(GRAM.unit(), 1))]
+    MeterSquaredGramPerSecondCubed,
     #[value(WATT.unit())]
     Watt,
 }
@@ -301,6 +323,8 @@ pub enum PowerUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    GramPerMeterSecondSquared,
     #[value(PASCAL.unit())]
     Pascal,
 }

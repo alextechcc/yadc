@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    MeterSquared,
     #[value(ARE.unit())]
     Are,
 }
@@ -28,6 +30,8 @@ pub enum AreaUnit {
 #[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    MeterSquaredGramPerSecondSquared,
     #[value(ELECTRONVOLT.unit())]
     Electronvolt,
 }
@@ -41,6 +45,8 @@ pub enum EnergyUnit {
 #[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
+    #[value(METER.unit())]
+    Meter,
     #[value(ASTRONOMIC_UNIT.unit())]
     AstronomicUnit,
     #[value(PARSEC.unit())]
@@ -56,6 +62,8 @@ pub enum LengthUnit {
 #[values(into(UcumUnit))]
 pub enum MassUnit {
     #[default]
+    #[value(GRAM.unit())]
+    Gram,
     #[value(TONNE.unit())]
     Tonne,
     #[value(UNIFIED_ATOMIC_MASS_UNIT.unit())]
@@ -71,6 +79,8 @@ pub enum MassUnit {
 #[values(into(UcumUnit))]
 pub enum PlaneAngleUnit {
     #[default]
+    #[value(RADIAN.unit())]
+    Radian,
     #[value(GRADE.unit())]
     Grade,
     #[value(DEGREE.unit())]
@@ -90,6 +100,8 @@ pub enum PlaneAngleUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    GramPerMeterSecondSquared,
     #[value(BAR.unit())]
     Bar,
 }
@@ -103,6 +115,8 @@ pub enum PressureUnit {
 #[values(into(UcumUnit))]
 pub enum TimeUnit {
     #[default]
+    #[value(SECOND.unit())]
+    Second,
     #[value(TIME_MINUTE.unit())]
     Minute,
     #[value(HOUR.unit())]
@@ -138,6 +152,8 @@ pub enum TimeUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    MeterCubed,
     #[value(LITER.unit())]
     Liter,
 }

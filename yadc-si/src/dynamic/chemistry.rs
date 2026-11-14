@@ -30,6 +30,8 @@ pub enum AmountOfSubstanceUnit {
 #[values(into(SIUnit))]
 pub enum MolarHeatCapacityUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), 2).times(KILOGRAM.unit(), 1).times(SECOND.unit(), -2).times(KELVIN.unit(), -1).times(MOLE.unit(), -1))]
+    MetreSquaredKilogramPerSecondSquaredKelvinMole,
     #[value(MOLAR_GAS_CONSTANT.unit())]
     MolarGasConstant,
 }
@@ -71,6 +73,8 @@ pub enum RadioactivityUnit {
 #[values(into(SIUnit))]
 pub enum InverseAmountOfSubstanceUnit {
     #[default]
+    #[value(SIUnit::ONE.times(MOLE.unit(), -1))]
+    PerMole,
     #[value(AVOGADRO_CONSTANT.unit())]
     AvogadroConstant,
 }

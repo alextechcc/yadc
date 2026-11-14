@@ -7,7 +7,7 @@ unit_type    = "SIUnit"
 # picker needs (compare the chosen unit, print it).
 unit_derives = ["Copy", "Clone", "PartialEq", "Eq", "Hash", "Debug"]
 # The coherent units printed by name rather than as products of base units:
-# a force prints `N`, not `kg·m·s^-2`.
+# a force prints `N`, not `kg·m/s^2`.
 named = [
     "N", "J", "W", "Pa", "Hz", "C", "V", "F", "Ω", "S", "Wb", "T", "H",
     "sr", "lx", "kat",

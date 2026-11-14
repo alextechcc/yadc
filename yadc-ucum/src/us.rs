@@ -3,13 +3,7 @@
 #[allow(unused_imports)]
 use crate::*;
 
-/// An area, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Area<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 2) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Area` is `crate::Area`.
 
 /// Acre (`[acr_us]`), a unit of `Area`: `n` of them is `n · 627264e5 / 15499969` base units.
 pub const ACRE: Qty<
@@ -21,7 +15,7 @@ pub const ACRE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Square rod (`[srd_us]`), a unit of `Area`: `n` of them is `n · 39204e4 / 15499969` base units.
@@ -34,7 +28,7 @@ pub const SQUARE_ROD: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Square mile (`[smi_us]`), a unit of `Area`: `n` of them is `n · 40144896e6 / 15499969` base units.
@@ -47,7 +41,7 @@ pub const SQUARE_MILE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Section (`[sct]`), a unit of `Area`: `n` of them is `n · 40144896e6 / 15499969` base units.
@@ -60,7 +54,7 @@ pub const SECTION: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Township (`[twp]`), a unit of `Area`: `n` of them is `n · 1445216256e6 / 15499969` base units.
@@ -73,7 +67,7 @@ pub const TOWNSHIP: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A dry volume, in `N`s of the unit `U`: by default its coherent unit, a
@@ -81,8 +75,8 @@ pub const TOWNSHIP: Qty<
 pub type DryVolume<
     N,
     const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 3) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Bushel (`[bu_us]`), a unit of `DryVolume`: `n` of them is `n · 3523907016688e-14` base units.
 pub const BUSHEL: Qty<
@@ -94,7 +88,7 @@ pub const BUSHEL: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Historical winchester gallon (`[gal_wi]`), a unit of `DryVolume`: `n` of them is `n · 440488377086e-14` base units.
@@ -107,7 +101,7 @@ pub const HISTORICAL_WINCHESTER_GALLON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Peck (`[pk_us]`), a unit of `DryVolume`: `n` of them is `n · 880976754172e-14` base units.
@@ -120,7 +114,7 @@ pub const PECK: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Dry quart (`[dqt_us]`), a unit of `DryVolume`: `n` of them is `n · 1101220942715e-15` base units.
@@ -133,7 +127,7 @@ pub const DRY_QUART: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Dry pint (`[dpt_us]`), a unit of `DryVolume`: `n` of them is `n · 5506104713575e-16` base units.
@@ -146,7 +140,7 @@ pub const DRY_PINT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A fluid volume, in `N`s of the unit `U`: by default its coherent unit, a
@@ -154,8 +148,8 @@ pub const DRY_PINT: Qty<
 pub type FluidVolume<
     N,
     const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 3) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Queen Anne's wine gallon (`[gal_us]`), a unit of `FluidVolume`: `n` of them is `n · 3785411784e-12` base units.
 pub const QUEEN_ANNE_S_WINE_GALLON: Qty<
@@ -167,7 +161,7 @@ pub const QUEEN_ANNE_S_WINE_GALLON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Barrel (`[bbl_us]`), a unit of `FluidVolume`: `n` of them is `n · 158987294928e-12` base units.
@@ -180,7 +174,7 @@ pub const BARREL: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Quart (`[qt_us]`), a unit of `FluidVolume`: `n` of them is `n · 946352946e-12` base units.
@@ -193,7 +187,7 @@ pub const QUART: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Pint (`[pt_us]`), a unit of `FluidVolume`: `n` of them is `n · 473176473e-12` base units.
@@ -206,7 +200,7 @@ pub const PINT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Gill (`[gil_us]`), a unit of `FluidVolume`: `n` of them is `n · 11829411825e-14` base units.
@@ -219,7 +213,7 @@ pub const GILL: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Fluid ounce (`[foz_us]`), a unit of `FluidVolume`: `n` of them is `n · 295735295625e-16` base units.
@@ -232,7 +226,7 @@ pub const FLUID_OUNCE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Fluid dram (`[fdr_us]`), a unit of `FluidVolume`: `n` of them is `n · 36966911953125e-19` base units.
@@ -245,7 +239,7 @@ pub const FLUID_DRAM: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Minim (`[min_us]`), a unit of `FluidVolume`: `n` of them is `n · 61611519921875e-21` base units.
@@ -258,7 +252,7 @@ pub const MINIM: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Cord (`[crd_us]`), a unit of `FluidVolume`: `n` of them is `n · 3624556363776e-12` base units.
@@ -271,7 +265,7 @@ pub const CORD: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Metric fluid ounce (`[foz_m]`), a unit of `FluidVolume`: `n` of them is `n · 3e-5` base units.
@@ -284,33 +278,30 @@ pub const METRIC_FLUID_OUNCE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A length, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Length<N, const U: UcumUnit = { METER.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `Length` is `crate::Length`.
 
 /// Foot (`[ft_us]`), a unit of `Length`: `n` of them is `n · 12e2 / 3937` base units.
 pub const FOOT: Qty<
     { UcumUnit::scaled("[ft_us]", Exact::int(1200) / Exact::int(3937), METER.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Yard (`[yd_us]`), a unit of `Length`: `n` of them is `n · 36e2 / 3937` base units.
 pub const YARD: Qty<
     { UcumUnit::scaled("[yd_us]", Exact::int(3600) / Exact::int(3937), METER.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Inch (`[in_us]`), a unit of `Length`: `n` of them is `n · 1e2 / 3937` base units.
 pub const INCH: Qty<
     { UcumUnit::scaled("[in_us]", Exact::int(100) / Exact::int(3937), METER.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Rod (`[rd_us]`), a unit of `Length`: `n` of them is `n · 198e2 / 3937` base units.
@@ -323,7 +314,7 @@ pub const ROD: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Surveyor's chain (`[ch_us]`), a unit of `Length`: `n` of them is `n · 792e2 / 3937` base units.
@@ -336,14 +327,14 @@ pub const SURVEYOR_S_CHAIN: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Link for Gunter's chain (`[lk_us]`), a unit of `Length`: `n` of them is `n · 792 / 3937` base units.
 pub const LINK_FOR_GUNTER_S_CHAIN: Qty<
     { UcumUnit::scaled("[lk_us]", Exact::int(792) / Exact::int(3937), METER.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Engineer's chain (`[rch_us]`), a unit of `Length`: `n` of them is `n · 12e4 / 3937` base units.
@@ -356,7 +347,7 @@ pub const ENGINEER_S_CHAIN: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Link for Ramden's chain (`[rlk_us]`), a unit of `Length`: `n` of them is `n · 12e2 / 3937` base units.
@@ -369,7 +360,7 @@ pub const LINK_FOR_RAMDEN_S_CHAIN: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Fathom (`[fth_us]`), a unit of `Length`: `n` of them is `n · 72e2 / 3937` base units.
@@ -382,7 +373,7 @@ pub const FATHOM: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Furlong (`[fur_us]`), a unit of `Length`: `n` of them is `n · 792e3 / 3937` base units.
@@ -395,7 +386,7 @@ pub const FURLONG: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Mile (`[mi_us]`), a unit of `Length`: `n` of them is `n · 6336e3 / 3937` base units.
@@ -408,119 +399,110 @@ pub const MILE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Mil (`[mil_us]`), a unit of `Length`: `n` of them is `n · 1 / 39370` base units.
 pub const MIL: Qty<
     { UcumUnit::scaled("[mil_us]", Exact::int(1) / Exact::int(39370), METER.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A mass, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Mass<N, const U: UcumUnit = { GRAM.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `Mass` is `crate::Mass`.
 
 /// Grain (`[gr]`), a unit of `Mass`: `n` of them is `n · 6479891e-8` base units.
 pub const GRAIN: Qty<
     { UcumUnit::scaled("[gr]", Exact::dec(6479891, -8), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Pound (`[lb_av]`), a unit of `Mass`: `n` of them is `n · 45359237e-5` base units.
 pub const POUND: Qty<
     { UcumUnit::scaled("[lb_av]", Exact::dec(45359237, -5), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Ounce (`[oz_av]`), a unit of `Mass`: `n` of them is `n · 28349523125e-9` base units.
 pub const OUNCE: Qty<
     { UcumUnit::scaled("[oz_av]", Exact::dec(28349523125, -9), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Dram (`[dr_av]`), a unit of `Mass`: `n` of them is `n · 17718451953125e-13` base units.
 pub const DRAM: Qty<
     { UcumUnit::scaled("[dr_av]", Exact::dec(17718451953125, -13), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// U.S. hundredweight (`[scwt_av]`), a unit of `Mass`: `n` of them is `n · 45359237e-3` base units.
 pub const US_HUNDREDWEIGHT: Qty<
     { UcumUnit::scaled("[scwt_av]", Exact::dec(45359237, -3), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// British hundredweight (`[lcwt_av]`), a unit of `Mass`: `n` of them is `n · 5080234544e-5` base units.
 pub const BRITISH_HUNDREDWEIGHT: Qty<
     { UcumUnit::scaled("[lcwt_av]", Exact::dec(5080234544, -5), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// U.S. ton (`[ston_av]`), a unit of `Mass`: `n` of them is `n · 90718474e-2` base units.
 pub const US_TON: Qty<
     { UcumUnit::scaled("[ston_av]", Exact::dec(90718474, -2), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// British ton (`[lton_av]`), a unit of `Mass`: `n` of them is `n · 10160469088e-4` base units.
 pub const BRITISH_TON: Qty<
     { UcumUnit::scaled("[lton_av]", Exact::dec(10160469088, -4), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// British stone (`[stone_av]`), a unit of `Mass`: `n` of them is `n · 635029318e-5` base units.
 pub const BRITISH_STONE: Qty<
     { UcumUnit::scaled("[stone_av]", Exact::dec(635029318, -5), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Pennyweight (`[pwt_tr]`), a unit of `Mass`: `n` of them is `n · 155517384e-8` base units.
 pub const PENNYWEIGHT: Qty<
     { UcumUnit::scaled("[pwt_tr]", Exact::dec(155517384, -8), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Scruple (`[sc_ap]`), a unit of `Mass`: `n` of them is `n · 12959782e-7` base units.
 pub const SCRUPLE: Qty<
     { UcumUnit::scaled("[sc_ap]", Exact::dec(12959782, -7), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Drachm (`[dr_ap]`), a unit of `Mass`: `n` of them is `n · 38879346e-7` base units.
 pub const DRACHM: Qty<
     { UcumUnit::scaled("[dr_ap]", Exact::dec(38879346, -7), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Metric ounce (`[oz_m]`), a unit of `Mass`: `n` of them is `n · 28` base units.
 pub const METRIC_OUNCE: Qty<
     { UcumUnit::scaled("[oz_m]", Exact::int(28), GRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A volume, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Volume<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), 3) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Volume` is `crate::Volume`.
 
 /// Tablespoon (`[tbs_us]`), a unit of `Volume`: `n` of them is `n · 1478676478125e-17` base units.
 pub const TABLESPOON: Qty<
@@ -532,7 +514,7 @@ pub const TABLESPOON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Teaspoon (`[tsp_us]`), a unit of `Volume`: `n` of them is `n · 492892159375e-17` base units.
@@ -545,7 +527,7 @@ pub const TEASPOON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Cup (`[cup_us]`), a unit of `Volume`: `n` of them is `n · 2365882365e-13` base units.
@@ -558,7 +540,7 @@ pub const CUP: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Metric cup (`[cup_m]`), a unit of `Volume`: `n` of them is `n · 24e-5` base units.
@@ -571,7 +553,7 @@ pub const METRIC_CUP: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Metric teaspoon (`[tsp_m]`), a unit of `Volume`: `n` of them is `n · 5e-6` base units.
@@ -584,7 +566,7 @@ pub const METRIC_TEASPOON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// Metric tablespoon (`[tbs_m]`), a unit of `Volume`: `n` of them is `n · 15e-6` base units.
@@ -597,5 +579,5 @@ pub const METRIC_TABLESPOON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;

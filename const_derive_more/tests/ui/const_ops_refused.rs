@@ -36,8 +36,11 @@ const impl Sub for Tag {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
-#[const_ops(one = Tag(0))]
-pub struct Tagged<const P: Tag, N>(N);
+pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+
+/// Two lifted parameters: an operator exists only where both have a result.
+#[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
+pub struct Two<#[ops(one = Tag(0))] const P: Tag, #[ops(one = Tag(0))] const Q: Tag, N>(N);
 
 fn main() {
     let a: Tagged<{ Tag(1) }, f64> = Tagged(1.0);
@@ -49,4 +52,8 @@ fn main() {
     let _ = frozen / a;
     let mut c = a;
     c *= b;
+    // The first parameters multiply; the second do not.
+    let x: Two<{ Tag(1) }, { Tag(1) }, f64> = Two(1.0);
+    let y: Two<{ Tag(1) }, { Tag(9) }, f64> = Two(1.0);
+    let _ = x * y;
 }

@@ -7,8 +7,8 @@ error[E0277]: cannot add: `+` of these parameters has no result
 help: the trait `AddResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
   --> tests/ui/const_ops_refused_mixed.rs:41:1
    |
-41 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f32>` to implement `Add<Tagged<{ Tag(2) }, f64>>`
   --> tests/ui/const_ops_refused_mixed.rs:39:41
    |
@@ -26,8 +26,8 @@ error[E0277]: cannot subtract: `-` of these parameters has no result
 help: the trait `SubResult<Tagged<{ Tag(1) }, f64>>` is not implemented for `Tagged<{ Tag(2) }, f64>`
   --> tests/ui/const_ops_refused_mixed.rs:41:1
    |
-41 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(2) }, f64>` to implement `Sub<Tagged<{ Tag(1) }, f32>>`
   --> tests/ui/const_ops_refused_mixed.rs:39:41
    |
@@ -45,8 +45,8 @@ error[E0277]: cannot multiply: `*` of these parameters has no result
 help: the trait `MulResult<Tagged<{ Tag(9) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
   --> tests/ui/const_ops_refused_mixed.rs:41:1
    |
-41 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f32>` to implement `Mul<Tagged<{ Tag(9) }, f64>>`
   --> tests/ui/const_ops_refused_mixed.rs:39:41
    |
@@ -64,8 +64,8 @@ error[E0277]: cannot add-assign `Tagged<{ Tag(2) }, f64>` to `Tagged<{ Tag(1) },
 help: the trait `AddAssignResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
   --> tests/ui/const_ops_refused_mixed.rs:41:1
    |
-41 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `AddAssign<Tagged<{ Tag(2) }, f64>>`
   --> tests/ui/const_ops_refused_mixed.rs:39:41
    |
@@ -83,8 +83,8 @@ error[E0277]: cannot subtract-assign `Tagged<{ Tag(2) }, f64>` from `Tagged<{ Ta
 help: the trait `SubAssignResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
   --> tests/ui/const_ops_refused_mixed.rs:41:1
    |
-41 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `SubAssign<Tagged<{ Tag(2) }, f64>>`
   --> tests/ui/const_ops_refused_mixed.rs:39:41
    |
@@ -102,8 +102,8 @@ error[E0277]: cannot divide-assign `Tagged<{ Tag(1) }, f64>` by `Tagged<{ Tag(9)
 help: the trait `DivAssignResult<Tagged<{ Tag(9) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
   --> tests/ui/const_ops_refused_mixed.rs:41:1
    |
-41 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+41 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `DivAssign<Tagged<{ Tag(9) }, f64>>`
   --> tests/ui/const_ops_refused_mixed.rs:39:41
    |

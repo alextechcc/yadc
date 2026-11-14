@@ -1048,19 +1048,24 @@ pub fn derive_dynamic(input: TokenStream) -> TokenStream {
 /// does, prints and parses as it, and converts through it.
 ///
 /// ```ignore
+/// trait Scale<N> {
+///     fn scale(&self, n: N) -> N;
+///     fn unscale(&self, n: N) -> N;
+/// }
+///
 /// #[derive(Copy, Clone, Values)]
 /// #[values(
-///     delegate(Unit<Length<N>, N> {
-///         fn quantity(&self, value: N) -> Length<N>;
-///         fn value(&self, quantity: Length<N>) -> N;
+///     delegate(Scale<N> {
+///         fn scale(&self, n: N) -> N;
+///         fn unscale(&self, n: N) -> N;
 ///     }),
-///     into(AnyUnit),
+///     into(AnyFactor),
 ///     for<N: Number>
 /// )]
-/// enum LengthUnit { #[value(METRE)] Metre, #[value(MILE)] Mile }
+/// enum Zoom { #[value(DOUBLE)] Double, #[value(HALF)] Half }
 ///
-/// let setting: LengthUnit = "mi".parse()?;   // the value that prints as "mi"
-/// let d = setting.quantity(3.0);             // as `MILE.quantity(3.0)`
+/// let setting: Zoom = "×2".parse()?;   // the value that prints as "×2"
+/// let x = setting.scale(3.0);          // as `DOUBLE.scale(3.0)`
 /// ```
 ///
 /// Each `#[value(..)]` is an expression - a constant, usually - and the
@@ -1081,13 +1086,13 @@ pub fn derive_dynamic(input: TokenStream) -> TokenStream {
 /// By hand:
 ///
 /// ```ignore
-/// impl<N: Number> Unit<Length<N>, N> for LengthUnit {
-///     fn quantity(&self, value: N) -> Length<N> {
-///         match self { LengthUnit::Metre => METRE.quantity(value), LengthUnit::Mile => MILE.quantity(value) }
+/// impl<N: Number> Scale<N> for Zoom {
+///     fn scale(&self, n: N) -> N {
+///         match self { Zoom::Double => DOUBLE.scale(n), Zoom::Half => HALF.scale(n) }
 ///     }
-///     fn value(&self, quantity: Length<N>) -> N { /* alike */ }
+///     fn unscale(&self, n: N) -> N { /* alike */ }
 /// }
-/// // From<LengthUnit> for AnyUnit; Display; FromStr
+/// // From<Zoom> for AnyFactor; Display; FromStr
 /// ```
 #[proc_macro_derive(Values, attributes(const_derive_more, values, value))]
 pub fn derive_values(input: TokenStream) -> TokenStream {
@@ -1100,9 +1105,9 @@ pub fn derive_values(input: TokenStream) -> TokenStream {
 
 // ===== ConstOps ==============================================================
 
-/// The std operators of a struct holding a value and a const parameter,
-/// lifted over both: the value by its own operators, the parameter by its
-/// type's.
+/// The std operators of a struct holding a value and const parameters,
+/// lifted over them: the value by its own operators, each lifted parameter
+/// by its type's.
 ///
 /// ```ignore
 /// #[derive_const(PartialEq)]
@@ -1112,38 +1117,38 @@ pub fn derive_values(input: TokenStream) -> TokenStream {
 /// // likewise `Div`, `Add`, `Sub`, each `Output = Option<Tag>`
 ///
 /// #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-/// #[const_ops(one = Tag(0), from(i32 => f64))]
-/// pub struct Tagged<const P: Tag, N>(N);
+/// #[const_ops(from(i32 => f64))]
+/// pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
 /// ```
 ///
-/// For `struct S<const P: T, .., N>(N)` - the lifted const parameter marked
-/// `#[ops]`, or the struct's only const parameter; the value the only field
-/// that is not `PhantomData`, or the one marked `#[value]`; any other
-/// generic parameters passed through - it writes:
+/// For `struct S<const P: T, .., N>(N)` - each lifted const parameter
+/// marked `#[ops(one = EXPR)]`, `EXPR` its value in a plain number; the
+/// value the only field that is not `PhantomData`, or the one marked
+/// `#[value]`; any other generic parameters passed through - it writes:
 ///
 /// - `+ - * /` between members, `S<A, N> op S<B, N>` (and `&S<B, N>`): the
-///   values combined by `N`'s operator, the parameter by `T`'s own
-///   (`impl const Mul for T { type Output = Option<T> }`), the result
-///   `S<{ A * B }, N>`. The impl exists only where `T`'s operator gives
-///   `Some`.
-/// - `+= -= *= /=` between members, where `T`'s operator gives the left
-///   parameter back; `*= n` and `/= n` by a number.
-/// - `S * n`, `S / n`, `-S`; and `n * S` for every primitive `n` (and every
-///   number type `from(..)` lists).
+///   values combined by `N`'s operator, each lifted parameter by its type's
+///   own (`impl const Mul for T { type Output = Option<T> }`), the result
+///   `S<{ A * B }, N>`. The impl exists only where every lifted parameter's
+///   operator gives `Some`; where one gives `None`, its result type holds
+///   that parameter's `one`, and no impl names it.
+/// - `+= -= *= /=` between members, where every lifted parameter's operator
+///   gives the left one back; `*= n` and `/= n` by a number.
+/// - `S * n`, `S / n`, `-S`; and `n * S` and `n / S` (`S<{ one / P }, n>`)
+///   for every primitive `n`, and `n * S` for every number type `from(..)`
+///   lists.
 /// - `Sum` (owned and borrowed), seeded with `N::default()`, where `+=` of
 ///   the member and itself exists.
-/// - `From<S<ONE, n>> for n`, a member of the plain number's parameter to
-///   its number, for every primitive `n`; and `From<S<P, a>> for S<P, b>`
-///   for every lossless primitive `From<a> for b`.
+/// - `From<S<P, a>> for S<P, b>` for every lossless primitive `From<a> for
+///   b`.
 /// - `#[const_ops(from(M => N, ..))]`: members counted in `M` meet members
 ///   counted in `N` - `+ - * /`, `+= -=` into the `N` side, scaling by an
-///   `N` from either side, `PartialEq` and `PartialOrd` both ways round,
-///   `From<S<P, M>> for S<P, N>` and `From<S<ONE, M>> for N` - the result
-///   counted in `N`, the `M` side converted with std `From<M> for N`.
+///   `N` from either side, `PartialEq` and `PartialOrd` both ways round, and
+///   `From<S<P, M>> for S<P, N>` - the result counted in `N`, the `M` side
+///   converted with std `From<M> for N`.
 ///
-/// `#[const_ops(one = EXPR)]` names `ONE`, the parameter of a plain number: a
-/// result type where `T`'s operator gives `None` (that impl does not exist)
-/// and the parameter `From<S<ONE, n>> for n` reads.
+/// A member's number leaves it through the system's own impls: what a
+/// member of a plain number is worth depends on what its parameters mean.
 ///
 /// A refused operator fails with a message saying which, at the operator:
 /// "cannot add: `+` of these parameters has no result". The checks behind
@@ -1154,8 +1159,8 @@ pub fn derive_values(input: TokenStream) -> TokenStream {
 /// Every impl is a `const impl` with `[const]` bounds on `N`, except `Sum`
 /// and the comparisons across number types. The defining crate needs
 /// `generic_const_exprs`, `adt_const_params`, `const_trait_impl`,
-/// `const_ops`, `const_cmp`, `const_destruct` and `const_convert`, and `T`
-/// a const `PartialEq`.
+/// `const_ops`, `const_cmp`, `const_destruct` and `const_convert`, and each
+/// `T` a const `PartialEq`.
 #[proc_macro_derive(ConstOps, attributes(const_ops, ops, value))]
 pub fn derive_const_ops(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

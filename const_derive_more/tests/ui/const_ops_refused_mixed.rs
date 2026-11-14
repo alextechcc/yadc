@@ -37,8 +37,8 @@ const impl Sub for Tag {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
-#[const_ops(one = Tag(0), from(f32 => f64))]
-pub struct Tagged<const P: Tag, N>(N);
+#[const_ops(from(f32 => f64))]
+pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
 
 fn main() {
     let a32: Tagged<{ Tag(1) }, f32> = Tagged(1.0);

@@ -28,7 +28,7 @@ use core::fmt;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PressureUnit};
 use yadc_si::mechanical::{Area, Force, NEWTON, PASCAL, Pressure};
-use yadc_si::{SIQuantity, SIUnit};
+use yadc_si::{BASE, SIQuantity, SIUnit};
 
 /// A quantity and the unit it is shown in.
 #[derive(Clone, Copy, Debug, Members, Via)]
@@ -56,11 +56,11 @@ enum Measurement {
 }
 
 /// `n` of a unit chosen at run time, as a quantity in base units `U`.
-fn quantity<const U: SIUnit>(unit: impl Into<SIUnit>, n: f64) -> SIQuantity<U, f64, true> {
+fn quantity<const U: SIUnit>(unit: impl Into<SIUnit>, n: f64) -> SIQuantity<U, f64, BASE> {
     let value = unit.into().to_base(n);
     SIQuantity::try_from(DynamicSIQuantity {
         unit: U,
-        is_base: true,
+        is_base: BASE,
         value,
     })
     .unwrap()
@@ -70,7 +70,7 @@ fn quantity<const U: SIUnit>(unit: impl Into<SIUnit>, n: f64) -> SIQuantity<U, f
 /// then the unit. Once, for every pair.
 fn show<const U: SIUnit>(
     f: &mut fmt::Formatter<'_>,
-    q: SIQuantity<U, f64, true>,
+    q: SIQuantity<U, f64, BASE>,
     unit: impl Into<SIUnit> + fmt::Display + Copy,
 ) -> fmt::Result {
     let base_units = DynamicSIQuantity::from(q).value;
@@ -110,7 +110,7 @@ fn main() {
     // Back to the bare quantity, checked.
     println!(
         "as Pa   = {:?}",
-        Pressure::<f64>::try_from(p).map(|q| f64::from(q / (1.0 * PASCAL)))
+        Pressure::<f64>::try_from(p).map(|q| f64::from(q / PASCAL))
     );
     println!("as N    = {:?}", Force::<f64>::try_from(p).is_ok());
 }

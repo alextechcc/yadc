@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    MeterSquared,
     #[value(SQUARE_INCH.unit())]
     SquareInch,
     #[value(SQUARE_FOOT.unit())]
@@ -34,6 +36,8 @@ pub enum AreaUnit {
 #[values(into(UcumUnit))]
 pub enum DepthOfWaterUnit {
     #[default]
+    #[value(METER.unit())]
+    Meter,
     #[value(FATHOM.unit())]
     Fathom,
 }
@@ -47,6 +51,8 @@ pub enum DepthOfWaterUnit {
 #[values(into(UcumUnit))]
 pub enum HeightOfHorsesUnit {
     #[default]
+    #[value(METER.unit())]
+    Meter,
     #[value(HAND.unit())]
     Hand,
 }
@@ -60,6 +66,8 @@ pub enum HeightOfHorsesUnit {
 #[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
+    #[value(METER.unit())]
+    Meter,
     #[value(INCH.unit())]
     Inch,
     #[value(FOOT.unit())]
@@ -83,6 +91,8 @@ pub enum LengthUnit {
 #[values(into(UcumUnit))]
 pub enum VelocityUnit {
     #[default]
+    #[value(METER.unit().times(SECOND.unit(), -1))]
+    MeterPerSecond,
     #[value(KNOT.unit())]
     Knot,
 }
@@ -96,6 +106,8 @@ pub enum VelocityUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    MeterCubed,
     #[value(CUBIC_INCH.unit())]
     CubicInch,
     #[value(CUBIC_FOOT.unit())]

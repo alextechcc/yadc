@@ -6,13 +6,14 @@
 use yadc_ucum::dynamic::heat::ThermodynamicTemperatureUnit;
 use yadc_ucum::dynamic::intcust::LengthUnit;
 use yadc_ucum::heat::{CELSIUS, ThermodynamicTemperature};
-use yadc_ucum::intcust::{FOOT, INCH, Length};
+use yadc_ucum::intcust::{FOOT, INCH};
+use yadc_ucum::Length;
 use yadc_ucum::si::{MOLE, NEWTON};
 use yadc_ucum::us::INCH as SURVEY_INCH;
-use yadc_ucum::{Exact, GRAM, KELVIN, METER, Qty, SECOND, UcumUnit};
+use yadc_ucum::{Base, Exact, GRAM, KELVIN, METER, NOT_BASE, Qty, SECOND, UcumUnit};
 
 /// A unit's size in base units, read from its constant's type.
-fn size<const U: UcumUnit, const IS_BASE: bool>(_: Qty<U, Exact, IS_BASE>) -> Exact {
+fn size<const U: UcumUnit, const B: Base>(_: Qty<U, Exact, B>) -> Exact {
     U.size()
 }
 
@@ -62,9 +63,10 @@ fn codes_print_and_parse() {
 #[test]
 fn quantities_convert_through_base_units() {
     let foot: Length<f64> = (2.0_f64 * FOOT).into();
-    let inches: Qty<{ INCH.unit() }, f64, false> = foot.into();
-    assert!((f64::from(inches / (1.0 * INCH)) - 24.0).abs() < 1e-12);
+    let inches: Qty<{ INCH.unit() }, f64, NOT_BASE> = foot.into();
+    assert!((f64::from(inches / INCH) - 24.0).abs() < 1e-12);
+    assert!((f64::from(foot / INCH) - 24.0).abs() < 1e-12);
     let t: ThermodynamicTemperature<f64> = (0.0_f64 * CELSIUS).into();
-    assert!((f64::from(t / (1.0 * KELVIN)) - 273.15).abs() < 1e-12);
+    assert!((f64::from(t / KELVIN) - 273.15).abs() < 1e-12);
     assert_eq!((24.0_f64 * INCH).to_string(), "24 [in_i]");
 }

@@ -55,8 +55,8 @@ const impl Sub for Dim {
 }
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-#[const_ops(one = Dim { m: 0, s: 0 }, from(f32 => f64), from(i32 => f64))]
-pub struct Qty<const D: Dim, N>(N);
+#[const_ops(from(f32 => f64), from(i32 => f64))]
+pub struct Qty<#[ops(one = Dim { m: 0, s: 0 })] const D: Dim, N>(N);
 
 type Length<N> = Qty<{ Dim { m: 1, s: 0 } }, N>;
 type Time<N> = Qty<{ Dim { m: 0, s: 1 } }, N>;
@@ -83,8 +83,8 @@ fn the_result_counts_in_the_target() {
     let speed: Velocity<f64> = total / HOUR_I;
     assert_eq!(speed, METRE / SECOND * (1250.0 / 3600.0));
     let back: Length<f64> = HOUR_I * speed;
-    assert!(f64::from((back - total) / METRE).abs() < 1e-9);
-    assert!((f64::from(LIMIT * HOUR_I / KILOMETRE_32) - 50.0).abs() < 1e-9);
+    assert!(((back - total) / METRE).0.abs() < 1e-9);
+    assert!(((LIMIT * HOUR_I / KILOMETRE_32).0 - 50.0).abs() < 1e-9);
 }
 
 #[test]
@@ -113,7 +113,7 @@ fn in_place() {
 #[test]
 fn converted() {
     assert_eq!(Length::<f64>::from(KILOMETRE_32), METRE * 1000.0);
-    assert_eq!(f64::from(HOUR_I / HOUR_I), 1.0);
+    assert_eq!((HOUR_I / HOUR_I).0, 1);
 }
 
 /// `Sum`, owned and borrowed.
@@ -128,8 +128,7 @@ fn sums() {
 /// A named value field beside a `PhantomData`, and a type parameter passed
 /// through.
 #[derive(Copy, Clone, PartialEq, Debug, ConstOps)]
-#[const_ops(one = Dim { m: 0, s: 0 })]
-pub struct Tagged<const D: Dim, N, F> {
+pub struct Tagged<#[ops(one = Dim { m: 0, s: 0 })] const D: Dim, N, F> {
     #[value]
     value: N,
     frame: PhantomData<F>,

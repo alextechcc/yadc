@@ -32,7 +32,7 @@ Crates like `serde` and `clap` let you define your own types and customize in de
 yadc is **patterns and a code generator**: no traits, no types. A unit system is a crate of yours, generated once from a TOML file and then yours to read, edit and extend, where code reads like dimensional algebra on a whiteboard:
 
 - **You own every type.** The unit type, the quantity type, the dynamic quantity, every unit and every quantity alias: all declared in your crate, with your names, your `pub`, your doc comments, your extra derives. Nothing in it is a yadc type.
-- **Units are in the type.** A quantity is a number and its unit: `SIQuantity<U, N, IS_BASE>(N)`, the unit `U` a const parameter. `2.0 * KILOMETRE` is a number of kilometres; `.into()` converts it into the base unit its target type names. Base units multiply into base units, so `mass * acceleration` is a `Force` with no conversion at all.
+- **Units are in the type.** A quantity is a number and its unit: `SIQuantity<U, N, B>(N)`, the unit `U` a const parameter. `2.0 * KILOMETRE` is a number of kilometres; `.into()` converts it into the base unit its target type names. Base units multiply into base units, so `mass * acceleration` is a `Force` with no conversion at all; any other unit multiplies into a unit that is not a base unit (`KILO * METRE` is the kilometre, `KILOMETRE / HOUR` km/h).
 - **Standard traits only.** Quantities talk through `+ - * /`, `From`, `TryFrom`, `PartialOrd` and `Display`. The unit type's own std operators return an `Option` (`None` where two units don't combine), and [`const_derive_more`](const_derive_more/)'s `#[derive(ConstOps)]` lifts them onto the quantity: an operator exists exactly where the units' operator gives `Some`.
 - **Modelling choices are yours.** Is angle a base unit? Is mass based on the gram or the kilogram? Which units have names? That is data in *your* TOML. [`yadc-si`](yadc-si/) is one such system, generated from [`yadc-codegen/si.toml`](yadc-codegen/si.toml); [`yadc-ucum`](yadc-ucum/) another, generated from the UCUM tables.
 - **Nothing hidden.** The generated crate is ordinary Rust, laid out by `rustfmt`: what you read is what compiles.
@@ -41,7 +41,7 @@ yadc is **patterns and a code generator**: no traits, no types. A unit system is
 
 **Every operation is one you could write on a whiteboard.** A quantity in kilometres times a quantity in hours is a quantity in km·h; a length plus a time is nothing, so it doesn't compile; 25 °C is a temperature you convert before you multiply it, because "twice 25 °C" depends on where the zero is.
 
-- **Numbers only through units.** A number becomes a quantity by multiplying a unit (`2.0 * KILOMETRE`), and leaves one as a plain ratio, divided by a unit: `f64::from(d / METRE)`. A quantity's field is private to the crate that defines it.
+- **Numbers only through units.** A number becomes a quantity by multiplying a unit (`2.0 * KILOMETRE`), and leaves one as a plain ratio, divided by a unit: `f64::from(d / KILOMETRE)`. A quantity's field is private to the crate that defines it.
 - **Partial operations return `Option`.** Statically, a refused operator doesn't compile; on a quantity whose unit is known only at run time, the same operators return `Option`, so a calculation reads `((a * b)? + c)?`.
 - **Exact definitions.** A unit's size and zero are an `Exact` (`num/den · 10ⁿ · πᵏ`), rounded once, to the number type in use, by std `From`.
 
@@ -60,13 +60,13 @@ use yadc_si::thermal::*;
 use yadc_si::*;
 
 // A unit is a constant, one of it; a quotient of two is a unit too.
-const KMH: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, Exact, false> = KILOMETRE / HOUR;
+const KMH: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, Exact, NOT_BASE> = KILOMETRE / HOUR;
 
 // A number times a unit is a quantity of that unit; `.into()` converts
 // it into the base unit the annotated type names.
 let d: Length<f64> = (2.0_f64 * KILOMETRE).into();     // 2000 m
 let t: Time<f64> = 100.0 * SECOND;                       // already a base unit
-let v: Velocity<f64> = d / t;                            // 20 m·s^-1
+let v: Velocity<f64> = d / t;                            // 20 m/s
 let m: Mass<f64> = 70.0 * KILOGRAM;
 let a: Acceleration<f64> = v / t;
 let f: Force<f64> = m * a;                               // 14 N
@@ -74,18 +74,20 @@ let f: Force<f64> = m * a;                               // 14 N
 
 // A number leaves as a plain ratio: divide by a unit.
 let metres = f64::from(d / METRE);                       // 2000.0
+let km = f64::from(d / KILOMETRE);                       // 2.0
+let hz: Frequency<f64> = 1.0 / t;                        // 0.01 Hz
 
 // Units with a zero or a log scale convert; they have no products.
 let temp: ThermodynamicTemperature<f64> = (25.0_f64 * CELSIUS).into(); // 298.15 K
 let p: Power<f64> = (30.0_f64 * DECIBEL_MILLIWATT).into();             // 1 W
 
 // Into a unit other than a base unit: name it in the type.
-let speed: SIQuantity<{ KMH.unit() }, f64, false> = v.into();         // 72 h^-1·km
+let speed: SIQuantity<{ KMH.unit() }, f64, NOT_BASE> = v.into();      // 72 km/h
 let kmh = f64::from(speed / KMH);                                       // 72.0
 
-// A prefix fuses with the unit it multiplies.
-let kg: Mass<Exact> = (KILO * GRAM).into();
-assert_eq!(kg, KILOGRAM);
+// A prefix fuses with the unit it multiplies: `KILOMETRE` is that product.
+assert_eq!(KILO * METRE, KILOMETRE);
+let fast = 2.0_f64 * KILOMETRE / SECOND;                 // 2 km/s
 
 // A unit chosen at run time: every operator returns an Option.
 let q = (DynamicSIQuantity::from(d) / DynamicSIQuantity::from(t)).unwrap();
@@ -101,14 +103,14 @@ let n = SIUnit::from(unit).from_base(metres);            // 2.0
 
 [`yadc-codegen`](yadc-codegen/) writes these from a TOML file (see its README for the format):
 
-- **The unit type**, `SIUnit`: a product of named units to integer powers. Base units (`[dim]`) define the dimensions; every other named unit is a size times other units (the hour is 3600 s). A prefix fuses with the named unit it multiplies (`KILO * GRAM` is `kg`). A unit of a single named unit may count from a zero (°C: 1 K from 273.15 K) or on a log scale (dBm: `0.001 · 10^(n / 10)` W); such a unit has no products. Its std `* / + -` return `Option`.
+- **The unit type**, `SIUnit`: a product of named units to integer powers. Base units (`[dim]`) define the dimensions; every other named unit is a size times other units (the hour is 3600 s). A prefix fuses with the named unit it multiplies (`KILO * METRE` is `km`), and a prefixed unit of the TOML is that product (`KILOMETRE` is `KILO * METRE`). A unit of a single named unit may count from a zero (°C: 1 K from 273.15 K) or on a log scale (dBm: `0.001 · 10^(n / 10)` W); such a unit has no products. Its std `* / + -` return `Option`.
 - **`Exact`**, the exact number unit sizes are written in, with std `From` to `f64`, `f32` and every primitive integer.
-- **The quantity**, `SIQuantity<U, N, IS_BASE>(N)` with `#[derive(const_derive_more::ConstOps)]`: `IS_BASE` says whether `U` is a base unit or a product of base units. Quantities of one unit add and compare; a product is counted in the product of the units.
+- **The quantity**, `SIQuantity<U, N, B>(N)` with `#[derive(const_derive_more::ConstOps)]`: `B`, a `Base`, says whether `U` is a base unit or a product of base units (`BASE`) or not (`NOT_BASE`); a product is `BASE` where both factors are. Quantities of one unit add and compare; a product is counted in the product of the units. A quantity of a plain number is a number of each primitive type, scaled by its unit's size (`f64::from(d / KILOMETRE)`).
 - **Unit constants**, one of each unit, counted in `Exact`: the prefixes and base units at the crate root (`KILO`, `METRE`), the rest in their family's module (`mechanical::KILOMETRE`).
-- **Quantity aliases**, `Length<N, U = metre, IS_BASE = true>`: a quantity's base unit by default, any unit of it when named.
+- **Quantity aliases**, `Length<N, U = metre, B = BASE>`: a quantity's base unit by default, any unit of it when named.
 - **Two blanket `From` impls**: a quantity of any unit into a base unit of the same dimension, and back. The target type picks the unit.
 - **Unit enums**, `dynamic::mechanical::LengthUnit`: a run-time choice among a quantity's units, with `Display`, `FromStr` and `From<LengthUnit> for SIUnit` (`const_derive_more`'s `Values`).
-- **The dynamic quantity**, `DynamicSIQuantity { unit, is_base, value }` (`const_derive_more`'s `Dynamic`): `From` any `SIQuantity<U, f64, IS_BASE>`, `TryFrom` back, every operator returning `Option`.
+- **The dynamic quantity**, `DynamicSIQuantity { unit, is_base, value }` (`const_derive_more`'s `Dynamic`): `From` any `SIQuantity<U, f64, B>`, `TryFrom` back, every operator returning `Option`.
 
 ### Defining Your Own System
 
@@ -149,8 +151,7 @@ const impl Sub for Unit {
 /// A quantity: a number of `U`. `ConstOps` lifts the operators of the
 /// number and of the unit onto it.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, const_derive_more::ConstOps)]
-#[const_ops(one = Unit { m: 0, s: 0 })]
-pub struct Qty<const U: Unit, N>(N);
+pub struct Qty<#[ops(one = Unit { m: 0, s: 0 })] const U: Unit, N>(N);
 
 pub type Length<N> = Qty<{ Unit { m: 1, s: 0 } }, N>;
 pub type Time<N> = Qty<{ Unit { m: 0, s: 1 } }, N>;
@@ -158,6 +159,11 @@ pub type Velocity<N> = Qty<{ Unit { m: 1, s: -1 } }, N>;
 
 pub const METRE: Length<f64> = Qty(1.0);
 pub const SECOND: Time<f64> = Qty(1.0);
+
+/// A plain number is its number.
+impl From<Qty<{ Unit { m: 0, s: 0 } }, f64>> for f64 {
+    fn from(q: Qty<{ Unit { m: 0, s: 0 } }, f64>) -> f64 { q.0 }
+}
 
 fn main() {
     let d = 100.0 * METRE;
@@ -225,7 +231,7 @@ Up front, this is a pretty experimental crate and relies on a bunch of fairly un
 
 Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warning.
 
-- **`generic_const_exprs`** — needed wherever a value's *type* involves a const expression, e.g. `SIQuantity<{ A * B }, N, true>` (the `Output` of `Mass * Acceleration`). Every consumer trips this the moment they write `mass * accel`.
+- **`generic_const_exprs`** — needed wherever a value's *type* involves a const expression, e.g. `SIQuantity<{ A * B }, N, BASE>` (the `Output` of `Mass * Acceleration`). Every consumer trips this the moment they write `mass * accel`.
 - **`adt_const_params`**, **`unsized_const_params`** — a const parameter whose type is a struct of yours (`const U: SIUnit`), holding `&'static str`s.
 - **`const_trait_impl`**, **`const_ops`**, **`const_convert`** — `ConstOps` writes `const impl`s of core's operators and `From`, and the unit type's operators are `const impl`s, so the unit algebra runs inside const-generic bounds and quantities compute in `const` items.
 - **`const_cmp`**, **`derive_const`** — `#[derive_const(PartialEq)]` on the unit type, so `==` on units is const-callable.
@@ -239,7 +245,7 @@ Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs` warni
 | **[`yadc-codegen`](yadc-codegen/)** | A CLI that turns a `.toml` unit-system description into a ready-to-compile system crate: `cargo run -p yadc-codegen -- <input.toml> -o <output-dir>`. It is how `yadc-si` and `yadc-ucum` are produced, and a starting point for your own system. |
 | **[`yadc-si`](yadc-si/)** | The SI, with angle as an eighth base unit (`rad`), generated from [`yadc-codegen/si.toml`](yadc-codegen/si.toml): `SIQuantity`, `SIUnit`, `Exact`, `DynamicSIQuantity`, ~120 quantities and ~400 units in 9 feature-gated families, plus optional serde and [`uom`](https://crates.io/crates/uom) bridges. |
 | **[`yadc-ucum`](yadc-ucum/)** | UCUM as its XML defines it, generated from the official `ucum-essence.xml` by [`yadc-codegen/ucum.toml`](yadc-codegen/ucum.toml): UCUM's seven base units, every value exact, every unit printed and parsed by its UCUM code. |
-| **[`const_derive_more`](const_derive_more/)** | General-purpose derives for families of static types, knowing nothing about units: `ConstOps` (std operators lifted over a value and a const parameter), `Dynamic` (one struct holding any of several static types), and closed sets (`Visit`, `Variants`, `Members`, `Via`, `Values`). |
+| **[`const_derive_more`](const_derive_more/)** | General-purpose derives for families of static types, knowing nothing about units: `ConstOps` (std operators lifted over a value and const parameters), `Dynamic` (one struct holding any of several static types), and closed sets (`Visit`, `Variants`, `Members`, `Via`, `Values`). |
 | **[`const_derive_more-derive`](const_derive_more-derive/)** | `const_derive_more`'s derives. Internal — depend on `const_derive_more` instead. |
 | **[`yadc-tests`](yadc-tests/)** | Compile-fail tests (trybuild) of refused operators and their messages. Not published. |
 

@@ -1,4 +1,4 @@
-//! `#[derive(ConstOps)]`: a value and a const parameter, lifted together.
+//! `#[derive(ConstOps)]`: a value and const parameters, lifted together.
 #![feature(
     generic_const_exprs,
     adt_const_params,
@@ -65,13 +65,16 @@ const impl Sub for Pow {
 }
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-#[const_ops(one = Pow::ONE, from(i32 => f64))]
-pub struct Tagged<const P: Pow, N>(N);
+#[const_ops(from(i32 => f64))]
+pub struct Tagged<#[ops(one = Pow::ONE)] const P: Pow, N>(N);
 
 /// A second const parameter, passed through.
 #[derive(Copy, Clone, PartialEq, Debug, ConstOps)]
-#[const_ops(one = Pow::ONE)]
-pub struct Marked<#[ops] const P: Pow, N, const K: bool>(N);
+pub struct Marked<#[ops(one = Pow::ONE)] const P: Pow, N, const K: bool>(N);
+
+/// Two lifted parameters, each combined by its type's own operators.
+#[derive(Copy, Clone, PartialEq, Debug, ConstOps)]
+pub struct Both<#[ops(one = Pow::ONE)] const P: Pow, N, #[ops(one = Pow::ONE)] const Q: Pow>(N);
 
 const X: Tagged<{ Pow::of(1) }, f64> = Tagged(3.0);
 const Y: Tagged<{ Pow::of(2) }, f64> = Tagged(2.0);
@@ -99,7 +102,9 @@ fn operators() {
     let s: Tagged<{ Pow::of(1) }, f64> = [X, X, X].into_iter().sum();
     assert_eq!(s, Tagged(9.0));
     let r: Tagged<{ Pow::of(0) }, f64> = X / X;
-    assert_eq!(f64::from(r), 1.0);
+    assert_eq!(r, Tagged(1.0));
+    let inverse: Tagged<{ Pow::of(-1) }, f64> = 6.0 / X;
+    assert_eq!(inverse, Tagged(2.0));
 }
 
 #[test]
@@ -126,4 +131,17 @@ fn passed_through() {
     let a: Marked<{ Pow::of(1) }, f64, true> = Marked(2.0);
     let b: Marked<{ Pow::of(2) }, f64, true> = a * a;
     assert_eq!(b, Marked(4.0));
+}
+
+#[test]
+fn two_lifted_parameters() {
+    let a: Both<{ Pow::of(1) }, f64, { Pow::of(2) }> = Both(3.0);
+    let b: Both<{ Pow::of(2) }, f64, { Pow::of(4) }> = a * a;
+    assert_eq!(b, Both(9.0));
+    let c: Both<{ Pow::of(0) }, f64, { Pow::of(-2) }> =
+        a / Both::<{ Pow::of(1) }, f64, { Pow::of(4) }>(3.0);
+    assert_eq!(c, Both(1.0));
+    let d: Both<{ Pow::of(-1) }, f64, { Pow::of(-2) }> = 6.0 / a;
+    assert_eq!(d, Both(2.0));
+    assert_eq!(a + a, Both(6.0));
 }

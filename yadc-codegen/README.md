@@ -40,52 +40,70 @@ The names below are `yadc-si`'s; `[system]` names the types.
   multiplies. Its std `* / + -` are `const impl`s returning `Option`: `*`
   and `/` are `None` for a unit with a zero or a log scale, `+` and `-` are
   `Some` for one unit only. Also `times`, `same_dimension`,
-  `to_base` / `from_base` (a number in base units and back) and `Display`.
+  `to_base` / `from_base` (a number in base units and back), and `Display`
+  (`km/h`, `kg·m^2/s^2`, `kPa`; width, fill and alignment pad the whole
+  symbol).
 - `src/exact.rs` (from [`templates/exact.rs`](templates/exact.rs)) -
   `Exact`, the exact number unit sizes are written in (`num/den · 10ⁿ ·
   πᵏ`), with `const` arithmetic and std `From` to `f64`, `f32` (the nearest,
   rounded once) and every primitive integer (the nearest, ties to even; a
   panic where it does not fit - in a `const`, a compile error).
 - `src/lib.rs` -
-  - the quantity, `SIQuantity<const U: SIUnit, N, const IS_BASE: bool>(N)`
-    with `#[derive(const_derive_more::ConstOps)]` (mixed with `Exact` for
-    every primitive number type), `Display` (`2 km`), and serde as its number
-    behind the `serde` feature. `IS_BASE` says whether `U` is a base unit or
-    a product of base units;
-  - two blanket `From` impls: `SIQuantity<U, N, false>` into
-    `SIQuantity<V, N, true>` where `U` and `V` have one dimension, and back;
+  - `Base`, with the constants `BASE` (a base unit or a product of base
+    units) and `NOT_BASE` (any other unit), and its std `* / + -`: a
+    product is `BASE` where both factors are, a sum needs both the same;
+  - the quantity, `SIQuantity<const U: SIUnit, N, const B: Base>(N)` with
+    `#[derive(const_derive_more::ConstOps)]` lifting both `U` and `B`
+    (mixed with `Exact` for every primitive number type), `Display` (`2
+    km`), and serde as its number behind the `serde` feature;
+  - two blanket `From` impls: `SIQuantity<U, N, NOT_BASE>` into
+    `SIQuantity<V, N, BASE>` where `U` and `V` have one dimension, and back;
     the target type picks the unit;
+  - per primitive number type, `From` a quantity of a plain number (of
+    dimension one, without a zero or a log scale) into the number, scaled
+    by its unit's size: `f64::from(d / KILOMETRE)`. An integer takes only a
+    unit of a whole size (`km/m`, not `m/km`);
   - the 20 SI prefixes (`KILO`) and the base units (`METRE`), as constants;
   - the `named` coherent units' symbols, for `Display`;
   - `pub mod` for each family (behind its feature), `dimensionless`,
     `dynamic` and each `extra_modules` entry.
 - `src/<family>.rs` and `src/dimensionless.rs` - per quantity, an alias
-  whose unit defaults to its base unit, and a constant per unit, one of it:
+  whose unit defaults to its base unit (in the first module with a
+  quantity of its name only, so glob imports of two modules don't clash),
+  and a constant per unit, one of it. A unit whose symbol is an SI prefix's
+  followed by another unit's of its quantity, of the prefix's size times
+  that unit's, is their product:
 
   ```rust
   /// A length, in `N`s of the unit `U`: by default its coherent unit, a
   /// product of base units.
-  pub type Length<N, const U: SIUnit = { METRE.unit() }, const IS_BASE: bool = true> =
-      SIQuantity<U, N, IS_BASE>;
+  pub type Length<N, const U: SIUnit = { METRE.unit() }, const B: Base = BASE> =
+      SIQuantity<U, N, B>;
 
-  /// Kilometres (`km`), a unit of `Length`: `n` of them is `n · 1000.0` base units.
-  pub const KILOMETRE: SIQuantity<
-      { SIUnit::scaled("km", Exact::int(1000), METRE.unit()) },
+  /// Kilometres (`km`), a unit of `Length`: `KILO * METRE`.
+  pub const KILOMETRE: SIQuantity<{ KILO.unit().times(METRE.unit(), 1) }, Exact, NOT_BASE> =
+      KILO * METRE;
+
+  /// Miles (`mi`), a unit of `Length`: `n` of them is `n · 1609.344` base units.
+  pub const MILE: SIQuantity<
+      { SIUnit::scaled("mi", Exact::dec(1609344, -3), METRE.unit()) },
       Exact,
-      false,
+      NOT_BASE,
   > = SIQuantity::ONE;
   ```
 
 - `src/dynamic/mod.rs` - the dynamic quantity, `DynamicSIQuantity { unit:
-  SIUnit, is_base: bool, value: f64 }` with `#[derive(const_derive_more::Dynamic)]`:
-  `From` any `SIQuantity<U, f64, IS_BASE>`, `TryFrom` back (checked), and
-  `* / + -`, scaling by an `f64` and `PartialOrd`, each returning `Option`.
+  SIUnit, is_base: Base, value: f64 }` with `#[derive(const_derive_more::Dynamic)]`:
+  `From` any `SIQuantity<U, f64, B>`, `TryFrom` back (checked), and
+  `* / + -`, scaling by an `f64` and `PartialOrd`, each returning `Option`
+  and combining `unit` and `is_base` with their own operators.
 - `src/dynamic/<family>.rs` - per quantity, a unit enum
   (`dynamic::mechanical::LengthUnit`) with `const_derive_more`'s `Values`
   and `Variants` plus `unit_derives`: each variant names its unit
   (`#[value(KILOMETRE.unit())]`), `Display` and `FromStr` are its unit's
   symbol, `From<LengthUnit> for SIUnit` converts it, and `Default` is the
-  base unit.
+  coherent unit - a variant of its own, first, where no unit of the
+  quantity is it (`VelocityUnit::MetrePerSecond`).
 - `Cargo.toml` - a starting manifest: one feature per family (all on by
   default), `std`, `libm` (one of the two is needed by log units) and
   `serde`. `yadc-si`'s own manifest is maintained by hand (see
@@ -118,7 +136,7 @@ extra_modules = [                          # hand-written modules: declared, nev
   them.
 - `named` lists symbols of size-one units of quantities with a dimension: a
   quantity in that product of base units prints the symbol (`6 N`, not
-  `6 kg·m·s^-2`). The first listed wins where two share a product.
+  `6 kg·m/s^2`). The first listed wins where two share a product.
 - `extra_modules` are files you maintain in `src/` yourself. The generated
   `lib.rs` declares each as `pub mod` (behind `feature` when given); the
   generator never writes them.
@@ -181,8 +199,11 @@ units = [
 | `t` | the constant's name, when not the variant's (`t = "DegreeCelsius"`, `DEGREE_CELSIUS`) |
 
 A unit has a zero, a log scale, or neither; any other key is an error. A
-number `n` of a unit with a zero is `n · m + z` base units. A unit of size
-one with neither is its quantity's base unit, `IS_BASE`.
+number `n` of a unit with a zero is `n · m + z` base units. A quantity's
+first unit of size one with neither (`m²` for an area, `N · m` for a torque)
+is its coherent unit, `BASE`; a later unit of size one (`°C` for a
+temperature step) is a named unit of its own, `NOT_BASE`, and converts with
+`From`.
 
 `m`, `z`, `log` and `per` are exact expressions - numbers, `+ - * /`,
 parentheses and `core::f64::consts::PI` - written out as `Exact`s (`0.0254`

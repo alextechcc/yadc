@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(SIUnit))]
 pub enum LuminanceUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), -2).times(CANDELA.unit(), 1))]
+    CandelaPerMetreSquared,
     #[value(FOOTLAMBERT.unit())]
     Footlambert,
     #[value(LAMBERT.unit())]

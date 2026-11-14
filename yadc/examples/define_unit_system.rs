@@ -6,7 +6,7 @@
 //! - `Qty<D, N>`, the quantity, its operators lifted from `N`'s and `Dim`'s
 //!   by `#[derive(const_derive_more::ConstOps)]`;
 //! - the constants and the aliases;
-//! - `From` impls, for degrees Celsius;
+//! - `From` impls, for degrees Celsius and for a plain number's number;
 //! - `Display`.
 //!
 //! A quantity is counted in the base units (metres, seconds, kelvins); every
@@ -121,8 +121,7 @@ impl fmt::Display for Dim {
 
 /// A number of base units of the dimension `D`, counted in `N`.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-#[const_ops(one = Dim::ONE)]
-pub struct Qty<const D: Dim, N>(N);
+pub struct Qty<#[ops(one = Dim::ONE)] const D: Dim, N>(N);
 
 /// The number and the dimension: `9.81 m·s⁻²`.
 impl<const D: Dim, N: fmt::Display> fmt::Display for Qty<D, N> {
@@ -132,6 +131,13 @@ impl<const D: Dim, N: fmt::Display> fmt::Display for Qty<D, N> {
             write!(f, " {D}")?;
         }
         Ok(())
+    }
+}
+
+/// A plain number is its number: `f64::from(d / MILE)`.
+impl From<Qty<{ Dim::ONE }, f64>> for f64 {
+    fn from(q: Qty<{ Dim::ONE }, f64>) -> f64 {
+        q.0
     }
 }
 

@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum ActionAreaUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    MeterSquared,
     #[value(BARN.unit())]
     Barn,
 }
@@ -28,6 +30,8 @@ pub enum ActionAreaUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricConductanceUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(SECOND.unit(), 1).times(GRAM.unit(), -1).times(COULOMB.unit(), 2))]
+    SecondCoulombSquaredPerMeterSquaredGram,
     #[value(MHO.unit())]
     Mho,
 }
@@ -41,6 +45,8 @@ pub enum ElectricConductanceUnit {
 #[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
+    #[value(METER.unit())]
+    Meter,
     #[value(LINE.unit())]
     Line,
     #[value(POINT.unit())]
@@ -76,6 +82,8 @@ pub enum LengthUnit {
 #[values(into(UcumUnit))]
 pub enum MassUnit {
     #[default]
+    #[value(GRAM.unit())]
+    Gram,
     #[value(METRIC_CARAT.unit())]
     MetricCarat,
 }
@@ -89,6 +97,8 @@ pub enum MassUnit {
 #[values(into(UcumUnit))]
 pub enum MassFractionUnit {
     #[default]
+    #[value(UcumUnit::ONE)]
+    One,
     #[value(CARAT_OF_GOLD_ALLOYS.unit())]
     CaratOfGoldAlloys,
 }
@@ -102,6 +112,8 @@ pub enum MassFractionUnit {
 #[values(into(UcumUnit))]
 pub enum PlaneAngleUnit {
     #[default]
+    #[value(RADIAN.unit())]
+    Radian,
     #[value(CIRCLE.unit())]
     Circle,
 }
@@ -115,6 +127,8 @@ pub enum PlaneAngleUnit {
 #[values(into(UcumUnit))]
 pub enum PressureUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    GramPerMeterSecondSquared,
     #[value(TECHNICAL_ATMOSPHERE.unit())]
     TechnicalAtmosphere,
     #[value(POUND_PER_SQUARE_INCH.unit())]
@@ -130,6 +144,8 @@ pub enum PressureUnit {
 #[values(into(UcumUnit))]
 pub enum SolidAngleUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(RADIAN.unit(), 2))]
+    RadianSquared,
     #[value(SPHERE.unit())]
     Sphere,
 }

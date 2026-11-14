@@ -53,6 +53,8 @@ pub enum TemperatureIntervalUnit {
 #[values(into(SIUnit))]
 pub enum HeatCapacityUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), 2).times(KILOGRAM.unit(), 1).times(SECOND.unit(), -2).times(KELVIN.unit(), -1))]
+    MetreSquaredKilogramPerSecondSquaredKelvin,
     #[value(BOLTZMANN_CONSTANT.unit())]
     BoltzmannConstant,
 }
@@ -66,6 +68,8 @@ pub enum HeatCapacityUnit {
 #[values(into(SIUnit))]
 pub enum StefanBoltzmannCoefficientUnit {
     #[default]
+    #[value(KILOGRAM.unit().times(SECOND.unit(), -3).times(KELVIN.unit(), -4))]
+    KilogramPerSecondCubedKelvinPow4,
     #[value(STEFAN_BOLTZMANN_CONSTANT.unit())]
     StefanBoltzmannConstant,
 }

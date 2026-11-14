@@ -6,8 +6,9 @@
 use const_derive_more::NoValue;
 use core::ops::{Add, Mul};
 use yadc_si::dynamic::mechanical::{LengthUnit, MassUnit, TimeUnit};
+use yadc_si::mechanical::HOUR;
 use yadc_si::mechanical::{Area, KILOMETRE, Length, MILE, Time, Velocity};
-use yadc_si::{Exact, METRE, SECOND, SIQuantity, SIUnit};
+use yadc_si::{Exact, METRE, NOT_BASE, SECOND, SIQuantity, SIUnit};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -28,13 +29,14 @@ fn units_print_their_symbol() {
     );
     // A coherent unit with a name prints it; any other product its named
     // units with their powers.
-    assert_eq!((METRE / SECOND).unit().to_string(), "m·s^-1");
+    assert_eq!((METRE / SECOND).unit().to_string(), "m/s");
+    assert_eq!((KILOMETRE / HOUR).unit().to_string(), "km/h");
     // A quantity shown in a unit: the number the unit reads, with its own
     // flags, then the unit.
     let d: Length<f64> = (1.5_f64 * KILOMETRE).into();
     let km = SIUnit::from(LengthUnit::Kilometre);
     let m = SIUnit::from(LengthUnit::Metre);
-    let metres = f64::from(d / (1.0 * METRE));
+    let metres = f64::from(d / METRE);
     assert_eq!(format!("{:.2} {}", km.from_base(metres), km), "1.50 km");
     assert_eq!(format!("{} {}", m.from_base(metres), m), "1500 m");
     assert_eq!(format!("{:e} {}", m.from_base(metres), m), "1.5e3 m");
@@ -65,8 +67,11 @@ fn units_parse_from_their_symbol() {
 }
 
 /// A unit of your own: a named unit, a size times a unit of the library's.
-const LEAGUE: SIQuantity<{ SIUnit::scaled("lea", Exact::int(4828), METRE.unit()) }, Exact, false> =
-    SIQuantity::ONE;
+const LEAGUE: SIQuantity<
+    { SIUnit::scaled("lea", Exact::int(4828), METRE.unit()) },
+    Exact,
+    NOT_BASE,
+> = SIQuantity::ONE;
 
 // An enum of units may leave out the derived `FromStr` - `impl(Display)`
 // writes only `Display` - and write its own: here one that also accepts the
@@ -104,7 +109,8 @@ fn a_hand_written_from_str() {
     );
     // A unit of your own converts like the library's.
     let d: Length<f64> = (2.0_f64 * LEAGUE).into();
-    close(f64::from(d / (1.0 * METRE)), 9656.0);
+    close(f64::from(d / METRE), 9656.0);
+    close(f64::from(d / LEAGUE), 2.0);
 }
 
 // --- A generic number type ------------------------------------------------------
@@ -131,14 +137,14 @@ fn a_generic_number_type() {
     let a32: Length<f32> = 3.0_f32 * METRE;
     let b32: Length<f32> = 4.0_f32 * METRE;
     let area32 = rectangle(a32, b32);
-    assert_eq!(f32::from(area32 / (1.0_f32 * METRE * METRE)), 12.0);
+    assert_eq!(f32::from(area32 / (METRE * METRE)), 12.0);
     assert_eq!(perimeter(a32, b32), 14.0_f32 * METRE);
 
     let a64: Length<f64> = 1.5 * METRE;
     let t64: Time<f64> = 0.5 * SECOND;
     let speed: Velocity<f64> = a64 / t64;
-    close(f64::from(speed / (1.0 * METRE / SECOND)), 3.0);
-    close(f64::from(a64 * 2.0 / (1.0 * METRE)), 3.0);
+    close(f64::from(speed / (METRE / SECOND)), 3.0);
+    close(f64::from(a64 * 2.0 / METRE), 3.0);
 
     // Integers count too: a number times a unit, in that number type.
     let ai: Length<i32> = 3 * METRE;

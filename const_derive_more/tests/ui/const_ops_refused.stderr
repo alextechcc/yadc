@@ -1,14 +1,14 @@
 error[E0277]: cannot add: `+` of these parameters has no result
-  --> tests/ui/const_ops_refused.rs:46:15
+  --> tests/ui/const_ops_refused.rs:49:15
    |
-46 |     let _ = a + b;
+49 |     let _ = a + b;
    |               ^ `+` of these parameters has no result
    |
-help: the trait `AddResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
-  --> tests/ui/const_ops_refused.rs:40:1
+help: the trait `__const_ops_Tagged::AddResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
+  --> tests/ui/const_ops_refused.rs:39:1
    |
-40 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `Add<Tagged<{ Tag(2) }, f64>>`
   --> tests/ui/const_ops_refused.rs:38:41
    |
@@ -18,16 +18,16 @@ note: required for `Tagged<{ Tag(1) }, f64>` to implement `Add<Tagged<{ Tag(2) }
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract: `-` of these parameters has no result
-  --> tests/ui/const_ops_refused.rs:47:15
+  --> tests/ui/const_ops_refused.rs:50:15
    |
-47 |     let _ = a - b;
+50 |     let _ = a - b;
    |               ^ `-` of these parameters has no result
    |
-help: the trait `SubResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
-  --> tests/ui/const_ops_refused.rs:40:1
+help: the trait `__const_ops_Tagged::SubResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
+  --> tests/ui/const_ops_refused.rs:39:1
    |
-40 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `Sub<Tagged<{ Tag(2) }, f64>>`
   --> tests/ui/const_ops_refused.rs:38:41
    |
@@ -37,16 +37,16 @@ note: required for `Tagged<{ Tag(1) }, f64>` to implement `Sub<Tagged<{ Tag(2) }
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot multiply: `*` of these parameters has no result
-  --> tests/ui/const_ops_refused.rs:48:15
+  --> tests/ui/const_ops_refused.rs:51:15
    |
-48 |     let _ = a * frozen;
+51 |     let _ = a * frozen;
    |               ^ `*` of these parameters has no result
    |
-help: the trait `MulResult<Tagged<{ Tag(9) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
-  --> tests/ui/const_ops_refused.rs:40:1
+help: the trait `__const_ops_Tagged::MulResult<Tagged<{ Tag(9) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
+  --> tests/ui/const_ops_refused.rs:39:1
    |
-40 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `Mul<Tagged<{ Tag(9) }, f64>>`
   --> tests/ui/const_ops_refused.rs:38:41
    |
@@ -56,16 +56,16 @@ note: required for `Tagged<{ Tag(1) }, f64>` to implement `Mul<Tagged<{ Tag(9) }
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot divide: `/` of these parameters has no result
-  --> tests/ui/const_ops_refused.rs:49:20
+  --> tests/ui/const_ops_refused.rs:52:20
    |
-49 |     let _ = frozen / a;
+52 |     let _ = frozen / a;
    |                    ^ `/` of these parameters has no result
    |
-help: the trait `DivResult<Tagged<{ Tag(1) }, f64>>` is not implemented for `Tagged<{ Tag(9) }, f64>`
-  --> tests/ui/const_ops_refused.rs:40:1
+help: the trait `__const_ops_Tagged::DivResult<Tagged<{ Tag(1) }, f64>>` is not implemented for `Tagged<{ Tag(9) }, f64>`
+  --> tests/ui/const_ops_refused.rs:39:1
    |
-40 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(9) }, f64>` to implement `Div<Tagged<{ Tag(1) }, f64>>`
   --> tests/ui/const_ops_refused.rs:38:41
    |
@@ -75,20 +75,39 @@ note: required for `Tagged<{ Tag(9) }, f64>` to implement `Div<Tagged<{ Tag(1) }
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot multiply-assign `Tagged<{ Tag(1) }, f64>` by `Tagged<{ Tag(2) }, f64>`
-  --> tests/ui/const_ops_refused.rs:51:7
+  --> tests/ui/const_ops_refused.rs:54:7
    |
-51 |     c *= b;
+54 |     c *= b;
    |       ^^ no implementation for `Tagged<{ Tag(1) }, f64> *= Tagged<{ Tag(2) }, f64>`
    |
-help: the trait `MulAssignResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
-  --> tests/ui/const_ops_refused.rs:40:1
+help: the trait `__const_ops_Tagged::MulAssignResult<Tagged<{ Tag(2) }, f64>>` is not implemented for `Tagged<{ Tag(1) }, f64>`
+  --> tests/ui/const_ops_refused.rs:39:1
    |
-40 | pub struct Tagged<const P: Tag, N>(N);
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 | pub struct Tagged<#[ops(one = Tag(0))] const P: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: required for `Tagged<{ Tag(1) }, f64>` to implement `MulAssign<Tagged<{ Tag(2) }, f64>>`
   --> tests/ui/const_ops_refused.rs:38:41
    |
 38 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `MulAssign<Tagged<{ Tag(2) }, f64>>`
    = help: consider manually implementing `MulAssign<Tagged<{ Tag(2) }, f64>>` to avoid undesired bounds
+   = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: cannot multiply: `*` of these parameters has no result
+  --> tests/ui/const_ops_refused.rs:58:15
+   |
+58 |     let _ = x * y;
+   |               ^ `*` of these parameters has no result
+   |
+help: the trait `__const_ops_Two::MulResult<Two<{ Tag(1) }, { Tag(9) }, f64>>` is not implemented for `Two<{ Tag(1) }, { Tag(1) }, f64>`
+  --> tests/ui/const_ops_refused.rs:43:1
+   |
+43 | pub struct Two<#[ops(one = Tag(0))] const P: Tag, #[ops(one = Tag(0))] const Q: Tag, N>(N);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: required for `Two<{ Tag(1) }, { Tag(1) }, f64>` to implement `Mul<Two<{ Tag(1) }, { Tag(9) }, f64>>`
+  --> tests/ui/const_ops_refused.rs:42:41
+   |
+42 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
+   |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `Mul<Two<{ Tag(1) }, { Tag(9) }, f64>>`
+   = help: consider manually implementing `Mul<Two<{ Tag(1) }, { Tag(9) }, f64>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)

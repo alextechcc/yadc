@@ -26,8 +26,8 @@ fn close(a: f64, b: f64) {
 /// A quantity in a unit that is not a base unit is `n` of it: compared with
 /// quantities of the same unit, within a relative 1e-9 - the reading for
 /// units with a zero or a log scale, which have no quotient.
-fn near<const U: SIUnit>(q: SIQuantity<U, f64, false>, n: f64) {
-    let one = SIQuantity::<U, Exact, false>::ONE;
+fn near<const U: SIUnit>(q: SIQuantity<U, f64, NOT_BASE>, n: f64) {
+    let one = SIQuantity::<U, Exact, NOT_BASE>::ONE;
     let tol = 1e-9 * n.abs().max(1.0);
     assert!(
         q > (n - tol) * one && q < (n + tol) * one,
@@ -37,20 +37,20 @@ fn near<const U: SIUnit>(q: SIQuantity<U, f64, false>, n: f64) {
 
 /// The number of kelvins a temperature is.
 fn kelvins(t: ThermodynamicTemperature<f64>) -> f64 {
-    f64::from(t / (1.0 * KELVIN))
+    f64::from(t / KELVIN)
 }
 
 /// The number of kilograms a mass is.
 fn kilograms(m: Mass<f64>) -> f64 {
-    f64::from(m / (1.0 * KILOGRAM))
+    f64::from(m / KILOGRAM)
 }
 
 #[test]
 fn quantity_and_value_round_trip() {
     let mass: Mass<f64> = (1500.0_f64 * GRAM).into();
     close(kilograms(mass), 1.5);
-    let grams: Mass<f64, { GRAM.unit() }, false> = mass.into();
-    close(f64::from(grams / (1.0 * GRAM)), 1500.0);
+    let grams: Mass<f64, { GRAM.unit() }, NOT_BASE> = mass.into();
+    close(f64::from(grams / GRAM), 1500.0);
     // The international pound, exactly.
     let m: Mass<f64> = (10.0_f64 * POUND).into();
     close(kilograms(m), 4.5359237);
@@ -62,17 +62,14 @@ fn units_build_quantities_and_quantities_compose() {
     let d: Length<f64> = (90.0_f64 * KILOMETRE).into();
     let hour: Time<f64> = (1.0_f64 * HOUR).into();
     let v: Velocity<f64> = d / hour;
-    close(f64::from(v / (1.0 * METRE / SECOND)), 25.0);
+    close(f64::from(v / (METRE / SECOND)), 25.0);
     // A quotient of units is a unit, and a conversion's target.
-    let kmh: Velocity<f64, { KILOMETRE.unit().times(HOUR.unit(), -1) }, false> = v.into();
-    close(f64::from(kmh / (1.0 * KILOMETRE / HOUR)), 90.0);
-    close(
-        f64::from((1.0 * METRE) / (1.0 * SECOND) / (1.0 * METRE / SECOND)),
-        1.0,
-    );
-    let back: Length<f64, { KILOMETRE.unit() }, false> = (v * hour).into();
+    let kmh: Velocity<f64, { KILOMETRE.unit().times(HOUR.unit(), -1) }, NOT_BASE> = v.into();
+    close(f64::from(kmh / (KILOMETRE / HOUR)), 90.0);
+    close(f64::from(1.0 * METRE / SECOND / (METRE / SECOND)), 1.0);
+    let back: Length<f64, { KILOMETRE.unit() }, NOT_BASE> = (v * hour).into();
     near(back, 90.0);
-    let miles: Length<f64, { MILE.unit() }, false> = d.into();
+    let miles: Length<f64, { MILE.unit() }, NOT_BASE> = d.into();
     near(miles, 90.0 / 1.609344);
 }
 
@@ -81,8 +78,8 @@ fn dynamic_read_is_checked() {
     let m = DynamicSIQuantity::from(2.5 * KILOGRAM);
     // Read through the static quantity: `TryFrom` is the check.
     let mass: Mass<f64> = Mass::<f64>::try_from(m).unwrap();
-    let grams: Mass<f64, { GRAM.unit() }, false> = mass.into();
-    close(f64::from(grams / (1.0 * GRAM)), 2500.0);
+    let grams: Mass<f64, { GRAM.unit() }, NOT_BASE> = mass.into();
+    close(f64::from(grams / GRAM), 2500.0);
     // The wrong quantity reads as an error, handing the quantity back.
     assert_eq!(Force::<f64>::try_from(m), Err(m));
 }
@@ -92,12 +89,12 @@ fn mul_and_div_compose_dims() {
     let m: Mass<f64> = 2.0 * KILOGRAM;
     let a: Acceleration<f64> = 3.0 * METRE / (SECOND * SECOND);
     let f: Force<f64> = m * a;
-    close(f64::from(f / (1.0 * NEWTON)), 6.0);
+    close(f64::from(f / NEWTON), 6.0);
 
     // A quotient of one dimension is a plain number.
     let ratio: Dimensionless<f64> = (10.0 * NEWTON) / (2.0 * NEWTON);
     close(f64::from(ratio), 5.0);
-    let percent: Dimensionless<f64, { PERCENT.unit() }, false> = ratio.into();
+    let percent: Dimensionless<f64, { PERCENT.unit() }, NOT_BASE> = ratio.into();
     near(percent, 500.0);
 }
 
@@ -108,16 +105,16 @@ fn temperatures_subtract_and_add_in_kelvins() {
     let hot: ThermodynamicTemperature<f64> = (100.0_f64 * CELSIUS).into();
     let cold: ThermodynamicTemperature<f64> = (20.0_f64 * CELSIUS).into();
     let delta: TemperatureInterval<f64> = hot - cold;
-    close(f64::from(delta / (1.0 * KELVIN)), 80.0);
-    close(f64::from(delta / (1.0 * DEGREE_CELSIUS)), 80.0);
-    let in_f: TemperatureInterval<f64, { DEGREE_FAHRENHEIT.unit() }, false> = delta.into();
+    close(f64::from(delta / KELVIN), 80.0);
+    close(f64::from(delta / DEGREE_CELSIUS), 80.0);
+    let in_f: TemperatureInterval<f64, { DEGREE_FAHRENHEIT.unit() }, NOT_BASE> = delta.into();
     near(in_f, 144.0);
     // An interval moves a temperature.
-    let rise: TemperatureInterval<f64> = 5.0 * DEGREE_CELSIUS;
-    let hotter: SIQuantity<{ CELSIUS.unit() }, f64, false> = (cold + rise).into();
+    let rise: TemperatureInterval<f64> = (5.0_f64 * DEGREE_CELSIUS).into();
+    let hotter: SIQuantity<{ CELSIUS.unit() }, f64, NOT_BASE> = (cold + rise).into();
     near(hotter, 25.0);
     // Intervals add.
-    close(f64::from((rise + rise) / (1.0 * KELVIN)), 10.0);
+    close(f64::from((rise + rise) / KELVIN), 10.0);
 }
 
 #[test]
@@ -125,25 +122,22 @@ fn round_trip_celsius_fahrenheit_kelvin() {
     // The zero point is the unit's business: 25 °C is 298.15 K, 77 °F.
     let t: ThermodynamicTemperature<f64> = (25.0_f64 * CELSIUS).into();
     close(kelvins(t), 298.15);
-    let f: SIQuantity<{ FAHRENHEIT.unit() }, f64, false> = t.into();
+    let f: SIQuantity<{ FAHRENHEIT.unit() }, f64, NOT_BASE> = t.into();
     near(f, 77.0);
     // ... and back: 77 °F is 25 °C.
     let k: ThermodynamicTemperature<f64> = (77.0_f64 * FAHRENHEIT).into();
-    let c: SIQuantity<{ CELSIUS.unit() }, f64, false> = k.into();
+    let c: SIQuantity<{ CELSIUS.unit() }, f64, NOT_BASE> = k.into();
     near(c, 25.0);
     // Nine degrees Fahrenheit of difference are 5 K.
     let step: TemperatureInterval<f64> = (9.0_f64 * DEGREE_FAHRENHEIT).into();
-    close(f64::from(step / (1.0 * KELVIN)), 5.0);
+    close(f64::from(step / KELVIN), 5.0);
 }
 
 #[test]
 fn angle_is_not_dimensionless() {
     // An angle is counted in radians, a base unit; a ratio has no unit.
     let half_circle: ang::Angle<f64> = (180.0_f64 * ang::DEGREE).into();
-    close(
-        f64::from(half_circle / (1.0 * RADIAN)),
-        std::f64::consts::PI,
-    );
+    close(f64::from(half_circle / RADIAN), std::f64::consts::PI);
     assert!(!RADIAN.unit().same_dimension(RATIO.unit()));
     // Angle / angle is a plain number: the radians cancel.
     let twice: ang::Angle<f64> = (360.0_f64 * ang::DEGREE).into();
@@ -158,23 +152,23 @@ fn radians_are_a_base_unit() {
     let torque: Torque<f64> = 10.0 * NEWTON_METRE;
     let turn: ang::Angle<f64> = (1.0_f64 * ang::REVOLUTION).into();
     let work: Energy<f64> = torque * turn;
-    close(f64::from(work / (1.0 * JOULE)), 20.0 * std::f64::consts::PI);
+    close(f64::from(work / JOULE), 20.0 * std::f64::consts::PI);
     // Angular speed × time is an angle.
     let rpm: ang::AngularVelocity<f64> = (60.0_f64 * (ang::REVOLUTION / MINUTE)).into();
-    let turned: ang::Angle<f64> = rpm * (1.0 * SECOND);
-    let in_rev: ang::Angle<f64, { ang::REVOLUTION.unit() }, false> = turned.into();
+    let turned: ang::Angle<f64> = rpm * SECOND;
+    let in_rev: ang::Angle<f64, { ang::REVOLUTION.unit() }, NOT_BASE> = turned.into();
     near(in_rev, 1.0);
     // Angle² is a solid angle.
     let patch: ang::SolidAngle<f64> = (0.1 * RADIAN) * (0.2 * RADIAN);
-    close(f64::from(patch / (1.0 * ang::STERADIAN)), 0.02);
+    close(f64::from(patch / ang::STERADIAN), 0.02);
     // Geometry says where a radian is dropped: arc length s = r·θ / rad, and
     // rim speed v = ω·r / rad.
     let r: Length<f64> = 2.0 * METRE;
     let arc: Length<f64> = r * (1.5 * RADIAN) / radian;
-    close(f64::from(arc / (1.0 * METRE)), 3.0);
+    close(f64::from(arc / METRE), 3.0);
     let omega: ang::AngularVelocity<f64> = 3.0 * RADIAN / SECOND;
     let rim: Velocity<f64> = omega * r / radian;
-    close(f64::from(rim / (1.0 * METRE / SECOND)), 6.0);
+    close(f64::from(rim / (METRE / SECOND)), 6.0);
 }
 
 #[test]
@@ -222,18 +216,18 @@ fn decibels_are_a_log_unit_of_the_plain_number() {
     // A ratio of about 2: 3 dB.
     let r: Dimensionless<f64> = (3.0_f64 * DECIBEL).into();
     close(f64::from(r), 10f64.powf(0.3));
-    let db: SIQuantity<{ DECIBEL.unit() }, f64, false> = r.into();
+    let db: SIQuantity<{ DECIBEL.unit() }, f64, NOT_BASE> = r.into();
     near(db, 3.0);
     let ten: Dimensionless<f64> = (1.0_f64 * BEL).into();
     close(f64::from(ten), 10.0);
     // A neper is a field ratio: 1 Np is a power ratio of e².
     let np: Dimensionless<f64> = (1.0_f64 * NEPER).into();
     assert!((f64::from(np) - std::f64::consts::E.powi(2)).abs() < 1e-12);
-    let in_db: SIQuantity<{ DECIBEL.unit() }, f64, false> = np.into();
+    let in_db: SIQuantity<{ DECIBEL.unit() }, f64, NOT_BASE> = np.into();
     near(in_db, 20.0 / std::f64::consts::LN_10);
     let thousand: Dimensionless<f64> = 1000.0 * RATIO;
     near(
-        SIQuantity::<{ DECIBEL.unit() }, f64, false>::from(thousand),
+        SIQuantity::<{ DECIBEL.unit() }, f64, NOT_BASE>::from(thousand),
         30.0,
     );
     // Numbers of one log unit add: adding decibels multiplies the ratios.
@@ -247,22 +241,22 @@ fn decibels_are_a_log_unit_of_the_plain_number() {
 fn power_levels_are_log_units_of_power() {
     let level = 30.0_f64 * DECIBEL_MILLIWATT;
     let p: Power<f64> = level.into();
-    close(f64::from(p / (1.0 * WATT)), 1.0);
+    close(f64::from(p / WATT), 1.0);
     near(
-        SIQuantity::<{ DECIBEL_WATT.unit() }, f64, false>::from(p),
+        SIQuantity::<{ DECIBEL_WATT.unit() }, f64, NOT_BASE>::from(p),
         0.0,
     );
     let tenth: Power<f64> = 0.1 * WATT;
     near(
-        SIQuantity::<{ DECIBEL_MILLIWATT.unit() }, f64, false>::from(tenth),
+        SIQuantity::<{ DECIBEL_MILLIWATT.unit() }, f64, NOT_BASE>::from(tenth),
         20.0,
     );
     // A link budget: numbers of dBm add, multiplying the power.
     let received = level - 3.0 * DECIBEL_MILLIWATT + 13.0 * DECIBEL_MILLIWATT;
     near(received, 40.0);
-    close(f64::from(Power::<f64>::from(received) / (1.0 * WATT)), 10.0);
+    close(f64::from(Power::<f64>::from(received) / WATT), 10.0);
     // Doubling the watts is 3.01 dB.
-    let doubled: SIQuantity<{ DECIBEL_MILLIWATT.unit() }, f64, false> = (2.0 * p).into();
+    let doubled: SIQuantity<{ DECIBEL_MILLIWATT.unit() }, f64, NOT_BASE> = (2.0 * p).into();
     near(doubled, 30.0 + 10.0 * 2f64.log10());
     // The unit enum's values are the constants' units.
     assert_eq!(
@@ -282,7 +276,7 @@ fn power_levels_are_log_units_of_power() {
     // has no products.
     let d = DynamicSIQuantity::from(level);
     assert_eq!(
-        SIQuantity::<{ DECIBEL_MILLIWATT.unit() }, f64, false>::try_from(d),
+        SIQuantity::<{ DECIBEL_MILLIWATT.unit() }, f64, NOT_BASE>::try_from(d),
         Ok(level)
     );
     assert!(Power::<f64>::try_from(d).is_err());
@@ -298,11 +292,11 @@ fn display_quantity() {
     assert_eq!(format!("{p}"), "100 W");
     assert_eq!(format!("{p:.2}"), "100.00 W");
     assert_eq!(format!("{p:>8.1}|"), "   100.0 W|");
-    let level: SIQuantity<{ DECIBEL_WATT.unit() }, f64, false> = p.into();
+    let level: SIQuantity<{ DECIBEL_WATT.unit() }, f64, NOT_BASE> = p.into();
     assert_eq!(format!("{level:.0}"), "20 dBW");
     // A coherent unit without a name prints as its base units.
     let v: Velocity<f64> = 2.0 * METRE / SECOND;
-    assert_eq!(format!("{v}"), "2 m·s^-1");
+    assert_eq!(format!("{v}"), "2 m/s");
 }
 
 #[test]
@@ -335,7 +329,7 @@ fn dynamic_arithmetic_is_partial() {
     // result.
     let v = (d / (h * 2.0).unwrap()).unwrap();
     let v = Velocity::<f64>::try_from(v).unwrap();
-    close(f64::from(v / (1.0 * METRE / SECOND)), 12.5);
+    close(f64::from(v / (METRE / SECOND)), 12.5);
 
     // `m + s` is ill-formed: the operator has no result ...
     assert_eq!(d + h, None);
@@ -347,11 +341,14 @@ fn dynamic_arithmetic_is_partial() {
     let total = accepted()
         .and_then(|x| Length::<f64>::try_from(x).ok())
         .unwrap();
-    close(f64::from(total / (1.0 * METRE)), 8_100_000.0);
+    close(f64::from(total / METRE), 8_100_000.0);
     // A read of the wrong quantity rejects it.
     assert!(f64::try_from(d).is_err());
-    // A base unit and another unit do not mix: convert first.
-    assert_eq!(d / DynamicSIQuantity::from(1.0 * HOUR), None);
+    // A base unit and another unit multiply into one that is not a base
+    // unit.
+    let per_hour = (d / DynamicSIQuantity::from(1.0 * HOUR)).unwrap();
+    assert_eq!(per_hour.is_base, NOT_BASE);
+    assert_eq!(per_hour.unit.to_string(), "m/h");
 
     // Temperatures in kelvins are ordinary amounts: they scale, add, and
     // multiply.
@@ -365,7 +362,7 @@ fn dynamic_arithmetic_is_partial() {
     assert_eq!(c * km, None);
     assert!(ThermodynamicTemperature::<f64>::try_from(c).is_err());
     near(
-        SIQuantity::<{ CELSIUS.unit() }, f64, false>::try_from(c).unwrap(),
+        SIQuantity::<{ CELSIUS.unit() }, f64, NOT_BASE>::try_from(c).unwrap(),
         25.0,
     );
 }
@@ -388,7 +385,7 @@ fn a_unit_chosen_at_run_time_reads_the_open_type() {
     close(read(mph, v).unwrap(), 40.0);
     assert_eq!(read(mile, v), None);
     close(read(mile, d).unwrap(), 60.0);
-    assert_eq!(mph.to_string(), "h^-1·mi");
+    assert_eq!(mph.to_string(), "mi/h");
     assert_eq!(mile, MILE.unit());
 }
 
@@ -399,11 +396,11 @@ fn a_temperature_is_an_amount() {
     let rise = hot - cold;
     let warmer = cold + rise / 2.0;
     near(
-        SIQuantity::<{ CELSIUS.unit() }, f64, false>::from(warmer),
+        SIQuantity::<{ CELSIUS.unit() }, f64, NOT_BASE>::from(warmer),
         60.0,
     );
     near(
-        SIQuantity::<{ FAHRENHEIT.unit() }, f64, false>::from(warmer),
+        SIQuantity::<{ FAHRENHEIT.unit() }, f64, NOT_BASE>::from(warmer),
         140.0,
     );
     close(kelvins(warmer), 333.15);
@@ -411,16 +408,19 @@ fn a_temperature_is_an_amount() {
     let mut t = cold;
     t += rise;
     t -= rise / 4.0;
-    near(SIQuantity::<{ CELSIUS.unit() }, f64, false>::from(t), 80.0);
+    near(
+        SIQuantity::<{ CELSIUS.unit() }, f64, NOT_BASE>::from(t),
+        80.0,
+    );
     assert!(cold < hot);
     // It averages and scales, in kelvins.
     close(kelvins((cold + hot) / 2.0), 333.15);
     close(kelvins(2.0 * warmer), 666.3);
     // It multiplies: the ideal gas law, p V = n R T, and a fourth power.
     let r: chem::MolarHeatCapacity<f64> = (1.0_f64 * chem::MOLAR_GAS_CONSTANT).into();
-    let n_r: HeatCapacity<f64> = (1.0 * MOLE) * r;
+    let n_r: HeatCapacity<f64> = MOLE * r;
     let energy: Energy<f64> = n_r * warmer;
-    close(f64::from(energy / (1.0 * JOULE)), 8.314462618 * 333.15);
+    close(f64::from(energy / JOULE), 8.314462618 * 333.15);
     let fourth = warmer * warmer * warmer * warmer;
     assert_eq!(fourth.unit(), SIUnit::ONE.times(KELVIN.unit(), 4));
     close(f64::from(hot / cold), 373.15 / 293.15);
@@ -467,52 +467,55 @@ fn instants_count_from_their_zeros() {
     let launch: Instant<f64> = 1_700_000_000.0 * UNIX_SECOND;
     let landing = launch + Time::<f64>::from(2.0_f64 * HOUR);
     let flight: Time<f64> = landing - launch;
-    near(Time::<f64, { HOUR.unit() }, false>::from(flight), 2.0);
+    near(Time::<f64, { HOUR.unit() }, NOT_BASE>::from(flight), 2.0);
     close(
-        f64::from((landing - 30.0 * SECOND) / (1.0 * UNIX_SECOND)),
+        f64::from((landing - 30.0 * SECOND) / UNIX_SECOND),
         1_700_007_170.0,
     );
     assert!(launch < landing);
     let mut t = launch;
     t += Time::<f64>::from(1.0_f64 * DAY);
     t -= Time::<f64>::from(1.0_f64 * HOUR);
-    near(Time::<f64, { HOUR.unit() }, false>::from(t - launch), 23.0);
+    near(
+        Time::<f64, { HOUR.unit() }, NOT_BASE>::from(t - launch),
+        23.0,
+    );
 
     // One line, many units: each counts from its own zero on it.
     let gps_epoch: Instant<f64> = (0.0_f64 * GPS_SECOND).into();
     let unix_epoch: Instant<f64> = 0.0 * UNIX_SECOND;
-    close(f64::from(gps_epoch / (1.0 * UNIX_SECOND)), 315_964_800.0);
+    close(f64::from(gps_epoch / UNIX_SECOND), 315_964_800.0);
     near(
-        Instant::<f64, { GPS_SECOND.unit() }, false>::from(unix_epoch),
+        Instant::<f64, { GPS_SECOND.unit() }, NOT_BASE>::from(unix_epoch),
         -315_964_800.0,
     );
     near(
-        Instant::<f64, { JULIAN_DATE.unit() }, false>::from(unix_epoch),
+        Instant::<f64, { JULIAN_DATE.unit() }, NOT_BASE>::from(unix_epoch),
         2_440_587.5,
     );
     near(
-        Instant::<f64, { MODIFIED_JULIAN_DATE.unit() }, false>::from(unix_epoch),
+        Instant::<f64, { MODIFIED_JULIAN_DATE.unit() }, NOT_BASE>::from(unix_epoch),
         40_587.0,
     );
     near(
-        Instant::<f64, { MODIFIED_JULIAN_DATE.unit() }, false>::from(gps_epoch),
+        Instant::<f64, { MODIFIED_JULIAN_DATE.unit() }, NOT_BASE>::from(gps_epoch),
         44_244.0,
     );
     // J2000.0, noon on 1 January 2000, is JD 2451545.0 and Unix 946728000.
     let j2000: Instant<f64> = (2_451_545.0_f64 * JULIAN_DATE).into();
-    close(f64::from(j2000 / (1.0 * UNIX_SECOND)), 946_728_000.0);
+    close(f64::from(j2000 / UNIX_SECOND), 946_728_000.0);
     near(
-        Instant::<f64, { GPS_SECOND.unit() }, false>::from(j2000),
+        Instant::<f64, { GPS_SECOND.unit() }, NOT_BASE>::from(j2000),
         946_728_000.0 - 315_964_800.0,
     );
     near(
-        Time::<f64, { DAY.unit() }, false>::from(j2000 - gps_epoch),
+        Time::<f64, { DAY.unit() }, NOT_BASE>::from(j2000 - gps_epoch),
         7_300.5,
     );
     // Seconds as `f64` resolve today's instants to a fraction of a
     // microsecond, so a millisecond count survives.
     let precise: Instant<f64> = (1_700_000_000_123.0_f64 * UNIX_MILLISECOND).into();
-    assert!((f64::from(precise / (1.0 * UNIX_SECOND)) - 1_700_000_000.123).abs() < 1e-6);
+    assert!((f64::from(precise / UNIX_SECOND) - 1_700_000_000.123).abs() < 1e-6);
     // A linear unit's conversion is `const`, its zero and all.
     close(EPOCH_JD, 2_440_587.5);
 
@@ -528,10 +531,12 @@ fn instants_count_from_their_zeros() {
             InstantUnit::UnixMillisecond,
             InstantUnit::JulianDate
         ),
-        "ms Unix / JD"
+        "ms / JD"
     );
     assert_eq!("MJD".parse(), Ok(InstantUnit::ModifiedJulianDate));
+    // The coherent unit, the second, is the default.
     assert_eq!(InstantUnit::default(), InstantUnit::UnixSecond);
+    assert_eq!(InstantUnit::UnixSecond.to_string(), "s");
 }
 
 /// The Julian date of the Unix epoch, in a `const` item.
@@ -547,11 +552,11 @@ trait InBase: Sized {
     fn number(self) -> f64;
 }
 
-impl<const U: SIUnit> InBase for SIQuantity<U, f64, true> {
+impl<const U: SIUnit> InBase for SIQuantity<U, f64, BASE> {
     fn of(n: f64) -> Self {
         let q = DynamicSIQuantity {
             unit: U,
-            is_base: true,
+            is_base: BASE,
             value: n,
         };
         Self::try_from(q).unwrap()
@@ -627,20 +632,17 @@ impl Beaufort {
         0.836 * b.powf(1.5) * METRE / SECOND
     }
     fn number(v: Velocity<f64>) -> f64 {
-        (f64::from(v / (1.0 * METRE / SECOND)) / 0.836).powf(2.0 / 3.0)
+        (f64::from(v / (METRE / SECOND)) / 0.836).powf(2.0 / 3.0)
     }
 }
 
 #[test]
 fn function_units_mix_with_linear_ones() {
     let gale = Beaufort::velocity(5.0);
-    close(
-        f64::from(gale / (1.0 * METRE / SECOND)),
-        0.836 * 5f64.powf(1.5),
-    );
+    close(f64::from(gale / (METRE / SECOND)), 0.836 * 5f64.powf(1.5));
     close(Beaufort::number(gale), 5.0);
     // Any unit of velocity reads it, and it reads any.
-    let in_knots: Velocity<f64, { KNOT.unit() }, false> = gale.into();
+    let in_knots: Velocity<f64, { KNOT.unit() }, NOT_BASE> = gale.into();
     close(Beaufort::number(in_knots.into()), 5.0);
     let twenty_knots: Velocity<f64> = (20.0_f64 * KNOT).into();
     close(
@@ -659,7 +661,7 @@ fn every_generated_unit_reaches_the_open_set() {
     let pounds = 10.0 * POUND;
     let dq = DynamicSIQuantity::from(pounds);
     // Back to its own unit, then through the static path to kilograms.
-    let back = SIQuantity::<{ POUND.unit() }, f64, false>::try_from(dq);
+    let back = SIQuantity::<{ POUND.unit() }, f64, NOT_BASE>::try_from(dq);
     assert_eq!(back, Ok(pounds));
     close(kilograms(back.unwrap().into()), kilograms(pounds.into()));
     // A mismatch hands the original back: pounds are not kilograms.
@@ -674,16 +676,16 @@ fn every_generated_unit_reaches_the_open_set() {
 #[test]
 fn reciprocals_are_one_over() {
     // One over a time is a frequency.
-    let f: Frequency<f64> = (1.0 * RATIO) / (2.0 * SECOND);
-    close(f64::from(f / (1.0 * HERTZ)), 0.5);
+    let f: Frequency<f64> = 1.0 / (2.0 * SECOND);
+    close(f64::from(f / HERTZ), 0.5);
     // "Per hour": one over an hour, times an hour, is one.
     let hour: Time<f64> = (1.0_f64 * HOUR).into();
-    let per_hour: Frequency<f64> = (1.0 * RATIO) / hour;
+    let per_hour: Frequency<f64> = 1.0 / hour;
     close(f64::from(per_hour * hour), 1.0);
-    close(f64::from(per_hour / (1.0 * HERTZ)), 1.0 / 3600.0);
+    close(f64::from(per_hour / HERTZ), 1.0 / 3600.0);
     // One over an angle times an angle is a plain number.
-    let per_rad = (1.0 * RATIO) / (2.0 * RADIAN);
-    close(f64::from(per_rad * (1.0 * RADIAN)), 0.5);
+    let per_rad = 1.0 / (2.0 * RADIAN);
+    close(f64::from(per_rad * RADIAN), 0.5);
 
     // The open type: a bare `f64` is a plain number's quantity.
     let d = (DynamicSIQuantity::from(1.0) / DynamicSIQuantity::from(4.0 * METRE)).unwrap();
@@ -697,26 +699,26 @@ fn reciprocals_are_one_over() {
 
 // A unit constant is a quantity counted in `Exact`: products of them, and
 // numbers times them, are `const`.
-const LIMIT: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, f64, false> =
+const LIMIT: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, f64, NOT_BASE> =
     50.0 * (KILOMETRE / HOUR);
 const ELECTRON_REST_ENERGY: SIQuantity<
     { ELECTRON_MASS.unit().times(SPEED_OF_LIGHT.unit(), 2) },
     Exact,
-    false,
+    NOT_BASE,
 > = ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT;
-const BOILING: SIQuantity<{ CELSIUS.unit() }, f64, false> = 100.0 * CELSIUS;
+const BOILING: SIQuantity<{ CELSIUS.unit() }, f64, NOT_BASE> = 100.0 * CELSIUS;
 
 #[test]
 fn const_items_build() {
     let v: Velocity<f64> = LIMIT.into();
-    close(f64::from(v / (1.0 * METRE / SECOND)), 50.0 / 3.6);
+    close(f64::from(v / (METRE / SECOND)), 50.0 / 3.6);
     // E = mc² for the electron: 8.187e-14 J (0.511 MeV), exact until read.
-    let joules = f64::from(Energy::<f64>::from(1.0 * ELECTRON_REST_ENERGY) / (1.0 * JOULE));
+    let joules = f64::from(1.0 * ELECTRON_REST_ENERGY / JOULE);
     assert!((joules - 8.1871057769e-14).abs() < 1e-23, "got {joules}");
     let boiling: ThermodynamicTemperature<f64> = BOILING.into();
     close(kelvins(boiling), 373.15);
     near(
-        SIQuantity::<{ FAHRENHEIT.unit() }, f64, false>::from(boiling),
+        SIQuantity::<{ FAHRENHEIT.unit() }, f64, NOT_BASE>::from(boiling),
         212.0,
     );
 }
@@ -733,10 +735,7 @@ fn units_carry_their_exact_definitions() {
     assert_eq!(zero(POUND.unit()), Exact::ZERO);
     close(kilograms((1.0_f64 * POUND).into()), 0.45359237);
     assert_eq!(WATT_HOUR.unit().size(), Exact::int(3600));
-    close(
-        f64::from(Dimensionless::<f64>::from(1.0_f64 * PERCENT)),
-        0.01,
-    );
+    close(f64::from(1.0_f64 * PERCENT), 0.01);
     // A temperature unit is a size and a zero: °C counts kelvin-sized steps
     // from the ice point, °F steps of 5/9 K from 459.67 °F below it.
     assert_eq!(CELSIUS.unit().size(), Exact::ONE);
@@ -750,7 +749,7 @@ fn units_carry_their_exact_definitions() {
         Exact::dec(45967, -2) * Exact::int(5) / Exact::int(9)
     );
     near(
-        SIQuantity::<{ FAHRENHEIT.unit() }, f64, false>::from(0.0 * KELVIN),
+        SIQuantity::<{ FAHRENHEIT.unit() }, f64, NOT_BASE>::from(0.0 * KELVIN),
         -459.67,
     );
     // Modules are namespaces: a minute of time and a minute of arc coexist.
@@ -762,9 +761,9 @@ fn units_carry_their_exact_definitions() {
     // Within one module, a shared name is prefixed with the quantity.
     let d: fluid::DiffusionCoefficient<f64> =
         (1.0_f64 * fluid::DIFFUSION_COEFFICIENT_STOKES).into();
-    close(f64::from(d / (1.0 * METRE * METRE / SECOND)), 1e-4);
+    close(f64::from(d / (METRE * METRE / SECOND)), 1e-4);
     let k: fluid::KinematicViscosity<f64> = (1.0_f64 * fluid::KINEMATIC_VISCOSITY_STOKES).into();
-    close(f64::from(k / (1.0 * METRE * METRE / SECOND)), 1e-4);
+    close(f64::from(k / (METRE * METRE / SECOND)), 1e-4);
 }
 
 #[test]
@@ -772,11 +771,11 @@ fn physical_constants_are_units_of_their_quantities() {
     // Standard gravity times a mass is a force (a weight).
     let g0: Acceleration<f64> = (1.0_f64 * STANDARD_GRAVITY).into();
     let weight: Force<f64> = g0 * (70.0 * KILOGRAM);
-    close(f64::from(weight / (1.0 * NEWTON)), 686.4655);
+    close(f64::from(weight / NEWTON), 686.4655);
     // k·T is an energy: kT at 300 K ≈ 4.14e-21 J.
     let k: HeatCapacity<f64> = (1.0_f64 * BOLTZMANN_CONSTANT).into();
     let kt: Energy<f64> = k * (300.0 * KELVIN);
-    close(f64::from(kt / (1.0 * JOULE)) * 1e21, 4.141947);
+    close(f64::from(kt / JOULE) * 1e21, 4.141947);
     // R = N_A · k, within the CODATA rounding of R.
     let n_a: chem::InverseAmountOfSubstance<f64> = (1.0_f64 * chem::AVOGADRO_CONSTANT).into();
     let r: chem::MolarHeatCapacity<f64> = n_a * k;
@@ -790,7 +789,7 @@ fn physical_constants_are_units_of_their_quantities() {
     // 1 atm in pascals, exactly, and the elementary charge in coulombs.
     assert_eq!(STANDARD_ATMOSPHERE.unit().size(), Exact::int(101_325));
     let e: em::ElectricCharge<f64> = (1.0_f64 * em::ELEMENTARY_CHARGE).into();
-    close(f64::from(e / (1.0 * em::COULOMB)) * 1e19, 1.602176634);
+    close(f64::from(e / em::COULOMB) * 1e19, 1.602176634);
     // ε₀ μ₀ c² = 1, to the precision of the CODATA values.
     let c: Velocity<f64> = (1.0_f64 * SPEED_OF_LIGHT).into();
     let eps0: em::ElectricPermittivity<f64> = (1.0_f64 * em::VACUUM_PERMITTIVITY).into();
@@ -806,7 +805,7 @@ fn physical_constants_are_units_of_their_quantities() {
     let t: ThermodynamicTemperature<f64> = 300.0 * KELVIN;
     let sigma: StefanBoltzmannCoefficient<f64> = (1.0_f64 * STEFAN_BOLTZMANN_CONSTANT).into();
     let exitance: HeatFluxDensity<f64> = sigma * t * t * t * t;
-    let w_per_m2 = f64::from(exitance * (1.0 * METRE) * (1.0 * METRE) / (1.0 * WATT));
+    let w_per_m2 = f64::from(exitance * METRE * METRE / WATT);
     assert!((w_per_m2 - 459.3).abs() < 0.1, "got {w_per_m2}");
 }
 
@@ -814,12 +813,12 @@ fn physical_constants_are_units_of_their_quantities() {
 fn velocities_read_in_units_of_c() {
     // A physical constant is a unit: read a speed as a fraction of c.
     let v: Velocity<f64> = 29_979_245.8 * METRE / SECOND;
-    let in_c: Velocity<f64, { SPEED_OF_LIGHT.unit() }, false> = v.into();
-    close(f64::from(in_c / (1.0 * SPEED_OF_LIGHT)), 0.1);
+    let in_c: Velocity<f64, { SPEED_OF_LIGHT.unit() }, NOT_BASE> = v.into();
+    close(f64::from(in_c / SPEED_OF_LIGHT), 0.1);
     // ... and build one from it.
     let half_c = 0.5_f64 * SPEED_OF_LIGHT;
     let v: Velocity<f64> = half_c.into();
-    close(f64::from(v / (1.0 * METRE / SECOND)), 149_896_229.0);
+    close(f64::from(v / (METRE / SECOND)), 149_896_229.0);
     assert_eq!(format!("{half_c:.2}"), "0.50 c");
     assert_eq!(
         SIUnit::from(VelocityUnit::SpeedOfLight),
@@ -827,7 +826,7 @@ fn velocities_read_in_units_of_c() {
     );
     // The Avogadro constant: one mole of things, counted.
     let n_a: chem::InverseAmountOfSubstance<f64> = (1.0_f64 * chem::AVOGADRO_CONSTANT).into();
-    close(f64::from(n_a * (1.0 * MOLE)) / 1e23, 6.02214076);
+    close(f64::from(n_a * MOLE) / 1e23, 6.02214076);
 }
 
 // --- Units of your own -------------------------------------------------------------
@@ -844,34 +843,31 @@ const REAUMUR: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
-const BODY: SIQuantity<{ CELSIUS.unit() }, f64, false> = 37.0 * CELSIUS;
+const BODY: SIQuantity<{ CELSIUS.unit() }, f64, NOT_BASE> = 37.0 * CELSIUS;
 
 #[test]
 fn units_of_your_own_convert_like_the_librarys() {
     let body: ThermodynamicTemperature<f64> = BODY.into();
     near(
-        SIQuantity::<{ FAHRENHEIT.unit() }, f64, false>::from(body),
+        SIQuantity::<{ FAHRENHEIT.unit() }, f64, NOT_BASE>::from(body),
         98.6,
     );
     near(
-        SIQuantity::<{ REAUMUR.unit() }, f64, false>::from(body),
+        SIQuantity::<{ REAUMUR.unit() }, f64, NOT_BASE>::from(body),
         29.6,
     );
     close(kelvins(body), 310.15);
     near(
-        SIQuantity::<{ RANKINE.unit() }, f64, false>::from(body),
+        SIQuantity::<{ RANKINE.unit() }, f64, NOT_BASE>::from(body),
         310.15 * 1.8,
     );
     let atm: Pressure<f64> = (1.0_f64 * STANDARD_ATMOSPHERE).into();
-    let psi: Pressure<f64, { PSI.unit() }, false> = atm.into();
-    assert!(
-        (f64::from(psi / (1.0 * PSI)) - 14.6959).abs() < 1e-4,
-        "{psi}"
-    );
-    close(f64::from(atm / (1.0 * PASCAL)), 101_325.0);
+    let psi: Pressure<f64, { PSI.unit() }, NOT_BASE> = atm.into();
+    assert!((f64::from(psi / PSI) - 14.6959).abs() < 1e-4, "{psi}");
+    close(f64::from(atm / PASCAL), 101_325.0);
     assert_eq!(format!("{}", 2.0_f64 * REAUMUR), "2 °Ré");
     // Picked at run time: any unit of a temperature.
     let scales: [SIUnit; 3] = [
@@ -896,10 +892,10 @@ fn units_of_your_own_convert_like_the_librarys() {
 #[test]
 fn other_number_types() {
     let p32: Pressure<f32> = 2500.0_f32 * PASCAL;
-    let bar32: Pressure<f32, { BAR.unit() }, false> = p32.into();
-    assert_eq!(f32::from(bar32 / (1.0_f32 * BAR)), 0.025_f32);
+    let bar32: Pressure<f32, { BAR.unit() }, NOT_BASE> = p32.into();
+    assert_eq!(f32::from(bar32 / BAR), 0.025_f32);
     let p: Pressure<f64> = Pressure::<f64>::from(p32);
-    close(f64::from(p / (1.0 * PASCAL)), 2500.0);
+    close(f64::from(p / PASCAL), 2500.0);
     // Code generic over the number type.
     fn area<N>(side: Length<N>) -> Area<N>
     where

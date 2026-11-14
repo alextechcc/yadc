@@ -112,8 +112,7 @@ const impl Sub for Dim {
 }
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-#[const_ops(one = Dim { m: 0 })]
-pub struct Qty<const D: Dim, N>(N);
+pub struct Qty<#[ops(one = Dim { m: 0 })] const D: Dim, N>(N);
 
 /// The number and the metres: `6250000 m^2`.
 impl<const D: Dim, N: fmt::Display> fmt::Display for Qty<D, N> {
@@ -131,8 +130,7 @@ pub type Ratio<N> = Qty<{ Dim { m: 0 } }, N>;
 pub type Length<N> = Qty<{ Dim { m: 1 } }, N>;
 pub type Area<N> = Qty<{ Dim { m: 2 } }, N>;
 
-/// A plain ratio is its number. The derive writes this for the primitive
-/// number types; a number type of yours writes its own.
+/// A plain ratio is its number: a system writes this for its number types.
 impl From<Ratio<MyF64>> for MyF64 {
     fn from(r: Ratio<MyF64>) -> MyF64 {
         r.0

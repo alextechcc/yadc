@@ -3,13 +3,7 @@
 #[allow(unused_imports)]
 use crate::*;
 
-/// An acceleration, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Acceleration<
-    N,
-    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Acceleration` is `crate::Acceleration`.
 
 /// Gal (`Gal`), a unit of `Acceleration`: `n` of them is `n · 1e-2` base units.
 pub const GAL: Qty<
@@ -21,7 +15,7 @@ pub const GAL: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A brightness, in `N`s of the unit `U`: by default its coherent unit, a
@@ -33,8 +27,8 @@ pub type Brightness<
             .times(METER.unit(), -2)
             .times(CANDELA.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Lambert (`Lmb`), a unit of `Brightness`: `n` of them is `n · 1e4 / core::f64::consts::PI` base units.
 pub const LAMBERT: Qty<
@@ -48,20 +42,10 @@ pub const LAMBERT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A dose equivalent, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type DoseEquivalent<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `DoseEquivalent` is `crate::DoseEquivalent`.
 
 /// Radiation equivalent man (`REM`), a unit of `DoseEquivalent`: `n` of them is `n · 1e-2` base units.
 pub const RADIATION_EQUIVALENT_MAN: Qty<
@@ -75,7 +59,7 @@ pub const RADIATION_EQUIVALENT_MAN: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A dynamic viscosity, in `N`s of the unit `U`: by default its coherent unit, a
@@ -88,8 +72,8 @@ pub type DynamicViscosity<
             .times(SECOND.unit(), -1)
             .times(GRAM.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Poise (`P`), a unit of `DynamicViscosity`: `n` of them is `n · 1e2` base units.
 pub const POISE: Qty<
@@ -104,20 +88,10 @@ pub const POISE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An electric current, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type ElectricCurrent<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(SECOND.unit(), -1)
-            .times(COULOMB.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `ElectricCurrent` is `crate::ElectricCurrent`.
 
 /// Biot (`Bi`), a unit of `ElectricCurrent`: `n` of them is `n · 1e1` base units.
 pub const BIOT: Qty<
@@ -131,21 +105,10 @@ pub const BIOT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An energy, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Energy<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-            .times(GRAM.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Energy` is `crate::Energy`.
 
 /// Erg (`erg`), a unit of `Energy`: `n` of them is `n · 1e-4` base units.
 pub const ERG: Qty<
@@ -160,20 +123,10 @@ pub const ERG: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An energy dose, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type EnergyDose<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `EnergyDose` is `crate::EnergyDose`.
 
 /// Radiation absorbed dose (`RAD`), a unit of `EnergyDose`: `n` of them is `n · 1e-2` base units.
 pub const RADIATION_ABSORBED_DOSE: Qty<
@@ -187,7 +140,7 @@ pub const RADIATION_ABSORBED_DOSE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A flux of magnetic induction, in `N`s of the unit `U`: by default its coherent unit, a
@@ -201,8 +154,8 @@ pub type FluxOfMagneticInduction<
             .times(GRAM.unit(), 1)
             .times(COULOMB.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Maxwell (`Mx`), a unit of `FluxOfMagneticInduction`: `n` of them is `n · 1e-5` base units.
 pub const MAXWELL: Qty<
@@ -218,16 +171,10 @@ pub const MAXWELL: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A force, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Force<
-    N,
-    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Force` is `crate::Force`.
 
 /// Dyne (`dyn`), a unit of `Force`: `n` of them is `n · 1e-2` base units.
 pub const DYNE: Qty<
@@ -239,21 +186,10 @@ pub const DYNE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Illuminance<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -2)
-            .times(RADIAN.unit(), 2)
-            .times(CANDELA.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Illuminance` is `crate::Illuminance`.
 
 /// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 1e-4` base units.
 pub const PHOT: Qty<
@@ -268,7 +204,7 @@ pub const PHOT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// An ion dose, in `N`s of the unit `U`: by default its coherent unit, a
@@ -280,8 +216,8 @@ pub type IonDose<
             .times(GRAM.unit(), -1)
             .times(COULOMB.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Roentgen (`R`), a unit of `IonDose`: `n` of them is `n · 258e-9` base units.
 pub const ROENTGEN: Qty<
@@ -295,7 +231,7 @@ pub const ROENTGEN: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A kinematic viscosity, in `N`s of the unit `U`: by default its coherent unit, a
@@ -307,8 +243,8 @@ pub type KinematicViscosity<
             .times(METER.unit(), 2)
             .times(SECOND.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Stokes (`St`), a unit of `KinematicViscosity`: `n` of them is `n · 1e-4` base units.
 pub const STOKES: Qty<
@@ -322,22 +258,16 @@ pub const STOKES: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A lineic number, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type LineicNumber<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(METER.unit(), -1) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `LineicNumber` is `crate::LineicNumber`.
 
 /// Kayser (`Ky`), a unit of `LineicNumber`: `n` of them is `n · 1e2` base units.
 pub const KAYSER: Qty<
     { UcumUnit::scaled("Ky", Exact::int(100), UcumUnit::ONE.times(METER.unit(), -1)) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A lum intensity density, in `N`s of the unit `U`: by default its coherent unit, a
@@ -349,8 +279,8 @@ pub type LumIntensityDensity<
             .times(METER.unit(), -2)
             .times(CANDELA.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Stilb (`sb`), a unit of `LumIntensityDensity`: `n` of them is `n · 1e4` base units.
 pub const STILB: Qty<
@@ -364,7 +294,7 @@ pub const STILB: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A magnetic field intensity, in `N`s of the unit `U`: by default its coherent unit, a
@@ -377,8 +307,8 @@ pub type MagneticFieldIntensity<
             .times(SECOND.unit(), -1)
             .times(COULOMB.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Oersted (`Oe`), a unit of `MagneticFieldIntensity`: `n` of them is `n · 25e1 / core::f64::consts::PI` base units.
 pub const OERSTED: Qty<
@@ -393,21 +323,10 @@ pub const OERSTED: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A magnetic flux density, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type MagneticFluxDensity<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(SECOND.unit(), -1)
-            .times(GRAM.unit(), 1)
-            .times(COULOMB.unit(), -1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `MagneticFluxDensity` is `crate::MagneticFluxDensity`.
 
 /// Gauss (`G`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e-1` base units.
 pub const GAUSS: Qty<
@@ -422,7 +341,7 @@ pub const GAUSS: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A magnetic tension, in `N`s of the unit `U`: by default its coherent unit, a
@@ -434,8 +353,8 @@ pub type MagneticTension<
             .times(SECOND.unit(), -1)
             .times(COULOMB.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Gilbert (`Gb`), a unit of `MagneticTension`: `n` of them is `n · 25e-1 / core::f64::consts::PI` base units.
 pub const GILBERT: Qty<
@@ -449,16 +368,10 @@ pub const GILBERT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A radioactivity, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Radioactivity<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Radioactivity` is `crate::Radioactivity`.
 
 /// Curie (`Ci`), a unit of `Radioactivity`: `n` of them is `n · 37e9` base units.
 pub const CURIE: Qty<
@@ -470,5 +383,5 @@ pub const CURIE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;

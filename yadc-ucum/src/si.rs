@@ -3,29 +3,16 @@
 #[allow(unused_imports)]
 use crate::*;
 
-/// An amount of substance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type AmountOfSubstance<N, const U: UcumUnit = { UcumUnit::ONE }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `AmountOfSubstance` is `crate::AmountOfSubstance`.
 
 /// Mole (`mol`), a unit of `AmountOfSubstance`: `n` of them is `n · 602214076e15` base units.
 pub const MOLE: Qty<
     { UcumUnit::scaled("mol", Exact::int(602214076000000000000000), UcumUnit::ONE) },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A dose equivalent, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type DoseEquivalent<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `DoseEquivalent` is `crate::DoseEquivalent`.
 
 /// Sievert (`Sv`), a unit of `DoseEquivalent`: the coherent unit, a product of base units.
 pub const SIEVERT: Qty<
@@ -35,7 +22,7 @@ pub const SIEVERT: Qty<
             .times(SECOND.unit(), -2)
     },
     Exact,
-    true,
+    BASE,
 > = Qty::ONE;
 
 /// An electric capacitance, in `N`s of the unit `U`: by default its coherent unit, a
@@ -49,8 +36,8 @@ pub type ElectricCapacitance<
             .times(GRAM.unit(), -1)
             .times(COULOMB.unit(), 2)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Farad (`F`), a unit of `ElectricCapacitance`: `n` of them is `n · 1e-3` base units.
 pub const FARAD: Qty<
@@ -66,27 +53,12 @@ pub const FARAD: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An electric charge, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type ElectricCharge<N, const U: UcumUnit = { COULOMB.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `ElectricCharge` is `crate::ElectricCharge`.
 
-/// An electric conductance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type ElectricConductance<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -2)
-            .times(SECOND.unit(), 1)
-            .times(GRAM.unit(), -1)
-            .times(COULOMB.unit(), 2)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `ElectricConductance` is `crate::ElectricConductance`.
 
 /// Siemens (`S`), a unit of `ElectricConductance`: `n` of them is `n · 1e-3` base units.
 pub const SIEMENS: Qty<
@@ -102,20 +74,10 @@ pub const SIEMENS: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An electric current, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type ElectricCurrent<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(SECOND.unit(), -1)
-            .times(COULOMB.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `ElectricCurrent` is `crate::ElectricCurrent`.
 
 /// Ampère (`A`), a unit of `ElectricCurrent`: the coherent unit, a product of base units.
 pub const AMPERE: Qty<
@@ -125,7 +87,7 @@ pub const AMPERE: Qty<
             .times(COULOMB.unit(), 1)
     },
     Exact,
-    true,
+    BASE,
 > = Qty::ONE;
 
 /// An electric potential, in `N`s of the unit `U`: by default its coherent unit, a
@@ -139,8 +101,8 @@ pub type ElectricPotential<
             .times(GRAM.unit(), 1)
             .times(COULOMB.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Volt (`V`), a unit of `ElectricPotential`: `n` of them is `n · 1e3` base units.
 pub const VOLT: Qty<
@@ -156,7 +118,7 @@ pub const VOLT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// An electric resistance, in `N`s of the unit `U`: by default its coherent unit, a
@@ -170,8 +132,8 @@ pub type ElectricResistance<
             .times(GRAM.unit(), 1)
             .times(COULOMB.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Ohm (`Ohm`), a unit of `ElectricResistance`: `n` of them is `n · 1e3` base units.
 pub const OHM: Qty<
@@ -187,21 +149,10 @@ pub const OHM: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An energy, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Energy<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-            .times(GRAM.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Energy` is `crate::Energy`.
 
 /// Joule (`J`), a unit of `Energy`: `n` of them is `n · 1e3` base units.
 pub const JOULE: Qty<
@@ -216,20 +167,10 @@ pub const JOULE: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// An energy dose, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type EnergyDose<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -2)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `EnergyDose` is `crate::EnergyDose`.
 
 /// Gray (`Gy`), a unit of `EnergyDose`: the coherent unit, a product of base units.
 pub const GRAY: Qty<
@@ -239,16 +180,10 @@ pub const GRAY: Qty<
             .times(SECOND.unit(), -2)
     },
     Exact,
-    true,
+    BASE,
 > = Qty::ONE;
 
-/// A force, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Force<
-    N,
-    const U: UcumUnit = { METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Force` is `crate::Force`.
 
 /// Newton (`N`), a unit of `Force`: `n` of them is `n · 1e3` base units.
 pub const NEWTON: Qty<
@@ -260,7 +195,7 @@ pub const NEWTON: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
 /// A frequency, in `N`s of the unit `U`: by default its coherent unit, a
@@ -268,24 +203,13 @@ pub const NEWTON: Qty<
 pub type Frequency<
     N,
     const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Hertz (`Hz`), a unit of `Frequency`: the coherent unit, a product of base units.
-pub const HERTZ: Qty<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, Exact, true> = Qty::ONE;
+pub const HERTZ: Qty<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, Exact, BASE> = Qty::ONE;
 
-/// An illuminance, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Illuminance<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -2)
-            .times(RADIAN.unit(), 2)
-            .times(CANDELA.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Illuminance` is `crate::Illuminance`.
 
 /// Lux (`lx`), a unit of `Illuminance`: the coherent unit, a product of base units.
 pub const LUX: Qty<
@@ -296,7 +220,7 @@ pub const LUX: Qty<
             .times(CANDELA.unit(), 1)
     },
     Exact,
-    true,
+    BASE,
 > = Qty::ONE;
 
 /// An inductance, in `N`s of the unit `U`: by default its coherent unit, a
@@ -309,8 +233,8 @@ pub type Inductance<
             .times(GRAM.unit(), 1)
             .times(COULOMB.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Henry (`H`), a unit of `Inductance`: `n` of them is `n · 1e3` base units.
 pub const HENRY: Qty<
@@ -325,13 +249,10 @@ pub const HENRY: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A length, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Length<N, const U: UcumUnit = { METER.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `Length` is `crate::Length`.
 
 /// A luminous flux, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -342,8 +263,8 @@ pub type LuminousFlux<
             .times(RADIAN.unit(), 2)
             .times(CANDELA.unit(), 1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Lumen (`lm`), a unit of `LuminousFlux`: the coherent unit, a product of base units.
 pub const LUMEN: Qty<
@@ -353,13 +274,13 @@ pub const LUMEN: Qty<
             .times(CANDELA.unit(), 1)
     },
     Exact,
-    true,
+    BASE,
 > = Qty::ONE;
 
 /// A luminous intensity, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type LuminousIntensity<N, const U: UcumUnit = { CANDELA.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+pub type LuminousIntensity<N, const U: UcumUnit = { CANDELA.unit() }, const B: Base = BASE> =
+    Qty<U, N, B>;
 
 /// A magnetic flux, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -372,8 +293,8 @@ pub type MagneticFlux<
             .times(GRAM.unit(), 1)
             .times(COULOMB.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = Qty<U, N, B>;
 
 /// Weber (`Wb`), a unit of `MagneticFlux`: `n` of them is `n · 1e3` base units.
 pub const WEBER: Qty<
@@ -389,21 +310,10 @@ pub const WEBER: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A magnetic flux density, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type MagneticFluxDensity<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(SECOND.unit(), -1)
-            .times(GRAM.unit(), 1)
-            .times(COULOMB.unit(), -1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `MagneticFluxDensity` is `crate::MagneticFluxDensity`.
 
 /// Tesla (`T`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e3` base units.
 pub const TESLA: Qty<
@@ -418,31 +328,14 @@ pub const TESLA: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A mass, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Mass<N, const U: UcumUnit = { GRAM.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `Mass` is `crate::Mass`.
 
-/// A plane angle, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type PlaneAngle<N, const U: UcumUnit = { RADIAN.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `PlaneAngle` is `crate::PlaneAngle`.
 
-/// A power, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Power<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), 2)
-            .times(SECOND.unit(), -3)
-            .times(GRAM.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Power` is `crate::Power`.
 
 /// Watt (`W`), a unit of `Power`: `n` of them is `n · 1e3` base units.
 pub const WATT: Qty<
@@ -457,21 +350,10 @@ pub const WATT: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A pressure, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Pressure<
-    N,
-    const U: UcumUnit = {
-        UcumUnit::ONE
-            .times(METER.unit(), -1)
-            .times(SECOND.unit(), -2)
-            .times(GRAM.unit(), 1)
-    },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Pressure` is `crate::Pressure`.
 
 /// Pascal (`Pa`), a unit of `Pressure`: `n` of them is `n · 1e3` base units.
 pub const PASCAL: Qty<
@@ -486,32 +368,17 @@ pub const PASCAL: Qty<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = Qty::ONE;
 
-/// A radioactivity, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Radioactivity<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `Radioactivity` is `crate::Radioactivity`.
 
 /// Becquerel (`Bq`), a unit of `Radioactivity`: the coherent unit, a product of base units.
-pub const BECQUEREL: Qty<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, Exact, true> = Qty::ONE;
+pub const BECQUEREL: Qty<{ UcumUnit::ONE.times(SECOND.unit(), -1) }, Exact, BASE> = Qty::ONE;
 
-/// A solid angle, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type SolidAngle<
-    N,
-    const U: UcumUnit = { UcumUnit::ONE.times(RADIAN.unit(), 2) },
-    const IS_BASE: bool = true,
-> = Qty<U, N, IS_BASE>;
+// `SolidAngle` is `crate::SolidAngle`.
 
 /// Steradian (`sr`), a unit of `SolidAngle`: the coherent unit, a product of base units.
-pub const STERADIAN: Qty<{ UcumUnit::ONE.times(RADIAN.unit(), 2) }, Exact, true> = Qty::ONE;
+pub const STERADIAN: Qty<{ UcumUnit::ONE.times(RADIAN.unit(), 2) }, Exact, BASE> = Qty::ONE;
 
-/// A time, in `N`s of the unit `U`: by default its coherent unit, a
-/// product of base units.
-pub type Time<N, const U: UcumUnit = { SECOND.unit() }, const IS_BASE: bool = true> =
-    Qty<U, N, IS_BASE>;
+// `Time` is `crate::Time`.

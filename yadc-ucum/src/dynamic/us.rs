@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AreaUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2))]
+    MeterSquared,
     #[value(ACRE.unit())]
     Acre,
     #[value(SQUARE_ROD.unit())]
@@ -36,6 +38,8 @@ pub enum AreaUnit {
 #[values(into(UcumUnit))]
 pub enum DryVolumeUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    MeterCubed,
     #[value(BUSHEL.unit())]
     Bushel,
     #[value(HISTORICAL_WINCHESTER_GALLON.unit())]
@@ -57,6 +61,8 @@ pub enum DryVolumeUnit {
 #[values(into(UcumUnit))]
 pub enum FluidVolumeUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    MeterCubed,
     #[value(QUEEN_ANNE_S_WINE_GALLON.unit())]
     QueenAnneSWineGallon,
     #[value(BARREL.unit())]
@@ -88,6 +94,8 @@ pub enum FluidVolumeUnit {
 #[values(into(UcumUnit))]
 pub enum LengthUnit {
     #[default]
+    #[value(METER.unit())]
+    Meter,
     #[value(FOOT.unit())]
     Foot,
     #[value(YARD.unit())]
@@ -123,6 +131,8 @@ pub enum LengthUnit {
 #[values(into(UcumUnit))]
 pub enum MassUnit {
     #[default]
+    #[value(GRAM.unit())]
+    Gram,
     #[value(GRAIN.unit())]
     Grain,
     #[value(POUND.unit())]
@@ -160,6 +170,8 @@ pub enum MassUnit {
 #[values(into(UcumUnit))]
 pub enum VolumeUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 3))]
+    MeterCubed,
     #[value(TABLESPOON.unit())]
     Tablespoon,
     #[value(TEASPOON.unit())]

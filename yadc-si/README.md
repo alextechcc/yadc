@@ -13,15 +13,19 @@ What it defines:
   units are the metre, kilogram, second, ampere, kelvin, mole, candela and
   radian (`rad`: solid angle is rad², torque J/rad, so an angular speed
   never mixes with a frequency). Its std `* / + -` return `Option`.
-- `SIQuantity<U, N, IS_BASE>` - a number `N` of the unit `U`, with
-  `#[derive(const_derive_more::ConstOps)]`. `IS_BASE` says whether `U` is a
-  base unit or a product of base units.
+- `SIQuantity<U, N, B>` - a number `N` of the unit `U`, with
+  `#[derive(const_derive_more::ConstOps)]`. `B`, a `Base`, says whether `U`
+  is a base unit or a product of base units (`BASE`) or not (`NOT_BASE`);
+  a product is `BASE` where both factors are.
 - `Exact` - the exact number unit sizes are written in, with std `From` to
   `f64`, `f32` and every primitive integer.
 - Unit constants, one of each unit, counted in `Exact`: the 20 SI prefixes
   and the base units at the crate root (`KILO`, `METRE`), the rest in their
-  family's module (`mechanical::KILOMETRE`, `thermal::CELSIUS`).
-- Quantity aliases, `Length<N, U = metre, IS_BASE = true>`.
+  family's module (`mechanical::KILOMETRE`, `thermal::CELSIUS`). A
+  prefixed unit is the prefix times its unit: `KILOMETRE` is `KILO * METRE`.
+- Quantity aliases, `Length<N, U = metre, B = BASE>`.
+- A quantity of a plain number as a number of each primitive type, scaled
+  by its unit's size: `f64::from(d / KILOMETRE)`.
 - `From` between a quantity of any unit and a base unit of its dimension,
   both ways.
 - `dynamic::DynamicSIQuantity` - a quantity of a unit chosen at run time;
@@ -65,7 +69,8 @@ use yadc_si::thermal::*;
 use yadc_si::*;
 
 // A number times a unit is a quantity of it; `.into()` converts it into
-// the unit the target type names. Base units multiply into base units.
+// the unit the target type names. Base units multiply into base units;
+// any other unit into one that is not (`KILO * PASCAL`, `KILOMETRE / HOUR`).
 let mass: Mass<f64> = (154.0_f64 * POUND).into();        // 69.85 kg
 let g0: Acceleration<f64> = (1.0_f64 * STANDARD_GRAVITY).into();
 let weight: Force<f64> = mass * g0;
@@ -74,19 +79,20 @@ let newtons = f64::from(weight / NEWTON);                 // 685.03: a plain rat
 
 // Any unit of a quantity, named in its type.
 let d: Length<f64> = (3.0_f64 * MILE).into();
-let miles: Length<f64, { MILE.unit() }, false> = d.into();
+let miles: Length<f64, { MILE.unit() }, NOT_BASE> = d.into();
 let n = f64::from(miles / MILE);                          // 3.0
+let km = f64::from(d / KILOMETRE);                        // 4.83
 let more = 0.5 * miles + miles;                           // 4.5 mi: one unit adds and scales
 
 // A unit with a zero converts; it has no products.
 let t: ThermodynamicTemperature<f64> = (25.0_f64 * CELSIUS).into();             // 298.15 K
-let f: ThermodynamicTemperature<f64, { FAHRENHEIT.unit() }, false> = t.into(); // 77 °F
+let f: ThermodynamicTemperature<f64, { FAHRENHEIT.unit() }, NOT_BASE> = t.into(); // 77 °F
 let rise: TemperatureInterval<f64> = (9.0_f64 * DEGREE_FAHRENHEIT).into();     // 5 K
-// let nope = (25.0 * CELSIUS) * (1.0 * METRE);           // error: cannot multiply
+// let nope = (25.0 * CELSIUS) * METRE;                   // error: cannot multiply
 
 // A log unit converts the same way: dBm on power, dB on a plain ratio.
 let p: Power<f64> = (30.0_f64 * DECIBEL_MILLIWATT).into();              // 1 W
-let dbw: Power<f64, { DECIBEL_WATT.unit() }, false> = (2.0 * p).into(); // 3.01 dBW
+let dbw: Power<f64, { DECIBEL_WATT.unit() }, NOT_BASE> = (2.0 * p).into(); // 3.01 dBW
 let ratio: Dimensionless<f64> = (10.0_f64 * DECIBEL).into();            // 10
 let x = f64::from(ratio);
 

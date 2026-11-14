@@ -11,13 +11,13 @@
 use serde::{Deserialize, Serialize};
 use yadc_si::mechanical::*;
 use yadc_si::thermal::*;
-use yadc_si::{KILOGRAM, SIQuantity};
+use yadc_si::{KILOGRAM, NOT_BASE, SIQuantity};
 
 /// A record of quantities: one in a base unit, one in hours.
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Leg {
     load: Mass<f64>,
-    duration: SIQuantity<{ HOUR.unit() }, f64, false>,
+    duration: SIQuantity<{ HOUR.unit() }, f64, NOT_BASE>,
     outside: ThermodynamicTemperature<f64>,
 }
 

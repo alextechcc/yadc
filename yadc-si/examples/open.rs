@@ -16,12 +16,12 @@
 #![feature(generic_const_exprs, const_trait_impl)]
 #![allow(incomplete_features)]
 
-use yadc_si::SIUnit;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::dimensionless::DimensionlessUnit;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PowerUnit, PressureUnit};
 use yadc_si::dynamic::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
 use yadc_si::mechanical::{BAR, Length, PSI, Pressure};
+use yadc_si::{BASE, SIUnit};
 
 /// The product of base units a unit is counted in: kilometres' metres,
 /// bars' kg·m⁻¹·s⁻².
@@ -39,7 +39,7 @@ fn open(unit: impl Into<SIUnit>, n: f64) -> DynamicSIQuantity {
     let unit = unit.into();
     DynamicSIQuantity {
         unit: base_of(unit),
-        is_base: true,
+        is_base: BASE,
         value: unit.to_base(n),
     }
 }
@@ -78,14 +78,18 @@ fn main() {
     // `?` stops a chain at the first step that has no result.
     let chain = || ((p * a)? + (p * a)?)? * 2.0;
     println!("(p×a + p×a)×2 = {:.1?} {newton}", read(newton, chain()));
-    // A quantity kept in its own unit is not in base units: the open type
-    // combines only values that agree in that.
+    // A quantity kept in its own unit is not in base units, and neither is
+    // its product with one that is.
     let in_bar = DynamicSIQuantity::from(1.01325_f64 * BAR);
     println!(
-        "1.01325 bar = {} {}, in base units: {}",
+        "1.01325 bar = {} {}, in base units: {:?}",
         in_bar.value, in_bar.unit, in_bar.is_base
     );
-    println!("(p in bar) × a = {:?}", in_bar * a);
+    let force = (in_bar * a).unwrap();
+    println!(
+        "(p in bar) × a = {} {}, in base units: {:?}",
+        force.value, force.unit, force.is_base
+    );
 
     // A bare number is the same value as a quantity of the plain number's
     // unit, both ways.

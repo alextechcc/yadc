@@ -15,7 +15,7 @@
     unsized_const_params,
     const_trait_impl
 )]
-#![feature(const_convert, const_default, const_destruct, derive_const)]
+#![feature(const_convert, const_default, const_destruct, const_ops, derive_const)]
 #![allow(incomplete_features)]
 
 use const_derive_more::NoValue;
@@ -26,14 +26,11 @@ use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, MassUnit};
 use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
 use yadc_si::mechanical::{BAR, KILOMETRE, PASCAL};
-use yadc_si::{Exact, KILOGRAM, METRE, SIQuantity, SIUnit};
+use yadc_si::{BASE, Exact, KILO, KILOGRAM, METRE, NOT_BASE, SIQuantity, SIUnit};
 
 /// The app's own unit: the kilopascal, a thousand pascals.
-const KILOPASCAL: SIQuantity<
-    { SIUnit::scaled("kPa", Exact::int(1000), PASCAL.unit()) },
-    Exact,
-    false,
-> = SIQuantity::ONE;
+const KILOPASCAL: SIQuantity<{ KILO.unit().times(PASCAL.unit(), 1) }, Exact, NOT_BASE> =
+    KILO * PASCAL;
 
 /// The units of pressure the app offers: a family of your own, a unit of
 /// its own among them. The first is the default.
@@ -99,11 +96,11 @@ trait InBase: Sized {
     fn base_units(self) -> f64;
 }
 
-impl<const U: SIUnit> InBase for SIQuantity<U, f64, true> {
+impl<const U: SIUnit> InBase for SIQuantity<U, f64, BASE> {
     fn of(base_units: f64) -> Self {
         let open = DynamicSIQuantity {
             unit: U,
-            is_base: true,
+            is_base: BASE,
             value: base_units,
         };
         Self::try_from(open).unwrap()
@@ -377,7 +374,7 @@ impl Channel {
 }
 
 /// A quantity's unit, the const parameter of its static type.
-fn unit_of<const U: SIUnit>(_: SIQuantity<U, f64, true>) -> SIUnit {
+fn unit_of<const U: SIUnit>(_: SIQuantity<U, f64, BASE>) -> SIUnit {
     U
 }
 

@@ -10,19 +10,21 @@
   per second.
 - **Every unit is a constant, its value exact.** `intcust::INCH` is
   0.0254 m, the US survey inch `us::INCH` 100/3937 m. A quantity is
-  `Qty<U, N, IS_BASE>`, its unit a `UcumUnit`, and a quantity alias names
-  its base unit by default:
+  `Qty<U, N, B>`, its unit a `UcumUnit`, and a quantity alias names its
+  base unit by default (an alias several modules share is at the crate
+  root: `yadc_ucum::Length`):
 
   ```rust
   use yadc_ucum::dynamic::intcust::LengthUnit;
   use yadc_ucum::heat::{CELSIUS, ThermodynamicTemperature};
-  use yadc_ucum::intcust::{INCH, Length};
-  use yadc_ucum::{METER, UcumUnit};
+  use yadc_ucum::intcust::INCH;
+  use yadc_ucum::{Length, METER, UcumUnit};
 
   let d: Length<f64> = (3.0_f64 * INCH).into();                         // 0.0762 m
   let t: ThermodynamicTemperature<f64> = (25.0_f64 * CELSIUS).into();   // 298.15 K
   let u: LengthUnit = "[in_i]".parse().unwrap();
   let inches = UcumUnit::from(u).from_base(f64::from(d / METER));       // 3.0
+  let same = f64::from(d / INCH);                                        // 3.0
   ```
 
 - **Units are UCUM codes.** A unit prints, and each quantity's unit enum

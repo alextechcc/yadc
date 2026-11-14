@@ -6,10 +6,11 @@
 //! gives you, from derives on *your* types:
 //!
 //! 1. **Lifted operators** ([`#[derive(ConstOps)]`](macro@ConstOps)): `+ - *
-//!    /` of a struct holding a number and a const parameter, the number by
-//!    its own operators and the parameter by its type's - `Qty<A, N> * Qty<B,
-//!    N>` is a `Qty<{ A * B }, N>`, and exists only where `A * B` does. Plus
-//!    scaling, negation, the assign operators, `Sum` and number conversions.
+//!    /` of a struct holding a number and const parameters, the number by
+//!    its own operators and each lifted parameter by its type's -
+//!    `Qty<A, N> * Qty<B, N>` is a `Qty<{ A * B }, N>`, and exists only where
+//!    `A * B` does. Plus scaling, negation, the assign operators, `Sum` and
+//!    number conversions.
 //! 2. **The dynamic type**: one struct of yours that holds any of several
 //!    static types - a whole family, generic over its type or const
 //!    parameters, and plain types too - by moving their fields in and
@@ -206,8 +207,10 @@
 //!
 //! A field with an algebra of its own that takes part in `Mul<K>` says what
 //! scaling does to it, in an impl of its own: a dimension scaled by a number
-//! is the same dimension, where it can be scaled at all -
-//! `impl Mul<f64> for Dim { type Output = Option<Dim>; .. }`.
+//! is the same dimension - `impl Mul<f64> for Dim { type Output = Dim; .. }`.
+//! Under `Mul<K> -> Option<Self>` its result goes through `Into<Option<_>>`,
+//! so `type Output = Option<Dim>` works as well, for a field that cannot
+//! always be scaled; under `Mul<K> -> Self` it is `Dim`.
 //!
 //! Operators are `const impl`s with `[const]` bounds on the field types (so
 //! a field whose operator is not `const` still works at run time); a lifted

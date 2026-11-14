@@ -30,6 +30,8 @@ pub enum DynamicViscosityUnit {
 #[values(into(SIUnit))]
 pub enum KinematicViscosityUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), 2).times(SECOND.unit(), -1))]
+    MetreSquaredPerSecond,
     #[value(KINEMATIC_VISCOSITY_STOKES.unit())]
     Stokes,
 }
@@ -43,6 +45,8 @@ pub enum KinematicViscosityUnit {
 #[values(into(SIUnit))]
 pub enum DiffusionCoefficientUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), 2).times(SECOND.unit(), -1))]
+    MetreSquaredPerSecond,
     #[value(DIFFUSION_COEFFICIENT_STOKES.unit())]
     Stokes,
 }

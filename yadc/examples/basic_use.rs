@@ -17,7 +17,7 @@ use yadc_si::*;
 
 /// Kilometres per hour: a quotient of two unit constants, a unit constant
 /// itself.
-const KILOMETRE_PER_HOUR: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, Exact, false> =
+const KILOMETRE_PER_HOUR: SIQuantity<{ KILOMETRE.unit().times(HOUR.unit(), -1) }, Exact, NOT_BASE> =
     KILOMETRE / HOUR;
 
 /// Computed by the compiler: a weight under standard gravity.
@@ -36,7 +36,7 @@ fn main() {
     // one the annotated type names, and back.
     let distance: Length<f64> = trip.into();
     println!("distance    = {distance}");
-    let in_miles: SIQuantity<{ MILE.unit() }, f64, false> = distance.into();
+    let in_miles: SIQuantity<{ MILE.unit() }, f64, NOT_BASE> = distance.into();
     println!("            = {in_miles:.4}");
 
     // --- 3. Products of base units are base units --------------------------
@@ -45,16 +45,16 @@ fn main() {
     let mass: Mass<f64> = 2.0 * KILOGRAM;
     let force: Force<f64> = mass * (speed / time);
     println!("speed       = {speed}, force = {force}");
-    let kmh: SIQuantity<{ KILOMETRE_PER_HOUR.unit() }, f64, false> = speed.into();
+    let kmh: SIQuantity<{ KILOMETRE_PER_HOUR.unit() }, f64, NOT_BASE> = speed.into();
     println!("            = {kmh}");
     // let nope = distance + time;  // error: cannot add: `+` of these parameters has no result
 
     // --- 4. A quantity over its unit is a number ---------------------------
     // A quotient of one unit is a plain number, and std `From` reads it.
-    let n = f64::from(distance / (1.0 * METRE));
+    let n = f64::from(distance / METRE);
     println!("metres      = {n}");
     let p: Power<f64> = (12.0 * VOLT) * (0.5 * AMPERE);
-    println!("12 V × 0.5 A = {p}, {} W", f64::from(p / (1.0 * WATT)));
+    println!("12 V × 0.5 A = {p}, {} W", f64::from(p / WATT));
 
     // --- 5. Units with a zero, and logarithmic units -----------------------
     // °C counts kelvins from the ice point; dBm is a logarithm of the power.

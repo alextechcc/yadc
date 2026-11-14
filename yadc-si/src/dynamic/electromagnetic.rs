@@ -78,6 +78,8 @@ pub enum ElectricPotentialUnit {
 #[values(into(SIUnit))]
 pub enum ElectricFieldUnit {
     #[default]
+    #[value(METRE.unit().times(KILOGRAM.unit(), 1).times(SECOND.unit(), -3).times(AMPERE.unit(), -1))]
+    MetreKilogramPerSecondCubedAmpere,
     #[value(ATOMIC_UNIT_OF_ELECTRIC_FIELD.unit())]
     AtomicUnitOfElectricField,
 }
@@ -140,6 +142,8 @@ pub enum ElectricQuadrupoleMomentUnit {
 #[values(into(SIUnit))]
 pub enum ElectricPermittivityUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), -3).times(KILOGRAM.unit(), -1).times(SECOND.unit(), 4).times(AMPERE.unit(), 2))]
+    SecondPow4AmpereSquaredPerMetreCubedKilogram,
     #[value(VACUUM_PERMITTIVITY.unit())]
     VacuumPermittivity,
 }
@@ -250,6 +254,8 @@ pub enum InductanceUnit {
 #[values(into(SIUnit))]
 pub enum MagneticFieldStrengthUnit {
     #[default]
+    #[value(SIUnit::ONE.times(METRE.unit(), -1).times(AMPERE.unit(), 1))]
+    AmperePerMetre,
     #[value(OERSTED.unit())]
     Oersted,
 }
@@ -322,6 +328,8 @@ pub enum MagneticMomentUnit {
 #[values(into(SIUnit))]
 pub enum MagneticPermeabilityUnit {
     #[default]
+    #[value(METRE.unit().times(KILOGRAM.unit(), 1).times(SECOND.unit(), -2).times(AMPERE.unit(), -2))]
+    MetreKilogramPerSecondSquaredAmpereSquared,
     #[value(VACUUM_PERMEABILITY.unit())]
     VacuumPermeability,
 }
@@ -335,6 +343,8 @@ pub enum MagneticPermeabilityUnit {
 #[values(into(SIUnit))]
 pub enum GyromagneticRatioUnit {
     #[default]
+    #[value(SIUnit::ONE.times(KILOGRAM.unit(), -1).times(SECOND.unit(), 1).times(AMPERE.unit(), 1).times(RADIAN.unit(), 1))]
+    SecondAmpereRadianPerKilogram,
     #[value(PROTON_GYROMAGNETIC_RATIO.unit())]
     ProtonGyromagneticRatio,
     #[value(NEUTRON_GYROMAGNETIC_RATIO.unit())]
@@ -374,6 +384,8 @@ pub enum GyromagneticRatioUnit {
 #[values(into(SIUnit))]
 pub enum ReducedGyromagneticRatioUnit {
     #[default]
+    #[value(SIUnit::ONE.times(KILOGRAM.unit(), -1).times(SECOND.unit(), 1).times(AMPERE.unit(), 1))]
+    SecondAmperePerKilogram,
     #[value(PROTON_REDUCED_GYROMAGNETIC_RATIO.unit())]
     ProtonReducedGyromagneticRatio,
     #[value(NEUTRON_REDUCED_GYROMAGNETIC_RATIO.unit())]

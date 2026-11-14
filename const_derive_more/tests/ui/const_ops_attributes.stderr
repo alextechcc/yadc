@@ -1,41 +1,41 @@
 error: `from` runs one way: a pair listed both ways would give two results for one sum
-  --> tests/ui/const_ops_attributes.rs:40:57
+  --> tests/ui/const_ops_attributes.rs:40:43
    |
-40 | #[const_ops(one = Tag(0), from(f32 => f64), from(f64 => f32))]
-   |                                                         ^^^
+40 | #[const_ops(from(f32 => f64), from(f64 => f32))]
+   |                                           ^^^
 
 error: a number type meets itself already: list other types
-  --> tests/ui/const_ops_attributes.rs:45:39
+  --> tests/ui/const_ops_attributes.rs:45:25
    |
-45 | #[const_ops(one = Tag(0), from(f64 => f64))]
-   |                                       ^^^
+45 | #[const_ops(from(f64 => f64))]
+   |                         ^^^
 
 error: `from(M => N)` mixes number types, so the struct needs one as a parameter: `struct S<const P: T, N>(N)`
   --> tests/ui/const_ops_attributes.rs:51:12
    |
-51 | pub struct Fixed<const P: Tag>(f64);
+51 | pub struct Fixed<#[ops(one = Tag(0))] const P: Tag>(f64);
    |            ^^^^^
 
-error: `ConstOps` needs the parameter of a plain number: `#[const_ops(one = EXPR)]`, the result where an operator of the parameter type has none
-  --> tests/ui/const_ops_attributes.rs:55:12
+error: a lifted parameter needs its value in a plain number: `#[ops(one = EXPR)]`, the result where an operator of its type has none
+  --> tests/ui/const_ops_attributes.rs:55:18
    |
-55 | pub struct NoOne<const P: Tag, N>(N);
-   |            ^^^^^
+55 | pub struct NoOne<#[ops] const P: Tag, N>(N);
+   |                  ^^^^^^
 
-error: expected `one = EXPR` (the parameter of a plain number) or `from(M => N, ..)` (number types that meet, converting with `From<M> for N`)
-  --> tests/ui/const_ops_attributes.rs:59:27
+error: expected `from(M => N, ..)` (number types that meet, converting with `From<M> for N`); a lifted parameter says its `one` itself: `#[ops(one = EXPR)] const P: T`
+  --> tests/ui/const_ops_attributes.rs:59:13
    |
-59 | #[const_ops(one = Tag(0), zero = Tag(0))]
-   |                           ^^^^
+59 | #[const_ops(zero = Tag(0))]
+   |             ^^^^
 
-error: several const parameters: mark the lifted one `#[ops]`, `struct S<#[ops] const P: T, const K: bool, N>(N)`
-  --> tests/ui/const_ops_attributes.rs:65:12
+error: `ConstOps` lifts the const parameters marked `#[ops(one = EXPR)]`: `struct S<#[ops(one = T::ONE)] const P: T, N>(N)`
+  --> tests/ui/const_ops_attributes.rs:64:12
    |
-65 | pub struct TwoParams<const P: Tag, const Q: Tag, N>(N);
-   |            ^^^^^^^^^
+64 | pub struct NoneLifted<const P: Tag, N>(N);
+   |            ^^^^^^^^^^
 
 error: `ConstOps` needs one value field (and any `PhantomData`): `struct S<const P: T, N>(N)` or `struct S<const P: T> { #[value] v: f64 }`
-  --> tests/ui/const_ops_attributes.rs:70:12
+  --> tests/ui/const_ops_attributes.rs:68:12
    |
-70 | pub struct TwoValues<const P: Tag>(f64, f64);
+68 | pub struct TwoValues<#[ops(one = Tag(0))] const P: Tag>(f64, f64);
    |            ^^^^^^^^^

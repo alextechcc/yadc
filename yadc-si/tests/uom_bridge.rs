@@ -19,7 +19,7 @@ use yadc_si::dimensionless::Dimensionless;
 use yadc_si::dynamic::DynamicSIQuantity;
 use yadc_si::mechanical::*;
 use yadc_si::thermal::ThermodynamicTemperature;
-use yadc_si::{KELVIN, KILOGRAM, METRE, RADIAN, SECOND, SIQuantity};
+use yadc_si::{KELVIN, KILOGRAM, METRE, NOT_BASE, RADIAN, SECOND, SIQuantity};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -27,8 +27,8 @@ fn close(a: f64, b: f64) {
 
 /// The number of kilometres a length is.
 fn kilometres(q: Length<f64>) -> f64 {
-    let km: SIQuantity<{ KILOMETRE.unit() }, f64, false> = q.into();
-    f64::from(km / (1.0 * KILOMETRE))
+    let km: SIQuantity<{ KILOMETRE.unit() }, f64, NOT_BASE> = q.into();
+    f64::from(km / KILOMETRE)
 }
 
 // --- SIQuantity ---------------------------------------------------------
@@ -36,16 +36,16 @@ fn kilometres(q: Length<f64>) -> f64 {
 #[test]
 fn static_from_uom_length() {
     let q: Length<f64> = u::Length::new::<kilometer>(42.195).into();
-    close(f64::from(q / (1.0 * METRE)), 42_195.0);
+    close(f64::from(q / METRE), 42_195.0);
     close(kilometres(q), 42.195);
 }
 
 #[test]
 fn static_from_uom_mass() {
     let q: Mass<f64> = u::Mass::new::<kilogram>(70.0).into();
-    close(f64::from(q / (1.0 * KILOGRAM)), 70.0);
-    let grams: SIQuantity<{ GRAM.unit() }, f64, false> = q.into();
-    close(f64::from(grams / (1.0 * GRAM)), 70_000.0);
+    close(f64::from(q / KILOGRAM), 70.0);
+    let grams: SIQuantity<{ GRAM.unit() }, f64, NOT_BASE> = q.into();
+    close(f64::from(grams / GRAM), 70_000.0);
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn static_round_trip_uom_to_yadc_to_uom() {
 #[test]
 fn static_derived_quantity_velocity() {
     let q: Velocity<f64> = u::Velocity::new::<meter_per_second>(25.0).into();
-    close(f64::from(q / (1.0 * METRE / SECOND)), 25.0);
+    close(f64::from(q / (METRE / SECOND)), 25.0);
     let back: u::Velocity = q.into();
     close(back.get::<meter_per_second>(), 25.0);
 }
@@ -75,7 +75,7 @@ fn static_derived_quantity_velocity() {
 #[test]
 fn static_derived_quantity_force() {
     let q: Force<f64> = u::Force::new::<newton>(9.81).into();
-    close(f64::from(q / (1.0 * NEWTON)), 9.81);
+    close(f64::from(q / NEWTON), 9.81);
     let back: u::Force = q.into();
     close(back.get::<newton>(), 9.81);
 }
@@ -86,7 +86,7 @@ fn static_derived_quantity_force() {
 fn dynamic_from_uom_length() {
     let dq: DynamicSIQuantity = u::Length::new::<meter>(500.0).into();
     let q = Length::<f64>::try_from(dq).unwrap();
-    close(f64::from(q / (1.0 * METRE)), 500.0);
+    close(f64::from(q / METRE), 500.0);
     assert!(Mass::<f64>::try_from(dq).is_err());
 }
 
@@ -94,14 +94,14 @@ fn dynamic_from_uom_length() {
 fn dynamic_from_uom_mass() {
     let dq: DynamicSIQuantity = u::Mass::new::<kilogram>(70.0).into();
     let q = Mass::<f64>::try_from(dq).unwrap();
-    close(f64::from(q / (1.0 * KILOGRAM)), 70.0);
+    close(f64::from(q / KILOGRAM), 70.0);
 }
 
 #[test]
 fn dynamic_from_derived_velocity() {
     let dq: DynamicSIQuantity = u::Velocity::new::<meter_per_second>(10.0).into();
     let q = Velocity::<f64>::try_from(dq).unwrap();
-    close(f64::from(q / (1.0 * METRE / SECOND)), 10.0);
+    close(f64::from(q / (METRE / SECOND)), 10.0);
     // A velocity is not a force.
     assert!(Force::<f64>::try_from(dq).is_err());
 }
@@ -110,7 +110,7 @@ fn dynamic_from_derived_velocity() {
 fn dynamic_from_derived_acceleration() {
     let dq: DynamicSIQuantity = u::Acceleration::new::<meter_per_second_squared>(9.81).into();
     let q = Acceleration::<f64>::try_from(dq).unwrap();
-    close(f64::from(q / (1.0 * METRE / (SECOND * SECOND))), 9.81);
+    close(f64::from(q / (METRE / (SECOND * SECOND))), 9.81);
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn dynamic_try_from_wrong_unit_returns_original() {
     let err = u::Length::try_from(dq).unwrap_err();
     // The original DynamicSIQuantity is returned so the caller can recover it.
     let q = Mass::<f64>::try_from(err).unwrap();
-    close(f64::from(q / (1.0 * KILOGRAM)), 5.0);
+    close(f64::from(q / KILOGRAM), 5.0);
 }
 
 /// A quantity in another unit than a base unit is not uom's: uom counts in
@@ -155,7 +155,7 @@ fn dynamic_arithmetic_after_uom_conversion() {
     let accel: DynamicSIQuantity = u::Acceleration::new::<meter_per_second_squared>(3.0).into();
     let force = (mass * accel).unwrap();
     let q = Force::<f64>::try_from(force).unwrap();
-    close(f64::from(q / (1.0 * NEWTON)), 6.0);
+    close(f64::from(q / NEWTON), 6.0);
 }
 
 // --- Kind mapping -------------------------------------------------------------
@@ -165,7 +165,7 @@ fn dynamic_arithmetic_after_uom_conversion() {
 #[test]
 fn static_angle_from_uom_is_in_radians() {
     let q: Angle<f64> = u::Angle::new::<radian>(std::f64::consts::FRAC_PI_2).into();
-    close(f64::from(q / (1.0 * RADIAN)), std::f64::consts::FRAC_PI_2);
+    close(f64::from(q / RADIAN), std::f64::consts::FRAC_PI_2);
 }
 
 #[test]
@@ -179,7 +179,7 @@ fn static_angle_round_trip() {
 #[test]
 fn static_solid_angle_round_trip() {
     let q: SolidAngle<f64> = u::SolidAngle::new::<steradian>(4.0).into();
-    close(f64::from(q / (1.0 * STERADIAN)), 4.0);
+    close(f64::from(q / STERADIAN), 4.0);
     let back: u::SolidAngle = q.into();
     close(back.get::<steradian>(), 4.0);
 }
@@ -188,7 +188,7 @@ fn static_solid_angle_round_trip() {
 fn dynamic_angle_kind_preserved() {
     let dq: DynamicSIQuantity = u::Angle::new::<radian>(1.0).into();
     let q = Angle::<f64>::try_from(dq).unwrap();
-    close(f64::from(q / (1.0 * RADIAN)), 1.0);
+    close(f64::from(q / RADIAN), 1.0);
     // Not a plain number (no radians).
     assert!(Dimensionless::<f64>::try_from(dq).is_err());
 }
@@ -197,7 +197,7 @@ fn dynamic_angle_kind_preserved() {
 fn dynamic_solid_angle_kind_preserved() {
     let dq: DynamicSIQuantity = u::SolidAngle::new::<steradian>(2.5).into();
     let q = SolidAngle::<f64>::try_from(dq).unwrap();
-    close(f64::from(q / (1.0 * STERADIAN)), 2.5);
+    close(f64::from(q / STERADIAN), 2.5);
     assert!(Angle::<f64>::try_from(dq).is_err());
 }
 
@@ -215,7 +215,7 @@ fn dynamic_try_from_angle_rejects_another_quantity() {
     let dq: DynamicSIQuantity = u::Angle::new::<radian>(1.0).into();
     let err = u::Mass::try_from(dq).unwrap_err();
     let q = Angle::<f64>::try_from(err).unwrap();
-    close(f64::from(q / (1.0 * RADIAN)), 1.0);
+    close(f64::from(q / RADIAN), 1.0);
 }
 
 #[test]
@@ -224,9 +224,9 @@ fn uom_torque_is_joules_per_radian() {
     // uom marks torque with its angle kind; in yadc-si that is rad⁻¹, so the
     // conversion lands on `Torque` (J/rad) and torque × angle is energy.
     let q: Torque<f64> = u::Torque::new::<newton_meter>(5.0).into();
-    close(f64::from(q / (1.0 * NEWTON_METRE)), 5.0);
+    close(f64::from(q / NEWTON_METRE), 5.0);
     let work: Energy<f64> = q * (2.0 * RADIAN);
-    close(f64::from(work / (1.0 * JOULE)), 10.0);
+    close(f64::from(work / JOULE), 10.0);
 }
 
 #[test]
@@ -234,7 +234,7 @@ fn uom_temperature_is_kelvin() {
     use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
     let t: ThermodynamicTemperature<f64> =
         u::ThermodynamicTemperature::new::<degree_celsius>(25.0).into();
-    close(f64::from(t / (1.0 * KELVIN)), 298.15);
+    close(f64::from(t / KELVIN), 298.15);
     let dq: DynamicSIQuantity = u::ThermodynamicTemperature::new::<kelvin>(300.0).into();
     assert!(ThermodynamicTemperature::<f64>::try_from(dq).is_ok());
     let back = u::ThermodynamicTemperature::try_from(dq).unwrap();
@@ -256,7 +256,7 @@ fn uom_curvature_is_radians_per_metre() {
     use uom::si::curvature::radian_per_meter;
     // uom marks curvature with its angle kind: rad/m, not a plain 1/m.
     let q: Curvature<f64> = u::Curvature::new::<radian_per_meter>(0.25).into();
-    close(f64::from(q / (1.0 * RADIAN / METRE)), 0.25);
+    close(f64::from(q / (RADIAN / METRE)), 0.25);
     let back: u::Curvature = q.into();
     close(back.get::<radian_per_meter>(), 0.25);
     let dq: DynamicSIQuantity = u::Curvature::new::<radian_per_meter>(0.25).into();
@@ -264,7 +264,7 @@ fn uom_curvature_is_radians_per_metre() {
     assert!(ReciprocalLength::<f64>::try_from(dq).is_err());
     // An arc length times its curvature is the angle it turns through.
     let turn: Angle<f64> = q * (4.0 * METRE);
-    close(f64::from(turn / (1.0 * RADIAN)), 1.0);
+    close(f64::from(turn / RADIAN), 1.0);
 }
 
 #[test]
@@ -275,21 +275,18 @@ fn uom_angular_kinds_land_on_their_radians() {
     use uom::si::angular_momentum::kilogram_square_meter_per_second;
     use uom::si::angular_velocity::radian_per_second;
     let w: AngularVelocity<f64> = u::AngularVelocity::new::<radian_per_second>(2.0).into();
-    close(f64::from(w / (1.0 * RADIAN / SECOND)), 2.0);
+    close(f64::from(w / (RADIAN / SECOND)), 2.0);
     let a: AngularAcceleration<f64> =
         u::AngularAcceleration::new::<radian_per_second_squared>(3.0).into();
-    close(f64::from(a / (1.0 * RADIAN / (SECOND * SECOND))), 3.0);
+    close(f64::from(a / (RADIAN / (SECOND * SECOND))), 3.0);
     let j: AngularJerk<f64> = u::AngularJerk::new::<radian_per_second_cubed>(4.0).into();
-    close(
-        f64::from(j / (1.0 * RADIAN / (SECOND * SECOND * SECOND))),
-        4.0,
-    );
+    close(f64::from(j / (RADIAN / (SECOND * SECOND * SECOND))), 4.0);
     let s: AngularAbsement<f64> = u::AngularAbsement::new::<radian_second>(5.0).into();
-    close(f64::from(s / (1.0 * RADIAN_SECOND)), 5.0);
+    close(f64::from(s / RADIAN_SECOND), 5.0);
     let l: AngularMomentum<f64> =
         u::AngularMomentum::new::<kilogram_square_meter_per_second>(6.0).into();
     close(
-        f64::from(l / (1.0 * KILOGRAM * METRE * METRE / (SECOND * RADIAN))),
+        f64::from(l / (KILOGRAM * METRE * METRE / (SECOND * RADIAN))),
         6.0,
     );
     let back: u::AngularMomentum = l.into();

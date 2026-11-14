@@ -106,8 +106,14 @@ mod nav {
     }
 
     #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-    #[const_ops(one = NavDim { d: 0, t: 0 })]
-    pub struct NavQty<const D: NavDim, N>(N);
+    pub struct NavQty<#[ops(one = NavDim { d: 0, t: 0 })] const D: NavDim, N>(N);
+
+    /// A plain number is its number.
+    impl From<NavQty<{ NavDim { d: 0, t: 0 } }, f64>> for f64 {
+        fn from(q: NavQty<{ NavDim { d: 0, t: 0 } }, f64>) -> f64 {
+            q.0
+        }
+    }
 
     pub type Distance<N> = NavQty<{ NavDim { d: 1, t: 0 } }, N>;
     pub type Duration<N> = NavQty<{ NavDim { d: 0, t: 1 } }, N>;

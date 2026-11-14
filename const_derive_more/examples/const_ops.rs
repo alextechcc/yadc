@@ -56,8 +56,8 @@ const impl Sub for Degree {
 
 /// `c·xᵈ`. Degree 0, a constant, is the plain number: `one = Degree(0)`.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, ConstOps)]
-#[const_ops(one = Degree(0), from(i32 => f64))]
-pub struct Term<const D: Degree, N>(N);
+#[const_ops(from(i32 => f64))]
+pub struct Term<#[ops(one = Degree(0))] const D: Degree, N>(N);
 
 /// `x`, with an integer coefficient.
 const X: Term<{ Degree(1) }, i32> = Term(1);
@@ -85,9 +85,9 @@ fn main() {
     assert_eq!(e, Term(2.5));
     assert_eq!(X + a, Term(4.0));
 
-    // A constant is its number.
+    // A quotient of two terms of one degree is of degree zero.
     let same = a;
-    assert_eq!(f64::from(a / same), 1.0);
+    assert_eq!(a / same, Term::<{ Degree(0) }, f64>(1.0));
 
     // In a `const`: every operator here is a `const impl`.
     const TWO_X_SQUARED: Term<{ Degree(2) }, i32> = X * X * 2;

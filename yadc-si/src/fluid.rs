@@ -13,8 +13,8 @@ pub type DynamicViscosity<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Pascal seconds (`Pa · s`), a unit of `DynamicViscosity`: the coherent unit, a product of base units.
 pub const PASCAL_SECOND: SIQuantity<
@@ -25,7 +25,7 @@ pub const PASCAL_SECOND: SIQuantity<
             .times(SECOND.unit(), -1)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Poises (`P`), a unit of `DynamicViscosity`: `n` of them is `n · 0.1` base units.
@@ -41,7 +41,7 @@ pub const POISE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A kinematic viscosity, in `N`s of the unit `U`: by default its coherent unit, a
@@ -49,8 +49,8 @@ pub const POISE: SIQuantity<
 pub type KinematicViscosity<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2).times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Stokes (`St`), a unit of `KinematicViscosity`: `n` of them is `n · 0.0001` base units.
 pub const KINEMATIC_VISCOSITY_STOKES: SIQuantity<
@@ -62,7 +62,7 @@ pub const KINEMATIC_VISCOSITY_STOKES: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A surface tension, in `N`s of the unit `U`: by default its coherent unit, a
@@ -70,8 +70,8 @@ pub const KINEMATIC_VISCOSITY_STOKES: SIQuantity<
 pub type SurfaceTension<
     N,
     const U: SIUnit = { KILOGRAM.unit().times(SECOND.unit(), -2) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A compressibility coefficient, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -83,24 +83,24 @@ pub type CompressibilityCoefficient<
             .times(KILOGRAM.unit(), -1)
             .times(SECOND.unit(), 2)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A mass rate, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type MassRate<
     N,
     const U: SIUnit = { KILOGRAM.unit().times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A volume rate, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type VolumeRate<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 3).times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A mass flux, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -112,24 +112,24 @@ pub type MassFlux<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A mass per energy, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type MassPerEnergy<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), -2).times(SECOND.unit(), 2) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A diffusion coefficient, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type DiffusionCoefficient<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2).times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Stokes (`St`), a unit of `DiffusionCoefficient`: `n` of them is `n · 0.0001` base units.
 pub const DIFFUSION_COEFFICIENT_STOKES: SIQuantity<
@@ -141,5 +141,5 @@ pub const DIFFUSION_COEFFICIENT_STOKES: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;

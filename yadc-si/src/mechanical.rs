@@ -5,28 +5,24 @@ use crate::*;
 
 /// A length, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type Length<N, const U: SIUnit = { METRE.unit() }, const IS_BASE: bool = true> =
-    SIQuantity<U, N, IS_BASE>;
+pub type Length<N, const U: SIUnit = { METRE.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;
 
-/// Kilometres (`km`), a unit of `Length`: `n` of them is `n · 1000.0` base units.
-pub const KILOMETRE: SIQuantity<
-    { SIUnit::scaled("km", Exact::int(1000), METRE.unit()) },
-    Exact,
-    false,
-> = SIQuantity::ONE;
+/// Kilometres (`km`), a unit of `Length`: `KILO * METRE`.
+pub const KILOMETRE: SIQuantity<{ KILO.unit().times(METRE.unit(), 1) }, Exact, NOT_BASE> =
+    KILO * METRE;
 
 /// Ångströms (`Å`), a unit of `Length`: `n` of them is `n · 1e-10` base units.
 pub const ANGSTROM: SIQuantity<
     { SIUnit::scaled("Å", Exact::dec(1, -10), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Bohr radiuses (`a₀`), a unit of `Length`: `n` of them is `n · 5.29177210903e-11` base units.
 pub const BOHR_RADIUS: SIQuantity<
     { SIUnit::scaled("a₀", Exact::dec(529177210903, -22), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Atomic units of length (`a.u. of length`), a unit of `Length`: `n` of them is `n · 5.29177210903e-11` base units.
@@ -39,14 +35,14 @@ pub const ATOMIC_UNIT_OF_LENGTH: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Astronomical units (`ua`), a unit of `Length`: `n` of them is `n · 149597870700.0` base units.
 pub const ASTRONOMICAL_UNIT: SIQuantity<
     { SIUnit::scaled("ua", Exact::int(149597870700), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Chains (`ch`), a unit of `Length`: `n` of them is `n · 66.0 * 1200.0 / 3937.0` base units.
@@ -59,14 +55,14 @@ pub const CHAIN: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Data miles (`DM`), a unit of `Length`: `n` of them is `n · 1828.8` base units.
 pub const DATA_MILE: SIQuantity<
     { SIUnit::scaled("DM", Exact::dec(18288, -1), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Fathoms (`fathom`), a unit of `Length`: `n` of them is `n · 6.0 * 1200.0 / 3937.0` base units.
@@ -79,21 +75,21 @@ pub const FATHOM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Fermis (`fermi`), a unit of `Length`: `n` of them is `n · 1e-15` base units.
 pub const FERMI: SIQuantity<
     { SIUnit::scaled("fermi", Exact::dec(1, -15), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Feet (`ft`), a unit of `Length`: `n` of them is `n · 0.3048` base units.
 pub const FOOT: SIQuantity<
     { SIUnit::scaled("ft", Exact::dec(3048, -4), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Feet (U.S. survey) (`ft (U.S. survey)`), a unit of `Length`: `n` of them is `n · 1200.0 / 3937.0` base units.
@@ -106,42 +102,42 @@ pub const FOOT_SURVEY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Inches (`in`), a unit of `Length`: `n` of them is `n · 0.0254` base units.
 pub const INCH: SIQuantity<
     { SIUnit::scaled("in", Exact::dec(254, -4), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Light years (`l. y.`), a unit of `Length`: `n` of them is `n · 9460730472580800.0` base units.
 pub const LIGHT_YEAR: SIQuantity<
     { SIUnit::scaled("l. y.", Exact::int(9460730472580800), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Microns (`μ`), a unit of `Length`: `n` of them is `n · 1e-06` base units.
 pub const MICRON: SIQuantity<
     { SIUnit::scaled("μ", Exact::dec(1, -6), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Mils (`0.001 in`), a unit of `Length`: `n` of them is `n · 2.54e-05` base units.
 pub const MIL: SIQuantity<
     { SIUnit::scaled("0.001 in", Exact::dec(254, -7), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Miles (`mi`), a unit of `Length`: `n` of them is `n · 1609.344` base units.
 pub const MILE: SIQuantity<
     { SIUnit::scaled("mi", Exact::dec(1609344, -3), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Miles (U.S. survey) (`mi (U.S. survey)`), a unit of `Length`: `n` of them is `n · 6336000.0 / 3937.0` base units.
@@ -154,14 +150,14 @@ pub const MILE_SURVEY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Nautical miles (`M`), a unit of `Length`: `n` of them is `n · 1852.0` base units.
 pub const NAUTICAL_MILE: SIQuantity<
     { SIUnit::scaled("M", Exact::int(1852), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Parsecs (`pc`), a unit of `Length`: `n` of them is `n · 149597870700.0 * 648000.0 / core::f64::consts::PI` base units.
@@ -174,7 +170,7 @@ pub const PARSEC: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Picas (computer) (`1/6 in (computer)`), a unit of `Length`: `n` of them is `n · 0.0254 / 6.0` base units.
@@ -187,14 +183,14 @@ pub const PICA_COMPUTER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Picas (printer's) (`1/6 in`), a unit of `Length`: `n` of them is `n · 0.004217518` base units.
 pub const PICA_PRINTERS: SIQuantity<
     { SIUnit::scaled("1/6 in", Exact::dec(4217518, -9), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Points (computer) (`1/72 in (computer)`), a unit of `Length`: `n` of them is `n · 0.0254 / 72.0` base units.
@@ -207,14 +203,14 @@ pub const POINT_COMPUTER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Points (printer's) (`1/72 in`), a unit of `Length`: `n` of them is `n · 0.0003514598` base units.
 pub const POINT_PRINTERS: SIQuantity<
     { SIUnit::scaled("1/72 in", Exact::dec(3514598, -10), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Rods (`rd`), a unit of `Length`: `n` of them is `n · 16.5 * 1200.0 / 3937.0` base units.
@@ -227,208 +223,207 @@ pub const ROD: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Yards (`yd`), a unit of `Length`: `n` of them is `n · 0.9144` base units.
 pub const YARD: SIQuantity<
     { SIUnit::scaled("yd", Exact::dec(9144, -4), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Leugae (`leuga`), a unit of `Length`: `n` of them is `n · 2220.0` base units.
 pub const LEUGA: SIQuantity<
     { SIUnit::scaled("leuga", Exact::int(2220), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Mille passa (`mille passus`), a unit of `Length`: `n` of them is `n · 1480.0` base units.
 pub const MILLE_PASSUS: SIQuantity<
     { SIUnit::scaled("mille passus", Exact::int(1480), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Stadia (`stadium`), a unit of `Length`: `n` of them is `n · 185.0` base units.
 pub const STADIUM: SIQuantity<
     { SIUnit::scaled("stadium", Exact::int(185), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Acta (`actus`), a unit of `Length`: `n` of them is `n · 35.52` base units.
 pub const ACTUS: SIQuantity<
     { SIUnit::scaled("actus", Exact::dec(3552, -2), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Decempedae (`decempeda`), a unit of `Length`: `n` of them is `n · 2.96` base units.
 pub const DECEMPEDA: SIQuantity<
     { SIUnit::scaled("decempeda", Exact::dec(296, -2), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Passa (`passus`), a unit of `Length`: `n` of them is `n · 1.48` base units.
 pub const PASSUS: SIQuantity<
     { SIUnit::scaled("passus", Exact::dec(148, -2), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Gradus (`gradus`), a unit of `Length`: `n` of them is `n · 0.74` base units.
 pub const GRADUS: SIQuantity<
     { SIUnit::scaled("gradus", Exact::dec(74, -2), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cubita (`cubitum`), a unit of `Length`: `n` of them is `n · 0.444` base units.
 pub const CUBITUM: SIQuantity<
     { SIUnit::scaled("cubitum", Exact::dec(444, -3), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Palmipedes (`palmipes`), a unit of `Length`: `n` of them is `n · 0.37` base units.
 pub const PALMIPES: SIQuantity<
     { SIUnit::scaled("palmipes", Exact::dec(37, -2), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pedes (`pes`), a unit of `Length`: `n` of them is `n · 0.296` base units.
 pub const PES: SIQuantity<
     { SIUnit::scaled("pes", Exact::dec(296, -3), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Palmas maior (`palmus maior`), a unit of `Length`: `n` of them is `n · 0.222` base units.
 pub const PALMUS_MAIOR: SIQuantity<
     { SIUnit::scaled("palmus maior", Exact::dec(222, -3), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Palmas (`palmus`), a unit of `Length`: `n` of them is `n · 0.074` base units.
 pub const PALMUS: SIQuantity<
     { SIUnit::scaled("palmus", Exact::dec(74, -3), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Unciae (`uncia`), a unit of `Length`: `n` of them is `n · 0.296 / 12.0` base units.
 pub const LENGTH_UNCIA: SIQuantity<
     { SIUnit::scaled("uncia", Exact::dec(296, -3) / Exact::int(12), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Digiti (`digitus`), a unit of `Length`: `n` of them is `n · 0.0185` base units.
 pub const DIGITUS: SIQuantity<
     { SIUnit::scaled("digitus", Exact::dec(185, -4), METRE.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A mass, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type Mass<N, const U: SIUnit = { KILOGRAM.unit() }, const IS_BASE: bool = true> =
-    SIQuantity<U, N, IS_BASE>;
+pub type Mass<N, const U: SIUnit = { KILOGRAM.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;
 
 /// Grams (`g`), a unit of `Mass`: `n` of them is `n · 0.001` base units.
 pub const GRAM: SIQuantity<
     { SIUnit::scaled("g", Exact::dec(1, -3), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Carats (`ct`), a unit of `Mass`: `n` of them is `n · 0.0002` base units.
 pub const CARAT: SIQuantity<
     { SIUnit::scaled("ct", Exact::dec(2, -4), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Daltons (`Da`), a unit of `Mass`: `n` of them is `n · 1.6605390666e-27` base units.
 pub const DALTON: SIQuantity<
     { SIUnit::scaled("Da", Exact::dec(16605390666, -37), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Electron masses (`mₑ`), a unit of `Mass`: `n` of them is `n · 9.1093837015e-31` base units.
 pub const ELECTRON_MASS: SIQuantity<
     { SIUnit::scaled("mₑ", Exact::dec(91093837015, -41), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Proton masses (`mₚ`), a unit of `Mass`: `n` of them is `n · 1.67262192369e-27` base units.
 pub const PROTON_MASS: SIQuantity<
     { SIUnit::scaled("mₚ", Exact::dec(167262192369, -38), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Grains (`gr`), a unit of `Mass`: `n` of them is `n · 6.479891e-05` base units.
 pub const GRAIN: SIQuantity<
     { SIUnit::scaled("gr", Exact::dec(6479891, -11), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Hundredweight (long) (`cwt long`), a unit of `Mass`: `n` of them is `n · 50.80234544` base units.
 pub const HUNDREDWEIGHT_LONG: SIQuantity<
     { SIUnit::scaled("cwt long", Exact::dec(5080234544, -8), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Hundredweight (short) (`cwt short`), a unit of `Mass`: `n` of them is `n · 45.359237` base units.
 pub const HUNDREDWEIGHT_SHORT: SIQuantity<
     { SIUnit::scaled("cwt short", Exact::dec(45359237, -6), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Ounces (`oz`), a unit of `Mass`: `n` of them is `n · 0.028349523125` base units.
 pub const OUNCE: SIQuantity<
     { SIUnit::scaled("oz", Exact::dec(28349523125, -12), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Troy ounces (`oz t`), a unit of `Mass`: `n` of them is `n · 0.0311034768` base units.
 pub const OUNCE_TROY: SIQuantity<
     { SIUnit::scaled("oz t", Exact::dec(311034768, -10), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pennyweight (`dwt`), a unit of `Mass`: `n` of them is `n · 0.00155517384` base units.
 pub const PENNYWEIGHT: SIQuantity<
     { SIUnit::scaled("dwt", Exact::dec(155517384, -11), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pounds (`lb`), a unit of `Mass`: `n` of them is `n · 0.45359237` base units.
 pub const POUND: SIQuantity<
     { SIUnit::scaled("lb", Exact::dec(45359237, -8), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Troy pounds (`lb t`), a unit of `Mass`: `n` of them is `n · 0.3732417216` base units.
 pub const POUND_TROY: SIQuantity<
     { SIUnit::scaled("lb t", Exact::dec(3732417216, -10), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Slugs (`slug`), a unit of `Mass`: `n` of them is `n · 0.45359237 * 9.80665 / 0.3048` base units.
@@ -441,42 +436,42 @@ pub const SLUG: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Assay tons (`AT`), a unit of `Mass`: `n` of them is `n · 0.175 / 6.0` base units.
 pub const TON_ASSAY: SIQuantity<
     { SIUnit::scaled("AT", Exact::dec(175, -3) / Exact::int(6), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Long tons (`2240 lb`), a unit of `Mass`: `n` of them is `n · 1016.0469088` base units.
 pub const TON_LONG: SIQuantity<
     { SIUnit::scaled("2240 lb", Exact::dec(10160469088, -7), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Short tons (`2000 lb`), a unit of `Mass`: `n` of them is `n · 907.18474` base units.
 pub const TON_SHORT: SIQuantity<
     { SIUnit::scaled("2000 lb", Exact::dec(90718474, -5), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Tons (`t`), a unit of `Mass`: `n` of them is `n · 1000.0` base units.
 pub const TON: SIQuantity<
     { SIUnit::scaled("t", Exact::int(1000), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Librae (`libra`), a unit of `Mass`: `n` of them is `n · 0.3289` base units.
 pub const LIBRA: SIQuantity<
     { SIUnit::scaled("libra", Exact::dec(3289, -4), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Deunces (`deunx`), a unit of `Mass`: `n` of them is `n · 0.3289 * 11.0 / 12.0` base units.
@@ -489,7 +484,7 @@ pub const MASS_DEUNX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dextantes (`dextans`), a unit of `Mass`: `n` of them is `n · 0.3289 * 10.0 / 12.0` base units.
@@ -502,14 +497,14 @@ pub const MASS_DEXTANS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dodrantes (`dodrans`), a unit of `Mass`: `n` of them is `n · 0.246675` base units.
 pub const MASS_DODRANS: SIQuantity<
     { SIUnit::scaled("dodrans", Exact::dec(246675, -6), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Bessis (`bes`), a unit of `Mass`: `n` of them is `n · 0.3289 * 8.0 / 12.0` base units.
@@ -522,7 +517,7 @@ pub const MASS_BES: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Septunces (`septunx`), a unit of `Mass`: `n` of them is `n · 0.3289 * 7.0 / 12.0` base units.
@@ -535,14 +530,14 @@ pub const MASS_SEPTUNX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Semisses (`semis`), a unit of `Mass`: `n` of them is `n · 0.16445` base units.
 pub const MASS_SEMIS: SIQuantity<
     { SIUnit::scaled("semis", Exact::dec(16445, -5), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Quincunx (`quincunx`), a unit of `Mass`: `n` of them is `n · 0.3289 * 5.0 / 12.0` base units.
@@ -555,7 +550,7 @@ pub const MASS_QUINCUNX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Trientes (`triens`), a unit of `Mass`: `n` of them is `n · 0.3289 / 3.0` base units.
@@ -568,14 +563,14 @@ pub const MASS_TRIENS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Quadrantes teruncius (`quadrans teruncius`), a unit of `Mass`: `n` of them is `n · 0.082225` base units.
 pub const QUADRANS_TERUNCIUS: SIQuantity<
     { SIUnit::scaled("quadrans teruncius", Exact::dec(82225, -6), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Sextantes (`sextans`), a unit of `Mass`: `n` of them is `n · 0.3289 / 6.0` base units.
@@ -588,14 +583,14 @@ pub const MASS_SEXTANS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Sescunciae (`sescuncia`), a unit of `Mass`: `n` of them is `n · 0.0411125` base units.
 pub const SESCUNCIA: SIQuantity<
     { SIUnit::scaled("sescuncia", Exact::dec(411125, -7), KILOGRAM.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Unciae (`uncia`), a unit of `Mass`: `n` of them is `n · 0.3289 / 12.0` base units.
@@ -608,7 +603,7 @@ pub const MASS_UNCIA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Semunciae (`semuncia`), a unit of `Mass`: `n` of them is `n · 0.3289 / 24.0` base units.
@@ -621,7 +616,7 @@ pub const SEMUNCIA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Duella (`duella`), a unit of `Mass`: `n` of them is `n · 0.3289 / 36.0` base units.
@@ -634,7 +629,7 @@ pub const DUELLA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Scilici (`sicilicus`), a unit of `Mass`: `n` of them is `n · 0.3289 / 48.0` base units.
@@ -647,7 +642,7 @@ pub const MASS_SICILICUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Sextulae (`sextula`), a unit of `Mass`: `n` of them is `n · 0.3289 / 72.0` base units.
@@ -660,7 +655,7 @@ pub const MASS_SEXTULA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Semisextulae (`semisextula`), a unit of `Mass`: `n` of them is `n · 0.3289 / 144.0` base units.
@@ -673,7 +668,7 @@ pub const SEMISEXTULA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Scrupula (`scrupulum`), a unit of `Mass`: `n` of them is `n · 0.3289 / 288.0` base units.
@@ -686,7 +681,7 @@ pub const MASS_SCRUPULUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Oboli (`obolus`), a unit of `Mass`: `n` of them is `n · 0.3289 / 576.0` base units.
@@ -699,7 +694,7 @@ pub const OBOLUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Siliquae (`siliqua`), a unit of `Mass`: `n` of them is `n · 0.3289 / 1728.0` base units.
@@ -712,98 +707,103 @@ pub const SILIQUA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A time, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type Time<N, const U: SIUnit = { SECOND.unit() }, const IS_BASE: bool = true> =
-    SIQuantity<U, N, IS_BASE>;
+pub type Time<N, const U: SIUnit = { SECOND.unit() }, const B: Base = BASE> = SIQuantity<U, N, B>;
 
 /// Seconds (sidereal) (`s (sidereal)`), a unit of `Time`: `n` of them is `n · 0.9972696` base units.
 pub const SECOND_SIDEREAL: SIQuantity<
     { SIUnit::scaled("s (sidereal)", Exact::dec(9972696, -7), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Days (`d`), a unit of `Time`: `n` of them is `n · 86400.0` base units.
-pub const DAY: SIQuantity<{ SIUnit::scaled("d", Exact::int(86400), SECOND.unit()) }, Exact, false> =
-    SIQuantity::ONE;
+pub const DAY: SIQuantity<
+    { SIUnit::scaled("d", Exact::int(86400), SECOND.unit()) },
+    Exact,
+    NOT_BASE,
+> = SIQuantity::ONE;
 
 /// Days (sidereal) (`d (sidereal)`), a unit of `Time`: `n` of them is `n · 86164.09` base units.
 pub const DAY_SIDEREAL: SIQuantity<
     { SIUnit::scaled("d (sidereal)", Exact::dec(8616409, -2), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Hours (`h`), a unit of `Time`: `n` of them is `n · 3600.0` base units.
-pub const HOUR: SIQuantity<{ SIUnit::scaled("h", Exact::int(3600), SECOND.unit()) }, Exact, false> =
-    SIQuantity::ONE;
+pub const HOUR: SIQuantity<
+    { SIUnit::scaled("h", Exact::int(3600), SECOND.unit()) },
+    Exact,
+    NOT_BASE,
+> = SIQuantity::ONE;
 
 /// Hours (sidereal) (`h (sidereal)`), a unit of `Time`: `n` of them is `n · 3590.17` base units.
 pub const HOUR_SIDEREAL: SIQuantity<
     { SIUnit::scaled("h (sidereal)", Exact::dec(359017, -2), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Minutes (`min`), a unit of `Time`: `n` of them is `n · 60.0` base units.
 pub const MINUTE: SIQuantity<
     { SIUnit::scaled("min", Exact::int(60), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Shakes (`10.0 ns`), a unit of `Time`: `n` of them is `n · 1e-08` base units.
 pub const SHAKE: SIQuantity<
     { SIUnit::scaled("10.0 ns", Exact::dec(1, -8), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Years (`a`), a unit of `Time`: `n` of them is `n · 31536000.0` base units.
 pub const YEAR: SIQuantity<
     { SIUnit::scaled("a", Exact::int(31536000), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Years (sidereal) (`a (sidereal)`), a unit of `Time`: `n` of them is `n · 31558150.0` base units.
 pub const YEAR_SIDEREAL: SIQuantity<
     { SIUnit::scaled("a (sidereal)", Exact::int(31558150), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Years (tropical) (`a (tropical)`), a unit of `Time`: `n` of them is `n · 31556930.0` base units.
 pub const YEAR_TROPICAL: SIQuantity<
     { SIUnit::scaled("a (tropical)", Exact::int(31556930), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// An instant, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type Instant<N, const U: SIUnit = { SECOND.unit() }, const IS_BASE: bool = true> =
-    SIQuantity<U, N, IS_BASE>;
+pub type Instant<N, const U: SIUnit = { SECOND.unit() }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
 /// Seconds of Unix time (`s Unix`), a unit of `Instant`: the coherent unit, a product of base units.
-pub const UNIX_SECOND: SIQuantity<{ SECOND.unit() }, Exact, true> = SIQuantity::ONE;
+pub const UNIX_SECOND: SIQuantity<{ SECOND.unit() }, Exact, BASE> = SIQuantity::ONE;
 
-/// Milliseconds of Unix time (`ms Unix`), a unit of `Instant`: `n` of them is `n · 0.001` base units.
+/// Milliseconds of Unix time (`ms Unix`), a unit of `Instant`: `MILLI * UNIX_SECOND`.
 pub const UNIX_MILLISECOND: SIQuantity<
-    { SIUnit::scaled("ms Unix", Exact::dec(1, -3), SECOND.unit()) },
+    { MILLI.unit().times(UNIX_SECOND.unit(), 1) },
     Exact,
-    false,
-> = SIQuantity::ONE;
+    NOT_BASE,
+> = MILLI * UNIX_SECOND;
 
 /// Seconds of GPS time (`s GPS`), a unit of `Instant`: `n` of them is `n · 1.0 + 315964800.0` base units.
 pub const GPS_SECOND: SIQuantity<
     { SIUnit::offset("s GPS", Exact::int(1), Exact::int(315964800), SECOND.unit()) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Julian date (`JD`), a unit of `Instant`: `n` of them is `n · 86400.0 + -2440587.5 * 86400.0` base units.
@@ -817,7 +817,7 @@ pub const JULIAN_DATE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Modified Julian date (`MJD`), a unit of `Instant`: `n` of them is `n · 86400.0 + -40587.0 * 86400.0` base units.
@@ -831,19 +831,16 @@ pub const MODIFIED_JULIAN_DATE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// An area, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type Area<
-    N,
-    const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+pub type Area<N, const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2) }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
 /// Square metres (`m²`), a unit of `Area`: the coherent unit, a product of base units.
-pub const SQUARE_METRE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), 2) }, Exact, true> =
+pub const SQUARE_METRE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), 2) }, Exact, BASE> =
     SIQuantity::ONE;
 
 /// Acres (`ac`), a unit of `Area`: `n` of them is `n · 43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0)` base units.
@@ -858,21 +855,21 @@ pub const ACRE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Ares (`a`), a unit of `Area`: `n` of them is `n · 100.0` base units.
 pub const ARE: SIQuantity<
     { SIUnit::scaled("a", Exact::int(100), SIUnit::ONE.times(METRE.unit(), 2)) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Barns (`b`), a unit of `Area`: `n` of them is `n · 1e-28` base units.
 pub const BARN: SIQuantity<
     { SIUnit::scaled("b", Exact::dec(1, -28), SIUnit::ONE.times(METRE.unit(), 2)) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Circular mils (`cmil`), a unit of `Area`: `n` of them is `n · core::f64::consts::PI / 4.0 * 2.54e-05 * 2.54e-05` base units.
@@ -885,15 +882,11 @@ pub const CIRCULAR_MIL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
-/// Hectares (`ha`), a unit of `Area`: `n` of them is `n · 10000.0` base units.
-pub const HECTARE: SIQuantity<
-    { SIUnit::scaled("ha", Exact::int(10000), SIUnit::ONE.times(METRE.unit(), 2)) },
-    Exact,
-    false,
-> = SIQuantity::ONE;
+/// Hectares (`ha`), a unit of `Area`: `HECTO * ARE`.
+pub const HECTARE: SIQuantity<{ HECTO.unit().times(ARE.unit(), 1) }, Exact, NOT_BASE> = HECTO * ARE;
 
 /// Square feet (`ft²`), a unit of `Area`: `n` of them is `n · 0.09290304` base units.
 pub const SQUARE_FOOT: SIQuantity<
@@ -905,7 +898,7 @@ pub const SQUARE_FOOT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Square inches (`in²`), a unit of `Area`: `n` of them is `n · 0.00064516` base units.
@@ -918,7 +911,7 @@ pub const SQUARE_INCH: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Square miles (`mi²`), a unit of `Area`: `n` of them is `n · 2589988.110336` base units.
@@ -931,7 +924,7 @@ pub const SQUARE_MILE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Square yards (`yd²`), a unit of `Area`: `n` of them is `n · 0.83612736` base units.
@@ -944,7 +937,7 @@ pub const SQUARE_YARD: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Saltus (`saltus`), a unit of `Area`: `n` of them is `n · 2018672.64` base units.
@@ -957,7 +950,7 @@ pub const SALTUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Centuriae (`centuria`), a unit of `Area`: `n` of them is `n · 504668.16` base units.
@@ -970,7 +963,7 @@ pub const CENTURIA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Heredia (`heredium`), a unit of `Area`: `n` of them is `n · 5046.6816` base units.
@@ -983,7 +976,7 @@ pub const HEREDIUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Jugera (`jugerum`), a unit of `Area`: `n` of them is `n · 2523.3408` base units.
@@ -996,7 +989,7 @@ pub const JUGERUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Deunces (`deunx`), a unit of `Area`: `n` of them is `n · 2313.0624` base units.
@@ -1009,7 +1002,7 @@ pub const AREA_DEUNX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dextantes (`dextans`), a unit of `Area`: `n` of them is `n · 2102.784` base units.
@@ -1022,7 +1015,7 @@ pub const AREA_DEXTANS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dodrantes (`dodrans`), a unit of `Area`: `n` of them is `n · 1892.5056` base units.
@@ -1035,7 +1028,7 @@ pub const AREA_DODRANS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Besses (`bes`), a unit of `Area`: `n` of them is `n · 1682.2272` base units.
@@ -1048,7 +1041,7 @@ pub const AREA_BES: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Septunces (`septunx`), a unit of `Area`: `n` of them is `n · 1471.9488` base units.
@@ -1061,7 +1054,7 @@ pub const AREA_SEPTUNX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Semisses (`semis`), a unit of `Area`: `n` of them is `n · 1261.6704` base units.
@@ -1074,7 +1067,7 @@ pub const AREA_SEMIS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Acta quadratus (`actus quadratus`), a unit of `Area`: `n` of them is `n · 1261.6704` base units.
@@ -1087,7 +1080,7 @@ pub const ACTUS_QUADRATUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Quincunces (`quincunx`), a unit of `Area`: `n` of them is `n · 1051.392` base units.
@@ -1100,7 +1093,7 @@ pub const AREA_QUINCUNX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Trientes (`triens`), a unit of `Area`: `n` of them is `n · 841.1136` base units.
@@ -1113,7 +1106,7 @@ pub const AREA_TRIENS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Quadrantes (`quadrans`), a unit of `Area`: `n` of them is `n · 630.8352` base units.
@@ -1126,7 +1119,7 @@ pub const QUADRANS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Sextantes (`sextans`), a unit of `Area`: `n` of them is `n · 420.5568` base units.
@@ -1139,7 +1132,7 @@ pub const AREA_SEXTANS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Climata (`clima`), a unit of `Area`: `n` of them is `n · 315.4176` base units.
@@ -1152,7 +1145,7 @@ pub const CLIMA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Unciae (`uncia`), a unit of `Area`: `n` of them is `n · 210.2784` base units.
@@ -1165,7 +1158,7 @@ pub const AREA_UNCIA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Semiunciae (`semiuncia`), a unit of `Area`: `n` of them is `n · 105.1392` base units.
@@ -1178,7 +1171,7 @@ pub const SEMIUNCIA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Siculi (`sicilicus`), a unit of `Area`: `n` of them is `n · 52.5696` base units.
@@ -1191,7 +1184,7 @@ pub const AREA_SICILICUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Acta simplex (`actus simplex`), a unit of `Area`: `n` of them is `n · 42.05568` base units.
@@ -1204,7 +1197,7 @@ pub const ACTUS_SIMPLEX: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Sextulae (`sextula`), a unit of `Area`: `n` of them is `n · 35.0464` base units.
@@ -1217,7 +1210,7 @@ pub const AREA_SEXTULA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Duo scrupula (`duo scrupulum`), a unit of `Area`: `n` of them is `n · 17.5232` base units.
@@ -1230,7 +1223,7 @@ pub const DUO_SCRUPULUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Scrupula (`scrupulum`), a unit of `Area`: `n` of them is `n · 8.7616` base units.
@@ -1243,7 +1236,7 @@ pub const AREA_SCRUPULUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dimidium scupula (`dimidium scrupulum`), a unit of `Area`: `n` of them is `n · 4.3808` base units.
@@ -1256,7 +1249,7 @@ pub const DIMIDIUM_SCRUPULUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pedes quadratus (`pes quadratus`), a unit of `Area`: `n` of them is `n · 0.087616` base units.
@@ -1269,19 +1262,16 @@ pub const PES_QUADRATUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A volume, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
-pub type Volume<
-    N,
-    const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 3) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+pub type Volume<N, const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 3) }, const B: Base = BASE> =
+    SIQuantity<U, N, B>;
 
 /// Cubic metres (`m³`), a unit of `Volume`: the coherent unit, a product of base units.
-pub const CUBIC_METRE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), 3) }, Exact, true> =
+pub const CUBIC_METRE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), 3) }, Exact, BASE> =
     SIQuantity::ONE;
 
 /// Acre-feet (`ac · ft`), a unit of `Volume`: `n` of them is `n · 43560.0 * (1200.0 / 3937.0) * (1200.0 / 3937.0) * (1200.0 / 3937.0)` base units.
@@ -1297,7 +1287,7 @@ pub const ACRE_FOOT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Barrels (`bbl`), a unit of `Volume`: `n` of them is `n · 0.158987294928` base units.
@@ -1310,7 +1300,7 @@ pub const BARREL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Bushels (`bu`), a unit of `Volume`: `n` of them is `n · 0.03523907016688` base units.
@@ -1323,7 +1313,7 @@ pub const BUSHEL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cords (`cords`), a unit of `Volume`: `n` of them is `n · 128.0 * 0.3048 * 0.3048 * 0.3048` base units.
@@ -1336,7 +1326,7 @@ pub const CORD: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cubic feet (`ft³`), a unit of `Volume`: `n` of them is `n · 0.3048 * 0.3048 * 0.3048` base units.
@@ -1349,7 +1339,7 @@ pub const CUBIC_FOOT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cubic inches (`in³`), a unit of `Volume`: `n` of them is `n · 0.0254 * 0.0254 * 0.0254` base units.
@@ -1362,7 +1352,7 @@ pub const CUBIC_INCH: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cubic miles (`mi³`), a unit of `Volume`: `n` of them is `n · 1609.344 * 1609.344 * 1609.344` base units.
@@ -1375,7 +1365,7 @@ pub const CUBIC_MILE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cubic yards (`yd³`), a unit of `Volume`: `n` of them is `n · 0.9144 * 0.9144 * 0.9144` base units.
@@ -1388,7 +1378,7 @@ pub const CUBIC_YARD: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cups (`cup`), a unit of `Volume`: `n` of them is `n · 0.0002365882365` base units.
@@ -1401,7 +1391,7 @@ pub const CUP: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Fluid ounces (`fl oz`), a unit of `Volume`: `n` of them is `n · 2.95735295625e-05` base units.
@@ -1414,7 +1404,7 @@ pub const FLUID_OUNCE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Imperial fluid ounces (`fl oz (UK)`), a unit of `Volume`: `n` of them is `n · 2.84130625e-05` base units.
@@ -1427,7 +1417,7 @@ pub const FLUID_OUNCE_IMPERIAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Imperial gallons (`gal (UK)`), a unit of `Volume`: `n` of them is `n · 0.00454609` base units.
@@ -1440,7 +1430,7 @@ pub const GALLON_IMPERIAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Gallons (`gal`), a unit of `Volume`: `n` of them is `n · 0.003785411784` base units.
@@ -1453,7 +1443,7 @@ pub const GALLON: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Imperial gills (`gi (UK)`), a unit of `Volume`: `n` of them is `n · 0.0001420653125` base units.
@@ -1466,7 +1456,7 @@ pub const GILL_IMPERIAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Gills (`gi`), a unit of `Volume`: `n` of them is `n · 0.00011829411825` base units.
@@ -1479,14 +1469,14 @@ pub const GILL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Litres (`L`), a unit of `Volume`: `n` of them is `n · 0.001` base units.
 pub const LITRE: SIQuantity<
     { SIUnit::scaled("L", Exact::dec(1, -3), SIUnit::ONE.times(METRE.unit(), 3)) },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pecks (`pk`), a unit of `Volume`: `n` of them is `n · 0.00880976754172` base units.
@@ -1499,7 +1489,7 @@ pub const PECK: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dry pints (`dry pt`), a unit of `Volume`: `n` of them is `n · 0.0005506104713575` base units.
@@ -1512,7 +1502,7 @@ pub const PINT_DRY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Liquid pints (`liq pt`), a unit of `Volume`: `n` of them is `n · 0.000473176473` base units.
@@ -1525,7 +1515,7 @@ pub const PINT_LIQUID: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Dry quarts (`dry qt`), a unit of `Volume`: `n` of them is `n · 0.001101220942715` base units.
@@ -1538,7 +1528,7 @@ pub const QUART_DRY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Liquid quarts (`liq qt`), a unit of `Volume`: `n` of them is `n · 0.000946352946` base units.
@@ -1551,11 +1541,15 @@ pub const QUART_LIQUID: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
-/// Steres (`st`), a unit of `Volume`: the coherent unit, a product of base units.
-pub const STERE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), 3) }, Exact, true> = SIQuantity::ONE;
+/// Steres (`st`), a unit of `Volume`: `n` of them is `n · 1.0` base units.
+pub const STERE: SIQuantity<
+    { SIUnit::scaled("st", Exact::int(1), SIUnit::ONE.times(METRE.unit(), 3)) },
+    Exact,
+    NOT_BASE,
+> = SIQuantity::ONE;
 
 /// Tablespoons (`tbsp`), a unit of `Volume`: `n` of them is `n · 1.478676478125e-05` base units.
 pub const TABLESPOON: SIQuantity<
@@ -1567,7 +1561,7 @@ pub const TABLESPOON: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Teaspoons (`tsp`), a unit of `Volume`: `n` of them is `n · 4.92892159375e-06` base units.
@@ -1580,7 +1574,7 @@ pub const TEASPOON: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Register tons (`RT`), a unit of `Volume`: `n` of them is `n · 100.0 * 0.3048 * 0.3048 * 0.3048` base units.
@@ -1593,7 +1587,7 @@ pub const REGISTER_TON: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Culei (`culeus`), a unit of `Volume`: `n` of them is `n · 0.51868672` base units.
@@ -1606,7 +1600,7 @@ pub const CULEUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Amphora quadrantal (`amphora quadrantal`), a unit of `Volume`: `n` of them is `n · 0.025934336` base units.
@@ -1619,7 +1613,7 @@ pub const AMPHORA_QUADRANTAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Urnae (`urna`), a unit of `Volume`: `n` of them is `n · 0.012967168` base units.
@@ -1632,7 +1626,7 @@ pub const URNA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Modii castrensis (`modius castrensis`), a unit of `Volume`: `n` of them is `n · 0.012967168` base units.
@@ -1645,7 +1639,7 @@ pub const MODIUS_CASTRENSIS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Modii (`modius`), a unit of `Volume`: `n` of them is `n · 0.003241792 * 16.0 / 6.0` base units.
@@ -1658,7 +1652,7 @@ pub const MODIUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Semimodii (`semimodius`), a unit of `Volume`: `n` of them is `n · 0.003241792 * 8.0 / 6.0` base units.
@@ -1671,7 +1665,7 @@ pub const SEMIMODIUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Congii (`congius`), a unit of `Volume`: `n` of them is `n · 0.003241792` base units.
@@ -1684,7 +1678,7 @@ pub const CONGIUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Sextarii (`sextarius`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 6.0` base units.
@@ -1697,7 +1691,7 @@ pub const SEXTARIUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Heminae (`hemina`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 12.0` base units.
@@ -1710,7 +1704,7 @@ pub const HEMINA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Quartarii (`quartarius`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 24.0` base units.
@@ -1723,7 +1717,7 @@ pub const QUARTARIUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Acetabula (`acetabulum`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 48.0` base units.
@@ -1736,7 +1730,7 @@ pub const ACETABULUM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Cyathi (`cyathus`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 72.0` base units.
@@ -1749,7 +1743,7 @@ pub const CYATHUS: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Ligula (`ligula`), a unit of `Volume`: `n` of them is `n · 0.003241792 / 288.0` base units.
@@ -1762,7 +1756,7 @@ pub const LIGULA: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A velocity, in `N`s of the unit `U`: by default its coherent unit, a
@@ -1770,8 +1764,8 @@ pub const LIGULA: SIQuantity<
 pub type Velocity<
     N,
     const U: SIUnit = { METRE.unit().times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Knots (`kn`), a unit of `Velocity`: `n` of them is `n · 1852.0 / 3600.0` base units.
 pub const KNOT: SIQuantity<
@@ -1783,7 +1777,7 @@ pub const KNOT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Atomic units of velocity (`a₀ · Eₕ/ħ`), a unit of `Velocity`: `n` of them is `n · 2187691.26364` base units.
@@ -1796,7 +1790,7 @@ pub const ATOMIC_UNIT_OF_VELOCITY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Natural units of velocity (`c`), a unit of `Velocity`: `n` of them is `n · 299792458.0` base units.
@@ -1809,7 +1803,7 @@ pub const NATURAL_UNIT_OF_VELOCITY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Speeds of light in vacuum (`c`), a unit of `Velocity`: `n` of them is `n · 299792458.0` base units.
@@ -1822,7 +1816,7 @@ pub const SPEED_OF_LIGHT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// An acceleration, in `N`s of the unit `U`: by default its coherent unit, a
@@ -1830,8 +1824,8 @@ pub const SPEED_OF_LIGHT: SIQuantity<
 pub type Acceleration<
     N,
     const U: SIUnit = { METRE.unit().times(SECOND.unit(), -2) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Galileos (`Gal`), a unit of `Acceleration`: `n` of them is `n · 0.01` base units.
 pub const GALILEO: SIQuantity<
@@ -1843,7 +1837,7 @@ pub const GALILEO: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Standard accelerations of gravity (`g₀`), a unit of `Acceleration`: `n` of them is `n · 9.80665` base units.
@@ -1856,7 +1850,7 @@ pub const STANDARD_GRAVITY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A jerk, in `N`s of the unit `U`: by default its coherent unit, a
@@ -1864,19 +1858,19 @@ pub const STANDARD_GRAVITY: SIQuantity<
 pub type Jerk<
     N,
     const U: SIUnit = { METRE.unit().times(SECOND.unit(), -3) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// An absement, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type Absement<
     N,
     const U: SIUnit = { METRE.unit().times(SECOND.unit(), 1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Metre seconds (`m · s`), a unit of `Absement`: the coherent unit, a product of base units.
-pub const METRE_SECOND: SIQuantity<{ METRE.unit().times(SECOND.unit(), 1) }, Exact, true> =
+pub const METRE_SECOND: SIQuantity<{ METRE.unit().times(SECOND.unit(), 1) }, Exact, BASE> =
     SIQuantity::ONE;
 
 /// Foot seconds (`ft · s`), a unit of `Absement`: `n` of them is `n · 0.3048` base units.
@@ -1889,7 +1883,7 @@ pub const FOOT_SECOND: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Inch seconds (`in · s`), a unit of `Absement`: `n` of them is `n · 0.0254` base units.
@@ -1902,7 +1896,7 @@ pub const INCH_SECOND: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Kilometre hours (`km · h`), a unit of `Absement`: `n` of them is `n · 3600000.0` base units.
@@ -1915,7 +1909,7 @@ pub const KILOMETRE_HOUR: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// An inverse velocity, in `N`s of the unit `U`: by default its coherent unit, a
@@ -1923,8 +1917,8 @@ pub const KILOMETRE_HOUR: SIQuantity<
 pub type InverseVelocity<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), -1).times(SECOND.unit(), 1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A force, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -1936,8 +1930,8 @@ pub type Force<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Newtons (`N`), a unit of `Force`: the coherent unit, a product of base units.
 pub const NEWTON: SIQuantity<
@@ -1948,7 +1942,7 @@ pub const NEWTON: SIQuantity<
             .times(SECOND.unit(), -2)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Dynes (`dyn`), a unit of `Force`: `n` of them is `n · 1e-05` base units.
@@ -1964,7 +1958,7 @@ pub const DYNE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Kilograms-force (`kgf`), a unit of `Force`: `n` of them is `n · 9.80665` base units.
@@ -1980,7 +1974,7 @@ pub const KILOGRAM_FORCE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Kips (`kip`), a unit of `Force`: `n` of them is `n · 1000.0 * 0.45359237 * 9.80665` base units.
@@ -1996,7 +1990,7 @@ pub const KIP: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Ounces-force (`ozf`), a unit of `Force`: `n` of them is `n · 0.45359237 * 9.80665 / 16.0` base units.
@@ -2012,7 +2006,7 @@ pub const OUNCE_FORCE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Poundals (`pdl`), a unit of `Force`: `n` of them is `n · 0.45359237 * 0.3048` base units.
@@ -2028,7 +2022,7 @@ pub const POUNDAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pounds-force (`lbf`), a unit of `Force`: `n` of them is `n · 0.45359237 * 9.80665` base units.
@@ -2044,7 +2038,7 @@ pub const POUND_FORCE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Tons-force (`2000 lbf`), a unit of `Force`: `n` of them is `n · 2000.0 * 0.45359237 * 9.80665` base units.
@@ -2060,7 +2054,7 @@ pub const TON_FORCE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A momentum, in `N`s of the unit `U`: by default its coherent unit, a
@@ -2073,8 +2067,8 @@ pub type Momentum<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// An energy, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -2086,8 +2080,8 @@ pub type Energy<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Joules (`J`), a unit of `Energy`: the coherent unit, a product of base units.
 pub const JOULE: SIQuantity<
@@ -2098,7 +2092,7 @@ pub const JOULE: SIQuantity<
             .times(SECOND.unit(), -2)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Watt hours (`W · h`), a unit of `Energy`: `n` of them is `n · 3600.0` base units.
@@ -2114,7 +2108,7 @@ pub const WATT_HOUR: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Electronvolts (`eV`), a unit of `Energy`: `n` of them is `n · 1.602176634e-19` base units.
@@ -2130,7 +2124,7 @@ pub const ELECTRONVOLT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Hartrees (`Eₕ`), a unit of `Energy`: `n` of them is `n · 4.3597447222071e-18` base units.
@@ -2146,7 +2140,7 @@ pub const HARTREE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// British thermal units (IT) (`Btu (IT)`), a unit of `Energy`: `n` of them is `n · 1055.05585262` base units.
@@ -2162,7 +2156,7 @@ pub const BTU_IT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// British thermal units (`Btu`), a unit of `Energy`: `n` of them is `n · 4184.0 * 0.45359237 / 1.8` base units.
@@ -2178,7 +2172,7 @@ pub const BTU: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Calories (IT) (`cal (IT)`), a unit of `Energy`: `n` of them is `n · 4.1868` base units.
@@ -2194,7 +2188,7 @@ pub const CALORIE_IT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Calories (`cal`), a unit of `Energy`: `n` of them is `n · 4.184` base units.
@@ -2210,7 +2204,7 @@ pub const CALORIE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Calories (IT) (`Cal (IT)`), a unit of `Energy`: `n` of them is `n · 4186.8` base units.
@@ -2226,7 +2220,7 @@ pub const CALORIE_IT_NUTRITION: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Calories (`Cal`), a unit of `Energy`: `n` of them is `n · 4184.0` base units.
@@ -2242,7 +2236,7 @@ pub const CALORIE_NUTRITION: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Ergs (`erg`), a unit of `Energy`: `n` of them is `n · 1e-07` base units.
@@ -2258,7 +2252,7 @@ pub const ERG: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Foot poundals (`ft · pdl`), a unit of `Energy`: `n` of them is `n · 0.3048 * 0.45359237 * 0.3048` base units.
@@ -2274,7 +2268,7 @@ pub const FOOT_POUNDAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Foot pounds-force (`ft · lbf`), a unit of `Energy`: `n` of them is `n · 0.3048 * 0.45359237 * 9.80665` base units.
@@ -2290,7 +2284,7 @@ pub const FOOT_POUND: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Quads (`10¹⁵ Btu (IT)`), a unit of `Energy`: `n` of them is `n · 1.05505585262e18` base units.
@@ -2306,7 +2300,7 @@ pub const QUAD: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Therms (EC) (`thm (EC)`), a unit of `Energy`: `n` of them is `n · 105506000.0` base units.
@@ -2322,7 +2316,7 @@ pub const THERM_EC: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Therms (`thm`), a unit of `Energy`: `n` of them is `n · 105480400.0` base units.
@@ -2338,7 +2332,7 @@ pub const THERM_US: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Tons of TNT (`t of TNT`), a unit of `Energy`: `n` of them is `n · 4184000000.0` base units.
@@ -2354,19 +2348,23 @@ pub const TON_TNT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
-/// Watt seconds (`W · s`), a unit of `Energy`: the coherent unit, a product of base units.
+/// Watt seconds (`W · s`), a unit of `Energy`: `n` of them is `n · 1.0` base units.
 pub const WATT_SECOND: SIQuantity<
     {
-        SIUnit::ONE
-            .times(METRE.unit(), 2)
-            .times(KILOGRAM.unit(), 1)
-            .times(SECOND.unit(), -2)
+        SIUnit::scaled(
+            "W · s",
+            Exact::int(1),
+            SIUnit::ONE
+                .times(METRE.unit(), 2)
+                .times(KILOGRAM.unit(), 1)
+                .times(SECOND.unit(), -2),
+        )
     },
     Exact,
-    true,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// An available energy, in `N`s of the unit `U`: by default its coherent unit, a
@@ -2374,8 +2372,8 @@ pub const WATT_SECOND: SIQuantity<
 pub type AvailableEnergy<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2).times(SECOND.unit(), -2) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A power, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -2387,8 +2385,8 @@ pub type Power<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -3)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Watts (`W`), a unit of `Power`: the coherent unit, a product of base units.
 pub const WATT: SIQuantity<
@@ -2399,7 +2397,7 @@ pub const WATT: SIQuantity<
             .times(SECOND.unit(), -3)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Horsepower (`hp`), a unit of `Power`: `n` of them is `n · 550.0 * 0.3048 * 0.45359237 * 9.80665` base units.
@@ -2418,7 +2416,7 @@ pub const HORSEPOWER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Horsepower (boiler) (`hp (S)`), a unit of `Power`: `n` of them is `n · 9809.5` base units.
@@ -2434,7 +2432,7 @@ pub const HORSEPOWER_BOILER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Horsepower (electric) (`hp (E)`), a unit of `Power`: `n` of them is `n · 746.0` base units.
@@ -2450,7 +2448,7 @@ pub const HORSEPOWER_ELECTRIC: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Metric horsepower (`hp (M)`), a unit of `Power`: `n` of them is `n · 75.0 * 9.80665` base units.
@@ -2466,7 +2464,7 @@ pub const HORSEPOWER_METRIC: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Horsepower (Imperial) (`hp (I)`), a unit of `Power`: `n` of them is `n · 745.7` base units.
@@ -2482,7 +2480,7 @@ pub const HORSEPOWER_IMPERIAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Hydraulic horsepower (`hp (hydraulic)`), a unit of `Power`: `n` of them is `n · 746.043` base units.
@@ -2498,7 +2496,7 @@ pub const HYDRAULIC_HORSEPOWER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Decibels-watt (`dBW`), a unit of `Power`: `n` of them is `1.0 · 10.0^(n / 10.0)` base units.
@@ -2516,7 +2514,7 @@ pub const DECIBEL_WATT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Decibels-milliwatt (`dBm`), a unit of `Power`: `n` of them is `0.001 · 10.0^(n / 10.0)` base units.
@@ -2534,7 +2532,7 @@ pub const DECIBEL_MILLIWATT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A power rate, in `N`s of the unit `U`: by default its coherent unit, a
@@ -2547,8 +2545,8 @@ pub type PowerRate<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -4)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// An action, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -2560,8 +2558,8 @@ pub type Action<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Joule seconds (`J · s`), a unit of `Action`: the coherent unit, a product of base units.
 pub const JOULE_SECOND: SIQuantity<
@@ -2572,7 +2570,7 @@ pub const JOULE_SECOND: SIQuantity<
             .times(SECOND.unit(), -1)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Atomic units of action (`ħ`), a unit of `Action`: `n` of them is `n · 6.62607015e-34 / (2.0 * core::f64::consts::PI)` base units.
@@ -2588,7 +2586,7 @@ pub const ATOMIC_UNIT_OF_ACTION: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Planck constants (`h`), a unit of `Action`: `n` of them is `n · 6.62607015e-34` base units.
@@ -2604,7 +2602,7 @@ pub const PLANCK_CONSTANT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Erg seconds (`erg · s`), a unit of `Action`: `n` of them is `n · 1e-07` base units.
@@ -2620,7 +2618,7 @@ pub const ERG_SECOND: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Electronvolt seconds (`eV · s`), a unit of `Action`: `n` of them is `n · 1.602176634e-19` base units.
@@ -2636,7 +2634,7 @@ pub const ELECTRONVOLT_SECOND: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A torque, in `N`s of the unit `U`: by default its coherent unit, a
@@ -2650,8 +2648,8 @@ pub type Torque<
             .times(SECOND.unit(), -2)
             .times(RADIAN.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Newton metres (`N · m`), a unit of `Torque`: the coherent unit, a product of base units.
 pub const NEWTON_METRE: SIQuantity<
@@ -2663,7 +2661,7 @@ pub const NEWTON_METRE: SIQuantity<
             .times(RADIAN.unit(), -1)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Dyne metres (`dyn · m`), a unit of `Torque`: `n` of them is `n · 1e-05` base units.
@@ -2680,7 +2678,7 @@ pub const DYNE_METRE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Kilogram-force metres (`kgf · m`), a unit of `Torque`: `n` of them is `n · 9.80665` base units.
@@ -2697,7 +2695,7 @@ pub const KILOGRAM_FORCE_METRE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Ounces-force inches (`ozf · in`), a unit of `Torque`: `n` of them is `n · (0.45359237 * 9.80665 / 16.0) * 0.0254` base units.
@@ -2715,7 +2713,7 @@ pub const OUNCE_FORCE_INCH: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pounds-force feet (`lbf · ft`), a unit of `Torque`: `n` of them is `n · (0.45359237 * 9.80665) * 0.3048` base units.
@@ -2732,7 +2730,7 @@ pub const POUND_FORCE_FOOT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pounds-force inches (`lbf · in`), a unit of `Torque`: `n` of them is `n · (0.45359237 * 9.80665) * 0.0254` base units.
@@ -2749,7 +2747,7 @@ pub const POUND_FORCE_INCH: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A moment of inertia, in `N`s of the unit `U`: by default its coherent unit, a
@@ -2762,8 +2760,8 @@ pub type MomentOfInertia<
             .times(KILOGRAM.unit(), 1)
             .times(RADIAN.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Kilogram square metres (`kg · m²`), a unit of `MomentOfInertia`: the coherent unit, a product of base units.
 pub const KILOGRAM_SQUARE_METRE: SIQuantity<
@@ -2774,7 +2772,7 @@ pub const KILOGRAM_SQUARE_METRE: SIQuantity<
             .times(RADIAN.unit(), -2)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Dalton square ångströms (`Da · Å²`), a unit of `MomentOfInertia`: `n` of them is `n · 1.6605390666e-47` base units.
@@ -2790,7 +2788,7 @@ pub const DALTON_SQUARE_ANGSTROM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A pressure, in `N`s of the unit `U`: by default its coherent unit, a
@@ -2803,8 +2801,8 @@ pub type Pressure<
             .times(KILOGRAM.unit(), 1)
             .times(SECOND.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Pascals (`Pa`), a unit of `Pressure`: the coherent unit, a product of base units.
 pub const PASCAL: SIQuantity<
@@ -2815,7 +2813,7 @@ pub const PASCAL: SIQuantity<
             .times(SECOND.unit(), -2)
     },
     Exact,
-    true,
+    BASE,
 > = SIQuantity::ONE;
 
 /// Standard atmospheres (`atm`), a unit of `Pressure`: `n` of them is `n · 101325.0` base units.
@@ -2831,7 +2829,7 @@ pub const STANDARD_ATMOSPHERE: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Atmospheres (technical) (`at`), a unit of `Pressure`: `n` of them is `n · 98066.5` base units.
@@ -2847,7 +2845,7 @@ pub const ATMOSPHERE_TECHNICAL: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Bar (`bar`), a unit of `Pressure`: `n` of them is `n · 100000.0` base units.
@@ -2863,7 +2861,7 @@ pub const BAR: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Centimetres of mercury (`cm Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415 * 10.0` base units.
@@ -2879,7 +2877,7 @@ pub const CENTIMETRE_OF_MERCURY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Centimetres of water (`cm H₂O`), a unit of `Pressure`: `n` of them is `n · 98.0665` base units.
@@ -2895,7 +2893,7 @@ pub const CENTIMETRE_OF_WATER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Feet of mercury (`ft Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415 * 304.8` base units.
@@ -2911,7 +2909,7 @@ pub const FOOT_OF_MERCURY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Feet of water (`ft H₂O`), a unit of `Pressure`: `n` of them is `n · 9.80665 * 304.8` base units.
@@ -2927,7 +2925,7 @@ pub const FOOT_OF_WATER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Inches of mercury (`in Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415 * 25.4` base units.
@@ -2943,7 +2941,7 @@ pub const INCH_OF_MERCURY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Inches of water (`in H₂O`), a unit of `Pressure`: `n` of them is `n · 9.80665 * 25.4` base units.
@@ -2959,7 +2957,7 @@ pub const INCH_OF_WATER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Millimetres of mercury (`mm Hg`), a unit of `Pressure`: `n` of them is `n · 133.322387415` base units.
@@ -2975,7 +2973,7 @@ pub const MILLIMETRE_OF_MERCURY: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Millimetres of water (`mm H₂O`), a unit of `Pressure`: `n` of them is `n · 9.80665` base units.
@@ -2991,7 +2989,7 @@ pub const MILLIMETRE_OF_WATER: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Pounds-force per square inch (`psi`), a unit of `Pressure`: `n` of them is `n · 0.45359237 * 9.80665 / (0.0254 * 0.0254)` base units.
@@ -3008,7 +3006,7 @@ pub const PSI: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// Torr (`Torr`), a unit of `Pressure`: `n` of them is `n · 101325.0 / 760.0` base units.
@@ -3024,7 +3022,7 @@ pub const TORR: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A frequency, in `N`s of the unit `U`: by default its coherent unit, a
@@ -3032,11 +3030,11 @@ pub const TORR: SIQuantity<
 pub type Frequency<
     N,
     const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Hertz (`Hz`), a unit of `Frequency`: the coherent unit, a product of base units.
-pub const HERTZ: SIQuantity<{ SIUnit::ONE.times(SECOND.unit(), -1) }, Exact, true> =
+pub const HERTZ: SIQuantity<{ SIUnit::ONE.times(SECOND.unit(), -1) }, Exact, BASE> =
     SIQuantity::ONE;
 
 /// A frequency drift, in `N`s of the unit `U`: by default its coherent unit, a
@@ -3044,19 +3042,19 @@ pub const HERTZ: SIQuantity<{ SIUnit::ONE.times(SECOND.unit(), -1) }, Exact, tru
 pub type FrequencyDrift<
     N,
     const U: SIUnit = { SIUnit::ONE.times(SECOND.unit(), -2) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A reciprocal length, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type ReciprocalLength<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), -1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Reciprocal metres (`m⁻¹`), a unit of `ReciprocalLength`: the coherent unit, a product of base units.
-pub const RECIPROCAL_METRE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), -1) }, Exact, true> =
+pub const RECIPROCAL_METRE: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), -1) }, Exact, BASE> =
     SIQuantity::ONE;
 
 /// Reciprocal ångströms (`Å⁻¹`), a unit of `ReciprocalLength`: `n` of them is `n · 10000000000.0` base units.
@@ -3069,12 +3067,15 @@ pub const RECIPROCAL_ANGSTROM: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
-/// Diopters (`dpt`), a unit of `ReciprocalLength`: the coherent unit, a product of base units.
-pub const DIOPTER: SIQuantity<{ SIUnit::ONE.times(METRE.unit(), -1) }, Exact, true> =
-    SIQuantity::ONE;
+/// Diopters (`dpt`), a unit of `ReciprocalLength`: `n` of them is `n · 1.0` base units.
+pub const DIOPTER: SIQuantity<
+    { SIUnit::scaled("dpt", Exact::int(1), SIUnit::ONE.times(METRE.unit(), -1)) },
+    Exact,
+    NOT_BASE,
+> = SIQuantity::ONE;
 
 /// Rydberg constants (`R∞`), a unit of `ReciprocalLength`: `n` of them is `n · 10973731.56816` base units.
 pub const RYDBERG_CONSTANT: SIQuantity<
@@ -3086,7 +3087,7 @@ pub const RYDBERG_CONSTANT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;
 
 /// A curvature, in `N`s of the unit `U`: by default its coherent unit, a
@@ -3094,8 +3095,8 @@ pub const RYDBERG_CONSTANT: SIQuantity<
 pub type Curvature<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), -1).times(RADIAN.unit(), 1) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A specific area, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -3106,8 +3107,8 @@ pub type SpecificArea<
             .times(METRE.unit(), 2)
             .times(KILOGRAM.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A specific volume, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -3118,16 +3119,16 @@ pub type SpecificVolume<
             .times(METRE.unit(), 3)
             .times(KILOGRAM.unit(), -1)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A specific power, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
 pub type SpecificPower<
     N,
     const U: SIUnit = { SIUnit::ONE.times(METRE.unit(), 2).times(SECOND.unit(), -3) },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// A specific gravitational parameter, in `N`s of the unit `U`: by default its coherent unit, a
 /// product of base units.
@@ -3139,8 +3140,8 @@ pub type SpecificGravitationalParameter<
             .times(KILOGRAM.unit(), -1)
             .times(SECOND.unit(), -2)
     },
-    const IS_BASE: bool = true,
-> = SIQuantity<U, N, IS_BASE>;
+    const B: Base = BASE,
+> = SIQuantity<U, N, B>;
 
 /// Newtonian constants of gravitation (`G`), a unit of `SpecificGravitationalParameter`: `n` of them is `n · 6.6743e-11` base units.
 pub const GRAVITATIONAL_CONSTANT: SIQuantity<
@@ -3155,5 +3156,5 @@ pub const GRAVITATIONAL_CONSTANT: SIQuantity<
         )
     },
     Exact,
-    false,
+    NOT_BASE,
 > = SIQuantity::ONE;

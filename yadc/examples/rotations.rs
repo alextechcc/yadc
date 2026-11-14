@@ -90,7 +90,7 @@ impl<Q: Copy> Vec3<Q> {
     where
         Q: Mul<f64, Output = Q> + Add<Output = Q> + Sub<Output = Q>,
     {
-        let (sin, cos) = f64::from(angle / (1.0 * RADIAN)).sin_cos();
+        let (sin, cos) = f64::from(angle / RADIAN).sin_cos();
         Vec3::new(
             self.x * cos - self.y * sin,
             self.x * sin + self.y * cos,
@@ -132,7 +132,7 @@ fn main() {
     show("half of that (m)        ", (moved * 0.5).numbers(metre));
 
     // An angular velocity times a time is an angle.
-    let yaw_rate: AngularVelocity<f64> = 15.0 * degree / (1.0 * SECOND);
+    let yaw_rate: AngularVelocity<f64> = 15.0 * degree / SECOND;
     let turned: Angle<f64> = yaw_rate * (4.0 * SECOND);
     println!(
         "turned {:.0}° in 4 s; heading now {:.4}",

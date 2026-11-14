@@ -15,10 +15,10 @@ use yadc_si::mechanical::{
     STANDARD_ATMOSPHERE, STANDARD_GRAVITY, TORR,
 };
 use yadc_si::mechanical::{Length, Pressure};
-use yadc_si::{Exact, METRE, MOLE, RADIAN, SECOND, SIQuantity};
+use yadc_si::{Base, Exact, METRE, MOLE, NOT_BASE, RADIAN, SECOND, SIQuantity};
 
 /// A unit's exact size, in base units: read from its constant's type.
-fn size<const U: yadc_si::SIUnit, const IS_BASE: bool>(_: SIQuantity<U, Exact, IS_BASE>) -> Exact {
+fn size<const U: yadc_si::SIUnit, const B: Base>(_: SIQuantity<U, Exact, B>) -> Exact {
     U.size()
 }
 
@@ -94,13 +94,13 @@ fn defined_by_other_units() {
 #[test]
 fn quantities_agree() {
     let inch: Length<f64> = (1.0_f64 * INCH).into();
-    assert_eq!(f64::from(inch / (1.0 * METRE)), 0.0254);
+    assert_eq!(f64::from(inch / METRE), 0.0254);
     let foot: Length<f64> = (1.0_f64 * FOOT).into();
-    let in_inches: SIQuantity<{ INCH.unit() }, f64, false> = foot.into();
-    assert!((f64::from(in_inches / (1.0 * INCH)) - 12.0).abs() < 1e-12);
+    let in_inches: SIQuantity<{ INCH.unit() }, f64, NOT_BASE> = foot.into();
+    assert!((f64::from(in_inches / INCH) - 12.0).abs() < 1e-12);
     let ly: Length<f64> = (1.0_f64 * LIGHT_YEAR).into();
-    assert_eq!(f64::from(ly / (1.0 * METRE)), 9_460_730_472_580_800.0);
+    assert_eq!(f64::from(ly / METRE), 9_460_730_472_580_800.0);
     let atm: Pressure<f64> = (1.0_f64 * STANDARD_ATMOSPHERE).into();
-    let in_torr: SIQuantity<{ TORR.unit() }, f64, false> = atm.into();
-    assert!((f64::from(in_torr / (1.0 * TORR)) - 760.0).abs() < 1e-9);
+    let in_torr: SIQuantity<{ TORR.unit() }, f64, NOT_BASE> = atm.into();
+    assert!((f64::from(in_torr / TORR) - 760.0).abs() < 1e-9);
 }

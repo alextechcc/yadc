@@ -1,6 +1,6 @@
 //! `#[derive(ConstOps)]`: the std operators of a struct that carries a value
-//! and a const parameter, lifted over both - the value by its own operators,
-//! the parameter by its type's.
+//! and const parameters, lifted over them - the value by its own operators,
+//! each lifted parameter by its type's.
 
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
@@ -14,23 +14,20 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
 
     let value = value_field(&input.data, name)?;
     let value_ty = &value.ty;
-    let (p_ident, p_ty) = lifted_param(generics, name)?;
-    let one_expr = &opts.one;
-
-    let qa = syn::Ident::new("__A", Span::call_site());
-    let qb = syn::Ident::new("__B", Span::call_site());
+    let lifted = lifted_params(generics, name)?;
+    let is_lifted = |id: &syn::Ident| lifted.iter().any(|l| l.ident == *id);
 
     // The checks and the parameter's results, per derive, beside the struct.
     let m = format_ident!("__const_ops_{}", name);
 
     // --- generics passthrough ------------------------------------------------
-    // Only the lifted const parameter is ours; every impl repeats the other
-    // parameters verbatim and substitutes the lifted slot with what that impl
-    // needs.
+    // Only the lifted const parameters are ours; every impl repeats the other
+    // parameters verbatim and substitutes the lifted slots with what that
+    // impl needs.
     let others: Vec<TokenStream2> = generics
         .params
         .iter()
-        .filter(|p| !matches!(p, GenericParam::Const(c) if c.ident == *p_ident))
+        .filter(|p| !matches!(p, GenericParam::Const(c) if is_lifted(&c.ident)))
         .map(param_decl)
         .collect();
     // Lifetimes go before type and const parameters, so an impl's own borrow
@@ -71,7 +68,9 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         }
         _ => None,
     });
-    let ty_v = |param: &TokenStream2, val: Option<&TokenStream2>| -> TokenStream2 {
+    // The struct with these lifted parameters, in order, and this number
+    // type (or its own).
+    let ty_v = |params: &[TokenStream2], val: Option<&TokenStream2>| -> TokenStream2 {
         let args: Vec<TokenStream2> = generics
             .params
             .iter()
@@ -87,19 +86,18 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                     let i = &t.ident;
                     quote! { #i }
                 }
-                GenericParam::Const(c) => {
-                    if c.ident == *p_ident {
-                        param.clone()
-                    } else {
+                GenericParam::Const(c) => match lifted.iter().position(|l| l.ident == c.ident) {
+                    Some(k) => params[k].clone(),
+                    None => {
                         let i = &c.ident;
                         quote! { #i }
                     }
-                }
+                },
             })
             .collect();
         quote! { #name<#(#args),*> }
     };
-    let ty_of = |param: &TokenStream2| -> TokenStream2 { ty_v(param, None) };
+    let ty_of = |params: &[TokenStream2]| -> TokenStream2 { ty_v(params, None) };
     let user_preds: Vec<TokenStream2> = generics
         .where_clause
         .iter()
@@ -144,25 +142,62 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
     let b_default = quote! { #v: ::core::default::Default };
     let b_copy = quote! { #v: ::core::marker::Copy };
 
-    // --- the parameter's results ---------------------------------------------
-    let param_fn = |f: &str, args: TokenStream2| -> TokenStream2 {
-        let f = syn::Ident::new(f, Span::call_site());
-        quote! { #m::#f(#args) }
+    // --- the parameters' results --------------------------------------------
+    // Each lifted parameter `P` has three names: its own, `__A_P` in a left
+    // operand and `__B_P` in a right one.
+    let named = |prefix: &str| -> Vec<syn::Ident> {
+        lifted
+            .iter()
+            .map(|l| format_ident!("{}{}", prefix, l.ident))
+            .collect()
     };
-    let tp = quote! { #p_ident };
-    let (ta, tb) = (quote! { #qa }, quote! { #qb });
+    let (qa, qb) = (named("__A_"), named("__B_"));
+    let toks =
+        |ids: &[syn::Ident]| -> Vec<TokenStream2> { ids.iter().map(|i| quote! { #i }).collect() };
+    let tp = toks(&named(""));
+    let (ta, tb) = (toks(&qa), toks(&qb));
+    // Every lifted parameter's result of `f` (`__product`, ..) of `a` and
+    // `b`, a const argument each.
+    let results = |f: &str, a: &[TokenStream2], b: &[TokenStream2]| -> Vec<TokenStream2> {
+        lifted
+            .iter()
+            .zip(a.iter().zip(b))
+            .map(|(l, (a, b))| {
+                let f = format_ident!("{}_{}", f, l.ident);
+                quote! { { #m::#f(#a, #b) } }
+            })
+            .collect()
+    };
+    // A check of every lifted parameter at once, `__can_mul(A.., B..)`.
+    let check_call = |f: &str, a: &[TokenStream2], b: &[TokenStream2]| -> TokenStream2 {
+        let f = syn::Ident::new(f, Span::call_site());
+        quote! { #m::#f(#(#a,)* #(#b),*) }
+    };
+    let ones: Vec<TokenStream2> = lifted
+        .iter()
+        .map(|l| {
+            let c = format_ident!("__ONE_{}", l.ident);
+            quote! { #m::#c }
+        })
+        .collect();
 
-    let p_p = quote! { const #p_ident: #p_ty };
-    let p_ab = [quote! { const #qa: #p_ty }, quote! { const #qb: #p_ty }];
+    let decls = |ids: &[syn::Ident]| -> Vec<TokenStream2> {
+        lifted
+            .iter()
+            .zip(ids)
+            .map(|(l, i)| {
+                let t = &l.ty;
+                quote! { const #i: #t }
+            })
+            .collect()
+    };
+    let p_p = decls(&named(""));
+    let p_ab: Vec<TokenStream2> = decls(&qa).into_iter().chain(decls(&qb)).collect();
     let lt_a = [quote! { '__a }];
     let self_p = ty_of(&tp);
     let self_a = ty_of(&ta);
     let self_b = ty_of(&tb);
-    let one_ty = ty_of(&quote! { { #m::__ONE } });
-    let result_ty = |f: &str| {
-        let e = param_fn(f, quote! { #qa, #qb });
-        ty_of(&quote! { { #e } })
-    };
+    let result_ty = |f: &str| ty_of(&results(f, &ta, &tb));
     let (add_ty, sub_ty, mul_ty, div_ty) = (
         result_ty("__sum"),
         result_ty("__difference"),
@@ -170,7 +205,7 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         result_ty("__quotient"),
     );
 
-    let h_p = head(&[], ::core::slice::from_ref(&p_p));
+    let h_p = head(&[], &p_p);
     let h_ab = head(&[], &p_ab);
     let h_ab_ref = head(&lt_a, &p_ab);
 
@@ -184,7 +219,7 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         let mut out = TokenStream2::new();
         for (tr, f, ..) in CHECKS {
             let tr = syn::Ident::new(tr, Span::call_site());
-            let check = param_fn(f, quote! { #qa, #qb });
+            let check = check_call(f, &ta, &tb);
             let w = wher_rt(&[quote! { #m::__Bool<{ #check }>: #m::__Value<Is = #m::__True> }]);
             let h = head_rt(&[], &p_ab);
             out.extend(quote! {
@@ -199,28 +234,66 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         quote! { #a: #m::#tr<#b> }
     };
     let module = {
+        let args = |ids: &[syn::Ident]| -> Vec<TokenStream2> {
+            lifted
+                .iter()
+                .zip(ids)
+                .map(|(l, i)| {
+                    let t = &l.ty;
+                    quote! { #i: #t }
+                })
+                .collect()
+        };
         let traits = CHECKS.iter().map(|(tr, f, op, msg, label)| {
             let tr = syn::Ident::new(tr, Span::call_site());
             let f = syn::Ident::new(f, Span::call_site());
-            let body = match *op {
-                "+" => quote! { (a + b).is_some() },
-                "-" => quote! { (a - b).is_some() },
-                "*" => quote! { (a * b).is_some() },
-                "/" => quote! { (a / b).is_some() },
-                "+=" => quote! { matches!(a + b, ::core::option::Option::Some(c) if c == a) },
-                "-=" => quote! { matches!(a - b, ::core::option::Option::Some(c) if c == a) },
-                "*=" => quote! { matches!(a * b, ::core::option::Option::Some(c) if c == a) },
-                _ => quote! { matches!(a / b, ::core::option::Option::Some(c) if c == a) },
+            let body = |a: &syn::Ident, b: &syn::Ident| match *op {
+                "+" => quote! { (#a + #b).is_some() },
+                "-" => quote! { (#a - #b).is_some() },
+                "*" => quote! { (#a * #b).is_some() },
+                "/" => quote! { (#a / #b).is_some() },
+                "+=" => quote! { matches!(#a + #b, ::core::option::Option::Some(c) if c == #a) },
+                "-=" => quote! { matches!(#a - #b, ::core::option::Option::Some(c) if c == #a) },
+                "*=" => quote! { matches!(#a * #b, ::core::option::Option::Some(c) if c == #a) },
+                _ => quote! { matches!(#a / #b, ::core::option::Option::Some(c) if c == #a) },
             };
+            let bodies = qa.iter().zip(&qb).map(|(a, b)| body(a, b));
+            let (da, db) = (args(&qa), args(&qb));
             quote! {
-                /// Whether the operator exists for these two parameters.
-                pub const fn #f(a: #p_ty, b: #p_ty) -> bool { #body }
+                /// Whether the operator exists for these two operands'
+                /// parameters: whether it does for each.
+                pub const fn #f(#(#da,)* #(#db),*) -> bool { true #(&& #bodies)* }
                 #[diagnostic::on_unimplemented(message = #msg, label = #label)]
                 pub trait #tr<R> {}
             }
         });
+        let per_param = lifted.iter().map(|l| {
+            let (i, t, one) = (&l.ident, &l.ty, &l.one);
+            let c = format_ident!("__ONE_{}", i);
+            let or_one = format_ident!("__or_one_{}", i);
+            let [sum, difference, product, quotient] =
+                ["__sum", "__difference", "__product", "__quotient"]
+                    .map(|f| format_ident!("{}_{}", f, i));
+            let doc = format!("`{i}` of a plain number.");
+            quote! {
+                #[doc = #doc]
+                pub const #c: #t = #one;
+                /// The parameter inside `Some`, or that of a plain number: a
+                /// result type must exist even where its operator does not.
+                pub const fn #or_one(p: ::core::option::Option<#t>) -> #t {
+                    match p {
+                        ::core::option::Option::Some(p) => p,
+                        ::core::option::Option::None => #c,
+                    }
+                }
+                pub const fn #sum(a: #t, b: #t) -> #t { #or_one(a + b) }
+                pub const fn #difference(a: #t, b: #t) -> #t { #or_one(a - b) }
+                pub const fn #product(a: #t, b: #t) -> #t { #or_one(a * b) }
+                pub const fn #quotient(a: #t, b: #t) -> #t { #or_one(a / b) }
+            }
+        });
         let vis = &input.vis;
-        let doc = format!("The parameter results and operator checks of `{name}`'s `ConstOps`.");
+        let doc = format!("The parameters' results and operator checks of `{name}`'s `ConstOps`.");
         quote! {
             #[doc = #doc]
             #[doc(hidden)]
@@ -229,21 +302,7 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                 #[allow(unused_imports)]
                 use super::*;
 
-                /// The parameter of a plain number.
-                pub const __ONE: #p_ty = #one_expr;
-
-                /// The parameter inside `Some`, or `__ONE`: a result type must
-                /// exist even where its operator does not.
-                pub const fn __or_one(p: ::core::option::Option<#p_ty>) -> #p_ty {
-                    match p {
-                        ::core::option::Option::Some(p) => p,
-                        ::core::option::Option::None => __ONE,
-                    }
-                }
-                pub const fn __sum(a: #p_ty, b: #p_ty) -> #p_ty { __or_one(a + b) }
-                pub const fn __difference(a: #p_ty, b: #p_ty) -> #p_ty { __or_one(a - b) }
-                pub const fn __product(a: #p_ty, b: #p_ty) -> #p_ty { __or_one(a * b) }
-                pub const fn __quotient(a: #p_ty, b: #p_ty) -> #p_ty { __or_one(a / b) }
+                #(#per_param)*
 
                 /// A `bool` known at compile time, as a type.
                 pub struct __Bool<const B: bool>;
@@ -266,13 +325,13 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
     };
 
     // The impls a generic number type cannot have (the orphan rule): `n * S`
-    // and `From<S<ONE>> for n`. They are written for the struct's own number
-    // type when it is concrete, and once per primitive when it is a
-    // parameter: their heads carry the struct's parameters without it.
+    // and `n / S`. They are written for the struct's own number type when it
+    // is concrete, and once per primitive when it is a parameter: their heads
+    // carry the struct's parameters without it.
     let others_prim: Vec<TokenStream2> = generics
         .params
         .iter()
-        .filter(|p| !matches!(p, GenericParam::Const(c) if c.ident == *p_ident))
+        .filter(|p| !matches!(p, GenericParam::Const(c) if is_lifted(&c.ident)))
         .filter(|p| !matches!(p, GenericParam::Type(t) if Some(&t.ident) == v_ident))
         .map(param_decl)
         .collect();
@@ -284,39 +343,54 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
             quote! { const impl<#(#all),*> }
         }
     };
-    let h_one_prim = head_prim(&[]);
-    let h_p_prim = head_prim(::core::slice::from_ref(&p_p));
-    // Calls `f(number, S<P, number>, S<ONE, number>)` for each such number.
-    let per_number = |f: &mut dyn FnMut(&TokenStream2, &TokenStream2, &TokenStream2)| {
+    let h_p_prim = head_prim(&p_p);
+    // Calls `f(number, Some(number))` for each such number, or `f(number,
+    // None)` for the struct's own.
+    let per_number = |f: &mut dyn FnMut(&TokenStream2, Option<&TokenStream2>)| {
         if v_ident.is_some() {
             for p in PRIMITIVES {
                 let p = syn::Ident::new(p, Span::call_site());
                 let p = quote! { #p };
-                f(
-                    &p,
-                    &ty_v(&tp, Some(&p)),
-                    &ty_v(&quote! { { #m::__ONE } }, Some(&p)),
-                );
+                f(&p, Some(&p));
             }
         } else {
-            f(&quote! { #v }, &self_p, &one_ty);
+            f(&quote! { #v }, None);
         }
     };
-    // `n * S`: scaling from the left.
+    // `n * S`, scaling from the left, and `n / S`, a number divided by a
+    // member: a member of the plain number's parameters divided by it.
     let left_scalar = {
         let mut out = TokenStream2::new();
-        per_number(&mut |p, self_n, _| {
-            let pred = quote! { #p: [const] ::core::ops::Mul<Output = #p> };
-            let w = if v_ident.is_some() {
-                quote! { where #pred }
-            } else {
-                wher(&[pred])
+        let quotient = results("__quotient", &ones, &tp);
+        let one_args: Vec<TokenStream2> = ones.iter().map(|o| quote! { { #o } }).collect();
+        per_number(&mut |p, val| {
+            let self_n = ty_v(&tp, val);
+            let one_n = ty_v(&one_args, val);
+            let out_n = ty_v(&quotient, val);
+            let w = |pred: TokenStream2| {
+                if v_ident.is_some() {
+                    quote! { where #pred }
+                } else {
+                    wher(&[pred])
+                }
             };
-            let build = ctor(quote! { self * rhs.#member });
+            let w_mul = w(quote! { #p: [const] ::core::ops::Mul<Output = #p> });
+            let c = check("DivResult", &one_n, &self_n);
+            let w_div = w(quote! {
+                #p: [const] ::core::ops::Div<Output = #p>, #out_n: ::core::marker::Sized, #c
+            });
+            let (mm, dd) = (
+                ctor(quote! { self * rhs.#member }),
+                ctor(quote! { self / rhs.#member }),
+            );
             out.extend(quote! {
-                #h_p_prim ::core::ops::Mul<#self_n> for #p #w {
+                #h_p_prim ::core::ops::Mul<#self_n> for #p #w_mul {
                     type Output = #self_n;
-                    fn mul(self, rhs: #self_n) -> #self_n { #build }
+                    fn mul(self, rhs: #self_n) -> #self_n { #mm }
+                }
+                #h_p_prim ::core::ops::Div<#self_n> for #p #w_div {
+                    type Output = #out_n;
+                    fn div(self, rhs: #self_n) -> #out_n { #dd }
                 }
             });
         });
@@ -460,8 +534,8 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
     // `Sum`, seeded with the number's `Default`, the numbers summed with
     // their `+=`; it exists where `+=` of the member and itself does.
     let sum = {
-        let h_p_rt = head_rt(&[], ::core::slice::from_ref(&p_p));
-        let h_p_ref = head_rt(&lt_a, ::core::slice::from_ref(&p_p));
+        let h_p_rt = head_rt(&[], &p_p);
+        let h_p_ref = head_rt(&lt_a, &p_p);
         let c = check("AddAssignResult", &self_p, &self_p);
         let w = wher_rt(&[c.clone(), b_default.clone(), b_add_assign_rt.clone()]);
         let w_ref = wher_rt(&[
@@ -491,23 +565,10 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         }
     };
 
-    // The member of the plain number's parameter is a number:
-    // `f64::from(a / b)`. And a lossless change of number type, one impl
-    // per pair of primitives std converts losslessly (a generic one would
-    // overlap core's `impl<T> From<T> for T`).
+    // A lossless change of number type, one impl per pair of primitives std
+    // converts losslessly (a generic one would overlap core's `impl<T>
+    // From<T> for T`).
     let mut from = TokenStream2::new();
-    per_number(&mut |p, _, one_p| {
-        let w = if value_is_generic {
-            quote! {}
-        } else {
-            wher(&[])
-        };
-        from.extend(quote! {
-            #h_one_prim ::core::convert::From<#one_p> for #p #w {
-                fn from(q: #one_p) -> Self { q.#member }
-            }
-        });
-    });
     if v_ident.is_some() {
         for (f, tos) in LOSSLESS {
             let f = syn::Ident::new(f, Span::call_site());
@@ -558,13 +619,10 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
     }
     for (mm, nn) in &opts.from {
         let (mm, nn) = (quote! { #mm }, quote! { #nn });
-        let at = |param: &TokenStream2, num: &TokenStream2| ty_v(param, Some(num));
+        let at = |params: &[TokenStream2], num: &TokenStream2| ty_v(params, Some(num));
         let (a_m, a_n, b_m, b_n) = (at(&ta, &mm), at(&ta, &nn), at(&tb, &mm), at(&tb, &nn));
         let (p_m, p_n) = (at(&tp, &mm), at(&tp, &nn));
-        let result_n = |f: &str| {
-            let e = param_fn(f, quote! { #qa, #qb });
-            at(&quote! { { #e } }, &nn)
-        };
+        let result_n = |f: &str| at(&results(f, &ta, &tb), &nn);
         let conv = quote! { #nn: [const] ::core::convert::From<#mm> };
         let up = |x: TokenStream2| quote! { <#nn as ::core::convert::From<#mm>>::from(#x) };
         let primitive = |t: &TokenStream2| PRIMITIVES.iter().any(|p| t.to_string() == *p);
@@ -646,13 +704,20 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
                 fn mul(self, rhs: #p_m) -> #p_n { #sl }
             }
         });
-        // The plain number's `M` member is an `N` number, where `N` is a
-        // primitive.
-        if primitive(&nn) {
-            let one_m = at(&quote! { { #m::__ONE } }, &mm);
+        // A number divided by an `M` member: a member of the plain
+        // number's parameters divided by it, counted in `N`.
+        {
+            let quotient = results("__quotient", &ones, &tp);
+            let one_args: Vec<TokenStream2> = ones.iter().map(|o| quote! { { #o } }).collect();
+            let (one_n, out_n) = (at(&one_args, &nn), at(&quotient, &nn));
+            let c = check("DivResult", &one_n, &p_n);
+            let dl = ctor(quote! { self / #up_rhs });
             mixed.extend(quote! {
-                #h_one_prim ::core::convert::From<#one_m> for #nn where #conv {
-                    fn from(q: #one_m) -> #nn { #up_q }
+                #h_p_prim ::core::ops::Div<#p_m> for #nn
+                where #conv, #nn: [const] ::core::ops::Div<Output = #nn>, #out_n: ::core::marker::Sized, #c
+                {
+                    type Output = #out_n;
+                    fn div(self, rhs: #p_m) -> #out_n { #dl }
                 }
             });
         }
@@ -668,7 +733,7 @@ pub(crate) fn expand(input: &DeriveInput) -> syn::Result<TokenStream2> {
         }
         // Compared at `N`, either way round.
         let h_p_rt = {
-            let ps: Vec<&TokenStream2> = others_prim.iter().chain(std::iter::once(&p_p)).collect();
+            let ps: Vec<&TokenStream2> = others_prim.iter().chain(&p_p).collect();
             quote! { impl<#(#ps),*> }
         };
         let w_cmp = quote! { where #nn: ::core::cmp::PartialOrd + ::core::convert::From<#mm>, #mm: ::core::marker::Copy };
@@ -767,7 +832,7 @@ const CHECKS: &[(&str, &str, &str, &str, &str)] = &[
 ];
 
 /// The primitive number types: the impls a generic number type cannot have
-/// (`n * S`, `From<S<ONE>> for n`) are written once for each.
+/// (`n * S`, `n / S`) are written once for each.
 const PRIMITIVES: &[&str] = &[
     "i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize", "f32",
     "f64",
@@ -797,12 +862,8 @@ const LOSSLESS: &[(&str, &[&str])] = &[
     ("u64", &["u128", "i128"]),
 ];
 
-/// `#[const_ops(one = EXPR, from(M => N, ..))]`.
+/// `#[const_ops(from(M => N, ..))]`.
 struct Options {
-    /// The parameter of a plain number: the result where an operator of the
-    /// parameter type has none, and the parameter `From<S<ONE, n>> for n`
-    /// reads.
-    one: Expr,
     /// Number types `M` that meet `N`, the pair converting with std
     /// `From<M> for N`.
     from: Vec<(Type, Type)>,
@@ -810,17 +871,13 @@ struct Options {
 
 impl Options {
     fn parse(input: &DeriveInput) -> syn::Result<Self> {
-        let mut one: Option<Expr> = None;
         let mut from: Vec<(Type, Type)> = Vec::new();
         for attr in &input.attrs {
             if !attr.path().is_ident("const_ops") {
                 continue;
             }
             attr.parse_nested_meta(|meta| {
-                if meta.path.is_ident("one") {
-                    one = Some(meta.value()?.parse()?);
-                    Ok(())
-                } else if meta.path.is_ident("from") {
+                if meta.path.is_ident("from") {
                     let content;
                     syn::parenthesized!(content in meta.input);
                     let source: Type = content.parse()?;
@@ -855,21 +912,14 @@ impl Options {
                     Ok(())
                 } else {
                     Err(meta.error(
-                        "expected `one = EXPR` (the parameter of a plain number) or \
-                         `from(M => N, ..)` (number types that meet, converting with \
-                         `From<M> for N`)",
+                        "expected `from(M => N, ..)` (number types that meet, converting with \
+                         `From<M> for N`); a lifted parameter says its `one` itself: \
+                         `#[ops(one = EXPR)] const P: T`",
                     ))
                 }
             })?;
         }
-        let Some(one) = one else {
-            return Err(syn::Error::new_spanned(
-                &input.ident,
-                "`ConstOps` needs the parameter of a plain number: `#[const_ops(one = EXPR)]`, \
-                 the result where an operator of the parameter type has none",
-            ));
-        };
-        Ok(Options { one, from })
+        Ok(Options { from })
     }
 }
 
@@ -946,41 +996,60 @@ fn is_phantom(ty: &Type) -> bool {
             && tp.path.segments.last().is_some_and(|s| s.ident == "PhantomData"))
 }
 
-/// The lifted const parameter: the one marked `#[ops]`, else the struct's
-/// only const parameter.
-fn lifted_param<'a>(
-    generics: &'a syn::Generics,
+/// A lifted const parameter, `#[ops(one = EXPR)] const P: T`.
+struct Lifted {
+    ident: syn::Ident,
+    ty: Type,
+    /// Its value in a plain number: the result where an operator of `T` has
+    /// none.
+    one: Expr,
+}
+
+/// The lifted const parameters: those marked `#[ops(one = EXPR)]`, in order.
+fn lifted_params(
+    generics: &syn::Generics,
     span: &impl quote::ToTokens,
-) -> syn::Result<(&'a syn::Ident, &'a Type)> {
-    let consts: Vec<&syn::ConstParam> = generics
-        .params
-        .iter()
-        .filter_map(|p| match p {
-            GenericParam::Const(c) => Some(c),
-            _ => None,
-        })
-        .collect();
-    let marked: Vec<&&syn::ConstParam> = consts
-        .iter()
-        .filter(|c| c.attrs.iter().any(|a| a.path().is_ident("ops")))
-        .collect();
-    match (marked.len(), consts.len()) {
-        (1, _) => Ok((&marked[0].ident, &marked[0].ty)),
-        (0, 1) => Ok((&consts[0].ident, &consts[0].ty)),
-        (0, 0) => Err(syn::Error::new_spanned(
-            span,
-            "`ConstOps` lifts a const parameter: `struct S<const P: T, N>(N)`",
-        )),
-        (0, _) => Err(syn::Error::new_spanned(
-            span,
-            "several const parameters: mark the lifted one `#[ops]`, \
-             `struct S<#[ops] const P: T, const K: bool, N>(N)`",
-        )),
-        _ => Err(syn::Error::new_spanned(
-            span,
-            "only one const parameter may be marked `#[ops]`",
-        )),
+) -> syn::Result<Vec<Lifted>> {
+    let mut out = Vec::new();
+    for p in &generics.params {
+        let GenericParam::Const(c) = p else { continue };
+        for attr in c.attrs.iter().filter(|a| a.path().is_ident("ops")) {
+            let mut one: Option<Expr> = None;
+            if let syn::Meta::List(_) = attr.meta {
+                attr.parse_nested_meta(|meta| {
+                    if meta.path.is_ident("one") {
+                        one = Some(meta.value()?.parse()?);
+                        Ok(())
+                    } else {
+                        Err(meta.error("expected `one = EXPR`, the parameter of a plain number"))
+                    }
+                })?;
+            }
+            let Some(one) = one else {
+                return Err(syn::Error::new_spanned(
+                    attr,
+                    "a lifted parameter needs its value in a plain number: \
+                     `#[ops(one = EXPR)]`, the result where an operator of its type has none",
+                ));
+            };
+            if out.iter().any(|l: &Lifted| l.ident == c.ident) {
+                return Err(syn::Error::new_spanned(attr, "`#[ops]` given twice: a parameter is lifted once"));
+            }
+            out.push(Lifted {
+                ident: c.ident.clone(),
+                ty: c.ty.clone(),
+                one,
+            });
+        }
     }
+    if out.is_empty() {
+        return Err(syn::Error::new_spanned(
+            span,
+            "`ConstOps` lifts the const parameters marked `#[ops(one = EXPR)]`: \
+             `struct S<#[ops(one = T::ONE)] const P: T, N>(N)`",
+        ));
+    }
+    Ok(out)
 }
 
 /// One generic parameter as an impl declares it: without this derive's

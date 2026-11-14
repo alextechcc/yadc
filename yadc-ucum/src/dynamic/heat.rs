@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    MeterSquaredGramPerSecondSquared,
     #[value(CALORIE_AT15_DEGREE_C.unit())]
     CalorieAt15DegreeC,
     #[value(CALORIE_AT20_DEGREE_C.unit())]
@@ -54,6 +56,8 @@ pub enum EnergyUnit {
 #[values(into(UcumUnit))]
 pub enum LinearMassDensityOfTextileThreadUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(GRAM.unit(), 1))]
+    GramPerMeter,
     #[value(TEX.unit())]
     Tex,
     #[value(DENIER.unit())]
@@ -69,6 +73,8 @@ pub enum LinearMassDensityOfTextileThreadUnit {
 #[values(into(UcumUnit))]
 pub enum PowerUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -3).times(GRAM.unit(), 1))]
+    MeterSquaredGramPerSecondCubed,
     #[value(HORSEPOWER.unit())]
     Horsepower,
 }

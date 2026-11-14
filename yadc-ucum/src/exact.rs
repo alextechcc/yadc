@@ -4,8 +4,9 @@
 //! m, a degree π/180 rad, a pound-force `0.45359237 * 9.80665` N - and kept
 //! exact through every product and quotient. A number type is chosen where a
 //! unit is used, and its size and zero are converted with `From`, rounding
-//! once, correctly: the nearest `f64`, the nearest integer. The unit's impl
-//! does that in a `const` block, so the compiler does the rounding.
+//! once, correctly: the nearest `f64`, the nearest integer. A quantity of a
+//! plain number read as a number (`f64::from(d / KILOMETRE)`) converts its
+//! unit's size in a `const` block, so the compiler does that rounding.
 
 use core::cmp::Ordering;
 use core::ops::{Add, Div, Mul, Neg, Sub};
@@ -118,6 +119,11 @@ impl Exact {
         Exact::new(mantissa, 1, exp10, 0)
     }
 
+    /// Whether it is a whole number.
+    pub const fn is_integer(self) -> bool {
+        self.den == 1 && self.pi == 0 && self.exp10 >= 0
+    }
+
     /// The nearest `f64`, or `f32`, to the rational part `num / den ·
     /// 10^exp10`, rounded once (to nearest, ties to even).
     const fn rational_bits(self, mantissa_bits: u32) -> (bool, i32, u64) {
@@ -227,7 +233,6 @@ impl Exact {
         }
     }
 
-    /// The nearest `f32`, rounded once where there is no π.
     /// The nearest integer, which must lie in `min..=max`.
     const fn to_integer(self, min: i128, max: u128) -> i128 {
         let v = self.to_i128();
@@ -239,6 +244,7 @@ impl Exact {
         v
     }
 
+    /// The nearest `f32`, rounded once where there is no π.
     pub const fn to_f32(self) -> f32 {
         if self.num == 0 {
             return 0.0;
@@ -340,14 +346,39 @@ impl PartialOrd for Exact {
 }
 
 impl core::fmt::Display for Exact {
-    /// The exact form: `1609344e-3`, `1200/3937`, `1/180·π`.
+    /// The exact form, its decimal part as a decimal: `1609.344`, `1000`,
+    /// `1200/3937`, `0.3/7`, `1/180·π`.
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{}", self.num)?;
+        if self.num < 0 {
+            f.write_str("-")?;
+        }
+        let digits = self.num.unsigned_abs();
+        if self.exp10 >= 0 {
+            write!(f, "{digits}")?;
+            for _ in 0..self.exp10 {
+                f.write_str("0")?;
+            }
+        } else {
+            // `digits · 10^exp10`: the point `-exp10` digits from the right.
+            let point = (-self.exp10) as u32;
+            let scale = 10u128.checked_pow(point);
+            match scale {
+                Some(scale) => {
+                    let (whole, frac) = (digits / scale, digits % scale);
+                    write!(f, "{whole}.{frac:0width$}", width = point as usize)?;
+                }
+                None => {
+                    f.write_str("0.")?;
+                    let shown = digits.ilog10() + 1;
+                    for _ in shown..point {
+                        f.write_str("0")?;
+                    }
+                    write!(f, "{digits}")?;
+                }
+            }
+        }
         if self.den != 1 {
             write!(f, "/{}", self.den)?;
-        }
-        if self.exp10 != 0 {
-            write!(f, "e{}", self.exp10)?;
         }
         match self.pi {
             0 => Ok(()),
@@ -370,8 +401,8 @@ impl const From<Exact> for f32 {
 }
 
 /// The nearest integer, ties to even; a panic where it does not fit the
-/// type. `KILO * METRE` in `i32` is 1000; an inch in `i32` metres is 0 - the
-/// rounding is yours to choose by the unit you count in.
+/// type. The size of `KILO * METRE` in `i32` is 1000; an inch's, in metres,
+/// is 0 - the rounding is yours to choose by the unit you count in.
 impl const From<Exact> for i8 {
     fn from(x: Exact) -> i8 {
         x.to_integer(i8::MIN as i128, i8::MAX as u128) as i8

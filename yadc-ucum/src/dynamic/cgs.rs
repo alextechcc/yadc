@@ -15,6 +15,8 @@ use crate::*;
 #[values(into(UcumUnit))]
 pub enum AccelerationUnit {
     #[default]
+    #[value(METER.unit().times(SECOND.unit(), -2))]
+    MeterPerSecondSquared,
     #[value(GAL.unit())]
     Gal,
 }
@@ -28,6 +30,8 @@ pub enum AccelerationUnit {
 #[values(into(UcumUnit))]
 pub enum BrightnessUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(CANDELA.unit(), 1))]
+    CandelaPerMeterSquared,
     #[value(LAMBERT.unit())]
     Lambert,
 }
@@ -41,6 +45,8 @@ pub enum BrightnessUnit {
 #[values(into(UcumUnit))]
 pub enum DoseEquivalentUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2))]
+    MeterSquaredPerSecondSquared,
     #[value(RADIATION_EQUIVALENT_MAN.unit())]
     RadiationEquivalentMan,
 }
@@ -54,6 +60,8 @@ pub enum DoseEquivalentUnit {
 #[values(into(UcumUnit))]
 pub enum DynamicViscosityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -1).times(GRAM.unit(), 1))]
+    GramPerMeterSecond,
     #[value(POISE.unit())]
     Poise,
 }
@@ -67,6 +75,8 @@ pub enum DynamicViscosityUnit {
 #[values(into(UcumUnit))]
 pub enum ElectricCurrentUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(SECOND.unit(), -1).times(COULOMB.unit(), 1))]
+    CoulombPerSecond,
     #[value(BIOT.unit())]
     Biot,
 }
@@ -80,6 +90,8 @@ pub enum ElectricCurrentUnit {
 #[values(into(UcumUnit))]
 pub enum EnergyUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    MeterSquaredGramPerSecondSquared,
     #[value(ERG.unit())]
     Erg,
 }
@@ -93,6 +105,8 @@ pub enum EnergyUnit {
 #[values(into(UcumUnit))]
 pub enum EnergyDoseUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -2))]
+    MeterSquaredPerSecondSquared,
     #[value(RADIATION_ABSORBED_DOSE.unit())]
     RadiationAbsorbedDose,
 }
@@ -106,6 +120,8 @@ pub enum EnergyDoseUnit {
 #[values(into(UcumUnit))]
 pub enum FluxOfMagneticInductionUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    MeterSquaredGramPerSecondCoulomb,
     #[value(MAXWELL.unit())]
     Maxwell,
 }
@@ -119,6 +135,8 @@ pub enum FluxOfMagneticInductionUnit {
 #[values(into(UcumUnit))]
 pub enum ForceUnit {
     #[default]
+    #[value(METER.unit().times(SECOND.unit(), -2).times(GRAM.unit(), 1))]
+    MeterGramPerSecondSquared,
     #[value(DYNE.unit())]
     Dyne,
 }
@@ -132,6 +150,8 @@ pub enum ForceUnit {
 #[values(into(UcumUnit))]
 pub enum IlluminanceUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(RADIAN.unit(), 2).times(CANDELA.unit(), 1))]
+    RadianSquaredCandelaPerMeterSquared,
     #[value(PHOT.unit())]
     Phot,
 }
@@ -145,6 +165,8 @@ pub enum IlluminanceUnit {
 #[values(into(UcumUnit))]
 pub enum IonDoseUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(GRAM.unit(), -1).times(COULOMB.unit(), 1))]
+    CoulombPerGram,
     #[value(ROENTGEN.unit())]
     Roentgen,
 }
@@ -158,6 +180,8 @@ pub enum IonDoseUnit {
 #[values(into(UcumUnit))]
 pub enum KinematicViscosityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), 2).times(SECOND.unit(), -1))]
+    MeterSquaredPerSecond,
     #[value(STOKES.unit())]
     Stokes,
 }
@@ -171,6 +195,8 @@ pub enum KinematicViscosityUnit {
 #[values(into(UcumUnit))]
 pub enum LineicNumberUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1))]
+    PerMeter,
     #[value(KAYSER.unit())]
     Kayser,
 }
@@ -184,6 +210,8 @@ pub enum LineicNumberUnit {
 #[values(into(UcumUnit))]
 pub enum LumIntensityDensityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -2).times(CANDELA.unit(), 1))]
+    CandelaPerMeterSquared,
     #[value(STILB.unit())]
     Stilb,
 }
@@ -197,6 +225,8 @@ pub enum LumIntensityDensityUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticFieldIntensityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(METER.unit(), -1).times(SECOND.unit(), -1).times(COULOMB.unit(), 1))]
+    CoulombPerMeterSecond,
     #[value(OERSTED.unit())]
     Oersted,
 }
@@ -210,6 +240,8 @@ pub enum MagneticFieldIntensityUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticFluxDensityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(SECOND.unit(), -1).times(GRAM.unit(), 1).times(COULOMB.unit(), -1))]
+    GramPerSecondCoulomb,
     #[value(GAUSS.unit())]
     Gauss,
 }
@@ -223,6 +255,8 @@ pub enum MagneticFluxDensityUnit {
 #[values(into(UcumUnit))]
 pub enum MagneticTensionUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(SECOND.unit(), -1).times(COULOMB.unit(), 1))]
+    CoulombPerSecond,
     #[value(GILBERT.unit())]
     Gilbert,
 }
@@ -236,6 +270,8 @@ pub enum MagneticTensionUnit {
 #[values(into(UcumUnit))]
 pub enum RadioactivityUnit {
     #[default]
+    #[value(UcumUnit::ONE.times(SECOND.unit(), -1))]
+    PerSecond,
     #[value(CURIE.unit())]
     Curie,
 }

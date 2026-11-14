@@ -139,7 +139,7 @@ impl SIUnit {
     }
 
     /// A prefix: a plain number that fuses with the one unprefixed named unit
-    /// it multiplies - `KILO * GRAM` is `kg`.
+    /// it multiplies - `KILO * METRE` is `km`.
     pub const fn prefix(symbol: &'static str, size: Exact) -> SIUnit {
         let mut u = SIUnit::ONE;
         u.prefixes[0] = symbol;
@@ -366,6 +366,26 @@ impl SIUnit {
         true
     }
 
+    /// Whether it is the unit of a plain number: of dimension one, without a
+    /// zero or a log scale - `m/km`, `%`, `k`.
+    pub const fn is_plain_number(self) -> bool {
+        let (_, p) = self.in_base();
+        let mut i = 0;
+        while i < B {
+            if p[i] != 0 {
+                return false;
+            }
+            i += 1;
+        }
+        self.is_linear()
+    }
+
+    /// Whether it is the unit of a plain number of a whole size: `km/m`, not
+    /// `m/km`.
+    pub const fn is_whole_plain_number(self) -> bool {
+        self.is_plain_number() && self.size().is_integer()
+    }
+
     /// Whether it is on a logarithmic scale.
     pub const fn is_log(self) -> bool {
         self.log_per != Exact::ZERO
@@ -419,37 +439,136 @@ impl SIUnit {
         }
     }
 
-    /// Writes the unit as its named units, each with its prefix and power.
-    fn write(self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    /// Writes the unit: a coherent unit with a name its name (`N`), a prefix
+    /// on one its prefix and name (`kPa`), any other its named units with
+    /// their prefixes and powers, the positive powers first, then `/` and the
+    /// negative ones (`km/h`, `m/s^2`, `kg·m^2/s^2`, `1/h`, `W/(m^2·K)`).
+    fn write(self, w: &mut impl core::fmt::Write) -> core::fmt::Result {
+        if let Some(name) = self.name() {
+            return w.write_str(name);
+        }
+        let mut k = 0;
+        while k < F {
+            if self.powers[k] == 1 && self.symbols[k].is_empty() && !self.prefixes[k].is_empty() {
+                let mut rest = self;
+                rest.powers[k] = 0;
+                if let Some(name) = rest.normal().name() {
+                    w.write_str(self.prefixes[k])?;
+                    return w.write_str(name);
+                }
+            }
+            k += 1;
+        }
+        let count = |positive: bool| {
+            self.powers
+                .iter()
+                .filter(|&&p| p != 0 && (p > 0) == positive)
+                .count()
+        };
+        let (num, den) = (count(true), count(false));
+        if num == 0 && den > 0 {
+            w.write_str("1")?;
+        }
+        self.write_powers(w, true)?;
+        if den > 0 {
+            w.write_str("/")?;
+            if den > 1 {
+                w.write_str("(")?;
+            }
+            self.write_powers(w, false)?;
+            if den > 1 {
+                w.write_str(")")?;
+            }
+        }
+        Ok(())
+    }
+
+    /// The name of a coherent unit that has one.
+    fn name(self) -> Option<&'static str> {
+        crate::NAMED
+            .iter()
+            .find(|(unit, _)| *unit == self)
+            .map(|(_, name)| *name)
+    }
+
+    /// The named units of positive powers, or of negative ones, with their
+    /// prefixes and the powers' sizes: `kg·m^2`.
+    fn write_powers(self, w: &mut impl core::fmt::Write, positive: bool) -> core::fmt::Result {
         let mut first = true;
         for k in 0..F {
-            if self.powers[k] == 0 {
+            let p = self.powers[k];
+            if p == 0 || (p > 0) != positive {
                 continue;
             }
             if !first {
-                f.write_str("·")?;
+                w.write_str("·")?;
             }
             first = false;
-            write!(f, "{}{}", self.prefixes[k], self.symbols[k])?;
-            if self.powers[k] != 1 {
-                write!(f, "^{}", self.powers[k])?;
+            write!(w, "{}{}", self.prefixes[k], self.symbols[k])?;
+            if p.abs() != 1 {
+                write!(w, "^{}", p.abs())?;
             }
         }
         Ok(())
     }
 }
 
-/// The unit's symbol: a coherent unit with a name its name (`N`), any other
-/// its named units with their prefixes and powers (`km`, `m·s^-1`). The
-/// unit of a plain number prints nothing.
-impl core::fmt::Display for SIUnit {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        for (unit, name) in crate::NAMED {
-            if unit == *self {
-                return f.write_str(name);
-            }
+/// The longest unit symbol `Display` writes.
+const LONGEST: usize = 256;
+
+/// A unit's symbol, written into a fixed buffer to be padded as a whole.
+struct Symbol {
+    bytes: [u8; LONGEST],
+    len: usize,
+}
+
+impl core::fmt::Write for Symbol {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        let end = self.len + s.len();
+        if end > LONGEST {
+            return Err(core::fmt::Error);
         }
-        self.write(f)
+        self.bytes[self.len..end].copy_from_slice(s.as_bytes());
+        self.len = end;
+        Ok(())
+    }
+}
+
+/// The unit's symbol (see `write`), padded to the width, fill and
+/// alignment asked for: `{:>6}`. The unit of a plain number prints nothing.
+impl core::fmt::Display for SIUnit {
+    /// The symbol; a width pads it with the fill, aligned as asked (left by
+    /// default). A precision does not cut it.
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let Some(width) = f.width() else {
+            return self.write(f);
+        };
+        let mut symbol = Symbol {
+            bytes: [0; LONGEST],
+            len: 0,
+        };
+        if self.write(&mut symbol).is_err() {
+            // Longer than any width a table asks for: written as it is.
+            return self.write(f);
+        }
+        // Whole `str`s were written, so the bytes are UTF-8.
+        let text =
+            core::str::from_utf8(&symbol.bytes[..symbol.len]).map_err(|_| core::fmt::Error)?;
+        let pad = width.saturating_sub(text.chars().count());
+        let (before, after) = match f.align() {
+            Some(core::fmt::Alignment::Right) => (pad, 0),
+            Some(core::fmt::Alignment::Center) => (pad / 2, pad - pad / 2),
+            _ => (0, pad),
+        };
+        let fill = f.fill();
+        for _ in 0..before {
+            core::fmt::Write::write_char(f, fill)?;
+        }
+        f.write_str(text)?;
+        for _ in 0..after {
+            core::fmt::Write::write_char(f, fill)?;
+        }
+        Ok(())
     }
 }
 

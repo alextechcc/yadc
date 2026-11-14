@@ -27,7 +27,7 @@ use uom::si::{Quantity, Units, marker};
 
 use crate::dynamic::DynamicSIQuantity;
 use crate::{
-    AMPERE, CANDELA, KELVIN, KILOGRAM, METRE, MOLE, RADIAN, SECOND, SIQuantity, SIUnit,
+    AMPERE, BASE, CANDELA, KELVIN, KILOGRAM, METRE, MOLE, RADIAN, SECOND, SIQuantity, SIUnit,
 };
 
 // --- Kind mapping -------------------------------------------------------------
@@ -151,7 +151,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd, U>
             )
         },
         f64,
-        true,
+        BASE,
     >
 where
     Ld: Integer,
@@ -190,7 +190,7 @@ impl<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>
                 )
             },
             f64,
-            true,
+            BASE,
         >,
     > for Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, uom::si::SI<f64>, f64>
 where
@@ -218,7 +218,7 @@ where
                 )
             },
             f64,
-            true,
+            BASE,
         >,
     ) -> Self {
         Quantity {
@@ -247,7 +247,7 @@ where
 {
     fn from(q: Quantity<uom::si::ISQ<Ld, Md, Td, Id, Thd, Nd, Jd, Kd>, U, f64>) -> Self {
         DynamicSIQuantity {
-            is_base: true,
+            is_base: BASE,
             value: q.value,
             unit: unit_of(
                 Ld::I8,
@@ -292,7 +292,7 @@ where
             Jd::I8,
             <Kd as UomKindMapping>::RADIANS,
         );
-        if dq.unit == expected && dq.is_base {
+        if dq.unit == expected && dq.is_base == BASE {
             Ok(Quantity {
                 value: dq.value,
                 dimension: PhantomData,
