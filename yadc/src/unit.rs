@@ -8,69 +8,52 @@
 /// quantity a number - there is no raw access - so every number in a program
 /// says which unit it is in.
 ///
-/// A unit is a value - a constant - of types that are yours:
+/// A unit is a type of yours with an `impl Unit`:
 ///
-/// - **a quantity constant**: every [`Quantity`](crate::Quantity) is a unit
-///   of itself (`#[derive(Quantity)]` writes it) - `BAR.quantity(n)` is
-///   `BAR * n`, `BAR.value(q)` is `q / BAR`;
-/// - **a type of yours with a hand-written `impl Unit`**: two functions. A
-///   scale is one such type, a zero and a step in a tuple struct - `n` is
-///   `zero + n · step`, a value reads `(value - zero) / step` - so that °C is
-///   `Scale(ICE_POINT, KELVIN)`, feet above *this* runway `Scale(runway,
-///   FOOT)`, dBm `Scale(MILLIWATT_LEVEL, DECIBEL)` on a logarithmic line; the
-///   Beaufort scale is another, on a zero-sized `struct Beaufort;`.
+/// - **a quantity value** is a unit of its own kind (`#[derive(Quantity)]`
+///   writes it): `q.quantity(n)` is `q * n`, `q.value(x)` is `x / q`;
+/// - **a unit type of a system**, whose definition its system stores as it
+///   likes - a size and a zero in const parameters, `SIUnit<D, C>` - with one
+///   hand-written impl for all of them;
+/// - **anything else**: the Beaufort scale is two functions on a zero-sized
+///   `struct Beaufort;`.
 ///
 /// A choice of them - for a menu, a config file, a parser - is an enum of
-/// yours with `#[derive(Unit)]`, each variant naming the unit value it is.
+/// yours with `#[derive(Unit)]`, each variant naming the unit type it is.
 ///
 /// ```ignore
-/// pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
-///
-/// let t = CELSIUS.quantity(25.0);                         // build: 298.15 K
-/// let f = FAHRENHEIT.value(t);                             // read: 77.0
-/// let v = MILE.quantity(60.0) / HOUR.quantity(1.0);      // a constant is a unit too
-/// let any: &dyn Unit<Pressure> = &BAR;                     // picked at run time
-/// let u = TemperatureUnit::Celsius;
-/// println!("{:.1} {u}", u.value(t));                       // "25.0 °C": the enum's `Display`
+/// let t = Celsius {}.quantity(25.0);                     // build: 298.15 K
+/// let f = Fahrenheit {}.value(t);                        // read: 77.0
+/// let u = TemperatureUnit::Celsius;                      // a choice made at run time
+/// println!("{:.1} {u}", u.value(t));                     // "25.0 °C": the unit's `Display`
 /// ```
 ///
 /// These two methods are the only way in and out; generic code asks for
-/// `U: Unit<Q>`.
+/// `U: Unit<Q, N>`.
 ///
-/// `impl Unit<Mass> for MassUnit` is the whole declaration that the two
+/// `impl Unit<Mass, f64> for Pound` is the whole declaration that the two
 /// belong together: there is no structural check to pass instead, because two
 /// systems may encode the same idea differently, so the impl *is* the proof. A
-/// unit may implement it for any number of types, in any crate that owns one
-/// of them - there is no "home" quantity - and `Q` may be anything: a
-/// quantity, a point, a type of yours. `N` is usually a float (`f64` by
-/// default), but can be any type of numbers: a grid's position is
-/// `[f64; 2]`.
+/// unit may implement it for any number of types, and `Q` may be anything: a
+/// quantity, a point, a type of yours. `N` is any type of numbers: a float, an
+/// integer, a grid's `[f64; 2]`.
 ///
-/// When a unit measures several types, building names the target:
-/// `let m: Mass = Pound.quantity(10.0)`. Reading never needs it. A read that
-/// can fail - a value whose dimension is only known at run time - is
-/// `TryFrom` first, then the unit.
-///
-/// Printing a quantity in a unit is the number and the unit's own `Display`
-/// (which `#[derive(Unit)]` writes: `{}` the symbol, `{:#}` the name):
+/// Printing a quantity in a unit is the number and the unit's own `Display`:
 /// `format!("{:.1} {}", unit.value(q), unit)`.
 ///
-/// Dyn compatible: `&dyn Unit<Length>` is "some unit of length", picked at
-/// run time and still checked at compile time; `&U` implements `Unit<Q, N>`
+/// Dyn compatible: `&dyn Unit<Length, f64>` is "some unit of length", picked
+/// at run time and still checked at compile time; `&U` implements `Unit<Q, N>`
 /// whenever `U` does.
 ///
-/// A `const trait`: quantity constants and scales convert at compile time
-/// (`const P: Pressure = PSI.quantity(14.7);`); a level read as a linear
-/// quantity (its conversion takes a logarithm) and most hand-written function
-/// units do not.
+/// A `const trait`: a unit whose conversion is `const` builds quantities at
+/// compile time (`const P: Pressure<f64> = Psi {}.quantity(14.7);`).
 #[diagnostic::on_unimplemented(
     message = "`{Self}` is not a unit of `{Q}` counted in `{N}`",
     label = "not a unit of this quantity in these numbers",
-    note = "a unit declares what it measures with `#[unit(of = ..)]` on its `#[derive(Unit)]`, or a \
-            hand-written `impl Unit<Q, N>`; its numbers are `f64` unless `#[unit(number = ..)]` says \
-            otherwise"
+    note = "a unit declares what it measures with a hand-written `impl Unit<Q, N>`, or - an enum \
+            of units - with `#[unit(of = Q, number = N)]` on its `#[derive(Unit)]`"
 )]
-pub const trait Unit<Q, N = f64> {
+pub const trait Unit<Q, N> {
     /// The `Q` that is `value` in this unit: `Pound.quantity(180.0)`.
     fn quantity(&self, value: N) -> Q;
     /// The number `quantity` is in this unit: `Kilogram.value(m)`.

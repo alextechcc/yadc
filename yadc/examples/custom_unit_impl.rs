@@ -1,46 +1,42 @@
-//! Writing a unit by hand: `impl Unit<Velocity>`, plus `Display` if it should
-//! print.
+//! Writing a unit by hand: `impl Unit<Velocity<f64>, f64>`, plus `Display` if
+//! it should print.
 //!
-//! What makes a type a unit *of* something is one impl, `Unit<Q>`, with two
-//! methods: `quantity` turns a number into a `Q`, `value` reads a `Q` back as
-//! a number. Most units are constants: a quantity (`METRE_PER_SECOND`), or a scale,
-//! a zero and a step (°C is `Scale(ICE_POINT, KELVIN)`, dBm the same on
-//! the logarithmic line). Anything else is two functions on a type of yours.
+//! What makes a type a unit *of* something is one impl, `Unit<Q, N>`, with
+//! two methods: `quantity` turns an `N` into a `Q`, `value` reads a `Q` back
+//! as an `N`. In `yadc-si` each unit is a type (`MetrePerSecond`, `Knot`,
+//! `Celsius`) whose size and zero sit in its const parameters, all sharing one
+//! impl. Any other unit is two functions on a type of yours.
 //!
 //! The Beaufort wind scale is such a unit: force `B` is a wind speed of
-//! `0.836 · B^1.5` metres per second - not a multiple, not a scale. A
-//! hand-written impl is a first-class peer of the constants and of a derived
-//! unit enum: it mixes with the `yadc-si` units, including behind `&dyn`.
+//! `0.836 · B^1.5` metres per second - not a multiple, not a zero and a step.
+//! A hand-written impl is a first-class peer of the `yadc-si` unit types and
+//! of a derived unit enum: they mix, including behind `&dyn`.
 //!
 //! Run with: cargo run -p yadc --example custom_unit_impl
-#![feature(generic_const_exprs, const_trait_impl, const_convert)]
+#![feature(generic_const_exprs, const_trait_impl)]
 #![allow(incomplete_features)]
 
 use std::fmt;
 
 use yadc::Unit;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::mechanical::consts::METRE_PER_SECOND;
-use yadc_si::mechanical::Velocity;
 use yadc_si::dynamic::mechanical::{MassUnit, VelocityUnit};
-
-/// The unit the Beaufort formula counts in: the exact constant, rounded to
-/// `f64` by the compiler.
-const MPS: Velocity<f64> = METRE_PER_SECOND.into();
+use yadc_si::mechanical::Velocity;
+use yadc_si::mechanical::units::MetrePerSecond;
 
 /// The Beaufort scale: a zero-sized type of ours.
 #[derive(Copy, Clone)]
 struct Beaufort;
 
 // The whole conversion, both directions written in quantity terms: the
-// formula counts metres per second, and `MPS` - a quantity, so a unit -
-// turns those numbers into a speed and back.
-impl Unit<Velocity<f64>> for Beaufort {
+// formula counts metres per second, and `MetrePerSecond` - a unit - turns
+// those numbers into a speed and back.
+impl Unit<Velocity<f64>, f64> for Beaufort {
     fn quantity(&self, force: f64) -> Velocity<f64> {
-        MPS * (0.836 * force.powf(1.5))
+        MetrePerSecond {}.quantity(0.836 * force.powf(1.5))
     }
     fn value(&self, speed: Velocity<f64>) -> f64 {
-        (MPS.value(speed) / 0.836).powf(2.0 / 3.0)
+        (MetrePerSecond {}.value(speed) / 0.836).powf(2.0 / 3.0)
     }
 }
 
@@ -52,10 +48,11 @@ impl fmt::Display for Beaufort {
     }
 }
 
-/// Some unit of `Q` that also prints. `Unit<Q>` alone need not print, so a
-/// list of printable units is a trait of your own, with a blanket impl.
-trait ShownUnit<Q>: Unit<Q> + fmt::Display {}
-impl<Q, U: Unit<Q> + fmt::Display> ShownUnit<Q> for U {}
+/// Some unit of `Q` in `N` that also prints. `Unit<Q, N>` alone need not
+/// print, so a list of printable units is a trait of your own, with a blanket
+/// impl.
+trait ShownUnit<Q, N>: Unit<Q, N> + fmt::Display {}
+impl<Q, N, U: Unit<Q, N> + fmt::Display> ShownUnit<Q, N> for U {}
 
 fn main() {
     // Force 8, a gale: a real `Velocity`, readable in any unit of velocity.
@@ -77,7 +74,7 @@ fn main() {
     // Picked at run time: some unit of velocity, still checked at compile
     // time (a mass unit does not fit here). With `Display` too, it prints.
     // Behind `&dyn` a unit is its two methods.
-    let choices: [&dyn ShownUnit<Velocity<f64>>; 3] =
+    let choices: [&dyn ShownUnit<Velocity<f64>, f64>; 3] =
         [&VelocityUnit::MetrePerSecond, &knot, &Beaufort];
     for unit in choices {
         println!("{unit:>#18}: {:.1} {unit}", unit.value(gale));

@@ -1,9 +1,9 @@
 //! The dynamic half: what is chosen at run time - a quantity's dimension
-//! (`DynQty`), and its unit (each module's unit enums,
-//! `dynamic::mechanical::LengthUnit`).
+//! (`DynQty`), a unit of any dimension (`DynamicUcumUnit`), and a choice among a
+//! quantity's units (each module's unit enums, `dynamic::mechanical::LengthUnit`).
 
-use crate::{Dim, Qty};
-use yadc::Dimension;
+use crate::{Dim, Qty, UcumUnit, UcumUnitConsts};
+use yadc::{Dimension, Unit};
 
 #[cfg(feature = "british")]
 pub mod british;
@@ -33,9 +33,8 @@ pub mod us;
 /// `Qty<D, f64>`, built with dynamickit. Converting (`From`) moves the number into
 /// `value` and records `D` in `dim`; `TryFrom<DynQty> for Qty<D, f64>` is the
 /// checked way back (the error hands the original back). A bare `f64` is the
-/// same value as a dimensionless quantity (`shared`). Numbers still go through
-/// units, by way of the static quantity: `DynQty::from(LengthUnit::Mile.quantity(3.0))`,
-/// then `Mass::<f64>::try_from(d).map(|m| MassUnit::Kilogram.value(m))`.
+/// same value as a dimensionless quantity (`shared`). Numbers go through
+/// units: a `DynamicUcumUnit` reads and builds it directly.
 ///
 /// Its arithmetic is every field's own: the dimension's operator on `dim`, the
 /// number's on `value`. A product or quotient always exists (`Some`); a sum or a
@@ -63,4 +62,47 @@ pub mod us;
 pub struct DynQty {
     pub(crate) dim: Dim,
     pub(crate) value: f64,
+}
+
+/// A unit of any dimension, decided at run time: the dynamic version of
+/// `UcumUnit<D, C>`, built with dynamickit - `From` records `D` and `C`,
+/// `TryFrom<DynamicUcumUnit> for UcumUnit<D, C>` is the checked way back. A
+/// module's unit enum converts to one (`From<LengthUnit>`).
+///
+/// A unit of `Option<DynQty>` counted in `Option<f64>`, the way dynamic
+/// arithmetic results are: `quantity` builds a quantity of its dimension,
+/// and `value` reads one of its dimension - `None` for another, or for
+/// `None`. So a reading takes a calculation's result as it comes:
+/// `unit.value(a * b)`.
+#[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
+#[dynamic(UcumUnit<const D: Dim, const C: UcumUnitConsts> => { dim: D, consts: C })]
+pub struct DynamicUcumUnit {
+    pub dim: Dim,
+    pub consts: UcumUnitConsts,
+}
+
+impl Unit<Option<DynQty>, Option<f64>> for DynamicUcumUnit {
+    fn quantity(&self, value: Option<f64>) -> Option<DynQty> {
+        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
+        Some(DynQty {
+            dim: self.dim,
+            value: value? * size + zero,
+        })
+    }
+    fn value(&self, quantity: Option<DynQty>) -> Option<f64> {
+        let q = quantity?;
+        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
+        (q.dim == self.dim).then(|| (q.value - zero) / size)
+    }
+}
+
+impl core::fmt::Display for DynamicUcumUnit {
+    /// `{}` the symbol, `{:#}` the name; width, fill and alignment apply.
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.pad(if f.alternate() {
+            self.consts.name
+        } else {
+            self.consts.symbol
+        })
+    }
 }

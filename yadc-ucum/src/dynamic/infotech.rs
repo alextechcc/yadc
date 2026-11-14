@@ -2,31 +2,47 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::infotech::consts::*;
+use crate::dynamic::DynamicUcumUnit;
+use crate::infotech::units::*;
 use crate::infotech::*;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `AmountOfInformation`, in any number type the constants convert to.
+/// The units of `AmountOfInformation`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AmountOfInformation<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where AmountOfInformation<N>: [const] Unit<AmountOfInformation<N>, N> + [const] Destruct)]
+#[unit(of = AmountOfInformation<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AmountOfInformationUnit {
     #[default]
-    #[unit("bit", "bit", by = AmountOfInformation::<N>::from(BIT))]
+    #[unit(Bit)]
     Bit,
-    #[unit("By", "byte", by = AmountOfInformation::<N>::from(BYTE))]
+    #[unit(Byte)]
     Byte,
 }
 
-/// The units of `SignalTransmissionRate`, in any number type the constants convert to.
+impl From<AmountOfInformationUnit> for DynamicUcumUnit {
+    fn from(unit: AmountOfInformationUnit) -> Self {
+        match unit {
+            AmountOfInformationUnit::Bit => Bit {}.into(),
+            AmountOfInformationUnit::Byte => Byte {}.into(),
+        }
+    }
+}
+
+/// The units of `SignalTransmissionRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SignalTransmissionRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where SignalTransmissionRate<N>: [const] Unit<SignalTransmissionRate<N>, N> + [const] Destruct)]
+#[unit(of = SignalTransmissionRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum SignalTransmissionRateUnit {
     #[default]
-    #[unit("Bd", "baud", by = SignalTransmissionRate::<N>::from(BAUD))]
+    #[unit(Baud)]
     Baud,
+}
+
+impl From<SignalTransmissionRateUnit> for DynamicUcumUnit {
+    fn from(unit: SignalTransmissionRateUnit) -> Self {
+        match unit {
+            SignalTransmissionRateUnit::Baud => Baud {}.into(),
+        }
+    }
 }

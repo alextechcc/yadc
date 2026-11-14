@@ -153,7 +153,8 @@ mod si {
         },
     >;
 
-    // The base constants: the only raw numbers.
+    // The base constants write the field; every other number becomes a
+    // quantity through a unit.
     pub const SECOND: Time = Qty(1.0);
     pub const METRE: Length = Qty(1.0);
     pub const KILOGRAM: Mass = Qty(1.0);
@@ -185,36 +186,46 @@ mod si {
         },
     > = VOLT * VOLT / HERTZ;
 
-    // Unit types, for printing: each names a constant, with its labels.
-    #[derive(Copy, Clone, Unit)]
-    #[unit("kHz", "kilohertz", of = Frequency, by = KILOHERTZ)]
-    pub struct Kilohertz;
+    /// A unit type that counts through a constant, and prints its symbol
+    /// (`{}`) or name (`{:#}`): the same two impls `NanovoltPerRootHertz`
+    /// writes out below.
+    macro_rules! unit {
+        ($name:ident: $q:ty = $step:expr, $symbol:literal, $long:literal) => {
+            #[derive(Copy, Clone)]
+            pub struct $name;
+            impl const Unit<$q, f64> for $name {
+                fn quantity(&self, n: f64) -> $q {
+                    $step.quantity(n)
+                }
+                fn value(&self, q: $q) -> f64 {
+                    $step.value(q)
+                }
+            }
+            impl core::fmt::Display for $name {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    f.pad(if f.alternate() { $long } else { $symbol })
+                }
+            }
+        };
+    }
 
-    #[derive(Copy, Clone, Unit)]
-    #[unit("µV", "microvolts", of = Voltage, by = MICROVOLT)]
-    pub struct Microvolt;
-
-    #[derive(Copy, Clone, Unit)]
-    #[unit("kΩ", "kiloohms", of = Resistance, by = KILOOHM)]
-    pub struct Kiloohm;
-
-    #[derive(Copy, Clone, Unit)]
-    #[unit("K", "kelvin", of = Temperature, by = KELVIN)]
-    pub struct Kelvin;
+    unit!(Kilohertz: Frequency = KILOHERTZ, "kHz", "kilohertz");
+    unit!(Microvolt: Voltage = MICROVOLT, "µV", "microvolts");
+    unit!(Kiloohm: Resistance = KILOOHM, "kΩ", "kiloohms");
+    unit!(Kelvin: Temperature = KELVIN, "K", "kelvin");
 
     /// One nV/√Hz: the root of a constant, taken at run time.
     fn nanovolt_per_root_hertz() -> NoiseDensity {
         1e-9 * VOLT_PER_ROOT_HERTZ_SQUARED.root::<2>()
     }
 
-    /// Its step is only known at run time (a root is not `const`) - so this
-    /// unit is written by hand. The step is a quantity, and every quantity is
-    /// a unit of its own kind, so both directions are the step's: its
-    /// `quantity` and `value`, the two methods of the `Unit` trait that every
-    /// unit, constant or derived or written by hand, is.
+    /// Its step is only known at run time (a root is not `const`), so its
+    /// impl is not `const`. The step is a quantity, and every quantity is a
+    /// unit of its own kind, so both directions are the step's: its
+    /// `quantity` and `value`, the two methods of the `Unit` trait.
     #[derive(Copy, Clone)]
     pub struct NanovoltPerRootHertz;
-    impl Unit<NoiseDensity> for NanovoltPerRootHertz {
+    impl Unit<NoiseDensity, f64> for NanovoltPerRootHertz {
         fn quantity(&self, n: f64) -> NoiseDensity {
             nanovolt_per_root_hertz().quantity(n)
         }

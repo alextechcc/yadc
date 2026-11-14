@@ -1,12 +1,11 @@
-//! The exact number every constant of this system is counted in.
+//! The exact number a unit's size and zero are written in.
 //!
-//! A unit's factor is written as its definition - an inch is exactly 0.0254
+//! A unit's size is written as its definition - an inch is exactly 0.0254
 //! m, a degree π/180 rad, a pound-force `0.45359237 * 9.80665` N - and kept
-//! exact through every product and quotient: `INCH: Length<Exact>`, and
-//! `SLUG / CUBIC_FOOT` and `KILO * METRE` are exact too. A number type is
-//! chosen where a value is converted, with `From`, rounding once, correctly:
-//! `let d: Length<f64> = INCH.into();` is the nearest `f64`, `Length<i32>`
-//! the nearest integer. In a `const` the compiler does the rounding.
+//! exact through every product and quotient. A number type is chosen where a
+//! unit is used, and its size and zero are converted with `From`, rounding
+//! once, correctly: the nearest `f64`, the nearest integer. The unit's impl
+//! does that in a `const` block, so the compiler does the rounding.
 
 use core::cmp::Ordering;
 use core::ops::{Add, Div, Mul, Neg, Sub};
@@ -15,7 +14,7 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 /// positive and coprime to `num` and to 10, `num` not a multiple of 10 (zero
 /// is `0 / 1`). The normal form is unique, so `==` compares values.
 #[derive_const(PartialEq)]
-#[derive(Copy, Clone, Debug, Eq)]
+#[derive(Copy, Clone, Debug, Eq, core::marker::ConstParamTy)]
 pub struct Exact {
     num: i128,
     den: i128,

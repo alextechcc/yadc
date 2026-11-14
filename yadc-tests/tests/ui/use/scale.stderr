@@ -5,7 +5,7 @@ error[E0277]: a point cannot be scaled
    |                      ^ a point cannot be scaled
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it with a unit that counts steps from a zero
    = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `Mul<f64>`
 
 error[E0277]: a point cannot be scaled
@@ -15,7 +15,7 @@ error[E0277]: a point cannot be scaled
    |                 ^ a point cannot be scaled
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it with a unit that counts steps from a zero
    = note: required for `f64` to implement `Mul<Qty<yadc_tests::::Altitude::{constant#0}>>`
 
 error[E0277]: a point cannot be scaled
@@ -25,7 +25,7 @@ error[E0277]: a point cannot be scaled
    |                      ^ a point cannot be scaled
    |
    = help: the trait `ScaleNotPoint` is not implemented for `Qty<yadc_tests::::Altitude::{constant#0}>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it with a unit that counts steps from a zero
    = note: required for `Qty<yadc_tests::::Altitude::{constant#0}>` to implement `Div<f64>`
 
 error[E0277]: cannot scale: this label cannot be added to itself
@@ -67,12 +67,12 @@ error[E0599]: a point cannot be scaled
   ::: src/lib.rs
    |
    | pub struct Qty<const D: Dim>(f64);
-   | ---------------------------- doesn't satisfy `_: ScaleNotPoint` or `_: Unit<Qty<yadc_tests::::Altitude::{constant#0}>>`
+   | ---------------------------- doesn't satisfy `_: ScaleNotPoint` or `_: Unit<Qty<yadc_tests::::Altitude::{constant#0}>, f64>`
    |
    = note: the following trait bounds were not satisfied:
            `Qty<yadc_tests::::Altitude::{constant#0}>: ScaleNotPoint`
-           which is required by `Qty<yadc_tests::::Altitude::{constant#0}>: Unit<Qty<yadc_tests::::Altitude::{constant#0}>>`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
+           which is required by `Qty<yadc_tests::::Altitude::{constant#0}>: Unit<Qty<yadc_tests::::Altitude::{constant#0}>, f64>`
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it with a unit that counts steps from a zero
 
 error[E0277]: not a `Quantity`: this value cannot be scaled
   --> tests/ui/use/scale.rs:18:19

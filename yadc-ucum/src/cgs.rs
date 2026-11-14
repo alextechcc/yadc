@@ -1,278 +1,393 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
-pub type Acceleration<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Acceleration`.
+pub const ACCELERATION: Dim = Dim {
+    m: 1,
+    s: -2,
+    ..Dim::DIMENSIONLESS
+};
+pub type Acceleration<N> = Qty<ACCELERATION, N>;
 
-pub type Brightness<N> = Qty<
-    {
-        Dim {
-            m: -2,
-            cd: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Brightness`.
+pub const BRIGHTNESS: Dim = Dim {
+    m: -2,
+    cd: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Brightness<N> = Qty<BRIGHTNESS, N>;
 
-pub type DoseEquivalent<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `DoseEquivalent`.
+pub const DOSE_EQUIVALENT: Dim = Dim {
+    m: 2,
+    s: -2,
+    ..Dim::DIMENSIONLESS
+};
+pub type DoseEquivalent<N> = Qty<DOSE_EQUIVALENT, N>;
 
-pub type DynamicViscosity<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            s: -1,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `DynamicViscosity`.
+pub const DYNAMIC_VISCOSITY: Dim = Dim {
+    m: -1,
+    s: -1,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type DynamicViscosity<N> = Qty<DYNAMIC_VISCOSITY, N>;
 
-pub type ElectricCurrent<N> = Qty<
-    {
-        Dim {
-            s: -1,
-            C: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `ElectricCurrent`.
+pub const ELECTRIC_CURRENT: Dim = Dim {
+    s: -1,
+    C: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type ElectricCurrent<N> = Qty<ELECTRIC_CURRENT, N>;
 
-pub type Energy<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Energy`.
+pub const ENERGY: Dim = Dim {
+    m: 2,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Energy<N> = Qty<ENERGY, N>;
 
-pub type EnergyDose<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `EnergyDose`.
+pub const ENERGY_DOSE: Dim = Dim {
+    m: 2,
+    s: -2,
+    ..Dim::DIMENSIONLESS
+};
+pub type EnergyDose<N> = Qty<ENERGY_DOSE, N>;
 
-pub type FluxOfMagneticInduction<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -1,
-            g: 1,
-            C: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `FluxOfMagneticInduction`.
+pub const FLUX_OF_MAGNETIC_INDUCTION: Dim = Dim {
+    m: 2,
+    s: -1,
+    g: 1,
+    C: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type FluxOfMagneticInduction<N> = Qty<FLUX_OF_MAGNETIC_INDUCTION, N>;
 
-pub type Force<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Force`.
+pub const FORCE: Dim = Dim {
+    m: 1,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Force<N> = Qty<FORCE, N>;
 
-pub type Illuminance<N> = Qty<
-    {
-        Dim {
-            m: -2,
-            rad: 2,
-            cd: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Illuminance`.
+pub const ILLUMINANCE: Dim = Dim {
+    m: -2,
+    rad: 2,
+    cd: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Illuminance<N> = Qty<ILLUMINANCE, N>;
 
-pub type IonDose<N> = Qty<
-    {
-        Dim {
-            g: -1,
-            C: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `IonDose`.
+pub const ION_DOSE: Dim = Dim {
+    g: -1,
+    C: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type IonDose<N> = Qty<ION_DOSE, N>;
 
-pub type KinematicViscosity<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `KinematicViscosity`.
+pub const KINEMATIC_VISCOSITY: Dim = Dim {
+    m: 2,
+    s: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type KinematicViscosity<N> = Qty<KINEMATIC_VISCOSITY, N>;
 
-pub type LineicNumber<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `LineicNumber`.
+pub const LINEIC_NUMBER: Dim = Dim {
+    m: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type LineicNumber<N> = Qty<LINEIC_NUMBER, N>;
 
-pub type LumIntensityDensity<N> = Qty<
-    {
-        Dim {
-            m: -2,
-            cd: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `LumIntensityDensity`.
+pub const LUM_INTENSITY_DENSITY: Dim = Dim {
+    m: -2,
+    cd: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type LumIntensityDensity<N> = Qty<LUM_INTENSITY_DENSITY, N>;
 
-pub type MagneticFieldIntensity<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            s: -1,
-            C: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `MagneticFieldIntensity`.
+pub const MAGNETIC_FIELD_INTENSITY: Dim = Dim {
+    m: -1,
+    s: -1,
+    C: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type MagneticFieldIntensity<N> = Qty<MAGNETIC_FIELD_INTENSITY, N>;
 
-pub type MagneticFluxDensity<N> = Qty<
-    {
-        Dim {
-            s: -1,
-            g: 1,
-            C: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `MagneticFluxDensity`.
+pub const MAGNETIC_FLUX_DENSITY: Dim = Dim {
+    s: -1,
+    g: 1,
+    C: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type MagneticFluxDensity<N> = Qty<MAGNETIC_FLUX_DENSITY, N>;
 
-pub type MagneticTension<N> = Qty<
-    {
-        Dim {
-            s: -1,
-            C: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `MagneticTension`.
+pub const MAGNETIC_TENSION: Dim = Dim {
+    s: -1,
+    C: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type MagneticTension<N> = Qty<MAGNETIC_TENSION, N>;
 
-pub type Radioactivity<N> = Qty<
-    {
-        Dim {
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Radioactivity`.
+pub const RADIOACTIVITY: Dim = Dim {
+    s: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Radioactivity<N> = Qty<RADIOACTIVITY, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
-    use crate::base::{CANDELA, COULOMB, GRAM, METRE, ONE, RADIAN, SECOND};
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
-    /// One `Gal` (`Gal`), as an `Acceleration`.
-    pub const GAL: Acceleration<Exact> = (METRE / (SECOND * SECOND)) * Exact::dec(1, -2);
+    /// Gal (`Gal`), a unit of `Acceleration`: `n` of them is `n · 1e-2` coherent units.
+    pub type Gal = UcumUnit<
+        ACCELERATION,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -2),
+                zero: Exact::ZERO,
+                symbol: "Gal",
+                name: "Gal",
+            }
+        },
+    >;
 
-    /// One `Lambert` (`Lmb`), as a `Brightness`.
-    pub const LAMBERT: Brightness<Exact> =
-        (CANDELA / (METRE * METRE)) * (Exact::int(10000) / Exact::PI);
+    /// Lambert (`Lmb`), a unit of `Brightness`: `n` of them is `n · 1e4 / core::f64::consts::PI` coherent units.
+    pub type Lambert = UcumUnit<
+        BRIGHTNESS,
+        {
+            UcumUnitConsts {
+                size: Exact::int(10000) / Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "Lmb",
+                name: "Lambert",
+            }
+        },
+    >;
 
-    /// One `RadiationEquivalentMan` (`REM`), as a `DoseEquivalent`.
-    pub const RADIATION_EQUIVALENT_MAN: DoseEquivalent<Exact> =
-        (METRE * METRE / (SECOND * SECOND)) * Exact::dec(1, -2);
+    /// Radiation equivalent man (`REM`), a unit of `DoseEquivalent`: `n` of them is `n · 1e-2` coherent units.
+    pub type RadiationEquivalentMan = UcumUnit<
+        DOSE_EQUIVALENT,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -2),
+                zero: Exact::ZERO,
+                symbol: "REM",
+                name: "radiation equivalent man",
+            }
+        },
+    >;
 
-    /// One `Poise` (`P`), as a `DynamicViscosity`.
-    pub const POISE: DynamicViscosity<Exact> = (GRAM / (METRE * SECOND)) * Exact::int(100);
+    /// Poise (`P`), a unit of `DynamicViscosity`: `n` of them is `n · 1e2` coherent units.
+    pub type Poise = UcumUnit<
+        DYNAMIC_VISCOSITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(100),
+                zero: Exact::ZERO,
+                symbol: "P",
+                name: "Poise",
+            }
+        },
+    >;
 
-    /// One `Biot` (`Bi`), as an `ElectricCurrent`.
-    pub const BIOT: ElectricCurrent<Exact> = (COULOMB / SECOND) * Exact::int(10);
+    /// Biot (`Bi`), a unit of `ElectricCurrent`: `n` of them is `n · 1e1` coherent units.
+    pub type Biot = UcumUnit<
+        ELECTRIC_CURRENT,
+        {
+            UcumUnitConsts {
+                size: Exact::int(10),
+                zero: Exact::ZERO,
+                symbol: "Bi",
+                name: "Biot",
+            }
+        },
+    >;
 
-    /// One `Erg` (`erg`), as an `Energy`.
-    pub const ERG: Energy<Exact> = (METRE * METRE * GRAM / (SECOND * SECOND)) * Exact::dec(1, -4);
+    /// Erg (`erg`), a unit of `Energy`: `n` of them is `n · 1e-4` coherent units.
+    pub type Erg = UcumUnit<
+        ENERGY,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -4),
+                zero: Exact::ZERO,
+                symbol: "erg",
+                name: "erg",
+            }
+        },
+    >;
 
-    /// One `RadiationAbsorbedDose` (`RAD`), as an `EnergyDose`.
-    pub const RADIATION_ABSORBED_DOSE: EnergyDose<Exact> =
-        (METRE * METRE / (SECOND * SECOND)) * Exact::dec(1, -2);
+    /// Radiation absorbed dose (`RAD`), a unit of `EnergyDose`: `n` of them is `n · 1e-2` coherent units.
+    pub type RadiationAbsorbedDose = UcumUnit<
+        ENERGY_DOSE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -2),
+                zero: Exact::ZERO,
+                symbol: "RAD",
+                name: "radiation absorbed dose",
+            }
+        },
+    >;
 
-    /// One `Maxwell` (`Mx`), as a `FluxOfMagneticInduction`.
-    pub const MAXWELL: FluxOfMagneticInduction<Exact> =
-        (METRE * METRE * GRAM / (SECOND * COULOMB)) * Exact::dec(1, -5);
+    /// Maxwell (`Mx`), a unit of `FluxOfMagneticInduction`: `n` of them is `n · 1e-5` coherent units.
+    pub type Maxwell = UcumUnit<
+        FLUX_OF_MAGNETIC_INDUCTION,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -5),
+                zero: Exact::ZERO,
+                symbol: "Mx",
+                name: "Maxwell",
+            }
+        },
+    >;
 
-    /// One `Dyne` (`dyn`), as a `Force`.
-    pub const DYNE: Force<Exact> = (METRE * GRAM / (SECOND * SECOND)) * Exact::dec(1, -2);
+    /// Dyne (`dyn`), a unit of `Force`: `n` of them is `n · 1e-2` coherent units.
+    pub type Dyne = UcumUnit<
+        FORCE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -2),
+                zero: Exact::ZERO,
+                symbol: "dyn",
+                name: "dyne",
+            }
+        },
+    >;
 
-    /// One `Phot` (`ph`), as an `Illuminance`.
-    pub const PHOT: Illuminance<Exact> =
-        (RADIAN * RADIAN * CANDELA / (METRE * METRE)) * Exact::dec(1, -4);
+    /// Phot (`ph`), a unit of `Illuminance`: `n` of them is `n · 1e-4` coherent units.
+    pub type Phot = UcumUnit<
+        ILLUMINANCE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -4),
+                zero: Exact::ZERO,
+                symbol: "ph",
+                name: "phot",
+            }
+        },
+    >;
 
-    /// One `Roentgen` (`R`), as an `IonDose`.
-    pub const ROENTGEN: IonDose<Exact> = (COULOMB / GRAM) * Exact::dec(258, -9);
+    /// Roentgen (`R`), a unit of `IonDose`: `n` of them is `n · 258e-9` coherent units.
+    pub type Roentgen = UcumUnit<
+        ION_DOSE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(258, -9),
+                zero: Exact::ZERO,
+                symbol: "R",
+                name: "Roentgen",
+            }
+        },
+    >;
 
-    /// One `Stokes` (`St`), as a `KinematicViscosity`.
-    pub const STOKES: KinematicViscosity<Exact> = (METRE * METRE / SECOND) * Exact::dec(1, -4);
+    /// Stokes (`St`), a unit of `KinematicViscosity`: `n` of them is `n · 1e-4` coherent units.
+    pub type Stokes = UcumUnit<
+        KINEMATIC_VISCOSITY,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -4),
+                zero: Exact::ZERO,
+                symbol: "St",
+                name: "Stokes",
+            }
+        },
+    >;
 
-    /// One `Kayser` (`Ky`), as a `LineicNumber`.
-    pub const KAYSER: LineicNumber<Exact> = (ONE / METRE) * Exact::int(100);
+    /// Kayser (`Ky`), a unit of `LineicNumber`: `n` of them is `n · 1e2` coherent units.
+    pub type Kayser = UcumUnit<
+        LINEIC_NUMBER,
+        {
+            UcumUnitConsts {
+                size: Exact::int(100),
+                zero: Exact::ZERO,
+                symbol: "Ky",
+                name: "Kayser",
+            }
+        },
+    >;
 
-    /// One `Stilb` (`sb`), as a `LumIntensityDensity`.
-    pub const STILB: LumIntensityDensity<Exact> = (CANDELA / (METRE * METRE)) * Exact::int(10000);
+    /// Stilb (`sb`), a unit of `LumIntensityDensity`: `n` of them is `n · 1e4` coherent units.
+    pub type Stilb = UcumUnit<
+        LUM_INTENSITY_DENSITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(10000),
+                zero: Exact::ZERO,
+                symbol: "sb",
+                name: "stilb",
+            }
+        },
+    >;
 
-    /// One `Oersted` (`Oe`), as a `MagneticFieldIntensity`.
-    pub const OERSTED: MagneticFieldIntensity<Exact> =
-        (COULOMB / (METRE * SECOND)) * (Exact::int(250) / Exact::PI);
+    /// Oersted (`Oe`), a unit of `MagneticFieldIntensity`: `n` of them is `n · 25e1 / core::f64::consts::PI` coherent units.
+    pub type Oersted = UcumUnit<
+        MAGNETIC_FIELD_INTENSITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(250) / Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "Oe",
+                name: "Oersted",
+            }
+        },
+    >;
 
-    /// One `Gauss` (`G`), as a `MagneticFluxDensity`.
-    pub const GAUSS: MagneticFluxDensity<Exact> = (GRAM / (SECOND * COULOMB)) * Exact::dec(1, -1);
+    /// Gauss (`G`), a unit of `MagneticFluxDensity`: `n` of them is `n · 1e-1` coherent units.
+    pub type Gauss = UcumUnit<
+        MAGNETIC_FLUX_DENSITY,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -1),
+                zero: Exact::ZERO,
+                symbol: "G",
+                name: "Gauss",
+            }
+        },
+    >;
 
-    /// One `Gilbert` (`Gb`), as a `MagneticTension`.
-    pub const GILBERT: MagneticTension<Exact> =
-        (COULOMB / SECOND) * (Exact::dec(25, -1) / Exact::PI);
+    /// Gilbert (`Gb`), a unit of `MagneticTension`: `n` of them is `n · 25e-1 / core::f64::consts::PI` coherent units.
+    pub type Gilbert = UcumUnit<
+        MAGNETIC_TENSION,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(25, -1) / Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "Gb",
+                name: "Gilbert",
+            }
+        },
+    >;
 
-    /// One `Curie` (`Ci`), as a `Radioactivity`.
-    pub const CURIE: Radioactivity<Exact> = (ONE / SECOND) * Exact::int(37000000000);
+    /// Curie (`Ci`), a unit of `Radioactivity`: `n` of them is `n · 37e9` coherent units.
+    pub type Curie = UcumUnit<
+        RADIOACTIVITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(37000000000),
+                zero: Exact::ZERO,
+                symbol: "Ci",
+                name: "Curie",
+            }
+        },
+    >;
 }

@@ -95,24 +95,90 @@ pub struct Fixed<const D: NoPlain>(f64);
 #[quantity(impl(Neg, Zero))]
 pub struct Qty<const D: NoPlain>(f64);
 
-/// A unit that does not say what it measures.
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("m", "metres", by = 1.0)]
-pub struct NoTarget;
+/// A unit metre, to name in the enums below.
+#[derive(Copy, Clone)]
+pub struct Metre;
 
-/// A unit without a description.
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("m", "metres", of = f64)]
-pub struct NoForm;
+impl yadc::Unit<f64, f64> for Metre {
+    fn quantity(&self, value: f64) -> f64 {
+        value
+    }
+    fn value(&self, quantity: f64) -> f64 {
+        quantity
+    }
+}
 
-/// `Display` needs labels.
+/// The derive is for an enum: a unit type has a hand-written `impl Unit`.
 #[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = f64, by = 1.0)]
-pub struct NoLabels;
+#[unit(of = f64, number = f64)]
+pub struct NotAnEnum;
 
-/// A unit is named by a unit value: there is no other description.
+/// Units that do not say what they measure.
 #[derive(Copy, Clone, yadc::Unit)]
-#[unit("x", "x", of = f64, step = 1.0)]
-pub struct Described;
+#[unit(number = f64)]
+pub enum NoTarget {
+    #[unit(Metre)]
+    Metre,
+}
+
+/// Units that do not say which numbers they count in.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64)]
+pub enum NoNumber {
+    #[unit(Metre)]
+    Metre,
+}
+
+/// A variant names a unit type, and has no fields.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, number = f64)]
+pub enum WithFields {
+    #[unit(Metre)]
+    Metre(f64),
+}
+
+/// A variant that names no unit type.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, number = f64)]
+pub enum Unnamed {
+    Metre,
+}
+
+/// An unknown item.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, number = f64, by = 1.0)]
+pub enum Unknown {
+    #[unit(Metre)]
+    Metre,
+}
+
+/// An unknown extra.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, number = f64, impl(Debug))]
+pub enum UnknownExtra {
+    #[unit(Metre)]
+    Metre,
+}
+
+/// The enum's own generics: the impl's go in `for<..>`.
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, number = f64)]
+pub enum Generic<T> {
+    #[unit(Metre)]
+    Metre,
+    #[unit(Metre)]
+    Other(T),
+}
+
+/// A variant's type must be a unit of what the enum measures.
+#[derive(Copy, Clone)]
+pub struct NotAUnit;
+
+#[derive(Copy, Clone, yadc::Unit)]
+#[unit(of = f64, number = f64, impl())]
+pub enum NamesNoUnit {
+    #[unit(NotAUnit)]
+    Other,
+}
 
 fn main() {}

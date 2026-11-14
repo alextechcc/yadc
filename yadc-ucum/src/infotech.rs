@@ -1,37 +1,58 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
 pub type AmountOfInformation<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
 
-pub type SignalTransmissionRate<N> = Qty<
-    {
-        Dim {
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `SignalTransmissionRate`.
+pub const SIGNAL_TRANSMISSION_RATE: Dim = Dim {
+    s: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type SignalTransmissionRate<N> = Qty<SIGNAL_TRANSMISSION_RATE, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
-    use crate::base::SECOND;
+    use crate::{Dim, Exact, UcumUnit, UcumUnitConsts};
+    use yadc::Dimension;
 
-    /// The number one: the unit of dimension one.
-    pub use crate::base::ONE;
+    /// Bit (`bit`), a unit of `AmountOfInformation`: `n` of them is `n · 1` coherent units.
+    pub type Bit = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "bit",
+                name: "bit",
+            }
+        },
+    >;
 
-    /// One `Bit` (`bit`), as an `AmountOfInformation`.
-    pub const BIT: AmountOfInformation<Exact> = ONE;
+    /// Byte (`By`), a unit of `AmountOfInformation`: `n` of them is `n · 8` coherent units.
+    pub type Byte = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(8),
+                zero: Exact::ZERO,
+                symbol: "By",
+                name: "byte",
+            }
+        },
+    >;
 
-    /// One `Byte` (`By`), as an `AmountOfInformation`.
-    pub const BYTE: AmountOfInformation<Exact> = BIT * Exact::int(8);
-
-    /// One `Baud` (`Bd`), as a `SignalTransmissionRate`.
-    pub const BAUD: SignalTransmissionRate<Exact> = ONE / SECOND;
+    /// Baud (`Bd`), a unit of `SignalTransmissionRate`: `n` of them is `n · 1` coherent units.
+    pub type Baud = UcumUnit<
+        SIGNAL_TRANSMISSION_RATE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "Bd",
+                name: "baud",
+            }
+        },
+    >;
 }

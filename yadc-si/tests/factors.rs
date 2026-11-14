@@ -1,83 +1,116 @@
-//! Units with an exact definition carry it in full: a unit built from the
-//! units it is defined by is the unit's own constant. Counted in `Exact`,
-//! the two are equal outright, and a unit enum's variant is that value
-//! rounded to `f64`.
-#![feature(generic_const_exprs)]
+//! Units with an exact definition carry it in full: a unit's size, an exact
+//! number of coherent units, is the product of the sizes of the units it is
+//! defined by, equal outright; and the unit types, which round it to the
+//! number type they count in, agree.
+#![feature(generic_const_exprs, adt_const_params, unsized_const_params)]
 #![allow(incomplete_features)]
 
 use yadc::Unit;
-use yadc_si::Exact;
-use yadc_si::angular::consts::{RADIAN, REDUCED_PLANCK_CONSTANT};
-use yadc_si::chemistry::consts::{AVOGADRO_CONSTANT, MOLE};
-use yadc_si::density::MassDensity;
-use yadc_si::dynamic::density::MassDensityUnit;
-use yadc_si::electromagnetic::consts::{ELEMENTARY_CHARGE, FARADAY};
-use yadc_si::mechanical::consts::{
-    ASTRONOMICAL_UNIT, BTU_IT, CUBIC_FOOT, CUBIC_INCH, DAY, FLUID_OUNCE, FOOT, FOOT_SURVEY, GALLON,
-    HORSEPOWER, INCH, JOULE, KILOGRAM, LIGHT_YEAR, METRE, MILE_SURVEY, MILLIMETRE_OF_MERCURY,
-    OUNCE, PARSEC, PASCAL, PLANCK_CONSTANT, POUND, POUND_FORCE, PSI, SECOND, SLUG, SPEED_OF_LIGHT,
-    SQUARE_INCH, STANDARD_ATMOSPHERE, STANDARD_GRAVITY, TORR,
+use yadc_si::angular::units::{Radian, ReducedPlanckConstant};
+use yadc_si::chemistry::units::{AvogadroConstant, Mole};
+use yadc_si::density::units::SlugPerCubicFoot;
+use yadc_si::electromagnetic::units::{ElementaryCharge, Faraday};
+use yadc_si::mechanical::units::{
+    AstronomicalUnit, BtuIt, BtuItPerPound, CubicFoot, CubicInch, Day, FluidOunce, Foot, FootPound,
+    FootSurvey, Gallon, Horsepower, Inch, JoulePerKilogram, LightYear, Metre, MileSurvey,
+    MillimetreOfMercury, Ounce, Parsec, PlanckConstant, Pound, PoundForce, PoundForcePerSquareInch,
+    Psi, Second, Slug, SpeedOfLight, SquareInch, StandardAtmosphere, StandardGravity, Torr,
 };
-use yadc_si::mechanical::{AvailableEnergy, Energy, Pressure};
-use yadc_si::dynamic::mechanical::{AvailableEnergyUnit, EnergyUnit, PressureUnit};
+use yadc_si::{Exact, ISQ, SIUnit, SIUnitConsts};
+
+/// A unit's exact size, in coherent units of its quantity.
+fn size<const D: ISQ, const C: SIUnitConsts>(_: SIUnit<D, C>) -> Exact {
+    C.size
+}
 
 #[test]
 fn inch_based() {
-    assert_eq!(INCH * INCH, SQUARE_INCH);
-    assert_eq!(INCH * INCH * INCH, CUBIC_INCH);
-    assert_eq!(INCH * Exact::int(12), FOOT);
-    assert_eq!(FOOT * FOOT * FOOT, CUBIC_FOOT);
-    assert_eq!(CUBIC_INCH * Exact::int(231), GALLON);
-    assert_eq!(GALLON / Exact::int(128), FLUID_OUNCE);
-    assert_eq!(FOOT_SURVEY * Exact::int(5280), MILE_SURVEY);
+    assert_eq!(size(Inch {}) * size(Inch {}), size(SquareInch {}));
+    assert_eq!(
+        size(Inch {}) * size(Inch {}) * size(Inch {}),
+        size(CubicInch {})
+    );
+    assert_eq!(size(Inch {}) * Exact::int(12), size(Foot {}));
+    assert_eq!(
+        size(Foot {}) * size(Foot {}) * size(Foot {}),
+        size(CubicFoot {})
+    );
+    assert_eq!(size(CubicInch {}) * Exact::int(231), size(Gallon {}));
+    assert_eq!(size(Gallon {}) / Exact::int(128), size(FluidOunce {}));
+    assert_eq!(size(FootSurvey {}) * Exact::int(5280), size(MileSurvey {}));
 }
 
 #[test]
 fn pound_based() {
-    assert_eq!(OUNCE * Exact::int(16), POUND);
-    assert_eq!(POUND * STANDARD_GRAVITY, POUND_FORCE);
-    assert_eq!(POUND_FORCE * SECOND * SECOND / FOOT, SLUG);
+    assert_eq!(size(Ounce {}) * Exact::int(16), size(Pound {}));
     assert_eq!(
-        MassDensity::<f64>::from(SLUG / CUBIC_FOOT),
-        MassDensityUnit::SlugPerCubicFoot.quantity(1.0)
+        size(Pound {}) * size(StandardGravity {}),
+        size(PoundForce {})
     );
     assert_eq!(
-        Energy::<f64>::from(FOOT * POUND_FORCE),
-        EnergyUnit::FootPound.quantity(1.0)
-    );
-    assert_eq!(FOOT * POUND_FORCE * Exact::int(550) / SECOND, HORSEPOWER);
-    assert_eq!(POUND_FORCE / SQUARE_INCH, PSI);
-    assert_eq!(
-        Pressure::<f64>::from(POUND_FORCE / SQUARE_INCH),
-        PressureUnit::PoundForcePerSquareInch.quantity(1.0)
+        size(PoundForce {}) * size(Second {}) * size(Second {}) / size(Foot {}),
+        size(Slug {})
     );
     assert_eq!(
-        AvailableEnergy::<f64>::from(BTU_IT / POUND),
-        AvailableEnergyUnit::BtuItPerPound.quantity(1.0)
+        size(Slug {}) / size(CubicFoot {}),
+        size(SlugPerCubicFoot {})
     );
+    assert_eq!(size(Foot {}) * size(PoundForce {}), size(FootPound {}));
+    assert_eq!(
+        size(Foot {}) * size(PoundForce {}) * Exact::int(550) / size(Second {}),
+        size(Horsepower {})
+    );
+    assert_eq!(size(PoundForce {}) / size(SquareInch {}), size(Psi {}));
+    assert_eq!(size(Psi {}), size(PoundForcePerSquareInch {}));
+    assert_eq!(size(BtuIt {}) / size(Pound {}), size(BtuItPerPound {}));
 }
 
 #[test]
 fn exact_values() {
-    assert_eq!((JOULE / KILOGRAM).value(BTU_IT / POUND), Exact::int(2326));
-    assert_eq!(METRE.value(LIGHT_YEAR), Exact::int(9_460_730_472_580_800));
     assert_eq!(
-        PASCAL.value(MILLIMETRE_OF_MERCURY),
+        size(BtuItPerPound {}) / size(JoulePerKilogram {}),
+        Exact::int(2326)
+    );
+    assert_eq!(
+        size(LightYear {}) / size(Metre {}),
+        Exact::int(9_460_730_472_580_800)
+    );
+    assert_eq!(
+        size(MillimetreOfMercury {}),
         Exact::dec(133_322_387_415, -9)
     );
 }
 
 #[test]
-fn defined_by_other_constants() {
-    assert_eq!(STANDARD_ATMOSPHERE / Exact::int(760), TORR);
-    assert_eq!(DAY * Exact::dec(36525, -2) * SPEED_OF_LIGHT, LIGHT_YEAR);
+fn defined_by_other_units() {
+    assert_eq!(size(StandardAtmosphere {}) / Exact::int(760), size(Torr {}));
     assert_eq!(
-        PARSEC * (Exact::PI / Exact::int(648_000)),
-        ASTRONOMICAL_UNIT
+        size(Day {}) * Exact::dec(36525, -2) * size(SpeedOfLight {}),
+        size(LightYear {})
     );
-    assert_eq!(ELEMENTARY_CHARGE * AVOGADRO_CONSTANT * MOLE, FARADAY);
     assert_eq!(
-        REDUCED_PLANCK_CONSTANT * (RADIAN * (Exact::int(2) * Exact::PI)),
-        PLANCK_CONSTANT
+        size(Parsec {}) * (Exact::PI / Exact::int(648_000)),
+        size(AstronomicalUnit {})
     );
+    assert_eq!(
+        size(ElementaryCharge {}) * size(AvogadroConstant {}) * size(Mole {}),
+        size(Faraday {})
+    );
+    assert_eq!(
+        size(ReducedPlanckConstant {}) * (size(Radian {}) * (Exact::int(2) * Exact::PI)),
+        size(PlanckConstant {})
+    );
+}
+
+/// The unit types read and build with the size rounded once: an inch is
+/// 0.0254 m, a light year 9460730472580800 m.
+#[test]
+fn unit_types_agree() {
+    assert_eq!(Metre {}.value(Inch {}.quantity(1.0_f64)), 0.0254);
+    assert!((Inch {}.value(Foot {}.quantity(1.0_f64)) - 12.0).abs() < 1e-12);
+    assert_eq!(
+        Metre {}.value(LightYear {}.quantity(1.0_f64)),
+        9_460_730_472_580_800.0
+    );
+    assert!((Torr {}.value(StandardAtmosphere {}.quantity(1.0_f64)) - 760.0).abs() < 1e-9);
 }

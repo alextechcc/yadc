@@ -2,85 +2,131 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::british::consts::*;
+use crate::british::units::*;
 use crate::british::*;
+use crate::dynamic::DynamicUcumUnit;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Area`, in any number type the constants convert to.
+/// The units of `Area`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Area<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Area<N>: [const] Unit<Area<N>, N> + [const] Destruct)]
+#[unit(of = Area<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AreaUnit {
     #[default]
-    #[unit("[acr_br]", "acre", by = Area::<N>::from(ACRE))]
+    #[unit(Acre)]
     Acre,
 }
 
-/// The units of `Length`, in any number type the constants convert to.
+impl From<AreaUnit> for DynamicUcumUnit {
+    fn from(unit: AreaUnit) -> Self {
+        match unit {
+            AreaUnit::Acre => Acre {}.into(),
+        }
+    }
+}
+
+/// The units of `Length`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Length<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Length<N>: [const] Unit<Length<N>, N> + [const] Destruct)]
+#[unit(of = Length<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LengthUnit {
     #[default]
-    #[unit("[in_br]", "inch", by = Length::<N>::from(INCH))]
+    #[unit(Inch)]
     Inch,
-    #[unit("[ft_br]", "foot", by = Length::<N>::from(FOOT))]
+    #[unit(Foot)]
     Foot,
-    #[unit("[rd_br]", "rod", by = Length::<N>::from(ROD))]
+    #[unit(Rod)]
     Rod,
-    #[unit("[ch_br]", "Gunter's chain", by = Length::<N>::from(GUNTER_S_CHAIN))]
+    #[unit(GunterSChain)]
     GunterSChain,
-    #[unit("[lk_br]", "link for Gunter's chain", by = Length::<N>::from(LINK_FOR_GUNTER_S_CHAIN))]
+    #[unit(LinkForGunterSChain)]
     LinkForGunterSChain,
-    #[unit("[fth_br]", "fathom", by = Length::<N>::from(FATHOM))]
+    #[unit(Fathom)]
     Fathom,
-    #[unit("[pc_br]", "pace", by = Length::<N>::from(PACE))]
+    #[unit(Pace)]
     Pace,
-    #[unit("[yd_br]", "yard", by = Length::<N>::from(YARD))]
+    #[unit(Yard)]
     Yard,
-    #[unit("[mi_br]", "mile", by = Length::<N>::from(MILE))]
+    #[unit(Mile)]
     Mile,
-    #[unit("[nmi_br]", "nautical mile", by = Length::<N>::from(NAUTICAL_MILE))]
+    #[unit(NauticalMile)]
     NauticalMile,
 }
 
-/// The units of `Velocity`, in any number type the constants convert to.
+impl From<LengthUnit> for DynamicUcumUnit {
+    fn from(unit: LengthUnit) -> Self {
+        match unit {
+            LengthUnit::Inch => Inch {}.into(),
+            LengthUnit::Foot => Foot {}.into(),
+            LengthUnit::Rod => Rod {}.into(),
+            LengthUnit::GunterSChain => GunterSChain {}.into(),
+            LengthUnit::LinkForGunterSChain => LinkForGunterSChain {}.into(),
+            LengthUnit::Fathom => Fathom {}.into(),
+            LengthUnit::Pace => Pace {}.into(),
+            LengthUnit::Yard => Yard {}.into(),
+            LengthUnit::Mile => Mile {}.into(),
+            LengthUnit::NauticalMile => NauticalMile {}.into(),
+        }
+    }
+}
+
+/// The units of `Velocity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Velocity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Velocity<N>: [const] Unit<Velocity<N>, N> + [const] Destruct)]
+#[unit(of = Velocity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VelocityUnit {
     #[default]
-    #[unit("[kn_br]", "knot", by = Velocity::<N>::from(KNOT))]
+    #[unit(Knot)]
     Knot,
 }
 
-/// The units of `Volume`, in any number type the constants convert to.
+impl From<VelocityUnit> for DynamicUcumUnit {
+    fn from(unit: VelocityUnit) -> Self {
+        match unit {
+            VelocityUnit::Knot => Knot {}.into(),
+        }
+    }
+}
+
+/// The units of `Volume`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Volume<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Volume<N>: [const] Unit<Volume<N>, N> + [const] Destruct)]
+#[unit(of = Volume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumeUnit {
     #[default]
-    #[unit("[gal_br]", "gallon", by = Volume::<N>::from(GALLON))]
+    #[unit(Gallon)]
     Gallon,
-    #[unit("[pk_br]", "peck", by = Volume::<N>::from(PECK))]
+    #[unit(Peck)]
     Peck,
-    #[unit("[bu_br]", "bushel", by = Volume::<N>::from(BUSHEL))]
+    #[unit(Bushel)]
     Bushel,
-    #[unit("[qt_br]", "quart", by = Volume::<N>::from(QUART))]
+    #[unit(Quart)]
     Quart,
-    #[unit("[pt_br]", "pint", by = Volume::<N>::from(PINT))]
+    #[unit(Pint)]
     Pint,
-    #[unit("[gil_br]", "gill", by = Volume::<N>::from(GILL))]
+    #[unit(Gill)]
     Gill,
-    #[unit("[foz_br]", "fluid ounce", by = Volume::<N>::from(FLUID_OUNCE))]
+    #[unit(FluidOunce)]
     FluidOunce,
-    #[unit("[fdr_br]", "fluid dram", by = Volume::<N>::from(FLUID_DRAM))]
+    #[unit(FluidDram)]
     FluidDram,
-    #[unit("[min_br]", "minim", by = Volume::<N>::from(MINIM))]
+    #[unit(Minim)]
     Minim,
+}
+
+impl From<VolumeUnit> for DynamicUcumUnit {
+    fn from(unit: VolumeUnit) -> Self {
+        match unit {
+            VolumeUnit::Gallon => Gallon {}.into(),
+            VolumeUnit::Peck => Peck {}.into(),
+            VolumeUnit::Bushel => Bushel {}.into(),
+            VolumeUnit::Quart => Quart {}.into(),
+            VolumeUnit::Pint => Pint {}.into(),
+            VolumeUnit::Gill => Gill {}.into(),
+            VolumeUnit::FluidOunce => FluidOunce {}.into(),
+            VolumeUnit::FluidDram => FluidDram {}.into(),
+            VolumeUnit::Minim => Minim {}.into(),
+        }
+    }
 }

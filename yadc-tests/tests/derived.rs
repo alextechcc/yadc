@@ -72,7 +72,7 @@ const _: () = assert!(GAIN.partial_root(2).is_none() && matches!(GAIN.partial_ro
 const BIG: Dim = Dim { m: 100, ..Dim::DIMENSIONLESS };
 const _: () = assert!((BIG * BIG).is_none() && (LENGTH.partial_powi(-128)).is_none());
 const _: () = assert!(matches!(Kind::Rank * Kind::Linear, Kind::Rank));
-const BODY: Temperature = CELSIUS.quantity(37.0); // a scale, in `const`
+const BODY: Temperature = Celsius.quantity(37.0); // a unit type, in `const`
 const _: () = assert!(TemperatureUnit::Kelvin.value(BODY) > 310.0);
 
 fn close(a: f64, b: f64) -> bool {
@@ -81,18 +81,17 @@ fn close(a: f64, b: f64) -> bool {
 
 #[test]
 fn units_of_every_form() {
-    // A scale: a zero and a step.
-    let t: Temperature = CELSIUS.quantity(100.0);
+    // A unit type with a zero and a step.
+    let t: Temperature = Celsius.quantity(100.0);
     assert!(close(TemperatureUnit::Kelvin.value(t), 373.15));
     assert!(close(TemperatureUnit::Fahrenheit.value(t), 212.0));
-    assert!(close(CELSIUS.value(t), 100.0));
+    assert!(close(Celsius.value(t), 100.0));
     // A quantity constant.
     assert!(close(FOOT.value(3.0 * METRE), 3.0 / 0.3048));
-    // A scale of points, and one made at run time.
-    let aircraft: Altitude = FEET_AMSL.quantity(150.0);
-    let ground = Scale(SEA_LEVEL + 100.0 * FOOT, FOOT);
+    // A unit of points, and one whose zero is made at run time.
+    let aircraft: Altitude = FeetAmsl.quantity(150.0);
+    let ground = FeetAboveGround { ground: SEA_LEVEL + 100.0 * FOOT };
     assert!(close(ground.value(aircraft), 50.0));
-    assert!(close(FeetAboveGround { scale: ground }.value(aircraft), 50.0));
     assert!(close(
         PressureUnit::Kilopascal.value(PressureUnit::Pascal.quantity(2500.0)),
         2.5
@@ -101,56 +100,56 @@ fn units_of_every_form() {
 
 #[test]
 fn levels() {
-    // A level is a scale on the logarithmic line: it reads a `PowerLevel`,
-    // and the watts are one `From` away.
-    let tx = DBM.quantity(30.0);
+    // A unit of levels counts from a zero on the logarithmic line: it reads a
+    // `PowerLevel`, and the watts are one `From` away.
+    let tx = Dbm.quantity(30.0);
     assert!(close(WATT.value(Power::from(tx)), 1.0));
-    assert!(close(DBM.value(PowerLevel::from(2.0 * WATT)), 30.0 + 10.0 * 2f64.log10()));
-    assert!(close(DBM.value(MILLIWATT.into()), 0.0));
+    assert!(close(Dbm.value(PowerLevel::from(2.0 * WATT)), 30.0 + 10.0 * 2f64.log10()));
+    assert!(close(Dbm.value(MILLIWATT.into()), 0.0));
     // On the line, multiplying is adding: a level moves by gains.
     let rx = tx - 3.0 * DECIBEL + 13.0 * DECIBEL;
-    assert!(close(DBM.value(rx), 40.0));
+    assert!(close(Dbm.value(rx), 40.0));
     assert!(close(WATT.value(Power::from(rx)), 10.0));
     // Two levels differ by a gain.
     let gain: Gain = rx - tx;
     assert!(close(DECIBEL.value(gain), 10.0));
     // Another zero on the same line.
-    let dbw = Scale(WATT_LEVEL, DECIBEL);
-    assert!(close(dbw.value(rx), 10.0));
+    assert!(close(Dbw.value(rx), 10.0));
 }
 
 /// A unit builds with `quantity` and reads with `value`, in `const` too; a
 /// constant times a number builds as well.
 const MARATHON: Length = METRE.quantity(42_195.0);
-const BOILING: Temperature = CELSIUS.quantity(100.0);
+const BOILING: Temperature = Celsius.quantity(100.0);
 const BOILING_K: f64 = TemperatureUnit::Kelvin.value(BOILING);
 
 #[test]
 fn units_build_and_read() {
     assert!(close(FOOT.value(MARATHON), 42_195.0 / 0.3048));
     assert!(close(BOILING_K, 373.15));
-    assert!(close(CELSIUS.value(BOILING), 100.0));
+    assert!(close(Celsius.value(BOILING), 100.0));
     assert!(close(KILOPASCAL.value(PASCAL * 2500.0), 2.5));
-    let aircraft = FEET_AMSL.quantity(6500.0);
-    let clearance = aircraft - FEET_AMSL.quantity(1200.0);
+    let aircraft = FeetAmsl.quantity(6500.0);
+    let clearance = aircraft - FeetAmsl.quantity(1200.0);
     assert!(close(FOOT.value(clearance), 5300.0));
-    let agl = Scale(FEET_AMSL.quantity(1200.0), METRE);
-    assert!(close(agl.value(aircraft), 5300.0 * 0.3048));
-    assert!(close(DBM.value(DBM.quantity(30.0) + DECIBEL * 3.0), 33.0));
-    // A unit enum's values build and read the same way; a level reads the
-    // watts `via` its line.
-    let (celsius, dbm) = (TemperatureUnit::Celsius, PowerUnit::DecibelMilliwatt);
+    assert!(close(Dbm.value(Dbm.quantity(30.0) + DECIBEL * 3.0), 33.0));
+    // A unit enum's values build and read the same way.
+    let celsius = TemperatureUnit::Celsius;
     assert!(close(celsius.value(celsius.quantity(21.5)), 21.5));
-    assert!(close(WATT.value(dbm.quantity(30.0)), 1.0));
-    assert!(close(dbm.value(WATT * 2.0), 30.0 + 10.0 * 2f64.log10()));
-    // Generic code asks for `Unit`: constants, scales and unit enums meet it.
-    fn convert<Q>(n: f64, from: impl Unit<Q>, to: impl Unit<Q>) -> f64 {
+    // A unit of power through the logarithmic line: not `const`, a unit all
+    // the same.
+    assert!(close(WATT.value(DbmPower.quantity(30.0)), 1.0));
+    assert!(close(DbmPower.value(WATT * 2.0), 30.0 + 10.0 * 2f64.log10()));
+    // Generic code asks for `Unit`: constants, unit types and unit enums
+    // meet it.
+    fn convert<Q>(n: f64, from: impl Unit<Q, f64>, to: impl Unit<Q, f64>) -> f64 {
         to.value(from.quantity(n))
     }
     assert!(close(convert(12.0, FOOT, METRE), 12.0 * 0.3048));
     let fahrenheit = TemperatureUnit::Fahrenheit;
     assert!(close(convert(0.0, celsius, fahrenheit), 32.0));
-    assert!(close(convert(100.0, CELSIUS, fahrenheit), 212.0));
+    assert!(close(convert(100.0, Celsius, fahrenheit), 212.0));
+    assert!(close(convert(30.0, DbmPower, WATT), 1.0));
 }
 
 #[test]
@@ -167,10 +166,9 @@ fn unit_labels() {
         Ok(TemperatureUnit::Fahrenheit)
     );
     assert_eq!("x".parse::<TemperatureUnit>(), Err(yadc::UnknownUnit));
-    let agl = FeetAboveGround {
-        scale: Scale(SEA_LEVEL, FOOT),
-    };
-    assert_eq!(format!("{agl}"), "ft AGL");
+    let agl = FeetAboveGround { ground: SEA_LEVEL };
+    assert_eq!(format!("{agl} / {agl:#}"), "ft AGL / feet above ground level");
+    assert_eq!(format!("{}", Dbm), "dBm");
 }
 
 #[test]

@@ -1,181 +1,381 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
-pub type Area<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Area`.
+pub const AREA: Dim = Dim {
+    m: 2,
+    ..Dim::DIMENSIONLESS
+};
+pub type Area<N> = Qty<AREA, N>;
 
-pub type Energy<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Energy`.
+pub const ENERGY: Dim = Dim {
+    m: 2,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Energy<N> = Qty<ENERGY, N>;
 
-pub type Length<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Length`.
+pub const LENGTH: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Length<N> = Qty<LENGTH, N>;
 
-pub type Mass<N> = Qty<
-    {
-        Dim {
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Mass`.
+pub const MASS: Dim = Dim {
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Mass<N> = Qty<MASS, N>;
 
-pub type PlaneAngle<N> = Qty<
-    {
-        Dim {
-            rad: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `PlaneAngle`.
+pub const PLANE_ANGLE: Dim = Dim {
+    rad: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type PlaneAngle<N> = Qty<PLANE_ANGLE, N>;
 
-pub type Pressure<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Pressure`.
+pub const PRESSURE: Dim = Dim {
+    m: -1,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Pressure<N> = Qty<PRESSURE, N>;
 
-pub type Time<N> = Qty<
-    {
-        Dim {
-            s: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Time`.
+pub const TIME: Dim = Dim {
+    s: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Time<N> = Qty<TIME, N>;
 
-pub type Volume<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Volume`.
+pub const VOLUME: Dim = Dim {
+    m: 3,
+    ..Dim::DIMENSIONLESS
+};
+pub type Volume<N> = Qty<VOLUME, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
-    /// The metre, UCUM's base unit of length.
-    pub use crate::base::METRE;
+    /// Are (`ar`), a unit of `Area`: `n` of them is `n · 1e2` coherent units.
+    pub type Are = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::int(100),
+                zero: Exact::ZERO,
+                symbol: "ar",
+                name: "are",
+            }
+        },
+    >;
 
-    /// The gram, UCUM's base unit of mass.
-    pub use crate::base::GRAM;
+    /// Electronvolt (`eV`), a unit of `Energy`: `n` of them is `n · 1602176634e-25` coherent units.
+    pub type Electronvolt = UcumUnit<
+        ENERGY,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1602176634, -25),
+                zero: Exact::ZERO,
+                symbol: "eV",
+                name: "electronvolt",
+            }
+        },
+    >;
 
-    /// The radian, UCUM's base unit of plane angle.
-    pub use crate::base::RADIAN;
+    /// Astronomic unit (`AU`), a unit of `Length`: `n` of them is `n · 149597870691` coherent units.
+    pub type AstronomicUnit = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(149597870691),
+                zero: Exact::ZERO,
+                symbol: "AU",
+                name: "astronomic unit",
+            }
+        },
+    >;
 
-    /// One `Are` (`ar`), as an `Area`.
-    pub const ARE: Area<Exact> = (METRE * METRE) * Exact::int(100);
+    /// Parsec (`pc`), a unit of `Length`: `n` of them is `n · 3085678e10` coherent units.
+    pub type Parsec = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(30856780000000000),
+                zero: Exact::ZERO,
+                symbol: "pc",
+                name: "parsec",
+            }
+        },
+    >;
 
-    /// One `Electronvolt` (`eV`), as an `Energy`.
-    pub const ELECTRONVOLT: Energy<Exact> = (METRE * METRE * GRAM
-        / (crate::base::SECOND * crate::base::SECOND))
-        * Exact::dec(1602176634, -25);
+    /// Tonne (`t`), a unit of `Mass`: `n` of them is `n · 1e6` coherent units.
+    pub type Tonne = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1000000),
+                zero: Exact::ZERO,
+                symbol: "t",
+                name: "tonne",
+            }
+        },
+    >;
 
-    /// One `AstronomicUnit` (`AU`), as a `Length`.
-    pub const ASTRONOMIC_UNIT: Length<Exact> = METRE * Exact::int(149597870691);
+    /// Unified atomic mass unit (`u`), a unit of `Mass`: `n` of them is `n · 16605390666e-34` coherent units.
+    pub type UnifiedAtomicMassUnit = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(16605390666, -34),
+                zero: Exact::ZERO,
+                symbol: "u",
+                name: "unified atomic mass unit",
+            }
+        },
+    >;
 
-    /// One `Parsec` (`pc`), as a `Length`.
-    pub const PARSEC: Length<Exact> = METRE * Exact::int(30856780000000000);
+    /// Grade (`gon`), a unit of `PlaneAngle`: `n` of them is `n · 5e-3 * core::f64::consts::PI` coherent units.
+    pub type Grade = UcumUnit<
+        PLANE_ANGLE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(5, -3) * Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "gon",
+                name: "grade",
+            }
+        },
+    >;
 
-    /// One `Tonne` (`t`), as a `Mass`.
-    pub const TONNE: Mass<Exact> = GRAM * Exact::int(1000000);
+    /// Degree (`deg`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 180 * core::f64::consts::PI` coherent units.
+    pub type Degree = UcumUnit<
+        PLANE_ANGLE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1) / Exact::int(180) * Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "deg",
+                name: "degree",
+            }
+        },
+    >;
 
-    /// One `UnifiedAtomicMassUnit` (`u`), as a `Mass`.
-    pub const UNIFIED_ATOMIC_MASS_UNIT: Mass<Exact> = GRAM * Exact::dec(16605390666, -34);
+    /// Minute (`'`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 10800 * core::f64::consts::PI` coherent units.
+    pub type PlaneAngleMinute = UcumUnit<
+        PLANE_ANGLE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1) / Exact::int(10800) * Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "'",
+                name: "minute",
+            }
+        },
+    >;
 
-    /// One `Grade` (`gon`), as a `PlaneAngle`.
-    pub const GRADE: PlaneAngle<Exact> = RADIAN * (Exact::dec(5, -3) * Exact::PI);
+    /// Second (`''`), a unit of `PlaneAngle`: `n` of them is `n · 1 / 648000 * core::f64::consts::PI` coherent units.
+    pub type Second = UcumUnit<
+        PLANE_ANGLE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1) / Exact::int(648000) * Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "''",
+                name: "second",
+            }
+        },
+    >;
 
-    /// One `Degree` (`deg`), as a `PlaneAngle`.
-    pub const DEGREE: PlaneAngle<Exact> = RADIAN * (Exact::int(1) / Exact::int(180) * Exact::PI);
+    /// Bar (`bar`), a unit of `Pressure`: `n` of them is `n · 1e8` coherent units.
+    pub type Bar = UcumUnit<
+        PRESSURE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(100000000),
+                zero: Exact::ZERO,
+                symbol: "bar",
+                name: "bar",
+            }
+        },
+    >;
 
-    /// One `Minute` (`'`), as a `PlaneAngle`.
-    pub const PLANE_ANGLE_MINUTE: PlaneAngle<Exact> =
-        RADIAN * (Exact::int(1) / Exact::int(10800) * Exact::PI);
+    /// Minute (`min`), a unit of `Time`: `n` of them is `n · 6e1` coherent units.
+    pub type TimeMinute = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(60),
+                zero: Exact::ZERO,
+                symbol: "min",
+                name: "minute",
+            }
+        },
+    >;
 
-    /// One `Second` (`''`), as a `PlaneAngle`.
-    pub const SECOND: PlaneAngle<Exact> = RADIAN * (Exact::int(1) / Exact::int(648000) * Exact::PI);
+    /// Hour (`h`), a unit of `Time`: `n` of them is `n · 36e2` coherent units.
+    pub type Hour = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(3600),
+                zero: Exact::ZERO,
+                symbol: "h",
+                name: "hour",
+            }
+        },
+    >;
 
-    /// One `Bar` (`bar`), as a `Pressure`.
-    pub const BAR: Pressure<Exact> =
-        (GRAM / (METRE * crate::base::SECOND * crate::base::SECOND)) * Exact::int(100000000);
+    /// Day (`d`), a unit of `Time`: `n` of them is `n · 864e2` coherent units.
+    pub type Day = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(86400),
+                zero: Exact::ZERO,
+                symbol: "d",
+                name: "day",
+            }
+        },
+    >;
 
-    /// One `Minute` (`min`), as a `Time`.
-    pub const TIME_MINUTE: Time<Exact> = crate::base::SECOND * Exact::int(60);
+    /// Tropical year (`a_t`), a unit of `Time`: `n` of them is `n · 31556925216e-3` coherent units.
+    pub type TropicalYear = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(31556925216, -3),
+                zero: Exact::ZERO,
+                symbol: "a_t",
+                name: "tropical year",
+            }
+        },
+    >;
 
-    /// One `Hour` (`h`), as a `Time`.
-    pub const HOUR: Time<Exact> = crate::base::SECOND * Exact::int(3600);
+    /// Mean Julian year (`a_j`), a unit of `Time`: `n` of them is `n · 315576e2` coherent units.
+    pub type MeanJulianYear = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(31557600),
+                zero: Exact::ZERO,
+                symbol: "a_j",
+                name: "mean Julian year",
+            }
+        },
+    >;
 
-    /// One `Day` (`d`), as a `Time`.
-    pub const DAY: Time<Exact> = crate::base::SECOND * Exact::int(86400);
+    /// Mean Gregorian year (`a_g`), a unit of `Time`: `n` of them is `n · 31556952` coherent units.
+    pub type MeanGregorianYear = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(31556952),
+                zero: Exact::ZERO,
+                symbol: "a_g",
+                name: "mean Gregorian year",
+            }
+        },
+    >;
 
-    /// One `TropicalYear` (`a_t`), as a `Time`.
-    pub const TROPICAL_YEAR: Time<Exact> = crate::base::SECOND * Exact::dec(31556925216, -3);
+    /// Year (`a`), a unit of `Time`: `n` of them is `n · 315576e2` coherent units.
+    pub type Year = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(31557600),
+                zero: Exact::ZERO,
+                symbol: "a",
+                name: "year",
+            }
+        },
+    >;
 
-    /// One `MeanJulianYear` (`a_j`), as a `Time`.
-    pub const MEAN_JULIAN_YEAR: Time<Exact> = crate::base::SECOND * Exact::int(31557600);
+    /// Week (`wk`), a unit of `Time`: `n` of them is `n · 6048e2` coherent units.
+    pub type Week = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(604800),
+                zero: Exact::ZERO,
+                symbol: "wk",
+                name: "week",
+            }
+        },
+    >;
 
-    /// One `MeanGregorianYear` (`a_g`), as a `Time`.
-    pub const MEAN_GREGORIAN_YEAR: Time<Exact> = crate::base::SECOND * Exact::int(31556952);
+    /// Synodal month (`mo_s`), a unit of `Time`: `n` of them is `n · 2551442976e-3` coherent units.
+    pub type SynodalMonth = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(2551442976, -3),
+                zero: Exact::ZERO,
+                symbol: "mo_s",
+                name: "synodal month",
+            }
+        },
+    >;
 
-    /// One `Year` (`a`), as a `Time`.
-    pub const YEAR: Time<Exact> = crate::base::SECOND * Exact::int(31557600);
+    /// Mean Julian month (`mo_j`), a unit of `Time`: `n` of them is `n · 26298e2` coherent units.
+    pub type MeanJulianMonth = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(2629800),
+                zero: Exact::ZERO,
+                symbol: "mo_j",
+                name: "mean Julian month",
+            }
+        },
+    >;
 
-    /// One `Week` (`wk`), as a `Time`.
-    pub const WEEK: Time<Exact> = crate::base::SECOND * Exact::int(604800);
+    /// Mean Gregorian month (`mo_g`), a unit of `Time`: `n` of them is `n · 2629746` coherent units.
+    pub type MeanGregorianMonth = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(2629746),
+                zero: Exact::ZERO,
+                symbol: "mo_g",
+                name: "mean Gregorian month",
+            }
+        },
+    >;
 
-    /// One `SynodalMonth` (`mo_s`), as a `Time`.
-    pub const SYNODAL_MONTH: Time<Exact> = crate::base::SECOND * Exact::dec(2551442976, -3);
+    /// Month (`mo`), a unit of `Time`: `n` of them is `n · 26298e2` coherent units.
+    pub type Month = UcumUnit<
+        TIME,
+        {
+            UcumUnitConsts {
+                size: Exact::int(2629800),
+                zero: Exact::ZERO,
+                symbol: "mo",
+                name: "month",
+            }
+        },
+    >;
 
-    /// One `MeanJulianMonth` (`mo_j`), as a `Time`.
-    pub const MEAN_JULIAN_MONTH: Time<Exact> = crate::base::SECOND * Exact::int(2629800);
-
-    /// One `MeanGregorianMonth` (`mo_g`), as a `Time`.
-    pub const MEAN_GREGORIAN_MONTH: Time<Exact> = crate::base::SECOND * Exact::int(2629746);
-
-    /// One `Month` (`mo`), as a `Time`.
-    pub const MONTH: Time<Exact> = crate::base::SECOND * Exact::int(2629800);
-
-    /// One `Liter` (`l`), as a `Volume`.
-    pub const LITER: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(1, -3);
+    /// Liter (`l`), a unit of `Volume`: `n` of them is `n · 1e-3` coherent units.
+    pub type Liter = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -3),
+                zero: Exact::ZERO,
+                symbol: "l",
+                name: "liter",
+            }
+        },
+    >;
 }

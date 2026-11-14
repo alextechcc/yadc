@@ -25,9 +25,9 @@
 //!
 //! Angles are not a kind but an axis (`rad`), so a solid angle is rad² and a
 //! torque is J/rad. Each section prints what works; what does not is shown
-//! as commented-out code with the compiler's message. Every unit, a quantity
-//! constant or a unit enum's value, builds with `quantity` and reads with
-//! `value`.
+//! as commented-out code with the compiler's message. Every unit - a
+//! quantity constant, a unit type or a unit enum's value - builds with
+//! `quantity` and reads with `value`.
 //!
 //! Run with: cargo run -p yadc --example kind_algebra
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
@@ -42,7 +42,6 @@
 #![allow(incomplete_features)]
 
 use core::marker::ConstParamTy;
-use core::ops::{Add, Sub};
 use yadc::num_traits::Inv;
 use yadc::{Dimension, PowiAs, RootAs, Unit};
 
@@ -89,24 +88,6 @@ pub struct Dim {
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 pub struct Qty<const D: Dim>(f64);
-
-/// A scale: a zero and a step. `n` is `zero + n · step`, and a value reads
-/// `(value - zero) / step`.
-#[derive(Copy, Clone)]
-pub struct Scale<P, S>(pub P, pub S);
-
-impl<P, S, N> const Unit<P, N> for Scale<P, S>
-where
-    P: Copy + [const] Sub + [const] Add<<P as Sub>::Output, Output = P>,
-    S: [const] Unit<<P as Sub>::Output, N>,
-{
-    fn quantity(&self, value: N) -> P {
-        self.0 + self.1.quantity(value)
-    }
-    fn value(&self, quantity: P) -> N {
-        self.1.value(quantity - self.0)
-    }
-}
 
 // --- Quantities ----------------------------------------------------------------
 
@@ -176,15 +157,55 @@ pub const MILLIWATT_LEVEL: PowerLevel = WATT_LEVEL - 30.0 * DECIBEL;
 /// Torque is energy per radian of turn.
 pub const NEWTON_METRE_PER_RADIAN: Torque = JOULE / RADIAN;
 
-/// Degrees Celsius: steps of one kelvin from the ice point.
-pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
-/// Kelvin, as a reading of a temperature: from absolute zero.
-pub const KELVIN_SCALE: Scale<Temperature, TemperatureStep> = Scale(ABSOLUTE_ZERO, KELVIN);
-/// A scale of levels: decibels from one milliwatt.
-pub const DBM: Scale<PowerLevel, Gain> = Scale(MILLIWATT_LEVEL, DECIBEL);
+/// A unit type: `n` of it is `n` steps, from a zero if it has one, and it
+/// prints its symbol (`{}`) or name (`{:#}`).
+macro_rules! unit {
+    ($name:ident: $q:ty = $step:expr, zero $zero:expr, $symbol:literal, $long:literal) => {
+        unit!(@display $name, $symbol, $long);
+        impl const Unit<$q, f64> for $name {
+            fn quantity(&self, n: f64) -> $q {
+                $zero + $step.quantity(n)
+            }
+            fn value(&self, q: $q) -> f64 {
+                $step.value(q - $zero)
+            }
+        }
+    };
+    ($name:ident: $q:ty = $step:expr, $symbol:literal, $long:literal) => {
+        unit!(@display $name, $symbol, $long);
+        impl const Unit<$q, f64> for $name {
+            fn quantity(&self, n: f64) -> $q {
+                $step.quantity(n)
+            }
+            fn value(&self, q: $q) -> f64 {
+                $step.value(q)
+            }
+        }
+    };
+    (@display $name:ident, $symbol:literal, $long:literal) => {
+        #[derive(Copy, Clone)]
+        pub struct $name;
+        impl core::fmt::Display for $name {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                f.pad(if f.alternate() { $long } else { $symbol })
+            }
+        }
+    };
+}
+
+// Degrees Celsius: steps of one kelvin from the ice point; kelvin, as a
+// reading of a temperature: from absolute zero.
+unit!(Celsius: Temperature = KELVIN, zero ICE_POINT, "°C", "degrees Celsius");
+unit!(KelvinScale: Temperature = KELVIN, zero ABSOLUTE_ZERO, "K", "kelvin");
+// A unit of levels: decibels from one milliwatt.
+unit!(Dbm: PowerLevel = DECIBEL, zero MILLIWATT_LEVEL, "dBm", "decibel-milliwatts");
+unit!(Radian: Angle = RADIAN, "rad", "radians");
+unit!(Degree: Angle = DEGREE, "°", "degrees");
+unit!(RadianPerSecond: AngularSpeed = RADIAN_PER_SECOND, "rad/s", "radians per second");
+unit!(RevolutionPerMinute: AngularSpeed = RPM, "rpm", "revolutions per minute");
 
 // The logarithm itself: the two conversions between the line of levels and
-// the watts. A scale of levels reads levels; the watts are one `From` away.
+// the watts. A unit of levels reads levels; the watts are one `From` away.
 
 impl From<PowerLevel> for Power {
     fn from(level: PowerLevel) -> Power {
@@ -201,29 +222,29 @@ impl From<Power> for PowerLevel {
 // --- Unit enums, for the units that print -----------------------------------
 
 #[derive(Copy, Clone, Unit)]
-#[unit(of = Temperature)]
+#[unit(of = Temperature, number = f64)]
 pub enum TemperatureUnit {
-    #[unit("K", "kelvin", by = KELVIN_SCALE)]
+    #[unit(KelvinScale)]
     KelvinScale,
-    #[unit("°C", "degrees Celsius", by = CELSIUS)]
+    #[unit(Celsius)]
     Celsius,
 }
 
 #[derive(Copy, Clone, Unit)]
-#[unit(of = Angle)]
+#[unit(of = Angle, number = f64)]
 pub enum AngleUnit {
-    #[unit("rad", "radians", by = RADIAN)]
+    #[unit(Radian)]
     Radian,
-    #[unit("°", "degrees", by = DEGREE)]
+    #[unit(Degree)]
     Degree,
 }
 
 #[derive(Copy, Clone, Unit)]
-#[unit(of = AngularSpeed)]
+#[unit(of = AngularSpeed, number = f64)]
 pub enum AngularSpeedUnit {
-    #[unit("rad/s", "radians per second", by = RADIAN_PER_SECOND)]
+    #[unit(RadianPerSecond)]
     RadianPerSecond,
-    #[unit("rpm", "revolutions per minute", by = RPM)]
+    #[unit(RevolutionPerMinute)]
     RevolutionPerMinute,
 }
 
@@ -254,10 +275,10 @@ fn main() {
     // a step. Where a formula wants the temperature as an amount - the
     // kelvins above absolute zero, as in σT⁴ - it says so: `t - ABSOLUTE_ZERO`.
     println!("\n== A point (a temperature)");
-    // A scale is a constant; its enum variant is the same unit with a name.
-    use TemperatureUnit::Celsius;
-    let morning = CELSIUS.quantity(15.0);
-    let noon = CELSIUS.quantity(22.5);
+    // °C is a unit type; `TemperatureUnit::Celsius` is the same unit as a
+    // choice made at run time.
+    let morning = Celsius.quantity(15.0);
+    let noon = TemperatureUnit::Celsius.quantity(22.5);
     let warming: TemperatureStep = noon - morning;
     println!("22.5 °C - 15 °C  = {} K", KELVIN.value(warming));
     println!("15 °C + 7.5 K    = {} {Celsius}", Celsius.value(morning + warming));
@@ -280,18 +301,18 @@ fn main() {
     // A power level is the logarithm of a power, a gain the logarithm of a
     // plain ratio. `+` and `-` add and subtract the exponents, as `*` and `/`
     // do for the things themselves: level - level is watts over watts, a
-    // gain; level ± gain is watts times a ratio, a level. `DBM` is a scale on
+    // gain; level ± gain is watts times a ratio, a level. `Dbm` is a unit on
     // the line of levels - a zero and a step - and the watts are one `From`
     // away.
     println!("\n== A logarithm (levels and gains)");
-    let sent = DBM.quantity(30.0);
+    let sent = Dbm.quantity(30.0);
     let received = sent - DECIBEL.quantity(3.0) + DECIBEL.quantity(13.0);
-    println!("30 dBm - 3 dB + 13 dB = {:.0} dBm", DBM.value(received));
+    println!("30 dBm - 3 dB + 13 dB = {:.0} dBm", Dbm.value(received));
     let gain: Gain = received - sent;
     println!("received - sent  = {:.0} dB", DECIBEL.value(gain));
     println!("40 dBm           = {:.0} W", WATT.value(Power::from(received)));
     let two_watts = WATT.quantity(2.0);
-    println!("2 W              = {:.2} dBm", DBM.value(PowerLevel::from(two_watts)));
+    println!("2 W              = {:.2} dBm", Dbm.value(PowerLevel::from(two_watts)));
     // A gain per length is a plain rate - bels per metre - and that many
     // bels is a gain again: a kind is given by a constant that has it.
     let fibre = DECIBEL.quantity(0.2) / KILOMETRE;

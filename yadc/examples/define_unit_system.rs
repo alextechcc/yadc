@@ -1,11 +1,14 @@
 //! Define a unit system from scratch: a kind, a dimension, a quantity family,
 //! a few constants and units. No `yadc-si` - every type below is ours.
 //!
-//! The base constants (`METRE`, `SECOND`, `KELVIN`, `ABSOLUTE_ZERO`) are the
-//! only raw numbers. Every other constant is defined from them, and every
-//! constant is a unit: `KILOMETRE * 3.0` (or `KILOMETRE.quantity(3.0)`) is
-//! three kilometres, `MILE.value(d)` is how many miles `d` is. A scale - a zero and a
-//! step - is a unit too: °C is `Scale(ICE_POINT, KELVIN)`.
+//! The base constants (`METRE`, `SECOND`, `KELVIN`, `ABSOLUTE_ZERO`) write
+//! the field; every other constant is defined from them. A quantity value is
+//! a unit of its own kind: `KILOMETRE * 3.0` (or `KILOMETRE.quantity(3.0)`)
+//! is three kilometres, `MILE.value(d)` is how many miles `d` is.
+//!
+//! A unit is also a type of ours with an `impl Unit<Q, N>`: degrees Celsius
+//! add a zero to kelvins, and the length units of a menu are types an enum
+//! can name, each printing its symbol.
 //!
 //! Run with: cargo run -p yadc --example define_unit_system
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
@@ -19,8 +22,8 @@
 )]
 #![allow(incomplete_features)]
 
+use core::fmt;
 use core::marker::ConstParamTy;
-use core::ops::{Add, Sub};
 use yadc::{Dimension, Unit};
 
 /// How a quantity behaves. `Linear` is an ordinary amount: it adds, scales
@@ -48,7 +51,8 @@ pub struct Dim {
 }
 
 /// The quantity family: one type per dimension. Only this crate can write
-/// the field, so the base constants below are the only raw numbers.
+/// the field: the base constants below write it, and every other number
+/// becomes a quantity through a unit.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 pub struct Qty<const D: Dim>(f64);
 
@@ -108,42 +112,86 @@ pub const HOUR: Time = 3600.0 * SECOND;
 pub const KILOMETRE_PER_HOUR: Velocity = KILOMETRE / HOUR;
 pub const ICE_POINT: Temperature = ABSOLUTE_ZERO + 273.15 * KELVIN;
 
-/// A scale: a zero and a step. A number `n` is `zero + n · step`, and a
-/// value reads `(value - zero) / step`.
+/// Degrees Celsius: kelvins counted from the ice point. A number `n` is
+/// `ICE_POINT + n · KELVIN`.
 #[derive(Copy, Clone, Debug)]
-pub struct Scale<P, S>(pub P, pub S);
+pub struct Celsius;
 
-impl<P, S, N> const Unit<P, N> for Scale<P, S>
-where
-    P: Copy + [const] Sub + [const] Add<<P as Sub>::Output, Output = P>,
-    S: [const] Unit<<P as Sub>::Output, N>,
-{
-    fn quantity(&self, value: N) -> P {
-        self.0 + self.1.quantity(value)
+impl const Unit<Temperature, f64> for Celsius {
+    fn quantity(&self, value: f64) -> Temperature {
+        ICE_POINT + KELVIN.quantity(value)
     }
-    fn value(&self, quantity: P) -> N {
-        self.1.value(quantity - self.0)
+    fn value(&self, quantity: Temperature) -> f64 {
+        KELVIN.value(quantity - ICE_POINT)
     }
 }
 
-/// Degrees Celsius: kelvins counted from the ice point.
-pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
+/// Metres, kilometres and miles as types: each counts through its constant,
+/// and prints its symbol (`{}`) or name (`{:#}`).
+#[derive(Copy, Clone, Debug)]
+pub struct Metre;
+#[derive(Copy, Clone, Debug)]
+pub struct Kilometre;
+#[derive(Copy, Clone, Debug)]
+pub struct Mile;
+
+impl const Unit<Length, f64> for Metre {
+    fn quantity(&self, value: f64) -> Length {
+        METRE.quantity(value)
+    }
+    fn value(&self, quantity: Length) -> f64 {
+        METRE.value(quantity)
+    }
+}
+impl const Unit<Length, f64> for Kilometre {
+    fn quantity(&self, value: f64) -> Length {
+        KILOMETRE.quantity(value)
+    }
+    fn value(&self, quantity: Length) -> f64 {
+        KILOMETRE.value(quantity)
+    }
+}
+impl const Unit<Length, f64> for Mile {
+    fn quantity(&self, value: f64) -> Length {
+        MILE.quantity(value)
+    }
+    fn value(&self, quantity: Length) -> f64 {
+        MILE.value(quantity)
+    }
+}
+
+impl fmt::Display for Metre {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(if f.alternate() { "metres" } else { "m" })
+    }
+}
+impl fmt::Display for Kilometre {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(if f.alternate() { "kilometres" } else { "km" })
+    }
+}
+impl fmt::Display for Mile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(if f.alternate() { "miles" } else { "mi" })
+    }
+}
 
 /// A choice of units, for a menu or a parser: each variant names the unit
-/// it is. The derive writes `Unit`, `Display` and `FromStr`.
+/// type it is. The derive writes `Unit`, and `Display` and `FromStr` from
+/// each type's `Display`.
 #[derive(Copy, Clone, Debug, yadc::Unit)]
-#[unit(of = Length)]
+#[unit(of = Length, number = f64)]
 pub enum LengthUnit {
-    #[unit("m", "metres", by = METRE)]
+    #[unit(Metre)]
     Metre,
-    #[unit("km", "kilometres", by = KILOMETRE)]
+    #[unit(Kilometre)]
     Kilometre,
-    #[unit("mi", "miles", by = MILE)]
+    #[unit(Mile)]
     Mile,
 }
 
 /// Computed by the compiler: the operators and units are `const`.
-pub const BOILING: Temperature = CELSIUS.quantity(100.0);
+pub const BOILING: Temperature = Celsius.quantity(100.0);
 
 fn main() {
     // Build with a unit, compute on quantities, read with a unit.
@@ -159,12 +207,12 @@ fn main() {
     // let nope = distance + time;           // error: cannot add: the dimensions differ
 
     // A temperature is a point: two differ by a step, a step moves one.
-    let morning = CELSIUS.quantity(12.0);
+    let morning = Celsius.quantity(12.0);
     let noon = morning + 9.5 * KELVIN;
     let rise: TemperatureStep = noon - morning;
     println!(
         "noon is {:.1} °C, {:.1} K warmer",
-        CELSIUS.value(noon),
+        Celsius.value(noon),
         KELVIN.value(rise)
     );
     println!("water boils at {:.2} K", KELVIN.value(BOILING - ABSOLUTE_ZERO));

@@ -2,32 +2,49 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::dimensionless::consts::*;
+use crate::dimensionless::units::*;
 use crate::dimensionless::*;
+use crate::dynamic::DynamicUcumUnit;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Dimensionless`, in any number type the constants convert to.
+/// The units of `Dimensionless`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Dimensionless<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Dimensionless<N>: [const] Unit<Dimensionless<N>, N> + [const] Destruct)]
+#[unit(of = Dimensionless<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DimensionlessUnit {
     #[default]
-    #[unit("", "", by = Dimensionless::<N>::from(RATIO))]
+    #[unit(Ratio)]
     Ratio,
-    #[unit("10*", "the number ten for arbitrary powers", by = Dimensionless::<N>::from(THE_NUMBER_TEN_FOR_ARBITRARY_POWERS))]
+    #[unit(TheNumberTenForArbitraryPowers)]
     TheNumberTenForArbitraryPowers,
-    #[unit("[pi]", "the number pi", by = Dimensionless::<N>::from(THE_NUMBER_PI))]
+    #[unit(TheNumberPi)]
     TheNumberPi,
-    #[unit("%", "percent", by = Dimensionless::<N>::from(PERCENT))]
+    #[unit(Percent)]
     Percent,
-    #[unit("[ppth]", "parts per thousand", by = Dimensionless::<N>::from(PARTS_PER_THOUSAND))]
+    #[unit(PartsPerThousand)]
     PartsPerThousand,
-    #[unit("[ppm]", "parts per million", by = Dimensionless::<N>::from(PARTS_PER_MILLION))]
+    #[unit(PartsPerMillion)]
     PartsPerMillion,
-    #[unit("[ppb]", "parts per billion", by = Dimensionless::<N>::from(PARTS_PER_BILLION))]
+    #[unit(PartsPerBillion)]
     PartsPerBillion,
-    #[unit("[pptr]", "parts per trillion", by = Dimensionless::<N>::from(PARTS_PER_TRILLION))]
+    #[unit(PartsPerTrillion)]
     PartsPerTrillion,
+}
+
+impl From<DimensionlessUnit> for DynamicUcumUnit {
+    fn from(unit: DimensionlessUnit) -> Self {
+        match unit {
+            DimensionlessUnit::Ratio => Ratio {}.into(),
+            DimensionlessUnit::TheNumberTenForArbitraryPowers => {
+                TheNumberTenForArbitraryPowers {}.into()
+            }
+            DimensionlessUnit::TheNumberPi => TheNumberPi {}.into(),
+            DimensionlessUnit::Percent => Percent {}.into(),
+            DimensionlessUnit::PartsPerThousand => PartsPerThousand {}.into(),
+            DimensionlessUnit::PartsPerMillion => PartsPerMillion {}.into(),
+            DimensionlessUnit::PartsPerBillion => PartsPerBillion {}.into(),
+            DimensionlessUnit::PartsPerTrillion => PartsPerTrillion {}.into(),
+        }
+    }
 }

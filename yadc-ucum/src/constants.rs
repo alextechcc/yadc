@@ -1,212 +1,293 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
-pub type Acceleration<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Acceleration`.
+pub const ACCELERATION: Dim = Dim {
+    m: 1,
+    s: -2,
+    ..Dim::DIMENSIONLESS
+};
+pub type Acceleration<N> = Qty<ACCELERATION, N>;
 
-pub type Action<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -1,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Action`.
+pub const ACTION: Dim = Dim {
+    m: 2,
+    s: -1,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Action<N> = Qty<ACTION, N>;
 
-pub type ElectricCharge<N> = Qty<
-    {
-        Dim {
-            C: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `ElectricCharge`.
+pub const ELECTRIC_CHARGE: Dim = Dim {
+    C: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type ElectricCharge<N> = Qty<ELECTRIC_CHARGE, N>;
 
-pub type ElectricPermittivity<N> = Qty<
-    {
-        Dim {
-            m: -3,
-            s: 2,
-            g: -1,
-            C: 2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `ElectricPermittivity`.
+pub const ELECTRIC_PERMITTIVITY: Dim = Dim {
+    m: -3,
+    s: 2,
+    g: -1,
+    C: 2,
+    ..Dim::DIMENSIONLESS
+};
+pub type ElectricPermittivity<N> = Qty<ELECTRIC_PERMITTIVITY, N>;
 
-pub type Force<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Force`.
+pub const FORCE: Dim = Dim {
+    m: 1,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Force<N> = Qty<FORCE, N>;
 
-pub type Length<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Length`.
+pub const LENGTH: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Length<N> = Qty<LENGTH, N>;
 
-pub type MagneticPermeability<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            g: 1,
-            C: -2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `MagneticPermeability`.
+pub const MAGNETIC_PERMEABILITY: Dim = Dim {
+    m: 1,
+    g: 1,
+    C: -2,
+    ..Dim::DIMENSIONLESS
+};
+pub type MagneticPermeability<N> = Qty<MAGNETIC_PERMEABILITY, N>;
 
-pub type Mass<N> = Qty<
-    {
-        Dim {
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Mass`.
+pub const MASS: Dim = Dim {
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Mass<N> = Qty<MASS, N>;
 
-pub type Pressure<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Pressure`.
+pub const PRESSURE: Dim = Dim {
+    m: -1,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Pressure<N> = Qty<PRESSURE, N>;
 
-pub type UnclassifiedM2GPerS2K<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            s: -2,
-            g: 1,
-            K: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `UnclassifiedM2GPerS2K`.
+pub const UNCLASSIFIED_M2_G_PER_S2_K: Dim = Dim {
+    m: 2,
+    s: -2,
+    g: 1,
+    K: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type UnclassifiedM2GPerS2K<N> = Qty<UNCLASSIFIED_M2_G_PER_S2_K, N>;
 
-pub type UnclassifiedM3PerS2G<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            s: -2,
-            g: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `UnclassifiedM3PerS2G`.
+pub const UNCLASSIFIED_M3_PER_S2_G: Dim = Dim {
+    m: 3,
+    s: -2,
+    g: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type UnclassifiedM3PerS2G<N> = Qty<UNCLASSIFIED_M3_PER_S2_G, N>;
 
-pub type Velocity<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Velocity`.
+pub const VELOCITY: Dim = Dim {
+    m: 1,
+    s: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Velocity<N> = Qty<VELOCITY, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
-    use crate::base::{KELVIN, SECOND};
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
-    /// The metre, UCUM's base unit of length.
-    pub use crate::base::METRE;
+    /// Standard acceleration of free fall (`[g]`), a unit of `Acceleration`: `n` of them is `n · 980665e-5` coherent units.
+    pub type StandardAccelerationOfFreeFall = UcumUnit<
+        ACCELERATION,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(980665, -5),
+                zero: Exact::ZERO,
+                symbol: "[g]",
+                name: "standard acceleration of free fall",
+            }
+        },
+    >;
 
-    /// The gram, UCUM's base unit of mass.
-    pub use crate::base::GRAM;
+    /// Planck constant (`[h]`), a unit of `Action`: `n` of them is `n · 662607015e-39` coherent units.
+    pub type PlanckConstant = UcumUnit<
+        ACTION,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(662607015, -39),
+                zero: Exact::ZERO,
+                symbol: "[h]",
+                name: "Planck constant",
+            }
+        },
+    >;
 
-    /// The coulomb, UCUM's base unit of electric charge.
-    pub use crate::base::COULOMB;
+    /// Elementary charge (`[e]`), a unit of `ElectricCharge`: `n` of them is `n · 1602176634e-28` coherent units.
+    pub type ElementaryCharge = UcumUnit<
+        ELECTRIC_CHARGE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1602176634, -28),
+                zero: Exact::ZERO,
+                symbol: "[e]",
+                name: "elementary charge",
+            }
+        },
+    >;
 
-    /// One `StandardAccelerationOfFreeFall` (`[g]`), as an `Acceleration`.
-    pub const STANDARD_ACCELERATION_OF_FREE_FALL: Acceleration<Exact> =
-        (METRE / (SECOND * SECOND)) * Exact::dec(980665, -5);
+    /// Permittivity of vacuum (`[eps_0]`), a unit of `ElectricPermittivity`: `n` of them is `n · 8854187817e-24` coherent units.
+    pub type PermittivityOfVacuum = UcumUnit<
+        ELECTRIC_PERMITTIVITY,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(8854187817, -24),
+                zero: Exact::ZERO,
+                symbol: "[eps_0]",
+                name: "permittivity of vacuum",
+            }
+        },
+    >;
 
-    /// One `PlanckConstant` (`[h]`), as an `Action`.
-    pub const PLANCK_CONSTANT: Action<Exact> =
-        (METRE * METRE * GRAM / SECOND) * Exact::dec(662607015, -39);
+    /// Gram-force (`gf`), a unit of `Force`: `n` of them is `n · 980665e-5` coherent units.
+    pub type GramForce = UcumUnit<
+        FORCE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(980665, -5),
+                zero: Exact::ZERO,
+                symbol: "gf",
+                name: "gram-force",
+            }
+        },
+    >;
 
-    /// One `ElementaryCharge` (`[e]`), as an `ElectricCharge`.
-    pub const ELEMENTARY_CHARGE: ElectricCharge<Exact> = COULOMB * Exact::dec(1602176634, -28);
+    /// Pound force (`[lbf_av]`), a unit of `Force`: `n` of them is `n · 44482216152605e-10` coherent units.
+    pub type PoundForce = UcumUnit<
+        FORCE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(44482216152605, -10),
+                zero: Exact::ZERO,
+                symbol: "[lbf_av]",
+                name: "pound force",
+            }
+        },
+    >;
 
-    /// One `PermittivityOfVacuum` (`[eps_0]`), as an `ElectricPermittivity`.
-    pub const PERMITTIVITY_OF_VACUUM: ElectricPermittivity<Exact> =
-        (SECOND * SECOND * COULOMB * COULOMB / (METRE * METRE * METRE * GRAM))
-            * Exact::dec(8854187817, -24);
+    /// Light-year (`[ly]`), a unit of `Length`: `n` of them is `n · 94607304725808e2` coherent units.
+    pub type LightYear = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(9460730472580800),
+                zero: Exact::ZERO,
+                symbol: "[ly]",
+                name: "light-year",
+            }
+        },
+    >;
 
-    /// One `GramForce` (`gf`), as a `Force`.
-    pub const GRAM_FORCE: Force<Exact> =
-        (METRE * GRAM / (SECOND * SECOND)) * Exact::dec(980665, -5);
+    /// Permeability of vacuum (`[mu_0]`), a unit of `MagneticPermeability`: `n` of them is `n · 4e-4 * core::f64::consts::PI` coherent units.
+    pub type PermeabilityOfVacuum = UcumUnit<
+        MAGNETIC_PERMEABILITY,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(4, -4) * Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "[mu_0]",
+                name: "permeability of vacuum",
+            }
+        },
+    >;
 
-    /// One `PoundForce` (`[lbf_av]`), as a `Force`.
-    pub const POUND_FORCE: Force<Exact> =
-        (METRE * GRAM / (SECOND * SECOND)) * Exact::dec(44482216152605, -10);
+    /// Electron mass (`[m_e]`), a unit of `Mass`: `n` of them is `n · 91093837139e-38` coherent units.
+    pub type ElectronMass = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(91093837139, -38),
+                zero: Exact::ZERO,
+                symbol: "[m_e]",
+                name: "electron mass",
+            }
+        },
+    >;
 
-    /// One `LightYear` (`[ly]`), as a `Length`.
-    pub const LIGHT_YEAR: Length<Exact> = METRE * Exact::int(9460730472580800);
+    /// Proton mass (`[m_p]`), a unit of `Mass`: `n` of them is `n · 167262192595e-35` coherent units.
+    pub type ProtonMass = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(167262192595, -35),
+                zero: Exact::ZERO,
+                symbol: "[m_p]",
+                name: "proton mass",
+            }
+        },
+    >;
 
-    /// One `PermeabilityOfVacuum` (`[mu_0]`), as a `MagneticPermeability`.
-    pub const PERMEABILITY_OF_VACUUM: MagneticPermeability<Exact> =
-        (METRE * GRAM / (COULOMB * COULOMB)) * (Exact::dec(4, -4) * Exact::PI);
+    /// Standard atmosphere (`atm`), a unit of `Pressure`: `n` of them is `n · 101325e3` coherent units.
+    pub type StandardAtmosphere = UcumUnit<
+        PRESSURE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(101325000),
+                zero: Exact::ZERO,
+                symbol: "atm",
+                name: "standard atmosphere",
+            }
+        },
+    >;
 
-    /// One `ElectronMass` (`[m_e]`), as a `Mass`.
-    pub const ELECTRON_MASS: Mass<Exact> = GRAM * Exact::dec(91093837139, -38);
+    /// Boltzmann constant (`[k]`), a unit of `UnclassifiedM2GPerS2K`: `n` of them is `n · 1380649e-26` coherent units.
+    pub type BoltzmannConstant = UcumUnit<
+        UNCLASSIFIED_M2_G_PER_S2_K,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1380649, -26),
+                zero: Exact::ZERO,
+                symbol: "[k]",
+                name: "Boltzmann constant",
+            }
+        },
+    >;
 
-    /// One `ProtonMass` (`[m_p]`), as a `Mass`.
-    pub const PROTON_MASS: Mass<Exact> = GRAM * Exact::dec(167262192595, -35);
+    /// Newtonian constant of gravitation (`[G]`), a unit of `UnclassifiedM3PerS2G`: `n` of them is `n · 66743e-18` coherent units.
+    pub type NewtonianConstantOfGravitation = UcumUnit<
+        UNCLASSIFIED_M3_PER_S2_G,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(66743, -18),
+                zero: Exact::ZERO,
+                symbol: "[G]",
+                name: "Newtonian constant of gravitation",
+            }
+        },
+    >;
 
-    /// One `StandardAtmosphere` (`atm`), as a `Pressure`.
-    pub const STANDARD_ATMOSPHERE: Pressure<Exact> =
-        (GRAM / (METRE * SECOND * SECOND)) * Exact::int(101325000);
-
-    /// One `BoltzmannConstant` (`[k]`), as an `UnclassifiedM2GPerS2K`.
-    pub const BOLTZMANN_CONSTANT: UnclassifiedM2GPerS2K<Exact> =
-        (METRE * METRE * GRAM / (SECOND * SECOND * KELVIN)) * Exact::dec(1380649, -26);
-
-    /// One `NewtonianConstantOfGravitation` (`[G]`), as an `UnclassifiedM3PerS2G`.
-    pub const NEWTONIAN_CONSTANT_OF_GRAVITATION: UnclassifiedM3PerS2G<Exact> =
-        (METRE * METRE * METRE / (SECOND * SECOND * GRAM)) * Exact::dec(66743, -18);
-
-    /// One `VelocityOfLight` (`[c]`), as a `Velocity`.
-    pub const VELOCITY_OF_LIGHT: Velocity<Exact> = (METRE / SECOND) * Exact::int(299792458);
+    /// Velocity of light (`[c]`), a unit of `Velocity`: `n` of them is `n · 299792458` coherent units.
+    pub type VelocityOfLight = UcumUnit<
+        VELOCITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(299792458),
+                zero: Exact::ZERO,
+                symbol: "[c]",
+                name: "velocity of light",
+            }
+        },
+    >;
 }

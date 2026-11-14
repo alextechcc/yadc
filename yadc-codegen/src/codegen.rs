@@ -5,7 +5,7 @@
 //! fmt-clean and the same for the same input.
 
 use crate::model::*;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use std::path::Path;
 
 // --- Type-name helpers --------------------------------------------------------
@@ -18,6 +18,35 @@ fn qty_ty(sys: &SystemConfig) -> &str {
 }
 fn dyn_ty(sys: &SystemConfig) -> &str {
     sys.dynqty_type.as_deref().unwrap_or("DynQty")
+}
+fn unit_ty(sys: &SystemConfig) -> &str {
+    sys.unit_type.as_deref().unwrap_or("QtyUnit")
+}
+
+/// The names a generated file refers to: the system's own types, by role.
+struct Names<'a> {
+    dim: &'a str,
+    qty: &'a str,
+    dyn_: &'a str,
+    unit: &'a str,
+    /// `SIUnitConsts`: the unit's const parameter.
+    consts: String,
+    /// `DynamicSIUnit`: a unit of any dimension, chosen at run time.
+    dyn_unit: String,
+}
+
+impl<'a> Names<'a> {
+    fn of(sys: &'a SystemConfig) -> Self {
+        let unit = unit_ty(sys);
+        Names {
+            dim: dim_ty(sys),
+            qty: qty_ty(sys),
+            dyn_: dyn_ty(sys),
+            unit,
+            consts: format!("{unit}Consts"),
+            dyn_unit: format!("Dynamic{unit}"),
+        }
+    }
 }
 
 // --- Public entry point -------------------------------------------------------
@@ -34,7 +63,7 @@ pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()
     };
     write(src.join("lib.rs"), &gen_lib_rs(system))?;
     write(src.join("exact.rs"), EXACT)?;
-    write(src.join("prefix.rs"), &PREFIX.replace("__QTY__", qty_ty(&system.system)))?;
+    write(src.join("prefix.rs"), PREFIX)?;
     std::fs::write(output_dir.join("Cargo.toml"), gen_cargo_toml(system))?;
 
     for fam in &system.family {
@@ -44,7 +73,8 @@ pub fn write_crate(system: &UnitSystem, output_dir: &Path) -> std::io::Result<()
             fam.name,
         );
     }
-    // Each module's quantities at the root, its unit enums in `dynamic`.
+    // Each module's quantities and unit types at the root, its unit enums in
+    // `dynamic`.
     let mut unit_mods: Vec<(String, Option<String>)> = Vec::new();
     let mut module = |name: &str, feature: Option<&str>, m: Module| -> std::io::Result<()> {
         write(src.join(format!("{name}.rs")), &m.quantities)?;
@@ -106,157 +136,6 @@ fn format_files(files: &[std::path::PathBuf]) {
     }
 }
 
-// --- Base constants -----------------------------------------------------------
-
-/// The base constants by name, and which one is the unit of each axis
-/// (`m` -> `METRE`): the one with that axis at exponent 1, nothing else, and
-/// the plain label.
-struct Base<'a> {
-    consts: &'a [BaseConst],
-    axis: BTreeMap<&'a str, &'a str>,
-    /// The plain dimension-one constant (`ONE`), for a product with no
-    /// positive exponent.
-    one: Option<&'a str>,
-}
-
-impl<'a> Base<'a> {
-    fn new(system: &'a UnitSystem) -> Self {
-        let mut axis = BTreeMap::new();
-        let mut one = None;
-        for b in &system.base {
-            if b.kind.is_some() {
-                continue;
-            }
-            let nonzero: Vec<(&String, &i64)> = b.dims.iter().filter(|(_, e)| **e != 0).collect();
-            match nonzero.as_slice() {
-                [] => one = Some(b.name.as_str()),
-                [(f, 1)] => {
-                    axis.entry(f.as_str()).or_insert(b.name.as_str());
-                }
-                _ => {}
-            }
-        }
-        Base {
-            consts: &system.base,
-            axis,
-            one,
-        }
-    }
-
-    /// The base constant with exactly these exponents and label.
-    fn exact(&self, dims: &BTreeMap<String, i64>, kind: Option<&str>) -> Option<&'a BaseConst> {
-        self.consts
-            .iter()
-            .find(|b| same_dims(&b.dims, dims) && b.kind.as_deref() == kind)
-    }
-
-    /// `METRE * KILOGRAM / (SECOND * SECOND)`: the coherent unit of these
-    /// exponents, the product of base constants (axes in `[dim]` order).
-    /// A base constant whose name a constant of the module shadows (an arc
-    /// `SECOND` of `Angle`) is named by its path, `crate::base::SECOND`.
-    fn product(
-        &self,
-        dims: &BTreeMap<String, i64>,
-        fields: &[String],
-        q: &str,
-        shadowed: &BTreeSet<&str>,
-    ) -> String {
-        let path = |n: &str| {
-            if shadowed.contains(n) {
-                format!("crate::base::{n}")
-            } else {
-                n.to_string()
-            }
-        };
-        let mut num = Vec::new();
-        let mut den = Vec::new();
-        for f in fields {
-            let e = dims.get(f).copied().unwrap_or(0);
-            if e == 0 {
-                continue;
-            }
-            let name = self.axis.get(f.as_str()).unwrap_or_else(|| {
-                panic!(
-                    "quantity `{q}` has the axis `{f}`, but no [[base]] constant is its unit \
-                     (dims = {{{f} = 1}}, no kind)"
-                )
-            });
-            for _ in 0..e.unsigned_abs() {
-                if e > 0 {
-                    num.push(path(name));
-                } else {
-                    den.push(path(name));
-                }
-            }
-        }
-        let one = || {
-            self.one.unwrap_or_else(|| {
-                panic!(
-                    "quantity `{q}` needs a dimension-one [[base]] constant (dims = {{}}, no \
-                     kind; `ONE`) for its coherent unit"
-                )
-            })
-        };
-        let num = if num.is_empty() {
-            path(one())
-        } else {
-            num.join(" * ")
-        };
-        match den.len() {
-            0 => num,
-            1 => format!("{num} / {}", den[0]),
-            _ => format!("{num} / ({})", den.join(" * ")),
-        }
-    }
-}
-
-fn same_dims(a: &BTreeMap<String, i64>, b: &BTreeMap<String, i64>) -> bool {
-    let nz = |m: &BTreeMap<String, i64>| -> BTreeMap<String, i64> {
-        m.iter()
-            .filter(|(_, e)| **e != 0)
-            .map(|(k, e)| (k.clone(), *e))
-            .collect()
-    };
-    nz(a) == nz(b)
-}
-
-/// The base constants' module: the only raw numbers in the crate.
-fn gen_base_mod(system: &UnitSystem) -> String {
-    let dim = dim_ty(&system.system);
-    let qty = qty_ty(&system.system);
-    let mut s = String::new();
-    s += "/// The base constants: one per base unit, and the zeros - the only raw\n";
-    s += "/// numbers in this crate. Every other constant is defined from them with\n";
-    s += "/// the quantities' own `const` operators, and re-exported by the module of\n";
-    s += "/// its quantity (`mechanical::consts::METRE`).\n";
-    s += "pub mod base {\n";
-    let mut items = String::new();
-    for b in &system.base {
-        let ty = format!(
-            "{qty}<{}, Exact>",
-            dim_value(&b.dims, b.kind.as_deref(), &system.dim.fields, dim)
-        );
-        items += &format!("\n    /// {}\n", b.doc);
-        items += &format!(
-            "    pub const {}: {ty} = {qty}({});\n",
-            b.name,
-            exact_literal(b.value.trim())
-        );
-    }
-    let named = idents(&items);
-    let names: Vec<&str> = [dim, "Exact", "Kind", qty]
-        .into_iter()
-        .filter(|n| named.contains(*n))
-        .collect();
-    s += &format!("    use crate::{{{}}};\n", names.join(", "));
-    if items.contains("::DIMENSIONLESS") {
-        s += "    use yadc::Dimension;\n";
-    }
-    s += &items;
-    s += "}\n";
-    s
-}
-
 /// `{ Dim { m: 1, ..Dim::DIMENSIONLESS } }`, or `{ Dim::DIMENSIONLESS }`.
 fn dim_value(
     dims: &BTreeMap<String, i64>,
@@ -275,60 +154,100 @@ fn dim_value(
     }
 }
 
+
 // --- lib.rs -------------------------------------------------------------------
 
-/// The exact number every constant is counted in, written as `src/exact.rs`.
+/// The exact number a unit's size and zero are written in, as `src/exact.rs`.
 const EXACT: &str = include_str!("../templates/exact.rs");
 
-/// The prefixes, `crate::KILO`: a definition may scale by one.
-const PREFIXES: [&str; 20] = [
-    "YOTTA", "ZETTA", "EXA", "PETA", "TERA", "GIGA", "MEGA", "KILO", "HECTO", "DECA", "DECI", "CENTI",
-    "MILLI", "MICRO", "NANO", "PICO", "FEMTO", "ATTO", "ZEPTO", "YOCTO",
-];
-
-/// The SI prefixes and `Prefixed`, written as `src/prefix.rs`; `__QTY__` is
-/// the quantity type's name.
+/// The SI prefixes and `Prefixed`, written as `src/prefix.rs`.
 const PREFIX: &str = include_str!("../templates/prefix.rs");
 
-/// The scale type's one impl: a unit of its zero's type.
-const SCALE_IMPLS: &str = r#"const impl<P, S, N> Unit<P, N> for Scale<P, S>
+/// The unit type, its const parameter, and its one `Unit` impl: the bridge
+/// from numbers to quantities. `__QTY__`, `__DIM__`, `__UNIT__` and
+/// `__CONSTS__` are the system's type names.
+const UNIT: &str = r#"/// What a unit is: its size and its zero in the coherent unit of its
+/// quantity, exact, and its symbol and name. A number `n` in the unit is `n ·
+/// size + zero` coherent units: the inch is `size` 0.0254 (metres), the
+/// degree Celsius `size` 1 and `zero` 273.15 (kelvins). The const parameter
+/// of `__UNIT__`.
+#[derive_const(PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
+pub struct __CONSTS__ {
+    pub size: Exact,
+    pub zero: Exact,
+    pub symbol: &'static str,
+    pub name: &'static str,
+}
+
+/// A unit: a type of its own, its quantity's dimension `D` and its
+/// definition `C` in its const parameters (`units::Mile`, in a module's
+/// `units`), built
+/// as `Mile {}`. A unit of `__QTY__<D, N>` in any number type its size and zero
+/// convert to: `Mile {}.quantity(3.0)` builds, `Mile {}.value(d)` reads,
+/// rounding the size and zero once each, at compile time. Prints its symbol
+/// (`{}`) or name (`{:#}`).
+///
+/// An integer quantity counts in units whose size is a whole number of
+/// coherent units: its size and zero are rounded to whole numbers, so a unit
+/// smaller than one coherent unit has none in integers.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub struct __UNIT__<const D: __DIM__, const C: __CONSTS__>;
+
+/// The bridge from numbers to quantities, and back: the only place a
+/// number becomes a quantity.
+const impl<const D: __DIM__, const C: __CONSTS__, N> Unit<__QTY__<D, N>, N> for __UNIT__<D, C>
 where
-    P: Copy + [const] core::ops::Sub + [const] core::ops::Add<<P as core::ops::Sub>::Output, Output = P>,
-    S: [const] Unit<<P as core::ops::Sub>::Output, N>,
+    N: const From<Exact>
+        + [const] core::ops::Add<Output = N>
+        + [const] core::ops::Sub<Output = N>
+        + [const] core::ops::Mul<Output = N>
+        + [const] core::ops::Div<Output = N>
+        + [const] core::marker::Destruct,
 {
-    fn quantity(&self, value: N) -> P {
-        self.0 + self.1.quantity(value)
+    fn quantity(&self, value: N) -> __QTY__<D, N> {
+        __QTY__(value * const { size::<N, C>() } + const { zero::<N, C>() })
     }
-    fn value(&self, quantity: P) -> N {
-        self.1.value(quantity - self.0)
+    fn value(&self, quantity: __QTY__<D, N>) -> N {
+        (quantity.0 - const { zero::<N, C>() }) / const { size::<N, C>() }
+    }
+}
+
+/// A unit's size in `N`: a function, as a generic constant reads no field.
+const fn size<N: const From<Exact>, const C: __CONSTS__>() -> N {
+    N::from(C.size)
+}
+
+/// A unit's zero in `N`.
+const fn zero<N: const From<Exact>, const C: __CONSTS__>() -> N {
+    N::from(C.zero)
+}
+
+impl<const D: __DIM__, const C: __CONSTS__> core::fmt::Display for __UNIT__<D, C> {
+    /// `{}` the symbol, `{:#}` the name; width, fill and alignment apply.
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.pad(if f.alternate() { C.name } else { C.symbol })
     }
 }
 "#;
 
 pub fn gen_lib_rs(system: &UnitSystem) -> String {
     let mut s = String::new();
-    let dim = dim_ty(&system.system);
-    let qty = qty_ty(&system.system);
-    let dyn_ = dyn_ty(&system.system);
+    let n = Names::of(&system.system);
+    let (dim, qty, dyn_, unit) = (n.dim, n.qty, n.dyn_, n.unit);
 
     s += "//! A unit system built on yadc, generated by yadc-codegen.\n";
     s += "//!\n";
-    s += "//! - `Kind` and `";
-    s += dim;
-    s += "`: the kinds and the dimension (an exponent per base unit, and a kind).\n";
-    s += "//! - `";
-    s += qty;
-    s += "<D, N>`: a quantity whose dimension is in its type, counted in `N`. Every\n";
-    s += "//!   constant is exact (`MILE: Length<Exact>`) and composes exactly (`KILO * METRE`,\n";
-    s += "//!   `MILE / HOUR`); `From` rounds it once to a number type, and it is a unit of\n";
-    s += "//!   that type's values (`const MI: Length<f64> = MILE.into();`, then\n";
-    s += "//!   `MI.quantity(3.0)` builds and `MI.value(d)` reads).\n";
-    s += "//! - `Scale`: a zero and a step, a unit counted from a chosen zero (`CELSIUS`,\n";
-    s += "//!   `DBM`, `UNIX_SECONDS`), exact like every constant.\n";
-    s += "//! - `dynamic`: `";
-    s += dyn_;
-    s += "`, a quantity whose dimension is decided at run time.\n";
-    s += "//! - `base`: the base constants, the only raw numbers.\n";
+    s += &format!("//! - `Kind` and `{dim}`: the kinds and the dimension (an exponent per base unit, and a kind).\n");
+    s += &format!("//! - `{qty}<D, N>`: a quantity whose dimension is in its type, counted in `N`.\n");
+    s += &format!(
+        "//! - `{unit}<D, C>`: a unit, a type of its own (`<module>::units::Mile`), its\n//!   definition `C` a `{}` - an exact size and zero, a symbol and a name.\n//!   `Mile {{}}.quantity(3.0)` builds, `Mile {{}}.value(d)` reads, in any number type.\n",
+        n.consts
+    );
+    s += &format!(
+        "//! - `dynamic`: `{dyn_}` and `{}`, a quantity and a unit of a dimension decided\n//!   at run time; and each module's unit enums, a choice among its units.\n",
+        n.dyn_unit
+    );
     s += &format!(
         "//! - One module per family, each a Cargo feature: {}; and `dimensionless`,\n//!   always present.\n",
         system
@@ -341,7 +260,10 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     );
     s += "#![cfg_attr(not(feature = \"std\"), no_std)]\n";
     s += "#![feature(generic_const_exprs)]\n";
-    s += "#![feature(min_adt_const_params)]\n";
+    // A unit's definition is a struct with a `&'static str`, as a const
+    // parameter.
+    s += "#![feature(adt_const_params)]\n";
+    s += "#![feature(unsized_const_params)]\n";
     s += "#![feature(const_trait_impl)]\n";
     s += "#![feature(const_cmp)]\n";
     s += "#![feature(const_default)]\n";
@@ -355,9 +277,6 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "#![allow(clippy::excessive_precision)]\n";
     s += "#![allow(clippy::approx_constant)]\n";
     s += "\n";
-    // `Kind` and the dimension are const generic parameter types: they derive
-    // `ConstParamTy` (and the const `PartialEq` it builds on) here; yadc's
-    // derive writes the algebra.
     s += "use core::marker::ConstParamTy;\n";
     s += "\n";
     s += "pub use yadc::{Dimension, Quantity, Unit};\n";
@@ -367,20 +286,6 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s += "pub mod prefix;\n";
     s += "pub use prefix::*;\n";
     s += "\n";
-    s += "/// An exact quantity counted in a number type: its number rounded once, to\n";
-    s += "/// nearest (`let d: Length<f64> = INCH.into();`); in a `const`, by the\n";
-    s += "/// compiler. Any `num_traits::Num` that converts from `Exact` - every\n";
-    s += "/// primitive, and a number type of your own. `Exact` is not `Num`: it is\n";
-    s += "/// what the others are counted from.\n";
-    s += &format!(
-        "const impl<const D: {dim}, N> From<{qty}<D, Exact>> for {qty}<D, N>\nwhere\n    N: yadc::num_traits::Num + [const] From<Exact>,\n{{\n    fn from(q: {qty}<D, Exact>) -> Self {{\n        {qty}(N::from(q.0))\n    }}\n}}\n\n"
-    );
-    s += "/// An exact scale counted in a number type: its zero and its step, each\n";
-    s += "/// rounded once (`let c: Scale<ThermodynamicTemperature<f64>, _> =\n";
-    s += "/// CELSIUS.into();`).\n";
-    s += &format!(
-        "const impl<const P: {dim}, const S: {dim}, N> From<Scale<{qty}<P, Exact>, {qty}<S, Exact>>> for Scale<{qty}<P, N>, {qty}<S, N>>\nwhere\n    N: yadc::num_traits::Num + [const] From<Exact>,\n{{\n    fn from(s: Scale<{qty}<P, Exact>, {qty}<S, Exact>>) -> Self {{\n        Scale({qty}(N::from(s.0.0)), {qty}(N::from(s.1.0)))\n    }}\n}}\n\n"
-    );
 
     validate_kind(&system.kind);
     s += "/// The kinds: how a quantity behaves under `+` and `-`, beside its\n";
@@ -452,26 +357,21 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
 
 
     s += "/// A quantity whose dimension is in its type, counted in `N`: every use\n";
-    s += "/// says which (`Pressure<f64>`, `Pressure<Exact>`). Its number is private to\n";
-    s += "/// this crate: the base constants (`base::METRE`) are the only raw numbers,\n";
-    s += "/// and everyone else builds and reads through units - every quantity is a\n";
-    s += "/// unit of its own number type (`MI.quantity(3.0)` builds, `MI.value(d)`\n";
-    s += "/// reads, for `MI: Length<f64>`), and so is every scale, a zero and a step,\n";
-    s += "/// and every unit enum's value.\n";
+    s += "/// says which (`Pressure<f64>`, `Pressure<f32>`). Its number is private to\n";
+    s += &format!("/// this crate: a number becomes a quantity only through a unit (`{unit}`'s\n");
+    s += "/// `Unit` impl is the one place), and a quantity value is a unit of its own\n";
+    s += "/// kind (`q.quantity(n)` is `q * n`, `q.value(x)` is `x / q`).\n";
     s += "///\n";
     s += "/// It serializes transparently as just its number: the dimension `D` is the\n";
     s += "/// deserialization target's - schema-trusted, nothing on the wire.\n";
     s += "#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]\n";
     s += "#[cfg_attr(feature = \"serde\", derive(serde::Serialize, serde::Deserialize))]\n";
     s += &format!("pub struct {qty}<const D: {dim}, N>(N);\n\n");
-    s += "/// A scale: a zero and a step, `Scale(zero, step)`. A unit of its zero's type:\n";
-    s += "/// `n` is `zero + n · step`, and a value reads `(value - zero) / step`. °C is\n";
-    s += "/// `Scale(ICE_POINT, KELVIN)`; a scale made at run time is the same expression.\n";
-    s += "#[derive(Copy, Clone, PartialEq, Debug)]\n";
-    s += "pub struct Scale<P, S>(pub P, pub S);\n\n";
-    s += SCALE_IMPLS;
-
-    s += &gen_base_mod(system);
+    s += &UNIT
+        .replace("__QTY__", qty)
+        .replace("__DIM__", dim)
+        .replace("__UNIT__", unit)
+        .replace("__CONSTS__", &n.consts);
     s += "\n";
     s += "pub mod dimensionless;\n";
     s += "pub mod dynamic;\n";
@@ -511,12 +411,11 @@ pub fn gen_lib_rs(system: &UnitSystem) -> String {
     s
 }
 
-/// `dynamic/mod.rs`: the dynamic type, and the modules of unit enums
-/// (`dynamic::mechanical::LengthUnit`), each behind its family's feature.
+/// `dynamic/mod.rs`: the dynamic quantity and unit, and the modules of unit
+/// enums (`dynamic::mechanical::LengthUnit`), each behind its family's
+/// feature.
 pub fn gen_dynamic_rs(system: &UnitSystem, unit_mods: &[(String, Option<String>)]) -> String {
-    let dim = dim_ty(&system.system);
-    let qty = qty_ty(&system.system);
-    let dyn_ = dyn_ty(&system.system);
+    let n = Names::of(&system.system);
     // Which of the dynamic type's results may be missing: with an affine or
     // a log kind, a product too (a point or a level has none).
     let products_doc = match (&system.kind.affine, &system.kind.log) {
@@ -534,9 +433,12 @@ pub fn gen_dynamic_rs(system: &UnitSystem, unit_mods: &[(String, Option<String>)
     };
     let mut s = String::new();
     s += "//! The dynamic half: what is chosen at run time - a quantity's dimension\n";
-    s += &format!("//! (`{dyn_}`), and its unit (each module's unit enums,\n");
-    s += "//! `dynamic::mechanical::LengthUnit`).\n\n";
-    s += &format!("use crate::{{{dim}, {qty}}};\nuse yadc::Dimension;\n\n");
+    s += &format!("//! (`{}`), a unit of any dimension (`{}`), and a choice among a\n", n.dyn_, n.dyn_unit);
+    s += "//! quantity's units (each module's unit enums, `dynamic::mechanical::LengthUnit`).\n\n";
+    s += &format!(
+        "use crate::{{{}, {}, {}, {}}};\nuse yadc::{{Dimension, Unit}};\n\n",
+        n.dim, n.qty, n.unit, n.consts
+    );
     for (m, feature) in unit_mods {
         if let Some(f) = feature {
             s += &format!("#[cfg(feature = \"{f}\")]\n");
@@ -548,24 +450,25 @@ pub fn gen_dynamic_rs(system: &UnitSystem, unit_mods: &[(String, Option<String>)
     }
     s += &DYNAMIC
         .replace("__PRODUCTS_DOC__", &products_doc)
-        .replace("__DYN__", dyn_)
-        .replace("__QTY__", qty)
-        .replace("__DIM__", dim);
+        .replace("__DYNUNIT__", &n.dyn_unit)
+        .replace("__DYN__", n.dyn_)
+        .replace("__QTY__", n.qty)
+        .replace("__DIM__", n.dim)
+        .replace("__UNIT__", n.unit)
+        .replace("__CONSTS__", &n.consts);
     s
 }
 
-/// The dynamic type, as a user would write it with dynamickit: the dynamic
-/// version of the static quantity (and of a bare `f64`, the same value as a
-/// dimensionless quantity), every operator and method lifted from the
-/// fields' own. `__DYN__`, `__QTY__` and `__DIM__` are the dynamic, static and
-/// dimension type names.
+/// The dynamic types, as a user would write them with dynamickit: the
+/// dynamic version of the static quantity (and of a bare `f64`, the same
+/// value as a dimensionless quantity), every operator and method lifted from
+/// the fields' own; and of the static unit.
 const DYNAMIC: &str = r#"/// A quantity of any dimension, decided at run time: the dynamic version of
 /// `__QTY__<D, f64>`, built with dynamickit. Converting (`From`) moves the number into
 /// `value` and records `D` in `dim`; `TryFrom<__DYN__> for __QTY__<D, f64>` is the
 /// checked way back (the error hands the original back). A bare `f64` is the
-/// same value as a dimensionless quantity (`shared`). Numbers still go through
-/// units, by way of the static quantity: `__DYN__::from(LengthUnit::Mile.quantity(3.0))`,
-/// then `Mass::<f64>::try_from(d).map(|m| MassUnit::Kilogram.value(m))`.
+/// same value as a dimensionless quantity (`shared`). Numbers go through
+/// units: a `__DYNUNIT__` reads and builds it directly.
 ///
 /// Its arithmetic is every field's own: the dimension's operator on `dim`, the
 /// number's on `value`. __PRODUCTS_DOC__ Values of one dimension are ordered by number,
@@ -591,6 +494,42 @@ const DYNAMIC: &str = r#"/// A quantity of any dimension, decided at run time: t
 pub struct __DYN__ {
     pub(crate) dim: __DIM__,
     pub(crate) value: f64,
+}
+
+/// A unit of any dimension, decided at run time: the dynamic version of
+/// `__UNIT__<D, C>`, built with dynamickit - `From` records `D` and `C`,
+/// `TryFrom<__DYNUNIT__> for __UNIT__<D, C>` is the checked way back. A
+/// module's unit enum converts to one (`From<LengthUnit>`).
+///
+/// A unit of `Option<__DYN__>` counted in `Option<f64>`, the way dynamic
+/// arithmetic results are: `quantity` builds a quantity of its dimension,
+/// and `value` reads one of its dimension - `None` for another, or for
+/// `None`. So a reading takes a calculation's result as it comes:
+/// `unit.value(a * b)`.
+#[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
+#[dynamic(__UNIT__<const D: __DIM__, const C: __CONSTS__> => { dim: D, consts: C })]
+pub struct __DYNUNIT__ {
+    pub dim: __DIM__,
+    pub consts: __CONSTS__,
+}
+
+impl Unit<Option<__DYN__>, Option<f64>> for __DYNUNIT__ {
+    fn quantity(&self, value: Option<f64>) -> Option<__DYN__> {
+        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
+        Some(__DYN__ { dim: self.dim, value: value? * size + zero })
+    }
+    fn value(&self, quantity: Option<__DYN__>) -> Option<f64> {
+        let q = quantity?;
+        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
+        (q.dim == self.dim).then(|| (q.value - zero) / size)
+    }
+}
+
+impl core::fmt::Display for __DYNUNIT__ {
+    /// `{}` the symbol, `{:#}` the name; width, fill and alignment apply.
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.pad(if f.alternate() { self.consts.name } else { self.consts.symbol })
+    }
 }
 
 "#;
@@ -673,130 +612,6 @@ fn validate_kind(kind: &KindConfig) {
     }
 }
 
-// --- Unit constants -------------------------------------------------------------
-//
-// A module's `consts` holds a constant per multiple (`INCH = 0.0254 * METRE`),
-// the quantities' extra constants (`ICE_POINT`, and a scale,
-// `CELSIUS = Scale(ICE_POINT, KELVIN)`), and re-exports the base constants of
-// its quantities. The unit enums below name them.
-
-/// `KilowattHour` -> `KILOWATT_HOUR`, `Lithium7GyromagneticRatio` ->
-/// `LITHIUM7_GYROMAGNETIC_RATIO`: an underscore before every uppercase letter
-/// that follows a lowercase letter or a digit, or that starts a new word after
-/// an uppercase run (`SIUnit` -> `SI_UNIT`).
-fn screaming_snake(ident: &str) -> String {
-    let chars: Vec<char> = ident.chars().collect();
-    let mut out = String::new();
-    for (i, &c) in chars.iter().enumerate() {
-        if i > 0 && c.is_uppercase() {
-            let prev = chars[i - 1];
-            let next_lower = chars.get(i + 1).is_some_and(|n| n.is_lowercase());
-            if prev.is_lowercase() || prev.is_ascii_digit() || (prev.is_uppercase() && next_lower) {
-                out.push('_');
-            }
-        }
-        out.extend(c.to_uppercase());
-    }
-    out
-}
-
-/// One quantity of a module, as the constants and units see it.
-pub(crate) struct QuantityRef<'a> {
-    name: &'a str,
-    kind: Option<&'a str>,
-    dims: &'a BTreeMap<String, i64>,
-    consts: &'a [ExtraConst],
-    /// The units, each variant once.
-    units: Vec<&'a UnitDef>,
-}
-
-impl<'a> QuantityRef<'a> {
-    fn new(
-        name: &'a str,
-        kind: Option<&'a str>,
-        dims: &'a BTreeMap<String, i64>,
-        consts: &'a [ExtraConst],
-        units: &'a [UnitDef],
-    ) -> Self {
-        let mut seen = HashSet::new();
-        let units = units.iter().filter(|u| seen.insert(u.variant.as_str())).collect();
-        QuantityRef {
-            name,
-            kind,
-            dims,
-            consts,
-            units,
-        }
-    }
-}
-
-/// What a constant is.
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Role {
-    /// A multiple's constant (`KILOMETRE`).
-    Multiple,
-    /// A quantity's extra constant, verbatim (`ICE_POINT`).
-    Extra,
-}
-
-/// One constant of a module, before collision renaming.
-struct UnitConst<'a> {
-    /// The quantity it belongs to (the name prefix on a clash).
-    owner: &'a str,
-    /// Its type: the owner.
-    ty: String,
-    /// Its name before collision renaming.
-    base_name: String,
-    /// A fixed name: never prefixed (an extra constant's).
-    fixed: bool,
-    /// The unit it was made for, if any.
-    unit: Option<&'a UnitDef>,
-    role: Role,
-    /// Its size in coherent units (multiples).
-    multiplier: Option<&'a str>,
-    /// The verbatim value (extra constants).
-    value: Option<&'a str>,
-    doc: String,
-}
-
-/// What a unit's enum variant names: `by = KILOMETRE`, `by = CELSIUS`.
-enum VariantSpec {
-    /// The constant at this index.
-    Const(usize),
-    /// A unit value named in the TOML.
-    By(String),
-    /// No constant: its size times the coherent unit, written out.
-    Inline,
-}
-
-/// A module's constants, named; and per unit what its variant names.
-pub(crate) struct ModuleUnits<'a> {
-    consts: Vec<UnitConst<'a>>,
-    names: Vec<String>,
-    variants: BTreeMap<(&'a str, &'a str), VariantSpec>,
-    /// Per quantity, the index of its coherent constant (the first multiple
-    /// of size 1).
-    coherent: BTreeMap<&'a str, usize>,
-}
-
-fn is_one(m: &str) -> bool {
-    m.trim().parse::<f64>() == Ok(1.0)
-}
-
-/// `C * m`: the unit scaled by its factor, written exactly (`METRE *
-/// Exact::dec(254, -4)`); a factor that is not a single literal is
-/// parenthesised.
-fn scaled(m: &str, c: &str) -> String {
-    let m = m.trim();
-    if is_one(m) {
-        c.to_string()
-    } else if m.parse::<f64>().is_ok() {
-        format!("{c} * {}", exact_literals(m))
-    } else {
-        format!("{c} * ({})", exact_literals(m))
-    }
-}
-
 /// An expression with its number literals written exactly, as `Exact`s:
 /// `273.15` is `Exact::dec(27315, -2)`, `1000.0` is `Exact::int(1000)`, and
 /// `core::f64::consts::PI` is `Exact::PI`. Everything else is kept as written.
@@ -857,418 +672,155 @@ fn exact_literal(lit: &str) -> String {
     }
 }
 
-/// A constant's type, `Q` or `Scale<P, S>` from the TOML, counted in `n`:
-/// `Length<n>`, `Scale<P<n>, S<n>>`.
-fn counted_ty(ty: &str, n: &str, quantities: &[QuantityRef<'_>]) -> String {
-    let of = |name: &str| -> String {
-        assert!(
-            quantities.iter().any(|q| q.name == name),
-            "constant type `{name}` is not a quantity of this module"
-        );
-        format!("{name}<{n}>")
-    };
-    match ty.strip_prefix("Scale<").and_then(|t| t.strip_suffix('>')) {
-        Some(inner) => {
-            let parts: Vec<String> = inner.split(',').map(|p| of(p.trim())).collect();
-            format!("Scale<{}>", parts.join(", "))
-        }
-        None => of(ty),
+// --- Unit types -----------------------------------------------------------------
+
+/// One quantity of a module, as its units see it.
+struct QuantityRef<'a> {
+    name: &'a str,
+    kind: Option<&'a str>,
+    dims: &'a BTreeMap<String, i64>,
+    /// The units, each variant once.
+    units: Vec<&'a UnitDef>,
+}
+
+impl<'a> QuantityRef<'a> {
+    fn new(name: &'a str, kind: Option<&'a str>, dims: &'a BTreeMap<String, i64>, units: &'a [UnitDef]) -> Self {
+        let mut seen = HashSet::new();
+        let units = units.iter().filter(|u| seen.insert(u.variant.as_str())).collect();
+        QuantityRef { name, kind, dims, units }
     }
 }
 
-/// An exact unit value counted in the unit enums' number type `n`:
-/// `Q::<N>::from(x)`, `Scale::<P<N>, S<N>>::from(x)`. Generic, with the
-/// bounds that takes: `N` converts from `Exact` (so each quantity and scale
-/// does, by the blanket `From`s), and the result is a unit of `of`
-/// (`Q<N>: [const] Unit<of, N>`). A bound on `N`, not one per quantity:
-/// two quantities' bounds look alike to the trait solver before their
-/// dimensions are evaluated.
-fn counted_in_n(
-    ty: &str,
-    x: &str,
-    of: &str,
-    konst: &str,
-    qualified: bool,
-    quantities: &[QuantityRef<'_>],
-    bounds: &mut BTreeSet<String>,
-) -> String {
-    for name in ty.trim_start_matches("Scale<").trim_end_matches('>').split(',') {
-        assert!(
-            quantities.iter().any(|q| q.name == name.trim()),
-            "constant type `{name}` is not a quantity of this module"
-        );
-    }
-    // `Q<N>` -> `Q::<N>`, `Scale<P<N>, S<N>>` -> `Scale::<P<N>, S<N>>`; or
-    // the impl named in full (`<Q<N> as From<Q<Exact>>>`), where a bound
-    // `Q<N>: From<P<N>>` would otherwise be taken for it.
-    let conv = |t: &str, x: &str| -> String {
-        let x = x.strip_prefix('(').and_then(|r| r.strip_suffix(')')).filter(|r| balanced(r)).unwrap_or(x);
-        if qualified {
-            let exact = t.replace("<N>", "<Exact>");
-            return format!("<{t} as From<{exact}>>::from({x})");
-        }
-        let (head, rest) = t.split_once('<').expect("a type with its number");
-        format!("{head}::<{rest}::from({x})")
-    };
-    let unit_ty = match ty.strip_prefix("Scale<").and_then(|t| t.strip_suffix('>')) {
-        Some(inner) => {
-            let parts: Vec<String> = inner.split(',').map(|p| format!("{}<N>", p.trim())).collect();
-            format!("Scale<{}>", parts.join(", "))
-        }
-        None => format!("{ty}<N>"),
-    };
-    let expr = conv(&unit_ty, x);
-    let destruct = if konst.is_empty() { String::new() } else { " + [const] Destruct".into() };
-    bounds.insert(format!("{unit_ty}: {konst}Unit<{of}, N>{destruct}"));
-    expr
-}
-
-/// Whether every parenthesis opened is closed, in order.
-fn balanced(s: &str) -> bool {
-    let mut depth = 0i32;
-    for c in s.chars() {
-        depth += match c {
-            '(' => 1,
-            ')' => -1,
-            _ => 0,
-        };
-        if depth < 0 {
-            return false;
-        }
-    }
-    depth == 0
-}
-
-/// Plan a module's constants and unit variants.
-pub(crate) fn plan_module<'a>(
-    quantities: &[QuantityRef<'a>],
-    affine: Option<&str>,
-) -> ModuleUnits<'a> {
-    let mut consts: Vec<UnitConst<'a>> = Vec::new();
-    let mut coherent = BTreeMap::new();
-    // Pass 1: the multiples (each quantity's coherent unit first), so the
-    // other units can name them.
+/// Each unit's type name in a module, by quantity and variant: its `t`, or
+/// its variant - prefixed with its quantity where two quantities' units
+/// share one (`TemperatureIntervalKelvin`), so the result does not depend on
+/// declaration order. A `t` is never prefixed.
+fn unit_type_names<'a>(quantities: &[QuantityRef<'a>]) -> BTreeMap<(&'a str, &'a str), String> {
+    let base = |u: &UnitDef| u.type_name.clone().unwrap_or_else(|| u.variant.clone());
+    let mut count: BTreeMap<String, usize> = BTreeMap::new();
     for q in quantities {
-        let mut first = None;
-        for &unit in &q.units {
-            if !unit.has_constant() {
-                continue;
-            }
-            let m = unit.multiplier.as_deref().unwrap_or_else(|| {
-                panic!(
-                    "unit `{}` of `{}` has no size: give it `m` (a multiple) or `by` (the unit \
-                     value it is: another constant, a scale)",
-                    unit.variant, q.name
-                )
-            });
-            let base_name = unit
-                .constant_name()
-                .map_or_else(|| screaming_snake(&unit.variant), str::to_string);
-            consts.push(UnitConst {
-                owner: q.name,
-                ty: q.name.to_string(),
-                base_name,
-                fixed: unit.constant_name().is_some(),
-                unit: Some(unit),
-                role: Role::Multiple,
-                multiplier: Some(m),
-                value: None,
-                doc: format!(
-                    "One {}, as {} `{}`.",
-                    unit_label(unit),
-                    article(q.name),
-                    q.name
-                ),
-            });
-            if first.is_none() && is_one(m) {
-                first = Some(consts.len() - 1);
-            }
-        }
-        if let Some(i) = first {
-            coherent.insert(q.name, i);
-        }
-        for c in q.consts {
-            consts.push(UnitConst {
-                owner: q.name,
-                ty: c.ty.clone().unwrap_or_else(|| q.name.to_string()),
-                base_name: c.name.clone(),
-                fixed: true,
-                unit: None,
-                role: Role::Extra,
-                multiplier: None,
-                value: Some(&c.value),
-                doc: c.doc.clone(),
-            });
+        for u in &q.units {
+            *count.entry(base(u)).or_default() += 1;
         }
     }
-    // Pass 2: what each unit's variant names.
-    let mut variants = BTreeMap::new();
-    for q in quantities {
-        for &unit in &q.units {
-            let spec = if let Some(by) = unit.by.as_deref() {
-                VariantSpec::By(by.to_string())
-            } else if !unit.has_constant() {
-                VariantSpec::Inline
-            } else {
-                let i = consts
-                    .iter()
-                    .position(|c| {
-                        c.role == Role::Multiple
-                            && c.owner == q.name
-                            && c.unit.is_some_and(|u| u.variant == unit.variant)
-                    })
-                    .expect("planned in pass 1");
-                VariantSpec::Const(i)
-            };
-            if q.kind.is_some() && q.kind == affine && !matches!(spec, VariantSpec::By(_)) {
-                panic!(
-                    "unit `{}` of the affine quantity `{}` is not a scale: a point has no \
-                     \"one of it\" - give it `by`, a scale constant (a zero and a step)",
-                    unit.variant, q.name
-                );
-            }
-            variants.insert((q.name, unit.variant.as_str()), spec);
-        }
-    }
-    let names = unit_const_names(&consts);
-    ModuleUnits {
-        consts,
-        names,
-        variants,
-        coherent,
-    }
-}
-
-/// Final names of one module's constants, by index. A name two of them share
-/// is prefixed with the owning quantity for *every* entry that has it
-/// (`TIME_...`, `ANGLE_...`), so the result does not depend on declaration
-/// order. A name given in the TOML is never prefixed.
-fn unit_const_names(consts: &[UnitConst<'_>]) -> Vec<String> {
-    let mut count: BTreeMap<&str, usize> = BTreeMap::new();
-    for c in consts {
-        *count.entry(c.base_name.as_str()).or_default() += 1;
-    }
-    let names: Vec<String> = consts
-        .iter()
-        .map(|c| {
-            if count[c.base_name.as_str()] > 1 && !c.fixed {
-                format!("{}_{}", screaming_snake(c.owner), c.base_name)
-            } else {
-                c.base_name.clone()
-            }
-        })
-        .collect();
+    let mut names = BTreeMap::new();
     let mut seen = HashSet::new();
-    for n in &names {
-        assert!(
-            seen.insert(n),
-            "generated constant name `{n}` is still ambiguous after prefixing"
-        );
+    for q in quantities {
+        for u in &q.units {
+            let b = base(u);
+            let name = if count[&b] > 1 && u.type_name.is_none() { format!("{}{b}", q.name) } else { b };
+            assert!(seen.insert(name.clone()), "unit type name `{name}` is still ambiguous after prefixing: give one a `t`");
+            names.insert((q.name, u.variant.as_str()), name);
+        }
     }
     names
 }
 
-/// `` `Kilometre` (`km`) ``, or just `` `Ratio` `` for a unit with no printable
-/// symbol. The symbol is code, so a UCUM code (`[pi]`) is no link.
-fn unit_label(unit: &UnitDef) -> String {
-    let symbol = unit.symbol.replace('\n', " ");
-    if symbol.is_empty() || symbol.contains('`') {
-        format!("`{}`", unit.variant)
-    } else {
-        format!("`{}` (`{symbol}`)", unit.variant)
+/// Whether a quantity is of dimension one, with the plain label.
+fn is_plain(q: &QuantityRef<'_>) -> bool {
+    q.kind.is_none() && q.dims.values().all(|e| *e == 0)
+}
+
+/// A quantity's dimension as a const argument: its constant (`LENGTH`), or
+/// `{ Dim::DIMENSIONLESS }`.
+fn dim_arg(q: &QuantityRef<'_>, dim: &str) -> String {
+    if is_plain(q) { format!("{{ {dim}::DIMENSIONLESS }}") } else { screaming_snake(q.name) }
+}
+
+/// `KilowattHour` -> `KILOWATT_HOUR`: an underscore before every uppercase
+/// letter that follows a lowercase letter or a digit, or that starts a new
+/// word after an uppercase run.
+fn screaming_snake(ident: &str) -> String {
+    let chars: Vec<char> = ident.chars().collect();
+    let mut out = String::new();
+    for (i, &c) in chars.iter().enumerate() {
+        if i > 0 && c.is_uppercase() {
+            let prev = chars[i - 1];
+            let next_lower = chars.get(i + 1).is_some_and(|n| n.is_lowercase());
+            if prev.is_lowercase() || prev.is_ascii_digit() || (prev.is_uppercase() && next_lower) {
+                out.push('_');
+            }
+        }
+        out.extend(c.to_uppercase());
     }
+    out
 }
 
-fn article(word: &str) -> &'static str {
-    if word.starts_with(['A', 'E', 'I', 'O', 'U']) {
-        "an"
-    } else {
-        "a"
-    }
+/// `kilometres` -> `Kilometres`.
+fn capitalized(s: &str) -> String {
+    let mut c = s.chars();
+    c.next().map_or_else(String::new, |f| f.to_uppercase().chain(c).collect())
 }
 
-/// The identifiers in an expression.
-fn idents(expr: &str) -> BTreeSet<String> {
-    expr.split(|c: char| !(c.is_alphanumeric() || c == '_'))
-        .filter(|w| {
-            w.chars()
-                .next()
-                .is_some_and(|c| c.is_alphabetic() || c == '_')
-        })
-        .map(str::to_string)
-        .collect()
+fn is_one(m: &str) -> bool {
+    m.trim().parse::<f64>() == Ok(1.0)
 }
 
-/// A module's constants and imports, rendered.
-struct Rendered {
-    consts: String,
-    /// The base constants re-exported by `consts` (so in scope through
-    /// `use consts::*`).
-    reexported: BTreeSet<String>,
-    /// Per quantity, its coherent unit as a factor: `KILOGRAM / (METRE *
-    /// METRE * METRE)` where it has no constant.
-    coherent: BTreeMap<String, String>,
-}
-
-/// `pub mod consts { .. }`: the base constants of the module's quantities
-/// (re-exported), then each constant of the module, defined from them.
-fn gen_consts_mod(
-    plan: &ModuleUnits<'_>,
-    quantities: &[QuantityRef<'_>],
-    base: &Base<'_>,
-    fields: &[String],
-) -> Rendered {
-    // Base constants of this module's quantities.
-    let mut reexport: Vec<&BaseConst> = Vec::new();
-    for b in base.consts {
-        if quantities
-            .iter()
-            .any(|q| same_dims(&b.dims, q.dims) && b.kind.as_deref() == q.kind)
-        {
-            reexport.push(b);
+/// `pub mod units { .. }`: a type per unit of the module's quantities, its
+/// size and zero written exactly.
+fn gen_units_mod(quantities: &[QuantityRef<'_>], names: &BTreeMap<(&str, &str), String>, system: &UnitSystem) -> String {
+    let n = Names::of(&system.system);
+    let mut items = String::new();
+    for q in quantities {
+        let dim = dim_arg(q, n.dim);
+        for u in &q.units {
+            let size = exact_literals(&u.multiplier);
+            let zero = u.zero.as_deref().map_or_else(|| "Exact::ZERO".to_string(), exact_literals);
+            let in_coherent = match &u.zero {
+                Some(z) => format!("`n · {} + {}`", u.multiplier.trim(), z.trim()),
+                None => format!("`n · {}`", u.multiplier.trim()),
+            };
+            let label = if u.long.is_empty() { u.variant.clone() } else { capitalized(&u.long) };
+            let symbol = u.symbol.replace('\n', " ");
+            let symbol = if symbol.is_empty() || symbol.contains('`') { String::new() } else { format!(" (`{symbol}`)") };
+            items += &format!(
+                "\n    /// {label}{symbol}, a unit of `{}`: `n` of them is {in_coherent} coherent units.\n",
+                q.name
+            );
+            items += &format!(
+                "    pub type {} = {}<{dim}, {{ {} {{ size: {size}, zero: {zero}, symbol: \"{}\", name: \"{}\" }} }}>;\n",
+                names[&(q.name, u.variant.as_str())],
+                n.unit,
+                n.consts,
+                rust_str(&u.symbol),
+                rust_str(&u.long)
+            );
         }
     }
-    // The module's coherent constants that *are* a base constant of the same
-    // name (`METRE` of `Length`): re-exported, not defined.
-    let itself: BTreeSet<&str> = quantities
-        .iter()
-        .filter_map(|q| {
-            let i = *plan.coherent.get(q.name)?;
-            let b = base.exact(q.dims, q.kind)?;
-            (b.name == plan.names[i]).then_some(b.name.as_str())
-        })
-        .collect();
-    // A base constant another module constant shadows is not re-exported.
-    reexport.retain(|b| itself.contains(b.name.as_str()) || !plan.names.contains(&b.name));
-    let reexported: BTreeSet<String> = reexport.iter().map(|b| b.name.clone()).collect();
-    let mut items = String::new();
-    let mut used: BTreeSet<String> = BTreeSet::new();
-    let shadowed: BTreeSet<&str> = plan
-        .names
-        .iter()
-        .map(String::as_str)
-        .filter(|n| !itself.contains(n))
-        .collect();
-    // Each quantity's coherent unit as a factor: its constant, else a base
-    // constant, else their product.
-    let mut coherent: BTreeMap<String, String> = BTreeMap::new();
-    for q in quantities {
-        let r = match plan.coherent.get(q.name) {
-            Some(&k) => plan.names[k].clone(),
-            None => {
-                let e = match base.exact(q.dims, q.kind) {
-                    Some(b) => qualified(&b.name, &shadowed),
-                    None => coherent_expr(q, base, fields, &shadowed),
-                };
-                if e.contains(' ') || e.contains('.') { format!("({e})") } else { e }
-            }
-        };
-        coherent.insert(q.name.to_string(), r);
-    }
-    for (i, c) in plan.consts.iter().enumerate() {
-        let name = &plan.names[i];
-        let q = quantities.iter().find(|q| q.name == c.owner).unwrap();
-        let expr = match c.role {
-            Role::Extra => exact_literals(c.value.unwrap()),
-            Role::Multiple if plan.coherent.get(q.name) == Some(&i) => {
-                // The coherent unit: a base constant, or their product.
-                match base.exact(q.dims, q.kind) {
-                    Some(b) if b.name == *name => continue, // re-exported below
-                    Some(b) => qualified(&b.name, &shadowed),
-                    None => coherent_expr(q, base, fields, &shadowed),
-                }
-            }
-            Role::Multiple => scaled(c.multiplier.unwrap(), &coherent[q.name]),
-        };
-        used.extend(idents(&expr));
-        items += &format!("\n    /// {}\n", c.doc);
-        let ty = counted_ty(&c.ty, "Exact", quantities);
-        items += &format!("    pub const {name}: {ty} = {expr};\n");
-    }
-    if items.is_empty() && reexport.is_empty() {
-        return Rendered {
-            consts: String::new(),
-            reexported,
-            coherent,
-        };
+    if items.is_empty() {
+        return String::new();
     }
     let mut s = String::new();
-    s += "/// The constants of this module: the base constants of its quantities\n";
-    s += "/// (re-exported), then one per named unit, each defined exactly from them\n";
-    s += "/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:\n";
-    s += "/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,\n";
-    s += "/// once, where it is written - in a `const`, by the compiler:\n";
-    s += "/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.\n";
-    s += "pub mod consts {\n";
-    s += "    use super::*;\n";
-    let local: BTreeSet<&str> = plan.names.iter().map(String::as_str).collect();
-    let from_base: Vec<&str> = base
-        .consts
-        .iter()
-        .map(|b| b.name.as_str())
-        .filter(|n| used.contains(*n) && !reexported.contains(*n) && !local.contains(n))
-        .collect();
-    if !from_base.is_empty() {
-        s += &format!("    use crate::base::{{{}}};\n", from_base.join(", "));
+    s += "/// The units of this module's quantities: a type each, its size and zero\n";
+    s += "/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).\n";
+    s += "pub mod units {\n";
+    let mut uses = vec!["Exact", n.unit, n.consts.as_str()];
+    if items.contains("::DIMENSIONLESS") {
+        uses.push(n.dim);
     }
-    for b in &reexport {
-        s += &format!("\n    /// {}\n", b.doc);
-        s += &format!("    pub use crate::base::{};\n", b.name);
+    uses.sort_unstable();
+    if quantities.iter().any(|q| !is_plain(q)) {
+        s += "    use super::*;\n";
+    }
+    s += &format!("    use crate::{{{}}};\n", uses.join(", "));
+    if items.contains("::DIMENSIONLESS") {
+        s += "    use yadc::Dimension;\n";
     }
     s += &items;
     s += "}\n";
-    Rendered {
-        consts: s,
-        reexported,
-        coherent,
-    }
-}
-
-/// `crate::base::NAME` where a module constant shadows `NAME`.
-fn qualified(name: &str, shadowed: &BTreeSet<&str>) -> String {
-    if shadowed.contains(name) {
-        format!("crate::base::{name}")
-    } else {
-        name.to_string()
-    }
-}
-
-/// The coherent unit of a quantity with no base constant of its own: the
-/// product of base constants. A product has the plain label, so a quantity
-/// with a label takes its coherent unit from a `[[base]]` constant.
-fn coherent_expr(
-    q: &QuantityRef<'_>,
-    base: &Base<'_>,
-    fields: &[String],
-    shadowed: &BTreeSet<&str>,
-) -> String {
-    if let Some(kind) = q.kind {
-        panic!(
-            "quantity `{}` has the label `{kind}`: no product of base constants has a label, so \
-             its coherent unit must be a `[[base]]` constant with the same `dims` and `kind`",
-            q.name
-        );
-    }
-    base.product(q.dims, fields, q.name, shadowed)
+    s
 }
 
 // --- dimensionless.rs --------------------------------------------------------
 
 pub fn gen_dimensionless_rs(system: &UnitSystem) -> Module {
-    let dim = dim_ty(&system.system);
-    let qty = qty_ty(&system.system);
+    let n = Names::of(&system.system);
     let no_dims = BTreeMap::new();
-    let quantities = [QuantityRef::new(
-        "Dimensionless",
-        None,
-        &no_dims,
-        &[],
-        &system.dimensionless.units,
-    )];
+    let quantities = [QuantityRef::new("Dimensionless", None, &no_dims, &system.dimensionless.units)];
     gen_module(
         &quantities,
         system,
-        &format!("pub type Dimensionless<N> = {qty}<{{ {dim}::DIMENSIONLESS }}, N>;\n"),
+        &format!("pub type Dimensionless<N> = {}<{{ {}::DIMENSIONLESS }}, N>;\n", n.qty, n.dim),
         "//! Plain numbers: ratios and their units.\n",
         "dimensionless",
     )
@@ -1277,128 +829,84 @@ pub fn gen_dimensionless_rs(system: &UnitSystem) -> Module {
 // --- <family>.rs -------------------------------------------------------------
 
 pub fn gen_family_rs(family: &FamilyDef, system: &UnitSystem) -> Module {
-    let dim = dim_ty(&system.system);
-    let qty = qty_ty(&system.system);
+    let n = Names::of(&system.system);
     let quantities: Vec<QuantityRef<'_>> = family
         .quantity
         .iter()
-        .map(|q| QuantityRef::new(&q.name, q.kind.as_deref(), &q.dims, &q.consts, &q.units))
+        .map(|q| QuantityRef::new(&q.name, q.kind.as_deref(), &q.dims, &q.units))
         .collect();
     let mut aliases = String::new();
-    for q in &family.quantity {
-        aliases += "\n";
-        aliases += &fmt_type_alias(&q.name, &dim_value(&q.dims, q.kind.as_deref(), &system.dim.fields, dim), qty);
+    for q in &quantities {
+        let value = dim_value(q.dims, q.kind, &system.dim.fields, n.dim);
+        let arg = dim_arg(q, n.dim);
+        if !is_plain(q) {
+            let value = value.strip_prefix("{ ").and_then(|v| v.strip_suffix(" }")).unwrap_or(&value);
+            aliases += &format!("\n/// The dimension of `{}`.\npub const {arg}: {} = {value};\n", q.name, n.dim);
+        }
+        aliases += &fmt_type_alias(q.name, &arg, n.qty);
     }
     gen_module(&quantities, system, &aliases, "", &family.name)
 }
 
-/// A family's two halves: its quantities and constants (`<family>.rs`), and
+/// A family's two halves: its quantities and unit types (`<family>.rs`), and
 /// its unit enums (`dynamic/<family>.rs`), each with its imports.
 pub struct Module {
     pub quantities: String,
     pub units: String,
 }
 
-/// A module: its quantities' aliases and constants, and - in the dynamic
+/// A module: its quantities' aliases and unit types, and - in the dynamic
 /// half - its unit enums. `name` is the module's (`mechanical`).
-fn gen_module(
-    quantities: &[QuantityRef<'_>],
-    system: &UnitSystem,
-    aliases: &str,
-    header: &str,
-    name: &str,
-) -> Module {
-    let dim = dim_ty(&system.system);
-    let qty = qty_ty(&system.system);
-    let base = Base::new(system);
-    let plan = plan_module(quantities, system.kind.affine.as_deref());
-    let rendered = gen_consts_mod(&plan, quantities, &base, &system.dim.fields);
-    let mut enums = String::new();
-    for q in quantities {
-        let e = gen_unit_enum(q, quantities, &plan, &rendered.coherent, system);
-        if !e.is_empty() {
-            enums += "\n";
-            enums += &e;
-        }
-    }
-    // What a body names, its doc comments left out.
-    let named = |body: &str| -> BTreeSet<String> {
-        let code: String = body
-            .lines()
-            .filter(|l| !l.trim_start().starts_with("//"))
-            .collect::<Vec<_>>()
-            .join("\n");
-        idents(&code)
-    };
-    let crate_names = |named: &BTreeSet<String>| -> Vec<&str> {
-        let mut names: Vec<&str> = [dim, qty, "Kind", "Scale", "Exact"]
-            .into_iter()
-            .chain(PREFIXES)
-            .filter(|n| named.contains(*n))
-            .collect();
-        names.sort_unstable();
-        names
-    };
+fn gen_module(quantities: &[QuantityRef<'_>], system: &UnitSystem, aliases: &str, header: &str, name: &str) -> Module {
+    let n = Names::of(&system.system);
+    let names = unit_type_names(quantities);
+    let units_mod = gen_units_mod(quantities, &names, system);
 
-    // The quantities and constants.
+    // The quantities and unit types.
     let mut s = String::new();
     s += header;
     if !header.is_empty() {
         s += "\n";
     }
-    let body = format!("{aliases}{}", rendered.consts);
-    let names = crate_names(&named(&body));
-    if !names.is_empty() {
-        s += &format!("use crate::{{{}}};\n", names.join(", "));
+    let mut uses = vec![n.dim, n.qty];
+    if aliases.contains("Kind::") {
+        uses.push("Kind");
     }
-    if body.contains("::DIMENSIONLESS") {
+    uses.sort_unstable();
+    s += &format!("use crate::{{{}}};\n", uses.join(", "));
+    if aliases.contains("::DIMENSIONLESS") {
         s += "use yadc::Dimension;\n";
     }
     s += "\n";
     s += aliases.trim_start_matches('\n');
-    if !rendered.consts.is_empty() {
+    if !units_mod.is_empty() {
         s += "\n";
-        s += &rendered.consts;
+        s += &units_mod;
     }
 
-    // The unit enums: the quantities and constants imported.
+    // The unit enums.
+    let mut enums = String::new();
+    for q in quantities {
+        enums += &gen_unit_enum(q, &names, system);
+    }
     let mut u = String::new();
     if !enums.is_empty() {
-        let used = named(&enums);
-        let local: BTreeSet<&str> = plan.names.iter().map(String::as_str).collect();
-        let from_base: Vec<&str> = base
-            .consts
-            .iter()
-            .map(|b| b.name.as_str())
-            .filter(|n| used.contains(*n) && !rendered.reexported.contains(*n) && !local.contains(n))
-            .collect();
         u += &format!(
             "//! The units of `{name}`'s quantities, chosen at run time: for a menu, a\n//! config file, a parser.\n\n"
         );
         u += &format!("use crate::{name}::*;\n");
-        let in_consts = plan.names.iter().chain(rendered.reexported.iter()).any(|n| used.contains(n));
-        if !rendered.consts.is_empty() && in_consts {
-            u += &format!("use crate::{name}::consts::*;\n");
-        }
-        let names = crate_names(&used);
-        if !names.is_empty() {
-            u += &format!("use crate::{{{}}};\n", names.join(", "));
-        }
-        if !from_base.is_empty() {
-            u += &format!("use crate::base::{{{}}};\n", from_base.join(", "));
-        }
-        if enums.contains("Destruct") {
-            u += "use core::marker::Destruct;\n";
-        }
-        let mut yadc = vec!["num_traits::Num"];
-        if enums.contains(" Unit<") {
-            yadc.insert(0, "Unit");
-        }
-        u += &format!("use yadc::{{{}}};\n", yadc.join(", "));
+        u += &format!("use crate::{name}::units::*;\n");
+        u += &format!("use crate::dynamic::{};\n", n.dyn_unit);
+        u += "use crate::Exact;\n";
+        u += "use core::marker::Destruct;\n";
+        u += "use core::ops::{Add, Div, Mul, Sub};\n";
         u += &enums;
     }
     Module { quantities: s, units: u }
 }
+
+/// What a unit counts in: what the unit type's `Unit` impl asks of `N`.
+const NUMBER: &str = "const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct";
 
 /// `use`-free list of what `#[derive(..)]` a unit enum gets.
 fn fmt_derive_attr(extra: &[String]) -> String {
@@ -1409,97 +917,38 @@ fn fmt_derive_attr(extra: &[String]) -> String {
 
 // --- Unit enums ----------------------------------------------------------------
 
-/// `<Q>Unit`, the unit enum of quantity `q`: every unit of `q`, a variant
-/// each naming the unit value it is - a multiple its constant (`by =
-/// KILOMETRE`), a scale its constant (`by = CELSIUS`), one that measures
-/// another type the type it converts through (`by = DBM, via = PowerLevel`).
-/// Nothing for a quantity without units.
-fn gen_unit_enum(
-    q: &QuantityRef<'_>,
-    quantities: &[QuantityRef<'_>],
-    plan: &ModuleUnits<'_>,
-    coherent: &BTreeMap<String, String>,
-    system: &UnitSystem,
-) -> String {
+/// `<Q>Unit`, the unit enum of quantity `q`: a variant per unit, naming its
+/// type; and its conversion to the dynamic unit. Nothing for a quantity
+/// without units.
+fn gen_unit_enum(q: &QuantityRef<'_>, names: &BTreeMap<(&str, &str), String>, system: &UnitSystem) -> String {
     if q.units.is_empty() {
         return String::new();
     }
+    let n = Names::of(&system.system);
     // The coherent unit is the `#[default]`: what a menu starts on. Failing
     // that, the first unit.
-    let default = q
-        .units
-        .iter()
-        .position(|u| u.is_multiple() && u.multiplier.as_deref().is_some_and(is_one))
-        .unwrap_or(0);
-    let non_const = q.units.iter().any(|u| u.non_const);
-    // A level's conversion is not `const`, so neither is the enum's.
-    let konst = if non_const { "" } else { "[const] " };
-    let qualified = q.units.iter().any(|u| u.via.is_some());
-    let mut bounds: BTreeSet<String> = BTreeSet::new();
+    let default = q.units.iter().position(|u| is_one(&u.multiplier) && u.zero.is_none()).unwrap_or(0);
+    let enum_name = format!("{}Unit", q.name);
     let mut variants = String::new();
+    let mut arms = String::new();
     for (i, unit) in q.units.iter().enumerate() {
+        let ty = &names[&(q.name, unit.variant.as_str())];
         if i == default {
             variants += "    #[default]\n";
         }
-        // What the unit value measures: the quantity, or the type it
-        // converts through, which converts to and from the quantity.
-        // What the unit value measures: the quantity, or the type it
-        // converts to and from (a level, through a logarithm).
-        let of = match &unit.via {
-            Some(via) => {
-                bounds.insert(format!("{}<N>: From<{via}<N>>", q.name));
-                bounds.insert(format!("{via}<N>: From<{}<N>>", q.name));
-                format!("{via}<N>")
-            }
-            None => format!("{}<N>", q.name),
-        };
-        let mut count =
-            |ty: &str, x: &str| counted_in_n(ty, x, &of, konst, qualified, quantities, &mut bounds);
-        let by = match &plan.variants[&(q.name, unit.variant.as_str())] {
-            VariantSpec::Const(k) => count(&plan.consts[*k].ty, &plan.names[*k]),
-            // A constant of the module, converted; anything else verbatim
-            // (a unit of its own: a hand-written path).
-            VariantSpec::By(t) => match plan.names.iter().position(|n| n == t) {
-                Some(k) => count(&plan.consts[k].ty, t),
-                None => t.clone(),
-            },
-            VariantSpec::Inline => {
-                let m = unit.multiplier.as_deref().unwrap_or_else(|| {
-                    panic!("unit `{}` of `{}` has no size: give it `m`", unit.variant, q.name)
-                });
-                count(q.name, &scaled(m, &coherent[q.name]))
-            }
-        };
-        let spec = match &unit.via {
-            Some(via) => format!("by = {by}, via = {via}<N>"),
-            None => format!("by = {by}"),
-        };
-        variants += &format!(
-            "    #[unit(\"{}\", \"{}\", {spec})]\n",
-            rust_str(&unit.symbol),
-            rust_str(&unit.long)
-        );
-        variants += &format!("    {},\n", unit.variant);
+        variants += &format!("    #[unit({ty})]\n    {},\n", unit.variant);
+        arms += &format!("            {enum_name}::{} => {ty} {{}}.into(),\n", unit.variant);
     }
-    let mut s = format!(
-        "/// The units of `{}`, in any number type the constants convert to.\n",
-        q.name
-    );
+    let mut s = String::new();
+    s += &format!("\n/// The units of `{}`, in any number type they count in.\n", q.name);
     s += "#[derive_const(Default)]\n";
     s += &fmt_derive_attr(&system.system.unit_derives);
-    let nc = if non_const { ", non_const" } else { "" };
-    s += &format!("#[unit(of = {}<N>, number = N{nc})]\n", q.name);
-    if bounds.is_empty() {
-        s += "#[unit(for<N: Num + const From<Exact>>)]\n";
-    } else {
-        s += &format!(
-            "#[unit(for<N: Num + const From<Exact>> where {})]\n",
-            bounds.into_iter().collect::<Vec<_>>().join(", ")
-        );
-    }
-    s += &format!("pub enum {}Unit {{\n", q.name);
-    s += &variants;
-    s += "}\n";
+    s += &format!("#[unit(of = {}<N>, number = N, for<N: {NUMBER}>)]\n", q.name);
+    s += &format!("pub enum {enum_name} {{\n{variants}}}\n\n");
+    s += &format!(
+        "impl From<{enum_name}> for {} {{\n    fn from(unit: {enum_name}) -> Self {{\n        match unit {{\n{arms}        }}\n    }}\n}}\n",
+        n.dyn_unit
+    );
     s
 }
 
@@ -1600,6 +1049,7 @@ mod tests {
 crate_name = "t"
 family_order = ["thermal"]
 unit_derives = ["Copy", "Clone"]
+unit_type = "SIUnit"
 
 [kind]
 variants = ["Linear", "Affine", "Log", "Rank"]
@@ -1611,42 +1061,8 @@ rules = { Rank = ["add(Rank) = invalid"] }
 [dim]
 fields = ["m", "s", "K"]
 
-[[base]]
-name = "ONE"
-doc = "One."
-
-[[base]]
-name = "METRE"
-dims = {m = 1}
-doc = "The metre."
-
-[[base]]
-name = "SECOND"
-dims = {s = 1}
-doc = "The second."
-
-[[base]]
-name = "KELVIN"
-dims = {K = 1}
-doc = "The kelvin, a step."
-
-[[base]]
-name = "ABSOLUTE_ZERO"
-dims = {K = 1}
-kind = "Affine"
-value = "0.0"
-doc = "Absolute zero."
-
-[[base]]
-name = "FIRST"
-kind = "Rank"
-doc = "The first rank."
-
 [dimensionless]
-units = [
-    {v = "Ratio", m = "1.0", s = "", l = ""},
-    {v = "Percent", m = "1.0e-2", s = "%", l = "percent"},
-]
+units = [{v = "Ratio", m = "1.0", s = "", l = ""}]
 "#;
 
     fn system(families: &str) -> UnitSystem {
@@ -1661,14 +1077,9 @@ name = "thermal"
 name = "ThermodynamicTemperature"
 dims = {K = 1}
 kind = "Affine"
-consts = [
-    {name = "ICE_POINT", value = "ABSOLUTE_ZERO + KELVIN * 273.15", doc = "0 °C."},
-    {name = "KELVIN_SCALE", ty = "Scale<ThermodynamicTemperature, TemperatureInterval>", value = "Scale(ABSOLUTE_ZERO, KELVIN)", doc = "The kelvin scale."},
-    {name = "CELSIUS", ty = "Scale<ThermodynamicTemperature, TemperatureInterval>", value = "Scale(ICE_POINT, KELVIN)", doc = "The Celsius scale."},
-]
 units = [
-    {v = "Kelvin", s = "K", l = "kelvin", by = "KELVIN_SCALE"},
-    {v = "Celsius", s = "°C", l = "degrees Celsius", by = "CELSIUS"},
+    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin", t = "KelvinScale"},
+    {v = "Celsius", m = "1.0", z = "273.15", s = "°C", l = "degrees Celsius"},
 ]
 
 [[family.quantity]]
@@ -1676,8 +1087,7 @@ name = "TemperatureInterval"
 dims = {K = 1}
 units = [
     {v = "Kelvin", m = "1.0", s = "K", l = "kelvin"},
-    {v = "Celsius", s = "°C", l = "degrees Celsius", by = "KELVIN"},
-    {v = "Fahrenheit", m = "5.0 / 9.0", c = "DEGREE_FAHRENHEIT", s = "°F", l = "degrees Fahrenheit"},
+    {v = "Fahrenheit", m = "5.0 / 9.0", s = "°F", l = "degrees Fahrenheit"},
 ]
 
 [[family.quantity]]
@@ -1686,31 +1096,6 @@ dims = {m = 1, s = -1}
 units = [
     {v = "MetrePerSecond", m = "1.0", s = "m/s", l = "metres per second"},
     {v = "KilometrePerHour", m = "1000.0 / 3600.0", s = "km/h", l = "kilometres per hour"},
-    {v = "MilePerHour", m = "1609.344 / 3600.0", s = "mph", l = "miles per hour", c = false},
-]
-
-[[family.quantity]]
-name = "Frequency"
-dims = {s = -1}
-units = [
-    {v = "Kilohertz", m = "1000.0", s = "kHz", l = "kilohertz"},
-    {v = "Megahertz", m = "1e6", s = "MHz", l = "megahertz", c = false},
-]
-
-[[family.quantity]]
-name = "Loudness"
-dims = {m = 1}
-units = [
-    {v = "Metre", m = "1.0", s = "m", l = "metres"},
-    {v = "Phon", s = "phon", l = "phons", by = "crate::level::PHON", via = "crate::level::LoudnessLevel", non_const = true},
-]
-
-[[family.quantity]]
-name = "Rank"
-kind = "Rank"
-units = [
-    {v = "First", m = "1.0", s = "", l = "firsts"},
-    {v = "Third", m = "3.0", s = "rd", l = "thirds"},
 ]
 "#;
 
@@ -1721,158 +1106,36 @@ units = [
         m.quantities + &m.units
     }
 
-    /// The base constants are the only raw numbers; everything else is a
-    /// product of them, a multiple of the coherent unit, or verbatim.
+    /// A unit is a type: its dimension, and its size and zero written exactly.
     #[test]
-    fn constants_are_defined_from_the_base() {
-        let lib = gen_lib_rs(&system(THERMAL));
-        assert!(lib.contains(
-            "    pub const METRE: Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, Exact> = Qty(Exact::int(1));\n"
-        ));
-        assert!(lib.contains("    pub const ABSOLUTE_ZERO: Qty<{ Dim { K: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }, Exact> = Qty(Exact::ZERO);\n"));
+    fn units_are_types() {
         let out = family();
-        // The alias writes the dimension once; every constant is typed by it.
-        assert!(out.contains("pub type Speed<N> = Qty<{ Dim { m: 1, s: -1, ..Dim::DIMENSIONLESS } }, N>;\n"));
-        assert!(out.contains("    pub const METRE_PER_SECOND: Speed<Exact> = METRE / SECOND;\n"));
-        // Every factor is written exactly.
+        assert!(out.contains("/// The dimension of `Speed`.\npub const SPEED: Dim = Dim { m: 1, s: -1, ..Dim::DIMENSIONLESS };\npub type Speed<N> = Qty<SPEED, N>;\n"));
         assert!(out.contains(
-            "    pub const KILOMETRE_PER_HOUR: Speed<Exact> = METRE_PER_SECOND * (Exact::int(1000) / Exact::int(3600));\n"
-        ));
-        // No coherent unit of its own: the product, scaled.
-        assert!(out.contains("    pub const KILOHERTZ: Frequency<Exact> = (ONE / SECOND) * Exact::int(1000);\n"));
-        assert!(out.contains(
-            "    pub const DEGREE_FAHRENHEIT: TemperatureInterval<Exact> = KELVIN * (Exact::int(5) / Exact::int(9));\n"
+            "    pub type KilometrePerHour = SIUnit<SPEED, { SIUnitConsts { size: Exact::int(1000) / Exact::int(3600), zero: Exact::ZERO, symbol: \"km/h\", name: \"kilometres per hour\" } }>;"
         ));
         assert!(out.contains(
-            "    pub const ICE_POINT: ThermodynamicTemperature<Exact> = ABSOLUTE_ZERO + KELVIN * Exact::dec(27315, -2);\n"
+            "    pub type Celsius = SIUnit<THERMODYNAMIC_TEMPERATURE, { SIUnitConsts { size: Exact::int(1), zero: Exact::dec(27315, -2), symbol: \"°C\", name: \"degrees Celsius\" } }>;"
         ));
-        // A base constant is re-exported, not redefined.
-        assert!(out.contains("    pub use crate::base::KELVIN;\n"));
-        assert!(out.contains("    pub use crate::base::ABSOLUTE_ZERO;\n"));
-        assert!(!out.contains("pub const KELVIN:"));
-        assert!(!out.contains("Qty("));
-        // A unit written as others has no constant: its enum variant names
-        // its size, converted once at compile time.
-        assert!(!out.contains("MILE_PER_HOUR"));
-        assert!(out.contains(
-            "    #[unit(\"mph\", \"miles per hour\", by = Speed::<N>::from(METRE_PER_SECOND * (Exact::dec(1609344, -3) / Exact::int(3600))))]\n"
-        ));
-        assert!(!out.contains("MEGAHERTZ"));
-        assert!(out.contains("by = Frequency::<N>::from((ONE / SECOND) * Exact::int(1000000)))]\n"));
-        // A label: its coherent unit is a base constant, re-exported.
-        assert!(out.contains("    pub use crate::base::FIRST;\n"));
-        assert!(!out.contains("pub const FIRST"));
     }
 
-    /// A temperature scale is a constant of its quantity's `consts`, a
-    /// `Scale` (the system's scale type, imported where a module names it),
-    /// or a scale written in place; the enum names either. A unit of another
-    /// constant's size has no constant of its own.
+    /// Each quantity's enum names its unit types, the coherent one the default.
     #[test]
-    fn scales_are_constants() {
-        let lib = gen_lib_rs(&system(THERMAL));
-        assert!(lib.contains("const impl<P, S, N> Unit<P, N> for Scale<P, S>\n"));
-        assert!(lib.contains("pub struct Scale<P, S>(pub P, pub S);\n"));
-        assert!(!lib.contains("fn_traits"));
+    fn unit_enums_name_their_types() {
         let out = family();
-        assert!(out.contains("use crate::{Dim, Exact, Kind, Qty, Scale};\n"));
-        assert!(out.contains(
-            "    pub const CELSIUS: Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> = Scale(ICE_POINT, KELVIN);\n"
-        ));
-        assert!(out.contains(
-            "    #[unit(\"°C\", \"degrees Celsius\", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(CELSIUS))]\n    Celsius,\n"
-        ));
-        assert!(out.contains(
-            "    #[unit(\"K\", \"kelvin\", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(KELVIN_SCALE))]\n    Kelvin,\n"
-        ));
-        assert!(out.contains(
-            "    #[unit(\"°C\", \"degrees Celsius\", by = TemperatureInterval::<N>::from(KELVIN))]\n    Celsius,\n"
-        ));
-        assert!(out.contains(
-            "    #[unit(\"°F\", \"degrees Fahrenheit\", by = TemperatureInterval::<N>::from(DEGREE_FAHRENHEIT))]\n    Fahrenheit,\n"
-        ));
-        assert!(!out.contains("pub struct"));
-        assert!(!out.contains("RANKINE"));
+        assert!(out.contains("pub enum SpeedUnit {\n    #[default]\n    #[unit(MetrePerSecond)]\n    MetrePerSecond,\n    #[unit(KilometrePerHour)]\n    KilometrePerHour,\n}"));
+        assert!(out.contains("#[unit(of = Speed<N>, number = N, for<N: const From<Exact>"));
+        assert!(out.contains("            SpeedUnit::KilometrePerHour => KilometrePerHour {}.into(),\n"));
     }
 
-    /// A unit value that measures another type - a level, defined in a
-    /// hand-written module - is named verbatim with the type it converts
-    /// through; its conversion is not `const`, which makes its enum an
-    /// ordinary impl.
+    /// A type name two quantities' units share is prefixed with the quantity
+    /// for each; a `t` is kept, and a unique name stays bare.
     #[test]
-    fn non_const_units_make_the_enum_non_const() {
+    fn shared_type_names_are_prefixed() {
         let out = family();
-        assert!(
-            out.contains("    #[unit(\"phon\", \"phons\", by = crate::level::PHON, via = crate::level::LoudnessLevel<N>)]\n    Phon,\n")
-        );
-        assert!(!out.contains("PHON_REFERENCE"));
-        // A unit measuring another type converts to and from it in the
-        // enum's number type.
-        assert!(out.contains("#[unit(of = Loudness<N>, number = N, non_const)]\n#[unit(for<N: Num + const From<Exact>> where Loudness<N>: From<crate::level::LoudnessLevel<N>>"));
-        assert!(out.contains("#[unit(of = Speed<N>, number = N)]\n#[unit(for<N: Num + const From<Exact>> where Speed<N>: [const] Unit<Speed<N>, N> + [const] Destruct)]\npub enum SpeedUnit {"));
-        let d = gen_dimensionless_rs(&system(THERMAL));
-        let d = d.quantities + &d.units;
-        assert!(d.contains("    pub const RATIO: Dimensionless<Exact> = ONE;\n"));
-        assert!(d.contains("    pub const PERCENT: Dimensionless<Exact> = RATIO * Exact::dec(1, -2);\n"));
-        assert!(d.contains("    pub use crate::base::ONE;\n"));
-        assert!(!d.contains("impl ::core::convert::From"));
-    }
-
-    #[test]
-    fn unit_enums_name_their_units() {
-        let out = family();
-        assert!(out.contains(
-            "#[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]\n#[unit(of = Speed<N>, number = N)]\n#[unit(for<N: Num + const From<Exact>> where Speed<N>: [const] Unit<Speed<N>, N> + [const] Destruct)]\npub enum SpeedUnit {\n    #[default]\n    #[unit(\"m/s\", \"metres per second\", by = Speed::<N>::from(METRE_PER_SECOND))]\n    MetrePerSecond,\n"
-        ));
-        // In the dynamic half, with the module's quantities and constants.
-        let sys = system(THERMAL);
-        let m = gen_family_rs(&sys.family[0], &sys);
-        assert!(!m.quantities.contains("pub enum"));
-        assert!(m.units.contains("use crate::thermal::*;\nuse crate::thermal::consts::*;\n"));
-    }
-
-    #[test]
-    fn generated_lib() {
-        let out = gen_lib_rs(&system(THERMAL));
-        assert!(out.contains("pub enum Kind {\n    #[default]\n    Linear,\n    #[kind(affine)]\n    Affine,\n    #[kind(log)]\n    Log,\n    #[kind(add(Rank) = invalid)]\n    Rank,\n}\n"));
-        // The kind's variants say which is affine and which logarithmic;
-        // the field is marked alone, its products partial, and the dynamic
-        // type's too.
-        assert!(out.contains("    #[kind]\n    pub kind: Kind,\n"));
-        let dynamic = gen_dynamic_rs(&system(THERMAL), &[]);
-        assert!(dynamic.contains(
-            "    Mul -> Option<Self>,\n    Div -> Option<Self>,\n    Add -> Option<Self>,\n"
-        ));
-        assert!(dynamic.contains("#[dynamic(Qty<const D: Dim, f64> => { dim: D, value: .0 })]\n"));
-        assert!(
-            dynamic.contains("#[dynamic(shared f64 => { dim: Dim::DIMENSIONLESS, value: self })]\n")
-        );
-        assert!(dynamic.contains("use crate::{Dim, Qty};\n"));
-        assert!(out.contains("pub struct Qty<const D: Dim, N>(N);\n"));
-        assert!(!out.contains("impl PartialRoot"));
-        // An exact quantity converts to each number type with `From`.
-        assert!(out.contains("const impl<const D: Dim, N> From<Qty<D, Exact>> for Qty<D, N>\nwhere\n    N: yadc::num_traits::Num + [const] From<Exact>,\n"));
-        assert!(out.contains("pub mod dynamic;\n"));
-        for gone in ["powi_by_mul", "yadc::math", "Offset", "Log<", "generic_const_items", "counted("] {
-            assert!(!out.contains(gone), "{gone}");
-        }
-    }
-
-    #[test]
-    fn screaming_snake_names() {
-        assert_eq!(screaming_snake("KilowattHour"), "KILOWATT_HOUR");
-        assert_eq!(
-            screaming_snake("Lithium7GyromagneticRatio"),
-            "LITHIUM7_GYROMAGNETIC_RATIO"
-        );
-        assert_eq!(screaming_snake("SIUnit"), "SI_UNIT");
-        assert_eq!(screaming_snake("Percent"), "PERCENT");
-    }
-
-    /// A name two constants of one module share is prefixed with the quantity
-    /// for every entry that has it; unique names stay bare.
-    #[test]
-    fn unit_constant_collisions_are_prefixed_within_a_module() {
+        assert!(out.contains("    pub type KelvinScale = "));
+        assert!(out.contains("    pub type Kelvin = "));
+        assert!(out.contains("    #[unit(KelvinScale)]\n    Kelvin,\n"));
         let sys = system(
             r#"
 [[family]]
@@ -1880,36 +1143,37 @@ name = "thermal"
 [[family.quantity]]
 name = "Time"
 dims = {s = 1}
-units = [
-    {v = "Second", m = "1.0", s = "s", l = "seconds"},
-    {v = "Minute", m = "60.0", s = "min", l = "minutes"},
-]
+units = [{v = "Minute", m = "60.0", s = "min", l = "minutes"}]
 [[family.quantity]]
 name = "Angle"
 dims = {m = 1}
-units = [
-    {v = "Metre", m = "1.0", s = "m", l = "metres"},
-    {v = "Minute", m = "2.9e-4", s = "'", l = "minutes of arc"},
-]
+units = [{v = "Minute", m = "2.9e-4", s = "'", l = "minutes of arc"}]
 "#,
         );
         let m = gen_family_rs(&sys.family[0], &sys);
-        let out = m.quantities + &m.units;
-        assert!(out.contains("    pub const TIME_MINUTE: Time<Exact> = SECOND * Exact::int(60);"));
-        assert!(out.contains("    pub const ANGLE_MINUTE: Angle<Exact> = METRE * Exact::dec(29, -5);"));
-        assert!(out.contains("    #[unit(\"min\", \"minutes\", by = Time::<N>::from(TIME_MINUTE))]\n    Minute,\n"));
+        assert!(m.quantities.contains("    pub type TimeMinute = "));
+        assert!(m.quantities.contains("    pub type AngleMinute = "));
+        assert!(m.units.contains("    #[unit(TimeMinute)]\n    Minute,\n"));
+    }
+
+    /// The unit type and its one `Unit` impl, and the dynamic unit.
+    #[test]
+    fn generated_lib() {
+        let sys = system(THERMAL);
+        let out = gen_lib_rs(&sys);
+        assert!(out.contains("pub struct SIUnitConsts {"));
+        assert!(out.contains("pub struct SIUnit<const D: Dim, const C: SIUnitConsts>;"));
+        assert!(out.contains("const impl<const D: Dim, const C: SIUnitConsts, N> Unit<Qty<D, N>, N> for SIUnit<D, C>"));
+        let dynamic = gen_dynamic_rs(&sys, &[]);
+        assert!(dynamic.contains("#[dynamic(SIUnit<const D: Dim, const C: SIUnitConsts> => { dim: D, consts: C })]"));
+        assert!(dynamic.contains("impl Unit<Option<DynQty>, Option<f64>> for DynamicSIUnit {"));
     }
 
     /// Without an affine or a logarithmic kind no variant is marked; the
     /// products stay partial, as for any dimension with a kind field.
     #[test]
     fn labels_alone_mark_no_variant() {
-        let sys: UnitSystem = toml::from_str(
-            &BASE
-                .replace("affine = \"Affine\"\nlog = \"Log\"\n", "")
-                .replace("kind = \"Affine\"", "kind = \"Rank\""),
-        )
-        .unwrap();
+        let sys: UnitSystem = toml::from_str(&BASE.replace("affine = \"Affine\"\nlog = \"Log\"\n", "")).unwrap();
         let out = gen_lib_rs(&sys);
         assert!(out.contains("    #[kind]\n    pub kind: Kind,\n"));
         assert!(!out.contains("#[kind(affine)]"));
@@ -1918,27 +1182,9 @@ units = [
     }
 
     #[test]
-    #[should_panic(expected = "is not a scale")]
-    fn affine_units_are_scales() {
-        let sys = system(
-            r#"
-[[family]]
-name = "thermal"
-[[family.quantity]]
-name = "ThermodynamicTemperature"
-dims = {K = 1}
-kind = "Affine"
-units = [{v = "Kelvin", m = "1.0", s = "K", l = "kelvin"}]
-"#,
-        );
-        gen_family_rs(&sys.family[0], &sys);
-    }
-
-    #[test]
     #[should_panic(expected = "`div` is not `add` or `sub` - kinds are labels")]
     fn mul_and_div_rules_are_rejected() {
-        let sys: UnitSystem =
-            toml::from_str(&BASE.replace("add(Rank) = invalid", "div(Rank) = Rank")).unwrap();
+        let sys: UnitSystem = toml::from_str(&BASE.replace("add(Rank) = invalid", "div(Rank) = Rank")).unwrap();
         gen_lib_rs(&sys);
     }
 
@@ -1946,21 +1192,19 @@ units = [{v = "Kelvin", m = "1.0", s = "K", l = "kelvin"}]
     #[test]
     #[should_panic(expected = "is not `op(Operand) = Result`")]
     fn bare_rules_are_rejected() {
-        let sys: UnitSystem =
-            toml::from_str(&BASE.replace("add(Rank) = invalid", "Affine")).unwrap();
+        let sys: UnitSystem = toml::from_str(&BASE.replace("add(Rank) = invalid", "Affine")).unwrap();
         gen_lib_rs(&sys);
     }
 
     #[test]
     #[should_panic(expected = "[kind] affine `Point` is not one of the variants")]
     fn named_kinds_are_variants() {
-        let sys: UnitSystem =
-            toml::from_str(&BASE.replace("affine = \"Affine\"", "affine = \"Point\"")).unwrap();
+        let sys: UnitSystem = toml::from_str(&BASE.replace("affine = \"Affine\"", "affine = \"Point\"")).unwrap();
         gen_lib_rs(&sys);
     }
 
-    /// A unit is a multiple (`m`) or a unit value (`by`): any other
-    /// description is an error, not a field quietly left out.
+    /// A unit is a size and a zero: any other description is an error, not
+    /// a field quietly left out.
     #[test]
     fn unknown_unit_fields_are_rejected() {
         let parsed: Result<UnitSystem, _> = toml::from_str(&format!(
@@ -1969,12 +1213,18 @@ units = [{v = "Kelvin", m = "1.0", s = "K", l = "kelvin"}]
 [[family]]
 name = "thermal"
 [[family.quantity]]
-name = "Loudness"
+name = "Length"
 dims = {m = 1}
-units = [{v = "Phon", m = "1.0", s = "phon", l = "phons", scale = "pow10"}]
+units = [{v = "Foot", m = "0.3048", s = "ft", l = "feet", by = "FOOT"}]
 "#
         ));
-        let message = parsed.expect_err("an unknown field").to_string();
-        assert!(message.contains("unknown field `scale`"), "{message}");
+        assert!(parsed.unwrap_err().to_string().contains("unknown field `by`"));
+    }
+
+    #[test]
+    fn exact_literals_are_exact() {
+        assert_eq!(exact_literals("273.15"), "Exact::dec(27315, -2)");
+        assert_eq!(exact_literals("-40587.0 * 86400.0"), "-Exact::int(40587) * Exact::int(86400)");
+        assert_eq!(exact_literals("1.0 / core::f64::consts::PI"), "Exact::int(1) / Exact::PI");
     }
 }

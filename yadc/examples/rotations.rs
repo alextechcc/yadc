@@ -35,9 +35,10 @@
 //!   are not two kinds of place, just two ways of writing one down.
 //!
 //! Every unit is the `Unit` trait, built with `quantity` and read with
-//! `value`: the constants and the derived units (`DEGREE.quantity(30.0)`,
-//! `METRE.value(reach)`; a constant times a number builds too, `SECOND * 4.0`)
-//! and the grid and the frame, units written by hand
+//! `value`: the constants (`DEGREE.quantity(30.0)`, `METRE.value(reach)`; a
+//! constant times a number builds too, `SECOND * 4.0`), the unit types that
+//! print (`Metre`, `Degree`), and the grid and the frame, units that hold
+//! their origin
 //! (`SITE_GRID.quantity([10.0, 5.0, 0.0])`, `vehicle.value(sensor)`).
 //!
 //! **Angles and radians.** `cos` and `sin` want a plain number, and an angle
@@ -159,20 +160,31 @@ pub const METRE_PER_SECOND: Velocity = METRE / SECOND;
 pub const DEGREE: Angle = (PI / 180.0) * RADIAN;
 pub const DEGREE_PER_SECOND: AngularVelocity = DEGREE / SECOND;
 
-// Unit types, for printing: each names one of the values above, with
-// its labels.
+/// Unit types, for printing: each counts through one of the values above,
+/// and prints its symbol (`{}`) or name (`{:#}`).
+macro_rules! unit {
+    ($name:ident: $q:ty = $step:expr, $symbol:literal, $long:literal) => {
+        #[derive(Copy, Clone)]
+        struct $name;
+        impl const Unit<$q, f64> for $name {
+            fn quantity(&self, n: f64) -> $q {
+                $step.quantity(n)
+            }
+            fn value(&self, q: $q) -> f64 {
+                $step.value(q)
+            }
+        }
+        impl core::fmt::Display for $name {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                f.pad(if f.alternate() { $long } else { $symbol })
+            }
+        }
+    };
+}
 
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("m", "metres", of = Length, by = METRE)]
-struct Metre;
-
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("°", "degrees", of = Angle, by = DEGREE)]
-struct Degree;
-
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("rad", "radians", of = Angle, by = RADIAN)]
-struct Radian;
+unit!(Metre: Length = METRE, "m", "metres");
+unit!(Degree: Angle = DEGREE, "°", "degrees");
+unit!(Radian: Angle = RADIAN, "rad", "radians");
 // --- A vector of any quantity -----------------------------------------------------
 
 /// Three quantities of one type: x, y and z.

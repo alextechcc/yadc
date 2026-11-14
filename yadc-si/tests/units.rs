@@ -1,6 +1,11 @@
 //! Units print and parse through std traits; dimensions may leave out the
 //! label; a quantity's number type may be a generic parameter.
-#![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
+#![feature(
+    generic_const_exprs,
+    adt_const_params,
+    unsized_const_params,
+    const_trait_impl
+)]
 #![feature(
     const_cmp,
     const_default,
@@ -14,11 +19,10 @@
 
 use core::marker::ConstParamTy;
 use yadc::{Dimension, PartialPowi, PowiAs, RootAs, Unit, UnknownUnit};
-use yadc_si::mechanical::{Length, consts};
 use yadc_si::dynamic::mechanical::{LengthUnit, MassUnit, TimeUnit};
-use yadc_si::{KILO, Prefix, Prefixed};
-
-const METRE: Length<f64> = consts::METRE.into();
+use yadc_si::mechanical::units::Metre;
+use yadc_si::mechanical::{LENGTH, Length};
+use yadc_si::{Exact, Prefix, Prefixed, SIUnit, SIUnitConsts};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -33,7 +37,10 @@ fn units_print_their_symbol_and_long_name() {
     assert_eq!(format!("{:#}", LengthUnit::Mile), "miles");
     assert_eq!(LengthUnit::Mile.to_string(), "mi");
     // A prefixed unit prints the prefix's symbol or name before the unit's.
-    let km = Prefixed { prefix: Some(Prefix::Kilo), unit: LengthUnit::Metre };
+    let km = Prefixed {
+        prefix: Some(Prefix::Kilo),
+        unit: LengthUnit::Metre,
+    };
     assert_eq!(format!("{}", km), "km");
     assert_eq!(format!("{:#}", km), "kilometres");
     assert_eq!(km.to_string(), "km");
@@ -76,14 +83,29 @@ fn units_parse_from_their_symbol() {
     let _: Result<TimeUnit, UnknownUnit> = "h".parse();
 }
 
-// A unit may leave out the derived `FromStr` - `impl(Display)` writes only
-// `Display` - and write its own: here one that also accepts the long names.
+/// A unit of your own is an `SIUnit` with a definition of yours: its
+/// quantity's dimension, and an exact size, a symbol and a name.
+type Kilometre = SIUnit<
+    LENGTH,
+    {
+        SIUnitConsts {
+            size: Exact::int(1000),
+            zero: Exact::ZERO,
+            symbol: "km",
+            name: "kilometres",
+        }
+    },
+>;
+
+// A unit enum may leave out the derived `FromStr` - `impl(Display)` writes
+// only `Display` - and write its own: here one that also accepts the long
+// names.
 #[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Length<f64>, impl(Display))]
+#[unit(of = Length<f64>, number = f64, impl(Display))]
 enum Distance {
-    #[unit("m", "metres", by = METRE)]
+    #[unit(Metre)]
     Metre,
-    #[unit("km", "kilometres", by = Length::<f64>::from(KILO * consts::METRE))]
+    #[unit(Kilometre)]
     Kilometre,
 }
 
@@ -162,31 +184,25 @@ mod kindless {
     >;
     pub type Speed = Qty<{ Dim { m: 1, s: -1 } }>;
 
-    /// The base constants: the only raw numbers.
+    /// The base quantities: the only raw numbers. A quantity is a unit of
+    /// its own kind.
     pub const METRE: Length = Qty(1.0);
     pub const SECOND: Time = Qty(1.0);
-
-    #[derive(Copy, Clone, yadc::Unit)]
-    #[unit(of = Length)]
-    pub enum LengthUnit {
-        #[unit("m", "metres", by = METRE)]
-        Metre,
-    }
 }
 
 #[test]
 fn a_kindless_dimension() {
     use kindless::*;
-    // A number becomes a quantity in steps of a constant, and reads back as
-    // the ratio to it - what a unit does.
+    // A number becomes a quantity in steps of a quantity, and reads back as
+    // the ratio to it: a quantity is a unit.
     let a = 3.0 * METRE;
-    let b: Length = LengthUnit::Metre.quantity(4.0);
+    let b: Length = METRE.quantity(4.0);
     let t = 2.0 * SECOND;
     let area: Area = a * b;
     close((METRE * METRE).value(area), 12.0);
     let v: Speed = (a + b) / t;
     close((METRE / SECOND).value(v), 3.5);
-    close(LengthUnit::Metre.value(area.root::<2>()), 12f64.sqrt());
+    close(METRE.value(area.root::<2>()), 12f64.sqrt());
     // Only exponents are checked: lengths add, a length and a time do not.
     // A static quantity's dimension is its const parameter.
     fn dim_of<const D: Dim>(_: Qty<D>) -> Dim {
@@ -198,7 +214,7 @@ fn a_kindless_dimension() {
     assert_eq!(format!("{v}"), "3.5 m·s⁻¹");
     assert_eq!(DynQty::from(a) + DynQty::from(t), None);
     let d = (DynQty::from(a) + DynQty::from(b)).unwrap();
-    close(LengthUnit::Metre.value(Length::try_from(d).unwrap()), 7.0);
+    close(METRE.value(Length::try_from(d).unwrap()), 7.0);
     assert_eq!(Dim::DIMENSIONLESS, Dim { m: 0, s: 0 });
 }
 

@@ -1,9 +1,9 @@
 //! Unit-system-agnostic generic functions, bounded on yadc's traits.
 //!
-//! A unit is a unit *of* a quantity through exactly one trait, `Unit<Q>`
+//! A unit is a unit *of* a quantity through exactly one trait, `Unit<Q, N>`
 //! (`quantity` builds, `value` reads), so a generic function says what it
-//! needs in those terms: `U: Unit<Q>` ("this unit
-//! turns numbers into `Q`s and back"), plus the std operators it uses on
+//! needs in those terms: `U: Unit<Q, N>` ("this unit
+//! turns `N`s into `Q`s and back"), plus the std operators it uses on
 //! the quantities themselves (`Q: Add<Output = Q>`, `T: Sub<Output = I>`).
 //! Units never take part in arithmetic, so the bounds never mention one in an
 //! operator. When a function wants all of "adds, scales, and measures with
@@ -12,7 +12,8 @@
 //!
 //! Every unit meets that one bound: a unit enum, a unit type, and a quantity
 //! constant alike (a quantity is a unit of its own kind), so `convert` below
-//! takes `MassUnit::Kilogram`, `KG` or `NAUTICAL_MILE` the same way.
+//! takes `MassUnit::Kilogram`, `Pound {}`, `KG` or `NAUTICAL_MILE` the same
+//! way.
 //!
 //! This is the capability no other unit library provides: every other library
 //! exposes only concrete types, so a function using their conversion or
@@ -48,7 +49,7 @@ use yadc::{Dimension, Quantity, Unit};
 // --- Generic functions --------------------------------------------------------
 // `Q` is whatever quantity the units measure - inferred from the unit, never
 // named by the caller, and bounded by nothing but what the body does with it.
-// The numbers are the units' own (`f64` by default; `Unit<Q, N>` for others).
+// The numbers are the units' own: `N` in `Unit<Q, N>`.
 
 /// Convert a value from one unit to another: build a `Q`, read it back.
 fn convert<Q, N, F, T>(value: N, from: F, to: T) -> N
@@ -74,7 +75,7 @@ where
 fn change<T, I, U>(from: T, to: T, unit: U) -> f64
 where
     T: Sub<Output = I>,
-    U: Unit<I>,
+    U: Unit<I, f64>,
 {
     unit.value(to - from)
 }
@@ -95,13 +96,13 @@ fn how_many<Q: Quantity<Number = f64>>(q: Q, step: Q) -> f64 {
 }
 
 /// A unit need not print, so "a unit of `Q` that prints" is a trait of your
-/// own: `Unit<Q>` plus `Display`, implemented for every unit that has both.
-trait Shown<Q>: Unit<Q> + Display {}
-impl<Q, U: Unit<Q> + Display> Shown<Q> for U {}
+/// own: `Unit<Q, N>` plus `Display`, implemented for every unit that has both.
+trait Shown<Q, N>: Unit<Q, N> + Display {}
+impl<Q, N, U: Unit<Q, N> + Display> Shown<Q, N> for U {}
 
-/// One quantity in every unit of a list picked at run time: `&dyn Shown<Q>`
-/// is "some unit of `Q`", still checked at compile time.
-fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q>]) -> String {
+/// One quantity in every unit of a list picked at run time: `&dyn Shown<Q,
+/// f64>` is "some unit of `Q` in `f64`s", still checked at compile time.
+fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q, f64>]) -> String {
     units
         .iter()
         .map(|u| format!("{:.1} {u}", u.value(q)))
@@ -113,12 +114,12 @@ fn table<Q: Copy>(q: Q, units: &[&dyn Shown<Q>]) -> String {
 use yadc_si::mechanical::*;
 use yadc_si::dynamic::mechanical::*;
 use yadc_si::dynamic::thermal::{TemperatureIntervalUnit, ThermodynamicTemperatureUnit};
-use yadc_si::KILO;
+use yadc_si::mechanical::units::Pound;
+use yadc_si::{Prefix, Prefixed};
 
-// Units counted in `f64`: exact constants, rounded by the compiler.
-const KM: Length<f64> = (KILO * consts::METRE).into();
-const KG: Mass<f64> = consts::KILOGRAM.into();
-const LB: Mass<f64> = consts::POUND.into();
+// Quantity constants, built by unit types at compile time: units too.
+const KG: Mass<f64> = units::Kilogram {}.quantity(1.0);
+const LB: Mass<f64> = Pound {}.quantity(1.0);
 
 // --- Unit system B: custom nautical system -----------------------------------
 // A completely separate Dim / Qty / Unit stack, with no labels (no `#[kind]`
@@ -156,26 +157,66 @@ type NavTime = NavQty<
     },
 >;
 
-// The base constants, and the units that name constants defined from them.
+// The base constants, and constants defined from them.
 const METRE: NavDist = NavQty(1.0);
 const SECOND: NavTime = NavQty(1.0);
 const NAUTICAL_MILE: NavDist = 1852.0 * METRE;
 const FATHOM: NavDist = 1.8288 * METRE;
 const HOUR: NavTime = 3600.0 * SECOND;
 
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = NavDist)]
-enum NavDistUnit {
-    #[unit("m", "metres", by = METRE)]
-    Metre,
-    #[unit("nmi", "nautical miles", by = NAUTICAL_MILE)]
-    NauticalMile,
+/// Unit types that count through those constants, and print.
+#[derive(Copy, Clone)]
+struct Metre;
+#[derive(Copy, Clone)]
+struct NauticalMile;
+/// One unit of time is all this system needs.
+#[derive(Copy, Clone)]
+struct Hour;
+
+impl const Unit<NavDist, f64> for Metre {
+    fn quantity(&self, n: f64) -> NavDist {
+        METRE.quantity(n)
+    }
+    fn value(&self, d: NavDist) -> f64 {
+        METRE.value(d)
+    }
+}
+impl const Unit<NavDist, f64> for NauticalMile {
+    fn quantity(&self, n: f64) -> NavDist {
+        NAUTICAL_MILE.quantity(n)
+    }
+    fn value(&self, d: NavDist) -> f64 {
+        NAUTICAL_MILE.value(d)
+    }
+}
+impl const Unit<NavTime, f64> for Hour {
+    fn quantity(&self, n: f64) -> NavTime {
+        HOUR.quantity(n)
+    }
+    fn value(&self, t: NavTime) -> f64 {
+        HOUR.value(t)
+    }
+}
+impl Display for Metre {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.pad(if f.alternate() { "metres" } else { "m" })
+    }
+}
+impl Display for NauticalMile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.pad(if f.alternate() { "nautical miles" } else { "nmi" })
+    }
 }
 
-/// One unit of time is all this system needs: a unit type.
+/// A choice of the two, for a menu or a parser.
 #[derive(Copy, Clone, yadc::Unit)]
-#[unit("h", "hours", of = NavTime, by = HOUR)]
-struct Hour;
+#[unit(of = NavDist, number = f64)]
+enum NavDistUnit {
+    #[unit(Metre)]
+    Metre,
+    #[unit(NauticalMile)]
+    NauticalMile,
+}
 
 // --- main ---------------------------------------------------------------------
 
@@ -195,15 +236,18 @@ fn main() {
     // takes constants: here a reading in fathoms (six feet), `FATHOM`.
     let lb = convert(70.0, KG, LB);
     println!("SI   70 kg          -> {lb:.2} lb (constants)");
+    let lb = convert(70.0, KG, Pound {});
+    println!("SI   70 kg          -> {lb:.2} lb (a unit type)");
     let nmi = convert(1000.0, FATHOM, NAUTICAL_MILE);
     println!("Nav  1000 fathoms   -> {nmi:.3} nmi (constants)");
 
     // -- table -------------------------------------------------------------------
     // Maths is on quantities: 90 km in an hour is a velocity, shown in every
-    // unit of a list picked at run time. A prefix scales an SI unit:
-    // `KM` is `KILO * METRE`, a kilometre.
+    // unit of a list picked at run time. A prefix scales an SI unit: `km`
+    // is the metre with the prefix kilo.
 
-    let v = KM.quantity(90.0) / TimeUnit::Hour.quantity(1.0);
+    let km = Prefixed { prefix: Some(Prefix::Kilo), unit: units::Metre {} };
+    let v = km.quantity(90.0) / TimeUnit::Hour.quantity(1.0);
     println!(
         "SI   90 km/h        -> {}",
         table(v, &[&VelocityUnit::MetrePerSecond, &VelocityUnit::Knot])
@@ -252,7 +296,7 @@ fn main() {
     );
     println!(
         "SI   a marathon in laps of 400 m = {:.1}",
-        how_many(KM * 42.195, LengthUnit::Metre.quantity(400.0))
+        how_many(km.quantity(42.195), LengthUnit::Metre.quantity(400.0))
     );
     println!(
         "Nav  12 nmi in cables (0.1 nmi)  = {:.0}",

@@ -309,7 +309,7 @@ help: the trait `ScaleNotPoint` is not implemented for `Qty<{ Dim { m: 1, kind: 
    |
 35 | pub struct Qty<const D: Dim>(f64);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it with a unit that counts steps from a zero
 note: required for `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>` to implement `Mul<f64>`
   --> tests/ui/define/refusals.rs:34:53
    |
@@ -392,7 +392,7 @@ error[E0599]: a point cannot be scaled
   --> tests/ui/define/refusals.rs:80:23
    |
 35 | pub struct Qty<const D: Dim>(f64);
-   | ---------------------------- method `value` not found for this struct because it doesn't satisfy `_: ScaleNotPoint` or `_: Unit<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>>`
+   | ---------------------------- method `value` not found for this struct because it doesn't satisfy `_: ScaleNotPoint` or `_: Unit<Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>, f64>`
 ...
 80 |     let _ = SEA_LEVEL.value(SEA_LEVEL);
    |                       ^^^^^ a point cannot be scaled
@@ -402,7 +402,7 @@ note: trait bound `Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } 
    |
 34 | #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
    |                                                     ^^^^^^^^^^^^^^ type parameter would need to implement `Unit`
-   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it on a scale: a zero and a step, as a unit
+   = note: scaling is repeated addition, and a point cannot be added to a point: a point is not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and read it with a unit that counts steps from a zero
 note: the trait `ScaleNotPoint` must be implemented
   --> $WORKSPACE/yadc/src/gates.rs
    |

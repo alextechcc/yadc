@@ -1,9 +1,8 @@
-//! The SI prefixes, once: exact plain quantities that scale a unit (`KILO *
-//! METRE` is a quantity times a quantity), and a unit enum's prefixed values
-//! (`"km".parse::<Prefixed<LengthUnit>>()`).
+//! The SI prefixes, once: exact powers of ten that scale a unit
+//! (`Prefixed { prefix: Some(Prefix::Kilo), unit: Metre {} }`, and
+//! `"km".parse::<Prefixed<LengthUnit>>()`).
 
-use crate::dimensionless::Dimensionless;
-use crate::{Exact, SIQuantity};
+use crate::Exact;
 use core::fmt;
 use core::str::FromStr;
 use yadc::{Unit, UnknownUnit};
@@ -166,47 +165,6 @@ const SYMBOLS: [&str; 20] = {
     }
     out
 };
-
-/// 10²⁴.
-pub const YOTTA: Dimensionless<Exact> = SIQuantity(Prefix::Yotta.factor());
-/// 10²¹.
-pub const ZETTA: Dimensionless<Exact> = SIQuantity(Prefix::Zetta.factor());
-/// 10¹⁸.
-pub const EXA: Dimensionless<Exact> = SIQuantity(Prefix::Exa.factor());
-/// 10¹⁵.
-pub const PETA: Dimensionless<Exact> = SIQuantity(Prefix::Peta.factor());
-/// 10¹².
-pub const TERA: Dimensionless<Exact> = SIQuantity(Prefix::Tera.factor());
-/// 10⁹.
-pub const GIGA: Dimensionless<Exact> = SIQuantity(Prefix::Giga.factor());
-/// 10⁶.
-pub const MEGA: Dimensionless<Exact> = SIQuantity(Prefix::Mega.factor());
-/// 10³.
-pub const KILO: Dimensionless<Exact> = SIQuantity(Prefix::Kilo.factor());
-/// 10².
-pub const HECTO: Dimensionless<Exact> = SIQuantity(Prefix::Hecto.factor());
-/// 10.
-pub const DECA: Dimensionless<Exact> = SIQuantity(Prefix::Deca.factor());
-/// 10⁻¹.
-pub const DECI: Dimensionless<Exact> = SIQuantity(Prefix::Deci.factor());
-/// 10⁻².
-pub const CENTI: Dimensionless<Exact> = SIQuantity(Prefix::Centi.factor());
-/// 10⁻³.
-pub const MILLI: Dimensionless<Exact> = SIQuantity(Prefix::Milli.factor());
-/// 10⁻⁶.
-pub const MICRO: Dimensionless<Exact> = SIQuantity(Prefix::Micro.factor());
-/// 10⁻⁹.
-pub const NANO: Dimensionless<Exact> = SIQuantity(Prefix::Nano.factor());
-/// 10⁻¹².
-pub const PICO: Dimensionless<Exact> = SIQuantity(Prefix::Pico.factor());
-/// 10⁻¹⁵.
-pub const FEMTO: Dimensionless<Exact> = SIQuantity(Prefix::Femto.factor());
-/// 10⁻¹⁸.
-pub const ATTO: Dimensionless<Exact> = SIQuantity(Prefix::Atto.factor());
-/// 10⁻²¹.
-pub const ZEPTO: Dimensionless<Exact> = SIQuantity(Prefix::Zepto.factor());
-/// 10⁻²⁴.
-pub const YOCTO: Dimensionless<Exact> = SIQuantity(Prefix::Yocto.factor());
 
 /// A unit enum's value with an optional prefix: `km` is `Prefixed { prefix:
 /// Some(Prefix::Kilo), unit: LengthUnit::Metre }`. The prefix scales the

@@ -41,40 +41,43 @@
 //! are yours too: they convert to and from the statics with std `From` /
 //! `TryFrom`. The `dynamickit` crate helps build them; yadc does not depend on it.
 //!
-//! # Units are values
+//! # Units are types
 //!
 //! A quantity's number is never read or written directly. A number becomes a
-//! quantity, and a quantity a number, only through a unit - a value
-//! implementing [`Unit`], whose `quantity` builds and `value` reads:
+//! quantity, and a quantity a number, only through a unit - a value of a type
+//! implementing [`Unit<Q, N>`](Unit), whose `quantity` builds and `value`
+//! reads, counting in numbers of type `N`:
 //!
-//! - **every quantity constant** is a unit of its own kind:
-//!   `BAR.quantity(2.0)` is two bars (and so is `BAR * 2.0`), `PSI.value(p)`
-//!   is how many psi `p` is, and `&BAR` is a `&dyn Unit<Pressure>`;
-//! - **a scale** is two of them, a zero and a step, in a tuple struct of
-//!   yours with an `impl Unit` of yours (`n` is `zero + n · step`): °C is
-//!   `Scale(ICE_POINT, KELVIN)` - start at the ice point, count kelvins -
-//!   and `CELSIUS.quantity(25.0)` a temperature. A level is a scale on a
-//!   logarithmic line, where a step multiplies: dBm is `Scale(MILLIWATT_LEVEL,
-//!   DECIBEL)`, a unit of power levels, and the watts are one std `From` of
-//!   yours away;
-//! - **anything else** is a type of yours with a hand-written `impl Unit`:
-//!   the Beaufort scale is two functions on a zero-sized `struct Beaufort;`.
+//! - **every quantity value** is a unit of its own kind (`#[derive(Quantity)]`
+//!   writes it): `BAR.quantity(2.0)` is two bars (and so is `BAR * 2.0`),
+//!   `BAR.value(p)` is how many bars `p` is, and `&BAR` is a
+//!   `&dyn Unit<Pressure, f64>`;
+//! - **a unit type** of yours with a hand-written `impl Unit<Q, N>`: a
+//!   zero-sized `struct Psi;` that counts through a constant, `Celsius` that
+//!   adds a zero (`n` is `ICE_POINT + n · KELVIN`), a unit holding a zero
+//!   chosen at run time (`FeetAbove(runway)`), the Beaufort scale's two
+//!   functions. A system with many units can keep each one's definition in
+//!   const parameters and write one impl for all of them, as `yadc-si`'s
+//!   `SIUnit<D, C>` does;
+//! - **a choice of units** - for a menu, a config file, a parser - is an
+//!   enum of yours with `#[derive(Unit)]`, each variant naming the unit type
+//!   it is.
 //!
-//! `#[derive(Unit)]` on an enum of yours names a choice of them, for a menu.
 //! Every unit has [`Unit`]'s two methods, `quantity` (build) and `value`
-//! (read) - which is what generic code and `&dyn Unit<Q>` use.
+//! (read) - which is what generic code (`U: Unit<Q, N>`) and `&dyn Unit<Q,
+//! N>` use. A unit prints if its type implements `Display`.
 //!
-//! The base constants are the only raw numbers in a system - one per base
-//! unit, written where the field is visible. They are where numbers enter and
-//! leave: everything else is defined from them with the quantities' own
-//! `const` operators, the way a standards document writes it. A step (a
+//! The base constants are where a system writes its field - one per base
+//! unit and one per zero of a line of points, in the crate that owns the
+//! quantity type. Everything else is defined from them with the quantities'
+//! own `const` operators, the way a standards document writes it. A step (a
 //! difference of temperatures: `KELVIN`, `DEGREE_FAHRENHEIT`), a zero (a
-//! temperature: `ABSOLUTE_ZERO`, `ICE_POINT`, `FAHRENHEIT_ZERO`) and a scale
-//! (a unit reading absolute temperatures: `CELSIUS`, `FAHRENHEIT`, each a
-//! zero and a step) are different things with different names.
+//! temperature: `ABSOLUTE_ZERO`, `ICE_POINT`) and a unit reading
+//! temperatures (`Celsius`, `Fahrenheit`: a zero and a step) are different
+//! things with different names.
 //!
 //! ```ignore
-//! pub const METRE: Length = Qty(1.0);                    // base constants: the only raw numbers
+//! pub const METRE: Length = Qty(1.0);                    // base constants write the field
 //! pub const KILOGRAM: Mass = Qty(1.0);
 //! pub const SECOND: Time = Qty(1.0);
 //! pub const KELVIN: TemperatureStep = Qty(1.0);          // a step: 1 K, the same as 1 °C of difference
@@ -84,34 +87,34 @@
 //! pub const POUND: Mass = 0.45359237 * KILOGRAM;
 //! pub const STANDARD_GRAVITY: Acceleration = 9.80665 * METRE / (SECOND * SECOND);
 //! pub const PSI: Pressure = POUND * STANDARD_GRAVITY / (INCH * INCH);
-//! pub const DEGREE_FAHRENHEIT: TemperatureStep = KELVIN * (5.0 / 9.0);
 //! pub const ICE_POINT: Temperature = ABSOLUTE_ZERO + 273.15 * KELVIN;
-//! pub const FAHRENHEIT_ZERO: Temperature = ICE_POINT - 32.0 * DEGREE_FAHRENHEIT;
 //!
-//! pub struct Scale<P, S>(pub P, pub S);                  // a zero and a step, with an `impl Unit` of yours
-//! pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
+//! pub struct Celsius;                                    // a unit type: a zero and a step
+//! impl const Unit<Temperature, f64> for Celsius {
+//!     fn quantity(&self, n: f64) -> Temperature { ICE_POINT + KELVIN.quantity(n) }
+//!     fn value(&self, t: Temperature) -> f64 { KELVIN.value(t - ICE_POINT) }
+//! }
+//! impl Display for Celsius { /* "°C" */ }
 //!
 //! let p = PSI.quantity(14.7);                            // build
 //! let bar = BAR.value(p);                                // read
-//! let t = CELSIUS.quantity(25.0);                       // 298.15 K: the zero point is the unit's business
-//! let c = CELSIUS.value(t);                              // 25.0
+//! let t = Celsius.quantity(25.0);                        // 298.15 K: the zero point is the unit's business
+//! let c = Celsius.value(t);                              // 25.0
 //! ```
 //!
-//! A family of named units picked at run time - for a menu, a config file, a
-//! parser - is an enum, each variant naming the unit value it is.
-//! `#[derive(Unit)]` writes [`Unit`], and `Display` / `FromStr` from each
-//! unit's symbol and name:
+//! `#[derive(Unit)]` on an enum writes [`Unit`] by matching on the variant,
+//! and `Display` / `FromStr` from each unit type's own `Display`:
 //!
 //! ```ignore
 //! #[derive(Copy, Clone, yadc::Unit)]
-//! #[unit(of = Temperature)]
+//! #[unit(of = Temperature, number = f64)]
 //! pub enum TemperatureUnit {
-//!     #[unit("K", "kelvin", by = Scale(ABSOLUTE_ZERO, KELVIN))] Kelvin,
-//!     #[unit("°C", "degrees Celsius", by = CELSIUS)] Celsius,
-//!     #[unit("°F", "degrees Fahrenheit", by = Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT))] Fahrenheit,
+//!     #[unit(KelvinScale)] Kelvin,
+//!     #[unit(Celsius)] Celsius,
+//!     #[unit(Fahrenheit)] Fahrenheit,
 //! }
 //! let u: TemperatureUnit = "°F".parse()?;
-//! println!("{:.1} {u:#}", u.value(t));                   // "77.0 degrees Fahrenheit"
+//! println!("{:.1} {u}", u.value(t));                     // "77.0 °F"
 //! ```
 //!
 //! Quantities print themselves too: `{}` is the number and the dimension
@@ -132,7 +135,12 @@
 //!
 //! pub type Altitude = Qty<{ Dim { m: 1, kind: Kind::Affine, ..Dim::DIMENSIONLESS } }>;
 //! pub const SEA_LEVEL: Altitude = Qty(0.0);
-//! pub const FEET_AMSL: Scale<Altitude, Length> = Scale(SEA_LEVEL, FOOT);
+//!
+//! pub struct FeetAmsl;                                   // read from a zero, with a step
+//! impl const Unit<Altitude, f64> for FeetAmsl {
+//!     fn quantity(&self, n: f64) -> Altitude { SEA_LEVEL + FOOT.quantity(n) }
+//!     fn value(&self, a: Altitude) -> f64 { FOOT.value(a - SEA_LEVEL) }
+//! }
 //! ```
 //!
 //! **Affine: a point.** Its zero is a convention - an altitude above sea
@@ -142,9 +150,10 @@
 //! nothing else compiles: `altitude + altitude` ("cannot add a point to a
 //! point"), `altitude * 2.0` ("a point cannot be scaled"), `altitude *
 //! length` ("these have no product") - each answer would depend on where the
-//! zero was put. Which zero is not in the type: a point is read on a scale,
-//! a zero and a step, and every scale of one dimension reads the same line -
-//! `Scale(SEA_LEVEL, FOOT)`, `Scale(runway, FOOT)` made at run time, °C and °F.
+//! zero was put. Which zero is not in the type: a point is read with a unit
+//! that counts steps from a zero, and every such unit of one dimension reads
+//! the same line - feet above sea level, feet above a runway chosen at run
+//! time, °C and °F.
 //!
 //! **Log: a logarithm.** A level or a gain, in decibels. Adding logarithms
 //! multiplies what they are the logarithms of, so `+` and `-` add and
@@ -167,7 +176,7 @@
 //! | Trait | On the whiteboard | It asks for |
 //! |---|---|---|
 //! | [`Dimension`] | exponents that add under `*`, plus optionally a kind - an amount, a point, a logarithm, or a label of yours: a product and a quotient (total for exponents alone, partial with a kind - a point, a level, or a label with no sum beside a plain number has none; not associative with labels), a sum that may not exist and keeps its left operand (an action, not a commutative sum) | std `*` `/` (`Output: Into<Option<Self>>`), `+` `-` returning `Option`, a power and a root ([`PartialPowi`], [`PartialRoot`]), `DIMENSIONLESS` (dimension one); `plain` (the label forgotten) is provided |
-//! | [`Quantity`] | a value you can add, scale and compare, with itself as a unit | `Copy`, `PartialOrd`, `+`, scaling by its [`Number`](Quantity::Number)s, [`Unit<Self>`](Unit) |
+//! | [`Quantity`] | a value you can add, scale and compare, with itself as a unit | `Copy`, `PartialOrd`, `+`, scaling by its [`Number`](Quantity::Number)s, [`Unit<Self, Self::Number>`](Unit) |
 //! | [`Unit<Q, N>`] | two inverse functions between numbers and `Q` (a coordinate chart) | `quantity`, `value` |
 //!
 //! [`Cast<T>`] is a change of number type (`BAR.cast::<f32>()`). A
@@ -202,7 +211,7 @@
 //! | [`Dimension`] | the above operators, `PartialPowi` and `PartialRoot`, plus `DIMENSIONLESS` (dimension one: the empty product, what `x / x` gives); `plain` provided; implemented by `#[derive(Dimension)]` on a struct (a dimension) or on an enum (a label). A reciprocal is `DIMENSIONLESS / d` |
 //! | [`Powi<N>`] / [`Root<N>`] | a power or root with the exponent `N` known at compile time, typed: `Length` squared is an `Area`; called as `x.powi::<N>()` / `x.root::<N>()` with [`PowiAs`] / [`RootAs`] in scope |
 //! | [`Quantity`] | an amount: adds, scales by its `Number`s, compares, and is a unit of itself; by `#[derive(Quantity)]` for every member that can be scaled |
-//! | [`Unit<Q, N>`] | a unit of any `Q` counted in `N` (`f64` by default): `quantity(n)` builds, `value(q)` reads; dyn compatible. Quantity constants, and types of yours - `#[derive(Unit)]` or hand-written |
+//! | [`Unit<Q, N>`] | a unit of any `Q` counted in `N`: `quantity(n)` builds, `value(q)` reads; dyn compatible. Quantity values, types of yours with a hand-written impl, and enums of them by `#[derive(Unit)]` |
 //! | [`Cast<T>`] / [`CastAs`] | a change of number type, `x.cast::<f32>()`: primitives by `as`, a family generic over its number type by the derive (which also writes std `From` where the change is lossless: `Pressure::<f64>::from(p32)`) |
 //!
 //! Printing is std `Display`: a unit's (`{}` its symbol, `{:#}` its name) -
@@ -218,9 +227,10 @@
 //! inherent method or a field of some *other* type existing: the quantity
 //! derive reaches dimensions only through [`Dimension`] (the std operators,
 //! [`PartialPowi`], [`PartialRoot`], `DIMENSIONLESS` and `plain`), and a derived unit enum
-//! delegates to the unit values you name in its attributes. Only the crate
-//! that owns a quantity type can write its field, so its base constants are
-//! the only raw construction; everyone else builds and reads through units.
+//! delegates to the unit types you name in its attributes, through their
+//! `Unit` and `Display` impls. Only the crate that owns a quantity type can
+//! write its field: its base constants, and the unit impls it chooses to
+//! write there; everyone else builds and reads through units.
 //! Anything a derive can produce, you can write by hand, and the two
 //! interoperate. Every generated `::yadc` / `::serde` path can be redirected
 //! with `#[yadc(crate = "..", serde = "..")]`.
@@ -247,9 +257,9 @@
 //! | What your crate does | Required at crate root |
 //! |---|---|
 //! | Just uses already-defined aliases (`Mass`, `Force`, ...) | `#![feature(generic_const_exprs)]` |
-//! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity = 50.0 * MILE / HOUR;`) | additionally `const_trait_impl`, `const_ops` |
+//! | ... and does quantity arithmetic or unit conversions in its own `const` items (`const LIMIT: Velocity<f64> = MilePerHour {}.quantity(50.0);`) | additionally `const_trait_impl`, `const_ops` |
 //! | Defines its own `Qty<const D: Dim>`, custom `Dim` / `Kind`, or new `pub type Foo = Qty<{ ... }>;` aliases | `generic_const_exprs`, `min_adt_const_params`, `const_trait_impl`, `const_ops`, `const_cmp`, `const_default`, `const_convert`, `const_try`, `derive_const`, and `const_destruct` for a quantity type generic over its number type |
-//! | Defines unit enums (`#[derive(Unit)]`) | `const_trait_impl` |
+//! | Defines unit types (`impl const Unit`) or unit enums (`#[derive(Unit)]`) | `const_trait_impl` |
 //!
 //! Plus `#![allow(incomplete_features)]` to silence the `generic_const_exprs`
 //! warning.

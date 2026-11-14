@@ -1,9 +1,9 @@
 //! The dynamic half: what is chosen at run time - a quantity's dimension
-//! (`DynamicSIQuantity`), and its unit (each module's unit enums,
-//! `dynamic::mechanical::LengthUnit`).
+//! (`DynamicSIQuantity`), a unit of any dimension (`DynamicSIUnit`), and a choice among a
+//! quantity's units (each module's unit enums, `dynamic::mechanical::LengthUnit`).
 
-use crate::{ISQ, SIQuantity};
-use yadc::Dimension;
+use crate::{ISQ, SIQuantity, SIUnit, SIUnitConsts};
+use yadc::{Dimension, Unit};
 
 #[cfg(feature = "angular")]
 pub mod angular;
@@ -29,9 +29,8 @@ pub mod thermal;
 /// `SIQuantity<D, f64>`, built with dynamickit. Converting (`From`) moves the number into
 /// `value` and records `D` in `dim`; `TryFrom<DynamicSIQuantity> for SIQuantity<D, f64>` is the
 /// checked way back (the error hands the original back). A bare `f64` is the
-/// same value as a dimensionless quantity (`shared`). Numbers still go through
-/// units, by way of the static quantity: `DynamicSIQuantity::from(LengthUnit::Mile.quantity(3.0))`,
-/// then `Mass::<f64>::try_from(d).map(|m| MassUnit::Kilogram.value(m))`.
+/// same value as a dimensionless quantity (`shared`). Numbers go through
+/// units: a `DynamicSIUnit` reads and builds it directly.
 ///
 /// Its arithmetic is every field's own: the dimension's operator on `dim`, the
 /// number's on `value`. Any of them may have no result - `None` where the dimensions don't combine:
@@ -59,4 +58,47 @@ pub mod thermal;
 pub struct DynamicSIQuantity {
     pub(crate) dim: ISQ,
     pub(crate) value: f64,
+}
+
+/// A unit of any dimension, decided at run time: the dynamic version of
+/// `SIUnit<D, C>`, built with dynamickit - `From` records `D` and `C`,
+/// `TryFrom<DynamicSIUnit> for SIUnit<D, C>` is the checked way back. A
+/// module's unit enum converts to one (`From<LengthUnit>`).
+///
+/// A unit of `Option<DynamicSIQuantity>` counted in `Option<f64>`, the way dynamic
+/// arithmetic results are: `quantity` builds a quantity of its dimension,
+/// and `value` reads one of its dimension - `None` for another, or for
+/// `None`. So a reading takes a calculation's result as it comes:
+/// `unit.value(a * b)`.
+#[derive(Copy, Clone, PartialEq, Debug, dynamickit::Dynamic)]
+#[dynamic(SIUnit<const D: ISQ, const C: SIUnitConsts> => { dim: D, consts: C })]
+pub struct DynamicSIUnit {
+    pub dim: ISQ,
+    pub consts: SIUnitConsts,
+}
+
+impl Unit<Option<DynamicSIQuantity>, Option<f64>> for DynamicSIUnit {
+    fn quantity(&self, value: Option<f64>) -> Option<DynamicSIQuantity> {
+        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
+        Some(DynamicSIQuantity {
+            dim: self.dim,
+            value: value? * size + zero,
+        })
+    }
+    fn value(&self, quantity: Option<DynamicSIQuantity>) -> Option<f64> {
+        let q = quantity?;
+        let (size, zero) = (f64::from(self.consts.size), f64::from(self.consts.zero));
+        (q.dim == self.dim).then(|| (q.value - zero) / size)
+    }
+}
+
+impl core::fmt::Display for DynamicSIUnit {
+    /// `{}` the symbol, `{:#}` the name; width, fill and alignment apply.
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.pad(if f.alternate() {
+            self.consts.name
+        } else {
+            self.consts.symbol
+        })
+    }
 }

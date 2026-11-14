@@ -2,342 +2,542 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::base::{KILOGRAM, METRE, ONE, SECOND};
-use crate::density::consts::*;
+use crate::density::units::*;
 use crate::density::*;
+use crate::dynamic::DynamicSIUnit;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `MassDensity`, in any number type the constants convert to.
+/// The units of `MassDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MassDensity<N>: [const] Unit<MassDensity<N>, N> + [const] Destruct)]
+#[unit(of = MassDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MassDensityUnit {
     #[default]
-    #[unit("kg/m³", "kilograms per cubic metre", by = MassDensity::<N>::from(KILOGRAM / (METRE * METRE * METRE)))]
+    #[unit(KilogramPerCubicMetre)]
     KilogramPerCubicMetre,
-    #[unit("g/m³", "grams per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(1, -3)))]
+    #[unit(GramPerCubicMetre)]
     GramPerCubicMetre,
-    #[unit("ct/m³", "carats per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(2, -4)))]
+    #[unit(CaratPerCubicMetre)]
     CaratPerCubicMetre,
-    #[unit("gr/m³", "grains per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(6479891, -11)))]
+    #[unit(GrainPerCubicMetre)]
     GrainPerCubicMetre,
-    #[unit("cwt long/m³", "hundredweight (long) per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(5080234544, -8)))]
+    #[unit(HundredweightLongPerCubicMetre)]
     HundredweightLongPerCubicMetre,
-    #[unit("cwt short/m³", "hundredweight (short) per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(45359237, -6)))]
+    #[unit(HundredweightShortPerCubicMetre)]
     HundredweightShortPerCubicMetre,
-    #[unit("oz/m³", "ounces per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(28349523125, -12)))]
+    #[unit(OuncePerCubicMetre)]
     OuncePerCubicMetre,
-    #[unit("oz t/m³", "troy ounces per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(311034768, -10)))]
+    #[unit(OunceTroyPerCubicMetre)]
     OunceTroyPerCubicMetre,
-    #[unit("dwt/m³", "pennyweight per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(155517384, -11)))]
+    #[unit(PennyweightPerCubicMetre)]
     PennyweightPerCubicMetre,
-    #[unit("lb/m³", "pounds per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(45359237, -8)))]
+    #[unit(PoundPerCubicMetre)]
     PoundPerCubicMetre,
-    #[unit("lb t/m³", "troy pounds per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(3732417216, -10)))]
+    #[unit(PoundTroyPerCubicMetre)]
     PoundTroyPerCubicMetre,
-    #[unit("slug/m³", "slugs per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4))))]
+    #[unit(SlugPerCubicMetre)]
     SlugPerCubicMetre,
-    #[unit("AT/m³", "assay tons per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(175, -3) / Exact::int(6))))]
+    #[unit(TonAssayPerCubicMetre)]
     TonAssayPerCubicMetre,
-    #[unit("2240 lb/m³", "long tons per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(10160469088, -7)))]
+    #[unit(TonLongPerCubicMetre)]
     TonLongPerCubicMetre,
-    #[unit("2000 lb/m³", "short tons per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::dec(90718474, -5)))]
+    #[unit(TonShortPerCubicMetre)]
     TonShortPerCubicMetre,
-    #[unit("t/m³", "tons per cubic metre", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * Exact::int(1000)))]
+    #[unit(TonPerCubicMetre)]
     TonPerCubicMetre,
-    #[unit("gr/gal", "grains per gallon", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(6479891, -11) / Exact::dec(3785411784, -12))))]
+    #[unit(GrainPerGallon)]
     GrainPerGallon,
-    #[unit("oz/in³", "ounces per cubic inch", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(28349523125, -12) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(OuncePerCubicInch)]
     OuncePerCubicInch,
-    #[unit("oz/gal (UK)", "ounces per Imperial gallon", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(28349523125, -12) / Exact::dec(454609, -8))))]
+    #[unit(OuncePerGallonImperial)]
     OuncePerGallonImperial,
-    #[unit("oz/gal", "ounces per gallon", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(28349523125, -12) / Exact::dec(3785411784, -12))))]
+    #[unit(OuncePerGallon)]
     OuncePerGallon,
-    #[unit("lb/ft³", "pounds per cubic foot", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(45359237, -8) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PoundPerCubicFoot)]
     PoundPerCubicFoot,
-    #[unit("lb/in³", "pounds per cubic inch", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(45359237, -8) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(PoundPerCubicInch)]
     PoundPerCubicInch,
-    #[unit("lb/yd³", "pounds per cubic yard", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(45359237, -8) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(PoundPerCubicYard)]
     PoundPerCubicYard,
-    #[unit("lb/gal (UK)", "pounds per Imperial gallon", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(45359237, -8) / Exact::dec(454609, -8))))]
+    #[unit(PoundPerGallonImperial)]
     PoundPerGallonImperial,
-    #[unit("lb/gal", "pounds per gallon", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(45359237, -8) / Exact::dec(3785411784, -12))))]
+    #[unit(PoundPerGallon)]
     PoundPerGallon,
-    #[unit("slug/ft³", "slugs per cubic foot", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(SlugPerCubicFoot)]
     SlugPerCubicFoot,
-    #[unit("2240 lb/yd³", "long tons per cubic yard", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(10160469088, -7) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(TonLongPerCubicYard)]
     TonLongPerCubicYard,
-    #[unit("2000 lb/yd³", "short tons per cubic yard", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(90718474, -5) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(TonShortPerCubicYard)]
     TonShortPerCubicYard,
-    #[unit("2240 lb/ft³", "long tons per cubic foot", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(10160469088, -7) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(TonLongPerCubicFoot)]
     TonLongPerCubicFoot,
-    #[unit("2000 lb/ft³", "short tons per cubic foot", by = MassDensity::<N>::from((KILOGRAM / (METRE * METRE * METRE)) * (Exact::dec(90718474, -5) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(TonShortPerCubicFoot)]
     TonShortPerCubicFoot,
 }
 
-/// The units of `LinearMassDensity`, in any number type the constants convert to.
+impl From<MassDensityUnit> for DynamicSIUnit {
+    fn from(unit: MassDensityUnit) -> Self {
+        match unit {
+            MassDensityUnit::KilogramPerCubicMetre => KilogramPerCubicMetre {}.into(),
+            MassDensityUnit::GramPerCubicMetre => GramPerCubicMetre {}.into(),
+            MassDensityUnit::CaratPerCubicMetre => CaratPerCubicMetre {}.into(),
+            MassDensityUnit::GrainPerCubicMetre => GrainPerCubicMetre {}.into(),
+            MassDensityUnit::HundredweightLongPerCubicMetre => {
+                HundredweightLongPerCubicMetre {}.into()
+            }
+            MassDensityUnit::HundredweightShortPerCubicMetre => {
+                HundredweightShortPerCubicMetre {}.into()
+            }
+            MassDensityUnit::OuncePerCubicMetre => OuncePerCubicMetre {}.into(),
+            MassDensityUnit::OunceTroyPerCubicMetre => OunceTroyPerCubicMetre {}.into(),
+            MassDensityUnit::PennyweightPerCubicMetre => PennyweightPerCubicMetre {}.into(),
+            MassDensityUnit::PoundPerCubicMetre => PoundPerCubicMetre {}.into(),
+            MassDensityUnit::PoundTroyPerCubicMetre => PoundTroyPerCubicMetre {}.into(),
+            MassDensityUnit::SlugPerCubicMetre => SlugPerCubicMetre {}.into(),
+            MassDensityUnit::TonAssayPerCubicMetre => TonAssayPerCubicMetre {}.into(),
+            MassDensityUnit::TonLongPerCubicMetre => TonLongPerCubicMetre {}.into(),
+            MassDensityUnit::TonShortPerCubicMetre => TonShortPerCubicMetre {}.into(),
+            MassDensityUnit::TonPerCubicMetre => TonPerCubicMetre {}.into(),
+            MassDensityUnit::GrainPerGallon => GrainPerGallon {}.into(),
+            MassDensityUnit::OuncePerCubicInch => OuncePerCubicInch {}.into(),
+            MassDensityUnit::OuncePerGallonImperial => OuncePerGallonImperial {}.into(),
+            MassDensityUnit::OuncePerGallon => OuncePerGallon {}.into(),
+            MassDensityUnit::PoundPerCubicFoot => PoundPerCubicFoot {}.into(),
+            MassDensityUnit::PoundPerCubicInch => PoundPerCubicInch {}.into(),
+            MassDensityUnit::PoundPerCubicYard => PoundPerCubicYard {}.into(),
+            MassDensityUnit::PoundPerGallonImperial => PoundPerGallonImperial {}.into(),
+            MassDensityUnit::PoundPerGallon => PoundPerGallon {}.into(),
+            MassDensityUnit::SlugPerCubicFoot => SlugPerCubicFoot {}.into(),
+            MassDensityUnit::TonLongPerCubicYard => TonLongPerCubicYard {}.into(),
+            MassDensityUnit::TonShortPerCubicYard => TonShortPerCubicYard {}.into(),
+            MassDensityUnit::TonLongPerCubicFoot => TonLongPerCubicFoot {}.into(),
+            MassDensityUnit::TonShortPerCubicFoot => TonShortPerCubicFoot {}.into(),
+        }
+    }
+}
+
+/// The units of `LinearMassDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearMassDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LinearMassDensity<N>: [const] Unit<LinearMassDensity<N>, N> + [const] Destruct)]
+#[unit(of = LinearMassDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LinearMassDensityUnit {
     #[default]
-    #[unit("kg/m", "kilograms per metre", by = LinearMassDensity::<N>::from(KILOGRAM / METRE))]
+    #[unit(KilogramPerMetre)]
     KilogramPerMetre,
-    #[unit("oz/ft", "ounces per foot", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * (Exact::dec(28349523125, -12) / Exact::dec(3048, -4))))]
+    #[unit(OuncePerFoot)]
     OuncePerFoot,
-    #[unit("oz/in", "ounces per inch", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * (Exact::dec(28349523125, -12) / Exact::dec(254, -4))))]
+    #[unit(OuncePerInch)]
     OuncePerInch,
-    #[unit("lb/yd", "pounds per yard", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * (Exact::dec(45359237, -8) / Exact::dec(9144, -4))))]
+    #[unit(PoundPerYard)]
     PoundPerYard,
-    #[unit("lb/ft", "pounds per foot", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * (Exact::dec(45359237, -8) / Exact::dec(3048, -4))))]
+    #[unit(PoundPerFoot)]
     PoundPerFoot,
-    #[unit("lb/in", "pounds per inch", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * (Exact::dec(45359237, -8) / Exact::dec(254, -4))))]
+    #[unit(PoundPerInch)]
     PoundPerInch,
-    #[unit("g/km", "grams per kilometre", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * Exact::dec(1, -6)))]
+    #[unit(GramPerKilometre)]
     GramPerKilometre,
-    #[unit("g/cm", "grams per centimetre", by = LinearMassDensity::<N>::from((KILOGRAM / METRE) * Exact::dec(1, -1)))]
+    #[unit(GramPerCentimetre)]
     GramPerCentimetre,
 }
 
-/// The units of `ArealMassDensity`, in any number type the constants convert to.
+impl From<LinearMassDensityUnit> for DynamicSIUnit {
+    fn from(unit: LinearMassDensityUnit) -> Self {
+        match unit {
+            LinearMassDensityUnit::KilogramPerMetre => KilogramPerMetre {}.into(),
+            LinearMassDensityUnit::OuncePerFoot => OuncePerFoot {}.into(),
+            LinearMassDensityUnit::OuncePerInch => OuncePerInch {}.into(),
+            LinearMassDensityUnit::PoundPerYard => PoundPerYard {}.into(),
+            LinearMassDensityUnit::PoundPerFoot => PoundPerFoot {}.into(),
+            LinearMassDensityUnit::PoundPerInch => PoundPerInch {}.into(),
+            LinearMassDensityUnit::GramPerKilometre => GramPerKilometre {}.into(),
+            LinearMassDensityUnit::GramPerCentimetre => GramPerCentimetre {}.into(),
+        }
+    }
+}
+
+/// The units of `ArealMassDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealMassDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where ArealMassDensity<N>: [const] Unit<ArealMassDensity<N>, N> + [const] Destruct)]
+#[unit(of = ArealMassDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ArealMassDensityUnit {
     #[default]
-    #[unit("kg/m²", "kilograms per square metre", by = ArealMassDensity::<N>::from(KILOGRAM / (METRE * METRE)))]
+    #[unit(KilogramPerSquareMetre)]
     KilogramPerSquareMetre,
-    #[unit("g/m²", "grams per square metre", by = ArealMassDensity::<N>::from((KILOGRAM / (METRE * METRE)) * Exact::dec(1, -3)))]
+    #[unit(GramPerSquareMetre)]
     GramPerSquareMetre,
-    #[unit("oz/ft²", "ounces per square foot", by = ArealMassDensity::<N>::from((KILOGRAM / (METRE * METRE)) * (Exact::dec(28349523125, -12) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(OuncePerSquareFoot)]
     OuncePerSquareFoot,
 }
 
-/// The units of `LinearNumberDensity`, in any number type the constants convert to.
+impl From<ArealMassDensityUnit> for DynamicSIUnit {
+    fn from(unit: ArealMassDensityUnit) -> Self {
+        match unit {
+            ArealMassDensityUnit::KilogramPerSquareMetre => KilogramPerSquareMetre {}.into(),
+            ArealMassDensityUnit::GramPerSquareMetre => GramPerSquareMetre {}.into(),
+            ArealMassDensityUnit::OuncePerSquareFoot => OuncePerSquareFoot {}.into(),
+        }
+    }
+}
+
+/// The units of `LinearNumberDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearNumberDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LinearNumberDensity<N>: [const] Unit<LinearNumberDensity<N>, N> + [const] Destruct)]
+#[unit(of = LinearNumberDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LinearNumberDensityUnit {
     #[default]
-    #[unit("m⁻¹", "per metre", by = LinearNumberDensity::<N>::from(PER_METRE))]
+    #[unit(PerMetre)]
     PerMetre,
-    #[unit("ft⁻¹", "per foot", by = LinearNumberDensity::<N>::from(PER_FOOT))]
+    #[unit(PerFoot)]
     PerFoot,
-    #[unit("ft (U.S. survey)", "foot (U.S. survey)", by = LinearNumberDensity::<N>::from(PER_FOOT_SURVEY))]
+    #[unit(PerFootSurvey)]
     PerFootSurvey,
-    #[unit("in⁻¹", "per inch", by = LinearNumberDensity::<N>::from(PER_INCH))]
+    #[unit(PerInch)]
     PerInch,
-    #[unit("mi⁻¹", "per mile", by = LinearNumberDensity::<N>::from(PER_MILE))]
+    #[unit(PerMile)]
     PerMile,
-    #[unit("mi⁻¹ (U.S. survey)", "per mile (U.S. survey)", by = LinearNumberDensity::<N>::from(PER_MILE_SURVEY))]
+    #[unit(PerMileSurvey)]
     PerMileSurvey,
-    #[unit("M⁻¹", "per nautical mile", by = LinearNumberDensity::<N>::from(PER_NAUTICAL_MILE))]
+    #[unit(PerNauticalMile)]
     PerNauticalMile,
-    #[unit("yd⁻¹", "per yard", by = LinearNumberDensity::<N>::from(PER_YARD))]
+    #[unit(PerYard)]
     PerYard,
 }
 
-/// The units of `ArealNumberDensity`, in any number type the constants convert to.
+impl From<LinearNumberDensityUnit> for DynamicSIUnit {
+    fn from(unit: LinearNumberDensityUnit) -> Self {
+        match unit {
+            LinearNumberDensityUnit::PerMetre => PerMetre {}.into(),
+            LinearNumberDensityUnit::PerFoot => PerFoot {}.into(),
+            LinearNumberDensityUnit::PerFootSurvey => PerFootSurvey {}.into(),
+            LinearNumberDensityUnit::PerInch => PerInch {}.into(),
+            LinearNumberDensityUnit::PerMile => PerMile {}.into(),
+            LinearNumberDensityUnit::PerMileSurvey => PerMileSurvey {}.into(),
+            LinearNumberDensityUnit::PerNauticalMile => PerNauticalMile {}.into(),
+            LinearNumberDensityUnit::PerYard => PerYard {}.into(),
+        }
+    }
+}
+
+/// The units of `ArealNumberDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealNumberDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where ArealNumberDensity<N>: [const] Unit<ArealNumberDensity<N>, N> + [const] Destruct)]
+#[unit(of = ArealNumberDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ArealNumberDensityUnit {
     #[default]
-    #[unit("m⁻²", "per square metre", by = ArealNumberDensity::<N>::from(ONE / (METRE * METRE)))]
+    #[unit(PerSquareMetre)]
     PerSquareMetre,
-    #[unit("ac⁻²", "per acre", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * (Exact::int(1) / (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937))))))]
+    #[unit(PerAcre)]
     PerAcre,
-    #[unit("a⁻²", "per are", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * Exact::dec(1, -2)))]
+    #[unit(PerAre)]
     PerAre,
-    #[unit("b⁻²", "per barn", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * Exact::int(10000000000000000000000000000)))]
+    #[unit(PerBarn)]
     PerBarn,
-    #[unit("cmil⁻²", "per circular mil", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * (Exact::int(4) / (Exact::PI * Exact::dec(254, -7) * Exact::dec(254, -7)))))]
+    #[unit(PerCircularMil)]
     PerCircularMil,
-    #[unit("ha⁻²", "per hectare", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * Exact::dec(1, -4)))]
+    #[unit(PerHectare)]
     PerHectare,
-    #[unit("ft⁻²", "per square foot", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PerSquareFoot)]
     PerSquareFoot,
-    #[unit("in⁻²", "per square inch", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(PerSquareInch)]
     PerSquareInch,
-    #[unit("mi⁻²", "per square mile", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3)))))]
+    #[unit(PerSquareMile)]
     PerSquareMile,
-    #[unit("yd⁻²", "per square yard", by = ArealNumberDensity::<N>::from((ONE / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(PerSquareYard)]
     PerSquareYard,
 }
 
-/// The units of `VolumetricNumberDensity`, in any number type the constants convert to.
+impl From<ArealNumberDensityUnit> for DynamicSIUnit {
+    fn from(unit: ArealNumberDensityUnit) -> Self {
+        match unit {
+            ArealNumberDensityUnit::PerSquareMetre => PerSquareMetre {}.into(),
+            ArealNumberDensityUnit::PerAcre => PerAcre {}.into(),
+            ArealNumberDensityUnit::PerAre => PerAre {}.into(),
+            ArealNumberDensityUnit::PerBarn => PerBarn {}.into(),
+            ArealNumberDensityUnit::PerCircularMil => PerCircularMil {}.into(),
+            ArealNumberDensityUnit::PerHectare => PerHectare {}.into(),
+            ArealNumberDensityUnit::PerSquareFoot => PerSquareFoot {}.into(),
+            ArealNumberDensityUnit::PerSquareInch => PerSquareInch {}.into(),
+            ArealNumberDensityUnit::PerSquareMile => PerSquareMile {}.into(),
+            ArealNumberDensityUnit::PerSquareYard => PerSquareYard {}.into(),
+        }
+    }
+}
+
+/// The units of `VolumetricNumberDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricNumberDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where VolumetricNumberDensity<N>: [const] Unit<VolumetricNumberDensity<N>, N> + [const] Destruct)]
+#[unit(of = VolumetricNumberDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumetricNumberDensityUnit {
     #[default]
-    #[unit("m⁻³", "per cubic metre", by = VolumetricNumberDensity::<N>::from(ONE / (METRE * METRE * METRE)))]
+    #[unit(PerCubicMetre)]
     PerCubicMetre,
-    #[unit("ft⁻³", "per cubic foot", by = VolumetricNumberDensity::<N>::from((ONE / (METRE * METRE * METRE)) * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PerCubicFoot)]
     PerCubicFoot,
-    #[unit("in⁻³", "per cubic inch", by = VolumetricNumberDensity::<N>::from((ONE / (METRE * METRE * METRE)) * (Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(PerCubicInch)]
     PerCubicInch,
-    #[unit("mi⁻³", "per cubic mile", by = VolumetricNumberDensity::<N>::from((ONE / (METRE * METRE * METRE)) * (Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3)))))]
+    #[unit(PerCubicMile)]
     PerCubicMile,
-    #[unit("yd⁻³", "per cubic yard", by = VolumetricNumberDensity::<N>::from((ONE / (METRE * METRE * METRE)) * (Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(PerCubicYard)]
     PerCubicYard,
-    #[unit("per fl oz", "per fluid ounce", by = VolumetricNumberDensity::<N>::from(PER_FLUID_OUNCE))]
+    #[unit(PerFluidOunce)]
     PerFluidOunce,
-    #[unit("per fl oz (UK)", "per Imperial fluid ounce", by = VolumetricNumberDensity::<N>::from(PER_FLUID_OUNCE_IMPERIAL))]
+    #[unit(PerFluidOunceImperial)]
     PerFluidOunceImperial,
-    #[unit("per gal (UK)", "per Imperial gallon", by = VolumetricNumberDensity::<N>::from(PER_GALLON_IMPERIAL))]
+    #[unit(PerGallonImperial)]
     PerGallonImperial,
-    #[unit("per gal", "per gallon", by = VolumetricNumberDensity::<N>::from(PER_GALLON))]
+    #[unit(PerGallon)]
     PerGallon,
-    #[unit("L⁻¹", "per litre", by = VolumetricNumberDensity::<N>::from(PER_LITRE))]
+    #[unit(PerLitre)]
     PerLitre,
 }
 
-/// The units of `LinearNumberRate`, in any number type the constants convert to.
+impl From<VolumetricNumberDensityUnit> for DynamicSIUnit {
+    fn from(unit: VolumetricNumberDensityUnit) -> Self {
+        match unit {
+            VolumetricNumberDensityUnit::PerCubicMetre => PerCubicMetre {}.into(),
+            VolumetricNumberDensityUnit::PerCubicFoot => PerCubicFoot {}.into(),
+            VolumetricNumberDensityUnit::PerCubicInch => PerCubicInch {}.into(),
+            VolumetricNumberDensityUnit::PerCubicMile => PerCubicMile {}.into(),
+            VolumetricNumberDensityUnit::PerCubicYard => PerCubicYard {}.into(),
+            VolumetricNumberDensityUnit::PerFluidOunce => PerFluidOunce {}.into(),
+            VolumetricNumberDensityUnit::PerFluidOunceImperial => PerFluidOunceImperial {}.into(),
+            VolumetricNumberDensityUnit::PerGallonImperial => PerGallonImperial {}.into(),
+            VolumetricNumberDensityUnit::PerGallon => PerGallon {}.into(),
+            VolumetricNumberDensityUnit::PerLitre => PerLitre {}.into(),
+        }
+    }
+}
+
+/// The units of `LinearNumberRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearNumberRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LinearNumberRate<N>: [const] Unit<LinearNumberRate<N>, N> + [const] Destruct)]
+#[unit(of = LinearNumberRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LinearNumberRateUnit {
     #[default]
-    #[unit("m⁻¹ · s⁻¹", "per metre second", by = LinearNumberRate::<N>::from(ONE / (METRE * SECOND)))]
+    #[unit(PerMetreSecond)]
     PerMetreSecond,
-    #[unit("ft⁻¹ · s⁻¹", "per foot second", by = LinearNumberRate::<N>::from((ONE / (METRE * SECOND)) * (Exact::int(1) / Exact::dec(3048, -4))))]
+    #[unit(PerFootSecond)]
     PerFootSecond,
-    #[unit("ft⁻¹ (U.S. survey) · s⁻¹", "per foot (U.S. survey) second", by = LinearNumberRate::<N>::from((ONE / (METRE * SECOND)) * (Exact::int(1) / (Exact::int(1200) / Exact::int(3937)))))]
+    #[unit(PerFootSurveySecond)]
     PerFootSurveySecond,
-    #[unit("in⁻¹ · s⁻¹", "per inch second", by = LinearNumberRate::<N>::from((ONE / (METRE * SECOND)) * (Exact::int(1) / Exact::dec(254, -4))))]
+    #[unit(PerInchSecond)]
     PerInchSecond,
-    #[unit("mi⁻¹ · s⁻¹", "per mile second", by = LinearNumberRate::<N>::from((ONE / (METRE * SECOND)) * (Exact::int(1) / Exact::dec(1609344, -3))))]
+    #[unit(PerMileSecond)]
     PerMileSecond,
-    #[unit("mi⁻¹ (U.S. survey) · s⁻¹", "per mile (U.S. survey) second", by = LinearNumberRate::<N>::from((ONE / (METRE * SECOND)) * (Exact::int(1) / (Exact::int(6336000) / Exact::int(3937)))))]
+    #[unit(PerMileSurveySecond)]
     PerMileSurveySecond,
-    #[unit("yd⁻¹ · s⁻¹", "per yard second", by = LinearNumberRate::<N>::from((ONE / (METRE * SECOND)) * (Exact::int(1) / Exact::dec(9144, -4))))]
+    #[unit(PerYardSecond)]
     PerYardSecond,
 }
 
-/// The units of `ArealNumberRate`, in any number type the constants convert to.
+impl From<LinearNumberRateUnit> for DynamicSIUnit {
+    fn from(unit: LinearNumberRateUnit) -> Self {
+        match unit {
+            LinearNumberRateUnit::PerMetreSecond => PerMetreSecond {}.into(),
+            LinearNumberRateUnit::PerFootSecond => PerFootSecond {}.into(),
+            LinearNumberRateUnit::PerFootSurveySecond => PerFootSurveySecond {}.into(),
+            LinearNumberRateUnit::PerInchSecond => PerInchSecond {}.into(),
+            LinearNumberRateUnit::PerMileSecond => PerMileSecond {}.into(),
+            LinearNumberRateUnit::PerMileSurveySecond => PerMileSurveySecond {}.into(),
+            LinearNumberRateUnit::PerYardSecond => PerYardSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `ArealNumberRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealNumberRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where ArealNumberRate<N>: [const] Unit<ArealNumberRate<N>, N> + [const] Destruct)]
+#[unit(of = ArealNumberRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ArealNumberRateUnit {
     #[default]
-    #[unit("m⁻² · s⁻¹", "per square metre second", by = ArealNumberRate::<N>::from(ONE / (METRE * METRE * SECOND)))]
+    #[unit(PerSquareMetreSecond)]
     PerSquareMetreSecond,
-    #[unit("ac⁻¹ · s⁻¹", "per acre second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937))))))]
+    #[unit(PerAcreSecond)]
     PerAcreSecond,
-    #[unit("a⁻¹ · s⁻¹", "per are second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * Exact::dec(1, -2)))]
+    #[unit(PerAreSecond)]
     PerAreSecond,
-    #[unit("b⁻¹ · s⁻¹", "per barn second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * Exact::int(10000000000000000000000000000)))]
+    #[unit(PerBarnSecond)]
     PerBarnSecond,
-    #[unit("cmil⁻¹ · s⁻¹", "per circular mil second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * (Exact::int(4) / (Exact::PI * Exact::dec(254, -7) * Exact::dec(254, -7)))))]
+    #[unit(PerCircularMilSecond)]
     PerCircularMilSecond,
-    #[unit("ha⁻¹ · s⁻¹", "per hectare second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * Exact::dec(1, -4)))]
+    #[unit(PerHectareSecond)]
     PerHectareSecond,
-    #[unit("ft⁻² · s⁻¹", "per square foot second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PerSquareFootSecond)]
     PerSquareFootSecond,
-    #[unit("in⁻² · s⁻¹", "per square inch second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(PerSquareInchSecond)]
     PerSquareInchSecond,
-    #[unit("mi⁻² · s⁻¹", "per square mile second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3)))))]
+    #[unit(PerSquareMileSecond)]
     PerSquareMileSecond,
-    #[unit("yd⁻² · s⁻¹", "per square yard second", by = ArealNumberRate::<N>::from((ONE / (METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(PerSquareYardSecond)]
     PerSquareYardSecond,
 }
 
-/// The units of `VolumetricNumberRate`, in any number type the constants convert to.
+impl From<ArealNumberRateUnit> for DynamicSIUnit {
+    fn from(unit: ArealNumberRateUnit) -> Self {
+        match unit {
+            ArealNumberRateUnit::PerSquareMetreSecond => PerSquareMetreSecond {}.into(),
+            ArealNumberRateUnit::PerAcreSecond => PerAcreSecond {}.into(),
+            ArealNumberRateUnit::PerAreSecond => PerAreSecond {}.into(),
+            ArealNumberRateUnit::PerBarnSecond => PerBarnSecond {}.into(),
+            ArealNumberRateUnit::PerCircularMilSecond => PerCircularMilSecond {}.into(),
+            ArealNumberRateUnit::PerHectareSecond => PerHectareSecond {}.into(),
+            ArealNumberRateUnit::PerSquareFootSecond => PerSquareFootSecond {}.into(),
+            ArealNumberRateUnit::PerSquareInchSecond => PerSquareInchSecond {}.into(),
+            ArealNumberRateUnit::PerSquareMileSecond => PerSquareMileSecond {}.into(),
+            ArealNumberRateUnit::PerSquareYardSecond => PerSquareYardSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `VolumetricNumberRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricNumberRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where VolumetricNumberRate<N>: [const] Unit<VolumetricNumberRate<N>, N> + [const] Destruct)]
+#[unit(of = VolumetricNumberRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumetricNumberRateUnit {
     #[default]
-    #[unit("m⁻³ · s⁻¹", "per cubic metre second", by = VolumetricNumberRate::<N>::from(ONE / (METRE * METRE * METRE * SECOND)))]
+    #[unit(PerCubicMetreSecond)]
     PerCubicMetreSecond,
-    #[unit("ft⁻³ · s⁻¹", "per cubic foot second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PerCubicFootSecond)]
     PerCubicFootSecond,
-    #[unit("in⁻³ · s⁻¹", "per cubic inch second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(PerCubicInchSecond)]
     PerCubicInchSecond,
-    #[unit("mi⁻³ · s⁻¹", "per cubic mile second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3)))))]
+    #[unit(PerCubicMileSecond)]
     PerCubicMileSecond,
-    #[unit("yd⁻³ · s⁻¹", "per cubic yard second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)))))]
+    #[unit(PerCubicYardSecond)]
     PerCubicYardSecond,
-    #[unit("fl oz⁻¹ · s⁻¹", "per fluid ounce second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / Exact::dec(295735295625, -16))))]
+    #[unit(PerFluidOunceSecond)]
     PerFluidOunceSecond,
-    #[unit("fl oz⁻¹ (UK) · s⁻¹", "per Imperial fluid ounce second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / Exact::dec(284130625, -13))))]
+    #[unit(PerFluidOunceImperialSecond)]
     PerFluidOunceImperialSecond,
-    #[unit("gal⁻¹ (UK) · s⁻¹", "per Imperial gallon second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / Exact::dec(454609, -8))))]
+    #[unit(PerGallonImperialSecond)]
     PerGallonImperialSecond,
-    #[unit("gal⁻¹ · s⁻¹", "per gallon second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / Exact::dec(3785411784, -12))))]
+    #[unit(PerGallonSecond)]
     PerGallonSecond,
-    #[unit("L⁻¹ · s⁻¹", "per litre second", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * Exact::int(1000)))]
+    #[unit(PerLitreSecond)]
     PerLitreSecond,
-    #[unit("Bq/m³", "becquerels per cubic metre", by = VolumetricNumberRate::<N>::from(ONE / (METRE * METRE * METRE * SECOND)))]
+    #[unit(BecquerelPerCubicMetre)]
     BecquerelPerCubicMetre,
-    #[unit("Ci/m³", "curies per cubic metre", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * Exact::int(37000000000)))]
+    #[unit(CuriePerCubicMetre)]
     CuriePerCubicMetre,
-    #[unit("dpm/m³", "disintegrations per minute per cubic metre", by = VolumetricNumberRate::<N>::from((ONE / (METRE * METRE * METRE * SECOND)) * (Exact::int(1) / Exact::int(60))))]
+    #[unit(DisintegrationsPerMinutePerCubicMetre)]
     DisintegrationsPerMinutePerCubicMetre,
 }
 
-/// The units of `LinearDensityOfStates`, in any number type the constants convert to.
+impl From<VolumetricNumberRateUnit> for DynamicSIUnit {
+    fn from(unit: VolumetricNumberRateUnit) -> Self {
+        match unit {
+            VolumetricNumberRateUnit::PerCubicMetreSecond => PerCubicMetreSecond {}.into(),
+            VolumetricNumberRateUnit::PerCubicFootSecond => PerCubicFootSecond {}.into(),
+            VolumetricNumberRateUnit::PerCubicInchSecond => PerCubicInchSecond {}.into(),
+            VolumetricNumberRateUnit::PerCubicMileSecond => PerCubicMileSecond {}.into(),
+            VolumetricNumberRateUnit::PerCubicYardSecond => PerCubicYardSecond {}.into(),
+            VolumetricNumberRateUnit::PerFluidOunceSecond => PerFluidOunceSecond {}.into(),
+            VolumetricNumberRateUnit::PerFluidOunceImperialSecond => {
+                PerFluidOunceImperialSecond {}.into()
+            }
+            VolumetricNumberRateUnit::PerGallonImperialSecond => PerGallonImperialSecond {}.into(),
+            VolumetricNumberRateUnit::PerGallonSecond => PerGallonSecond {}.into(),
+            VolumetricNumberRateUnit::PerLitreSecond => PerLitreSecond {}.into(),
+            VolumetricNumberRateUnit::BecquerelPerCubicMetre => BecquerelPerCubicMetre {}.into(),
+            VolumetricNumberRateUnit::CuriePerCubicMetre => CuriePerCubicMetre {}.into(),
+            VolumetricNumberRateUnit::DisintegrationsPerMinutePerCubicMetre => {
+                DisintegrationsPerMinutePerCubicMetre {}.into()
+            }
+        }
+    }
+}
+
+/// The units of `LinearDensityOfStates`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearDensityOfStates<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LinearDensityOfStates<N>: [const] Unit<LinearDensityOfStates<N>, N> + [const] Destruct)]
+#[unit(of = LinearDensityOfStates<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LinearDensityOfStatesUnit {
     #[default]
-    #[unit("1/(m · J)", "states per metre joule", by = LinearDensityOfStates::<N>::from(SECOND * SECOND / (METRE * METRE * METRE * KILOGRAM)))]
+    #[unit(StatePerMetreJoule)]
     StatePerMetreJoule,
 }
 
-/// The units of `ArealDensityOfStates`, in any number type the constants convert to.
+impl From<LinearDensityOfStatesUnit> for DynamicSIUnit {
+    fn from(unit: LinearDensityOfStatesUnit) -> Self {
+        match unit {
+            LinearDensityOfStatesUnit::StatePerMetreJoule => StatePerMetreJoule {}.into(),
+        }
+    }
+}
+
+/// The units of `ArealDensityOfStates`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ArealDensityOfStates<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where ArealDensityOfStates<N>: [const] Unit<ArealDensityOfStates<N>, N> + [const] Destruct)]
+#[unit(of = ArealDensityOfStates<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ArealDensityOfStatesUnit {
     #[default]
-    #[unit("1/(m² · J)", "states per square metre joule", by = ArealDensityOfStates::<N>::from(SECOND * SECOND / (METRE * METRE * METRE * METRE * KILOGRAM)))]
+    #[unit(StatePerSquareMetreJoule)]
     StatePerSquareMetreJoule,
 }
 
-/// The units of `VolumetricDensityOfStates`, in any number type the constants convert to.
+impl From<ArealDensityOfStatesUnit> for DynamicSIUnit {
+    fn from(unit: ArealDensityOfStatesUnit) -> Self {
+        match unit {
+            ArealDensityOfStatesUnit::StatePerSquareMetreJoule => {
+                StatePerSquareMetreJoule {}.into()
+            }
+        }
+    }
+}
+
+/// The units of `VolumetricDensityOfStates`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricDensityOfStates<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where VolumetricDensityOfStates<N>: [const] Unit<VolumetricDensityOfStates<N>, N> + [const] Destruct)]
+#[unit(of = VolumetricDensityOfStates<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumetricDensityOfStatesUnit {
     #[default]
-    #[unit("1/(m³ · J)", "states per cubic metre joule", by = VolumetricDensityOfStates::<N>::from(SECOND * SECOND / (METRE * METRE * METRE * METRE * METRE * KILOGRAM)))]
+    #[unit(StatePerCubicMetreJoule)]
     StatePerCubicMetreJoule,
 }
 
-/// The units of `LinearPowerDensity`, in any number type the constants convert to.
+impl From<VolumetricDensityOfStatesUnit> for DynamicSIUnit {
+    fn from(unit: VolumetricDensityOfStatesUnit) -> Self {
+        match unit {
+            VolumetricDensityOfStatesUnit::StatePerCubicMetreJoule => {
+                StatePerCubicMetreJoule {}.into()
+            }
+        }
+    }
+}
+
+/// The units of `LinearPowerDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LinearPowerDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LinearPowerDensity<N>: [const] Unit<LinearPowerDensity<N>, N> + [const] Destruct)]
+#[unit(of = LinearPowerDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LinearPowerDensityUnit {
     #[default]
-    #[unit("W/m", "watts per metre", by = LinearPowerDensity::<N>::from(METRE * KILOGRAM / (SECOND * SECOND * SECOND)))]
+    #[unit(WattPerMetre)]
     WattPerMetre,
 }
 
-/// The units of `VolumetricPowerDensity`, in any number type the constants convert to.
+impl From<LinearPowerDensityUnit> for DynamicSIUnit {
+    fn from(unit: LinearPowerDensityUnit) -> Self {
+        match unit {
+            LinearPowerDensityUnit::WattPerMetre => WattPerMetre {}.into(),
+        }
+    }
+}
+
+/// The units of `VolumetricPowerDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumetricPowerDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where VolumetricPowerDensity<N>: [const] Unit<VolumetricPowerDensity<N>, N> + [const] Destruct)]
+#[unit(of = VolumetricPowerDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumetricPowerDensityUnit {
     #[default]
-    #[unit("W/m³", "watts per cubic metre", by = VolumetricPowerDensity::<N>::from(KILOGRAM / (METRE * SECOND * SECOND * SECOND)))]
+    #[unit(WattPerCubicMetre)]
     WattPerCubicMetre,
+}
+
+impl From<VolumetricPowerDensityUnit> for DynamicSIUnit {
+    fn from(unit: VolumetricPowerDensityUnit) -> Self {
+        match unit {
+            VolumetricPowerDensityUnit::WattPerCubicMetre => WattPerCubicMetre {}.into(),
+        }
+    }
 }

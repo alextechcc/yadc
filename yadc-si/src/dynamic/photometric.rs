@@ -2,70 +2,109 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::base::{KILOGRAM, METRE, SECOND};
-use crate::photometric::consts::*;
+use crate::dynamic::DynamicSIUnit;
+use crate::photometric::units::*;
 use crate::photometric::*;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Luminance`, in any number type the constants convert to.
+/// The units of `Luminance`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Luminance<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Luminance<N>: [const] Unit<Luminance<N>, N> + [const] Destruct)]
+#[unit(of = Luminance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LuminanceUnit {
     #[default]
-    #[unit("cd/m²", "candelas per square metre", by = Luminance::<N>::from(CANDELA / (METRE * METRE)))]
+    #[unit(CandelaPerSquareMetre)]
     CandelaPerSquareMetre,
-    #[unit("cd/in²", "candelas per square inch", by = Luminance::<N>::from((CANDELA / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(CandelaPerSquareInch)]
     CandelaPerSquareInch,
-    #[unit("cd/ft²", "candelas per square foot", by = Luminance::<N>::from((CANDELA / (METRE * METRE)) * (Exact::int(1) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(CandelaPerSquareFoot)]
     CandelaPerSquareFoot,
-    #[unit("fl", "footlamberts", by = Luminance::<N>::from(FOOTLAMBERT))]
+    #[unit(Footlambert)]
     Footlambert,
-    #[unit("la", "lamberts", by = Luminance::<N>::from(LAMBERT))]
+    #[unit(Lambert)]
     Lambert,
-    #[unit("sb", "stilbs", by = Luminance::<N>::from(STILB))]
+    #[unit(Stilb)]
     Stilb,
 }
 
-/// The units of `LuminousIntensity`, in any number type the constants convert to.
+impl From<LuminanceUnit> for DynamicSIUnit {
+    fn from(unit: LuminanceUnit) -> Self {
+        match unit {
+            LuminanceUnit::CandelaPerSquareMetre => CandelaPerSquareMetre {}.into(),
+            LuminanceUnit::CandelaPerSquareInch => CandelaPerSquareInch {}.into(),
+            LuminanceUnit::CandelaPerSquareFoot => CandelaPerSquareFoot {}.into(),
+            LuminanceUnit::Footlambert => Footlambert {}.into(),
+            LuminanceUnit::Lambert => Lambert {}.into(),
+            LuminanceUnit::Stilb => Stilb {}.into(),
+        }
+    }
+}
+
+/// The units of `LuminousIntensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LuminousIntensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LuminousIntensity<N>: [const] Unit<LuminousIntensity<N>, N> + [const] Destruct)]
+#[unit(of = LuminousIntensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LuminousIntensityUnit {
     #[default]
-    #[unit("cd", "candelas", by = LuminousIntensity::<N>::from(CANDELA))]
+    #[unit(Candela)]
     Candela,
 }
 
-/// The units of `Illuminance`, in any number type the constants convert to.
+impl From<LuminousIntensityUnit> for DynamicSIUnit {
+    fn from(unit: LuminousIntensityUnit) -> Self {
+        match unit {
+            LuminousIntensityUnit::Candela => Candela {}.into(),
+        }
+    }
+}
+
+/// The units of `Illuminance`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Illuminance<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Illuminance<N>: [const] Unit<Illuminance<N>, N> + [const] Destruct)]
+#[unit(of = Illuminance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum IlluminanceUnit {
     #[default]
-    #[unit("lx", "lux", by = Illuminance::<N>::from(LUX))]
+    #[unit(Lux)]
     Lux,
-    #[unit("ph", "phot", by = Illuminance::<N>::from(PHOT))]
+    #[unit(Phot)]
     Phot,
-    #[unit("fc", "footcandles", by = Illuminance::<N>::from(FOOTCANDLE))]
+    #[unit(Footcandle)]
     Footcandle,
 }
 
-/// The units of `RadiantExposure`, in any number type the constants convert to.
+impl From<IlluminanceUnit> for DynamicSIUnit {
+    fn from(unit: IlluminanceUnit) -> Self {
+        match unit {
+            IlluminanceUnit::Lux => Lux {}.into(),
+            IlluminanceUnit::Phot => Phot {}.into(),
+            IlluminanceUnit::Footcandle => Footcandle {}.into(),
+        }
+    }
+}
+
+/// The units of `RadiantExposure`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = RadiantExposure<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where RadiantExposure<N>: [const] Unit<RadiantExposure<N>, N> + [const] Destruct)]
+#[unit(of = RadiantExposure<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum RadiantExposureUnit {
     #[default]
-    #[unit("J/m²", "joules per square metre", by = RadiantExposure::<N>::from(KILOGRAM / (SECOND * SECOND)))]
+    #[unit(JoulePerSquareMetre)]
     JoulePerSquareMetre,
-    #[unit("W · h/m²", "watt hours per square metre", by = RadiantExposure::<N>::from((KILOGRAM / (SECOND * SECOND)) * Exact::int(3600)))]
+    #[unit(WattHourPerSquareMetre)]
     WattHourPerSquareMetre,
-    #[unit("µJ/mm²", "microjoules per square millimetre", by = RadiantExposure::<N>::from(KILOGRAM / (SECOND * SECOND)))]
+    #[unit(MicrojoulePerSquareMillimetre)]
     MicrojoulePerSquareMillimetre,
+}
+
+impl From<RadiantExposureUnit> for DynamicSIUnit {
+    fn from(unit: RadiantExposureUnit) -> Self {
+        match unit {
+            RadiantExposureUnit::JoulePerSquareMetre => JoulePerSquareMetre {}.into(),
+            RadiantExposureUnit::WattHourPerSquareMetre => WattHourPerSquareMetre {}.into(),
+            RadiantExposureUnit::MicrojoulePerSquareMillimetre => {
+                MicrojoulePerSquareMillimetre {}.into()
+            }
+        }
+    }
 }

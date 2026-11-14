@@ -1,7 +1,8 @@
 //! A small unit system, defined here and used by the tests: the
 //! compile-fail tests in `tests/ui/use` (the "system defined in another
 //! crate" case - those in `tests/ui/define` define their own) and the
-//! run-time tests of the derived impls in `tests/derived.rs`.
+//! run-time tests of the derived impls in `tests/derived.rs`. Its units are
+//! types with a hand-written `impl Unit`, and enums of them.
 #![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
 #![feature(
     const_cmp,
@@ -13,8 +14,8 @@
 )]
 #![allow(incomplete_features)]
 
+use core::fmt;
 use core::marker::ConstParamTy;
-use core::ops::{Add, Sub};
 use yadc::{Dimension, Unit};
 
 /// The kinds: how a quantity behaves. `Linear` is an ordinary amount;
@@ -49,25 +50,6 @@ pub struct Dim {
 /// The family.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 pub struct Qty<const D: Dim>(f64);
-
-/// A scale: a zero and a step. A unit of the zero's type - `Scale(ICE_POINT,
-/// KELVIN)` counts kelvins from the ice point: `n` is `zero + n · step`, and a
-/// value reads `(value - zero) / step`.
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub struct Scale<P, S>(pub P, pub S);
-
-const impl<P, S, N> Unit<P, N> for Scale<P, S>
-where
-    P: Copy + [const] Sub + [const] Add<<P as Sub>::Output, Output = P>,
-    S: [const] Unit<<P as Sub>::Output, N>,
-{
-    fn quantity(&self, value: N) -> P {
-        self.0 + self.1.quantity(value)
-    }
-    fn value(&self, quantity: P) -> N {
-        self.1.value(quantity - self.0)
-    }
-}
 
 pub type Number = Qty<{ Dim::DIMENSIONLESS }>;
 pub type Mass = Qty<
@@ -222,53 +204,131 @@ impl From<Power> for PowerLevel {
 /// The GPS epoch, on the one line of instants: a zero like any other.
 pub const GPS_EPOCH: Instant = UNIX_EPOCH + 315_964_800.0 * SECOND;
 
-/// A scale: a zero and a step.
-pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
+/// Writes a unit type of this system: `n` of it is `n` steps from a zero,
+/// and it prints its symbol (`{}`) or name (`{:#}`).
+macro_rules! unit {
+    ($(#[$doc:meta])* $name:ident: $q:ty = $zero:expr, $step:expr, $symbol:literal, $long:literal) => {
+        $(#[$doc])*
+        #[derive(Copy, Clone, Debug, PartialEq)]
+        pub struct $name;
+        impl const Unit<$q, f64> for $name {
+            fn quantity(&self, value: f64) -> $q {
+                $zero + $step.quantity(value)
+            }
+            fn value(&self, quantity: $q) -> f64 {
+                $step.value(quantity - $zero)
+            }
+        }
+        impl fmt::Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.pad(if f.alternate() { $long } else { $symbol })
+            }
+        }
+    };
+}
 
-/// A scale of points: feet above mean sea level.
-pub const FEET_AMSL: Scale<Altitude, Length> = Scale(SEA_LEVEL, FOOT);
+unit!(
+    /// Kelvin, reading a temperature: from absolute zero.
+    KelvinScale: Temperature = ABSOLUTE_ZERO, KELVIN, "K", "kelvin"
+);
+unit!(
+    /// Degrees Celsius: kelvins from the ice point.
+    Celsius: Temperature = ICE_POINT, KELVIN, "°C", "degrees Celsius"
+);
+unit!(
+    /// Degrees Fahrenheit: steps of 5/9 K from the Fahrenheit zero.
+    Fahrenheit: Temperature = FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT, "°F", "degrees Fahrenheit"
+);
+unit!(
+    /// Feet above mean sea level: a unit of points.
+    FeetAmsl: Altitude = SEA_LEVEL, FOOT, "ft AMSL", "feet above mean sea level"
+);
+unit!(
+    /// Decibels from one milliwatt: a unit on the logarithmic line.
+    Dbm: PowerLevel = MILLIWATT_LEVEL, DECIBEL, "dBm", "decibel-milliwatts"
+);
+unit!(
+    /// Decibels from one watt: another zero on the same line.
+    Dbw: PowerLevel = WATT_LEVEL, DECIBEL, "dBW", "decibel-watts"
+);
 
-/// A level: a zero and a step on the logarithmic line - a unit of
-/// `PowerLevel`, and of `Power` through the conversion.
-pub const DBM: Scale<PowerLevel, Gain> = Scale(MILLIWATT_LEVEL, DECIBEL);
+/// Pascals and kilopascals: unit types that do not print.
+#[derive(Copy, Clone, Debug)]
+pub struct Pascal;
+#[derive(Copy, Clone, Debug)]
+pub struct Kilopascal;
 
-/// A choice of units, for a menu: each variant names the unit value it is.
+impl const Unit<Pressure, f64> for Pascal {
+    fn quantity(&self, value: f64) -> Pressure {
+        PASCAL.quantity(value)
+    }
+    fn value(&self, quantity: Pressure) -> f64 {
+        PASCAL.value(quantity)
+    }
+}
+impl const Unit<Pressure, f64> for Kilopascal {
+    fn quantity(&self, value: f64) -> Pressure {
+        KILOPASCAL.quantity(value)
+    }
+    fn value(&self, quantity: Pressure) -> f64 {
+        KILOPASCAL.value(quantity)
+    }
+}
+
+/// A choice of units, for a menu: each variant names the unit type it is.
 #[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Temperature)]
+#[unit(of = Temperature, number = f64)]
 pub enum TemperatureUnit {
-    #[unit("K", "kelvin", by = Scale(ABSOLUTE_ZERO, KELVIN))]
+    #[unit(KelvinScale)]
     Kelvin,
-    #[unit("°C", "degrees Celsius", by = CELSIUS)]
+    #[unit(Celsius)]
     Celsius,
-    #[unit("°F", "degrees Fahrenheit", by = Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT))]
+    #[unit(Fahrenheit)]
     Fahrenheit,
 }
 
-/// Units without labels: `impl()` writes `Unit` alone.
+/// Units that do not print: `impl()` writes `Unit` alone.
 #[derive(Copy, Clone, Debug, yadc::Unit)]
-#[unit(of = Pressure, impl())]
+#[unit(of = Pressure, number = f64, impl())]
 pub enum PressureUnit {
-    #[unit(by = KILOPASCAL)]
+    #[unit(Kilopascal)]
     Kilopascal,
-    #[unit(by = PASCAL)]
+    #[unit(Pascal)]
     Pascal,
 }
 
-/// Units of power, a level among them: `via` names the type the scale
-/// measures, and std `From` takes it to the watts and back.
-#[derive(Copy, Clone, Debug, PartialEq, yadc::Unit)]
-#[unit(of = Power, non_const)]
-pub enum PowerUnit {
-    #[unit("W", "watts", by = WATT)]
-    Watt,
-    #[unit("dBm", "decibel-milliwatts", by = DBM, via = PowerLevel)]
-    DecibelMilliwatt,
+/// Decibel-milliwatts as a unit of `Power`: through the level, and std
+/// `From` to the watts and back. A logarithm is not `const`, so neither is
+/// this impl.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct DbmPower;
+
+impl Unit<Power, f64> for DbmPower {
+    fn quantity(&self, value: f64) -> Power {
+        Dbm.quantity(value).into()
+    }
+    fn value(&self, quantity: Power) -> f64 {
+        Dbm.value(quantity.into())
+    }
 }
 
-/// A unit that holds the unit value it is: known at run time.
-#[derive(Copy, Clone, Debug, yadc::Unit)]
-#[unit("ft AGL", "feet above ground level", of = Altitude)]
+/// Feet above a ground level known at run time: a unit that holds its zero.
+#[derive(Copy, Clone, Debug)]
 pub struct FeetAboveGround {
-    #[unit(by)]
-    pub scale: Scale<Altitude, Length>,
+    pub ground: Altitude,
+}
+
+impl const Unit<Altitude, f64> for FeetAboveGround {
+    fn quantity(&self, value: f64) -> Altitude {
+        self.ground + FOOT.quantity(value)
+    }
+    fn value(&self, quantity: Altitude) -> f64 {
+        FOOT.value(quantity - self.ground)
+    }
+}
+
+impl fmt::Display for FeetAboveGround {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(if f.alternate() { "feet above ground level" } else { "ft AGL" })
+    }
 }

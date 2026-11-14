@@ -7,11 +7,10 @@
 //!
 //! Every quantity constant is a unit counted in the quantity's own numbers:
 //! `KILOMETRE.quantity(MyF64(2.5))` is 2.5 km and `KILOMETRE.value(d)` is a
-//! `MyF64`. A scale (°C: a zero and a step,
-//! `Scale(ICE_POINT, KELVIN)`) counts in its step's numbers, so in `MyF64`
-//! too. A unit enum says what its numbers are with `number = MyF64` in its
-//! `#[unit(..)]`. The numbers stay `MyF64` throughout, with no `From<f64>`
-//! required.
+//! `MyF64`. A unit type of ours (`Celsius`: kelvins from the ice point)
+//! counts in `MyF64` by its `impl Unit<Temperature, MyF64>`, and a unit enum
+//! says what its numbers are with `number = MyF64` in its `#[unit(..)]`. The
+//! numbers stay `MyF64` throughout, with no `From<f64>` required.
 //!
 //! Run with: cargo run -p yadc --example custom_value_type
 
@@ -139,25 +138,6 @@ pub struct Dim {
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 pub struct Qty<const D: Dim>(MyF64);
 
-/// A scale: a zero and a step, a unit of the zero's type.
-#[derive(Copy, Clone)]
-pub struct Scale<P, S>(pub P, pub S);
-
-// A scale is a unit of its zero's type: `n` is `zero + n · step`, and a value
-// reads `(value - zero) / step`.
-const impl<P, S, N> yadc::Unit<P, N> for Scale<P, S>
-where
-    P: Copy + [const] core::ops::Sub + [const] core::ops::Add<<P as core::ops::Sub>::Output, Output = P>,
-    S: [const] yadc::Unit<<P as core::ops::Sub>::Output, N>,
-{
-    fn quantity(&self, value: N) -> P {
-        self.0 + self.1.quantity(value)
-    }
-    fn value(&self, quantity: P) -> N {
-        self.1.value(quantity - self.0)
-    }
-}
-
 pub type Length = Qty<
     {
         Dim {
@@ -192,7 +172,7 @@ pub type TemperatureStep = Qty<
     },
 >;
 
-// --- Constants: the base ones are the only raw numbers -----------------------
+// --- Constants: the base ones write the field, the rest are built from them --
 
 pub const METRE: Length = Qty(MyF64(1.0));
 pub const KELVIN: TemperatureStep = Qty(MyF64(1.0));
@@ -205,20 +185,60 @@ pub const ICE_POINT: Temperature = ABSOLUTE_ZERO + MyF64(273.15) * KELVIN;
 
 // --- Units count in `MyF64` ---------------------------------------------------
 
-/// Degrees Celsius: steps of one kelvin from the ice point. A scale counts
-/// in its step's numbers: `MyF64`.
-pub const CELSIUS: Scale<Temperature, TemperatureStep> = Scale(ICE_POINT, KELVIN);
+/// A unit type of ours: `n` of it is `n` steps, from a zero if it has one.
+/// It counts in `MyF64` because its constants do, and prints its symbol
+/// (`{}`) or name (`{:#}`). (`define_unit_system` writes such impls out by
+/// hand.)
+macro_rules! unit {
+    ($name:ident: $q:ty = $step:expr, zero $zero:expr, $symbol:literal, $long:literal) => {
+        unit!(@display $name, $symbol, $long);
+        impl const Unit<$q, MyF64> for $name {
+            fn quantity(&self, value: MyF64) -> $q {
+                $zero + $step.quantity(value)
+            }
+            fn value(&self, quantity: $q) -> MyF64 {
+                $step.value(quantity - $zero)
+            }
+        }
+    };
+    ($name:ident: $q:ty = $step:expr, $symbol:literal, $long:literal) => {
+        unit!(@display $name, $symbol, $long);
+        impl const Unit<$q, MyF64> for $name {
+            fn quantity(&self, value: MyF64) -> $q {
+                $step.quantity(value)
+            }
+            fn value(&self, quantity: $q) -> MyF64 {
+                $step.value(quantity)
+            }
+        }
+    };
+    (@display $name:ident, $symbol:literal, $long:literal) => {
+        #[derive(Copy, Clone)]
+        pub struct $name;
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.pad(if f.alternate() { $long } else { $symbol })
+            }
+        }
+    };
+}
 
-/// Kelvin, on the absolute scale: steps of one kelvin from absolute zero.
-pub const KELVIN_SCALE: Scale<Temperature, TemperatureStep> = Scale(ABSOLUTE_ZERO, KELVIN);
+// Kelvin, on the absolute scale, and degrees Celsius: steps of one kelvin
+// from absolute zero and from the ice point.
+unit!(KelvinScale: Temperature = KELVIN, zero ABSOLUTE_ZERO, "K", "kelvin");
+unit!(Celsius: Temperature = KELVIN, zero ICE_POINT, "°C", "degrees Celsius");
+unit!(Metre: Length = METRE, "m", "metres");
+unit!(Kilometre: Length = KILOMETRE, "km", "kilometres");
+unit!(SquareMetre: Area = SQUARE_METRE, "m²", "square metres");
+unit!(SquareKilometre: Area = SQUARE_KILOMETRE, "km²", "square kilometres");
 
-/// The scales by name, for printing and for a menu.
+/// The temperature units, for printing and for a menu.
 #[derive(Copy, Clone, Unit)]
 #[unit(of = Temperature, number = MyF64)]
 pub enum TemperatureUnit {
-    #[unit("K", "kelvin", by = KELVIN_SCALE)]
+    #[unit(KelvinScale)]
     Kelvin,
-    #[unit("°C", "degrees Celsius", by = CELSIUS)]
+    #[unit(Celsius)]
     Celsius,
 }
 
@@ -226,24 +246,24 @@ pub enum TemperatureUnit {
 #[derive(Copy, Clone, Unit)]
 #[unit(of = Length, number = MyF64)]
 pub enum LengthUnit {
-    #[unit("m", "metres", by = METRE)]
+    #[unit(Metre)]
     Metre,
-    #[unit("km", "kilometres", by = KILOMETRE)]
+    #[unit(Kilometre)]
     Kilometre,
 }
 
 #[derive(Copy, Clone, Unit)]
 #[unit(of = Area, number = MyF64)]
 pub enum AreaUnit {
-    #[unit("m²", "square metres", by = SQUARE_METRE)]
+    #[unit(SquareMetre)]
     SquareMetre,
-    #[unit("km²", "square kilometres", by = SQUARE_KILOMETRE)]
+    #[unit(SquareKilometre)]
     SquareKilometre,
 }
 
 // Units are `const`, in `MyF64` too.
-const BOILING: Temperature = CELSIUS.quantity(MyF64(100.0));
-const BOILING_IN_KELVIN: MyF64 = KELVIN_SCALE.value(BOILING);
+const BOILING: Temperature = Celsius.quantity(MyF64(100.0));
+const BOILING_IN_KELVIN: MyF64 = KelvinScale.value(BOILING);
 
 fn main() {
     // A unit builds with `quantity` and reads with `value`: a value of a unit
@@ -262,13 +282,13 @@ fn main() {
     // A quantity prints itself as its number and its dimension.
     println!("area itself = {area}");
 
-    // The zero point is the scale's business, computed in `MyF64` too.
+    // The zero point is the unit's business, computed in `MyF64` too.
     let (celsius, kelvin) = (TemperatureUnit::Celsius, TemperatureUnit::Kelvin);
-    let body = CELSIUS.quantity(MyF64(36.6));
+    let body = Celsius.quantity(MyF64(36.6));
     println!(
         "body = {:.1} {celsius} (= {:.2} {kelvin})",
-        CELSIUS.value(body),
-        KELVIN_SCALE.value(body)
+        Celsius.value(body),
+        KelvinScale.value(body)
     );
 
     // Two temperatures differ by a step, which a step constant reads.
@@ -276,7 +296,7 @@ fn main() {
     println!("fever - body = {:.1} K", KELVIN.value(fever));
     println!(
         "boiling (const) = {:.2} {celsius} = {BOILING_IN_KELVIN:.2} {kelvin}",
-        CELSIUS.value(BOILING)
+        Celsius.value(BOILING)
     );
 
     // A unit is the `Unit` trait, so it also goes behind `&dyn`.

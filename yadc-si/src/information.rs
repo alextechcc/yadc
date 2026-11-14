@@ -1,45 +1,136 @@
-use crate::{Exact, ISQ, SIQuantity};
+use crate::{ISQ, SIQuantity};
 use yadc::Dimension;
 
 pub type Information<N> = SIQuantity<{ ISQ::DIMENSIONLESS }, N>;
 
-pub type InformationRate<N> = SIQuantity<
-    {
-        ISQ {
-            s: -1,
-            ..ISQ::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `InformationRate`.
+pub const INFORMATION_RATE: ISQ = ISQ {
+    s: -1,
+    ..ISQ::DIMENSIONLESS
+};
+pub type InformationRate<N> = SIQuantity<INFORMATION_RATE, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
+    use crate::{Exact, ISQ, SIUnit, SIUnitConsts};
+    use yadc::Dimension;
 
-    /// The number one: the unit of dimension one.
-    pub use crate::base::ONE;
+    /// Bits (`b`), a unit of `Information`: `n` of them is `n · 0.125` coherent units.
+    pub type Bit = SIUnit<
+        { ISQ::DIMENSIONLESS },
+        {
+            SIUnitConsts {
+                size: Exact::dec(125, -3),
+                zero: Exact::ZERO,
+                symbol: "b",
+                name: "bits",
+            }
+        },
+    >;
 
-    /// One `Bit` (`b`), as an `Information`.
-    pub const BIT: Information<Exact> = BYTE * Exact::dec(125, -3);
+    /// Bytes (`B`), a unit of `Information`: `n` of them is `n · 1.0` coherent units.
+    pub type Byte = SIUnit<
+        { ISQ::DIMENSIONLESS },
+        {
+            SIUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "B",
+                name: "bytes",
+            }
+        },
+    >;
 
-    /// One `Byte` (`B`), as an `Information`.
-    pub const BYTE: Information<Exact> = ONE;
+    /// Octets (`o`), a unit of `Information`: `n` of them is `n · 1.0` coherent units.
+    pub type Octet = SIUnit<
+        { ISQ::DIMENSIONLESS },
+        {
+            SIUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "o",
+                name: "octets",
+            }
+        },
+    >;
 
-    /// One `Octet` (`o`), as an `Information`.
-    pub const OCTET: Information<Exact> = BYTE;
+    /// Nibbles (`nibble`), a unit of `Information`: `n` of them is `n · 0.5` coherent units.
+    pub type Nibble = SIUnit<
+        { ISQ::DIMENSIONLESS },
+        {
+            SIUnitConsts {
+                size: Exact::dec(5, -1),
+                zero: Exact::ZERO,
+                symbol: "nibble",
+                name: "nibbles",
+            }
+        },
+    >;
 
-    /// One `Nibble` (`nibble`), as an `Information`.
-    pub const NIBBLE: Information<Exact> = BYTE * Exact::dec(5, -1);
+    /// Crumbs (`crumb`), a unit of `Information`: `n` of them is `n · 0.25` coherent units.
+    pub type Crumb = SIUnit<
+        { ISQ::DIMENSIONLESS },
+        {
+            SIUnitConsts {
+                size: Exact::dec(25, -2),
+                zero: Exact::ZERO,
+                symbol: "crumb",
+                name: "crumbs",
+            }
+        },
+    >;
 
-    /// One `Crumb` (`crumb`), as an `Information`.
-    pub const CRUMB: Information<Exact> = BYTE * Exact::dec(25, -2);
+    /// Shannons (`Sh`), a unit of `Information`: `n` of them is `n · 0.125` coherent units.
+    pub type Shannon = SIUnit<
+        { ISQ::DIMENSIONLESS },
+        {
+            SIUnitConsts {
+                size: Exact::dec(125, -3),
+                zero: Exact::ZERO,
+                symbol: "Sh",
+                name: "shannons",
+            }
+        },
+    >;
 
-    /// One `Shannon` (`Sh`), as an `Information`.
-    pub const SHANNON: Information<Exact> = BYTE * Exact::dec(125, -3);
+    /// Bits per second (`b/s`), a unit of `InformationRate`: `n` of them is `n · 0.125` coherent units.
+    pub type BitPerSecond = SIUnit<
+        INFORMATION_RATE,
+        {
+            SIUnitConsts {
+                size: Exact::dec(125, -3),
+                zero: Exact::ZERO,
+                symbol: "b/s",
+                name: "bits per second",
+            }
+        },
+    >;
+
+    /// Bytes per second (`B/s`), a unit of `InformationRate`: `n` of them is `n · 1.0` coherent units.
+    pub type BytePerSecond = SIUnit<
+        INFORMATION_RATE,
+        {
+            SIUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "B/s",
+                name: "bytes per second",
+            }
+        },
+    >;
+
+    /// Octets per second (`o/s`), a unit of `InformationRate`: `n` of them is `n · 1.0` coherent units.
+    pub type OctetPerSecond = SIUnit<
+        INFORMATION_RATE,
+        {
+            SIUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "o/s",
+                name: "octets per second",
+            }
+        },
+    >;
 }

@@ -16,21 +16,26 @@
 //!   `DynamicSIQuantity`, and borrow its arithmetic.
 //!
 //! Run with: cargo run -p yadc-si --example sets
-#![feature(generic_const_exprs, const_trait_impl)]
-#![feature(const_convert, const_destruct, const_ops)]
+#![feature(
+    generic_const_exprs,
+    adt_const_params,
+    unsized_const_params,
+    const_trait_impl
+)]
+#![feature(const_convert, const_destruct)]
 #![allow(incomplete_features)]
 
 use core::fmt;
 use core::str::FromStr;
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use yadc::{Unit, UnknownUnit};
-use yadc_si::KILO;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::mechanical::consts::{BAR, PASCAL, PSI, STANDARD_ATMOSPHERE};
-use yadc_si::mechanical::{Area, Force, Pressure};
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit};
-use yadc_si::thermal::ThermodynamicTemperature;
 use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
+use yadc_si::mechanical::units::{Bar, Pascal, Psi, StandardAtmosphere};
+use yadc_si::mechanical::{Area, Force, PRESSURE, Pressure};
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::{Exact, SIUnit, SIUnitConsts};
 
 /// What the app measures: a closed set. It converts to and from the open
 /// type through its members, and does its arithmetic there.
@@ -44,20 +49,33 @@ enum Quantities {
     Force(Force<f64>),
 }
 
-/// The units of pressure the app offers: a family of your own, a prefixed
-/// unit among them.
+/// The app's own unit: a kilopascal, a unit of pressure with an exact size.
+type Kilopascal = SIUnit<
+    PRESSURE,
+    {
+        SIUnitConsts {
+            size: Exact::int(1000),
+            zero: Exact::ZERO,
+            symbol: "kPa",
+            name: "kilopascals",
+        }
+    },
+>;
+
+/// The units of pressure the app offers: a family of your own, a unit of
+/// its own among them.
 #[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
-#[unit(of = Pressure<f64>)]
+#[unit(of = Pressure<f64>, number = f64)]
 enum PressureUnit {
-    #[unit("Pa", "pascals", by = Pressure::<f64>::from(PASCAL))]
+    #[unit(Pascal)]
     Pascal,
-    #[unit("kPa", "kilopascals", by = Pressure::<f64>::from(KILO * PASCAL))]
+    #[unit(Kilopascal)]
     Kilopascal,
-    #[unit("bar", "bar", by = Pressure::<f64>::from(BAR))]
+    #[unit(Bar)]
     Bar,
-    #[unit("atm", "standard atmospheres", by = Pressure::<f64>::from(STANDARD_ATMOSPHERE))]
+    #[unit(StandardAtmosphere)]
     StandardAtmosphere,
-    #[unit("psi", "pounds-force per square inch", by = Pressure::<f64>::from(PSI))]
+    #[unit(Psi)]
     Psi,
 }
 
@@ -71,7 +89,7 @@ enum Units {
 }
 
 /// The relation between the two sets: the quantity a unit family measures.
-trait Measures: Unit<Self::Quantity> {
+trait Measures: Unit<Self::Quantity, f64> {
     type Quantity;
 }
 impl Measures for PressureUnit {
@@ -227,7 +245,7 @@ fn main() {
     // Scaling cannot change the quantity, so it is never `None`.
     println!("in kPa:     {:?}", setting.try_value(p * 2.0));
 
-    // A scale (a zero and a step) builds and reads like any other unit.
+    // A unit with a zero builds and reads like any other.
     let celsius: Units = "Temperature:°C".parse().unwrap();
     let kelvin = Units::Temperature(ThermodynamicTemperatureUnit::Kelvin);
     println!(

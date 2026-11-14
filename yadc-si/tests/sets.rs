@@ -6,8 +6,13 @@
 //! over the variants (`Variants`, for menus). Which quantity a unit family
 //! measures is an associated type of a trait written here, read by visitors
 //! written once for every family.
-#![feature(generic_const_exprs, min_adt_const_params, const_trait_impl)]
-#![feature(const_convert, const_default, const_destruct, const_ops, derive_const)]
+#![feature(
+    generic_const_exprs,
+    adt_const_params,
+    unsized_const_params,
+    const_trait_impl
+)]
+#![feature(const_convert, const_default, const_destruct, derive_const)]
 #![allow(incomplete_features)]
 
 use core::fmt;
@@ -15,41 +20,62 @@ use core::str::FromStr;
 use dynamickit::{Members, VariantVisitor, Variants, Via, Visit, Visitor};
 use yadc::{Unit, UnknownUnit};
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::mechanical::consts;
-use yadc_si::mechanical::{Area, Force, Length, Pressure};
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, MassUnit};
-use yadc_si::thermal::ThermodynamicTemperature;
 use yadc_si::dynamic::thermal::ThermodynamicTemperatureUnit;
-use yadc_si::{ISQ, KILO, SIQuantity};
+use yadc_si::mechanical::units::{Bar, Metre, Pascal};
+use yadc_si::mechanical::{Area, Force, LENGTH, Length, PRESSURE, Pressure};
+use yadc_si::thermal::ThermodynamicTemperature;
+use yadc_si::{Exact, ISQ, SIQuantity, SIUnit, SIUnitConsts};
 
-const PASCAL: Pressure<f64> = consts::PASCAL.into();
-const BAR: Pressure<f64> = consts::BAR.into();
-const METRE: Length<f64> = consts::METRE.into();
+/// The app's own units: a kilopascal and a kilometre, each a unit of a
+/// dimension with an exact size.
+type Kilopascal = SIUnit<
+    PRESSURE,
+    {
+        SIUnitConsts {
+            size: Exact::int(1000),
+            zero: Exact::ZERO,
+            symbol: "kPa",
+            name: "kilopascals",
+        }
+    },
+>;
+type Kilometre = SIUnit<
+    LENGTH,
+    {
+        SIUnitConsts {
+            size: Exact::int(1000),
+            zero: Exact::ZERO,
+            symbol: "km",
+            name: "kilometres",
+        }
+    },
+>;
 
-/// The units of pressure the app offers: a family of your own, prefixed
-/// units among them. The first is the default.
+/// The units of pressure the app offers: a family of your own, a unit of
+/// its own among them. The first is the default.
 #[derive_const(Default)]
 #[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
-#[unit(of = Pressure<f64>)]
+#[unit(of = Pressure<f64>, number = f64)]
 enum PressureUnit {
     #[default]
-    #[unit("Pa", "pascals", by = PASCAL)]
+    #[unit(Pascal)]
     Pascal,
-    #[unit("kPa", "kilopascals", by = Pressure::<f64>::from(KILO * consts::PASCAL))]
+    #[unit(Kilopascal)]
     Kilopascal,
-    #[unit("bar", "bar", by = BAR)]
+    #[unit(Bar)]
     Bar,
 }
 
 /// The units of length the app offers.
 #[derive_const(Default)]
 #[derive(Clone, Copy, PartialEq, Debug, yadc::Unit, Variants)]
-#[unit(of = Length<f64>)]
+#[unit(of = Length<f64>, number = f64)]
 enum LengthUnit {
     #[default]
-    #[unit("m", "metres", by = METRE)]
+    #[unit(Metre)]
     Metre,
-    #[unit("km", "kilometres", by = Length::<f64>::from(KILO * consts::METRE))]
+    #[unit(Kilometre)]
     Kilometre,
 }
 
@@ -77,7 +103,7 @@ enum Units {
 }
 
 /// The relation between the two sets: the quantity a unit family measures.
-trait Measures: Unit<Self::Quantity> {
+trait Measures: Unit<Self::Quantity, f64> {
     type Quantity;
 }
 impl Measures for PressureUnit {
@@ -284,7 +310,7 @@ enum Channel {
 /// flags, then the unit (`{:#}`: its name).
 struct Show<'a, 'b>(&'a mut fmt::Formatter<'b>);
 
-impl<Q, U: Unit<Q> + fmt::Display> Visitor<(Q, U)> for Show<'_, '_> {
+impl<Q, U: Unit<Q, f64> + fmt::Display> Visitor<(Q, U)> for Show<'_, '_> {
     type Output = fmt::Result;
     fn visit(self, (q, u): (Q, U)) -> fmt::Result {
         fmt::Display::fmt(&u.value(q), self.0)?;
@@ -305,7 +331,7 @@ impl fmt::Display for Measurement {
 /// The number in the carried unit: the unit reads it.
 struct InItsUnit;
 
-impl<Q, U: Unit<Q>> Visitor<(Q, U)> for InItsUnit {
+impl<Q, U: Unit<Q, f64>> Visitor<(Q, U)> for InItsUnit {
     type Output = f64;
     fn visit(self, (q, u): (Q, U)) -> f64 {
         u.value(q)
@@ -314,7 +340,7 @@ impl<Q, U: Unit<Q>> Visitor<(Q, U)> for InItsUnit {
 
 /// ... and for a channel visited by reference, whose contents are
 /// `(&label, &reading, &shown_in)`: the channel is only lent.
-impl<'a, L, Q: Copy, U: Unit<Q>> Visitor<(&'a L, &'a Q, &'a U)> for InItsUnit {
+impl<'a, L, Q: Copy, U: Unit<Q, f64>> Visitor<(&'a L, &'a Q, &'a U)> for InItsUnit {
     type Output = f64;
     fn visit(self, (_, q, u): (&'a L, &'a Q, &'a U)) -> f64 {
         u.value(*q)
@@ -357,7 +383,10 @@ fn menus_list_quantities_then_their_units() {
     // Menu 1: one group per quantity, named by its variant.
     let groups = menu();
     let names: Vec<_> = groups.iter().map(|(name, _)| *name).collect();
-    assert_eq!(names, ["Pressure", "Temperature", "Length", "Area", "Force"]);
+    assert_eq!(
+        names,
+        ["Pressure", "Temperature", "Length", "Area", "Force"]
+    );
     // Menu 2: the units of the chosen quantity - the family's own choices,
     // wrapped.
     let (_, pressure) = &groups[0];
@@ -397,7 +426,7 @@ fn the_set_bridges_to_static_quantities() {
         .into_iter()
         .map(|q| q.visit_with(DimOf))
         .collect();
-    assert_eq!(dims, [DimOf.visit(p), DimOf.visit(METRE)]);
+    assert_eq!(dims, [DimOf.visit(p), DimOf.visit(Metre {}.quantity(1.0))]);
 }
 
 #[test]
@@ -518,7 +547,10 @@ fn a_measurement_converts_through_its_members() {
     assert_eq!(Measurement::try_from(mass).err(), Some(mass));
     // The reading's dimension is its quantity's.
     assert_eq!(Quantities::from(kpa).visit_with(DimOf), DimOf.visit(p));
-    assert_eq!(Quantities::from(kpa).visit_with(DimOf), DimOf.visit(PASCAL));
+    assert_eq!(
+        Quantities::from(kpa).visit_with(DimOf),
+        DimOf.visit(Pascal {}.quantity(1.0))
+    );
 }
 
 #[test]
@@ -564,7 +596,7 @@ fn static_closed_and_open_sets_read_the_same_way() {
     // The same generic code reads a static quantity (a set of one: `TryFrom`
     // to itself cannot fail), a closed set or a reading: give up the unit's
     // quantity with `TryFrom`, then the unit reads it.
-    fn read<S, Q: TryFrom<S>, U: Unit<Q>>(u: U, s: S) -> Option<f64> {
+    fn read<S, Q: TryFrom<S>, U: Unit<Q, f64>>(u: U, s: S) -> Option<f64> {
         Q::try_from(s).ok().map(|q| u.value(q))
     }
     let p: Pressure<f64> = PressureUnit::Bar.quantity(1.0);

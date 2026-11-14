@@ -42,7 +42,6 @@ fn main() {
         system,
         kind,
         dim,
-        base,
         dimensionless,
         family,
         ucum,
@@ -60,7 +59,6 @@ fn main() {
             system,
             kind,
             dim,
-            base,
             dimensionless,
             &output_dir,
         )
@@ -74,7 +72,6 @@ fn main() {
             system,
             kind,
             dim,
-            base,
             dimensionless,
             family,
             ucum: None,

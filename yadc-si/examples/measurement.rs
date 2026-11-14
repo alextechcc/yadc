@@ -14,19 +14,16 @@
 //!
 //! Run with: cargo run -p yadc-si --example measurement
 #![feature(generic_const_exprs, const_trait_impl)]
-#![feature(const_convert, const_default, const_destruct, const_ops)]
+#![feature(const_convert, const_default, const_destruct)]
 #![allow(incomplete_features)]
 
 use core::fmt;
 use dynamickit::{Members, Via, Visit, Visitor};
 use yadc::Unit;
-use yadc_si::KILO;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::mechanical::{Area, Force, Pressure, consts};
 use yadc_si::dynamic::mechanical::{AreaUnit, ForceUnit, PressureUnit};
-
-const PASCAL: Pressure<f64> = consts::PASCAL.into();
-const KILONEWTON: Force<f64> = (KILO * consts::NEWTON).into();
+use yadc_si::mechanical::units::{Newton, Pascal};
+use yadc_si::mechanical::{Area, Force, Pressure};
 
 /// A quantity and the unit it is shown in.
 #[derive(Clone, Copy, Debug, Visit, Members, Via)]
@@ -57,7 +54,7 @@ enum Measurement {
 /// then the unit (`{:#}`: its name). Once, for every pair.
 struct Show<'a, 'b>(&'a mut fmt::Formatter<'b>);
 
-impl<Q, U: Unit<Q> + fmt::Display> Visitor<(Q, U)> for Show<'_, '_> {
+impl<Q, U: Unit<Q, f64> + fmt::Display> Visitor<(Q, U)> for Show<'_, '_> {
     type Output = fmt::Result;
     fn visit(self, (quantity, unit): (Q, U)) -> fmt::Result {
         fmt::Display::fmt(&unit.value(quantity), self.0)?;
@@ -92,9 +89,12 @@ fn main() {
     println!("p × p   = {:?}", (p * p).map(|m| m.to_string()));
 
     // From a bare quantity: the default unit.
-    let f = Measurement::from(KILONEWTON.quantity(2.0));
+    let f = Measurement::from(Newton {}.quantity(2000.0));
     println!("f       = {f}");
     // Back to the bare quantity, checked.
-    println!("as Pa   = {:?}", Pressure::try_from(p).map(|q| PASCAL.value(q)));
+    println!(
+        "as Pa   = {:?}",
+        Pressure::try_from(p).map(|q| Pascal {}.value(q))
+    );
     println!("as N    = {:?}", Force::try_from(p).is_ok());
 }

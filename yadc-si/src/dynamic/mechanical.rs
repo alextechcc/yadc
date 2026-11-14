@@ -1,1026 +1,1583 @@
 //! The units of `mechanical`'s quantities, chosen at run time: for a menu, a
 //! config file, a parser.
 
-use crate::base::{ONE, RADIAN};
-use crate::mechanical::consts::*;
+use crate::Exact;
+use crate::dynamic::DynamicSIUnit;
+use crate::mechanical::units::*;
 use crate::mechanical::*;
-use crate::{Exact, Scale};
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Length`, in any number type the constants convert to.
+/// The units of `Length`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Length<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Length<N>: [const] Unit<Length<N>, N> + [const] Destruct)]
+#[unit(of = Length<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LengthUnit {
     #[default]
-    #[unit("m", "metres", by = Length::<N>::from(METRE))]
+    #[unit(Metre)]
     Metre,
-    #[unit("Å", "ångströms", by = Length::<N>::from(ANGSTROM))]
+    #[unit(Angstrom)]
     Angstrom,
-    #[unit("a₀", "bohr radiuses", by = Length::<N>::from(BOHR_RADIUS))]
+    #[unit(BohrRadius)]
     BohrRadius,
-    #[unit("a.u. of length", "atomic units of length", by = Length::<N>::from(ATOMIC_UNIT_OF_LENGTH))]
+    #[unit(AtomicUnitOfLength)]
     AtomicUnitOfLength,
-    #[unit("ua", "astronomical units", by = Length::<N>::from(ASTRONOMICAL_UNIT))]
+    #[unit(AstronomicalUnit)]
     AstronomicalUnit,
-    #[unit("ch", "chains", by = Length::<N>::from(CHAIN))]
+    #[unit(Chain)]
     Chain,
-    #[unit("DM", "data miles", by = Length::<N>::from(DATA_MILE))]
+    #[unit(DataMile)]
     DataMile,
-    #[unit("fathom", "fathoms", by = Length::<N>::from(FATHOM))]
+    #[unit(Fathom)]
     Fathom,
-    #[unit("fermi", "fermis", by = Length::<N>::from(FERMI))]
+    #[unit(Fermi)]
     Fermi,
-    #[unit("ft", "feet", by = Length::<N>::from(FOOT))]
+    #[unit(Foot)]
     Foot,
-    #[unit("ft (U.S. survey)", "feet (U.S. survey)", by = Length::<N>::from(FOOT_SURVEY))]
+    #[unit(FootSurvey)]
     FootSurvey,
-    #[unit("in", "inches", by = Length::<N>::from(INCH))]
+    #[unit(Inch)]
     Inch,
-    #[unit("l. y.", "light years", by = Length::<N>::from(LIGHT_YEAR))]
+    #[unit(LightYear)]
     LightYear,
-    #[unit("μ", "microns", by = Length::<N>::from(MICRON))]
+    #[unit(Micron)]
     Micron,
-    #[unit("0.001 in", "mils", by = Length::<N>::from(MIL))]
+    #[unit(Mil)]
     Mil,
-    #[unit("mi", "miles", by = Length::<N>::from(MILE))]
+    #[unit(Mile)]
     Mile,
-    #[unit("mi (U.S. survey)", "miles (U.S. survey)", by = Length::<N>::from(MILE_SURVEY))]
+    #[unit(MileSurvey)]
     MileSurvey,
-    #[unit("M", "nautical miles", by = Length::<N>::from(NAUTICAL_MILE))]
+    #[unit(NauticalMile)]
     NauticalMile,
-    #[unit("pc", "parsecs", by = Length::<N>::from(PARSEC))]
+    #[unit(Parsec)]
     Parsec,
-    #[unit("1/6 in (computer)", "picas (computer)", by = Length::<N>::from(PICA_COMPUTER))]
+    #[unit(PicaComputer)]
     PicaComputer,
-    #[unit("1/6 in", "picas (printer's)", by = Length::<N>::from(PICA_PRINTERS))]
+    #[unit(PicaPrinters)]
     PicaPrinters,
-    #[unit("1/72 in (computer)", "points (computer)", by = Length::<N>::from(POINT_COMPUTER))]
+    #[unit(PointComputer)]
     PointComputer,
-    #[unit("1/72 in", "points (printer's)", by = Length::<N>::from(POINT_PRINTERS))]
+    #[unit(PointPrinters)]
     PointPrinters,
-    #[unit("rd", "rods", by = Length::<N>::from(ROD))]
+    #[unit(Rod)]
     Rod,
-    #[unit("yd", "yards", by = Length::<N>::from(YARD))]
+    #[unit(Yard)]
     Yard,
-    #[unit("leuga", "leugae", by = Length::<N>::from(LEUGA))]
+    #[unit(Leuga)]
     Leuga,
-    #[unit("mille passus", "mille passa", by = Length::<N>::from(MILLE_PASSUS))]
+    #[unit(MillePassus)]
     MillePassus,
-    #[unit("stadium", "stadia", by = Length::<N>::from(STADIUM))]
+    #[unit(Stadium)]
     Stadium,
-    #[unit("actus", "acta", by = Length::<N>::from(ACTUS))]
+    #[unit(Actus)]
     Actus,
-    #[unit("decempeda", "decempedae", by = Length::<N>::from(DECEMPEDA))]
+    #[unit(Decempeda)]
     Decempeda,
-    #[unit("passus", "passa", by = Length::<N>::from(PASSUS))]
+    #[unit(Passus)]
     Passus,
-    #[unit("gradus", "gradus", by = Length::<N>::from(GRADUS))]
+    #[unit(Gradus)]
     Gradus,
-    #[unit("cubitum", "cubita", by = Length::<N>::from(CUBITUM))]
+    #[unit(Cubitum)]
     Cubitum,
-    #[unit("palmipes", "palmipedes", by = Length::<N>::from(PALMIPES))]
+    #[unit(Palmipes)]
     Palmipes,
-    #[unit("pes", "pedes", by = Length::<N>::from(PES))]
+    #[unit(Pes)]
     Pes,
-    #[unit("palmus maior", "palmas maior", by = Length::<N>::from(PALMUS_MAIOR))]
+    #[unit(PalmusMaior)]
     PalmusMaior,
-    #[unit("palmus", "palmas", by = Length::<N>::from(PALMUS))]
+    #[unit(Palmus)]
     Palmus,
-    #[unit("uncia", "unciae", by = Length::<N>::from(LENGTH_UNCIA))]
+    #[unit(LengthUncia)]
     Uncia,
-    #[unit("digitus", "digiti", by = Length::<N>::from(DIGITUS))]
+    #[unit(Digitus)]
     Digitus,
 }
 
-/// The units of `Mass`, in any number type the constants convert to.
+impl From<LengthUnit> for DynamicSIUnit {
+    fn from(unit: LengthUnit) -> Self {
+        match unit {
+            LengthUnit::Metre => Metre {}.into(),
+            LengthUnit::Angstrom => Angstrom {}.into(),
+            LengthUnit::BohrRadius => BohrRadius {}.into(),
+            LengthUnit::AtomicUnitOfLength => AtomicUnitOfLength {}.into(),
+            LengthUnit::AstronomicalUnit => AstronomicalUnit {}.into(),
+            LengthUnit::Chain => Chain {}.into(),
+            LengthUnit::DataMile => DataMile {}.into(),
+            LengthUnit::Fathom => Fathom {}.into(),
+            LengthUnit::Fermi => Fermi {}.into(),
+            LengthUnit::Foot => Foot {}.into(),
+            LengthUnit::FootSurvey => FootSurvey {}.into(),
+            LengthUnit::Inch => Inch {}.into(),
+            LengthUnit::LightYear => LightYear {}.into(),
+            LengthUnit::Micron => Micron {}.into(),
+            LengthUnit::Mil => Mil {}.into(),
+            LengthUnit::Mile => Mile {}.into(),
+            LengthUnit::MileSurvey => MileSurvey {}.into(),
+            LengthUnit::NauticalMile => NauticalMile {}.into(),
+            LengthUnit::Parsec => Parsec {}.into(),
+            LengthUnit::PicaComputer => PicaComputer {}.into(),
+            LengthUnit::PicaPrinters => PicaPrinters {}.into(),
+            LengthUnit::PointComputer => PointComputer {}.into(),
+            LengthUnit::PointPrinters => PointPrinters {}.into(),
+            LengthUnit::Rod => Rod {}.into(),
+            LengthUnit::Yard => Yard {}.into(),
+            LengthUnit::Leuga => Leuga {}.into(),
+            LengthUnit::MillePassus => MillePassus {}.into(),
+            LengthUnit::Stadium => Stadium {}.into(),
+            LengthUnit::Actus => Actus {}.into(),
+            LengthUnit::Decempeda => Decempeda {}.into(),
+            LengthUnit::Passus => Passus {}.into(),
+            LengthUnit::Gradus => Gradus {}.into(),
+            LengthUnit::Cubitum => Cubitum {}.into(),
+            LengthUnit::Palmipes => Palmipes {}.into(),
+            LengthUnit::Pes => Pes {}.into(),
+            LengthUnit::PalmusMaior => PalmusMaior {}.into(),
+            LengthUnit::Palmus => Palmus {}.into(),
+            LengthUnit::Uncia => LengthUncia {}.into(),
+            LengthUnit::Digitus => Digitus {}.into(),
+        }
+    }
+}
+
+/// The units of `Mass`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Mass<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Mass<N>: [const] Unit<Mass<N>, N> + [const] Destruct)]
+#[unit(of = Mass<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MassUnit {
     #[default]
-    #[unit("kg", "kilograms", by = Mass::<N>::from(KILOGRAM))]
+    #[unit(Kilogram)]
     Kilogram,
-    #[unit("g", "grams", by = Mass::<N>::from(GRAM))]
+    #[unit(Gram)]
     Gram,
-    #[unit("ct", "carats", by = Mass::<N>::from(CARAT))]
+    #[unit(Carat)]
     Carat,
-    #[unit("Da", "daltons", by = Mass::<N>::from(DALTON))]
+    #[unit(Dalton)]
     Dalton,
-    #[unit("mₑ", "electron masses", by = Mass::<N>::from(ELECTRON_MASS))]
+    #[unit(ElectronMass)]
     ElectronMass,
-    #[unit("mₚ", "proton masses", by = Mass::<N>::from(PROTON_MASS))]
+    #[unit(ProtonMass)]
     ProtonMass,
-    #[unit("gr", "grains", by = Mass::<N>::from(GRAIN))]
+    #[unit(Grain)]
     Grain,
-    #[unit("cwt long", "hundredweight (long)", by = Mass::<N>::from(HUNDREDWEIGHT_LONG))]
+    #[unit(HundredweightLong)]
     HundredweightLong,
-    #[unit("cwt short", "hundredweight (short)", by = Mass::<N>::from(HUNDREDWEIGHT_SHORT))]
+    #[unit(HundredweightShort)]
     HundredweightShort,
-    #[unit("oz", "ounces", by = Mass::<N>::from(OUNCE))]
+    #[unit(Ounce)]
     Ounce,
-    #[unit("oz t", "troy ounces", by = Mass::<N>::from(OUNCE_TROY))]
+    #[unit(OunceTroy)]
     OunceTroy,
-    #[unit("dwt", "pennyweight", by = Mass::<N>::from(PENNYWEIGHT))]
+    #[unit(Pennyweight)]
     Pennyweight,
-    #[unit("lb", "pounds", by = Mass::<N>::from(POUND))]
+    #[unit(Pound)]
     Pound,
-    #[unit("lb t", "troy pounds", by = Mass::<N>::from(POUND_TROY))]
+    #[unit(PoundTroy)]
     PoundTroy,
-    #[unit("slug", "slugs", by = Mass::<N>::from(SLUG))]
+    #[unit(Slug)]
     Slug,
-    #[unit("AT", "assay tons", by = Mass::<N>::from(TON_ASSAY))]
+    #[unit(TonAssay)]
     TonAssay,
-    #[unit("2240 lb", "long tons", by = Mass::<N>::from(TON_LONG))]
+    #[unit(TonLong)]
     TonLong,
-    #[unit("2000 lb", "short tons", by = Mass::<N>::from(TON_SHORT))]
+    #[unit(TonShort)]
     TonShort,
-    #[unit("t", "tons", by = Mass::<N>::from(TON))]
+    #[unit(Ton)]
     Ton,
-    #[unit("libra", "librae", by = Mass::<N>::from(LIBRA))]
+    #[unit(Libra)]
     Libra,
-    #[unit("deunx", "deunces", by = Mass::<N>::from(MASS_DEUNX))]
+    #[unit(MassDeunx)]
     Deunx,
-    #[unit("dextans", "dextantes", by = Mass::<N>::from(MASS_DEXTANS))]
+    #[unit(MassDextans)]
     Dextans,
-    #[unit("dodrans", "dodrantes", by = Mass::<N>::from(MASS_DODRANS))]
+    #[unit(MassDodrans)]
     Dodrans,
-    #[unit("bes", "bessis", by = Mass::<N>::from(MASS_BES))]
+    #[unit(MassBes)]
     Bes,
-    #[unit("septunx", "septunces", by = Mass::<N>::from(MASS_SEPTUNX))]
+    #[unit(MassSeptunx)]
     Septunx,
-    #[unit("semis", "semisses", by = Mass::<N>::from(MASS_SEMIS))]
+    #[unit(MassSemis)]
     Semis,
-    #[unit("quincunx", "quincunx", by = Mass::<N>::from(MASS_QUINCUNX))]
+    #[unit(MassQuincunx)]
     Quincunx,
-    #[unit("triens", "trientes", by = Mass::<N>::from(MASS_TRIENS))]
+    #[unit(MassTriens)]
     Triens,
-    #[unit("quadrans teruncius", "quadrantes teruncius", by = Mass::<N>::from(QUADRANS_TERUNCIUS))]
+    #[unit(QuadransTeruncius)]
     QuadransTeruncius,
-    #[unit("sextans", "sextantes", by = Mass::<N>::from(MASS_SEXTANS))]
+    #[unit(MassSextans)]
     Sextans,
-    #[unit("sescuncia", "sescunciae", by = Mass::<N>::from(SESCUNCIA))]
+    #[unit(Sescuncia)]
     Sescuncia,
-    #[unit("uncia", "unciae", by = Mass::<N>::from(MASS_UNCIA))]
+    #[unit(MassUncia)]
     Uncia,
-    #[unit("semuncia", "semunciae", by = Mass::<N>::from(SEMUNCIA))]
+    #[unit(Semuncia)]
     Semuncia,
-    #[unit("duella", "duella", by = Mass::<N>::from(DUELLA))]
+    #[unit(Duella)]
     Duella,
-    #[unit("sicilicus", "scilici", by = Mass::<N>::from(MASS_SICILICUS))]
+    #[unit(MassSicilicus)]
     Sicilicus,
-    #[unit("sextula", "sextulae", by = Mass::<N>::from(MASS_SEXTULA))]
+    #[unit(MassSextula)]
     Sextula,
-    #[unit("semisextula", "semisextulae", by = Mass::<N>::from(SEMISEXTULA))]
+    #[unit(Semisextula)]
     Semisextula,
-    #[unit("scrupulum", "scrupula", by = Mass::<N>::from(MASS_SCRUPULUM))]
+    #[unit(MassScrupulum)]
     Scrupulum,
-    #[unit("obolus", "oboli", by = Mass::<N>::from(OBOLUS))]
+    #[unit(Obolus)]
     Obolus,
-    #[unit("siliqua", "siliquae", by = Mass::<N>::from(SILIQUA))]
+    #[unit(Siliqua)]
     Siliqua,
 }
 
-/// The units of `Time`, in any number type the constants convert to.
+impl From<MassUnit> for DynamicSIUnit {
+    fn from(unit: MassUnit) -> Self {
+        match unit {
+            MassUnit::Kilogram => Kilogram {}.into(),
+            MassUnit::Gram => Gram {}.into(),
+            MassUnit::Carat => Carat {}.into(),
+            MassUnit::Dalton => Dalton {}.into(),
+            MassUnit::ElectronMass => ElectronMass {}.into(),
+            MassUnit::ProtonMass => ProtonMass {}.into(),
+            MassUnit::Grain => Grain {}.into(),
+            MassUnit::HundredweightLong => HundredweightLong {}.into(),
+            MassUnit::HundredweightShort => HundredweightShort {}.into(),
+            MassUnit::Ounce => Ounce {}.into(),
+            MassUnit::OunceTroy => OunceTroy {}.into(),
+            MassUnit::Pennyweight => Pennyweight {}.into(),
+            MassUnit::Pound => Pound {}.into(),
+            MassUnit::PoundTroy => PoundTroy {}.into(),
+            MassUnit::Slug => Slug {}.into(),
+            MassUnit::TonAssay => TonAssay {}.into(),
+            MassUnit::TonLong => TonLong {}.into(),
+            MassUnit::TonShort => TonShort {}.into(),
+            MassUnit::Ton => Ton {}.into(),
+            MassUnit::Libra => Libra {}.into(),
+            MassUnit::Deunx => MassDeunx {}.into(),
+            MassUnit::Dextans => MassDextans {}.into(),
+            MassUnit::Dodrans => MassDodrans {}.into(),
+            MassUnit::Bes => MassBes {}.into(),
+            MassUnit::Septunx => MassSeptunx {}.into(),
+            MassUnit::Semis => MassSemis {}.into(),
+            MassUnit::Quincunx => MassQuincunx {}.into(),
+            MassUnit::Triens => MassTriens {}.into(),
+            MassUnit::QuadransTeruncius => QuadransTeruncius {}.into(),
+            MassUnit::Sextans => MassSextans {}.into(),
+            MassUnit::Sescuncia => Sescuncia {}.into(),
+            MassUnit::Uncia => MassUncia {}.into(),
+            MassUnit::Semuncia => Semuncia {}.into(),
+            MassUnit::Duella => Duella {}.into(),
+            MassUnit::Sicilicus => MassSicilicus {}.into(),
+            MassUnit::Sextula => MassSextula {}.into(),
+            MassUnit::Semisextula => Semisextula {}.into(),
+            MassUnit::Scrupulum => MassScrupulum {}.into(),
+            MassUnit::Obolus => Obolus {}.into(),
+            MassUnit::Siliqua => Siliqua {}.into(),
+        }
+    }
+}
+
+/// The units of `Time`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Time<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Time<N>: [const] Unit<Time<N>, N> + [const] Destruct)]
+#[unit(of = Time<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum TimeUnit {
     #[default]
-    #[unit("s", "seconds", by = Time::<N>::from(SECOND))]
+    #[unit(Second)]
     Second,
-    #[unit("s (sidereal)", "seconds (sidereal)", by = Time::<N>::from(SECOND_SIDEREAL))]
+    #[unit(SecondSidereal)]
     SecondSidereal,
-    #[unit("d", "days", by = Time::<N>::from(DAY))]
+    #[unit(Day)]
     Day,
-    #[unit("d (sidereal)", "days (sidereal)", by = Time::<N>::from(DAY_SIDEREAL))]
+    #[unit(DaySidereal)]
     DaySidereal,
-    #[unit("h", "hours", by = Time::<N>::from(HOUR))]
+    #[unit(Hour)]
     Hour,
-    #[unit("h (sidereal)", "hours (sidereal)", by = Time::<N>::from(HOUR_SIDEREAL))]
+    #[unit(HourSidereal)]
     HourSidereal,
-    #[unit("min", "minutes", by = Time::<N>::from(MINUTE))]
+    #[unit(Minute)]
     Minute,
-    #[unit("10.0 ns", "shakes", by = Time::<N>::from(SHAKE))]
+    #[unit(Shake)]
     Shake,
-    #[unit("a", "years", by = Time::<N>::from(YEAR))]
+    #[unit(Year)]
     Year,
-    #[unit("a (sidereal)", "years (sidereal)", by = Time::<N>::from(YEAR_SIDEREAL))]
+    #[unit(YearSidereal)]
     YearSidereal,
-    #[unit("a (tropical)", "years (tropical)", by = Time::<N>::from(YEAR_TROPICAL))]
+    #[unit(YearTropical)]
     YearTropical,
 }
 
-/// The units of `Instant`, in any number type the constants convert to.
+impl From<TimeUnit> for DynamicSIUnit {
+    fn from(unit: TimeUnit) -> Self {
+        match unit {
+            TimeUnit::Second => Second {}.into(),
+            TimeUnit::SecondSidereal => SecondSidereal {}.into(),
+            TimeUnit::Day => Day {}.into(),
+            TimeUnit::DaySidereal => DaySidereal {}.into(),
+            TimeUnit::Hour => Hour {}.into(),
+            TimeUnit::HourSidereal => HourSidereal {}.into(),
+            TimeUnit::Minute => Minute {}.into(),
+            TimeUnit::Shake => Shake {}.into(),
+            TimeUnit::Year => Year {}.into(),
+            TimeUnit::YearSidereal => YearSidereal {}.into(),
+            TimeUnit::YearTropical => YearTropical {}.into(),
+        }
+    }
+}
+
+/// The units of `Instant`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Instant<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Scale<Instant<N>, Time<N>>: [const] Unit<Instant<N>, N> + [const] Destruct)]
+#[unit(of = Instant<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum InstantUnit {
     #[default]
-    #[unit("s Unix", "seconds of Unix time", by = Scale::<Instant<N>, Time<N>>::from(UNIX_SECONDS))]
+    #[unit(UnixSecond)]
     UnixSecond,
-    #[unit("ms Unix", "milliseconds of Unix time", by = Scale::<Instant<N>, Time<N>>::from(UNIX_MILLISECONDS))]
+    #[unit(UnixMillisecond)]
     UnixMillisecond,
-    #[unit("s GPS", "seconds of GPS time", by = Scale::<Instant<N>, Time<N>>::from(GPS_SECONDS))]
+    #[unit(GpsSecond)]
     GpsSecond,
-    #[unit("JD", "Julian date", by = Scale::<Instant<N>, Time<N>>::from(JULIAN_DATE))]
+    #[unit(JulianDate)]
     JulianDate,
-    #[unit("MJD", "modified Julian date", by = Scale::<Instant<N>, Time<N>>::from(MODIFIED_JULIAN_DATE))]
+    #[unit(ModifiedJulianDate)]
     ModifiedJulianDate,
 }
 
-/// The units of `Area`, in any number type the constants convert to.
+impl From<InstantUnit> for DynamicSIUnit {
+    fn from(unit: InstantUnit) -> Self {
+        match unit {
+            InstantUnit::UnixSecond => UnixSecond {}.into(),
+            InstantUnit::UnixMillisecond => UnixMillisecond {}.into(),
+            InstantUnit::GpsSecond => GpsSecond {}.into(),
+            InstantUnit::JulianDate => JulianDate {}.into(),
+            InstantUnit::ModifiedJulianDate => ModifiedJulianDate {}.into(),
+        }
+    }
+}
+
+/// The units of `Area`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Area<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Area<N>: [const] Unit<Area<N>, N> + [const] Destruct)]
+#[unit(of = Area<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AreaUnit {
     #[default]
-    #[unit("m²", "square metres", by = Area::<N>::from(SQUARE_METRE))]
+    #[unit(SquareMetre)]
     SquareMetre,
-    #[unit("ac", "acres", by = Area::<N>::from(ACRE))]
+    #[unit(Acre)]
     Acre,
-    #[unit("a", "ares", by = Area::<N>::from(ARE))]
+    #[unit(Are)]
     Are,
-    #[unit("b", "barns", by = Area::<N>::from(BARN))]
+    #[unit(Barn)]
     Barn,
-    #[unit("cmil", "circular mils", by = Area::<N>::from(CIRCULAR_MIL))]
+    #[unit(CircularMil)]
     CircularMil,
-    #[unit("ha", "hectares", by = Area::<N>::from(HECTARE))]
+    #[unit(Hectare)]
     Hectare,
-    #[unit("ft²", "square feet", by = Area::<N>::from(SQUARE_FOOT))]
+    #[unit(SquareFoot)]
     SquareFoot,
-    #[unit("in²", "square inches", by = Area::<N>::from(SQUARE_INCH))]
+    #[unit(SquareInch)]
     SquareInch,
-    #[unit("mi²", "square miles", by = Area::<N>::from(SQUARE_MILE))]
+    #[unit(SquareMile)]
     SquareMile,
-    #[unit("yd²", "square yards", by = Area::<N>::from(SQUARE_YARD))]
+    #[unit(SquareYard)]
     SquareYard,
-    #[unit("saltus", "saltus", by = Area::<N>::from(SALTUS))]
+    #[unit(Saltus)]
     Saltus,
-    #[unit("centuria", "centuriae", by = Area::<N>::from(CENTURIA))]
+    #[unit(Centuria)]
     Centuria,
-    #[unit("heredium", "heredia", by = Area::<N>::from(HEREDIUM))]
+    #[unit(Heredium)]
     Heredium,
-    #[unit("jugerum", "jugera", by = Area::<N>::from(JUGERUM))]
+    #[unit(Jugerum)]
     Jugerum,
-    #[unit("deunx", "deunces", by = Area::<N>::from(AREA_DEUNX))]
+    #[unit(AreaDeunx)]
     Deunx,
-    #[unit("dextans", "dextantes", by = Area::<N>::from(AREA_DEXTANS))]
+    #[unit(AreaDextans)]
     Dextans,
-    #[unit("dodrans", "dodrantes", by = Area::<N>::from(AREA_DODRANS))]
+    #[unit(AreaDodrans)]
     Dodrans,
-    #[unit("bes", "besses", by = Area::<N>::from(AREA_BES))]
+    #[unit(AreaBes)]
     Bes,
-    #[unit("septunx", "septunces", by = Area::<N>::from(AREA_SEPTUNX))]
+    #[unit(AreaSeptunx)]
     Septunx,
-    #[unit("semis", "semisses", by = Area::<N>::from(AREA_SEMIS))]
+    #[unit(AreaSemis)]
     Semis,
-    #[unit("actus quadratus", "acta quadratus", by = Area::<N>::from(ACTUS_QUADRATUS))]
+    #[unit(ActusQuadratus)]
     ActusQuadratus,
-    #[unit("quincunx", "quincunces", by = Area::<N>::from(AREA_QUINCUNX))]
+    #[unit(AreaQuincunx)]
     Quincunx,
-    #[unit("triens", "trientes", by = Area::<N>::from(AREA_TRIENS))]
+    #[unit(AreaTriens)]
     Triens,
-    #[unit("quadrans", "quadrantes", by = Area::<N>::from(QUADRANS))]
+    #[unit(Quadrans)]
     Quadrans,
-    #[unit("sextans", "sextantes", by = Area::<N>::from(AREA_SEXTANS))]
+    #[unit(AreaSextans)]
     Sextans,
-    #[unit("clima", "climata", by = Area::<N>::from(CLIMA))]
+    #[unit(Clima)]
     Clima,
-    #[unit("uncia", "unciae", by = Area::<N>::from(AREA_UNCIA))]
+    #[unit(AreaUncia)]
     Uncia,
-    #[unit("semiuncia", "semiunciae", by = Area::<N>::from(SEMIUNCIA))]
+    #[unit(Semiuncia)]
     Semiuncia,
-    #[unit("sicilicus", "siculi", by = Area::<N>::from(AREA_SICILICUS))]
+    #[unit(AreaSicilicus)]
     Sicilicus,
-    #[unit("actus simplex", "acta simplex", by = Area::<N>::from(ACTUS_SIMPLEX))]
+    #[unit(ActusSimplex)]
     ActusSimplex,
-    #[unit("sextula", "sextulae", by = Area::<N>::from(AREA_SEXTULA))]
+    #[unit(AreaSextula)]
     Sextula,
-    #[unit("duo scrupulum", "duo scrupula", by = Area::<N>::from(DUO_SCRUPULUM))]
+    #[unit(DuoScrupulum)]
     DuoScrupulum,
-    #[unit("scrupulum", "scrupula", by = Area::<N>::from(AREA_SCRUPULUM))]
+    #[unit(AreaScrupulum)]
     Scrupulum,
-    #[unit("dimidium scrupulum", "dimidium scupula", by = Area::<N>::from(DIMIDIUM_SCRUPULUM))]
+    #[unit(DimidiumScrupulum)]
     DimidiumScrupulum,
-    #[unit("pes quadratus", "pedes quadratus", by = Area::<N>::from(PES_QUADRATUS))]
+    #[unit(PesQuadratus)]
     PesQuadratus,
 }
 
-/// The units of `Volume`, in any number type the constants convert to.
+impl From<AreaUnit> for DynamicSIUnit {
+    fn from(unit: AreaUnit) -> Self {
+        match unit {
+            AreaUnit::SquareMetre => SquareMetre {}.into(),
+            AreaUnit::Acre => Acre {}.into(),
+            AreaUnit::Are => Are {}.into(),
+            AreaUnit::Barn => Barn {}.into(),
+            AreaUnit::CircularMil => CircularMil {}.into(),
+            AreaUnit::Hectare => Hectare {}.into(),
+            AreaUnit::SquareFoot => SquareFoot {}.into(),
+            AreaUnit::SquareInch => SquareInch {}.into(),
+            AreaUnit::SquareMile => SquareMile {}.into(),
+            AreaUnit::SquareYard => SquareYard {}.into(),
+            AreaUnit::Saltus => Saltus {}.into(),
+            AreaUnit::Centuria => Centuria {}.into(),
+            AreaUnit::Heredium => Heredium {}.into(),
+            AreaUnit::Jugerum => Jugerum {}.into(),
+            AreaUnit::Deunx => AreaDeunx {}.into(),
+            AreaUnit::Dextans => AreaDextans {}.into(),
+            AreaUnit::Dodrans => AreaDodrans {}.into(),
+            AreaUnit::Bes => AreaBes {}.into(),
+            AreaUnit::Septunx => AreaSeptunx {}.into(),
+            AreaUnit::Semis => AreaSemis {}.into(),
+            AreaUnit::ActusQuadratus => ActusQuadratus {}.into(),
+            AreaUnit::Quincunx => AreaQuincunx {}.into(),
+            AreaUnit::Triens => AreaTriens {}.into(),
+            AreaUnit::Quadrans => Quadrans {}.into(),
+            AreaUnit::Sextans => AreaSextans {}.into(),
+            AreaUnit::Clima => Clima {}.into(),
+            AreaUnit::Uncia => AreaUncia {}.into(),
+            AreaUnit::Semiuncia => Semiuncia {}.into(),
+            AreaUnit::Sicilicus => AreaSicilicus {}.into(),
+            AreaUnit::ActusSimplex => ActusSimplex {}.into(),
+            AreaUnit::Sextula => AreaSextula {}.into(),
+            AreaUnit::DuoScrupulum => DuoScrupulum {}.into(),
+            AreaUnit::Scrupulum => AreaScrupulum {}.into(),
+            AreaUnit::DimidiumScrupulum => DimidiumScrupulum {}.into(),
+            AreaUnit::PesQuadratus => PesQuadratus {}.into(),
+        }
+    }
+}
+
+/// The units of `Volume`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Volume<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Volume<N>: [const] Unit<Volume<N>, N> + [const] Destruct)]
+#[unit(of = Volume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumeUnit {
     #[default]
-    #[unit("m³", "cubic metres", by = Volume::<N>::from(CUBIC_METRE))]
+    #[unit(CubicMetre)]
     CubicMetre,
-    #[unit("ac · ft", "acre-feet", by = Volume::<N>::from(CUBIC_METRE * (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)))))]
+    #[unit(AcreFoot)]
     AcreFoot,
-    #[unit("bbl", "barrels", by = Volume::<N>::from(BARREL))]
+    #[unit(Barrel)]
     Barrel,
-    #[unit("bu", "bushels", by = Volume::<N>::from(BUSHEL))]
+    #[unit(Bushel)]
     Bushel,
-    #[unit("cords", "cords", by = Volume::<N>::from(CORD))]
+    #[unit(Cord)]
     Cord,
-    #[unit("ft³", "cubic feet", by = Volume::<N>::from(CUBIC_FOOT))]
+    #[unit(CubicFoot)]
     CubicFoot,
-    #[unit("in³", "cubic inches", by = Volume::<N>::from(CUBIC_INCH))]
+    #[unit(CubicInch)]
     CubicInch,
-    #[unit("mi³", "cubic miles", by = Volume::<N>::from(CUBIC_MILE))]
+    #[unit(CubicMile)]
     CubicMile,
-    #[unit("yd³", "cubic yards", by = Volume::<N>::from(CUBIC_YARD))]
+    #[unit(CubicYard)]
     CubicYard,
-    #[unit("cup", "cups", by = Volume::<N>::from(CUP))]
+    #[unit(Cup)]
     Cup,
-    #[unit("fl oz", "fluid ounces", by = Volume::<N>::from(FLUID_OUNCE))]
+    #[unit(FluidOunce)]
     FluidOunce,
-    #[unit("fl oz (UK)", "Imperial fluid ounces", by = Volume::<N>::from(FLUID_OUNCE_IMPERIAL))]
+    #[unit(FluidOunceImperial)]
     FluidOunceImperial,
-    #[unit("gal (UK)", "Imperial gallons", by = Volume::<N>::from(GALLON_IMPERIAL))]
+    #[unit(GallonImperial)]
     GallonImperial,
-    #[unit("gal", "gallons", by = Volume::<N>::from(GALLON))]
+    #[unit(Gallon)]
     Gallon,
-    #[unit("gi (UK)", "Imperial gills", by = Volume::<N>::from(GILL_IMPERIAL))]
+    #[unit(GillImperial)]
     GillImperial,
-    #[unit("gi", "gills", by = Volume::<N>::from(GILL))]
+    #[unit(Gill)]
     Gill,
-    #[unit("L", "litres", by = Volume::<N>::from(LITRE))]
+    #[unit(Litre)]
     Litre,
-    #[unit("pk", "pecks", by = Volume::<N>::from(PECK))]
+    #[unit(Peck)]
     Peck,
-    #[unit("dry pt", "dry pints", by = Volume::<N>::from(PINT_DRY))]
+    #[unit(PintDry)]
     PintDry,
-    #[unit("liq pt", "liquid pints", by = Volume::<N>::from(PINT_LIQUID))]
+    #[unit(PintLiquid)]
     PintLiquid,
-    #[unit("dry qt", "dry quarts", by = Volume::<N>::from(QUART_DRY))]
+    #[unit(QuartDry)]
     QuartDry,
-    #[unit("liq qt", "liquid quarts", by = Volume::<N>::from(QUART_LIQUID))]
+    #[unit(QuartLiquid)]
     QuartLiquid,
-    #[unit("st", "steres", by = Volume::<N>::from(STERE))]
+    #[unit(Stere)]
     Stere,
-    #[unit("tbsp", "tablespoons", by = Volume::<N>::from(TABLESPOON))]
+    #[unit(Tablespoon)]
     Tablespoon,
-    #[unit("tsp", "teaspoons", by = Volume::<N>::from(TEASPOON))]
+    #[unit(Teaspoon)]
     Teaspoon,
-    #[unit("RT", "register tons", by = Volume::<N>::from(REGISTER_TON))]
+    #[unit(RegisterTon)]
     RegisterTon,
-    #[unit("culeus", "culei", by = Volume::<N>::from(CULEUS))]
+    #[unit(Culeus)]
     Culeus,
-    #[unit("amphora quadrantal", "amphora quadrantal", by = Volume::<N>::from(AMPHORA_QUADRANTAL))]
+    #[unit(AmphoraQuadrantal)]
     AmphoraQuadrantal,
-    #[unit("urna", "urnae", by = Volume::<N>::from(URNA))]
+    #[unit(Urna)]
     Urna,
-    #[unit("modius castrensis", "modii castrensis", by = Volume::<N>::from(MODIUS_CASTRENSIS))]
+    #[unit(ModiusCastrensis)]
     ModiusCastrensis,
-    #[unit("modius", "modii", by = Volume::<N>::from(MODIUS))]
+    #[unit(Modius)]
     Modius,
-    #[unit("semimodius", "semimodii", by = Volume::<N>::from(SEMIMODIUS))]
+    #[unit(Semimodius)]
     Semimodius,
-    #[unit("congius", "congii", by = Volume::<N>::from(CONGIUS))]
+    #[unit(Congius)]
     Congius,
-    #[unit("sextarius", "sextarii", by = Volume::<N>::from(SEXTARIUS))]
+    #[unit(Sextarius)]
     Sextarius,
-    #[unit("hemina", "heminae", by = Volume::<N>::from(HEMINA))]
+    #[unit(Hemina)]
     Hemina,
-    #[unit("quartarius", "quartarii", by = Volume::<N>::from(QUARTARIUS))]
+    #[unit(Quartarius)]
     Quartarius,
-    #[unit("acetabulum", "acetabula", by = Volume::<N>::from(ACETABULUM))]
+    #[unit(Acetabulum)]
     Acetabulum,
-    #[unit("cyathus", "cyathi", by = Volume::<N>::from(CYATHUS))]
+    #[unit(Cyathus)]
     Cyathus,
-    #[unit("ligula", "ligula", by = Volume::<N>::from(LIGULA))]
+    #[unit(Ligula)]
     Ligula,
 }
 
-/// The units of `Velocity`, in any number type the constants convert to.
+impl From<VolumeUnit> for DynamicSIUnit {
+    fn from(unit: VolumeUnit) -> Self {
+        match unit {
+            VolumeUnit::CubicMetre => CubicMetre {}.into(),
+            VolumeUnit::AcreFoot => AcreFoot {}.into(),
+            VolumeUnit::Barrel => Barrel {}.into(),
+            VolumeUnit::Bushel => Bushel {}.into(),
+            VolumeUnit::Cord => Cord {}.into(),
+            VolumeUnit::CubicFoot => CubicFoot {}.into(),
+            VolumeUnit::CubicInch => CubicInch {}.into(),
+            VolumeUnit::CubicMile => CubicMile {}.into(),
+            VolumeUnit::CubicYard => CubicYard {}.into(),
+            VolumeUnit::Cup => Cup {}.into(),
+            VolumeUnit::FluidOunce => FluidOunce {}.into(),
+            VolumeUnit::FluidOunceImperial => FluidOunceImperial {}.into(),
+            VolumeUnit::GallonImperial => GallonImperial {}.into(),
+            VolumeUnit::Gallon => Gallon {}.into(),
+            VolumeUnit::GillImperial => GillImperial {}.into(),
+            VolumeUnit::Gill => Gill {}.into(),
+            VolumeUnit::Litre => Litre {}.into(),
+            VolumeUnit::Peck => Peck {}.into(),
+            VolumeUnit::PintDry => PintDry {}.into(),
+            VolumeUnit::PintLiquid => PintLiquid {}.into(),
+            VolumeUnit::QuartDry => QuartDry {}.into(),
+            VolumeUnit::QuartLiquid => QuartLiquid {}.into(),
+            VolumeUnit::Stere => Stere {}.into(),
+            VolumeUnit::Tablespoon => Tablespoon {}.into(),
+            VolumeUnit::Teaspoon => Teaspoon {}.into(),
+            VolumeUnit::RegisterTon => RegisterTon {}.into(),
+            VolumeUnit::Culeus => Culeus {}.into(),
+            VolumeUnit::AmphoraQuadrantal => AmphoraQuadrantal {}.into(),
+            VolumeUnit::Urna => Urna {}.into(),
+            VolumeUnit::ModiusCastrensis => ModiusCastrensis {}.into(),
+            VolumeUnit::Modius => Modius {}.into(),
+            VolumeUnit::Semimodius => Semimodius {}.into(),
+            VolumeUnit::Congius => Congius {}.into(),
+            VolumeUnit::Sextarius => Sextarius {}.into(),
+            VolumeUnit::Hemina => Hemina {}.into(),
+            VolumeUnit::Quartarius => Quartarius {}.into(),
+            VolumeUnit::Acetabulum => Acetabulum {}.into(),
+            VolumeUnit::Cyathus => Cyathus {}.into(),
+            VolumeUnit::Ligula => Ligula {}.into(),
+        }
+    }
+}
+
+/// The units of `Velocity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Velocity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Velocity<N>: [const] Unit<Velocity<N>, N> + [const] Destruct)]
+#[unit(of = Velocity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VelocityUnit {
     #[default]
-    #[unit("m/s", "metres per second", by = Velocity::<N>::from(METRE_PER_SECOND))]
+    #[unit(MetrePerSecond)]
     MetrePerSecond,
-    #[unit("ft/h", "feet per hour", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::dec(3048, -4) / Exact::int(3600))))]
+    #[unit(FootPerHour)]
     FootPerHour,
-    #[unit("ft/min", "feet per minute", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(508, -5)))]
+    #[unit(FootPerMinute)]
     FootPerMinute,
-    #[unit("ft/s", "feet per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(3048, -4)))]
+    #[unit(FootPerSecond)]
     FootPerSecond,
-    #[unit("in/s", "inches per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(254, -4)))]
+    #[unit(InchPerSecond)]
     InchPerSecond,
-    #[unit("in/min", "inches per minute", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::dec(254, -4) / Exact::int(60))))]
+    #[unit(InchPerMinute)]
     InchPerMinute,
-    #[unit("kn", "knots", by = Velocity::<N>::from(KNOT))]
+    #[unit(Knot)]
     Knot,
-    #[unit("mi/h", "miles per hour", by = Velocity::<N>::from(MILE_PER_HOUR))]
+    #[unit(MilePerHour)]
     MilePerHour,
-    #[unit("mi/min", "miles per minute", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(268224, -4)))]
+    #[unit(MilePerMinute)]
     MilePerMinute,
-    #[unit("mi/s", "miles per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(1609344, -3)))]
+    #[unit(MilePerSecond)]
     MilePerSecond,
-    #[unit("a₀ · Eₕ/ħ", "atomic units of velocity", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(218769126364, -5)))]
+    #[unit(AtomicUnitOfVelocity)]
     AtomicUnitOfVelocity,
-    #[unit("c", "natural units of velocity", by = Velocity::<N>::from(NATURAL_UNIT_OF_VELOCITY))]
+    #[unit(NaturalUnitOfVelocity)]
     NaturalUnitOfVelocity,
-    #[unit("c", "speeds of light in vacuum", by = Velocity::<N>::from(SPEED_OF_LIGHT))]
+    #[unit(SpeedOfLight)]
     SpeedOfLight,
-    #[unit("km/h", "kilometres per hour", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::int(1000) / Exact::int(3600))))]
+    #[unit(KilometrePerHour)]
     KilometrePerHour,
-    #[unit("mm/min", "millimetres per minute", by = Velocity::<N>::from(METRE_PER_SECOND * (Exact::dec(1, -3) / Exact::int(60))))]
+    #[unit(MillimetrePerMinute)]
     MillimetrePerMinute,
 }
 
-/// The units of `Acceleration`, in any number type the constants convert to.
+impl From<VelocityUnit> for DynamicSIUnit {
+    fn from(unit: VelocityUnit) -> Self {
+        match unit {
+            VelocityUnit::MetrePerSecond => MetrePerSecond {}.into(),
+            VelocityUnit::FootPerHour => FootPerHour {}.into(),
+            VelocityUnit::FootPerMinute => FootPerMinute {}.into(),
+            VelocityUnit::FootPerSecond => FootPerSecond {}.into(),
+            VelocityUnit::InchPerSecond => InchPerSecond {}.into(),
+            VelocityUnit::InchPerMinute => InchPerMinute {}.into(),
+            VelocityUnit::Knot => Knot {}.into(),
+            VelocityUnit::MilePerHour => MilePerHour {}.into(),
+            VelocityUnit::MilePerMinute => MilePerMinute {}.into(),
+            VelocityUnit::MilePerSecond => MilePerSecond {}.into(),
+            VelocityUnit::AtomicUnitOfVelocity => AtomicUnitOfVelocity {}.into(),
+            VelocityUnit::NaturalUnitOfVelocity => NaturalUnitOfVelocity {}.into(),
+            VelocityUnit::SpeedOfLight => SpeedOfLight {}.into(),
+            VelocityUnit::KilometrePerHour => KilometrePerHour {}.into(),
+            VelocityUnit::MillimetrePerMinute => MillimetrePerMinute {}.into(),
+        }
+    }
+}
+
+/// The units of `Acceleration`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Acceleration<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Acceleration<N>: [const] Unit<Acceleration<N>, N> + [const] Destruct)]
+#[unit(of = Acceleration<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AccelerationUnit {
     #[default]
-    #[unit("m/s²", "metres per second squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED))]
+    #[unit(MetrePerSecondSquared)]
     MetrePerSecondSquared,
-    #[unit("ft/s²", "feet per second squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED * Exact::dec(3048, -4)))]
+    #[unit(FootPerSecondSquared)]
     FootPerSecondSquared,
-    #[unit("Gal", "galileos", by = Acceleration::<N>::from(GALILEO))]
+    #[unit(Galileo)]
     Galileo,
-    #[unit("in/s²", "inches per second squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED * Exact::dec(254, -4)))]
+    #[unit(InchPerSecondSquared)]
     InchPerSecondSquared,
-    #[unit("g₀", "standard accelerations of gravity", by = Acceleration::<N>::from(STANDARD_GRAVITY))]
+    #[unit(StandardGravity)]
     StandardGravity,
-    #[unit("mm/min²", "millimetres per minute squared", by = Acceleration::<N>::from(METRE_PER_SECOND_SQUARED * (Exact::dec(1, -3) / (Exact::int(60) * Exact::int(60)))))]
+    #[unit(MillimetrePerMinuteSquared)]
     MillimetrePerMinuteSquared,
 }
 
-/// The units of `Jerk`, in any number type the constants convert to.
+impl From<AccelerationUnit> for DynamicSIUnit {
+    fn from(unit: AccelerationUnit) -> Self {
+        match unit {
+            AccelerationUnit::MetrePerSecondSquared => MetrePerSecondSquared {}.into(),
+            AccelerationUnit::FootPerSecondSquared => FootPerSecondSquared {}.into(),
+            AccelerationUnit::Galileo => Galileo {}.into(),
+            AccelerationUnit::InchPerSecondSquared => InchPerSecondSquared {}.into(),
+            AccelerationUnit::StandardGravity => StandardGravity {}.into(),
+            AccelerationUnit::MillimetrePerMinuteSquared => MillimetrePerMinuteSquared {}.into(),
+        }
+    }
+}
+
+/// The units of `Jerk`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Jerk<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Jerk<N>: [const] Unit<Jerk<N>, N> + [const] Destruct)]
+#[unit(of = Jerk<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum JerkUnit {
     #[default]
-    #[unit("m/s³", "metres per second cubed", by = Jerk::<N>::from(METRE / (SECOND * SECOND * SECOND)))]
+    #[unit(MetrePerSecondCubed)]
     MetrePerSecondCubed,
-    #[unit("ft/s³", "feet per second cubed", by = Jerk::<N>::from((METRE / (SECOND * SECOND * SECOND)) * Exact::dec(3048, -4)))]
+    #[unit(FootPerSecondCubed)]
     FootPerSecondCubed,
-    #[unit("in/s³", "inches per second cubed", by = Jerk::<N>::from((METRE / (SECOND * SECOND * SECOND)) * Exact::dec(254, -4)))]
+    #[unit(InchPerSecondCubed)]
     InchPerSecondCubed,
-    #[unit("km/min³", "kilometres per minute cubed", by = Jerk::<N>::from((METRE / (SECOND * SECOND * SECOND)) * (Exact::int(1000) / (Exact::int(60) * Exact::int(60) * Exact::int(60)))))]
+    #[unit(KilometrePerMinuteCubed)]
     KilometrePerMinuteCubed,
 }
 
-/// The units of `Absement`, in any number type the constants convert to.
+impl From<JerkUnit> for DynamicSIUnit {
+    fn from(unit: JerkUnit) -> Self {
+        match unit {
+            JerkUnit::MetrePerSecondCubed => MetrePerSecondCubed {}.into(),
+            JerkUnit::FootPerSecondCubed => FootPerSecondCubed {}.into(),
+            JerkUnit::InchPerSecondCubed => InchPerSecondCubed {}.into(),
+            JerkUnit::KilometrePerMinuteCubed => KilometrePerMinuteCubed {}.into(),
+        }
+    }
+}
+
+/// The units of `Absement`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Absement<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Absement<N>: [const] Unit<Absement<N>, N> + [const] Destruct)]
+#[unit(of = Absement<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AbsementUnit {
     #[default]
-    #[unit("m · s", "metre seconds", by = Absement::<N>::from(METRE * SECOND))]
+    #[unit(MetreSecond)]
     MetreSecond,
-    #[unit("ft · s", "foot seconds", by = Absement::<N>::from((METRE * SECOND) * Exact::dec(3048, -4)))]
+    #[unit(FootSecond)]
     FootSecond,
-    #[unit("in · s", "inch seconds", by = Absement::<N>::from((METRE * SECOND) * Exact::dec(254, -4)))]
+    #[unit(InchSecond)]
     InchSecond,
-    #[unit("km · h", "kilometre hours", by = Absement::<N>::from((METRE * SECOND) * Exact::int(3600000)))]
+    #[unit(KilometreHour)]
     KilometreHour,
 }
 
-/// The units of `InverseVelocity`, in any number type the constants convert to.
+impl From<AbsementUnit> for DynamicSIUnit {
+    fn from(unit: AbsementUnit) -> Self {
+        match unit {
+            AbsementUnit::MetreSecond => MetreSecond {}.into(),
+            AbsementUnit::FootSecond => FootSecond {}.into(),
+            AbsementUnit::InchSecond => InchSecond {}.into(),
+            AbsementUnit::KilometreHour => KilometreHour {}.into(),
+        }
+    }
+}
+
+/// The units of `InverseVelocity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InverseVelocity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where InverseVelocity<N>: [const] Unit<InverseVelocity<N>, N> + [const] Destruct)]
+#[unit(of = InverseVelocity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum InverseVelocityUnit {
     #[default]
-    #[unit("s/m", "seconds per metre", by = InverseVelocity::<N>::from(SECOND / METRE))]
+    #[unit(SecondPerMetre)]
     SecondPerMetre,
-    #[unit("h/ft", "hours per foot", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(3600) / Exact::dec(3048, -4))))]
+    #[unit(HourPerFoot)]
     HourPerFoot,
-    #[unit("min/ft", "minutes per foot", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(60) / Exact::dec(3048, -4))))]
+    #[unit(MinutePerFoot)]
     MinutePerFoot,
-    #[unit("s/ft", "seconds per foot", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(1) / Exact::dec(3048, -4))))]
+    #[unit(SecondPerFoot)]
     SecondPerFoot,
-    #[unit("s/in", "seconds per inch", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(1) / Exact::dec(254, -4))))]
+    #[unit(SecondPerInch)]
     SecondPerInch,
-    #[unit("h/mi", "hours per mile", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(3600) / Exact::dec(1609344, -3))))]
+    #[unit(HourPerMile)]
     HourPerMile,
-    #[unit("min/mi", "minutes per mile", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(60) / Exact::dec(1609344, -3))))]
+    #[unit(MinutePerMile)]
     MinutePerMile,
-    #[unit("s/mi", "seconds per mile", by = InverseVelocity::<N>::from((SECOND / METRE) * (Exact::int(1) / Exact::dec(1609344, -3))))]
+    #[unit(SecondPerMile)]
     SecondPerMile,
-    #[unit("min/km", "minutes per kilometre", by = InverseVelocity::<N>::from((SECOND / METRE) * Exact::dec(6, -2)))]
+    #[unit(MinutePerKilometre)]
     MinutePerKilometre,
-    #[unit("h/km", "hours per kilometre", by = InverseVelocity::<N>::from((SECOND / METRE) * Exact::dec(36, -1)))]
+    #[unit(HourPerKilometre)]
     HourPerKilometre,
 }
 
-/// The units of `Force`, in any number type the constants convert to.
+impl From<InverseVelocityUnit> for DynamicSIUnit {
+    fn from(unit: InverseVelocityUnit) -> Self {
+        match unit {
+            InverseVelocityUnit::SecondPerMetre => SecondPerMetre {}.into(),
+            InverseVelocityUnit::HourPerFoot => HourPerFoot {}.into(),
+            InverseVelocityUnit::MinutePerFoot => MinutePerFoot {}.into(),
+            InverseVelocityUnit::SecondPerFoot => SecondPerFoot {}.into(),
+            InverseVelocityUnit::SecondPerInch => SecondPerInch {}.into(),
+            InverseVelocityUnit::HourPerMile => HourPerMile {}.into(),
+            InverseVelocityUnit::MinutePerMile => MinutePerMile {}.into(),
+            InverseVelocityUnit::SecondPerMile => SecondPerMile {}.into(),
+            InverseVelocityUnit::MinutePerKilometre => MinutePerKilometre {}.into(),
+            InverseVelocityUnit::HourPerKilometre => HourPerKilometre {}.into(),
+        }
+    }
+}
+
+/// The units of `Force`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Force<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Force<N>: [const] Unit<Force<N>, N> + [const] Destruct)]
+#[unit(of = Force<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ForceUnit {
     #[default]
-    #[unit("N", "newtons", by = Force::<N>::from(NEWTON))]
+    #[unit(Newton)]
     Newton,
-    #[unit("dyn", "dynes", by = Force::<N>::from(DYNE))]
+    #[unit(Dyne)]
     Dyne,
-    #[unit("kgf", "kilograms-force", by = Force::<N>::from(KILOGRAM_FORCE))]
+    #[unit(KilogramForce)]
     KilogramForce,
-    #[unit("kip", "kips", by = Force::<N>::from(KIP))]
+    #[unit(Kip)]
     Kip,
-    #[unit("ozf", "ounces-force", by = Force::<N>::from(OUNCE_FORCE))]
+    #[unit(OunceForce)]
     OunceForce,
-    #[unit("pdl", "poundals", by = Force::<N>::from(POUNDAL))]
+    #[unit(Poundal)]
     Poundal,
-    #[unit("lbf", "pounds-force", by = Force::<N>::from(POUND_FORCE))]
+    #[unit(PoundForce)]
     PoundForce,
-    #[unit("2000 lbf", "tons-force", by = Force::<N>::from(TON_FORCE))]
+    #[unit(TonForce)]
     TonForce,
 }
 
-/// The units of `Momentum`, in any number type the constants convert to.
+impl From<ForceUnit> for DynamicSIUnit {
+    fn from(unit: ForceUnit) -> Self {
+        match unit {
+            ForceUnit::Newton => Newton {}.into(),
+            ForceUnit::Dyne => Dyne {}.into(),
+            ForceUnit::KilogramForce => KilogramForce {}.into(),
+            ForceUnit::Kip => Kip {}.into(),
+            ForceUnit::OunceForce => OunceForce {}.into(),
+            ForceUnit::Poundal => Poundal {}.into(),
+            ForceUnit::PoundForce => PoundForce {}.into(),
+            ForceUnit::TonForce => TonForce {}.into(),
+        }
+    }
+}
+
+/// The units of `Momentum`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Momentum<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Momentum<N>: [const] Unit<Momentum<N>, N> + [const] Destruct)]
+#[unit(of = Momentum<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MomentumUnit {
     #[default]
-    #[unit("kg · m/s", "kilogram metres per second", by = Momentum::<N>::from(METRE * KILOGRAM / SECOND))]
+    #[unit(KilogramMetrePerSecond)]
     KilogramMetrePerSecond,
-    #[unit("g · m/s", "gram metres per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::dec(1, -3)))]
+    #[unit(GramMetrePerSecond)]
     GramMetrePerSecond,
-    #[unit("t · m/s", "ton metres per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::int(1000)))]
+    #[unit(TonMetrePerSecond)]
     TonMetrePerSecond,
-    #[unit("kg · m/min", "kilogram metres per minute", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * (Exact::int(1) / Exact::int(60))))]
+    #[unit(KilogramMetrePerMinute)]
     KilogramMetrePerMinute,
-    #[unit("kg · m/h", "kilogram metres per hour", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * (Exact::int(1) / Exact::int(3600))))]
+    #[unit(KilogramMetrePerHour)]
     KilogramMetrePerHour,
-    #[unit("kg · m/d", "kilogram metres per day", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * (Exact::int(1) / Exact::int(86400))))]
+    #[unit(KilogramMetrePerDay)]
     KilogramMetrePerDay,
-    #[unit("slug · ft/s", "slug feet per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * Exact::dec(3048, -4))))]
+    #[unit(SlugFootPerSecond)]
     SlugFootPerSecond,
-    #[unit("slug · in/s", "slug inches per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) * Exact::dec(254, -4))))]
+    #[unit(SlugInchPerSecond)]
     SlugInchPerSecond,
-    #[unit("lb · ft/s", "pound feet per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::dec(138254954376, -12)))]
+    #[unit(PoundFootPerSecond)]
     PoundFootPerSecond,
-    #[unit("lb · in/s", "pound inches per second", by = Momentum::<N>::from((METRE * KILOGRAM / SECOND) * Exact::dec(11521246198, -12)))]
+    #[unit(PoundInchPerSecond)]
     PoundInchPerSecond,
 }
 
-/// The units of `Energy`, in any number type the constants convert to.
+impl From<MomentumUnit> for DynamicSIUnit {
+    fn from(unit: MomentumUnit) -> Self {
+        match unit {
+            MomentumUnit::KilogramMetrePerSecond => KilogramMetrePerSecond {}.into(),
+            MomentumUnit::GramMetrePerSecond => GramMetrePerSecond {}.into(),
+            MomentumUnit::TonMetrePerSecond => TonMetrePerSecond {}.into(),
+            MomentumUnit::KilogramMetrePerMinute => KilogramMetrePerMinute {}.into(),
+            MomentumUnit::KilogramMetrePerHour => KilogramMetrePerHour {}.into(),
+            MomentumUnit::KilogramMetrePerDay => KilogramMetrePerDay {}.into(),
+            MomentumUnit::SlugFootPerSecond => SlugFootPerSecond {}.into(),
+            MomentumUnit::SlugInchPerSecond => SlugInchPerSecond {}.into(),
+            MomentumUnit::PoundFootPerSecond => PoundFootPerSecond {}.into(),
+            MomentumUnit::PoundInchPerSecond => PoundInchPerSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `Energy`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Energy<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Energy<N>: [const] Unit<Energy<N>, N> + [const] Destruct)]
+#[unit(of = Energy<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum EnergyUnit {
     #[default]
-    #[unit("J", "joules", by = Energy::<N>::from(JOULE))]
+    #[unit(Joule)]
     Joule,
-    #[unit("W · h", "watt hours", by = Energy::<N>::from(JOULE * Exact::int(3600)))]
+    #[unit(WattHour)]
     WattHour,
-    #[unit("eV", "electronvolts", by = Energy::<N>::from(ELECTRONVOLT))]
+    #[unit(Electronvolt)]
     Electronvolt,
-    #[unit("Eₕ", "hartrees", by = Energy::<N>::from(HARTREE))]
+    #[unit(Hartree)]
     Hartree,
-    #[unit("Btu (IT)", "British thermal units (IT)", by = Energy::<N>::from(BTU_IT))]
+    #[unit(BtuIt)]
     BtuIt,
-    #[unit("Btu", "British thermal units", by = Energy::<N>::from(BTU))]
+    #[unit(Btu)]
     Btu,
-    #[unit("cal (IT)", "calories (IT)", by = Energy::<N>::from(CALORIE_IT))]
+    #[unit(CalorieIt)]
     CalorieIt,
-    #[unit("cal", "calories", by = Energy::<N>::from(CALORIE))]
+    #[unit(Calorie)]
     Calorie,
-    #[unit("Cal (IT)", "Calories (IT)", by = Energy::<N>::from(CALORIE_IT_NUTRITION))]
+    #[unit(CalorieItNutrition)]
     CalorieItNutrition,
-    #[unit("Cal", "Calories", by = Energy::<N>::from(CALORIE_NUTRITION))]
+    #[unit(CalorieNutrition)]
     CalorieNutrition,
-    #[unit("erg", "ergs", by = Energy::<N>::from(ERG))]
+    #[unit(Erg)]
     Erg,
-    #[unit("ft · pdl", "foot poundals", by = Energy::<N>::from(JOULE * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(3048, -4))))]
+    #[unit(FootPoundal)]
     FootPoundal,
-    #[unit("ft · lbf", "foot pounds-force", by = Energy::<N>::from(JOULE * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
+    #[unit(FootPound)]
     FootPound,
-    #[unit("10¹⁵ Btu (IT)", "quads", by = Energy::<N>::from(QUAD))]
+    #[unit(Quad)]
     Quad,
-    #[unit("thm (EC)", "therms (EC)", by = Energy::<N>::from(THERM_EC))]
+    #[unit(ThermEc)]
     ThermEc,
-    #[unit("thm", "therms", by = Energy::<N>::from(THERM_US))]
+    #[unit(ThermUs)]
     ThermUs,
-    #[unit("t of TNT", "tons of TNT", by = Energy::<N>::from(TON_TNT))]
+    #[unit(TonTnt)]
     TonTnt,
-    #[unit("W · s", "watt seconds", by = Energy::<N>::from(JOULE))]
+    #[unit(WattSecond)]
     WattSecond,
 }
 
-/// The units of `AvailableEnergy`, in any number type the constants convert to.
+impl From<EnergyUnit> for DynamicSIUnit {
+    fn from(unit: EnergyUnit) -> Self {
+        match unit {
+            EnergyUnit::Joule => Joule {}.into(),
+            EnergyUnit::WattHour => WattHour {}.into(),
+            EnergyUnit::Electronvolt => Electronvolt {}.into(),
+            EnergyUnit::Hartree => Hartree {}.into(),
+            EnergyUnit::BtuIt => BtuIt {}.into(),
+            EnergyUnit::Btu => Btu {}.into(),
+            EnergyUnit::CalorieIt => CalorieIt {}.into(),
+            EnergyUnit::Calorie => Calorie {}.into(),
+            EnergyUnit::CalorieItNutrition => CalorieItNutrition {}.into(),
+            EnergyUnit::CalorieNutrition => CalorieNutrition {}.into(),
+            EnergyUnit::Erg => Erg {}.into(),
+            EnergyUnit::FootPoundal => FootPoundal {}.into(),
+            EnergyUnit::FootPound => FootPound {}.into(),
+            EnergyUnit::Quad => Quad {}.into(),
+            EnergyUnit::ThermEc => ThermEc {}.into(),
+            EnergyUnit::ThermUs => ThermUs {}.into(),
+            EnergyUnit::TonTnt => TonTnt {}.into(),
+            EnergyUnit::WattSecond => WattSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `AvailableEnergy`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = AvailableEnergy<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where AvailableEnergy<N>: [const] Unit<AvailableEnergy<N>, N> + [const] Destruct)]
+#[unit(of = AvailableEnergy<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AvailableEnergyUnit {
     #[default]
-    #[unit("J/kg", "joules per kilogram", by = AvailableEnergy::<N>::from(METRE * METRE / (SECOND * SECOND)))]
+    #[unit(JoulePerKilogram)]
     JoulePerKilogram,
-    #[unit("J/g", "joules per gram", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::int(1000)))]
+    #[unit(JoulePerGram)]
     JoulePerGram,
-    #[unit("Btu (IT)/lb", "British thermal units (IT) per pound", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::int(2326)))]
+    #[unit(BtuItPerPound)]
     BtuItPerPound,
-    #[unit("Btu/lb", "British thermal units per pound", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * (Exact::int(4184) / Exact::dec(18, -1))))]
+    #[unit(BtuPerPound)]
     BtuPerPound,
-    #[unit("cal (IT)/g", "calories (IT) per gram", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::dec(41868, -1)))]
+    #[unit(CalorieItPerGram)]
     CalorieItPerGram,
-    #[unit("cal/g", "calories per gram", by = AvailableEnergy::<N>::from((METRE * METRE / (SECOND * SECOND)) * Exact::int(4184)))]
+    #[unit(CaloriePerGram)]
     CaloriePerGram,
 }
 
-/// The units of `Power`, in any number type the constants convert to.
+impl From<AvailableEnergyUnit> for DynamicSIUnit {
+    fn from(unit: AvailableEnergyUnit) -> Self {
+        match unit {
+            AvailableEnergyUnit::JoulePerKilogram => JoulePerKilogram {}.into(),
+            AvailableEnergyUnit::JoulePerGram => JoulePerGram {}.into(),
+            AvailableEnergyUnit::BtuItPerPound => BtuItPerPound {}.into(),
+            AvailableEnergyUnit::BtuPerPound => BtuPerPound {}.into(),
+            AvailableEnergyUnit::CalorieItPerGram => CalorieItPerGram {}.into(),
+            AvailableEnergyUnit::CaloriePerGram => CaloriePerGram {}.into(),
+        }
+    }
+}
+
+/// The units of `Power`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Power<N>, number = N, non_const)]
-#[unit(for<N: Num + const From<Exact>> where Power<N>: From<PowerLevel<N>>, Power<N>: Unit<Power<N>, N>, PowerLevel<N>: From<Power<N>>, Scale<PowerLevel<N>, Gain<N>>: Unit<PowerLevel<N>, N>)]
+#[unit(of = Power<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum PowerUnit {
     #[default]
-    #[unit("W", "watts", by = <Power<N> as From<Power<Exact>>>::from(WATT))]
+    #[unit(Watt)]
     Watt,
-    #[unit("dBW", "decibels-watt", by = <Scale<PowerLevel<N>, Gain<N>> as From<Scale<PowerLevel<Exact>, Gain<Exact>>>>::from(DBW), via = PowerLevel<N>)]
-    DecibelWatt,
-    #[unit("dBm", "decibels-milliwatt", by = <Scale<PowerLevel<N>, Gain<N>> as From<Scale<PowerLevel<Exact>, Gain<Exact>>>>::from(DBM), via = PowerLevel<N>)]
-    DecibelMilliwatt,
-    #[unit("erg/s", "ergs per second", by = <Power<N> as From<Power<Exact>>>::from(WATT * Exact::dec(1, -7)))]
+    #[unit(ErgPerSecond)]
     ErgPerSecond,
-    #[unit("ft · lbf/h", "foot pounds-force per hour", by = <Power<N> as From<Power<Exact>>>::from(WATT * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::int(3600))))]
+    #[unit(FootPoundPerHour)]
     FootPoundPerHour,
-    #[unit("ft · lbf/min", "foot pounds-force per minute", by = <Power<N> as From<Power<Exact>>>::from(WATT * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::int(60))))]
+    #[unit(FootPoundPerMinute)]
     FootPoundPerMinute,
-    #[unit("ft · lbf/s", "foot pounds-force per second", by = <Power<N> as From<Power<Exact>>>::from(WATT * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
+    #[unit(FootPoundPerSecond)]
     FootPoundPerSecond,
-    #[unit("hp", "horsepower", by = <Power<N> as From<Power<Exact>>>::from(HORSEPOWER))]
+    #[unit(Horsepower)]
     Horsepower,
-    #[unit("hp (S)", "horsepower (boiler)", by = <Power<N> as From<Power<Exact>>>::from(HORSEPOWER_BOILER))]
+    #[unit(HorsepowerBoiler)]
     HorsepowerBoiler,
-    #[unit("hp (E)", "horsepower (electric)", by = <Power<N> as From<Power<Exact>>>::from(HORSEPOWER_ELECTRIC))]
+    #[unit(HorsepowerElectric)]
     HorsepowerElectric,
-    #[unit("hp (M)", "metric horsepower", by = <Power<N> as From<Power<Exact>>>::from(HORSEPOWER_METRIC))]
+    #[unit(HorsepowerMetric)]
     HorsepowerMetric,
-    #[unit("hp (I)", "horsepower (Imperial)", by = <Power<N> as From<Power<Exact>>>::from(HORSEPOWER_IMPERIAL))]
+    #[unit(HorsepowerImperial)]
     HorsepowerImperial,
-    #[unit("hp (hydraulic)", "hydraulic horsepower", by = <Power<N> as From<Power<Exact>>>::from(HYDRAULIC_HORSEPOWER))]
+    #[unit(HydraulicHorsepower)]
     HydraulicHorsepower,
 }
 
-/// The units of `Gain`, in any number type the constants convert to.
+impl From<PowerUnit> for DynamicSIUnit {
+    fn from(unit: PowerUnit) -> Self {
+        match unit {
+            PowerUnit::Watt => Watt {}.into(),
+            PowerUnit::ErgPerSecond => ErgPerSecond {}.into(),
+            PowerUnit::FootPoundPerHour => FootPoundPerHour {}.into(),
+            PowerUnit::FootPoundPerMinute => FootPoundPerMinute {}.into(),
+            PowerUnit::FootPoundPerSecond => FootPoundPerSecond {}.into(),
+            PowerUnit::Horsepower => Horsepower {}.into(),
+            PowerUnit::HorsepowerBoiler => HorsepowerBoiler {}.into(),
+            PowerUnit::HorsepowerElectric => HorsepowerElectric {}.into(),
+            PowerUnit::HorsepowerMetric => HorsepowerMetric {}.into(),
+            PowerUnit::HorsepowerImperial => HorsepowerImperial {}.into(),
+            PowerUnit::HydraulicHorsepower => HydraulicHorsepower {}.into(),
+        }
+    }
+}
+
+/// The units of `Gain`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Gain<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Gain<N>: [const] Unit<Gain<N>, N> + [const] Destruct)]
+#[unit(of = Gain<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum GainUnit {
     #[default]
-    #[unit("B", "bels", by = Gain::<N>::from(BEL))]
+    #[unit(Bel)]
     Bel,
-    #[unit("dB", "decibels", by = Gain::<N>::from(DECIBEL))]
+    #[unit(Decibel)]
     Decibel,
-    #[unit("Np", "nepers", by = Gain::<N>::from(NEPER))]
+    #[unit(Neper)]
     Neper,
 }
 
-/// The units of `PowerLevel`, in any number type the constants convert to.
+impl From<GainUnit> for DynamicSIUnit {
+    fn from(unit: GainUnit) -> Self {
+        match unit {
+            GainUnit::Bel => Bel {}.into(),
+            GainUnit::Decibel => Decibel {}.into(),
+            GainUnit::Neper => Neper {}.into(),
+        }
+    }
+}
+
+/// The units of `PowerLevel`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = PowerLevel<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Scale<PowerLevel<N>, Gain<N>>: [const] Unit<PowerLevel<N>, N> + [const] Destruct)]
+#[unit(of = PowerLevel<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum PowerLevelUnit {
     #[default]
-    #[unit("dBW", "decibels-watt", by = Scale::<PowerLevel<N>, Gain<N>>::from(DBW))]
+    #[unit(DecibelWatt)]
     DecibelWatt,
-    #[unit("dBm", "decibels-milliwatt", by = Scale::<PowerLevel<N>, Gain<N>>::from(DBM))]
+    #[unit(DecibelMilliwatt)]
     DecibelMilliwatt,
 }
 
-/// The units of `PowerRate`, in any number type the constants convert to.
+impl From<PowerLevelUnit> for DynamicSIUnit {
+    fn from(unit: PowerLevelUnit) -> Self {
+        match unit {
+            PowerLevelUnit::DecibelWatt => DecibelWatt {}.into(),
+            PowerLevelUnit::DecibelMilliwatt => DecibelMilliwatt {}.into(),
+        }
+    }
+}
+
+/// The units of `PowerRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = PowerRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where PowerRate<N>: [const] Unit<PowerRate<N>, N> + [const] Destruct)]
+#[unit(of = PowerRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum PowerRateUnit {
     #[default]
-    #[unit("W/s", "watts per second", by = PowerRate::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)))]
+    #[unit(WattPerSecond)]
     WattPerSecond,
-    #[unit("erg/s²", "ergs per second squared", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(1, -7)))]
+    #[unit(ErgPerSecondSquared)]
     ErgPerSecondSquared,
-    #[unit("ft · lbf/s²", "foot pounds-force per second squared", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * (Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
+    #[unit(FootPoundPerSecondSquared)]
     FootPoundPerSecondSquared,
-    #[unit("hp/s", "horsepower per second", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * (Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5))))]
+    #[unit(HorsepowerPerSecond)]
     HorsepowerPerSecond,
-    #[unit("hp/s (S)", "horsepower per second (boiler)", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(98095, -1)))]
+    #[unit(HorsepowerPerSecondBoiler)]
     HorsepowerPerSecondBoiler,
-    #[unit("hp/s (E)", "horsepower per second (electric)", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::int(746)))]
+    #[unit(HorsepowerPerSecondElectric)]
     HorsepowerPerSecondElectric,
-    #[unit("hp/s (M)", "metric horsepower per second", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * (Exact::int(75) * Exact::dec(980665, -5))))]
+    #[unit(HorsepowerPerSecondMetric)]
     HorsepowerPerSecondMetric,
-    #[unit("hp/s (I)", "horsepower per second (Imperial)", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(7457, -1)))]
+    #[unit(HorsepowerPerSecondImperial)]
     HorsepowerPerSecondImperial,
-    #[unit("hp/s (hydraulic)", "hydraulic horsepower per second", by = PowerRate::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * SECOND * SECOND)) * Exact::dec(746043, -3)))]
+    #[unit(HydraulicHorsepowerPerSecond)]
     HydraulicHorsepowerPerSecond,
 }
 
-/// The units of `Action`, in any number type the constants convert to.
+impl From<PowerRateUnit> for DynamicSIUnit {
+    fn from(unit: PowerRateUnit) -> Self {
+        match unit {
+            PowerRateUnit::WattPerSecond => WattPerSecond {}.into(),
+            PowerRateUnit::ErgPerSecondSquared => ErgPerSecondSquared {}.into(),
+            PowerRateUnit::FootPoundPerSecondSquared => FootPoundPerSecondSquared {}.into(),
+            PowerRateUnit::HorsepowerPerSecond => HorsepowerPerSecond {}.into(),
+            PowerRateUnit::HorsepowerPerSecondBoiler => HorsepowerPerSecondBoiler {}.into(),
+            PowerRateUnit::HorsepowerPerSecondElectric => HorsepowerPerSecondElectric {}.into(),
+            PowerRateUnit::HorsepowerPerSecondMetric => HorsepowerPerSecondMetric {}.into(),
+            PowerRateUnit::HorsepowerPerSecondImperial => HorsepowerPerSecondImperial {}.into(),
+            PowerRateUnit::HydraulicHorsepowerPerSecond => HydraulicHorsepowerPerSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `Action`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Action<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Action<N>: [const] Unit<Action<N>, N> + [const] Destruct)]
+#[unit(of = Action<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ActionUnit {
     #[default]
-    #[unit("J · s", "joule seconds", by = Action::<N>::from(METRE * METRE * KILOGRAM / SECOND))]
+    #[unit(JouleSecond)]
     JouleSecond,
-    #[unit("ħ", "atomic units of action", by = Action::<N>::from(ATOMIC_UNIT_OF_ACTION))]
+    #[unit(AtomicUnitOfAction)]
     AtomicUnitOfAction,
-    #[unit("h", "Planck constants", by = Action::<N>::from(PLANCK_CONSTANT))]
+    #[unit(PlanckConstant)]
     PlanckConstant,
-    #[unit("erg · s", "erg seconds", by = Action::<N>::from((METRE * METRE * KILOGRAM / SECOND) * Exact::dec(1, -7)))]
+    #[unit(ErgSecond)]
     ErgSecond,
-    #[unit("eV · s", "electronvolt seconds", by = Action::<N>::from((METRE * METRE * KILOGRAM / SECOND) * Exact::dec(1602176634, -28)))]
+    #[unit(ElectronvoltSecond)]
     ElectronvoltSecond,
 }
 
-/// The units of `Torque`, in any number type the constants convert to.
+impl From<ActionUnit> for DynamicSIUnit {
+    fn from(unit: ActionUnit) -> Self {
+        match unit {
+            ActionUnit::JouleSecond => JouleSecond {}.into(),
+            ActionUnit::AtomicUnitOfAction => AtomicUnitOfAction {}.into(),
+            ActionUnit::PlanckConstant => PlanckConstant {}.into(),
+            ActionUnit::ErgSecond => ErgSecond {}.into(),
+            ActionUnit::ElectronvoltSecond => ElectronvoltSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `Torque`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Torque<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Torque<N>: [const] Unit<Torque<N>, N> + [const] Destruct)]
+#[unit(of = Torque<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum TorqueUnit {
     #[default]
-    #[unit("N · m", "newton metres", by = Torque::<N>::from(METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)))]
+    #[unit(NewtonMetre)]
     NewtonMetre,
-    #[unit("dyn · m", "dyne metres", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * Exact::dec(1, -5)))]
+    #[unit(DyneMetre)]
     DyneMetre,
-    #[unit("kgf · m", "kilogram-force metres", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * Exact::dec(980665, -5)))]
+    #[unit(KilogramForceMetre)]
     KilogramForceMetre,
-    #[unit("ozf · in", "ounces-force inches", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16)) * Exact::dec(254, -4))))]
+    #[unit(OunceForceInch)]
     OunceForceInch,
-    #[unit("lbf · ft", "pounds-force feet", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * Exact::dec(3048, -4))))]
+    #[unit(PoundForceFoot)]
     PoundForceFoot,
-    #[unit("lbf · in", "pounds-force inches", by = Torque::<N>::from((METRE * METRE * KILOGRAM / (SECOND * SECOND * RADIAN)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) * Exact::dec(254, -4))))]
+    #[unit(PoundForceInch)]
     PoundForceInch,
 }
 
-/// The units of `MomentOfInertia`, in any number type the constants convert to.
+impl From<TorqueUnit> for DynamicSIUnit {
+    fn from(unit: TorqueUnit) -> Self {
+        match unit {
+            TorqueUnit::NewtonMetre => NewtonMetre {}.into(),
+            TorqueUnit::DyneMetre => DyneMetre {}.into(),
+            TorqueUnit::KilogramForceMetre => KilogramForceMetre {}.into(),
+            TorqueUnit::OunceForceInch => OunceForceInch {}.into(),
+            TorqueUnit::PoundForceFoot => PoundForceFoot {}.into(),
+            TorqueUnit::PoundForceInch => PoundForceInch {}.into(),
+        }
+    }
+}
+
+/// The units of `MomentOfInertia`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MomentOfInertia<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MomentOfInertia<N>: [const] Unit<MomentOfInertia<N>, N> + [const] Destruct)]
+#[unit(of = MomentOfInertia<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MomentOfInertiaUnit {
     #[default]
-    #[unit("kg · m²", "kilogram square metres", by = MomentOfInertia::<N>::from(METRE * METRE * KILOGRAM / (RADIAN * RADIAN)))]
+    #[unit(KilogramSquareMetre)]
     KilogramSquareMetre,
-    #[unit("Da · Å²", "dalton square ångströms", by = MomentOfInertia::<N>::from((METRE * METRE * KILOGRAM / (RADIAN * RADIAN)) * Exact::dec(16605390666, -57)))]
+    #[unit(DaltonSquareAngstrom)]
     DaltonSquareAngstrom,
 }
 
-/// The units of `Pressure`, in any number type the constants convert to.
+impl From<MomentOfInertiaUnit> for DynamicSIUnit {
+    fn from(unit: MomentOfInertiaUnit) -> Self {
+        match unit {
+            MomentOfInertiaUnit::KilogramSquareMetre => KilogramSquareMetre {}.into(),
+            MomentOfInertiaUnit::DaltonSquareAngstrom => DaltonSquareAngstrom {}.into(),
+        }
+    }
+}
+
+/// The units of `Pressure`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Pressure<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Pressure<N>: [const] Unit<Pressure<N>, N> + [const] Destruct)]
+#[unit(of = Pressure<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum PressureUnit {
     #[default]
-    #[unit("Pa", "pascals", by = Pressure::<N>::from(PASCAL))]
+    #[unit(Pascal)]
     Pascal,
-    #[unit("atm", "standard atmospheres", by = Pressure::<N>::from(STANDARD_ATMOSPHERE))]
+    #[unit(StandardAtmosphere)]
     StandardAtmosphere,
-    #[unit("at", "atmospheres (technical)", by = Pressure::<N>::from(ATMOSPHERE_TECHNICAL))]
+    #[unit(AtmosphereTechnical)]
     AtmosphereTechnical,
-    #[unit("bar", "bar", by = Pressure::<N>::from(BAR))]
+    #[unit(Bar)]
     Bar,
-    #[unit("cm Hg", "centimetres of mercury", by = Pressure::<N>::from(CENTIMETRE_OF_MERCURY))]
+    #[unit(CentimetreOfMercury)]
     CentimetreOfMercury,
-    #[unit("cm H₂O", "centimetres of water", by = Pressure::<N>::from(CENTIMETRE_OF_WATER))]
+    #[unit(CentimetreOfWater)]
     CentimetreOfWater,
-    #[unit("ft Hg", "feet of mercury", by = Pressure::<N>::from(FOOT_OF_MERCURY))]
+    #[unit(FootOfMercury)]
     FootOfMercury,
-    #[unit("ft H₂O", "feet of water", by = Pressure::<N>::from(FOOT_OF_WATER))]
+    #[unit(FootOfWater)]
     FootOfWater,
-    #[unit("in Hg", "inches of mercury", by = Pressure::<N>::from(INCH_OF_MERCURY))]
+    #[unit(InchOfMercury)]
     InchOfMercury,
-    #[unit("in H₂O", "inches of water", by = Pressure::<N>::from(INCH_OF_WATER))]
+    #[unit(InchOfWater)]
     InchOfWater,
-    #[unit("kip/in²", "kips per square inch", by = Pressure::<N>::from(PASCAL * ((Exact::int(1000) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(KipPerSquareInch)]
     KipPerSquareInch,
-    #[unit("mm Hg", "millimetres of mercury", by = Pressure::<N>::from(MILLIMETRE_OF_MERCURY))]
+    #[unit(MillimetreOfMercury)]
     MillimetreOfMercury,
-    #[unit("mm H₂O", "millimetres of water", by = Pressure::<N>::from(MILLIMETRE_OF_WATER))]
+    #[unit(MillimetreOfWater)]
     MillimetreOfWater,
-    #[unit("pdl/ft²", "poundals per square foot", by = Pressure::<N>::from(PASCAL * ((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PoundalPerSquareFoot)]
     PoundalPerSquareFoot,
-    #[unit("lbf/ft²", "pounds-force per square foot", by = Pressure::<N>::from(PASCAL * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(3048, -4) * Exact::dec(3048, -4)))))]
+    #[unit(PoundForcePerSquareFoot)]
     PoundForcePerSquareFoot,
-    #[unit("lbf/in²", "pounds-force per square inch", by = Pressure::<N>::from(PASCAL * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::dec(254, -4) * Exact::dec(254, -4)))))]
+    #[unit(PoundForcePerSquareInch)]
     PoundForcePerSquareInch,
-    #[unit("psi", "pounds-force per square inch", by = Pressure::<N>::from(PSI))]
+    #[unit(Psi)]
     Psi,
-    #[unit("Torr", "torr", by = Pressure::<N>::from(TORR))]
+    #[unit(Torr)]
     Torr,
-    #[unit("dyn/cm²", "dynes per square centimetre", by = Pressure::<N>::from(PASCAL * Exact::dec(1, -1)))]
+    #[unit(DynePerSquareCentimetre)]
     DynePerSquareCentimetre,
-    #[unit("N/mm²", "newtons per square millimetre", by = Pressure::<N>::from(PASCAL * Exact::int(1000000)))]
+    #[unit(NewtonPerSquareMillimetre)]
     NewtonPerSquareMillimetre,
 }
 
-/// The units of `Frequency`, in any number type the constants convert to.
+impl From<PressureUnit> for DynamicSIUnit {
+    fn from(unit: PressureUnit) -> Self {
+        match unit {
+            PressureUnit::Pascal => Pascal {}.into(),
+            PressureUnit::StandardAtmosphere => StandardAtmosphere {}.into(),
+            PressureUnit::AtmosphereTechnical => AtmosphereTechnical {}.into(),
+            PressureUnit::Bar => Bar {}.into(),
+            PressureUnit::CentimetreOfMercury => CentimetreOfMercury {}.into(),
+            PressureUnit::CentimetreOfWater => CentimetreOfWater {}.into(),
+            PressureUnit::FootOfMercury => FootOfMercury {}.into(),
+            PressureUnit::FootOfWater => FootOfWater {}.into(),
+            PressureUnit::InchOfMercury => InchOfMercury {}.into(),
+            PressureUnit::InchOfWater => InchOfWater {}.into(),
+            PressureUnit::KipPerSquareInch => KipPerSquareInch {}.into(),
+            PressureUnit::MillimetreOfMercury => MillimetreOfMercury {}.into(),
+            PressureUnit::MillimetreOfWater => MillimetreOfWater {}.into(),
+            PressureUnit::PoundalPerSquareFoot => PoundalPerSquareFoot {}.into(),
+            PressureUnit::PoundForcePerSquareFoot => PoundForcePerSquareFoot {}.into(),
+            PressureUnit::PoundForcePerSquareInch => PoundForcePerSquareInch {}.into(),
+            PressureUnit::Psi => Psi {}.into(),
+            PressureUnit::Torr => Torr {}.into(),
+            PressureUnit::DynePerSquareCentimetre => DynePerSquareCentimetre {}.into(),
+            PressureUnit::NewtonPerSquareMillimetre => NewtonPerSquareMillimetre {}.into(),
+        }
+    }
+}
+
+/// The units of `Frequency`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Frequency<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Frequency<N>: [const] Unit<Frequency<N>, N> + [const] Destruct)]
+#[unit(of = Frequency<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum FrequencyUnit {
     #[default]
-    #[unit("Hz", "hertz", by = Frequency::<N>::from(HERTZ))]
+    #[unit(Hertz)]
     Hertz,
-    #[unit("1/d", "cycles per day", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(86400))))]
+    #[unit(CyclePerDay)]
     CyclePerDay,
-    #[unit("1/h", "cycles per hour", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(3600))))]
+    #[unit(CyclePerHour)]
     CyclePerHour,
-    #[unit("1/min", "cycles per minute", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(60))))]
+    #[unit(CyclePerMinute)]
     CyclePerMinute,
-    #[unit("100 MHz", "cycles per shake", by = Frequency::<N>::from(CYCLE_PER_SHAKE))]
+    #[unit(CyclePerShake)]
     CyclePerShake,
-    #[unit("1/a", "cycles per year", by = Frequency::<N>::from(HERTZ * (Exact::int(1) / Exact::int(31536000))))]
+    #[unit(CyclePerYear)]
     CyclePerYear,
 }
 
-/// The units of `FrequencyDrift`, in any number type the constants convert to.
+impl From<FrequencyUnit> for DynamicSIUnit {
+    fn from(unit: FrequencyUnit) -> Self {
+        match unit {
+            FrequencyUnit::Hertz => Hertz {}.into(),
+            FrequencyUnit::CyclePerDay => CyclePerDay {}.into(),
+            FrequencyUnit::CyclePerHour => CyclePerHour {}.into(),
+            FrequencyUnit::CyclePerMinute => CyclePerMinute {}.into(),
+            FrequencyUnit::CyclePerShake => CyclePerShake {}.into(),
+            FrequencyUnit::CyclePerYear => CyclePerYear {}.into(),
+        }
+    }
+}
+
+/// The units of `FrequencyDrift`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = FrequencyDrift<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where FrequencyDrift<N>: [const] Unit<FrequencyDrift<N>, N> + [const] Destruct)]
+#[unit(of = FrequencyDrift<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum FrequencyDriftUnit {
     #[default]
-    #[unit("Hz/s", "hertz per second", by = FrequencyDrift::<N>::from(ONE / (SECOND * SECOND)))]
+    #[unit(HertzPerSecond)]
     HertzPerSecond,
 }
 
-/// The units of `ReciprocalLength`, in any number type the constants convert to.
+impl From<FrequencyDriftUnit> for DynamicSIUnit {
+    fn from(unit: FrequencyDriftUnit) -> Self {
+        match unit {
+            FrequencyDriftUnit::HertzPerSecond => HertzPerSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `ReciprocalLength`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ReciprocalLength<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where ReciprocalLength<N>: [const] Unit<ReciprocalLength<N>, N> + [const] Destruct)]
+#[unit(of = ReciprocalLength<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ReciprocalLengthUnit {
     #[default]
-    #[unit("m⁻¹", "reciprocal metres", by = ReciprocalLength::<N>::from(RECIPROCAL_METRE))]
+    #[unit(ReciprocalMetre)]
     ReciprocalMetre,
-    #[unit("Å⁻¹", "reciprocal ångströms", by = ReciprocalLength::<N>::from(RECIPROCAL_ANGSTROM))]
+    #[unit(ReciprocalAngstrom)]
     ReciprocalAngstrom,
-    #[unit("dpt", "diopters", by = ReciprocalLength::<N>::from(DIOPTER))]
+    #[unit(Diopter)]
     Diopter,
-    #[unit("R∞", "Rydberg constants", by = ReciprocalLength::<N>::from(RYDBERG_CONSTANT))]
+    #[unit(RydbergConstant)]
     RydbergConstant,
 }
 
-/// The units of `Curvature`, in any number type the constants convert to.
+impl From<ReciprocalLengthUnit> for DynamicSIUnit {
+    fn from(unit: ReciprocalLengthUnit) -> Self {
+        match unit {
+            ReciprocalLengthUnit::ReciprocalMetre => ReciprocalMetre {}.into(),
+            ReciprocalLengthUnit::ReciprocalAngstrom => ReciprocalAngstrom {}.into(),
+            ReciprocalLengthUnit::Diopter => Diopter {}.into(),
+            ReciprocalLengthUnit::RydbergConstant => RydbergConstant {}.into(),
+        }
+    }
+}
+
+/// The units of `Curvature`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Curvature<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Curvature<N>: [const] Unit<Curvature<N>, N> + [const] Destruct)]
+#[unit(of = Curvature<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum CurvatureUnit {
     #[default]
-    #[unit("rad/m", "radians per metre", by = Curvature::<N>::from(RADIAN / METRE))]
+    #[unit(RadianPerMetre)]
     RadianPerMetre,
-    #[unit("°/m", "degrees per metre", by = Curvature::<N>::from((RADIAN / METRE) * (Exact::PI / Exact::int(180))))]
+    #[unit(DegreePerMetre)]
     DegreePerMetre,
 }
 
-/// The units of `SpecificArea`, in any number type the constants convert to.
+impl From<CurvatureUnit> for DynamicSIUnit {
+    fn from(unit: CurvatureUnit) -> Self {
+        match unit {
+            CurvatureUnit::RadianPerMetre => RadianPerMetre {}.into(),
+            CurvatureUnit::DegreePerMetre => DegreePerMetre {}.into(),
+        }
+    }
+}
+
+/// The units of `SpecificArea`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificArea<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where SpecificArea<N>: [const] Unit<SpecificArea<N>, N> + [const] Destruct)]
+#[unit(of = SpecificArea<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum SpecificAreaUnit {
     #[default]
-    #[unit("m²/kg", "square metres per kilogram", by = SpecificArea::<N>::from(METRE * METRE / KILOGRAM))]
+    #[unit(SquareMetrePerKilogram)]
     SquareMetrePerKilogram,
-    #[unit("m²/g", "square metres per gram", by = SpecificArea::<N>::from((METRE * METRE / KILOGRAM) * Exact::int(1000)))]
+    #[unit(SquareMetrePerGram)]
     SquareMetrePerGram,
 }
 
-/// The units of `SpecificVolume`, in any number type the constants convert to.
+impl From<SpecificAreaUnit> for DynamicSIUnit {
+    fn from(unit: SpecificAreaUnit) -> Self {
+        match unit {
+            SpecificAreaUnit::SquareMetrePerKilogram => SquareMetrePerKilogram {}.into(),
+            SpecificAreaUnit::SquareMetrePerGram => SquareMetrePerGram {}.into(),
+        }
+    }
+}
+
+/// The units of `SpecificVolume`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificVolume<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where SpecificVolume<N>: [const] Unit<SpecificVolume<N>, N> + [const] Destruct)]
+#[unit(of = SpecificVolume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum SpecificVolumeUnit {
     #[default]
-    #[unit("m³/kg", "cubic metres per kilogram", by = SpecificVolume::<N>::from(METRE * METRE * METRE / KILOGRAM))]
+    #[unit(CubicMetrePerKilogram)]
     CubicMetrePerKilogram,
-    #[unit("m³/g", "cubic metres per gram", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * Exact::int(1000)))]
+    #[unit(CubicMetrePerGram)]
     CubicMetrePerGram,
-    #[unit("m³/ct", "cubic metres per carat", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * Exact::int(5000)))]
+    #[unit(CubicMetrePerCarat)]
     CubicMetrePerCarat,
-    #[unit("m³/gr", "cubic metres per grain", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(6479891, -11))))]
+    #[unit(CubicMetrePerGrain)]
     CubicMetrePerGrain,
-    #[unit("m³/cwt long", "cubic metres per hundredweight (long)", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(5080234544, -8))))]
+    #[unit(CubicMetrePerHundredweightLong)]
     CubicMetrePerHundredweightLong,
-    #[unit("m³/cwt short", "cubic metres per hundredweight (short)", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(45359237, -6))))]
+    #[unit(CubicMetrePerHundredweightShort)]
     CubicMetrePerHundredweightShort,
-    #[unit("m³/oz", "cubic metres per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(28349523125, -12))))]
+    #[unit(CubicMetrePerOunce)]
     CubicMetrePerOunce,
-    #[unit("m³/oz t", "cubic metres per troy ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(311034768, -10))))]
+    #[unit(CubicMetrePerOunceTroy)]
     CubicMetrePerOunceTroy,
-    #[unit("m³/dwt", "cubic metres per pennyweight", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(155517384, -11))))]
+    #[unit(CubicMetrePerPennyweight)]
     CubicMetrePerPennyweight,
-    #[unit("m³/lb", "cubic metres per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(45359237, -8))))]
+    #[unit(CubicMetrePerPound)]
     CubicMetrePerPound,
-    #[unit("m³/lb t", "cubic metres per troy pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(3732417216, -10))))]
+    #[unit(CubicMetrePerPoundTroy)]
     CubicMetrePerPoundTroy,
-    #[unit("m³/slug", "cubic metres per slug", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)))))]
+    #[unit(CubicMetrePerSlug)]
     CubicMetrePerSlug,
-    #[unit("m³/AT", "cubic metres per assay ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / (Exact::dec(175, -3) / Exact::int(6)))))]
+    #[unit(CubicMetrePerTonAssay)]
     CubicMetrePerTonAssay,
-    #[unit("m³/2240 lb", "cubic metres per long ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(10160469088, -7))))]
+    #[unit(CubicMetrePerTonLong)]
     CubicMetrePerTonLong,
-    #[unit("m³/2000 lb", "cubic metres per short ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::int(1) / Exact::dec(90718474, -5))))]
+    #[unit(CubicMetrePerTonShort)]
     CubicMetrePerTonShort,
-    #[unit("m³/t", "cubic metres per ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * Exact::dec(1, -3)))]
+    #[unit(CubicMetrePerTon)]
     CubicMetrePerTon,
-    #[unit("gal/gr", "gallons per grain", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3785411784, -12) / Exact::dec(6479891, -11))))]
+    #[unit(GallonPerGrain)]
     GallonPerGrain,
-    #[unit("in³/oz", "cubic inches per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4) / Exact::dec(28349523125, -12))))]
+    #[unit(CubicInchPerOunce)]
     CubicInchPerOunce,
-    #[unit("gal (UK)/oz", "Imperial gallons per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(454609, -8) / Exact::dec(28349523125, -12))))]
+    #[unit(GallonImperialPerOunce)]
     GallonImperialPerOunce,
-    #[unit("gal/oz", "gallons per ounce", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3785411784, -12) / Exact::dec(28349523125, -12))))]
+    #[unit(GallonPerOunce)]
     GallonPerOunce,
-    #[unit("ft³/lb", "cubic feet per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(45359237, -8))))]
+    #[unit(CubicFootPerPound)]
     CubicFootPerPound,
-    #[unit("in³/lb", "cubic inches per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4)) / Exact::dec(45359237, -8))))]
+    #[unit(CubicInchPerPound)]
     CubicInchPerPound,
-    #[unit("yd³/lb", "cubic yards per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(45359237, -8))))]
+    #[unit(CubicYardPerPound)]
     CubicYardPerPound,
-    #[unit("gal (UK)/lb", "Imperial gallons per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(454609, -8) / Exact::dec(45359237, -8))))]
+    #[unit(GallonImperialPerPound)]
     GallonImperialPerPound,
-    #[unit("gal/lb", "gallons per pound", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3785411784, -12) / Exact::dec(45359237, -8))))]
+    #[unit(GallonPerPound)]
     GallonPerPound,
-    #[unit("ft³/slug", "cubic feett per slug", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4) / (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)))))]
+    #[unit(CubicFootPerSlug)]
     CubicFootPerSlug,
-    #[unit("yd³/2240 lb", "cubic yards per long ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(10160469088, -7))))]
+    #[unit(CubicYardPerTonLong)]
     CubicYardPerTonLong,
-    #[unit("yd³/2000 lb", "cubic yards per short ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4)) / Exact::dec(90718474, -5))))]
+    #[unit(CubicYardPerTonShort)]
     CubicYardPerTonShort,
-    #[unit("ft³/2240 lb", "cubic feet per long ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(10160469088, -7))))]
+    #[unit(CubicFootPerTonLong)]
     CubicFootPerTonLong,
-    #[unit("ft³/2000 lb", "cubic feet per short ton", by = SpecificVolume::<N>::from((METRE * METRE * METRE / KILOGRAM) * ((Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4)) / Exact::dec(90718474, -5))))]
+    #[unit(CubicFootPerTonShort)]
     CubicFootPerTonShort,
 }
 
-/// The units of `SpecificPower`, in any number type the constants convert to.
+impl From<SpecificVolumeUnit> for DynamicSIUnit {
+    fn from(unit: SpecificVolumeUnit) -> Self {
+        match unit {
+            SpecificVolumeUnit::CubicMetrePerKilogram => CubicMetrePerKilogram {}.into(),
+            SpecificVolumeUnit::CubicMetrePerGram => CubicMetrePerGram {}.into(),
+            SpecificVolumeUnit::CubicMetrePerCarat => CubicMetrePerCarat {}.into(),
+            SpecificVolumeUnit::CubicMetrePerGrain => CubicMetrePerGrain {}.into(),
+            SpecificVolumeUnit::CubicMetrePerHundredweightLong => {
+                CubicMetrePerHundredweightLong {}.into()
+            }
+            SpecificVolumeUnit::CubicMetrePerHundredweightShort => {
+                CubicMetrePerHundredweightShort {}.into()
+            }
+            SpecificVolumeUnit::CubicMetrePerOunce => CubicMetrePerOunce {}.into(),
+            SpecificVolumeUnit::CubicMetrePerOunceTroy => CubicMetrePerOunceTroy {}.into(),
+            SpecificVolumeUnit::CubicMetrePerPennyweight => CubicMetrePerPennyweight {}.into(),
+            SpecificVolumeUnit::CubicMetrePerPound => CubicMetrePerPound {}.into(),
+            SpecificVolumeUnit::CubicMetrePerPoundTroy => CubicMetrePerPoundTroy {}.into(),
+            SpecificVolumeUnit::CubicMetrePerSlug => CubicMetrePerSlug {}.into(),
+            SpecificVolumeUnit::CubicMetrePerTonAssay => CubicMetrePerTonAssay {}.into(),
+            SpecificVolumeUnit::CubicMetrePerTonLong => CubicMetrePerTonLong {}.into(),
+            SpecificVolumeUnit::CubicMetrePerTonShort => CubicMetrePerTonShort {}.into(),
+            SpecificVolumeUnit::CubicMetrePerTon => CubicMetrePerTon {}.into(),
+            SpecificVolumeUnit::GallonPerGrain => GallonPerGrain {}.into(),
+            SpecificVolumeUnit::CubicInchPerOunce => CubicInchPerOunce {}.into(),
+            SpecificVolumeUnit::GallonImperialPerOunce => GallonImperialPerOunce {}.into(),
+            SpecificVolumeUnit::GallonPerOunce => GallonPerOunce {}.into(),
+            SpecificVolumeUnit::CubicFootPerPound => CubicFootPerPound {}.into(),
+            SpecificVolumeUnit::CubicInchPerPound => CubicInchPerPound {}.into(),
+            SpecificVolumeUnit::CubicYardPerPound => CubicYardPerPound {}.into(),
+            SpecificVolumeUnit::GallonImperialPerPound => GallonImperialPerPound {}.into(),
+            SpecificVolumeUnit::GallonPerPound => GallonPerPound {}.into(),
+            SpecificVolumeUnit::CubicFootPerSlug => CubicFootPerSlug {}.into(),
+            SpecificVolumeUnit::CubicYardPerTonLong => CubicYardPerTonLong {}.into(),
+            SpecificVolumeUnit::CubicYardPerTonShort => CubicYardPerTonShort {}.into(),
+            SpecificVolumeUnit::CubicFootPerTonLong => CubicFootPerTonLong {}.into(),
+            SpecificVolumeUnit::CubicFootPerTonShort => CubicFootPerTonShort {}.into(),
+        }
+    }
+}
+
+/// The units of `SpecificPower`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificPower<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where SpecificPower<N>: [const] Unit<SpecificPower<N>, N> + [const] Destruct)]
+#[unit(of = SpecificPower<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum SpecificPowerUnit {
     #[default]
-    #[unit("W/kg", "watts per kilogram", by = SpecificPower::<N>::from(METRE * METRE / (SECOND * SECOND * SECOND)))]
+    #[unit(WattPerKilogram)]
     WattPerKilogram,
-    #[unit("m² · s⁻³", "square metres per cubic second", by = SpecificPower::<N>::from(METRE * METRE / (SECOND * SECOND * SECOND)))]
+    #[unit(SquareMetrePerCubicSecond)]
     SquareMetrePerCubicSecond,
-    #[unit("(erg/s)/kg", "ergs per second per kilogram", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * Exact::dec(1, -7)))]
+    #[unit(ErgPerSecondPerKilogram)]
     ErgPerSecondPerKilogram,
-    #[unit("(ft · lbf/h)/lb", "foot pounds-force per hour per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::int(3600) * Exact::dec(45359237, -8)))))]
+    #[unit(FootPoundPerHourPerPound)]
     FootPoundPerHourPerPound,
-    #[unit("(ft · lbf/min)/lb", "foot pounds-force per minute per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / (Exact::int(60) * Exact::dec(45359237, -8)))))]
+    #[unit(FootPoundPerMinutePerPound)]
     FootPoundPerMinutePerPound,
-    #[unit("(ft · lbf/s)/lb", "foot pounds-force per second per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8))))]
+    #[unit(FootPoundPerSecondPerPound)]
     FootPoundPerSecondPerPound,
-    #[unit("hp/lb", "horsepower per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::int(550) * Exact::dec(3048, -4) * Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8))))]
+    #[unit(HorsepowerPerPound)]
     HorsepowerPerPound,
-    #[unit("(hp (S))/lb", "horsepower (boiler) per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::dec(98095, -1) / Exact::dec(45359237, -8))))]
+    #[unit(HorsepowerBoilerPerPound)]
     HorsepowerBoilerPerPound,
-    #[unit("(hp (E))/lb", "horsepower (electric) per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::int(746) / Exact::dec(45359237, -8))))]
+    #[unit(HorsepowerElectricPerPound)]
     HorsepowerElectricPerPound,
-    #[unit("(hp (M))/lb", "metric horsepower per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * ((Exact::int(75) * Exact::dec(980665, -5)) / Exact::dec(45359237, -8))))]
+    #[unit(HorsepowerMetricPerPound)]
     HorsepowerMetricPerPound,
-    #[unit("(hp (I))/lb", "horsepower (Imperial) per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::dec(7457, -1) / Exact::dec(45359237, -8))))]
+    #[unit(HorsepowerImperialPerPound)]
     HorsepowerImperialPerPound,
-    #[unit("(hp (hydraulic))/lb", "hydraulic horsepower per pound", by = SpecificPower::<N>::from((METRE * METRE / (SECOND * SECOND * SECOND)) * (Exact::dec(746043, -3) / Exact::dec(45359237, -8))))]
+    #[unit(HydraulicHorsepowerPerPound)]
     HydraulicHorsepowerPerPound,
 }
 
-/// The units of `SpecificGravitationalParameter`, in any number type the constants convert to.
+impl From<SpecificPowerUnit> for DynamicSIUnit {
+    fn from(unit: SpecificPowerUnit) -> Self {
+        match unit {
+            SpecificPowerUnit::WattPerKilogram => WattPerKilogram {}.into(),
+            SpecificPowerUnit::SquareMetrePerCubicSecond => SquareMetrePerCubicSecond {}.into(),
+            SpecificPowerUnit::ErgPerSecondPerKilogram => ErgPerSecondPerKilogram {}.into(),
+            SpecificPowerUnit::FootPoundPerHourPerPound => FootPoundPerHourPerPound {}.into(),
+            SpecificPowerUnit::FootPoundPerMinutePerPound => FootPoundPerMinutePerPound {}.into(),
+            SpecificPowerUnit::FootPoundPerSecondPerPound => FootPoundPerSecondPerPound {}.into(),
+            SpecificPowerUnit::HorsepowerPerPound => HorsepowerPerPound {}.into(),
+            SpecificPowerUnit::HorsepowerBoilerPerPound => HorsepowerBoilerPerPound {}.into(),
+            SpecificPowerUnit::HorsepowerElectricPerPound => HorsepowerElectricPerPound {}.into(),
+            SpecificPowerUnit::HorsepowerMetricPerPound => HorsepowerMetricPerPound {}.into(),
+            SpecificPowerUnit::HorsepowerImperialPerPound => HorsepowerImperialPerPound {}.into(),
+            SpecificPowerUnit::HydraulicHorsepowerPerPound => HydraulicHorsepowerPerPound {}.into(),
+        }
+    }
+}
+
+/// The units of `SpecificGravitationalParameter`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SpecificGravitationalParameter<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where SpecificGravitationalParameter<N>: [const] Unit<SpecificGravitationalParameter<N>, N> + [const] Destruct)]
+#[unit(of = SpecificGravitationalParameter<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum SpecificGravitationalParameterUnit {
     #[default]
-    #[unit("m³/(kg · s²)", "cubic metres per kilogram second squared", by = SpecificGravitationalParameter::<N>::from(METRE * METRE * METRE / (KILOGRAM * SECOND * SECOND)))]
+    #[unit(CubicMetrePerKilogramSecondSquared)]
     CubicMetrePerKilogramSecondSquared,
-    #[unit("G", "Newtonian constants of gravitation", by = SpecificGravitationalParameter::<N>::from(GRAVITATIONAL_CONSTANT))]
+    #[unit(GravitationalConstant)]
     GravitationalConstant,
+}
+
+impl From<SpecificGravitationalParameterUnit> for DynamicSIUnit {
+    fn from(unit: SpecificGravitationalParameterUnit) -> Self {
+        match unit {
+            SpecificGravitationalParameterUnit::CubicMetrePerKilogramSecondSquared => {
+                CubicMetrePerKilogramSecondSquared {}.into()
+            }
+            SpecificGravitationalParameterUnit::GravitationalConstant => {
+                GravitationalConstant {}.into()
+            }
+        }
+    }
 }

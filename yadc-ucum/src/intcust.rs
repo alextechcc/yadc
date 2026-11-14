@@ -1,131 +1,286 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
-pub type Area<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Area`.
+pub const AREA: Dim = Dim {
+    m: 2,
+    ..Dim::DIMENSIONLESS
+};
+pub type Area<N> = Qty<AREA, N>;
 
-pub type DepthOfWater<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `DepthOfWater`.
+pub const DEPTH_OF_WATER: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type DepthOfWater<N> = Qty<DEPTH_OF_WATER, N>;
 
-pub type HeightOfHorses<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `HeightOfHorses`.
+pub const HEIGHT_OF_HORSES: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type HeightOfHorses<N> = Qty<HEIGHT_OF_HORSES, N>;
 
-pub type Length<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Length`.
+pub const LENGTH: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Length<N> = Qty<LENGTH, N>;
 
-pub type Velocity<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Velocity`.
+pub const VELOCITY: Dim = Dim {
+    m: 1,
+    s: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Velocity<N> = Qty<VELOCITY, N>;
 
-pub type Volume<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Volume`.
+pub const VOLUME: Dim = Dim {
+    m: 3,
+    ..Dim::DIMENSIONLESS
+};
+pub type Volume<N> = Qty<VOLUME, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
-    use crate::base::SECOND;
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
-    /// The metre, UCUM's base unit of length.
-    pub use crate::base::METRE;
+    /// Square inch (`[sin_i]`), a unit of `Area`: `n` of them is `n · 64516e-8` coherent units.
+    pub type SquareInch = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(64516, -8),
+                zero: Exact::ZERO,
+                symbol: "[sin_i]",
+                name: "square inch",
+            }
+        },
+    >;
 
-    /// One `SquareInch` (`[sin_i]`), as an `Area`.
-    pub const SQUARE_INCH: Area<Exact> = (METRE * METRE) * Exact::dec(64516, -8);
+    /// Square foot (`[sft_i]`), a unit of `Area`: `n` of them is `n · 9290304e-8` coherent units.
+    pub type SquareFoot = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(9290304, -8),
+                zero: Exact::ZERO,
+                symbol: "[sft_i]",
+                name: "square foot",
+            }
+        },
+    >;
 
-    /// One `SquareFoot` (`[sft_i]`), as an `Area`.
-    pub const SQUARE_FOOT: Area<Exact> = (METRE * METRE) * Exact::dec(9290304, -8);
+    /// Square yard (`[syd_i]`), a unit of `Area`: `n` of them is `n · 83612736e-8` coherent units.
+    pub type SquareYard = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(83612736, -8),
+                zero: Exact::ZERO,
+                symbol: "[syd_i]",
+                name: "square yard",
+            }
+        },
+    >;
 
-    /// One `SquareYard` (`[syd_i]`), as an `Area`.
-    pub const SQUARE_YARD: Area<Exact> = (METRE * METRE) * Exact::dec(83612736, -8);
+    /// Circular mil (`[cml_i]`), a unit of `Area`: `n` of them is `n · 16129e-14 * core::f64::consts::PI` coherent units.
+    pub type CircularMil = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(16129, -14) * Exact::PI,
+                zero: Exact::ZERO,
+                symbol: "[cml_i]",
+                name: "circular mil",
+            }
+        },
+    >;
 
-    /// One `CircularMil` (`[cml_i]`), as an `Area`.
-    pub const CIRCULAR_MIL: Area<Exact> = (METRE * METRE) * (Exact::dec(16129, -14) * Exact::PI);
+    /// Fathom (`[fth_i]`), a unit of `DepthOfWater`: `n` of them is `n · 18288e-4` coherent units.
+    pub type Fathom = UcumUnit<
+        DEPTH_OF_WATER,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(18288, -4),
+                zero: Exact::ZERO,
+                symbol: "[fth_i]",
+                name: "fathom",
+            }
+        },
+    >;
 
-    /// One `Fathom` (`[fth_i]`), as a `DepthOfWater`.
-    pub const FATHOM: DepthOfWater<Exact> = METRE * Exact::dec(18288, -4);
+    /// Hand (`[hd_i]`), a unit of `HeightOfHorses`: `n` of them is `n · 1016e-4` coherent units.
+    pub type Hand = UcumUnit<
+        HEIGHT_OF_HORSES,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1016, -4),
+                zero: Exact::ZERO,
+                symbol: "[hd_i]",
+                name: "hand",
+            }
+        },
+    >;
 
-    /// One `Hand` (`[hd_i]`), as a `HeightOfHorses`.
-    pub const HAND: HeightOfHorses<Exact> = METRE * Exact::dec(1016, -4);
+    /// Inch (`[in_i]`), a unit of `Length`: `n` of them is `n · 254e-4` coherent units.
+    pub type Inch = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(254, -4),
+                zero: Exact::ZERO,
+                symbol: "[in_i]",
+                name: "inch",
+            }
+        },
+    >;
 
-    /// One `Inch` (`[in_i]`), as a `Length`.
-    pub const INCH: Length<Exact> = METRE * Exact::dec(254, -4);
+    /// Foot (`[ft_i]`), a unit of `Length`: `n` of them is `n · 3048e-4` coherent units.
+    pub type Foot = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(3048, -4),
+                zero: Exact::ZERO,
+                symbol: "[ft_i]",
+                name: "foot",
+            }
+        },
+    >;
 
-    /// One `Foot` (`[ft_i]`), as a `Length`.
-    pub const FOOT: Length<Exact> = METRE * Exact::dec(3048, -4);
+    /// Yard (`[yd_i]`), a unit of `Length`: `n` of them is `n · 9144e-4` coherent units.
+    pub type Yard = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(9144, -4),
+                zero: Exact::ZERO,
+                symbol: "[yd_i]",
+                name: "yard",
+            }
+        },
+    >;
 
-    /// One `Yard` (`[yd_i]`), as a `Length`.
-    pub const YARD: Length<Exact> = METRE * Exact::dec(9144, -4);
+    /// Mile (`[mi_i]`), a unit of `Length`: `n` of them is `n · 1609344e-3` coherent units.
+    pub type Mile = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1609344, -3),
+                zero: Exact::ZERO,
+                symbol: "[mi_i]",
+                name: "mile",
+            }
+        },
+    >;
 
-    /// One `Mile` (`[mi_i]`), as a `Length`.
-    pub const MILE: Length<Exact> = METRE * Exact::dec(1609344, -3);
+    /// Nautical mile (`[nmi_i]`), a unit of `Length`: `n` of them is `n · 1852` coherent units.
+    pub type NauticalMile = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1852),
+                zero: Exact::ZERO,
+                symbol: "[nmi_i]",
+                name: "nautical mile",
+            }
+        },
+    >;
 
-    /// One `NauticalMile` (`[nmi_i]`), as a `Length`.
-    pub const NAUTICAL_MILE: Length<Exact> = METRE * Exact::int(1852);
+    /// Mil (`[mil_i]`), a unit of `Length`: `n` of them is `n · 254e-7` coherent units.
+    pub type Mil = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(254, -7),
+                zero: Exact::ZERO,
+                symbol: "[mil_i]",
+                name: "mil",
+            }
+        },
+    >;
 
-    /// One `Mil` (`[mil_i]`), as a `Length`.
-    pub const MIL: Length<Exact> = METRE * Exact::dec(254, -7);
+    /// Knot (`[kn_i]`), a unit of `Velocity`: `n` of them is `n · 463 / 900` coherent units.
+    pub type Knot = UcumUnit<
+        VELOCITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(463) / Exact::int(900),
+                zero: Exact::ZERO,
+                symbol: "[kn_i]",
+                name: "knot",
+            }
+        },
+    >;
 
-    /// One `Knot` (`[kn_i]`), as a `Velocity`.
-    pub const KNOT: Velocity<Exact> = (METRE / SECOND) * (Exact::int(463) / Exact::int(900));
+    /// Cubic inch (`[cin_i]`), a unit of `Volume`: `n` of them is `n · 16387064e-12` coherent units.
+    pub type CubicInch = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(16387064, -12),
+                zero: Exact::ZERO,
+                symbol: "[cin_i]",
+                name: "cubic inch",
+            }
+        },
+    >;
 
-    /// One `CubicInch` (`[cin_i]`), as a `Volume`.
-    pub const CUBIC_INCH: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(16387064, -12);
+    /// Cubic foot (`[cft_i]`), a unit of `Volume`: `n` of them is `n · 28316846592e-12` coherent units.
+    pub type CubicFoot = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(28316846592, -12),
+                zero: Exact::ZERO,
+                symbol: "[cft_i]",
+                name: "cubic foot",
+            }
+        },
+    >;
 
-    /// One `CubicFoot` (`[cft_i]`), as a `Volume`.
-    pub const CUBIC_FOOT: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(28316846592, -12);
+    /// Cubic yard (`[cyd_i]`), a unit of `Volume`: `n` of them is `n · 764554857984e-12` coherent units.
+    pub type CubicYard = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(764554857984, -12),
+                zero: Exact::ZERO,
+                symbol: "[cyd_i]",
+                name: "cubic yard",
+            }
+        },
+    >;
 
-    /// One `CubicYard` (`[cyd_i]`), as a `Volume`.
-    pub const CUBIC_YARD: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(764554857984, -12);
+    /// Board foot (`[bf_i]`), a unit of `Volume`: `n` of them is `n · 2359737216e-12` coherent units.
+    pub type BoardFoot = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(2359737216, -12),
+                zero: Exact::ZERO,
+                symbol: "[bf_i]",
+                name: "board foot",
+            }
+        },
+    >;
 
-    /// One `BoardFoot` (`[bf_i]`), as a `Volume`.
-    pub const BOARD_FOOT: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(2359737216, -12);
-
-    /// One `Cord` (`[cr_i]`), as a `Volume`.
-    pub const CORD: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(3624556363776, -12);
+    /// Cord (`[cr_i]`), a unit of `Volume`: `n` of them is `n · 3624556363776e-12` coherent units.
+    pub type Cord = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(3624556363776, -12),
+                zero: Exact::ZERO,
+                symbol: "[cr_i]",
+                name: "cord",
+            }
+        },
+    >;
 }

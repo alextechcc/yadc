@@ -14,17 +14,17 @@ use core::ops::{Add, Div, Mul};
 /// number.
 ///
 /// It is not a vector space and asks for no more than that: there is no zero
-/// (numbers enter and leave a system through its base-unit constants and the
-/// units defined from them, not through a zero), and no `Sub<Output =
-/// Self>` - the difference of two absolute temperatures is a temperature
-/// *step*, so a difference is not always the same kind of quantity.
+/// (numbers enter and leave a system through its units, not through a zero),
+/// and no `Sub<Output = Self>` - the difference of two absolute temperatures
+/// is a temperature *step*, so a difference is not always the same kind of
+/// quantity.
 ///
 /// `#[derive(Quantity)]` on a static family implements it - with its
 /// supertraits, the operators and [`Unit<Self, N>`] - for every member that
 /// can be scaled. A point (an altitude above sea level: its kind is affine),
 /// a level, or a label that cannot be added to itself is not a `Quantity`,
-/// nor a unit: it is read on a scale, a zero and a step -
-/// `Scale(SEA_LEVEL, FOOT)`.
+/// nor a unit: it is read with a unit type that counts steps from a zero -
+/// `SEA_LEVEL + FOOT.quantity(n)` feet above sea level.
 #[diagnostic::on_unimplemented(
     message = "not a `Quantity`: this value cannot be scaled",
     label = "not a `Quantity`",

@@ -1,208 +1,352 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
 pub type AmountOfSubstance<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
-
 pub type AmountOfSubstanceDissolvedParticles<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
 
-pub type CatalyticActivity<N> = Qty<
-    {
-        Dim {
-            s: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `CatalyticActivity`.
+pub const CATALYTIC_ACTIVITY: Dim = Dim {
+    s: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type CatalyticActivity<N> = Qty<CATALYTIC_ACTIVITY, N>;
 
-pub type FluidResistance<N> = Qty<
-    {
-        Dim {
-            m: -4,
-            s: -1,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `FluidResistance`.
+pub const FLUID_RESISTANCE: Dim = Dim {
+    m: -4,
+    s: -1,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type FluidResistance<N> = Qty<FLUID_RESISTANCE, N>;
 
-pub type GaugeOfCatheters<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `GaugeOfCatheters`.
+pub const GAUGE_OF_CATHETERS: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type GaugeOfCatheters<N> = Qty<GAUGE_OF_CATHETERS, N>;
 
-pub type LineicNumber<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `LineicNumber`.
+pub const LINEIC_NUMBER: Dim = Dim {
+    m: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type LineicNumber<N> = Qty<LINEIC_NUMBER, N>;
 
-pub type MassConcentration<N> = Qty<
-    {
-        Dim {
-            m: -3,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `MassConcentration`.
+pub const MASS_CONCENTRATION: Dim = Dim {
+    m: -3,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type MassConcentration<N> = Qty<MASS_CONCENTRATION, N>;
 
-pub type MetabolicCostOfPhysicalActivity<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            s: -1,
-            g: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `MetabolicCostOfPhysicalActivity`.
+pub const METABOLIC_COST_OF_PHYSICAL_ACTIVITY: Dim = Dim {
+    m: 3,
+    s: -1,
+    g: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type MetabolicCostOfPhysicalActivity<N> = Qty<METABOLIC_COST_OF_PHYSICAL_ACTIVITY, N>;
 
-pub type Pressure<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            s: -2,
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Pressure`.
+pub const PRESSURE: Dim = Dim {
+    m: -1,
+    s: -2,
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Pressure<N> = Qty<PRESSURE, N>;
 
-pub type RefractionOfALens<N> = Qty<
-    {
-        Dim {
-            m: -1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `RefractionOfALens`.
+pub const REFRACTION_OF_A_LENS: Dim = Dim {
+    m: -1,
+    ..Dim::DIMENSIONLESS
+};
+pub type RefractionOfALens<N> = Qty<REFRACTION_OF_A_LENS, N>;
 
-pub type SedimentationCoefficient<N> = Qty<
-    {
-        Dim {
-            s: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
-
+/// The dimension of `SedimentationCoefficient`.
+pub const SEDIMENTATION_COEFFICIENT: Dim = Dim {
+    s: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type SedimentationCoefficient<N> = Qty<SEDIMENTATION_COEFFICIENT, N>;
 pub type ViewAreaInMicroscope<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
 
-pub type Volume<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
-
+/// The dimension of `Volume`.
+pub const VOLUME: Dim = Dim {
+    m: 3,
+    ..Dim::DIMENSIONLESS
+};
+pub type Volume<N> = Qty<VOLUME, N>;
 pub type XRayAttenuation<N> = Qty<{ Dim::DIMENSIONLESS }, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
-    use crate::base::GRAM;
+    use crate::{Dim, Exact, UcumUnit, UcumUnitConsts};
+    use yadc::Dimension;
 
-    /// The number one: the unit of dimension one.
-    pub use crate::base::ONE;
+    /// Equivalents (`eq`), a unit of `AmountOfSubstance`: `n` of them is `n · 602214076e15` coherent units.
+    pub type Equivalents = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(602214076000000000000000),
+                zero: Exact::ZERO,
+                symbol: "eq",
+                name: "equivalents",
+            }
+        },
+    >;
 
-    /// The metre, UCUM's base unit of length.
-    pub use crate::base::METRE;
+    /// Osmole (`osm`), a unit of `AmountOfSubstanceDissolvedParticles`: `n` of them is `n · 602214076e15` coherent units.
+    pub type Osmole = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(602214076000000000000000),
+                zero: Exact::ZERO,
+                symbol: "osm",
+                name: "osmole",
+            }
+        },
+    >;
 
-    /// The second, UCUM's base unit of time.
-    pub use crate::base::SECOND;
+    /// Katal (`kat`), a unit of `CatalyticActivity`: `n` of them is `n · 602214076e15` coherent units.
+    pub type Katal = UcumUnit<
+        CATALYTIC_ACTIVITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(602214076000000000000000),
+                zero: Exact::ZERO,
+                symbol: "kat",
+                name: "katal",
+            }
+        },
+    >;
 
-    /// One `Equivalents` (`eq`), as an `AmountOfSubstance`.
-    pub const EQUIVALENTS: AmountOfSubstance<Exact> = ONE * Exact::int(602214076000000000000000);
+    /// Unit (`U`), a unit of `CatalyticActivity`: `n` of them is `n · 301107038e8 / 3` coherent units.
+    pub type Unit = UcumUnit<
+        CATALYTIC_ACTIVITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(30110703800000000) / Exact::int(3),
+                zero: Exact::ZERO,
+                symbol: "U",
+                name: "Unit",
+            }
+        },
+    >;
 
-    /// One `Osmole` (`osm`), as an `AmountOfSubstanceDissolvedParticles`.
-    pub const OSMOLE: AmountOfSubstanceDissolvedParticles<Exact> =
-        ONE * Exact::int(602214076000000000000000);
+    /// Peripheral vascular resistance unit (`[PRU]`), a unit of `FluidResistance`: `n` of them is `n · 133322e6` coherent units.
+    pub type PeripheralVascularResistanceUnit = UcumUnit<
+        FLUID_RESISTANCE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(133322000000),
+                zero: Exact::ZERO,
+                symbol: "[PRU]",
+                name: "peripheral vascular resistance unit",
+            }
+        },
+    >;
 
-    /// One `Katal` (`kat`), as a `CatalyticActivity`.
-    pub const KATAL: CatalyticActivity<Exact> =
-        (ONE / SECOND) * Exact::int(602214076000000000000000);
+    /// Wood unit (`[wood'U]`), a unit of `FluidResistance`: `n` of them is `n · 799932e4` coherent units.
+    pub type WoodUnit = UcumUnit<
+        FLUID_RESISTANCE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(7999320000),
+                zero: Exact::ZERO,
+                symbol: "[wood'U]",
+                name: "Wood unit",
+            }
+        },
+    >;
 
-    /// One `Unit` (`U`), as a `CatalyticActivity`.
-    pub const UNIT: CatalyticActivity<Exact> =
-        (ONE / SECOND) * (Exact::int(30110703800000000) / Exact::int(3));
+    /// French (`[Ch]`), a unit of `GaugeOfCatheters`: `n` of them is `n · 1 / 3000` coherent units.
+    pub type French = UcumUnit<
+        GAUGE_OF_CATHETERS,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1) / Exact::int(3000),
+                zero: Exact::ZERO,
+                symbol: "[Ch]",
+                name: "french",
+            }
+        },
+    >;
 
-    /// One `PeripheralVascularResistanceUnit` (`[PRU]`), as a `FluidResistance`.
-    pub const PERIPHERAL_VASCULAR_RESISTANCE_UNIT: FluidResistance<Exact> =
-        (GRAM / (METRE * METRE * METRE * METRE * SECOND)) * Exact::int(133322000000);
+    /// Mesh (`[mesh_i]`), a unit of `LineicNumber`: `n` of them is `n · 5e3 / 127` coherent units.
+    pub type Mesh = UcumUnit<
+        LINEIC_NUMBER,
+        {
+            UcumUnitConsts {
+                size: Exact::int(5000) / Exact::int(127),
+                zero: Exact::ZERO,
+                symbol: "[mesh_i]",
+                name: "mesh",
+            }
+        },
+    >;
 
-    /// One `WoodUnit` (`[wood'U]`), as a `FluidResistance`.
-    pub const WOOD_UNIT: FluidResistance<Exact> =
-        (GRAM / (METRE * METRE * METRE * METRE * SECOND)) * Exact::int(7999320000);
+    /// Gram percent (`g%`), a unit of `MassConcentration`: `n` of them is `n · 1e4` coherent units.
+    pub type GramPercent = UcumUnit<
+        MASS_CONCENTRATION,
+        {
+            UcumUnitConsts {
+                size: Exact::int(10000),
+                zero: Exact::ZERO,
+                symbol: "g%",
+                name: "gram percent",
+            }
+        },
+    >;
 
-    /// One `French` (`[Ch]`), as a `GaugeOfCatheters`.
-    pub const FRENCH: GaugeOfCatheters<Exact> = METRE * (Exact::int(1) / Exact::int(3000));
+    /// Metabolic equivalent (`[MET]`), a unit of `MetabolicCostOfPhysicalActivity`: `n` of them is `n · 7 / 120000000000` coherent units.
+    pub type MetabolicEquivalent = UcumUnit<
+        METABOLIC_COST_OF_PHYSICAL_ACTIVITY,
+        {
+            UcumUnitConsts {
+                size: Exact::int(7) / Exact::int(120000000000),
+                zero: Exact::ZERO,
+                symbol: "[MET]",
+                name: "metabolic equivalent",
+            }
+        },
+    >;
 
-    /// One `Mesh` (`[mesh_i]`), as a `LineicNumber`.
-    pub const MESH: LineicNumber<Exact> = (ONE / METRE) * (Exact::int(5000) / Exact::int(127));
+    /// Meter of water column (`m[H2O]`), a unit of `Pressure`: `n` of them is `n · 980665e1` coherent units.
+    pub type MeterOfWaterColumn = UcumUnit<
+        PRESSURE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(9806650),
+                zero: Exact::ZERO,
+                symbol: "m[H2O]",
+                name: "meter of water column",
+            }
+        },
+    >;
 
-    /// One `GramPercent` (`g%`), as a `MassConcentration`.
-    pub const GRAM_PERCENT: MassConcentration<Exact> =
-        (GRAM / (METRE * METRE * METRE)) * Exact::int(10000);
+    /// Meter of mercury column (`m[Hg]`), a unit of `Pressure`: `n` of them is `n · 133322e3` coherent units.
+    pub type MeterOfMercuryColumn = UcumUnit<
+        PRESSURE,
+        {
+            UcumUnitConsts {
+                size: Exact::int(133322000),
+                zero: Exact::ZERO,
+                symbol: "m[Hg]",
+                name: "meter of mercury column",
+            }
+        },
+    >;
 
-    /// One `MetabolicEquivalent` (`[MET]`), as a `MetabolicCostOfPhysicalActivity`.
-    pub const METABOLIC_EQUIVALENT: MetabolicCostOfPhysicalActivity<Exact> =
-        (METRE * METRE * METRE / (SECOND * GRAM)) * (Exact::int(7) / Exact::int(120000000000));
+    /// Inch of water column (`[in_i'H2O]`), a unit of `Pressure`: `n` of them is `n · 24908891e-2` coherent units.
+    pub type InchOfWaterColumn = UcumUnit<
+        PRESSURE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(24908891, -2),
+                zero: Exact::ZERO,
+                symbol: "[in_i'H2O]",
+                name: "inch of water column",
+            }
+        },
+    >;
 
-    /// One `MeterOfWaterColumn` (`m[H2O]`), as a `Pressure`.
-    pub const METER_OF_WATER_COLUMN: Pressure<Exact> =
-        (GRAM / (METRE * SECOND * SECOND)) * Exact::int(9806650);
+    /// Inch of mercury column (`[in_i'Hg]`), a unit of `Pressure`: `n` of them is `n · 33863788e-1` coherent units.
+    pub type InchOfMercuryColumn = UcumUnit<
+        PRESSURE,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(33863788, -1),
+                zero: Exact::ZERO,
+                symbol: "[in_i'Hg]",
+                name: "inch of mercury column",
+            }
+        },
+    >;
 
-    /// One `MeterOfMercuryColumn` (`m[Hg]`), as a `Pressure`.
-    pub const METER_OF_MERCURY_COLUMN: Pressure<Exact> =
-        (GRAM / (METRE * SECOND * SECOND)) * Exact::int(133322000);
+    /// Diopter (`[diop]`), a unit of `RefractionOfALens`: `n` of them is `n · 1` coherent units.
+    pub type Diopter = UcumUnit<
+        REFRACTION_OF_A_LENS,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "[diop]",
+                name: "diopter",
+            }
+        },
+    >;
 
-    /// One `InchOfWaterColumn` (`[in_i'H2O]`), as a `Pressure`.
-    pub const INCH_OF_WATER_COLUMN: Pressure<Exact> =
-        (GRAM / (METRE * SECOND * SECOND)) * Exact::dec(24908891, -2);
+    /// Svedberg unit (`[S]`), a unit of `SedimentationCoefficient`: `n` of them is `n · 1e-13` coherent units.
+    pub type SvedbergUnit = UcumUnit<
+        SEDIMENTATION_COEFFICIENT,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1, -13),
+                zero: Exact::ZERO,
+                symbol: "[S]",
+                name: "Svedberg unit",
+            }
+        },
+    >;
 
-    /// One `InchOfMercuryColumn` (`[in_i'Hg]`), as a `Pressure`.
-    pub const INCH_OF_MERCURY_COLUMN: Pressure<Exact> =
-        (GRAM / (METRE * SECOND * SECOND)) * Exact::dec(33863788, -1);
+    /// High power field (`[HPF]`), a unit of `ViewAreaInMicroscope`: `n` of them is `n · 1` coherent units.
+    pub type HighPowerField = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "[HPF]",
+                name: "high power field",
+            }
+        },
+    >;
 
-    /// One `Diopter` (`[diop]`), as a `RefractionOfALens`.
-    pub const DIOPTER: RefractionOfALens<Exact> = ONE / METRE;
+    /// Low power field (`[LPF]`), a unit of `ViewAreaInMicroscope`: `n` of them is `n · 1e2` coherent units.
+    pub type LowPowerField = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(100),
+                zero: Exact::ZERO,
+                symbol: "[LPF]",
+                name: "low power field",
+            }
+        },
+    >;
 
-    /// One `SvedbergUnit` (`[S]`), as a `SedimentationCoefficient`.
-    pub const SVEDBERG_UNIT: SedimentationCoefficient<Exact> = SECOND * Exact::dec(1, -13);
+    /// Drop (`[drp]`), a unit of `Volume`: `n` of them is `n · 5e-8` coherent units.
+    pub type Drop = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(5, -8),
+                zero: Exact::ZERO,
+                symbol: "[drp]",
+                name: "drop",
+            }
+        },
+    >;
 
-    /// One `HighPowerField` (`[HPF]`), as a `ViewAreaInMicroscope`.
-    pub const HIGH_POWER_FIELD: ViewAreaInMicroscope<Exact> = ONE;
-
-    /// One `LowPowerField` (`[LPF]`), as a `ViewAreaInMicroscope`.
-    pub const LOW_POWER_FIELD: ViewAreaInMicroscope<Exact> = HIGH_POWER_FIELD * Exact::int(100);
-
-    /// One `Drop` (`[drp]`), as a `Volume`.
-    pub const DROP: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(5, -8);
-
-    /// One `HounsfieldUnit` (`[hnsf'U]`), as a `XRayAttenuation`.
-    pub const HOUNSFIELD_UNIT: XRayAttenuation<Exact> = ONE;
+    /// Hounsfield unit (`[hnsf'U]`), a unit of `XRayAttenuation`: `n` of them is `n · 1` coherent units.
+    pub type HounsfieldUnit = UcumUnit<
+        { Dim::DIMENSIONLESS },
+        {
+            UcumUnitConsts {
+                size: Exact::int(1),
+                zero: Exact::ZERO,
+                symbol: "[hnsf'U]",
+                name: "Hounsfield unit",
+            }
+        },
+    >;
 }

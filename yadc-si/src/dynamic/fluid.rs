@@ -2,259 +2,404 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::base::{KILOGRAM, METRE, SECOND};
-use crate::fluid::consts::*;
+use crate::dynamic::DynamicSIUnit;
+use crate::fluid::units::*;
 use crate::fluid::*;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `DynamicViscosity`, in any number type the constants convert to.
+/// The units of `DynamicViscosity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DynamicViscosity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where DynamicViscosity<N>: [const] Unit<DynamicViscosity<N>, N> + [const] Destruct)]
+#[unit(of = DynamicViscosity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DynamicViscosityUnit {
     #[default]
-    #[unit("Pa · s", "pascal seconds", by = DynamicViscosity::<N>::from(KILOGRAM / (METRE * SECOND)))]
+    #[unit(PascalSecond)]
     PascalSecond,
-    #[unit("P", "poises", by = DynamicViscosity::<N>::from(POISE))]
+    #[unit(Poise)]
     Poise,
-    #[unit("lb/(ft · s)", "pounds per foot second", by = DynamicViscosity::<N>::from((KILOGRAM / (METRE * SECOND)) * (Exact::dec(45359237, -8) / Exact::dec(3048, -4))))]
+    #[unit(PoundPerFootSecond)]
     PoundPerFootSecond,
-    #[unit("slug/(ft · s)", "slugs per foot second", by = DynamicViscosity::<N>::from((KILOGRAM / (METRE * SECOND)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4)) / Exact::dec(3048, -4))))]
+    #[unit(SlugPerFootSecond)]
     SlugPerFootSecond,
-    #[unit("g/(cm · s)", "grams per centimetre second", by = DynamicViscosity::<N>::from((KILOGRAM / (METRE * SECOND)) * Exact::dec(1, -1)))]
+    #[unit(GramPerCentimetreSecond)]
     GramPerCentimetreSecond,
 }
 
-/// The units of `KinematicViscosity`, in any number type the constants convert to.
+impl From<DynamicViscosityUnit> for DynamicSIUnit {
+    fn from(unit: DynamicViscosityUnit) -> Self {
+        match unit {
+            DynamicViscosityUnit::PascalSecond => PascalSecond {}.into(),
+            DynamicViscosityUnit::Poise => Poise {}.into(),
+            DynamicViscosityUnit::PoundPerFootSecond => PoundPerFootSecond {}.into(),
+            DynamicViscosityUnit::SlugPerFootSecond => SlugPerFootSecond {}.into(),
+            DynamicViscosityUnit::GramPerCentimetreSecond => GramPerCentimetreSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `KinematicViscosity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = KinematicViscosity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where KinematicViscosity<N>: [const] Unit<KinematicViscosity<N>, N> + [const] Destruct)]
+#[unit(of = KinematicViscosity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum KinematicViscosityUnit {
     #[default]
-    #[unit("m²/s", "square metres per second", by = KinematicViscosity::<N>::from(METRE * METRE / SECOND))]
+    #[unit(KinematicViscositySquareMetrePerSecond)]
     SquareMetrePerSecond,
-    #[unit("St", "stokes", by = KinematicViscosity::<N>::from(KINEMATIC_VISCOSITY_STOKES))]
+    #[unit(KinematicViscosityStokes)]
     Stokes,
 }
 
-/// The units of `SurfaceTension`, in any number type the constants convert to.
+impl From<KinematicViscosityUnit> for DynamicSIUnit {
+    fn from(unit: KinematicViscosityUnit) -> Self {
+        match unit {
+            KinematicViscosityUnit::SquareMetrePerSecond => {
+                KinematicViscositySquareMetrePerSecond {}.into()
+            }
+            KinematicViscosityUnit::Stokes => KinematicViscosityStokes {}.into(),
+        }
+    }
+}
+
+/// The units of `SurfaceTension`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = SurfaceTension<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where SurfaceTension<N>: [const] Unit<SurfaceTension<N>, N> + [const] Destruct)]
+#[unit(of = SurfaceTension<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum SurfaceTensionUnit {
     #[default]
-    #[unit("N/m", "newtons per metre", by = SurfaceTension::<N>::from(KILOGRAM / (SECOND * SECOND)))]
+    #[unit(NewtonPerMetre)]
     NewtonPerMetre,
-    #[unit("kgf/m", "kilograms-force per metre", by = SurfaceTension::<N>::from((KILOGRAM / (SECOND * SECOND)) * Exact::dec(980665, -5)))]
+    #[unit(KilogramForcePerMetre)]
     KilogramForcePerMetre,
-    #[unit("ozf/in", "ounces-force per inch", by = SurfaceTension::<N>::from((KILOGRAM / (SECOND * SECOND)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::int(16)) / Exact::dec(254, -4))))]
+    #[unit(OunceForcePerInch)]
     OunceForcePerInch,
-    #[unit("pdl/in", "poundals per inch", by = SurfaceTension::<N>::from((KILOGRAM / (SECOND * SECOND)) * ((Exact::dec(45359237, -8) * Exact::dec(3048, -4)) / Exact::dec(254, -4))))]
+    #[unit(PoundalPerInch)]
     PoundalPerInch,
-    #[unit("lbf/in", "pounds-force per inch", by = SurfaceTension::<N>::from((KILOGRAM / (SECOND * SECOND)) * ((Exact::dec(45359237, -8) * Exact::dec(980665, -5)) / Exact::dec(254, -4))))]
+    #[unit(PoundForcePerInch)]
     PoundForcePerInch,
-    #[unit("J/m²", "joules per square metre", by = SurfaceTension::<N>::from(KILOGRAM / (SECOND * SECOND)))]
+    #[unit(JoulePerSquareMetre)]
     JoulePerSquareMetre,
 }
 
-/// The units of `CompressibilityCoefficient`, in any number type the constants convert to.
+impl From<SurfaceTensionUnit> for DynamicSIUnit {
+    fn from(unit: SurfaceTensionUnit) -> Self {
+        match unit {
+            SurfaceTensionUnit::NewtonPerMetre => NewtonPerMetre {}.into(),
+            SurfaceTensionUnit::KilogramForcePerMetre => KilogramForcePerMetre {}.into(),
+            SurfaceTensionUnit::OunceForcePerInch => OunceForcePerInch {}.into(),
+            SurfaceTensionUnit::PoundalPerInch => PoundalPerInch {}.into(),
+            SurfaceTensionUnit::PoundForcePerInch => PoundForcePerInch {}.into(),
+            SurfaceTensionUnit::JoulePerSquareMetre => JoulePerSquareMetre {}.into(),
+        }
+    }
+}
+
+/// The units of `CompressibilityCoefficient`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = CompressibilityCoefficient<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where CompressibilityCoefficient<N>: [const] Unit<CompressibilityCoefficient<N>, N> + [const] Destruct)]
+#[unit(of = CompressibilityCoefficient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum CompressibilityCoefficientUnit {
     #[default]
-    #[unit("Pa⁻¹", "per pascal", by = CompressibilityCoefficient::<N>::from(PER_PASCAL))]
+    #[unit(PerPascal)]
     PerPascal,
-    #[unit("atm⁻¹", "per atmosphere", by = CompressibilityCoefficient::<N>::from(PER_ATMOSPHERE))]
+    #[unit(PerAtmosphere)]
     PerAtmosphere,
-    #[unit("at⁻¹", "per atmosphere (technical)", by = CompressibilityCoefficient::<N>::from(PER_ATMOSPHERE_TECHNICAL))]
+    #[unit(PerAtmosphereTechnical)]
     PerAtmosphereTechnical,
-    #[unit("bar⁻¹", "per bar", by = CompressibilityCoefficient::<N>::from(PER_BAR))]
+    #[unit(PerBar)]
     PerBar,
 }
 
-/// The units of `MassRate`, in any number type the constants convert to.
+impl From<CompressibilityCoefficientUnit> for DynamicSIUnit {
+    fn from(unit: CompressibilityCoefficientUnit) -> Self {
+        match unit {
+            CompressibilityCoefficientUnit::PerPascal => PerPascal {}.into(),
+            CompressibilityCoefficientUnit::PerAtmosphere => PerAtmosphere {}.into(),
+            CompressibilityCoefficientUnit::PerAtmosphereTechnical => {
+                PerAtmosphereTechnical {}.into()
+            }
+            CompressibilityCoefficientUnit::PerBar => PerBar {}.into(),
+        }
+    }
+}
+
+/// The units of `MassRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MassRate<N>: [const] Unit<MassRate<N>, N> + [const] Destruct)]
+#[unit(of = MassRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MassRateUnit {
     #[default]
-    #[unit("kg/s", "kilograms per second", by = MassRate::<N>::from(KILOGRAM / SECOND))]
+    #[unit(KilogramPerSecond)]
     KilogramPerSecond,
-    #[unit("g/s", "grams per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(1, -3)))]
+    #[unit(GramPerSecond)]
     GramPerSecond,
-    #[unit("g/min", "grams per minute", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(1, -3) / Exact::int(60))))]
+    #[unit(GramPerMinute)]
     GramPerMinute,
-    #[unit("g/h", "grams per hour", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(1, -3) / Exact::int(3600))))]
+    #[unit(GramPerHour)]
     GramPerHour,
-    #[unit("g/d", "grams per day", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(1, -3) / Exact::int(86400))))]
+    #[unit(GramPerDay)]
     GramPerDay,
-    #[unit("ct/s", "carats per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(2, -4)))]
+    #[unit(CaratPerSecond)]
     CaratPerSecond,
-    #[unit("gr/s", "grains per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(6479891, -11)))]
+    #[unit(GrainPerSecond)]
     GrainPerSecond,
-    #[unit("cwt long/s", "hundredweight (long) per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(5080234544, -8)))]
+    #[unit(HundredweightLongPerSecond)]
     HundredweightLongPerSecond,
-    #[unit("cwt short/s", "hundredweight (short) per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(45359237, -6)))]
+    #[unit(HundredweightShortPerSecond)]
     HundredweightShortPerSecond,
-    #[unit("oz/s", "ounces per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(28349523125, -12)))]
+    #[unit(OuncePerSecond)]
     OuncePerSecond,
-    #[unit("oz t/s", "troy ounces per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(311034768, -10)))]
+    #[unit(OunceTroyPerSecond)]
     OunceTroyPerSecond,
-    #[unit("dwt/s", "pennyweight per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(155517384, -11)))]
+    #[unit(PennyweightPerSecond)]
     PennyweightPerSecond,
-    #[unit("lb/s", "pounds per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(45359237, -8)))]
+    #[unit(PoundPerSecond)]
     PoundPerSecond,
-    #[unit("lb/min", "pounds per minute", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(45359237, -8) / Exact::int(60))))]
+    #[unit(PoundPerMinute)]
     PoundPerMinute,
-    #[unit("lb/h", "pounds per hour", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(45359237, -8) / Exact::int(3600))))]
+    #[unit(PoundPerHour)]
     PoundPerHour,
-    #[unit("lb/d", "pounds per day", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(45359237, -8) / Exact::int(86400))))]
+    #[unit(PoundPerDay)]
     PoundPerDay,
-    #[unit("lb t/s", "troy pounds per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(3732417216, -10)))]
+    #[unit(PoundTroyPerSecond)]
     PoundTroyPerSecond,
-    #[unit("slug/s", "slugs per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(45359237, -8) * Exact::dec(980665, -5) / Exact::dec(3048, -4))))]
+    #[unit(SlugPerSecond)]
     SlugPerSecond,
-    #[unit("AT/s", "assay tons per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(175, -3) / Exact::int(6))))]
+    #[unit(TonAssayPerSecond)]
     TonAssayPerSecond,
-    #[unit("2240 lb/s", "long tons per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(10160469088, -7)))]
+    #[unit(TonLongPerSecond)]
     TonLongPerSecond,
-    #[unit("2000 lb/s", "short tons per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::dec(90718474, -5)))]
+    #[unit(TonShortPerSecond)]
     TonShortPerSecond,
-    #[unit("2000 lb/h", "short tons per hour", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::dec(90718474, -5) / Exact::int(3600))))]
+    #[unit(TonShortPerHour)]
     TonShortPerHour,
-    #[unit("t/s", "tons per second", by = MassRate::<N>::from((KILOGRAM / SECOND) * Exact::int(1000)))]
+    #[unit(TonPerSecond)]
     TonPerSecond,
-    #[unit("t/min", "tons per minute", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::int(1000) / Exact::int(60))))]
+    #[unit(TonPerMinute)]
     TonPerMinute,
-    #[unit("t/h", "tons per hour", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::int(1000) / Exact::int(3600))))]
+    #[unit(TonPerHour)]
     TonPerHour,
-    #[unit("t/d", "tons per day", by = MassRate::<N>::from((KILOGRAM / SECOND) * (Exact::int(1000) / Exact::int(86400))))]
+    #[unit(TonPerDay)]
     TonPerDay,
 }
 
-/// The units of `VolumeRate`, in any number type the constants convert to.
+impl From<MassRateUnit> for DynamicSIUnit {
+    fn from(unit: MassRateUnit) -> Self {
+        match unit {
+            MassRateUnit::KilogramPerSecond => KilogramPerSecond {}.into(),
+            MassRateUnit::GramPerSecond => GramPerSecond {}.into(),
+            MassRateUnit::GramPerMinute => GramPerMinute {}.into(),
+            MassRateUnit::GramPerHour => GramPerHour {}.into(),
+            MassRateUnit::GramPerDay => GramPerDay {}.into(),
+            MassRateUnit::CaratPerSecond => CaratPerSecond {}.into(),
+            MassRateUnit::GrainPerSecond => GrainPerSecond {}.into(),
+            MassRateUnit::HundredweightLongPerSecond => HundredweightLongPerSecond {}.into(),
+            MassRateUnit::HundredweightShortPerSecond => HundredweightShortPerSecond {}.into(),
+            MassRateUnit::OuncePerSecond => OuncePerSecond {}.into(),
+            MassRateUnit::OunceTroyPerSecond => OunceTroyPerSecond {}.into(),
+            MassRateUnit::PennyweightPerSecond => PennyweightPerSecond {}.into(),
+            MassRateUnit::PoundPerSecond => PoundPerSecond {}.into(),
+            MassRateUnit::PoundPerMinute => PoundPerMinute {}.into(),
+            MassRateUnit::PoundPerHour => PoundPerHour {}.into(),
+            MassRateUnit::PoundPerDay => PoundPerDay {}.into(),
+            MassRateUnit::PoundTroyPerSecond => PoundTroyPerSecond {}.into(),
+            MassRateUnit::SlugPerSecond => SlugPerSecond {}.into(),
+            MassRateUnit::TonAssayPerSecond => TonAssayPerSecond {}.into(),
+            MassRateUnit::TonLongPerSecond => TonLongPerSecond {}.into(),
+            MassRateUnit::TonShortPerSecond => TonShortPerSecond {}.into(),
+            MassRateUnit::TonShortPerHour => TonShortPerHour {}.into(),
+            MassRateUnit::TonPerSecond => TonPerSecond {}.into(),
+            MassRateUnit::TonPerMinute => TonPerMinute {}.into(),
+            MassRateUnit::TonPerHour => TonPerHour {}.into(),
+            MassRateUnit::TonPerDay => TonPerDay {}.into(),
+        }
+    }
+}
+
+/// The units of `VolumeRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = VolumeRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where VolumeRate<N>: [const] Unit<VolumeRate<N>, N> + [const] Destruct)]
+#[unit(of = VolumeRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumeRateUnit {
     #[default]
-    #[unit("m³/s", "cubic metres per second", by = VolumeRate::<N>::from(METRE * METRE * METRE / SECOND))]
+    #[unit(CubicMetrePerSecond)]
     CubicMetrePerSecond,
-    #[unit("m³/min", "cubic metres per minute", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::int(1) / Exact::int(60))))]
+    #[unit(CubicMetrePerMinute)]
     CubicMetrePerMinute,
-    #[unit("m³/h", "cubic metres per hour", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::int(1) / Exact::int(3600))))]
+    #[unit(CubicMetrePerHour)]
     CubicMetrePerHour,
-    #[unit("L/s", "litres per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(1, -3)))]
+    #[unit(LitrePerSecond)]
     LitrePerSecond,
-    #[unit("L/min", "litres per minute", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(1, -3) / Exact::int(60))))]
+    #[unit(LitrePerMinute)]
     LitrePerMinute,
-    #[unit("ac · ft/s", "acre-feet per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::int(43560) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)) * (Exact::int(1200) / Exact::int(3937)))))]
+    #[unit(AcreFootPerSecond)]
     AcreFootPerSecond,
-    #[unit("bbl/s", "barrels per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(158987294928, -12)))]
+    #[unit(BarrelPerSecond)]
     BarrelPerSecond,
-    #[unit("bu/s", "bushels per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(3523907016688, -14)))]
+    #[unit(BushelPerSecond)]
     BushelPerSecond,
-    #[unit("cords/s", "cords per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::int(128) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))))]
+    #[unit(CordPerSecond)]
     CordPerSecond,
-    #[unit("ft³/s", "cubic feet per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))))]
+    #[unit(CubicFootPerSecond)]
     CubicFootPerSecond,
-    #[unit("ft³/min", "cubic feet per minute", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4) / Exact::int(60))))]
+    #[unit(CubicFootPerMinute)]
     CubicFootPerMinute,
-    #[unit("in³/s", "cubic inches per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4))))]
+    #[unit(CubicInchPerSecond)]
     CubicInchPerSecond,
-    #[unit("in³/min", "cubic inches per minute", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(254, -4) * Exact::dec(254, -4) * Exact::dec(254, -4) / Exact::int(60))))]
+    #[unit(CubicInchPerMinute)]
     CubicInchPerMinute,
-    #[unit("mi³/s", "cubic miles per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(1609344, -3) * Exact::dec(1609344, -3) * Exact::dec(1609344, -3))))]
+    #[unit(CubicMilePerSecond)]
     CubicMilePerSecond,
-    #[unit("yd³/s", "cubic yards per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4))))]
+    #[unit(CubicYardPerSecond)]
     CubicYardPerSecond,
-    #[unit("yd³/min", "cubic yards per minute", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(9144, -4) * Exact::dec(9144, -4) * Exact::dec(9144, -4) / Exact::int(60))))]
+    #[unit(CubicYardPerMinute)]
     CubicYardPerMinute,
-    #[unit("cup/s", "cups per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(2365882365, -13)))]
+    #[unit(CupPerSecond)]
     CupPerSecond,
-    #[unit("fl oz/s", "fluid ounces per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(295735295625, -16)))]
+    #[unit(FluidOuncePerSecond)]
     FluidOuncePerSecond,
-    #[unit("fl oz (UK)/s", "Imperial fluid ounces per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(284130625, -13)))]
+    #[unit(FluidOunceImperialPerSecond)]
     FluidOunceImperialPerSecond,
-    #[unit("gal (UK)/s", "Imperial gallons per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(454609, -8)))]
+    #[unit(GallonImperialPerSecond)]
     GallonImperialPerSecond,
-    #[unit("gal/s", "gallons per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(3785411784, -12)))]
+    #[unit(GallonPerSecond)]
     GallonPerSecond,
-    #[unit("gal/min", "gallons per minute", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(3785411784, -12) / Exact::int(60))))]
+    #[unit(GallonPerMinute)]
     GallonPerMinute,
-    #[unit("gal/d", "gallons per day", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::dec(3785411784, -12) / Exact::int(86400))))]
+    #[unit(GallonPerDay)]
     GallonPerDay,
-    #[unit("gi (UK)/s", "Imperial gills per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(1420653125, -13)))]
+    #[unit(GillImperialPerSecond)]
     GillImperialPerSecond,
-    #[unit("gi/s", "gills per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(11829411825, -14)))]
+    #[unit(GillPerSecond)]
     GillPerSecond,
-    #[unit("pk/s", "pecks per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(880976754172, -14)))]
+    #[unit(PeckPerSecond)]
     PeckPerSecond,
-    #[unit("dry pt/s", "dry pints per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(5506104713575, -16)))]
+    #[unit(PintDryPerSecond)]
     PintDryPerSecond,
-    #[unit("liq pt/s", "liquid pints per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(473176473, -12)))]
+    #[unit(PintLiquidPerSecond)]
     PintLiquidPerSecond,
-    #[unit("dry qt/s", "dry quarts per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(1101220942715, -15)))]
+    #[unit(QuartDryPerSecond)]
     QuartDryPerSecond,
-    #[unit("liq qt/s", "liquid quarts per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(946352946, -12)))]
+    #[unit(QuartLiquidPerSecond)]
     QuartLiquidPerSecond,
-    #[unit("st/s", "steres per second", by = VolumeRate::<N>::from(METRE * METRE * METRE / SECOND))]
+    #[unit(SterePerSecond)]
     SterePerSecond,
-    #[unit("tbsp/s", "tablespoons per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(1478676478125, -17)))]
+    #[unit(TablespoonPerSecond)]
     TablespoonPerSecond,
-    #[unit("tsp/s", "teaspoons per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * Exact::dec(492892159375, -17)))]
+    #[unit(TeaspoonPerSecond)]
     TeaspoonPerSecond,
-    #[unit("RT/s", "register tons per second", by = VolumeRate::<N>::from((METRE * METRE * METRE / SECOND) * (Exact::int(100) * Exact::dec(3048, -4) * Exact::dec(3048, -4) * Exact::dec(3048, -4))))]
+    #[unit(RegisterTonPerSecond)]
     RegisterTonPerSecond,
 }
 
-/// The units of `MassFlux`, in any number type the constants convert to.
+impl From<VolumeRateUnit> for DynamicSIUnit {
+    fn from(unit: VolumeRateUnit) -> Self {
+        match unit {
+            VolumeRateUnit::CubicMetrePerSecond => CubicMetrePerSecond {}.into(),
+            VolumeRateUnit::CubicMetrePerMinute => CubicMetrePerMinute {}.into(),
+            VolumeRateUnit::CubicMetrePerHour => CubicMetrePerHour {}.into(),
+            VolumeRateUnit::LitrePerSecond => LitrePerSecond {}.into(),
+            VolumeRateUnit::LitrePerMinute => LitrePerMinute {}.into(),
+            VolumeRateUnit::AcreFootPerSecond => AcreFootPerSecond {}.into(),
+            VolumeRateUnit::BarrelPerSecond => BarrelPerSecond {}.into(),
+            VolumeRateUnit::BushelPerSecond => BushelPerSecond {}.into(),
+            VolumeRateUnit::CordPerSecond => CordPerSecond {}.into(),
+            VolumeRateUnit::CubicFootPerSecond => CubicFootPerSecond {}.into(),
+            VolumeRateUnit::CubicFootPerMinute => CubicFootPerMinute {}.into(),
+            VolumeRateUnit::CubicInchPerSecond => CubicInchPerSecond {}.into(),
+            VolumeRateUnit::CubicInchPerMinute => CubicInchPerMinute {}.into(),
+            VolumeRateUnit::CubicMilePerSecond => CubicMilePerSecond {}.into(),
+            VolumeRateUnit::CubicYardPerSecond => CubicYardPerSecond {}.into(),
+            VolumeRateUnit::CubicYardPerMinute => CubicYardPerMinute {}.into(),
+            VolumeRateUnit::CupPerSecond => CupPerSecond {}.into(),
+            VolumeRateUnit::FluidOuncePerSecond => FluidOuncePerSecond {}.into(),
+            VolumeRateUnit::FluidOunceImperialPerSecond => FluidOunceImperialPerSecond {}.into(),
+            VolumeRateUnit::GallonImperialPerSecond => GallonImperialPerSecond {}.into(),
+            VolumeRateUnit::GallonPerSecond => GallonPerSecond {}.into(),
+            VolumeRateUnit::GallonPerMinute => GallonPerMinute {}.into(),
+            VolumeRateUnit::GallonPerDay => GallonPerDay {}.into(),
+            VolumeRateUnit::GillImperialPerSecond => GillImperialPerSecond {}.into(),
+            VolumeRateUnit::GillPerSecond => GillPerSecond {}.into(),
+            VolumeRateUnit::PeckPerSecond => PeckPerSecond {}.into(),
+            VolumeRateUnit::PintDryPerSecond => PintDryPerSecond {}.into(),
+            VolumeRateUnit::PintLiquidPerSecond => PintLiquidPerSecond {}.into(),
+            VolumeRateUnit::QuartDryPerSecond => QuartDryPerSecond {}.into(),
+            VolumeRateUnit::QuartLiquidPerSecond => QuartLiquidPerSecond {}.into(),
+            VolumeRateUnit::SterePerSecond => SterePerSecond {}.into(),
+            VolumeRateUnit::TablespoonPerSecond => TablespoonPerSecond {}.into(),
+            VolumeRateUnit::TeaspoonPerSecond => TeaspoonPerSecond {}.into(),
+            VolumeRateUnit::RegisterTonPerSecond => RegisterTonPerSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `MassFlux`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassFlux<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MassFlux<N>: [const] Unit<MassFlux<N>, N> + [const] Destruct)]
+#[unit(of = MassFlux<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MassFluxUnit {
     #[default]
-    #[unit("kg/(m² · s)", "kilograms per square metre second", by = MassFlux::<N>::from(KILOGRAM / (METRE * METRE * SECOND)))]
+    #[unit(KilogramPerSquareMetreSecond)]
     KilogramPerSquareMetreSecond,
 }
 
-/// The units of `MassPerEnergy`, in any number type the constants convert to.
+impl From<MassFluxUnit> for DynamicSIUnit {
+    fn from(unit: MassFluxUnit) -> Self {
+        match unit {
+            MassFluxUnit::KilogramPerSquareMetreSecond => KilogramPerSquareMetreSecond {}.into(),
+        }
+    }
+}
+
+/// The units of `MassPerEnergy`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MassPerEnergy<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MassPerEnergy<N>: [const] Unit<MassPerEnergy<N>, N> + [const] Destruct)]
+#[unit(of = MassPerEnergy<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MassPerEnergyUnit {
     #[default]
-    #[unit("kg/J", "kilograms per joule", by = MassPerEnergy::<N>::from(SECOND * SECOND / (METRE * METRE)))]
+    #[unit(KilogramPerJoule)]
     KilogramPerJoule,
-    #[unit("g/J", "grams per joule", by = MassPerEnergy::<N>::from((SECOND * SECOND / (METRE * METRE)) * Exact::dec(1, -3)))]
+    #[unit(GramPerJoule)]
     GramPerJoule,
-    #[unit("lb/J", "pounds per joule", by = MassPerEnergy::<N>::from((SECOND * SECOND / (METRE * METRE)) * Exact::dec(45359237, -8)))]
+    #[unit(PoundPerJoule)]
     PoundPerJoule,
-    #[unit("lb/Wh", "pounds per watt hour", by = MassPerEnergy::<N>::from((SECOND * SECOND / (METRE * METRE)) * (Exact::dec(45359237, -8) / Exact::int(3600))))]
+    #[unit(PoundPerWattHour)]
     PoundPerWattHour,
-    #[unit("g/Wh", "grams per watt hour", by = MassPerEnergy::<N>::from((SECOND * SECOND / (METRE * METRE)) * (Exact::dec(1, -3) / Exact::int(3600))))]
+    #[unit(GramPerWattHour)]
     GramPerWattHour,
 }
 
-/// The units of `DiffusionCoefficient`, in any number type the constants convert to.
+impl From<MassPerEnergyUnit> for DynamicSIUnit {
+    fn from(unit: MassPerEnergyUnit) -> Self {
+        match unit {
+            MassPerEnergyUnit::KilogramPerJoule => KilogramPerJoule {}.into(),
+            MassPerEnergyUnit::GramPerJoule => GramPerJoule {}.into(),
+            MassPerEnergyUnit::PoundPerJoule => PoundPerJoule {}.into(),
+            MassPerEnergyUnit::PoundPerWattHour => PoundPerWattHour {}.into(),
+            MassPerEnergyUnit::GramPerWattHour => GramPerWattHour {}.into(),
+        }
+    }
+}
+
+/// The units of `DiffusionCoefficient`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DiffusionCoefficient<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where DiffusionCoefficient<N>: [const] Unit<DiffusionCoefficient<N>, N> + [const] Destruct)]
+#[unit(of = DiffusionCoefficient<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DiffusionCoefficientUnit {
     #[default]
-    #[unit("m²/s", "square metres per second", by = DiffusionCoefficient::<N>::from(METRE * METRE / SECOND))]
+    #[unit(DiffusionCoefficientSquareMetrePerSecond)]
     SquareMetrePerSecond,
-    #[unit("St", "Stokes", by = DiffusionCoefficient::<N>::from(DIFFUSION_COEFFICIENT_STOKES))]
+    #[unit(DiffusionCoefficientStokes)]
     Stokes,
+}
+
+impl From<DiffusionCoefficientUnit> for DynamicSIUnit {
+    fn from(unit: DiffusionCoefficientUnit) -> Self {
+        match unit {
+            DiffusionCoefficientUnit::SquareMetrePerSecond => {
+                DiffusionCoefficientSquareMetrePerSecond {}.into()
+            }
+            DiffusionCoefficientUnit::Stokes => DiffusionCoefficientStokes {}.into(),
+        }
+    }
 }

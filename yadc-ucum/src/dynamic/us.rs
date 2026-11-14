@@ -2,163 +2,251 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::us::consts::*;
+use crate::dynamic::DynamicUcumUnit;
+use crate::us::units::*;
 use crate::us::*;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Area`, in any number type the constants convert to.
+/// The units of `Area`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Area<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Area<N>: [const] Unit<Area<N>, N> + [const] Destruct)]
+#[unit(of = Area<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AreaUnit {
     #[default]
-    #[unit("[acr_us]", "acre", by = Area::<N>::from(ACRE))]
+    #[unit(Acre)]
     Acre,
-    #[unit("[srd_us]", "square rod", by = Area::<N>::from(SQUARE_ROD))]
+    #[unit(SquareRod)]
     SquareRod,
-    #[unit("[smi_us]", "square mile", by = Area::<N>::from(SQUARE_MILE))]
+    #[unit(SquareMile)]
     SquareMile,
-    #[unit("[sct]", "section", by = Area::<N>::from(SECTION))]
+    #[unit(Section)]
     Section,
-    #[unit("[twp]", "township", by = Area::<N>::from(TOWNSHIP))]
+    #[unit(Township)]
     Township,
 }
 
-/// The units of `DryVolume`, in any number type the constants convert to.
+impl From<AreaUnit> for DynamicUcumUnit {
+    fn from(unit: AreaUnit) -> Self {
+        match unit {
+            AreaUnit::Acre => Acre {}.into(),
+            AreaUnit::SquareRod => SquareRod {}.into(),
+            AreaUnit::SquareMile => SquareMile {}.into(),
+            AreaUnit::Section => Section {}.into(),
+            AreaUnit::Township => Township {}.into(),
+        }
+    }
+}
+
+/// The units of `DryVolume`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DryVolume<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where DryVolume<N>: [const] Unit<DryVolume<N>, N> + [const] Destruct)]
+#[unit(of = DryVolume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DryVolumeUnit {
     #[default]
-    #[unit("[bu_us]", "bushel", by = DryVolume::<N>::from(BUSHEL))]
+    #[unit(Bushel)]
     Bushel,
-    #[unit("[gal_wi]", "historical winchester gallon", by = DryVolume::<N>::from(HISTORICAL_WINCHESTER_GALLON))]
+    #[unit(HistoricalWinchesterGallon)]
     HistoricalWinchesterGallon,
-    #[unit("[pk_us]", "peck", by = DryVolume::<N>::from(PECK))]
+    #[unit(Peck)]
     Peck,
-    #[unit("[dqt_us]", "dry quart", by = DryVolume::<N>::from(DRY_QUART))]
+    #[unit(DryQuart)]
     DryQuart,
-    #[unit("[dpt_us]", "dry pint", by = DryVolume::<N>::from(DRY_PINT))]
+    #[unit(DryPint)]
     DryPint,
 }
 
-/// The units of `FluidVolume`, in any number type the constants convert to.
+impl From<DryVolumeUnit> for DynamicUcumUnit {
+    fn from(unit: DryVolumeUnit) -> Self {
+        match unit {
+            DryVolumeUnit::Bushel => Bushel {}.into(),
+            DryVolumeUnit::HistoricalWinchesterGallon => HistoricalWinchesterGallon {}.into(),
+            DryVolumeUnit::Peck => Peck {}.into(),
+            DryVolumeUnit::DryQuart => DryQuart {}.into(),
+            DryVolumeUnit::DryPint => DryPint {}.into(),
+        }
+    }
+}
+
+/// The units of `FluidVolume`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = FluidVolume<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where FluidVolume<N>: [const] Unit<FluidVolume<N>, N> + [const] Destruct)]
+#[unit(of = FluidVolume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum FluidVolumeUnit {
     #[default]
-    #[unit("[gal_us]", "Queen Anne's wine gallon", by = FluidVolume::<N>::from(QUEEN_ANNE_S_WINE_GALLON))]
+    #[unit(QueenAnneSWineGallon)]
     QueenAnneSWineGallon,
-    #[unit("[bbl_us]", "barrel", by = FluidVolume::<N>::from(BARREL))]
+    #[unit(Barrel)]
     Barrel,
-    #[unit("[qt_us]", "quart", by = FluidVolume::<N>::from(QUART))]
+    #[unit(Quart)]
     Quart,
-    #[unit("[pt_us]", "pint", by = FluidVolume::<N>::from(PINT))]
+    #[unit(Pint)]
     Pint,
-    #[unit("[gil_us]", "gill", by = FluidVolume::<N>::from(GILL))]
+    #[unit(Gill)]
     Gill,
-    #[unit("[foz_us]", "fluid ounce", by = FluidVolume::<N>::from(FLUID_OUNCE))]
+    #[unit(FluidOunce)]
     FluidOunce,
-    #[unit("[fdr_us]", "fluid dram", by = FluidVolume::<N>::from(FLUID_DRAM))]
+    #[unit(FluidDram)]
     FluidDram,
-    #[unit("[min_us]", "minim", by = FluidVolume::<N>::from(MINIM))]
+    #[unit(Minim)]
     Minim,
-    #[unit("[crd_us]", "cord", by = FluidVolume::<N>::from(CORD))]
+    #[unit(Cord)]
     Cord,
-    #[unit("[foz_m]", "metric fluid ounce", by = FluidVolume::<N>::from(METRIC_FLUID_OUNCE))]
+    #[unit(MetricFluidOunce)]
     MetricFluidOunce,
 }
 
-/// The units of `Length`, in any number type the constants convert to.
+impl From<FluidVolumeUnit> for DynamicUcumUnit {
+    fn from(unit: FluidVolumeUnit) -> Self {
+        match unit {
+            FluidVolumeUnit::QueenAnneSWineGallon => QueenAnneSWineGallon {}.into(),
+            FluidVolumeUnit::Barrel => Barrel {}.into(),
+            FluidVolumeUnit::Quart => Quart {}.into(),
+            FluidVolumeUnit::Pint => Pint {}.into(),
+            FluidVolumeUnit::Gill => Gill {}.into(),
+            FluidVolumeUnit::FluidOunce => FluidOunce {}.into(),
+            FluidVolumeUnit::FluidDram => FluidDram {}.into(),
+            FluidVolumeUnit::Minim => Minim {}.into(),
+            FluidVolumeUnit::Cord => Cord {}.into(),
+            FluidVolumeUnit::MetricFluidOunce => MetricFluidOunce {}.into(),
+        }
+    }
+}
+
+/// The units of `Length`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Length<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Length<N>: [const] Unit<Length<N>, N> + [const] Destruct)]
+#[unit(of = Length<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LengthUnit {
     #[default]
-    #[unit("[ft_us]", "foot", by = Length::<N>::from(FOOT))]
+    #[unit(Foot)]
     Foot,
-    #[unit("[yd_us]", "yard", by = Length::<N>::from(YARD))]
+    #[unit(Yard)]
     Yard,
-    #[unit("[in_us]", "inch", by = Length::<N>::from(INCH))]
+    #[unit(Inch)]
     Inch,
-    #[unit("[rd_us]", "rod", by = Length::<N>::from(ROD))]
+    #[unit(Rod)]
     Rod,
-    #[unit("[ch_us]", "Surveyor's chain", by = Length::<N>::from(SURVEYOR_S_CHAIN))]
+    #[unit(SurveyorSChain)]
     SurveyorSChain,
-    #[unit("[lk_us]", "link for Gunter's chain", by = Length::<N>::from(LINK_FOR_GUNTER_S_CHAIN))]
+    #[unit(LinkForGunterSChain)]
     LinkForGunterSChain,
-    #[unit("[rch_us]", "Engineer's chain", by = Length::<N>::from(ENGINEER_S_CHAIN))]
+    #[unit(EngineerSChain)]
     EngineerSChain,
-    #[unit("[rlk_us]", "link for Ramden's chain", by = Length::<N>::from(LINK_FOR_RAMDEN_S_CHAIN))]
+    #[unit(LinkForRamdenSChain)]
     LinkForRamdenSChain,
-    #[unit("[fth_us]", "fathom", by = Length::<N>::from(FATHOM))]
+    #[unit(Fathom)]
     Fathom,
-    #[unit("[fur_us]", "furlong", by = Length::<N>::from(FURLONG))]
+    #[unit(Furlong)]
     Furlong,
-    #[unit("[mi_us]", "mile", by = Length::<N>::from(MILE))]
+    #[unit(Mile)]
     Mile,
-    #[unit("[mil_us]", "mil", by = Length::<N>::from(MIL))]
+    #[unit(Mil)]
     Mil,
 }
 
-/// The units of `Mass`, in any number type the constants convert to.
+impl From<LengthUnit> for DynamicUcumUnit {
+    fn from(unit: LengthUnit) -> Self {
+        match unit {
+            LengthUnit::Foot => Foot {}.into(),
+            LengthUnit::Yard => Yard {}.into(),
+            LengthUnit::Inch => Inch {}.into(),
+            LengthUnit::Rod => Rod {}.into(),
+            LengthUnit::SurveyorSChain => SurveyorSChain {}.into(),
+            LengthUnit::LinkForGunterSChain => LinkForGunterSChain {}.into(),
+            LengthUnit::EngineerSChain => EngineerSChain {}.into(),
+            LengthUnit::LinkForRamdenSChain => LinkForRamdenSChain {}.into(),
+            LengthUnit::Fathom => Fathom {}.into(),
+            LengthUnit::Furlong => Furlong {}.into(),
+            LengthUnit::Mile => Mile {}.into(),
+            LengthUnit::Mil => Mil {}.into(),
+        }
+    }
+}
+
+/// The units of `Mass`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Mass<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Mass<N>: [const] Unit<Mass<N>, N> + [const] Destruct)]
+#[unit(of = Mass<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MassUnit {
     #[default]
-    #[unit("[gr]", "grain", by = Mass::<N>::from(GRAIN))]
+    #[unit(Grain)]
     Grain,
-    #[unit("[lb_av]", "pound", by = Mass::<N>::from(POUND))]
+    #[unit(Pound)]
     Pound,
-    #[unit("[oz_av]", "ounce", by = Mass::<N>::from(OUNCE))]
+    #[unit(Ounce)]
     Ounce,
-    #[unit("[dr_av]", "dram", by = Mass::<N>::from(DRAM))]
+    #[unit(Dram)]
     Dram,
-    #[unit("[scwt_av]", "U.S. hundredweight", by = Mass::<N>::from(US_HUNDREDWEIGHT))]
+    #[unit(USHundredweight)]
     USHundredweight,
-    #[unit("[lcwt_av]", "British hundredweight", by = Mass::<N>::from(BRITISH_HUNDREDWEIGHT))]
+    #[unit(BritishHundredweight)]
     BritishHundredweight,
-    #[unit("[ston_av]", "U.S. ton", by = Mass::<N>::from(US_TON))]
+    #[unit(USTon)]
     USTon,
-    #[unit("[lton_av]", "British ton", by = Mass::<N>::from(BRITISH_TON))]
+    #[unit(BritishTon)]
     BritishTon,
-    #[unit("[stone_av]", "British stone", by = Mass::<N>::from(BRITISH_STONE))]
+    #[unit(BritishStone)]
     BritishStone,
-    #[unit("[pwt_tr]", "pennyweight", by = Mass::<N>::from(PENNYWEIGHT))]
+    #[unit(Pennyweight)]
     Pennyweight,
-    #[unit("[sc_ap]", "scruple", by = Mass::<N>::from(SCRUPLE))]
+    #[unit(Scruple)]
     Scruple,
-    #[unit("[dr_ap]", "drachm", by = Mass::<N>::from(DRACHM))]
+    #[unit(Drachm)]
     Drachm,
-    #[unit("[oz_m]", "metric ounce", by = Mass::<N>::from(METRIC_OUNCE))]
+    #[unit(MetricOunce)]
     MetricOunce,
 }
 
-/// The units of `Volume`, in any number type the constants convert to.
+impl From<MassUnit> for DynamicUcumUnit {
+    fn from(unit: MassUnit) -> Self {
+        match unit {
+            MassUnit::Grain => Grain {}.into(),
+            MassUnit::Pound => Pound {}.into(),
+            MassUnit::Ounce => Ounce {}.into(),
+            MassUnit::Dram => Dram {}.into(),
+            MassUnit::USHundredweight => USHundredweight {}.into(),
+            MassUnit::BritishHundredweight => BritishHundredweight {}.into(),
+            MassUnit::USTon => USTon {}.into(),
+            MassUnit::BritishTon => BritishTon {}.into(),
+            MassUnit::BritishStone => BritishStone {}.into(),
+            MassUnit::Pennyweight => Pennyweight {}.into(),
+            MassUnit::Scruple => Scruple {}.into(),
+            MassUnit::Drachm => Drachm {}.into(),
+            MassUnit::MetricOunce => MetricOunce {}.into(),
+        }
+    }
+}
+
+/// The units of `Volume`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Volume<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Volume<N>: [const] Unit<Volume<N>, N> + [const] Destruct)]
+#[unit(of = Volume<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum VolumeUnit {
     #[default]
-    #[unit("[tbs_us]", "tablespoon", by = Volume::<N>::from(TABLESPOON))]
+    #[unit(Tablespoon)]
     Tablespoon,
-    #[unit("[tsp_us]", "teaspoon", by = Volume::<N>::from(TEASPOON))]
+    #[unit(Teaspoon)]
     Teaspoon,
-    #[unit("[cup_us]", "cup", by = Volume::<N>::from(CUP))]
+    #[unit(Cup)]
     Cup,
-    #[unit("[cup_m]", "metric cup", by = Volume::<N>::from(METRIC_CUP))]
+    #[unit(MetricCup)]
     MetricCup,
-    #[unit("[tsp_m]", "metric teaspoon", by = Volume::<N>::from(METRIC_TEASPOON))]
+    #[unit(MetricTeaspoon)]
     MetricTeaspoon,
-    #[unit("[tbs_m]", "metric tablespoon", by = Volume::<N>::from(METRIC_TABLESPOON))]
+    #[unit(MetricTablespoon)]
     MetricTablespoon,
+}
+
+impl From<VolumeUnit> for DynamicUcumUnit {
+    fn from(unit: VolumeUnit) -> Self {
+        match unit {
+            VolumeUnit::Tablespoon => Tablespoon {}.into(),
+            VolumeUnit::Teaspoon => Teaspoon {}.into(),
+            VolumeUnit::Cup => Cup {}.into(),
+            VolumeUnit::MetricCup => MetricCup {}.into(),
+            VolumeUnit::MetricTeaspoon => MetricTeaspoon {}.into(),
+            VolumeUnit::MetricTablespoon => MetricTablespoon {}.into(),
+        }
+    }
 }

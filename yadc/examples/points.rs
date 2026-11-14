@@ -38,13 +38,13 @@
 //! altitudes and one line of instants. A zero is a constant on its line -
 //! mean sea level is a base constant of ours, `SEA_LEVEL`; the Unix epoch
 //! another, `UNIX_EPOCH`; the GPS epoch a point ten years later on the same
-//! line - and counting from one is a scale, a zero and a step:
-//! `const FEET_AMSL: Scale<Altitude, Length> = Scale(SEA_LEVEL, FOOT);`. Feet
-//! above *this* runway is the same with the runway as its zero,
-//! `Scale(runway, FOOT)`, made at run time; GPS seconds and Unix seconds are
-//! two scales reading the same instant, as °C and °F read the same
-//! temperature. A scale is a unit: `FEET_AMSL.quantity(5_000.0)` is an
-//! altitude, `FEET_AMSL.value(aircraft)` a number of feet.
+//! line - and counting from one is a unit whose impl adds the zero: `n` feet
+//! above mean sea level is `SEA_LEVEL + FOOT.quantity(n)`, the unit type
+//! `FeetAmsl`. Feet above *this* runway is a unit type holding the runway as
+//! its zero, `FeetAbove(runway)`, made at run time; GPS seconds and Unix
+//! seconds are two units reading the same instant, as °C and °F read the
+//! same temperature. `FeetAmsl.quantity(5_000.0)` is an altitude,
+//! `FeetAmsl.value(aircraft)` a number of feet.
 //!
 //! Run with: cargo run -p yadc --example points
 // This file defines its own kind, dimension and quantity type, so it needs
@@ -90,26 +90,6 @@ pub struct Dim {
 
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 pub struct Qty<const D: Dim>(f64);
-
-/// A scale: a zero and a step. A unit of the zero's type, counting steps
-/// from the zero - which may be a constant, or a point known at run time.
-#[derive(Copy, Clone)]
-pub struct Scale<P, S>(pub P, pub S);
-
-// A scale is a unit of its zero's type: `n` is `zero + n · step`, and a value
-// reads `(value - zero) / step`.
-const impl<P, S, N> yadc::Unit<P, N> for Scale<P, S>
-where
-    P: Copy + [const] core::ops::Sub + [const] core::ops::Add<<P as core::ops::Sub>::Output, Output = P>,
-    S: [const] yadc::Unit<<P as core::ops::Sub>::Output, N>,
-{
-    fn quantity(&self, value: N) -> P {
-        self.0 + self.1.quantity(value)
-    }
-    fn value(&self, quantity: P) -> N {
-        self.1.value(quantity - self.0)
-    }
-}
 
 // Amounts.
 pub type Length = Qty<
@@ -159,8 +139,9 @@ pub type Instant = Qty<
 >;
 
 // --- Constants ----------------------------------------------------------------------
-// The base constants are the only raw numbers. Each line of points has one:
-// the point every other point of its line is counted from.
+// The base constants write the field; everything else is built from them.
+// Each line of points has one: the point every other point of its line is
+// counted from.
 
 pub const METRE: Length = Qty(1.0);
 pub const SECOND: Time = Qty(1.0);
@@ -179,49 +160,93 @@ pub const FOOT_PER_MINUTE: Velocity = FOOT / MINUTE;
 pub const GPS_EPOCH: Instant = UNIX_EPOCH + 315_964_800.0 * SECOND;
 
 // --- Units ------------------------------------------------------------------------
-// A point is read with a scale: a zero and a step, `Scale(zero, step)`.
+// A unit is a type of ours with an `impl Unit`. A point is read from a
+// zero: `n` is `zero + n · step`, and a point reads `(point - zero) / step`.
 
-/// Feet above mean sea level.
-const FEET_AMSL: Scale<Altitude, Length> = Scale(SEA_LEVEL, FOOT);
+/// Feet above a reference point chosen at run time - the runway, the
+/// ground: a unit that holds its zero.
+#[derive(Copy, Clone)]
+struct FeetAbove(Altitude);
 
-/// Metres above mean sea level.
-const METRES_AMSL: Scale<Altitude, Length> = Scale(SEA_LEVEL, METRE);
+impl const Unit<Altitude, f64> for FeetAbove {
+    fn quantity(&self, n: f64) -> Altitude {
+        self.0 + FOOT.quantity(n)
+    }
+    fn value(&self, altitude: Altitude) -> f64 {
+        FOOT.value(altitude - self.0)
+    }
+}
 
-/// Seconds of GPS time, and of Unix time: two scales on the line of
-/// instants.
-const GPS_SECONDS: Scale<Instant, Time> = Scale(GPS_EPOCH, SECOND);
-const UNIX_SECONDS: Scale<Instant, Time> = Scale(UNIX_EPOCH, SECOND);
+/// The units whose zero is a constant, or that have none: zero-sized types,
+/// each printing its symbol (`{}`) or name (`{:#}`).
+macro_rules! unit {
+    ($name:ident: $q:ty = $step:expr, zero $zero:expr, $symbol:literal, $long:literal) => {
+        unit!(@display $name, $symbol, $long);
+        impl const Unit<$q, f64> for $name {
+            fn quantity(&self, n: f64) -> $q {
+                $zero + $step.quantity(n)
+            }
+            fn value(&self, q: $q) -> f64 {
+                $step.value(q - $zero)
+            }
+        }
+    };
+    ($name:ident: $q:ty = $step:expr, $symbol:literal, $long:literal) => {
+        unit!(@display $name, $symbol, $long);
+        impl const Unit<$q, f64> for $name {
+            fn quantity(&self, n: f64) -> $q {
+                $step.quantity(n)
+            }
+            fn value(&self, q: $q) -> f64 {
+                $step.value(q)
+            }
+        }
+    };
+    (@display $name:ident, $symbol:literal, $long:literal) => {
+        #[derive(Copy, Clone)]
+        struct $name;
+        impl core::fmt::Display for $name {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                f.pad(if f.alternate() { $long } else { $symbol })
+            }
+        }
+    };
+}
 
-/// The altitude scales by name: a choice, for a menu, which prints.
+// Feet and metres above mean sea level.
+unit!(FeetAmsl: Altitude = FOOT, zero SEA_LEVEL, "ft AMSL", "feet above mean sea level");
+unit!(MetresAmsl: Altitude = METRE, zero SEA_LEVEL, "m AMSL", "metres above mean sea level");
+// Seconds of GPS time, and of Unix time: two units on the line of instants.
+unit!(GpsSeconds: Instant = SECOND, zero GPS_EPOCH, "s GPS", "GPS seconds");
+unit!(UnixSeconds: Instant = SECOND, zero UNIX_EPOCH, "s Unix", "Unix seconds");
+// The amounts' units.
+unit!(Metre: Length = METRE, "m", "metres");
+unit!(Foot: Length = FOOT, "ft", "feet");
+unit!(Minute: Time = MINUTE, "min", "minutes");
+unit!(FootPerMinute: Velocity = FOOT_PER_MINUTE, "ft/min", "feet per minute");
+
+/// The altitude units: a choice, for a menu, which prints.
 #[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = Altitude)]
+#[unit(of = Altitude, number = f64)]
 enum AltitudeUnit {
-    #[unit("ft AMSL", "feet above mean sea level", by = FEET_AMSL)]
+    #[unit(FeetAmsl)]
     FeetAmsl,
-    #[unit("m AMSL", "metres above mean sea level", by = METRES_AMSL)]
+    #[unit(MetresAmsl)]
     MetresAmsl,
 }
 
-/// The amounts' units: a choice, for a menu.
+/// The lengths' units: a choice, for a menu.
 #[derive(Copy, Clone, yadc::Unit)]
-#[unit(of = Length)]
+#[unit(of = Length, number = f64)]
 enum LengthUnit {
-    #[unit("m", "metres", by = METRE)]
+    #[unit(Metre)]
     Metre,
-    #[unit("ft", "feet", by = FOOT)]
+    #[unit(Foot)]
     Foot,
 }
 
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("min", "minutes", of = Time, by = MINUTE)]
-struct Minute;
-
-#[derive(Copy, Clone, yadc::Unit)]
-#[unit("ft/min", "feet per minute", of = Velocity, by = FOOT_PER_MINUTE)]
-struct FootPerMinute;
-
 // Units are `const`, for points as for quantities.
-const FL100: Altitude = FEET_AMSL.quantity(10_000.0);
+const FL100: Altitude = FeetAmsl.quantity(10_000.0);
 
 // --- A height bound to its reference --------------------------------------------
 
@@ -267,9 +292,9 @@ fn main() {
     use LengthUnit::{Foot, Metre};
 
     // --- 1. Build points through units, read them through units -------------
-    // Feet above the runway: a scale whose zero is the runway, made here.
-    let runway = FEET_AMSL.quantity(5_000.0);
-    let agl = Scale(runway, FOOT);
+    // Feet above the runway: a unit whose zero is the runway, made here.
+    let runway = FeetAmsl.quantity(5_000.0);
+    let agl = FeetAbove(runway);
     let aircraft = agl.quantity(1_500.0); // 1 500 ft above *this* runway
     println!(
         "aircraft: {:.0} ft AGL = {:.1} {MetresAmsl} = {:.0} {FeetAmsl}",
@@ -281,7 +306,7 @@ fn main() {
     println!("aircraft itself: {aircraft:.1}");
 
     // --- 2. point - point is an amount ----------------------------------------
-    let terrain = FEET_AMSL.quantity(5_800.0); // a ridge under the approach
+    let terrain = FeetAmsl.quantity(5_800.0); // a ridge under the approach
     let clearance: Length = aircraft - terrain;
     println!(
         "clearance over the ridge: {:.0} {Foot} = {:.1} {Metre}",
@@ -289,7 +314,7 @@ fn main() {
         Metre.value(clearance),
     );
     // Feet above the ground under the aircraft: the ridge as the zero.
-    let above_ridge = Scale(terrain, FOOT);
+    let above_ridge = FeetAbove(terrain);
     println!(
         "height above the ridge: {:.0} ft above the ridge",
         above_ridge.value(aircraft)
@@ -336,29 +361,29 @@ fn main() {
 
     // --- 6. Clock times: the same rules for time --------------------------------
     // Two instants differ by a duration; a duration divides a distance.
-    let takeoff = GPS_SECONDS.quantity(1_400_000_000.0);
+    let takeoff = GpsSeconds.quantity(1_400_000_000.0);
     let level_off = takeoff + Minute.quantity(12.0);
-    let cruise = FEET_AMSL.quantity(11_000.0);
+    let cruise = FeetAmsl.quantity(11_000.0);
     let elapsed: Time = level_off - takeoff;
     let climb_rate: Velocity = (cruise - runway) / elapsed;
     println!(
         "took off at {:.0} s GPS: {:.0} {Minute} of climbing at {:.0} {FootPerMinute}",
-        GPS_SECONDS.value(takeoff),
+        GpsSeconds.value(takeoff),
         Minute.value(elapsed),
         FootPerMinute.value(climb_rate),
     );
     println!(
         "the midpoint of the climb is at {:.0} s GPS",
-        GPS_SECONDS.value(midpoint(takeoff, level_off)),
+        GpsSeconds.value(midpoint(takeoff, level_off)),
     );
     // GPS seconds and Unix seconds read the same instant from two zeros, so
     // the take-off needs no conversion to be read on the Unix clock - and an
     // instant built from Unix seconds subtracts from it like any other.
     println!(
         "on the Unix clock: {:.0} s Unix",
-        UNIX_SECONDS.value(takeoff)
+        UnixSeconds.value(takeoff)
     );
-    let logged = UNIX_SECONDS.quantity(1_715_964_000.0);
+    let logged = UnixSeconds.quantity(1_715_964_000.0);
     println!(
         "logged {:.0} {Minute} before take-off",
         Minute.value(takeoff - logged)

@@ -36,19 +36,15 @@ fmt-clean files.
   - the dimension struct (`#[derive(Dimension)]`: one `i8` per `[dim]` field
     and a `#[kind]` field);
   - the static quantity `Qty<const D: Dim, N>(N)` (`#[derive(Quantity)]`:
-    its operators, `Quantity` - every constant a unit - and the
-    extras, `Display` among them - every quantity builds and reads as a
-    unit, `MI.quantity(3.0)`, `MI.value(d)`; the field is private to the
-    crate, so the base constants are the only raw numbers);
-  - std `From` from an exact quantity, and from an exact scale, to the same
-    one counted in any `N: num_traits::Num + From<Exact>` - two blanket
-    impls, which do not overlap std's `From<T> for T` because `Exact` is not
-    `Num` (`const MI: Length<f64> = MILE.into();`; a number type of yours
-    converts too);
-  - the scale type, `pub struct Scale<P, S>(pub P, pub S);`, with its
-    `impl Unit` written out (`n` is `zero + n · step`): `Scale(zero, step)` is
-    a unit of its zero's type;
-  - `pub mod base`, the `[[base]]` constants - the only raw numbers;
+    its operators, `Quantity` - every quantity value a unit of its own kind -
+    and the extras, `Display` among them; the field is private to the crate);
+  - the unit: `QtyUnitConsts { size: Exact, zero: Exact, symbol, name }`, a
+    unit's definition, and `QtyUnit<const D: Dim, const C: QtyUnitConsts>`,
+    a unit struct, with its one `impl Unit` written out - `n` in a unit is
+    `n · size + zero` coherent units, in any `N: const From<Exact>` with `+ - * /`,
+    the size and zero converted in `const { }` blocks - and its `Display`
+    (`{}` the symbol, `{:#}` the name). That impl is the only place a number
+    becomes a quantity;
   - one `pub mod` per family, per `extra_modules` entry and for
     `dimensionless` and `dynamic`.
 - `src/dynamic/mod.rs` - the dynamic half: what is chosen at run time, a
@@ -79,62 +75,75 @@ fmt-clean files.
   every operator and method is the fields' own, its output stated - `Mul`
   and `Div` are `-> Option<Self>`, since a dimension with a kind has
   partial products), with the dimension's own `* f64` and
-  `/ f64` beside it (a dimension scales where it adds to itself as itself).
+  `/ f64` beside it (a dimension scales where it adds to itself as itself);
+  and the dynamic unit, `DynamicQtyUnit { dim: Dim, consts: QtyUnitConsts }`,
+  `#[dynamic(QtyUnit<const D: Dim, const C: QtyUnitConsts> => { dim: D, consts: C })]`,
+  a unit of `Option<DynQty>` counted in `Option<f64>` (`value` is `None`
+  for another dimension).
 - `src/dimensionless.rs` - `pub type Dimensionless<N> = Qty<{ Dim::DIMENSIONLESS }, N>;`
-  and its constants; `src/dynamic/dimensionless.rs` - its unit enum.
-- `src/<family>.rs` - the quantity aliases and a `consts` module with the
-  constants (see [below](#the-consts-modules)):
+  and its `units`; `src/dynamic/dimensionless.rs` - its unit enum.
+- `src/<family>.rs` - each quantity's dimension constant and alias, and a
+  `units` module with one type per unit:
 
 ```rust
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
-pub type Length<N> = Qty<{ Dim { m: 1, ..Dim::DIMENSIONLESS } }, N>;
+/// The dimension of `Length`.
+pub const LENGTH: Dim = Dim { m: 1, ..Dim::DIMENSIONLESS };
+pub type Length<N> = Qty<LENGTH, N>;
 
-pub mod consts {
+pub mod units {
     use super::*;
+    use crate::{Exact, QtyUnit, QtyUnitConsts};
 
-    /// The metre, the SI base unit of length.
-    pub use crate::base::METRE;
-
-    /// One `Inch` (in), as a `Length`.
-    pub const INCH: Length<Exact> = METRE * Exact::dec(254, -4);
+    /// Inches (`in`), a unit of `Length`: `n` of them is `n · 0.0254` coherent units.
+    pub type Inch = QtyUnit<
+        LENGTH,
+        { QtyUnitConsts { size: Exact::dec(254, -4), zero: Exact::ZERO, symbol: "in", name: "inches" } },
+    >;
 }
 ```
 
-- `src/dynamic/<family>.rs` - each quantity's unit enum, naming the family's
-  constants (`dynamic::mechanical::LengthUnit`):
+- `src/dynamic/<family>.rs` - each quantity's unit enum, each variant
+  naming its unit type, and `From` from it to the dynamic unit
+  (`dynamic::mechanical::LengthUnit`):
 
 ```rust
-use crate::mechanical::*;
-use crate::mechanical::consts::*;
-use crate::Exact;
-use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
-
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone)]
-#[unit(of = Length<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Length<N>: [const] Unit<Length<N>, N> + [const] Destruct)]
+#[unit(of = Length<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LengthUnit {
     #[default]
-    #[unit("m", "metres", by = Length::<N>::from(METRE))]
+    #[unit(Metre)]
     Metre,
-    #[unit("in", "inches", by = Length::<N>::from(INCH))]
+    #[unit(Inch)]
     Inch,
+}
+
+impl From<LengthUnit> for DynamicQtyUnit {
+    fn from(unit: LengthUnit) -> Self {
+        match unit {
+            LengthUnit::Metre => Metre {}.into(),
+            LengthUnit::Inch => Inch {}.into(),
+        }
+    }
 }
 ```
 
+  The enum derives `yadc::Unit` and `dynamickit::Variants` plus
+  `unit_derives`, and `Default` with the coherent unit (the first) as
+  `#[default]` - what a menu starts on; `Variants` lists the units for one.
+  Its bounds are exactly what `QtyUnit`'s `impl Unit` needs of `N`, and its
+  `Display` and `FromStr` are its unit types' (`LengthUnit::Inch.quantity(3.0_f64)`,
+  `"in".parse::<LengthUnit>()`).
+
 - `src/prefix.rs` (written from `templates/prefix.rs`, beside `src/exact.rs`) -
-  the 20 SI prefixes as exact dimensionless quantities
-  (`KILO: Dimensionless<Exact>`, so `KILO * METRE` is a product of two
-  quantities), `YOTTA` … `KILO`, `HECTO`, `DECA`,
-  `DECI`, `CENTI`, `MILLI`, `MICRO`, `NANO` … `YOCTO`, re-exported at the
-  crate root, and `Prefixed<U>`, a unit enum's value with an optional
-  `Prefix`, which parses a leading prefix on a unit's own symbol: `km` as the
-  kilo of `LengthUnit::Metre`. A prefixed unit has no constant and no variant
-  of its own (see
-  [below](#prefixed-units)).
+  the 20 SI prefixes as the enum `Prefix` (`Prefix::Kilo`, an exact
+  `factor()`), and `Prefixed<U>`, a unit with an optional `Prefix` - a unit
+  of what `U` measures - which parses a leading prefix on a unit's own
+  symbol: `km` as the kilo of `LengthUnit::Metre`. A prefixed unit has no
+  type of its own (see [below](#prefixed-units)).
 
 - `Cargo.toml` - a starting manifest: one feature per family (all on by
   default), `std`, `libm` and `serde`. It knows nothing about the
@@ -143,131 +152,43 @@ pub enum LengthUnit {
   `src/dynamic/*.rs` (see
   [`yadc-si`](../yadc-si/README.md#regenerating)).
 
-The generated crate root needs the features a crate *defining* a system
-needs (see yadc's README). A crate that only uses the generated one needs
-`generic_const_exprs`, plus `const_trait_impl` and `const_convert` to convert
-its constants in `const` items.
+`QtyUnit`, `QtyUnitConsts` and `DynamicQtyUnit` are named by `unit_type`
+(`yadc-si`: `SIUnit`, `SIUnitConsts`, `DynamicSIUnit`). The generated crate
+root needs the features a crate *defining* a system needs (see yadc's
+README). A crate that only uses the generated one needs `generic_const_exprs`,
+plus `const_trait_impl` to build quantities in `const` items.
 
 `src/exact.rs` (written from `templates/exact.rs`) holds `Exact`, the exact
-number every constant is counted in, with std `From` to `f64`, `f32` (the
-nearest, rounded once) and every primitive integer (the nearest, ties to even;
-a panic where it does not fit - in a `const`, a compile error). It is not
-`num_traits::Num`: it is what the number types are counted from. It scales an
-exact quantity from the right, `METRE * Exact::dec(254, -4)`, as the generated
-constants read.
+number a unit's size and zero are written in, with std `From` to `f64`,
+`f32` (the nearest, rounded once) and every primitive integer (the nearest,
+ties to even; a panic where it does not fit - in a `const`, a compile error).
 
-### The `consts` modules
+### Unit sizes and zeros
 
-The base constants are the only raw numbers; every other constant is an
-expression of them, written the way a standards document writes it and
-evaluated exactly: every constant is a `Q<Exact>` (`INCH: Length<Exact>`), its
-number literals written as `Exact`s, on the right (`0.0254` is `Exact::dec(254, -4)`,
-`core::f64::consts::PI` is `Exact::PI`). Constants compose exactly
-(`KILO * METRE`, `MILE / HOUR`), and a program rounds one where it converts it,
-with std `From`. A unit's `m` is therefore its exact definition - `"0.0254"`,
+A unit's `m` and `z` are its exact definition in coherent units - `"0.0254"`,
 `"1000.0 / 3600.0"`, `"core::f64::consts::PI / 180.0"` (numbers, `+ - * /`,
-parentheses and π) - never a rounded result:
+parentheses and π) - never a rounded result. The generator writes their
+literals as `Exact`s (`0.0254` is `Exact::dec(254, -4)`,
+`core::f64::consts::PI` is `Exact::PI`) and the expression is evaluated
+exactly, at compile time.
 
-- **a coherent unit** (the first unit of a quantity with `m = "1.0"`) is the
-  product of the base constants for its exponents, in `[dim]` order -
-  `NEWTON = METRE * KILOGRAM / (SECOND * SECOND)`, `HERTZ = ONE / SECOND`;
-  where a base constant *is* the coherent unit (`METRE`, or `BEL` for a
-  quantity with a kind), it is re-exported;
-- **a multiple** is `COHERENT * m` - `INCH = METRE * Exact::dec(254, -4)`,
-  `DEGREE_FAHRENHEIT = KELVIN * (Exact::int(5) / Exact::int(9))` - or
-  `(product) * m` for a quantity with no coherent unit of its own;
-- **a quantity's `consts`** are written as given, their literals exact: `ICE_POINT = ABSOLUTE_ZERO + 273.15 * KELVIN`;
-  with a `ty`, one is a scale, a zero and a step - `ty =
-  "Scale<ThermodynamicTemperature, TemperatureInterval>"` and `value =
-  "Scale(ICE_POINT, KELVIN)"` give `CELSIUS:
-  Scale<ThermodynamicTemperature<Exact>, TemperatureInterval<Exact>> =
-  Scale(ICE_POINT, KELVIN)`, exact like every constant (the quantities in
-  `ty` are counted in `Exact`).
-
-A unit has a constant when it is named; one written as an expression of
-others (`slug/ft³` is `SLUG / CUBIC_FOOT`, ft/s is `FOOT / SECOND`), or one with a
-prefix inside its symbol (km/h, N/mm², kW/°C), says `c = false` and has none - its enum variant alone names it, by its
-exact size converted once (see [below](#how-units-map-to-unit-enums)).
-
-Each family's `consts` module also re-exports the base constants of its
-quantities (`mechanical::consts::METRE`, `thermal::consts::ABSOLUTE_ZERO`),
-so a family's constants are all in one place. A constant's name is its unit's
-variant in SCREAMING_SNAKE_CASE (or `c = "NAME"`); a name two quantities of one module
-share is prefixed with the quantity (`TIME_MINUTE`, `ANGLE_MINUTE`); a base
-constant a module constant shadows (the angular `SECOND` of arc) is named by
-its path, `crate::base::SECOND`.
+A unit's type is named by its `t`, or else its variant; where two
+quantities of one module share a variant name, the type is prefixed with its
+quantity (`TemperatureIntervalKelvin`) unless a `t` names it.
 
 ### Prefixed units
 
-The input lists no unit whose symbol starts with a prefix on another unit: a
-prefix is an exact quantity of its own (`KILO * METRE`, `MEGA * SQUARE_METRE`
-for km²), and `Prefixed<LengthUnit>` parses `km` and `km²`. The generator
-emits exactly the units its input lists; `si.toml` lists ~860: the units with
-no leading SI prefix, those that keep one in their name - a coherent unit
-(`Kilogram`), a unit a definition names (`Decibel`, in `MILLIWATT_LEVEL`), a
-scale (`by`) - and those with a prefix inside the symbol, as variants without
-constants (`c = false`: `KilometrePerHour`, km/h).
-
-### How units map to unit enums
-
-Every quantity with units gets a `<Q>Unit` enum in `dynamic/<family>.rs`,
-generic over its number type, with `#[derive(yadc::Unit, dynamickit::Variants)]`
-plus `unit_derives`, and `#[derive_const(Default)]` with the coherent unit as
-`#[default]` (what a menu starts on; `Variants` lists the units for one).
-Each variant names the unit value it is: an exact constant converted with std
-`From`. The enum's attributes say what it counts in and what that takes:
-
-```rust
-#[unit(of = Length<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Length<N>: [const] Unit<Length<N>, N> + [const] Destruct)]
-```
-
-- `N: Num + const From<Exact>` - `N` is a number type the exact constants
-  convert to. The `Unit` derive evaluates every `by` in a `const { }` block,
-  so each conversion is folded at compile time, once per `N`.
-- the `where` - each `by`'s type is a unit of the measured quantity, counted
-  in `N`: `Length<N>: [const] Unit<Length<N>, N> + [const] Destruct` for a
-  multiple, `Scale<P<N>, S<N>>: [const] Unit<P<N>, N> + [const] Destruct`
-  for a scale. It is written out because the derive cannot see a `by`'s
-  type, and over a generic `N` the compiler cannot check the dimensions
-  that would make it hold.
-- an enum with a `via` unit adds the conversions both ways,
-  `Q<N>: From<P<N>>, P<N>: From<Q<N>>`.
-
-The table shows each kind of unit's variant:
-
-| Unit | Variant | Also |
-|---|---|---|
-| a multiple (`m`) | `#[unit("in", "inches", by = Length::<N>::from(INCH))]` | its constant |
-| a multiple with `c = false` | `#[unit("ft/s", "feet per second", by = Velocity::<N>::from(METRE_PER_SECOND * Exact::dec(3048, -4)))]` | nothing |
-| a prefixed multiple (`Kilometre`) | none: `Prefixed<LengthUnit>` parses `km` | nothing |
-| a unit value (`by`) naming a constant | `#[unit("°C", "degrees Celsius", by = Scale::<ThermodynamicTemperature<N>, TemperatureInterval<N>>::from(CELSIUS))]` | nothing |
-| a unit value of another type (`by`, `via`) | `#[unit("dBm", "decibels-milliwatt", by = <Scale<PowerLevel<N>, Gain<N>> as From<Scale<PowerLevel<Exact>, Gain<Exact>>>>::from(DBM), via = PowerLevel<N>)]` | nothing |
-| any other unit value (`by`) | `by` written verbatim | nothing |
-
-In an enum with a `via` unit, every conversion names its `From` impl in full
-(`<Power<N> as From<Power<Exact>>>::from(WATT)`), since the bound
-`Power<N>: From<PowerLevel<N>>` would otherwise be taken for it.
-
-A `by` names any unit value in scope: another constant (`by = "KELVIN"`, the
-degree Celsius of a temperature step), a scale from the quantity's `consts`
-(`by = "CELSIUS"`), or a path into a hand-written module. One that names a
-constant of the module is converted with `From`, as above; any other is
-written verbatim, a unit of its own (a hand-written path). A `via` names the type that unit value
-measures when it is not the enum's quantity: the two convert with std `From`,
-which a hand-written module supplies (a level's scale, in the watts' enum). A
-unit whose conversion is not `const` (such a level: the `From` takes a
-logarithm) says `non_const = true`, and its enum is `#[unit(of = Q<N>,
-number = N, non_const)]`, its `where` bounds without `[const]`.
-
-The enums take the `Unit` derive's extras as they come - `Display` and
-`FromStr` - so a unit enum's value prints and parses. It builds and reads
-with the `Unit` methods (`LengthUnit::Mile.quantity(3.0)`,
-`LengthUnit::Mile.value(d)`, `PowerUnit::DecibelMilliwatt.quantity(30.0)`).
+The input lists no unit whose symbol is a prefix on another unit's:
+`Prefixed<LengthUnit>` parses `km` and `km²`. The generator emits exactly the
+units its input lists; `si.toml` lists ~860: the units with no leading SI
+prefix, those that keep one in their name - a coherent unit (`Kilogram`), a
+unit whose prefix scales no unit of its quantity (`MillimetreOfMercury`) -
+and those with a prefix on one factor of the symbol (`KilometrePerHour`,
+km/h).
 
 ## TOML reference
 
-`[system]`, `[kind]`, `[dim]`, `[[base]]` and `[dimensionless]` are shared
+`[system]`, `[kind]`, `[dim]` and `[dimensionless]` are shared
 between both modes.
 
 ### `[system]`
@@ -279,6 +200,8 @@ family_order = ["mechanical", "angular"]    # order of features and `pub mod`s
 dim_type     = "ISQ"                        # dimension struct name      (default "Dim")
 qty_type     = "SIQuantity"           # static quantity name       (default "Qty")
 dynqty_type  = "DynamicSIQuantity"          # dynamic quantity name      (default "DynQty")
+unit_type    = "SIUnit"                     # unit type name (default "QtyUnit"); its definition
+                                            # is `SIUnitConsts`, its dynamic version `DynamicSIUnit`
 unit_derives = ["Copy", "Clone"]            # extra derives on every unit enum
 extra_modules = [                           # hand-written modules: declared, never written
     { name = "level",      feature = "mechanical" },
@@ -357,28 +280,6 @@ that is the default, affine or log variant, a `mul` / `div` rule
 (products and quotients are not declarable), a rule that is not `op(X) = Y`,
 or an operand that is not a variant.
 
-### `[[base]]`
-
-The base constants - the only raw numbers of the generated crate, in its
-`base` module: one per axis (that axis at exponent 1, the default kind: the
-products of coherent units are made of them), the number one (dimension one:
-`HERTZ = ONE / SECOND`), any zero a quantity needs, and the unit of a
-quantity with a kind (`BEL`, `kind = "Log"`).
-
-```toml
-[[base]]
-name = "METRE"
-dims = {m = 1}
-doc  = "The metre, the SI base unit of length."
-
-[[base]]
-name  = "ABSOLUTE_ZERO"
-dims  = {K = 1}
-kind  = "Absolute"
-value = "0.0"                 # default "1.0"
-doc   = "Absolute zero, 0 K: the zero of thermodynamic temperature."
-```
-
 ### `[dimensionless]`
 
 Units of the always-present `Dimensionless` quantity, in the same format as a
@@ -411,32 +312,28 @@ units = [
 ]
 ```
 
-A quantity may also carry `kind = "Absolute"` (a `[kind]` variant) and `consts = [{ name,
-value, doc }]` (constants defined by an expression, verbatim; with `ty`, a
-constant of another type - a scale, `Scale<Zero, Step>`).
+A quantity may also carry `kind = "Absolute"` (a `[kind]` variant).
 
 ### Unit fields
 
 | Key | Meaning |
 |---|---|
-| `v` | the enum variant (and, unless `c` says otherwise, the constant's name in SCREAMING_SNAKE_CASE) |
+| `v` | the enum variant, and the unit type's name unless `t` gives one |
+| `m` | the size in coherent units, an exact expression (`"0.0254"`, `"5.0 / 9.0"`) |
+| `z` | the zero in coherent units, the same way (`"273.15"`); `0` when absent |
 | `s`, `l` | the symbol and the long plural name: `Display` (`{}`, `{:#}`) and `FromStr` |
-| `m` | the size in coherent units, a Rust expression (`"1000.0"`, `"5.0 / 9.0"`): a multiple, `m * COHERENT` |
-| `c` | the constant's name, when not the variant's (`c = "DEGREE_FAHRENHEIT"`), or `c = false` for no constant: a unit written as an expression of others (`slug/ft³`), named by its enum variant alone |
-| `by` | the unit value the unit is, with no constant of its own: a constant of the module (converted with `From`), or any other value, verbatim |
-| `via` | the type the `by` value measures, when not this quantity, without its number type (`via = "PowerLevel"`): converted with std `From` both ways, which its enum's `where` names |
-| `non_const` | `true` when the unit's conversion is not `const` (a `via` through a logarithm) |
+| `t` | the unit type's name, when not the variant's (`t = "KelvinScale"`) |
 
-A unit has `m` or `by`; any other key is an error.
+A number `n` in a unit is `n · m + z` coherent units. Any other key is an
+error.
 
 ### `kind` on a quantity
 
-A quantity whose `kind` is not the default gets it in its alias
-(`Qty<{ Dim { kind: Kind::Log, ..Dim::DIMENSIONLESS } }>`), and its coherent
-unit is a `[[base]]` constant with the same `dims` and `kind` (`BEL`): a
-product of base constants has the default kind, so it cannot be one. A plain
-number becomes a gain by multiplying with it: `bels * BEL`. A quantity of the
-affine kind has no "one of it": its units must be scales (`by`).
+A quantity whose `kind` is not the default gets it in its dimension constant
+(`Dim { kind: Kind::Log, ..Dim::DIMENSIONLESS }`), and its units are units of
+that kind: a plain number becomes a gain through a unit, `Bel {}.quantity(n)`.
+A quantity of the affine kind has no "one of it": every unit of it says, by
+its zero, which point its numbers count from.
 
 #### Angle: an axis, not a label
 
@@ -447,95 +344,69 @@ mixes with Hz, nor torque with energy. Where a textbook silently sets rad = 1
 an axis or not is the system's choice: drop `rad` from `[dim]` and an angle
 is a plain ratio.
 
-### Temperatures: scales, steps and zeros
+### Temperatures: units with a zero
 
-A temperature has the `Absolute` label and is read on scales; a temperature
-difference is a step, an ordinary amount. In `si.toml`:
+A temperature has the `Absolute` label and is read in units with a zero; a
+temperature difference is a step, an ordinary amount, read in units without
+one. In `si.toml`:
 
 ```toml
 [[family.quantity]]
 name = "ThermodynamicTemperature"
 dims = {K = 1}
 kind = "Absolute"
-consts = [
-    {name = "ICE_POINT", value = "ABSOLUTE_ZERO + 273.15 * KELVIN", doc = "0 °C, the ice point of water: 273.15 K."},
-    {name = "FAHRENHEIT_ZERO", value = "ICE_POINT - 32.0 * DEGREE_FAHRENHEIT", doc = "0 °F: 32 °F below the ice point."},
-    {name = "CELSIUS", ty = "Scale<ThermodynamicTemperature, TemperatureInterval>", value = "Scale(ICE_POINT, KELVIN)", doc = "The Celsius scale (°C): kelvins from the ice point."},
-    {name = "FAHRENHEIT", ty = "Scale<ThermodynamicTemperature, TemperatureInterval>", value = "Scale(FAHRENHEIT_ZERO, DEGREE_FAHRENHEIT)", doc = "The Fahrenheit scale (°F)."},
-]
 units = [
-    {v = "Celsius",    s = "°C", l = "degrees Celsius",    by = "CELSIUS"},
-    {v = "Fahrenheit", s = "°F", l = "degrees Fahrenheit", by = "FAHRENHEIT"},
+    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin", t = "KelvinScale"},
+    {v = "Celsius", m = "1.0", z = "273.15", s = "°C", l = "degrees Celsius"},
+    {v = "Fahrenheit", m = "5.0 / 9.0", z = "273.15 - 32.0 * 5.0 / 9.0", s = "°F", l = "degrees Fahrenheit"},
+    {v = "Rankine", m = "5.0 / 9.0", s = "°R", l = "degrees Rankine"},
 ]
 
 [[family.quantity]]
 name = "TemperatureInterval"
 dims = {K = 1}
 units = [
-    {v = "Kelvin",     m = "1.0",                                s = "K",  l = "kelvin"},
-    {v = "Celsius",                     by = "KELVIN",           s = "°C", l = "degrees Celsius"},
-    {v = "Fahrenheit", m = "5.0 / 9.0", c = "DEGREE_FAHRENHEIT", s = "°F", l = "degrees Fahrenheit"},
-    {v = "Rankine",                     by = "DEGREE_FAHRENHEIT", s = "°R", l = "degrees Rankine"},
+    {v = "Kelvin", m = "1.0", s = "K", l = "kelvin"},
+    {v = "Celsius", m = "1.0", s = "°C", l = "degrees Celsius", t = "DegreeCelsius"},
+    {v = "Fahrenheit", m = "5.0 / 9.0", s = "°F", l = "degrees Fahrenheit", t = "DegreeFahrenheit"},
+    {v = "Rankine", m = "5.0 / 9.0", s = "°R", l = "degrees Rankine", t = "DegreeRankine"},
 ]
 ```
 
-which generates the steps `KELVIN` (re-exported from `base`) and
-`DEGREE_FAHRENHEIT`, the zeros `ABSOLUTE_ZERO`, `ICE_POINT` and
-`FAHRENHEIT_ZERO`, and the scales `CELSIUS` and `FAHRENHEIT`, each a
-`Scale(zero, step)` - a unit of its zero's type, through the scale type's
-`impl Unit`.
+which generates the temperature units `KelvinScale`, `Celsius`, `Fahrenheit`
+and `Rankine`, and the step units `Kelvin`, `DegreeCelsius`,
+`DegreeFahrenheit` and `DegreeRankine`; the enums keep the variant names
+(`ThermodynamicTemperatureUnit::Celsius`, `TemperatureIntervalUnit::Celsius`).
 
 ### Instants: points on a line
 
-A point - the `affine` kind - has one base zero, a `[[base]]` constant with
-its `dims`, `kind` and `value = "0.0"`: the point every other is counted from,
-and what the quantity is stored, printed and serialized from. Every other zero
-is a constant on the same line, and every scale a `Scale` of a zero and a
-step. In `si.toml`:
+A point - the `affine` kind - is stored from the zero of its coherent unit:
+what it prints and serializes as. Every unit is a size and a zero on that one
+line. In `si.toml`:
 
 ```toml
-[[base]]
-name  = "UNIX_EPOCH"          # the base zero of the line of instants
-dims  = {s = 1}
-kind  = "Affine"
-value = "0.0"
-
 [[family.quantity]]
 name = "Instant"
 dims = {s = 1}
 kind = "Affine"
-consts = [
-    {name = "GPS_EPOCH", value = "UNIX_EPOCH + 315964800.0 * SECOND", doc = ".."},
-    {name = "UNIX_SECONDS", ty = "Scale<Instant, Time>", value = "Scale(UNIX_EPOCH, SECOND)", doc = ".."},
-    {name = "GPS_SECONDS", ty = "Scale<Instant, Time>", value = "Scale(GPS_EPOCH, SECOND)", doc = ".."},
-]
 units = [
-    {v = "UnixSecond", s = "s Unix", l = "seconds of Unix time", by = "UNIX_SECONDS"},
-    {v = "GpsSecond",  s = "s GPS",  l = "seconds of GPS time",  by = "GPS_SECONDS"},
+    {v = "UnixSecond", m = "1.0", s = "s Unix", l = "seconds of Unix time"},
+    {v = "GpsSecond", m = "1.0", z = "315964800.0", s = "s GPS", l = "seconds of GPS time"},
+    {v = "JulianDate", m = "86400.0", z = "-2440587.5 * 86400.0", s = "JD", l = "Julian date"},
 ]
 ```
 
-A point has no "one of it", so every unit of an affine quantity is a `by`.
-Which zero an instant was read from is not in its type: an instant built from
-GPS seconds reads in Unix seconds.
+Which zero an instant was read from is not in its type: an instant built
+from GPS seconds reads in Unix seconds.
 
 ### Levels: gains and logarithmic lines
 
 Decibels count on a logarithmic line, where multiplying is adding. The
-generator computes no logarithm: a level is a quantity of the `log` kind, and
-the one conversion is a hand-written module (`extra_modules`).
+generator computes no logarithm: a level is a quantity of the `log` kind,
+counted in bels, and the one conversion is a hand-written module
+(`extra_modules`).
 
 ```toml
-[[base]]
-name = "BEL"                  # a gain of ten times: the unit of the line
-kind = "Log"
-
-[[base]]
-name  = "WATT_LEVEL"          # where a power level's numbers start
-dims  = {m = 2, kg = 1, s = -3}
-kind  = "Log"
-value = "0.0"
-
 [[family.quantity]]
 name = "Gain"                 # the logarithm of a plain ratio: plain units
 kind = "Log"
@@ -545,27 +416,20 @@ units = [
 ]
 
 [[family.quantity]]
-name = "PowerLevel"           # the logarithm of a power: read on scales
+name = "PowerLevel"           # the logarithm of a power, in bels from one watt
 dims = {m = 2, kg = 1, s = -3}
 kind = "Log"
-consts = [
-    {name = "MILLIWATT_LEVEL", value = "WATT_LEVEL - 30.0 * DECIBEL", doc = ".."},
-    {name = "DBM", ty = "Scale<PowerLevel, Gain>", value = "Scale(MILLIWATT_LEVEL, DECIBEL)", doc = ".."},
+units = [
+    {v = "DecibelWatt",      m = "0.1", s = "dBW", l = "decibels-watt"},
+    {v = "DecibelMilliwatt", m = "0.1", z = "-3.0", s = "dBm", l = "decibels-milliwatt"},
 ]
-units = [{v = "DecibelMilliwatt", s = "dBm", l = "decibels-milliwatt", by = "DBM"}]
 ```
 
 A level carries the exponents of what it is the level of, and the `log` kind
 subtracts them: two power levels differ by a gain (watts over watts), a gain
 moves a level, and two levels do not sum to a level. No rule is written.
 `yadc-si`'s hand-written `level.rs` holds std `From` between `PowerLevel` and
-`Power` (and between `Gain` and a plain ratio). A scale of levels measures
-levels; `PowerUnit` lists it beside the watts `via` the level, which is not
-`const`:
-
-```toml
-{v = "DecibelMilliwatt", s = "dBm", l = "decibels-milliwatt", by = "DBM", via = "PowerLevel", non_const = true},
-```
+`Power` (and between `Gain` and a plain ratio).
 
 ## UCUM mode
 
@@ -595,22 +459,20 @@ Updating to a new UCUM release is changing the tag and regenerating.
 
 Each of UCUM's seven base units is an axis of the dimension, named by its
 code: `m`, `s`, `g`, `rad`, `K`, `C` (the coulomb: charge, not current),
-`cd`. `[dim].fields` lists them, and `[[base]]` gives each its constant
-(`METRE`, `SECOND`, `GRAM`, `RADIAN`, `KELVIN`, `COULOMB`, `CANDELA`). The
-mole is no axis: UCUM defines it as a number, 6.02214076 × 10²³, so
-`AmountOfSubstance` is dimensionless. The newton is `KILO * GRAM * METRE /
-(SECOND * SECOND)`, the ampere `COULOMB / SECOND`.
+`cd`. `[dim].fields` lists them. The mole is no axis: UCUM defines it as a
+number, 6.02214076 × 10²³, so `AmountOfSubstance` is dimensionless. The
+coherent units are UCUM's base units and their products: the newton is a
+size of 1000 (g·m/s²), the ampere a coulomb per second.
 
 ### Exact values, UCUM codes
 
 Every value in the XML is a decimal, and is read exactly - as a rational,
 with π (`[pi]`, a long decimal in the XML) kept as a power of π - so each
-constant is defined exactly: the international inch is `METRE *
-Exact::dec(254, -4)`, the US survey inch `METRE * (Exact::int(100) /
-Exact::int(3937))`, the degree `RADIAN * (Exact::int(1) / Exact::int(180) *
-Exact::PI)`.
+unit's size is exact: the international inch is `Exact::dec(254, -4)`
+metres, the US survey inch `Exact::int(100) / Exact::int(3937)`, the degree
+π/180 radians.
 
-A unit enum's variant prints and parses as the unit's UCUM code,
+A unit type prints, and a unit enum's variant prints and parses, as the unit's UCUM code,
 case-sensitive (`[in_i]`, `Cel`, `[degF]`); its name (`{:#}`) is UCUM's
 (`inch`).
 
@@ -633,17 +495,17 @@ a dimensionless unit of another class stays in its family:
 | `us` | `us-lengths`, `us-volumes`, `avoirdupois`, `troy`, `apoth` | US customary and apothecary units |
 | `british` | `brit-length`, `brit-volumes` | British imperial units |
 | `clinical` | `clinical`, `chemical` | Clinical and chemical units |
-| `constants` | `const` | Physical constants used as unit scales |
+| `constants` | `const` | Physical constants as units |
 | `misc` | `misc` | Remaining units |
 
-A unit gets no prefixed variants: `KILO * GRAM` and `Prefixed<..Unit>` cover
-them, as in `yadc-si`.
+A unit gets no prefixed types or variants: `Prefixed<..Unit>` covers them,
+as in `yadc-si`. The units are `UcumUnit` types (`unit_type = "UcumUnit"`).
 
 ### What is skipped
 
 - `isSpecial="yes"` units: logarithmic, non-linear, function-based conversions (pH,
   Neper, Bel, dB variants, …).  Celsius and Fahrenheit are the exception — they are
-  substituted with hardcoded scales (a zero and a step) in the `heat` family.
+  substituted with hardcoded units with a zero (`Celsius`, `Fahrenheit`) in the `heat` family.
 - `isArbitrary="yes"` units: titre, international units, etc. whose conversion factor
   is not defined.
 - Units whose expression cannot be resolved from known symbols: none in

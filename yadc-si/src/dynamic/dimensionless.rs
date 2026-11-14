@@ -2,38 +2,56 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::dimensionless::consts::*;
+use crate::dimensionless::units::*;
 use crate::dimensionless::*;
+use crate::dynamic::DynamicSIUnit;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Dimensionless`, in any number type the constants convert to.
+/// The units of `Dimensionless`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Dimensionless<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Dimensionless<N>: [const] Unit<Dimensionless<N>, N> + [const] Destruct)]
+#[unit(of = Dimensionless<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DimensionlessUnit {
     #[default]
-    #[unit("", "", by = Dimensionless::<N>::from(RATIO))]
+    #[unit(Ratio)]
     Ratio,
-    #[unit("parts per hundred", "parts per hundred", by = Dimensionless::<N>::from(PART_PER_HUNDRED))]
+    #[unit(PartPerHundred)]
     PartPerHundred,
-    #[unit("%", "percent", by = Dimensionless::<N>::from(PERCENT))]
+    #[unit(Percent)]
     Percent,
-    #[unit("parts per thousand", "parts per thousand", by = Dimensionless::<N>::from(PART_PER_THOUSAND))]
+    #[unit(PartPerThousand)]
     PartPerThousand,
-    #[unit("‰", "per mille", by = Dimensionless::<N>::from(PER_MILLE))]
+    #[unit(PerMille)]
     PerMille,
-    #[unit("parts per ten thousand", "parts per ten thousand", by = Dimensionless::<N>::from(PART_PER_TEN_THOUSAND))]
+    #[unit(PartPerTenThousand)]
     PartPerTenThousand,
-    #[unit("bp", "basis points", by = Dimensionless::<N>::from(BASIS_POINT))]
+    #[unit(BasisPoint)]
     BasisPoint,
-    #[unit("ppm", "parts per million", by = Dimensionless::<N>::from(PART_PER_MILLION))]
+    #[unit(PartPerMillion)]
     PartPerMillion,
-    #[unit("ppb", "parts per billion", by = Dimensionless::<N>::from(PART_PER_BILLION))]
+    #[unit(PartPerBillion)]
     PartPerBillion,
-    #[unit("ppt", "parts per trillion", by = Dimensionless::<N>::from(PART_PER_TRILLION))]
+    #[unit(PartPerTrillion)]
     PartPerTrillion,
-    #[unit("ppq", "parts per quadrillion", by = Dimensionless::<N>::from(PART_PER_QUADRILLION))]
+    #[unit(PartPerQuadrillion)]
     PartPerQuadrillion,
+}
+
+impl From<DimensionlessUnit> for DynamicSIUnit {
+    fn from(unit: DimensionlessUnit) -> Self {
+        match unit {
+            DimensionlessUnit::Ratio => Ratio {}.into(),
+            DimensionlessUnit::PartPerHundred => PartPerHundred {}.into(),
+            DimensionlessUnit::Percent => Percent {}.into(),
+            DimensionlessUnit::PartPerThousand => PartPerThousand {}.into(),
+            DimensionlessUnit::PerMille => PerMille {}.into(),
+            DimensionlessUnit::PartPerTenThousand => PartPerTenThousand {}.into(),
+            DimensionlessUnit::BasisPoint => BasisPoint {}.into(),
+            DimensionlessUnit::PartPerMillion => PartPerMillion {}.into(),
+            DimensionlessUnit::PartPerBillion => PartPerBillion {}.into(),
+            DimensionlessUnit::PartPerTrillion => PartPerTrillion {}.into(),
+            DimensionlessUnit::PartPerQuadrillion => PartPerQuadrillion {}.into(),
+        }
+    }
 }

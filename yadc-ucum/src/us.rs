@@ -1,242 +1,714 @@
-use crate::{Dim, Exact, Qty};
+use crate::{Dim, Qty};
 use yadc::Dimension;
 
-pub type Area<N> = Qty<
-    {
-        Dim {
-            m: 2,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Area`.
+pub const AREA: Dim = Dim {
+    m: 2,
+    ..Dim::DIMENSIONLESS
+};
+pub type Area<N> = Qty<AREA, N>;
 
-pub type DryVolume<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `DryVolume`.
+pub const DRY_VOLUME: Dim = Dim {
+    m: 3,
+    ..Dim::DIMENSIONLESS
+};
+pub type DryVolume<N> = Qty<DRY_VOLUME, N>;
 
-pub type FluidVolume<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `FluidVolume`.
+pub const FLUID_VOLUME: Dim = Dim {
+    m: 3,
+    ..Dim::DIMENSIONLESS
+};
+pub type FluidVolume<N> = Qty<FLUID_VOLUME, N>;
 
-pub type Length<N> = Qty<
-    {
-        Dim {
-            m: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Length`.
+pub const LENGTH: Dim = Dim {
+    m: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Length<N> = Qty<LENGTH, N>;
 
-pub type Mass<N> = Qty<
-    {
-        Dim {
-            g: 1,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Mass`.
+pub const MASS: Dim = Dim {
+    g: 1,
+    ..Dim::DIMENSIONLESS
+};
+pub type Mass<N> = Qty<MASS, N>;
 
-pub type Volume<N> = Qty<
-    {
-        Dim {
-            m: 3,
-            ..Dim::DIMENSIONLESS
-        }
-    },
-    N,
->;
+/// The dimension of `Volume`.
+pub const VOLUME: Dim = Dim {
+    m: 3,
+    ..Dim::DIMENSIONLESS
+};
+pub type Volume<N> = Qty<VOLUME, N>;
 
-/// The constants of this module: the base constants of its quantities
-/// (re-exported), then one per named unit, each defined exactly from them
-/// (`INCH` is `0.0254 * METRE`). A unit written as others is not one:
-/// `SLUG / CUBIC_FOOT`, `KILO * METRE` are exact too. Converting rounds,
-/// once, where it is written - in a `const`, by the compiler:
-/// `const MPH: Velocity<f64> = (MILE / HOUR).into();`, then `MPH.quantity(60.0)`.
-pub mod consts {
+/// The units of this module's quantities: a type each, its size and zero
+/// in its quantity's coherent unit, exact (`Mile {}.quantity(3.0_f64)`).
+pub mod units {
     use super::*;
+    use crate::{Exact, UcumUnit, UcumUnitConsts};
 
-    /// The metre, UCUM's base unit of length.
-    pub use crate::base::METRE;
+    /// Acre (`[acr_us]`), a unit of `Area`: `n` of them is `n · 627264e5 / 15499969` coherent units.
+    pub type Acre = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::int(62726400000) / Exact::int(15499969),
+                zero: Exact::ZERO,
+                symbol: "[acr_us]",
+                name: "acre",
+            }
+        },
+    >;
 
-    /// The gram, UCUM's base unit of mass.
-    pub use crate::base::GRAM;
+    /// Square rod (`[srd_us]`), a unit of `Area`: `n` of them is `n · 39204e4 / 15499969` coherent units.
+    pub type SquareRod = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::int(392040000) / Exact::int(15499969),
+                zero: Exact::ZERO,
+                symbol: "[srd_us]",
+                name: "square rod",
+            }
+        },
+    >;
 
-    /// One `Acre` (`[acr_us]`), as an `Area`.
-    pub const ACRE: Area<Exact> =
-        (METRE * METRE) * (Exact::int(62726400000) / Exact::int(15499969));
+    /// Square mile (`[smi_us]`), a unit of `Area`: `n` of them is `n · 40144896e6 / 15499969` coherent units.
+    pub type SquareMile = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::int(40144896000000) / Exact::int(15499969),
+                zero: Exact::ZERO,
+                symbol: "[smi_us]",
+                name: "square mile",
+            }
+        },
+    >;
 
-    /// One `SquareRod` (`[srd_us]`), as an `Area`.
-    pub const SQUARE_ROD: Area<Exact> =
-        (METRE * METRE) * (Exact::int(392040000) / Exact::int(15499969));
+    /// Section (`[sct]`), a unit of `Area`: `n` of them is `n · 40144896e6 / 15499969` coherent units.
+    pub type Section = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::int(40144896000000) / Exact::int(15499969),
+                zero: Exact::ZERO,
+                symbol: "[sct]",
+                name: "section",
+            }
+        },
+    >;
 
-    /// One `SquareMile` (`[smi_us]`), as an `Area`.
-    pub const SQUARE_MILE: Area<Exact> =
-        (METRE * METRE) * (Exact::int(40144896000000) / Exact::int(15499969));
+    /// Township (`[twp]`), a unit of `Area`: `n` of them is `n · 1445216256e6 / 15499969` coherent units.
+    pub type Township = UcumUnit<
+        AREA,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1445216256000000) / Exact::int(15499969),
+                zero: Exact::ZERO,
+                symbol: "[twp]",
+                name: "township",
+            }
+        },
+    >;
 
-    /// One `Section` (`[sct]`), as an `Area`.
-    pub const SECTION: Area<Exact> =
-        (METRE * METRE) * (Exact::int(40144896000000) / Exact::int(15499969));
+    /// Bushel (`[bu_us]`), a unit of `DryVolume`: `n` of them is `n · 3523907016688e-14` coherent units.
+    pub type Bushel = UcumUnit<
+        DRY_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(3523907016688, -14),
+                zero: Exact::ZERO,
+                symbol: "[bu_us]",
+                name: "bushel",
+            }
+        },
+    >;
 
-    /// One `Township` (`[twp]`), as an `Area`.
-    pub const TOWNSHIP: Area<Exact> =
-        (METRE * METRE) * (Exact::int(1445216256000000) / Exact::int(15499969));
+    /// Historical winchester gallon (`[gal_wi]`), a unit of `DryVolume`: `n` of them is `n · 440488377086e-14` coherent units.
+    pub type HistoricalWinchesterGallon = UcumUnit<
+        DRY_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(440488377086, -14),
+                zero: Exact::ZERO,
+                symbol: "[gal_wi]",
+                name: "historical winchester gallon",
+            }
+        },
+    >;
 
-    /// One `Bushel` (`[bu_us]`), as a `DryVolume`.
-    pub const BUSHEL: DryVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(3523907016688, -14);
+    /// Peck (`[pk_us]`), a unit of `DryVolume`: `n` of them is `n · 880976754172e-14` coherent units.
+    pub type Peck = UcumUnit<
+        DRY_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(880976754172, -14),
+                zero: Exact::ZERO,
+                symbol: "[pk_us]",
+                name: "peck",
+            }
+        },
+    >;
 
-    /// One `HistoricalWinchesterGallon` (`[gal_wi]`), as a `DryVolume`.
-    pub const HISTORICAL_WINCHESTER_GALLON: DryVolume<Exact> =
-        (METRE * METRE * METRE) * Exact::dec(440488377086, -14);
+    /// Dry quart (`[dqt_us]`), a unit of `DryVolume`: `n` of them is `n · 1101220942715e-15` coherent units.
+    pub type DryQuart = UcumUnit<
+        DRY_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1101220942715, -15),
+                zero: Exact::ZERO,
+                symbol: "[dqt_us]",
+                name: "dry quart",
+            }
+        },
+    >;
 
-    /// One `Peck` (`[pk_us]`), as a `DryVolume`.
-    pub const PECK: DryVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(880976754172, -14);
+    /// Dry pint (`[dpt_us]`), a unit of `DryVolume`: `n` of them is `n · 5506104713575e-16` coherent units.
+    pub type DryPint = UcumUnit<
+        DRY_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(5506104713575, -16),
+                zero: Exact::ZERO,
+                symbol: "[dpt_us]",
+                name: "dry pint",
+            }
+        },
+    >;
 
-    /// One `DryQuart` (`[dqt_us]`), as a `DryVolume`.
-    pub const DRY_QUART: DryVolume<Exact> =
-        (METRE * METRE * METRE) * Exact::dec(1101220942715, -15);
+    /// Queen Anne's wine gallon (`[gal_us]`), a unit of `FluidVolume`: `n` of them is `n · 3785411784e-12` coherent units.
+    pub type QueenAnneSWineGallon = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(3785411784, -12),
+                zero: Exact::ZERO,
+                symbol: "[gal_us]",
+                name: "Queen Anne's wine gallon",
+            }
+        },
+    >;
 
-    /// One `DryPint` (`[dpt_us]`), as a `DryVolume`.
-    pub const DRY_PINT: DryVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(5506104713575, -16);
+    /// Barrel (`[bbl_us]`), a unit of `FluidVolume`: `n` of them is `n · 158987294928e-12` coherent units.
+    pub type Barrel = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(158987294928, -12),
+                zero: Exact::ZERO,
+                symbol: "[bbl_us]",
+                name: "barrel",
+            }
+        },
+    >;
 
-    /// One `QueenAnneSWineGallon` (`[gal_us]`), as a `FluidVolume`.
-    pub const QUEEN_ANNE_S_WINE_GALLON: FluidVolume<Exact> =
-        (METRE * METRE * METRE) * Exact::dec(3785411784, -12);
+    /// Quart (`[qt_us]`), a unit of `FluidVolume`: `n` of them is `n · 946352946e-12` coherent units.
+    pub type Quart = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(946352946, -12),
+                zero: Exact::ZERO,
+                symbol: "[qt_us]",
+                name: "quart",
+            }
+        },
+    >;
 
-    /// One `Barrel` (`[bbl_us]`), as a `FluidVolume`.
-    pub const BARREL: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(158987294928, -12);
+    /// Pint (`[pt_us]`), a unit of `FluidVolume`: `n` of them is `n · 473176473e-12` coherent units.
+    pub type Pint = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(473176473, -12),
+                zero: Exact::ZERO,
+                symbol: "[pt_us]",
+                name: "pint",
+            }
+        },
+    >;
 
-    /// One `Quart` (`[qt_us]`), as a `FluidVolume`.
-    pub const QUART: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(946352946, -12);
+    /// Gill (`[gil_us]`), a unit of `FluidVolume`: `n` of them is `n · 11829411825e-14` coherent units.
+    pub type Gill = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(11829411825, -14),
+                zero: Exact::ZERO,
+                symbol: "[gil_us]",
+                name: "gill",
+            }
+        },
+    >;
 
-    /// One `Pint` (`[pt_us]`), as a `FluidVolume`.
-    pub const PINT: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(473176473, -12);
+    /// Fluid ounce (`[foz_us]`), a unit of `FluidVolume`: `n` of them is `n · 295735295625e-16` coherent units.
+    pub type FluidOunce = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(295735295625, -16),
+                zero: Exact::ZERO,
+                symbol: "[foz_us]",
+                name: "fluid ounce",
+            }
+        },
+    >;
 
-    /// One `Gill` (`[gil_us]`), as a `FluidVolume`.
-    pub const GILL: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(11829411825, -14);
+    /// Fluid dram (`[fdr_us]`), a unit of `FluidVolume`: `n` of them is `n · 36966911953125e-19` coherent units.
+    pub type FluidDram = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(36966911953125, -19),
+                zero: Exact::ZERO,
+                symbol: "[fdr_us]",
+                name: "fluid dram",
+            }
+        },
+    >;
 
-    /// One `FluidOunce` (`[foz_us]`), as a `FluidVolume`.
-    pub const FLUID_OUNCE: FluidVolume<Exact> =
-        (METRE * METRE * METRE) * Exact::dec(295735295625, -16);
+    /// Minim (`[min_us]`), a unit of `FluidVolume`: `n` of them is `n · 61611519921875e-21` coherent units.
+    pub type Minim = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(61611519921875, -21),
+                zero: Exact::ZERO,
+                symbol: "[min_us]",
+                name: "minim",
+            }
+        },
+    >;
 
-    /// One `FluidDram` (`[fdr_us]`), as a `FluidVolume`.
-    pub const FLUID_DRAM: FluidVolume<Exact> =
-        (METRE * METRE * METRE) * Exact::dec(36966911953125, -19);
+    /// Cord (`[crd_us]`), a unit of `FluidVolume`: `n` of them is `n · 3624556363776e-12` coherent units.
+    pub type Cord = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(3624556363776, -12),
+                zero: Exact::ZERO,
+                symbol: "[crd_us]",
+                name: "cord",
+            }
+        },
+    >;
 
-    /// One `Minim` (`[min_us]`), as a `FluidVolume`.
-    pub const MINIM: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(61611519921875, -21);
+    /// Metric fluid ounce (`[foz_m]`), a unit of `FluidVolume`: `n` of them is `n · 3e-5` coherent units.
+    pub type MetricFluidOunce = UcumUnit<
+        FLUID_VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(3, -5),
+                zero: Exact::ZERO,
+                symbol: "[foz_m]",
+                name: "metric fluid ounce",
+            }
+        },
+    >;
 
-    /// One `Cord` (`[crd_us]`), as a `FluidVolume`.
-    pub const CORD: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(3624556363776, -12);
+    /// Foot (`[ft_us]`), a unit of `Length`: `n` of them is `n · 12e2 / 3937` coherent units.
+    pub type Foot = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1200) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[ft_us]",
+                name: "foot",
+            }
+        },
+    >;
 
-    /// One `MetricFluidOunce` (`[foz_m]`), as a `FluidVolume`.
-    pub const METRIC_FLUID_OUNCE: FluidVolume<Exact> = (METRE * METRE * METRE) * Exact::dec(3, -5);
+    /// Yard (`[yd_us]`), a unit of `Length`: `n` of them is `n · 36e2 / 3937` coherent units.
+    pub type Yard = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(3600) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[yd_us]",
+                name: "yard",
+            }
+        },
+    >;
 
-    /// One `Foot` (`[ft_us]`), as a `Length`.
-    pub const FOOT: Length<Exact> = METRE * (Exact::int(1200) / Exact::int(3937));
+    /// Inch (`[in_us]`), a unit of `Length`: `n` of them is `n · 1e2 / 3937` coherent units.
+    pub type Inch = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(100) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[in_us]",
+                name: "inch",
+            }
+        },
+    >;
 
-    /// One `Yard` (`[yd_us]`), as a `Length`.
-    pub const YARD: Length<Exact> = METRE * (Exact::int(3600) / Exact::int(3937));
+    /// Rod (`[rd_us]`), a unit of `Length`: `n` of them is `n · 198e2 / 3937` coherent units.
+    pub type Rod = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(19800) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[rd_us]",
+                name: "rod",
+            }
+        },
+    >;
 
-    /// One `Inch` (`[in_us]`), as a `Length`.
-    pub const INCH: Length<Exact> = METRE * (Exact::int(100) / Exact::int(3937));
+    /// Surveyor's chain (`[ch_us]`), a unit of `Length`: `n` of them is `n · 792e2 / 3937` coherent units.
+    pub type SurveyorSChain = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(79200) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[ch_us]",
+                name: "Surveyor's chain",
+            }
+        },
+    >;
 
-    /// One `Rod` (`[rd_us]`), as a `Length`.
-    pub const ROD: Length<Exact> = METRE * (Exact::int(19800) / Exact::int(3937));
+    /// Link for Gunter's chain (`[lk_us]`), a unit of `Length`: `n` of them is `n · 792 / 3937` coherent units.
+    pub type LinkForGunterSChain = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(792) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[lk_us]",
+                name: "link for Gunter's chain",
+            }
+        },
+    >;
 
-    /// One `SurveyorSChain` (`[ch_us]`), as a `Length`.
-    pub const SURVEYOR_S_CHAIN: Length<Exact> = METRE * (Exact::int(79200) / Exact::int(3937));
+    /// Engineer's chain (`[rch_us]`), a unit of `Length`: `n` of them is `n · 12e4 / 3937` coherent units.
+    pub type EngineerSChain = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(120000) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[rch_us]",
+                name: "Engineer's chain",
+            }
+        },
+    >;
 
-    /// One `LinkForGunterSChain` (`[lk_us]`), as a `Length`.
-    pub const LINK_FOR_GUNTER_S_CHAIN: Length<Exact> = METRE * (Exact::int(792) / Exact::int(3937));
+    /// Link for Ramden's chain (`[rlk_us]`), a unit of `Length`: `n` of them is `n · 12e2 / 3937` coherent units.
+    pub type LinkForRamdenSChain = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1200) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[rlk_us]",
+                name: "link for Ramden's chain",
+            }
+        },
+    >;
 
-    /// One `EngineerSChain` (`[rch_us]`), as a `Length`.
-    pub const ENGINEER_S_CHAIN: Length<Exact> = METRE * (Exact::int(120000) / Exact::int(3937));
+    /// Fathom (`[fth_us]`), a unit of `Length`: `n` of them is `n · 72e2 / 3937` coherent units.
+    pub type Fathom = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(7200) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[fth_us]",
+                name: "fathom",
+            }
+        },
+    >;
 
-    /// One `LinkForRamdenSChain` (`[rlk_us]`), as a `Length`.
-    pub const LINK_FOR_RAMDEN_S_CHAIN: Length<Exact> =
-        METRE * (Exact::int(1200) / Exact::int(3937));
+    /// Furlong (`[fur_us]`), a unit of `Length`: `n` of them is `n · 792e3 / 3937` coherent units.
+    pub type Furlong = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(792000) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[fur_us]",
+                name: "furlong",
+            }
+        },
+    >;
 
-    /// One `Fathom` (`[fth_us]`), as a `Length`.
-    pub const FATHOM: Length<Exact> = METRE * (Exact::int(7200) / Exact::int(3937));
+    /// Mile (`[mi_us]`), a unit of `Length`: `n` of them is `n · 6336e3 / 3937` coherent units.
+    pub type Mile = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(6336000) / Exact::int(3937),
+                zero: Exact::ZERO,
+                symbol: "[mi_us]",
+                name: "mile",
+            }
+        },
+    >;
 
-    /// One `Furlong` (`[fur_us]`), as a `Length`.
-    pub const FURLONG: Length<Exact> = METRE * (Exact::int(792000) / Exact::int(3937));
+    /// Mil (`[mil_us]`), a unit of `Length`: `n` of them is `n · 1 / 39370` coherent units.
+    pub type Mil = UcumUnit<
+        LENGTH,
+        {
+            UcumUnitConsts {
+                size: Exact::int(1) / Exact::int(39370),
+                zero: Exact::ZERO,
+                symbol: "[mil_us]",
+                name: "mil",
+            }
+        },
+    >;
 
-    /// One `Mile` (`[mi_us]`), as a `Length`.
-    pub const MILE: Length<Exact> = METRE * (Exact::int(6336000) / Exact::int(3937));
+    /// Grain (`[gr]`), a unit of `Mass`: `n` of them is `n · 6479891e-8` coherent units.
+    pub type Grain = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(6479891, -8),
+                zero: Exact::ZERO,
+                symbol: "[gr]",
+                name: "grain",
+            }
+        },
+    >;
 
-    /// One `Mil` (`[mil_us]`), as a `Length`.
-    pub const MIL: Length<Exact> = METRE * (Exact::int(1) / Exact::int(39370));
+    /// Pound (`[lb_av]`), a unit of `Mass`: `n` of them is `n · 45359237e-5` coherent units.
+    pub type Pound = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(45359237, -5),
+                zero: Exact::ZERO,
+                symbol: "[lb_av]",
+                name: "pound",
+            }
+        },
+    >;
 
-    /// One `Grain` (`[gr]`), as a `Mass`.
-    pub const GRAIN: Mass<Exact> = GRAM * Exact::dec(6479891, -8);
+    /// Ounce (`[oz_av]`), a unit of `Mass`: `n` of them is `n · 28349523125e-9` coherent units.
+    pub type Ounce = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(28349523125, -9),
+                zero: Exact::ZERO,
+                symbol: "[oz_av]",
+                name: "ounce",
+            }
+        },
+    >;
 
-    /// One `Pound` (`[lb_av]`), as a `Mass`.
-    pub const POUND: Mass<Exact> = GRAM * Exact::dec(45359237, -5);
+    /// Dram (`[dr_av]`), a unit of `Mass`: `n` of them is `n · 17718451953125e-13` coherent units.
+    pub type Dram = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(17718451953125, -13),
+                zero: Exact::ZERO,
+                symbol: "[dr_av]",
+                name: "dram",
+            }
+        },
+    >;
 
-    /// One `Ounce` (`[oz_av]`), as a `Mass`.
-    pub const OUNCE: Mass<Exact> = GRAM * Exact::dec(28349523125, -9);
+    /// U.S. hundredweight (`[scwt_av]`), a unit of `Mass`: `n` of them is `n · 45359237e-3` coherent units.
+    pub type USHundredweight = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(45359237, -3),
+                zero: Exact::ZERO,
+                symbol: "[scwt_av]",
+                name: "U.S. hundredweight",
+            }
+        },
+    >;
 
-    /// One `Dram` (`[dr_av]`), as a `Mass`.
-    pub const DRAM: Mass<Exact> = GRAM * Exact::dec(17718451953125, -13);
+    /// British hundredweight (`[lcwt_av]`), a unit of `Mass`: `n` of them is `n · 5080234544e-5` coherent units.
+    pub type BritishHundredweight = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(5080234544, -5),
+                zero: Exact::ZERO,
+                symbol: "[lcwt_av]",
+                name: "British hundredweight",
+            }
+        },
+    >;
 
-    /// One `USHundredweight` (`[scwt_av]`), as a `Mass`.
-    pub const US_HUNDREDWEIGHT: Mass<Exact> = GRAM * Exact::dec(45359237, -3);
+    /// U.S. ton (`[ston_av]`), a unit of `Mass`: `n` of them is `n · 90718474e-2` coherent units.
+    pub type USTon = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(90718474, -2),
+                zero: Exact::ZERO,
+                symbol: "[ston_av]",
+                name: "U.S. ton",
+            }
+        },
+    >;
 
-    /// One `BritishHundredweight` (`[lcwt_av]`), as a `Mass`.
-    pub const BRITISH_HUNDREDWEIGHT: Mass<Exact> = GRAM * Exact::dec(5080234544, -5);
+    /// British ton (`[lton_av]`), a unit of `Mass`: `n` of them is `n · 10160469088e-4` coherent units.
+    pub type BritishTon = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(10160469088, -4),
+                zero: Exact::ZERO,
+                symbol: "[lton_av]",
+                name: "British ton",
+            }
+        },
+    >;
 
-    /// One `USTon` (`[ston_av]`), as a `Mass`.
-    pub const US_TON: Mass<Exact> = GRAM * Exact::dec(90718474, -2);
+    /// British stone (`[stone_av]`), a unit of `Mass`: `n` of them is `n · 635029318e-5` coherent units.
+    pub type BritishStone = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(635029318, -5),
+                zero: Exact::ZERO,
+                symbol: "[stone_av]",
+                name: "British stone",
+            }
+        },
+    >;
 
-    /// One `BritishTon` (`[lton_av]`), as a `Mass`.
-    pub const BRITISH_TON: Mass<Exact> = GRAM * Exact::dec(10160469088, -4);
+    /// Pennyweight (`[pwt_tr]`), a unit of `Mass`: `n` of them is `n · 155517384e-8` coherent units.
+    pub type Pennyweight = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(155517384, -8),
+                zero: Exact::ZERO,
+                symbol: "[pwt_tr]",
+                name: "pennyweight",
+            }
+        },
+    >;
 
-    /// One `BritishStone` (`[stone_av]`), as a `Mass`.
-    pub const BRITISH_STONE: Mass<Exact> = GRAM * Exact::dec(635029318, -5);
+    /// Scruple (`[sc_ap]`), a unit of `Mass`: `n` of them is `n · 12959782e-7` coherent units.
+    pub type Scruple = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(12959782, -7),
+                zero: Exact::ZERO,
+                symbol: "[sc_ap]",
+                name: "scruple",
+            }
+        },
+    >;
 
-    /// One `Pennyweight` (`[pwt_tr]`), as a `Mass`.
-    pub const PENNYWEIGHT: Mass<Exact> = GRAM * Exact::dec(155517384, -8);
+    /// Drachm (`[dr_ap]`), a unit of `Mass`: `n` of them is `n · 38879346e-7` coherent units.
+    pub type Drachm = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(38879346, -7),
+                zero: Exact::ZERO,
+                symbol: "[dr_ap]",
+                name: "drachm",
+            }
+        },
+    >;
 
-    /// One `Scruple` (`[sc_ap]`), as a `Mass`.
-    pub const SCRUPLE: Mass<Exact> = GRAM * Exact::dec(12959782, -7);
+    /// Metric ounce (`[oz_m]`), a unit of `Mass`: `n` of them is `n · 28` coherent units.
+    pub type MetricOunce = UcumUnit<
+        MASS,
+        {
+            UcumUnitConsts {
+                size: Exact::int(28),
+                zero: Exact::ZERO,
+                symbol: "[oz_m]",
+                name: "metric ounce",
+            }
+        },
+    >;
 
-    /// One `Drachm` (`[dr_ap]`), as a `Mass`.
-    pub const DRACHM: Mass<Exact> = GRAM * Exact::dec(38879346, -7);
+    /// Tablespoon (`[tbs_us]`), a unit of `Volume`: `n` of them is `n · 1478676478125e-17` coherent units.
+    pub type Tablespoon = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(1478676478125, -17),
+                zero: Exact::ZERO,
+                symbol: "[tbs_us]",
+                name: "tablespoon",
+            }
+        },
+    >;
 
-    /// One `MetricOunce` (`[oz_m]`), as a `Mass`.
-    pub const METRIC_OUNCE: Mass<Exact> = GRAM * Exact::int(28);
+    /// Teaspoon (`[tsp_us]`), a unit of `Volume`: `n` of them is `n · 492892159375e-17` coherent units.
+    pub type Teaspoon = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(492892159375, -17),
+                zero: Exact::ZERO,
+                symbol: "[tsp_us]",
+                name: "teaspoon",
+            }
+        },
+    >;
 
-    /// One `Tablespoon` (`[tbs_us]`), as a `Volume`.
-    pub const TABLESPOON: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(1478676478125, -17);
+    /// Cup (`[cup_us]`), a unit of `Volume`: `n` of them is `n · 2365882365e-13` coherent units.
+    pub type Cup = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(2365882365, -13),
+                zero: Exact::ZERO,
+                symbol: "[cup_us]",
+                name: "cup",
+            }
+        },
+    >;
 
-    /// One `Teaspoon` (`[tsp_us]`), as a `Volume`.
-    pub const TEASPOON: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(492892159375, -17);
+    /// Metric cup (`[cup_m]`), a unit of `Volume`: `n` of them is `n · 24e-5` coherent units.
+    pub type MetricCup = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(24, -5),
+                zero: Exact::ZERO,
+                symbol: "[cup_m]",
+                name: "metric cup",
+            }
+        },
+    >;
 
-    /// One `Cup` (`[cup_us]`), as a `Volume`.
-    pub const CUP: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(2365882365, -13);
+    /// Metric teaspoon (`[tsp_m]`), a unit of `Volume`: `n` of them is `n · 5e-6` coherent units.
+    pub type MetricTeaspoon = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(5, -6),
+                zero: Exact::ZERO,
+                symbol: "[tsp_m]",
+                name: "metric teaspoon",
+            }
+        },
+    >;
 
-    /// One `MetricCup` (`[cup_m]`), as a `Volume`.
-    pub const METRIC_CUP: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(24, -5);
-
-    /// One `MetricTeaspoon` (`[tsp_m]`), as a `Volume`.
-    pub const METRIC_TEASPOON: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(5, -6);
-
-    /// One `MetricTablespoon` (`[tbs_m]`), as a `Volume`.
-    pub const METRIC_TABLESPOON: Volume<Exact> = (METRE * METRE * METRE) * Exact::dec(15, -6);
+    /// Metric tablespoon (`[tbs_m]`), a unit of `Volume`: `n` of them is `n · 15e-6` coherent units.
+    pub type MetricTablespoon = UcumUnit<
+        VOLUME,
+        {
+            UcumUnitConsts {
+                size: Exact::dec(15, -6),
+                zero: Exact::ZERO,
+                symbol: "[tbs_m]",
+                name: "metric tablespoon",
+            }
+        },
+    >;
 }

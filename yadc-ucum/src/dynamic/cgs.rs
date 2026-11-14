@@ -2,205 +2,332 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::cgs::consts::*;
+use crate::cgs::units::*;
 use crate::cgs::*;
+use crate::dynamic::DynamicUcumUnit;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Acceleration`, in any number type the constants convert to.
+/// The units of `Acceleration`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Acceleration<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Acceleration<N>: [const] Unit<Acceleration<N>, N> + [const] Destruct)]
+#[unit(of = Acceleration<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum AccelerationUnit {
     #[default]
-    #[unit("Gal", "Gal", by = Acceleration::<N>::from(GAL))]
+    #[unit(Gal)]
     Gal,
 }
 
-/// The units of `Brightness`, in any number type the constants convert to.
+impl From<AccelerationUnit> for DynamicUcumUnit {
+    fn from(unit: AccelerationUnit) -> Self {
+        match unit {
+            AccelerationUnit::Gal => Gal {}.into(),
+        }
+    }
+}
+
+/// The units of `Brightness`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Brightness<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Brightness<N>: [const] Unit<Brightness<N>, N> + [const] Destruct)]
+#[unit(of = Brightness<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum BrightnessUnit {
     #[default]
-    #[unit("Lmb", "Lambert", by = Brightness::<N>::from(LAMBERT))]
+    #[unit(Lambert)]
     Lambert,
 }
 
-/// The units of `DoseEquivalent`, in any number type the constants convert to.
+impl From<BrightnessUnit> for DynamicUcumUnit {
+    fn from(unit: BrightnessUnit) -> Self {
+        match unit {
+            BrightnessUnit::Lambert => Lambert {}.into(),
+        }
+    }
+}
+
+/// The units of `DoseEquivalent`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DoseEquivalent<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where DoseEquivalent<N>: [const] Unit<DoseEquivalent<N>, N> + [const] Destruct)]
+#[unit(of = DoseEquivalent<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DoseEquivalentUnit {
     #[default]
-    #[unit("REM", "radiation equivalent man", by = DoseEquivalent::<N>::from(RADIATION_EQUIVALENT_MAN))]
+    #[unit(RadiationEquivalentMan)]
     RadiationEquivalentMan,
 }
 
-/// The units of `DynamicViscosity`, in any number type the constants convert to.
+impl From<DoseEquivalentUnit> for DynamicUcumUnit {
+    fn from(unit: DoseEquivalentUnit) -> Self {
+        match unit {
+            DoseEquivalentUnit::RadiationEquivalentMan => RadiationEquivalentMan {}.into(),
+        }
+    }
+}
+
+/// The units of `DynamicViscosity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = DynamicViscosity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where DynamicViscosity<N>: [const] Unit<DynamicViscosity<N>, N> + [const] Destruct)]
+#[unit(of = DynamicViscosity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum DynamicViscosityUnit {
     #[default]
-    #[unit("P", "Poise", by = DynamicViscosity::<N>::from(POISE))]
+    #[unit(Poise)]
     Poise,
 }
 
-/// The units of `ElectricCurrent`, in any number type the constants convert to.
+impl From<DynamicViscosityUnit> for DynamicUcumUnit {
+    fn from(unit: DynamicViscosityUnit) -> Self {
+        match unit {
+            DynamicViscosityUnit::Poise => Poise {}.into(),
+        }
+    }
+}
+
+/// The units of `ElectricCurrent`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = ElectricCurrent<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where ElectricCurrent<N>: [const] Unit<ElectricCurrent<N>, N> + [const] Destruct)]
+#[unit(of = ElectricCurrent<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ElectricCurrentUnit {
     #[default]
-    #[unit("Bi", "Biot", by = ElectricCurrent::<N>::from(BIOT))]
+    #[unit(Biot)]
     Biot,
 }
 
-/// The units of `Energy`, in any number type the constants convert to.
+impl From<ElectricCurrentUnit> for DynamicUcumUnit {
+    fn from(unit: ElectricCurrentUnit) -> Self {
+        match unit {
+            ElectricCurrentUnit::Biot => Biot {}.into(),
+        }
+    }
+}
+
+/// The units of `Energy`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Energy<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Energy<N>: [const] Unit<Energy<N>, N> + [const] Destruct)]
+#[unit(of = Energy<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum EnergyUnit {
     #[default]
-    #[unit("erg", "erg", by = Energy::<N>::from(ERG))]
+    #[unit(Erg)]
     Erg,
 }
 
-/// The units of `EnergyDose`, in any number type the constants convert to.
+impl From<EnergyUnit> for DynamicUcumUnit {
+    fn from(unit: EnergyUnit) -> Self {
+        match unit {
+            EnergyUnit::Erg => Erg {}.into(),
+        }
+    }
+}
+
+/// The units of `EnergyDose`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = EnergyDose<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where EnergyDose<N>: [const] Unit<EnergyDose<N>, N> + [const] Destruct)]
+#[unit(of = EnergyDose<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum EnergyDoseUnit {
     #[default]
-    #[unit("RAD", "radiation absorbed dose", by = EnergyDose::<N>::from(RADIATION_ABSORBED_DOSE))]
+    #[unit(RadiationAbsorbedDose)]
     RadiationAbsorbedDose,
 }
 
-/// The units of `FluxOfMagneticInduction`, in any number type the constants convert to.
+impl From<EnergyDoseUnit> for DynamicUcumUnit {
+    fn from(unit: EnergyDoseUnit) -> Self {
+        match unit {
+            EnergyDoseUnit::RadiationAbsorbedDose => RadiationAbsorbedDose {}.into(),
+        }
+    }
+}
+
+/// The units of `FluxOfMagneticInduction`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = FluxOfMagneticInduction<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where FluxOfMagneticInduction<N>: [const] Unit<FluxOfMagneticInduction<N>, N> + [const] Destruct)]
+#[unit(of = FluxOfMagneticInduction<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum FluxOfMagneticInductionUnit {
     #[default]
-    #[unit("Mx", "Maxwell", by = FluxOfMagneticInduction::<N>::from(MAXWELL))]
+    #[unit(Maxwell)]
     Maxwell,
 }
 
-/// The units of `Force`, in any number type the constants convert to.
+impl From<FluxOfMagneticInductionUnit> for DynamicUcumUnit {
+    fn from(unit: FluxOfMagneticInductionUnit) -> Self {
+        match unit {
+            FluxOfMagneticInductionUnit::Maxwell => Maxwell {}.into(),
+        }
+    }
+}
+
+/// The units of `Force`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Force<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Force<N>: [const] Unit<Force<N>, N> + [const] Destruct)]
+#[unit(of = Force<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum ForceUnit {
     #[default]
-    #[unit("dyn", "dyne", by = Force::<N>::from(DYNE))]
+    #[unit(Dyne)]
     Dyne,
 }
 
-/// The units of `Illuminance`, in any number type the constants convert to.
+impl From<ForceUnit> for DynamicUcumUnit {
+    fn from(unit: ForceUnit) -> Self {
+        match unit {
+            ForceUnit::Dyne => Dyne {}.into(),
+        }
+    }
+}
+
+/// The units of `Illuminance`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Illuminance<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Illuminance<N>: [const] Unit<Illuminance<N>, N> + [const] Destruct)]
+#[unit(of = Illuminance<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum IlluminanceUnit {
     #[default]
-    #[unit("ph", "phot", by = Illuminance::<N>::from(PHOT))]
+    #[unit(Phot)]
     Phot,
 }
 
-/// The units of `IonDose`, in any number type the constants convert to.
+impl From<IlluminanceUnit> for DynamicUcumUnit {
+    fn from(unit: IlluminanceUnit) -> Self {
+        match unit {
+            IlluminanceUnit::Phot => Phot {}.into(),
+        }
+    }
+}
+
+/// The units of `IonDose`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = IonDose<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where IonDose<N>: [const] Unit<IonDose<N>, N> + [const] Destruct)]
+#[unit(of = IonDose<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum IonDoseUnit {
     #[default]
-    #[unit("R", "Roentgen", by = IonDose::<N>::from(ROENTGEN))]
+    #[unit(Roentgen)]
     Roentgen,
 }
 
-/// The units of `KinematicViscosity`, in any number type the constants convert to.
+impl From<IonDoseUnit> for DynamicUcumUnit {
+    fn from(unit: IonDoseUnit) -> Self {
+        match unit {
+            IonDoseUnit::Roentgen => Roentgen {}.into(),
+        }
+    }
+}
+
+/// The units of `KinematicViscosity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = KinematicViscosity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where KinematicViscosity<N>: [const] Unit<KinematicViscosity<N>, N> + [const] Destruct)]
+#[unit(of = KinematicViscosity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum KinematicViscosityUnit {
     #[default]
-    #[unit("St", "Stokes", by = KinematicViscosity::<N>::from(STOKES))]
+    #[unit(Stokes)]
     Stokes,
 }
 
-/// The units of `LineicNumber`, in any number type the constants convert to.
+impl From<KinematicViscosityUnit> for DynamicUcumUnit {
+    fn from(unit: KinematicViscosityUnit) -> Self {
+        match unit {
+            KinematicViscosityUnit::Stokes => Stokes {}.into(),
+        }
+    }
+}
+
+/// The units of `LineicNumber`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LineicNumber<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LineicNumber<N>: [const] Unit<LineicNumber<N>, N> + [const] Destruct)]
+#[unit(of = LineicNumber<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LineicNumberUnit {
     #[default]
-    #[unit("Ky", "Kayser", by = LineicNumber::<N>::from(KAYSER))]
+    #[unit(Kayser)]
     Kayser,
 }
 
-/// The units of `LumIntensityDensity`, in any number type the constants convert to.
+impl From<LineicNumberUnit> for DynamicUcumUnit {
+    fn from(unit: LineicNumberUnit) -> Self {
+        match unit {
+            LineicNumberUnit::Kayser => Kayser {}.into(),
+        }
+    }
+}
+
+/// The units of `LumIntensityDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = LumIntensityDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where LumIntensityDensity<N>: [const] Unit<LumIntensityDensity<N>, N> + [const] Destruct)]
+#[unit(of = LumIntensityDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum LumIntensityDensityUnit {
     #[default]
-    #[unit("sb", "stilb", by = LumIntensityDensity::<N>::from(STILB))]
+    #[unit(Stilb)]
     Stilb,
 }
 
-/// The units of `MagneticFieldIntensity`, in any number type the constants convert to.
+impl From<LumIntensityDensityUnit> for DynamicUcumUnit {
+    fn from(unit: LumIntensityDensityUnit) -> Self {
+        match unit {
+            LumIntensityDensityUnit::Stilb => Stilb {}.into(),
+        }
+    }
+}
+
+/// The units of `MagneticFieldIntensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFieldIntensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MagneticFieldIntensity<N>: [const] Unit<MagneticFieldIntensity<N>, N> + [const] Destruct)]
+#[unit(of = MagneticFieldIntensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MagneticFieldIntensityUnit {
     #[default]
-    #[unit("Oe", "Oersted", by = MagneticFieldIntensity::<N>::from(OERSTED))]
+    #[unit(Oersted)]
     Oersted,
 }
 
-/// The units of `MagneticFluxDensity`, in any number type the constants convert to.
+impl From<MagneticFieldIntensityUnit> for DynamicUcumUnit {
+    fn from(unit: MagneticFieldIntensityUnit) -> Self {
+        match unit {
+            MagneticFieldIntensityUnit::Oersted => Oersted {}.into(),
+        }
+    }
+}
+
+/// The units of `MagneticFluxDensity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticFluxDensity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MagneticFluxDensity<N>: [const] Unit<MagneticFluxDensity<N>, N> + [const] Destruct)]
+#[unit(of = MagneticFluxDensity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MagneticFluxDensityUnit {
     #[default]
-    #[unit("G", "Gauss", by = MagneticFluxDensity::<N>::from(GAUSS))]
+    #[unit(Gauss)]
     Gauss,
 }
 
-/// The units of `MagneticTension`, in any number type the constants convert to.
+impl From<MagneticFluxDensityUnit> for DynamicUcumUnit {
+    fn from(unit: MagneticFluxDensityUnit) -> Self {
+        match unit {
+            MagneticFluxDensityUnit::Gauss => Gauss {}.into(),
+        }
+    }
+}
+
+/// The units of `MagneticTension`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = MagneticTension<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where MagneticTension<N>: [const] Unit<MagneticTension<N>, N> + [const] Destruct)]
+#[unit(of = MagneticTension<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum MagneticTensionUnit {
     #[default]
-    #[unit("Gb", "Gilbert", by = MagneticTension::<N>::from(GILBERT))]
+    #[unit(Gilbert)]
     Gilbert,
 }
 
-/// The units of `Radioactivity`, in any number type the constants convert to.
+impl From<MagneticTensionUnit> for DynamicUcumUnit {
+    fn from(unit: MagneticTensionUnit) -> Self {
+        match unit {
+            MagneticTensionUnit::Gilbert => Gilbert {}.into(),
+        }
+    }
+}
+
+/// The units of `Radioactivity`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Radioactivity<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Radioactivity<N>: [const] Unit<Radioactivity<N>, N> + [const] Destruct)]
+#[unit(of = Radioactivity<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum RadioactivityUnit {
     #[default]
-    #[unit("Ci", "Curie", by = Radioactivity::<N>::from(CURIE))]
+    #[unit(Curie)]
     Curie,
+}
+
+impl From<RadioactivityUnit> for DynamicUcumUnit {
+    fn from(unit: RadioactivityUnit) -> Self {
+        match unit {
+            RadioactivityUnit::Curie => Curie {}.into(),
+        }
+    }
 }

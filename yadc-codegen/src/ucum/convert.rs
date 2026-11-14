@@ -5,8 +5,8 @@ use std::collections::{BTreeMap, HashMap};
 use super::parse::{UcumEssence, Unit};
 use super::resolve::{DimVec, Factor, Resolved};
 use crate::model::{
-    BaseConst, ConstName, DimConfig, DimensionlessDef, ExtraConst, FamilyDef, KindConfig, QuantityDef,
-    SystemConfig, UnitDef, UnitSystem,
+    DimConfig, DimensionlessDef, FamilyDef, KindConfig, QuantityDef, SystemConfig, UnitDef,
+    UnitSystem,
 };
 
 fn class_to_family(class: &str) -> &'static str {
@@ -60,105 +60,51 @@ fn to_qty_dims(dim: &DimVec) -> BTreeMap<String, i64> {
     dim.iter().map(|(k, v)| (k.clone(), *v as i64)).collect()
 }
 
-/// A plain multiple: `m` times the quantity's coherent unit.
-fn multiple(variant: &str, m: &str, symbol: &str, long: &str) -> UnitDef {
+/// A unit: `m` coherent units, counted from `z` (none: zero).
+fn unit_def(variant: &str, m: &str, z: Option<&str>, symbol: &str, long: &str) -> UnitDef {
     UnitDef {
         variant: variant.into(),
-        multiplier: Some(m.into()),
+        multiplier: m.into(),
+        zero: z.map(Into::into),
         symbol: symbol.into(),
         long: long.into(),
-        constant: None,
-        by: None,
-        via: None,
-        non_const: false,
+        type_name: None,
     }
 }
 
-/// A scale, `step`s counted from `zero`: its constant `name = Scale(zero,
-/// step)`, and the unit naming it.
-fn scale(
-    variant: &str,
-    symbol: &str,
-    long: &str,
-    (name, zero, step): (&str, &str, &str),
-    consts: &mut Vec<ExtraConst>,
-) -> UnitDef {
-    consts.push(ExtraConst {
-        name: name.into(),
-        ty: Some("Scale<ThermodynamicTemperature, TemperatureInterval>".into()),
-        value: format!("Scale({zero}, {step})"),
-        doc: format!("The {long} scale: {step} counted from {zero}."),
-    });
-    UnitDef {
-        variant: variant.into(),
-        multiplier: None,
-        symbol: symbol.into(),
-        long: long.into(),
-        constant: None,
-        by: Some(name.into()),
-        via: None,
-        non_const: false,
-    }
+/// The same, its type named `t`.
+fn named(t: &str, unit: UnitDef) -> UnitDef {
+    UnitDef { type_name: Some(t.into()), ..unit }
 }
 
 /// Hardcoded temperature quantities - Celsius/Fahrenheit are isSpecial in
-/// UCUM. An absolute temperature has the kind of the config's `ABSOLUTE_ZERO`
-/// base constant - a label with rules, or the affine kind - and is read on
-/// scales (a step and a zero); a temperature step is a multiple of the
-/// kelvin. The zeros are defined from the `ABSOLUTE_ZERO` and `KELVIN` base
-/// constants.
+/// UCUM. An absolute temperature has the config's absolute kind (or its
+/// affine one) and is read on scales, each a size and a zero in kelvins; a
+/// temperature step is a multiple of the kelvin.
 fn temperature_quantities(kind: &str) -> Vec<QuantityDef> {
     let k_dim: BTreeMap<String, i64> = [("K".to_string(), 1i64)].into();
-    let mut fahrenheit = multiple("DegreeFahrenheit", "5.0 / 9.0", "[degF]", "degrees Fahrenheit");
-    fahrenheit.constant = Some(ConstName::Name("DEGREE_FAHRENHEIT".into()));
-    let mut consts = vec![
-        ExtraConst {
-            name: "ICE_POINT".into(),
-            ty: None,
-            value: "ABSOLUTE_ZERO + KELVIN * 273.15".into(),
-            doc: "0 °C, the ice point of water: 273.15 K.".into(),
-        },
-        ExtraConst {
-            name: "FAHRENHEIT_ZERO".into(),
-            ty: None,
-            value: "ICE_POINT - DEGREE_FAHRENHEIT * 32.0".into(),
-            doc: "0 °F: 32 °F below the ice point.".into(),
-        },
-    ];
-    let units = vec![
-        scale("Kelvin", "K", "kelvin", ("KELVIN_SCALE", "ABSOLUTE_ZERO", "KELVIN"), &mut consts),
-        scale("DegreeCelsius", "Cel", "degrees Celsius", ("CELSIUS", "ICE_POINT", "KELVIN"), &mut consts),
-        scale(
-            "DegreeFahrenheit",
-            "[degF]",
-            "degrees Fahrenheit",
-            ("FAHRENHEIT", "FAHRENHEIT_ZERO", "DEGREE_FAHRENHEIT"),
-            &mut consts,
-        ),
-        scale(
-            "DegreeRankine",
-            "[degR]",
-            "degrees Rankine",
-            ("RANKINE", "ABSOLUTE_ZERO", "DEGREE_FAHRENHEIT"),
-            &mut consts,
-        ),
-    ];
     vec![
         QuantityDef {
             name: "ThermodynamicTemperature".to_string(),
             dims: k_dim.clone(),
             kind: Some(kind.to_string()),
-            consts,
-            units,
+            units: vec![
+                named("KelvinScale", unit_def("Kelvin", "1.0", None, "K", "kelvin")),
+                named("Celsius", unit_def("DegreeCelsius", "1.0", Some("273.15"), "Cel", "degrees Celsius")),
+                named(
+                    "Fahrenheit",
+                    unit_def("DegreeFahrenheit", "5.0 / 9.0", Some("459.67 * 5.0 / 9.0"), "[degF]", "degrees Fahrenheit"),
+                ),
+                named("Rankine", unit_def("DegreeRankine", "5.0 / 9.0", None, "[degR]", "degrees Rankine")),
+            ],
         },
         QuantityDef {
             name: "TemperatureInterval".to_string(),
             dims: k_dim,
             kind: None,
-            consts: Vec::new(),
             units: vec![
-                multiple("Kelvin", "1.0", "K", "kelvin"),
-                fahrenheit,
+                unit_def("Kelvin", "1.0", None, "K", "kelvin"),
+                unit_def("DegreeFahrenheit", "5.0 / 9.0", None, "[degF]", "degrees Fahrenheit"),
             ],
         },
     ]
@@ -219,7 +165,6 @@ pub fn to_unit_system(
     system_cfg: SystemConfig,
     kind_cfg: KindConfig,
     dim_cfg: DimConfig,
-    base: Vec<BaseConst>,
     dimless: DimensionlessDef,
 ) -> UnitSystem {
     let mut groups: BTreeMap<GroupKey, Vec<UnitDef>> = BTreeMap::new();
@@ -244,17 +189,8 @@ pub fn to_unit_system(
         push_unit(
             &mut groups,
             &key,
-            UnitDef {
-                variant: to_pascal(&base.name),
-                multiplier: Some(fmt_mult(&r.multiplier)),
-                // UCUM's code, case-sensitive: what it prints and parses.
-                symbol: base.code.clone(),
-                long: base.name.clone(),
-                constant: None,
-                by: None,
-                via: None,
-                non_const: false,
-            },
+            // UCUM's code, case-sensitive: what it prints and parses.
+            unit_def(&to_pascal(&base.name), &fmt_mult(&r.multiplier), None, &base.code, &base.name),
         );
     }
 
@@ -316,20 +252,19 @@ pub fn to_unit_system(
                 name,
                 dims: to_qty_dims(&key.dim),
                 kind: key.kind.clone(),
-                consts: Vec::new(),
                 units: units.clone(),
             });
     }
 
     // Insert hardcoded temperature quantities into "heat" family
-    let absolute = base
-        .iter()
-        .find(|b| b.name == "ABSOLUTE_ZERO")
-        .and_then(|b| b.kind.clone())
+    let absolute = kind_cfg
+        .absolute
+        .first()
+        .or(kind_cfg.affine.as_ref())
+        .cloned()
         .expect(
-            "UCUM's absolute temperatures are counted from an `ABSOLUTE_ZERO` base constant with \
-             a kind of its own: add `[[base]] name = \"ABSOLUTE_ZERO\"` with `kind = \"..\"` \
-             (a `[kind]` variant: a label with rules, or the affine kind)",
+            "UCUM's absolute temperatures need a kind of their own: name one in [kind] `absolute` \
+             (or `affine`)",
         );
     family_qtys
         .entry("heat".to_string())
@@ -366,7 +301,6 @@ pub fn to_unit_system(
         system: system_cfg,
         kind: kind_cfg,
         dim: dim_cfg,
-        base,
         dimensionless: DimensionlessDef {
             units: dimless_units,
         },
@@ -376,15 +310,6 @@ pub fn to_unit_system(
 }
 
 fn make_unit_def(unit: &Unit, multiplier: &Factor) -> UnitDef {
-    UnitDef {
-        variant: to_pascal(&unit.name),
-        multiplier: Some(fmt_mult(multiplier)),
-        // UCUM's code, case-sensitive: what it prints and parses.
-        symbol: unit.code.clone(),
-        long: unit.name.clone(),
-        constant: None,
-        by: None,
-        via: None,
-        non_const: false,
-    }
+    // UCUM's code, case-sensitive: what it prints and parses.
+    unit_def(&to_pascal(&unit.name), &fmt_mult(multiplier), None, &unit.code, &unit.name)
 }

@@ -1,8 +1,8 @@
 //! The derive macros of yadc. Each derive writes its own trait: `Dimension`
 //! writes `yadc::Dimension` (on a struct, a dimension; on an enum, a label),
 //! `Quantity` writes `yadc::Quantity` (with its supertraits, the cross-type
-//! operators and the extras it lists), `Unit` writes `yadc::Unit` (with
-//! `Display` and `FromStr` from the unit's labels unless told otherwise), and
+//! operators and the extras it lists), `Unit` writes `yadc::Unit` for an enum
+//! of unit types (with `Display` and `FromStr` from theirs), and
 //! the UCUM derives the serde add-on.
 
 use proc_macro::TokenStream;
@@ -248,38 +248,20 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
         .into()
 }
 
-/// Derive `yadc::Unit<Q, N>` for a type of yours that names unit values -
-/// an enum of units, or a struct that is one - plus std `Display` and
-/// `FromStr` from each unit's symbol and name. Trait impls only - no inherent
-/// items.
+/// Derive `yadc::Unit<Q, N>` for an enum of unit types - a choice of
+/// units, for a menu, a config file, a parser - plus std `Display` and
+/// `FromStr`. Trait impls only - no inherent items.
 ///
-/// A unit itself is a constant: a quantity constant (`MILE`), or a
-/// scale, a zero and a step (`pub const CELSIUS: Scale<Temperature,
-/// TemperatureStep> = Scale(ICE_POINT, KELVIN);`). The derive gives a choice
-/// of them a type, labels and a parser:
+/// Each variant names the unit type it is; the enum is a unit by being, at
+/// run time, one of them:
 ///
 /// ```ignore
-/// #[derive(Copy, Clone, yadc::Unit)]                    // a choice of units, for a menu
-/// #[unit(of = Temperature)]
+/// #[derive(Copy, Clone, yadc::Unit)]
+/// #[unit(of = ThermodynamicTemperature<f64>, number = f64)]
 /// pub enum TemperatureUnit {
-///     #[unit("K", "kelvin", by = Scale(ABSOLUTE_ZERO, KELVIN))] Kelvin,
-///     #[unit("°C", "degrees Celsius", by = CELSIUS)] Celsius,
-///     #[unit("°F", "degrees Fahrenheit", by = FAHRENHEIT)] Fahrenheit,
-/// }
-///
-/// #[derive(Copy, Clone, yadc::Unit)]                    // one unit that prints
-/// #[unit("ft", "feet", of = Length, by = FOOT)]
-/// pub struct Foot;
-///
-/// #[derive(Copy, Clone, yadc::Unit)]                    // a unit value held in a field
-/// #[unit("ft AGL", "feet above ground level", of = Altitude)]
-/// pub struct FeetAboveGround { #[unit(by)] pub scale: Scale<Altitude, Length> }
-///
-/// #[derive(Copy, Clone, yadc::Unit)]                    // a level reading the watts
-/// #[unit(of = Power, non_const)]
-/// pub enum PowerUnit {
-///     #[unit("W", "watts", by = WATT)] Watt,
-///     #[unit("dBm", "decibel-milliwatts", by = DBM, via = PowerLevel)] DecibelMilliwatt,
+///     #[unit(Kelvin)] Kelvin,
+///     #[unit(Celsius)] Celsius,
+///     #[unit(Fahrenheit)] Fahrenheit,
 /// }
 ///
 /// let (celsius, kelvin) = (TemperatureUnit::Celsius, TemperatureUnit::Kelvin);
@@ -288,49 +270,29 @@ pub fn derive_ucum_kind(input: TokenStream) -> TokenStream {
 /// println!("{k:.2} {kelvin:#}");                      // "298.15 kelvin"
 /// ```
 ///
-/// # Naming a unit
+/// A unit type is any type built as `T {}` (a unit struct, an alias of one)
+/// with an `impl Unit` of its own. The variants have no fields.
 ///
-/// On a struct, in its own `#[unit(..)]`; on an enum, on each variant:
-/// `by = U`, where `U` is any unit value - a quantity constant, a scale, a
-/// unit type of yours with a hand-written `impl Unit` - and the unit does
-/// whatever `U` does. `U` is a constant expression, evaluated once, at
-/// compile time (`by = KILO * METRE`, `by = Length::<f64>::from(INCH)` are
-/// one number in the program). Instead, `U` may be a field of the unit marked
-/// `#[unit(by)]`: a unit known only at run time.
+/// # What it writes
 ///
-/// `via = P` beside it says `U` measures another type `P`, which the unit's
-/// own type converts to and from with std `From`: a level's scale (a unit of
-/// `PowerLevel`) as a unit of `Power`.
+/// - `Unit<Q, N>` for each `of = Q`: a `const impl` matching on the variant
+///   and calling its type's own. With concrete `Q` and `N` each type's impl
+///   is checked here; with `for<N>`, the bounds you give are what every
+///   type's impl needs of `N`.
+/// - `Display`: the variant's type's own (its `{}`, `{:#}`, width and
+///   alignment all pass through).
+/// - `FromStr`: the first variant whose type prints as the string,
+///   `Err(yadc::UnknownUnit)` otherwise.
 ///
-/// # Labels and extras
+/// `#[unit(impl(..))]` writes exactly the listed extras - `impl(Display)`,
+/// `impl()` for none.
 ///
-/// The symbol and the name come first: `#[unit("°C", "degrees Celsius",
-/// ..)]`. From them the derive writes std `Display` (`{}` the symbol, `{:#}`
-/// the name, through `Formatter::pad`, so width and alignment apply) and std
-/// `FromStr` (the symbol back to the unit, `Err(yadc::UnknownUnit)`
-/// otherwise; two units sharing a symbol: the first wins; only when no unit
-/// has fields). `#[unit(impl(..))]` on the type writes exactly the listed
-/// ones - `impl(Display)`, `impl()` for none (then no labels are needed).
+/// # On the enum
 ///
-/// # On the type
-///
-/// - `of = Q` (repeatable): one `impl Unit<Q, N>` each, matching on the
-///   variant. That impl *is* the declaration that the unit measures `Q`;
-///   with concrete types it has no `where` clause, so each `by` is checked
-///   here, for each `Q`.
-/// - `number = f32`: the numbers' type `N`, `f64` by default.
-/// - `for<N: ..> where ..`: the impls are generic, with these bounds - the
-///   last item of its `#[unit(..)]`, as a where clause takes the rest. `of =
-///   Length<N>, number = N` with `for<N: Num + const From<Exact>>` counts in
-///   any number type the bounds allow, each `by` still evaluated at compile
-///   time, once per number type. The `where` names what each `by` needs:
-///   `Length<N>: [const] Unit<Length<N>, N> + [const] Destruct` for a
-///   length, `Scale<P, S>: [const] Unit<P, N> + ..` for a scale - the
-///   derive cannot see a `by`'s type.
-/// - `non_const`: an ordinary impl instead of a `const impl`, when a `by = U`
-///   names a value whose own `Unit` impl is not `const` (the derive cannot
-///   see that) - a level read as a linear quantity, a hand-written formula.
-///   An impl is const or not as a whole.
+/// - `of = Q` (repeatable): what the units measure.
+/// - `number = N`: what they count in.
+/// - `for<N: ..> where ..`: the impls' generics and their bounds - the
+///   last item of its `#[unit(..)]`, as a where clause takes the rest.
 /// - `#[yadc(crate = "path")]` redirects the emitted `::yadc::` paths.
 #[proc_macro_derive(Unit, attributes(yadc, unit))]
 pub fn derive_unit(input: TokenStream) -> TokenStream {
@@ -353,9 +315,9 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 /// # Always
 ///
 /// - `yadc::Quantity` (`type Number = N`) and its supertrait
-///   `Unit<Self, N>` (`BAR.quantity(2.0)` is `BAR * 2.0`,
-///   `BAR.value(q)` is `q / BAR`, so every amount constant is a
-///   unit), for every member that can be scaled.
+///   `Unit<Self, N>` (`bar.quantity(2.0)` is `bar * 2.0`,
+///   `bar.value(q)` is `q / bar`, so every amount is a unit of its
+///   kind), for every member that can be scaled.
 /// - The cross-type operators, between any two members, wherever the
 ///   dimension's own operator has a result: `+` (the result keeps the left
 ///   operand's type: `absolute + step` is absolute, `altitude + length` an
@@ -419,20 +381,18 @@ pub fn derive_unit(input: TokenStream) -> TokenStream {
 ///   operand's dimension); `+=` and `-=` into the `N` side (with the
 ///   `AddAssign` / `SubAssign` extras);
 /// - scaling an `M` member by an `N` number, from either side;
-/// - every `M` member as a `Unit` of `N` members (`MILE_32.value(d)`);
+/// - every `M` member as a `Unit` of `N` members (`mile_32.value(d)`);
 /// - `==` and `<` either way round.
 ///
 /// It runs one way: listing a pair both ways is an error, since `f32 + f64`
-/// would then have two results. So a system's constants can be counted in
-/// an exact number type of its own and meet values in whatever type stores
-/// them: `#[quantity(from(Exact => f32, f64))]`.
+/// would then have two results.
 ///
 /// ```ignore
 /// #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, yadc::Quantity)]
 /// #[quantity(from(f32 => f64), from(i32 => f64))]
 /// pub struct Qty<const D: Dim, N>(N);
 ///
-/// const LIMIT: Velocity<f64> = 50.0 * MILE_32 / HOUR_I32;   // f32 and i32 constants, f64 result
+/// let limit: Velocity<f64> = 50.0 * mile_32 / hour_i32;   // f32 and i32 values, f64 result
 /// ```
 ///
 /// # Shape

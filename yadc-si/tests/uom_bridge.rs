@@ -1,4 +1,7 @@
-#![feature(generic_const_exprs, const_trait_impl, const_convert, const_ops)]
+//! The bridge to uom: std `From` and `TryFrom` between uom's quantities and
+//! yadc-si's static and dynamic ones, the number moving as it is, in coherent
+//! SI units.
+#![feature(generic_const_exprs, const_trait_impl)]
 #![allow(incomplete_features)]
 
 use std::convert::TryFrom;
@@ -12,14 +15,16 @@ use uom::si::mass::kilogram;
 use uom::si::solid_angle::steradian;
 use uom::si::velocity::meter_per_second;
 use yadc::Unit;
-use yadc_si::dynamic::angular::*;
 use yadc_si::dynamic::DynamicSIQuantity;
-use yadc_si::mechanical::*;
+use yadc_si::dynamic::angular::*;
 use yadc_si::dynamic::mechanical::*;
-use yadc_si::{KILO, SIQuantity};
+use yadc_si::mechanical::*;
+use yadc_si::{Prefix, Prefixed, SIQuantity};
 
-const KILOMETRE: yadc_si::mechanical::Length<f64> =
-    (KILO * yadc_si::mechanical::consts::METRE).into();
+const KILOMETRE: Prefixed<LengthUnit> = Prefixed {
+    prefix: Some(Prefix::Kilo),
+    unit: LengthUnit::Metre,
+};
 
 fn close(a: f64, b: f64) {
     assert!((a - b).abs() < 1e-9, "expected {b}, got {a}");
@@ -265,7 +270,7 @@ fn dynamic_plain_ratio_is_not_a_uom_angle() {
     // A plain ratio has no radians, so it does not convert to uom's Angle;
     // the original comes back.
     use yadc_si::dimensionless::Dimensionless;
-use yadc_si::dynamic::dimensionless::DimensionlessUnit;
+    use yadc_si::dynamic::dimensionless::DimensionlessUnit;
     let ratio = DynamicSIQuantity::from(DimensionlessUnit::Ratio.quantity(1.0));
     let err = Angle::try_from(ratio).unwrap_err();
     close(

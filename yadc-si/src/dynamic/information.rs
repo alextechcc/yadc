@@ -2,44 +2,65 @@
 //! config file, a parser.
 
 use crate::Exact;
-use crate::base::SECOND;
-use crate::information::consts::*;
+use crate::dynamic::DynamicSIUnit;
+use crate::information::units::*;
 use crate::information::*;
 use core::marker::Destruct;
-use yadc::{Unit, num_traits::Num};
+use core::ops::{Add, Div, Mul, Sub};
 
-/// The units of `Information`, in any number type the constants convert to.
+/// The units of `Information`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = Information<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where Information<N>: [const] Unit<Information<N>, N> + [const] Destruct)]
+#[unit(of = Information<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum InformationUnit {
-    #[unit("b", "bits", by = Information::<N>::from(BIT))]
+    #[unit(Bit)]
     Bit,
     #[default]
-    #[unit("B", "bytes", by = Information::<N>::from(BYTE))]
+    #[unit(Byte)]
     Byte,
-    #[unit("o", "octets", by = Information::<N>::from(OCTET))]
+    #[unit(Octet)]
     Octet,
-    #[unit("nibble", "nibbles", by = Information::<N>::from(NIBBLE))]
+    #[unit(Nibble)]
     Nibble,
-    #[unit("crumb", "crumbs", by = Information::<N>::from(CRUMB))]
+    #[unit(Crumb)]
     Crumb,
-    #[unit("Sh", "shannons", by = Information::<N>::from(SHANNON))]
+    #[unit(Shannon)]
     Shannon,
 }
 
-/// The units of `InformationRate`, in any number type the constants convert to.
+impl From<InformationUnit> for DynamicSIUnit {
+    fn from(unit: InformationUnit) -> Self {
+        match unit {
+            InformationUnit::Bit => Bit {}.into(),
+            InformationUnit::Byte => Byte {}.into(),
+            InformationUnit::Octet => Octet {}.into(),
+            InformationUnit::Nibble => Nibble {}.into(),
+            InformationUnit::Crumb => Crumb {}.into(),
+            InformationUnit::Shannon => Shannon {}.into(),
+        }
+    }
+}
+
+/// The units of `InformationRate`, in any number type they count in.
 #[derive_const(Default)]
 #[derive(yadc::Unit, dynamickit::Variants, Copy, Clone, PartialEq, Eq, Hash, Debug)]
-#[unit(of = InformationRate<N>, number = N)]
-#[unit(for<N: Num + const From<Exact>> where InformationRate<N>: [const] Unit<InformationRate<N>, N> + [const] Destruct)]
+#[unit(of = InformationRate<N>, number = N, for<N: const From<Exact> + [const] Add<Output = N> + [const] Sub<Output = N> + [const] Mul<Output = N> + [const] Div<Output = N> + [const] Destruct>)]
 pub enum InformationRateUnit {
-    #[unit("b/s", "bits per second", by = InformationRate::<N>::from((ONE / SECOND) * Exact::dec(125, -3)))]
+    #[unit(BitPerSecond)]
     BitPerSecond,
     #[default]
-    #[unit("B/s", "bytes per second", by = InformationRate::<N>::from(ONE / SECOND))]
+    #[unit(BytePerSecond)]
     BytePerSecond,
-    #[unit("o/s", "octets per second", by = InformationRate::<N>::from(ONE / SECOND))]
+    #[unit(OctetPerSecond)]
     OctetPerSecond,
+}
+
+impl From<InformationRateUnit> for DynamicSIUnit {
+    fn from(unit: InformationRateUnit) -> Self {
+        match unit {
+            InformationRateUnit::BitPerSecond => BitPerSecond {}.into(),
+            InformationRateUnit::BytePerSecond => BytePerSecond {}.into(),
+            InformationRateUnit::OctetPerSecond => OctetPerSecond {}.into(),
+        }
+    }
 }

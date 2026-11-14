@@ -36,7 +36,7 @@
 //! | `a -= b` | the three of `a - b`, and [`SubInPlace`] |
 //! | `a * b`, `a / b` | [`MulExists`], [`DivExists`] |
 //! | `a *= b`, `a /= b` | [`MulExists`] and [`MulInPlace`], [`DivExists`] and [`DivInPlace`] |
-//! | scaling: `a * n`, `n * a`, `a / n`, `a *= n`, `a /= n`, `-a`; [`Quantity`](crate::Quantity), [`Unit<Self>`](crate::Unit) | [`ScaleNotPoint`], [`ScaleLabel`] |
+//! | scaling: `a * n`, `n * a`, `a / n`, `a *= n`, `a /= n`, `-a`; [`Quantity`](crate::Quantity), [`Unit<Self, N>`](crate::Unit) | [`ScaleNotPoint`], [`ScaleLabel`] |
 //! | `a.powi::<N>()`, `a.inv()` | [`PowiExists`], [`InvExists`] |
 //! | `a.root::<N>()` | [`RootHasSquare`], [`RootOfLabel`], [`RootExact`] |
 //!
@@ -471,7 +471,7 @@ refusals! {
         "a point cannot be scaled",
         "scaling is repeated addition, and a point cannot be added to a point: a point is \
          not a `Quantity` nor a unit of itself - move it by an amount (`point + amount`) and \
-         read it on a scale: a zero and a step, as a unit";
+         read it with a unit that counts steps from a zero";
     /// Scaling a label that cannot be added to itself.
     ScaleLabel[] = "cannot scale: this label cannot be added to itself",
         "this label cannot be scaled",
