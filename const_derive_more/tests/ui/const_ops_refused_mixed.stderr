@@ -1,3 +1,14 @@
+warning: `feature(generic_const_exprs)` is not supported with the next-generation trait solver
+ --> tests/ui/const_ops_refused_mixed.rs:3:12
+  |
+3 | #![feature(generic_const_exprs, adt_const_params, const_trait_impl, const_ops, const_cmp)]
+  |            ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `-Znext-solver=globally` is currently enabled by default for testing
+  = note: reverted the setting to `-Znext-solver=coherence` for this crate
+  = note: the currently stable trait solver will be used for this crate
+  = note: see issues #160895 <https://github.com/rust-lang/rust/issues/160895> for more information
+
 error[E0277]: cannot add: `+` of these parameters has no result
   --> tests/ui/const_ops_refused_mixed.rs:48:17
    |
@@ -14,7 +25,6 @@ note: required for `Tagged<{ Tag(1) }, f32>` to implement `Add<Tagged<{ Tag(2) }
    |
 39 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `Add<Tagged<{ Tag(2) }, f64>>`
-   = help: consider manually implementing `Add<Tagged<{ Tag(2) }, f64>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract: `-` of these parameters has no result
@@ -33,7 +43,6 @@ note: required for `Tagged<{ Tag(2) }, f64>` to implement `Sub<Tagged<{ Tag(1) }
    |
 39 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `Sub<Tagged<{ Tag(1) }, f32>>`
-   = help: consider manually implementing `Sub<Tagged<{ Tag(1) }, f32>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot multiply: `*` of these parameters has no result
@@ -52,7 +61,6 @@ note: required for `Tagged<{ Tag(1) }, f32>` to implement `Mul<Tagged<{ Tag(9) }
    |
 39 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `Mul<Tagged<{ Tag(9) }, f64>>`
-   = help: consider manually implementing `Mul<Tagged<{ Tag(9) }, f64>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot add-assign `Tagged<{ Tag(2) }, f64>` to `Tagged<{ Tag(1) }, f64>`
@@ -71,7 +79,6 @@ note: required for `Tagged<{ Tag(1) }, f64>` to implement `AddAssign<Tagged<{ Ta
    |
 39 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `AddAssign<Tagged<{ Tag(2) }, f64>>`
-   = help: consider manually implementing `AddAssign<Tagged<{ Tag(2) }, f64>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot subtract-assign `Tagged<{ Tag(2) }, f64>` from `Tagged<{ Tag(1) }, f64>`
@@ -90,7 +97,6 @@ note: required for `Tagged<{ Tag(1) }, f64>` to implement `SubAssign<Tagged<{ Ta
    |
 39 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `SubAssign<Tagged<{ Tag(2) }, f64>>`
-   = help: consider manually implementing `SubAssign<Tagged<{ Tag(2) }, f64>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: cannot divide-assign `Tagged<{ Tag(1) }, f64>` by `Tagged<{ Tag(9) }, f64>`
@@ -109,5 +115,4 @@ note: required for `Tagged<{ Tag(1) }, f64>` to implement `DivAssign<Tagged<{ Ta
    |
 39 | #[derive(Copy, Clone, PartialEq, Debug, const_derive_more::ConstOps)]
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ type parameter would need to implement `DivAssign<Tagged<{ Tag(9) }, f64>>`
-   = help: consider manually implementing `DivAssign<Tagged<{ Tag(9) }, f64>>` to avoid undesired bounds
    = note: this error originates in the derive macro `const_derive_more::ConstOps` (in Nightly builds, run with -Z macro-backtrace for more info)

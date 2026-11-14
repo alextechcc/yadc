@@ -134,9 +134,7 @@ const fn merge<const K: usize>(
             if (into[a].1 == 0 && into[b].1 != 0)
                 || (into[a].1 != 0 && into[b].1 != 0 && str_cmp(into[b].0, into[a].0) < 0)
             {
-                let t = into[a];
-                into[a] = into[b];
-                into[b] = t;
+                into.swap(a, b);
             }
             b += 1;
         }
@@ -269,8 +267,7 @@ impl __UNIT__ {
                 if (x.power == 0 && y.power != 0)
                     || (x.power != 0 && y.power != 0 && str_cmp(y.symbol, x.symbol) < 0)
                 {
-                    self.factors[a] = y;
-                    self.factors[b] = x;
+                    self.factors.swap(a, b);
                 }
                 b += 1;
             }

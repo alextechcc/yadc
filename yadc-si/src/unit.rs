@@ -134,9 +134,7 @@ const fn merge<const K: usize>(
             if (into[a].1 == 0 && into[b].1 != 0)
                 || (into[a].1 != 0 && into[b].1 != 0 && str_cmp(into[b].0, into[a].0) < 0)
             {
-                let t = into[a];
-                into[a] = into[b];
-                into[b] = t;
+                into.swap(a, b);
             }
             b += 1;
         }
@@ -269,8 +267,7 @@ impl SIUnit {
                 if (x.power == 0 && y.power != 0)
                     || (x.power != 0 && y.power != 0 && str_cmp(y.symbol, x.symbol) < 0)
                 {
-                    self.factors[a] = y;
-                    self.factors[b] = x;
+                    self.factors.swap(a, b);
                 }
                 b += 1;
             }
@@ -747,40 +744,40 @@ impl core::fmt::Display for SIUnit {
     }
 }
 
-impl const Mul for SIUnit {
+const impl Mul for SIUnit {
     type Output = Option<SIUnit>;
     fn mul(self, o: SIUnit) -> Option<SIUnit> {
         self.product(o, 1)
     }
 }
-impl const Div for SIUnit {
+const impl Div for SIUnit {
     type Output = Option<SIUnit>;
     fn div(self, o: SIUnit) -> Option<SIUnit> {
         self.product(o, -1)
     }
 }
 /// The unit of a quantity scaled by a number: its own.
-impl const Mul<f64> for SIUnit {
+const impl Mul<f64> for SIUnit {
     type Output = SIUnit;
     fn mul(self, _: f64) -> SIUnit {
         self
     }
 }
 /// The unit of a quantity divided by a number: its own.
-impl const Div<f64> for SIUnit {
+const impl Div<f64> for SIUnit {
     type Output = SIUnit;
     fn div(self, _: f64) -> SIUnit {
         self
     }
 }
 /// One unit adds to itself; nothing else adds.
-impl const Add for SIUnit {
+const impl Add for SIUnit {
     type Output = Option<SIUnit>;
     fn add(self, o: SIUnit) -> Option<SIUnit> {
         if self == o { Some(self) } else { None }
     }
 }
-impl const Sub for SIUnit {
+const impl Sub for SIUnit {
     type Output = Option<SIUnit>;
     fn sub(self, o: SIUnit) -> Option<SIUnit> {
         if self == o { Some(self) } else { None }

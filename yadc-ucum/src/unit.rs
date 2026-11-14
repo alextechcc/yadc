@@ -134,9 +134,7 @@ const fn merge<const K: usize>(
             if (into[a].1 == 0 && into[b].1 != 0)
                 || (into[a].1 != 0 && into[b].1 != 0 && str_cmp(into[b].0, into[a].0) < 0)
             {
-                let t = into[a];
-                into[a] = into[b];
-                into[b] = t;
+                into.swap(a, b);
             }
             b += 1;
         }
@@ -269,8 +267,7 @@ impl UcumUnit {
                 if (x.power == 0 && y.power != 0)
                     || (x.power != 0 && y.power != 0 && str_cmp(y.symbol, x.symbol) < 0)
                 {
-                    self.factors[a] = y;
-                    self.factors[b] = x;
+                    self.factors.swap(a, b);
                 }
                 b += 1;
             }
@@ -747,40 +744,40 @@ impl core::fmt::Display for UcumUnit {
     }
 }
 
-impl const Mul for UcumUnit {
+const impl Mul for UcumUnit {
     type Output = Option<UcumUnit>;
     fn mul(self, o: UcumUnit) -> Option<UcumUnit> {
         self.product(o, 1)
     }
 }
-impl const Div for UcumUnit {
+const impl Div for UcumUnit {
     type Output = Option<UcumUnit>;
     fn div(self, o: UcumUnit) -> Option<UcumUnit> {
         self.product(o, -1)
     }
 }
 /// The unit of a quantity scaled by a number: its own.
-impl const Mul<f64> for UcumUnit {
+const impl Mul<f64> for UcumUnit {
     type Output = UcumUnit;
     fn mul(self, _: f64) -> UcumUnit {
         self
     }
 }
 /// The unit of a quantity divided by a number: its own.
-impl const Div<f64> for UcumUnit {
+const impl Div<f64> for UcumUnit {
     type Output = UcumUnit;
     fn div(self, _: f64) -> UcumUnit {
         self
     }
 }
 /// One unit adds to itself; nothing else adds.
-impl const Add for UcumUnit {
+const impl Add for UcumUnit {
     type Output = Option<UcumUnit>;
     fn add(self, o: UcumUnit) -> Option<UcumUnit> {
         if self == o { Some(self) } else { None }
     }
 }
-impl const Sub for UcumUnit {
+const impl Sub for UcumUnit {
     type Output = Option<UcumUnit>;
     fn sub(self, o: UcumUnit) -> Option<UcumUnit> {
         if self == o { Some(self) } else { None }

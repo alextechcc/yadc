@@ -41,7 +41,7 @@ impl Exponents {
 }
 
 /// A product: the exponents add (m × m = m²).
-impl const Mul for Exponents {
+const impl Mul for Exponents {
     type Output = Exponents;
     fn mul(mut self, o: Exponents) -> Exponents {
         let mut i = 0;
@@ -54,7 +54,7 @@ impl const Mul for Exponents {
 }
 
 /// A quotient: the exponents subtract (m / s = m·s⁻¹).
-impl const Div for Exponents {
+const impl Div for Exponents {
     type Output = Exponents;
     fn div(mut self, o: Exponents) -> Exponents {
         let mut i = 0;
@@ -67,7 +67,7 @@ impl const Div for Exponents {
 }
 
 /// A sum: only of the same dimension.
-impl const Add for Exponents {
+const impl Add for Exponents {
     type Output = Option<Exponents>;
     fn add(self, o: Exponents) -> Option<Exponents> {
         if self == o { Some(self) } else { None }

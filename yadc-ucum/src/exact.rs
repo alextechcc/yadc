@@ -263,7 +263,7 @@ impl Exact {
     }
 }
 
-impl const Mul for Exact {
+const impl Mul for Exact {
     type Output = Exact;
     fn mul(self, o: Exact) -> Exact {
         let g1 = gcd(self.num, o.den);
@@ -278,7 +278,7 @@ impl const Mul for Exact {
     }
 }
 
-impl const Div for Exact {
+const impl Div for Exact {
     type Output = Exact;
     fn div(self, o: Exact) -> Exact {
         assert!(o.num != 0, "an exact division by zero");
@@ -291,7 +291,7 @@ impl const Div for Exact {
     }
 }
 
-impl const Add for Exact {
+const impl Add for Exact {
     type Output = Exact;
     fn add(self, o: Exact) -> Exact {
         if self.num == 0 {
@@ -317,7 +317,7 @@ impl const Add for Exact {
     }
 }
 
-impl const Neg for Exact {
+const impl Neg for Exact {
     type Output = Exact;
     fn neg(self) -> Exact {
         Exact {
@@ -327,7 +327,7 @@ impl const Neg for Exact {
     }
 }
 
-impl const Sub for Exact {
+const impl Sub for Exact {
     type Output = Exact;
     fn sub(self, o: Exact) -> Exact {
         self + -o
@@ -388,13 +388,13 @@ impl core::fmt::Display for Exact {
     }
 }
 
-impl const From<Exact> for f64 {
+const impl From<Exact> for f64 {
     fn from(x: Exact) -> f64 {
         x.to_f64()
     }
 }
 
-impl const From<Exact> for f32 {
+const impl From<Exact> for f32 {
     fn from(x: Exact) -> f32 {
         x.to_f32()
     }
@@ -403,62 +403,62 @@ impl const From<Exact> for f32 {
 /// The nearest integer, ties to even; a panic where it does not fit the
 /// type. The size of `KILO * METRE` in `i32` is 1000; an inch's, in metres,
 /// is 0 - the rounding is yours to choose by the unit you count in.
-impl const From<Exact> for i8 {
+const impl From<Exact> for i8 {
     fn from(x: Exact) -> i8 {
         x.to_integer(i8::MIN as i128, i8::MAX as u128) as i8
     }
 }
-impl const From<Exact> for i16 {
+const impl From<Exact> for i16 {
     fn from(x: Exact) -> i16 {
         x.to_integer(i16::MIN as i128, i16::MAX as u128) as i16
     }
 }
-impl const From<Exact> for i32 {
+const impl From<Exact> for i32 {
     fn from(x: Exact) -> i32 {
         x.to_integer(i32::MIN as i128, i32::MAX as u128) as i32
     }
 }
-impl const From<Exact> for i64 {
+const impl From<Exact> for i64 {
     fn from(x: Exact) -> i64 {
         x.to_integer(i64::MIN as i128, i64::MAX as u128) as i64
     }
 }
-impl const From<Exact> for i128 {
+const impl From<Exact> for i128 {
     fn from(x: Exact) -> i128 {
         x.to_integer(i128::MIN, i128::MAX as u128)
     }
 }
-impl const From<Exact> for isize {
+const impl From<Exact> for isize {
     fn from(x: Exact) -> isize {
         x.to_integer(isize::MIN as i128, isize::MAX as u128) as isize
     }
 }
-impl const From<Exact> for u8 {
+const impl From<Exact> for u8 {
     fn from(x: Exact) -> u8 {
         x.to_integer(u8::MIN as i128, u8::MAX as u128) as u8
     }
 }
-impl const From<Exact> for u16 {
+const impl From<Exact> for u16 {
     fn from(x: Exact) -> u16 {
         x.to_integer(u16::MIN as i128, u16::MAX as u128) as u16
     }
 }
-impl const From<Exact> for u32 {
+const impl From<Exact> for u32 {
     fn from(x: Exact) -> u32 {
         x.to_integer(u32::MIN as i128, u32::MAX as u128) as u32
     }
 }
-impl const From<Exact> for u64 {
+const impl From<Exact> for u64 {
     fn from(x: Exact) -> u64 {
         x.to_integer(u64::MIN as i128, u64::MAX as u128) as u64
     }
 }
-impl const From<Exact> for u128 {
+const impl From<Exact> for u128 {
     fn from(x: Exact) -> u128 {
         x.to_integer(u128::MIN as i128, u128::MAX) as u128
     }
 }
-impl const From<Exact> for usize {
+const impl From<Exact> for usize {
     fn from(x: Exact) -> usize {
         x.to_integer(usize::MIN as i128, usize::MAX as u128) as usize
     }

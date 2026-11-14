@@ -30,7 +30,7 @@ pub struct Dim {
 
 /// The dimension's own operators: a product and a quotient always exist, a
 /// sum or difference only within one dimension.
-impl const Mul for Dim {
+const impl Mul for Dim {
     type Output = Dim;
     fn mul(self, r: Dim) -> Dim {
         Dim {
@@ -39,7 +39,7 @@ impl const Mul for Dim {
         }
     }
 }
-impl const Div for Dim {
+const impl Div for Dim {
     type Output = Dim;
     fn div(self, r: Dim) -> Dim {
         Dim {
@@ -48,13 +48,13 @@ impl const Div for Dim {
         }
     }
 }
-impl const Add for Dim {
+const impl Add for Dim {
     type Output = Option<Dim>;
     fn add(self, r: Dim) -> Option<Dim> {
         if self == r { Some(self) } else { None }
     }
 }
-impl const Sub for Dim {
+const impl Sub for Dim {
     type Output = Option<Dim>;
     fn sub(self, r: Dim) -> Option<Dim> {
         if self == r { Some(self) } else { None }
@@ -63,20 +63,20 @@ impl const Sub for Dim {
 
 /// What scaling does to a dimension: it stays, where it adds to itself.
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl const Mul<f64> for Dim {
+const impl Mul<f64> for Dim {
     type Output = Option<Dim>;
     fn mul(self, _: f64) -> Option<Dim> {
         self + self
     }
 }
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl const Div<f64> for Dim {
+const impl Div<f64> for Dim {
     type Output = Option<Dim>;
     fn div(self, _: f64) -> Option<Dim> {
         self + self
     }
 }
-impl const Neg for Dim {
+const impl Neg for Dim {
     type Output = Option<Dim>;
     fn neg(self) -> Option<Dim> {
         self + self
@@ -153,12 +153,12 @@ pub mod by_hand {
     }
 
     // `Qty<const D: Dim> => { dim: D, value: .0 }`
-    impl<const D: Dim> const From<Qty<D>> for HandQty {
+    const impl<const D: Dim> From<Qty<D>> for HandQty {
         fn from(q: Qty<D>) -> Self {
             HandQty { dim: D, value: q.0 }
         }
     }
-    impl<const D: Dim> const TryFrom<HandQty> for Qty<D> {
+    const impl<const D: Dim> TryFrom<HandQty> for Qty<D> {
         type Error = HandQty;
         fn try_from(h: HandQty) -> Result<Self, HandQty> {
             if h.dim == D { Ok(Qty(h.value)) } else { Err(h) }
@@ -166,7 +166,7 @@ pub mod by_hand {
     }
 
     // `f64 => { dim: NUMBER, value: self }`
-    impl const From<f64> for HandQty {
+    const impl From<f64> for HandQty {
         fn from(x: f64) -> Self {
             HandQty {
                 dim: NUMBER,
@@ -174,7 +174,7 @@ pub mod by_hand {
             }
         }
     }
-    impl const TryFrom<HandQty> for f64 {
+    const impl TryFrom<HandQty> for f64 {
         type Error = HandQty;
         fn try_from(h: HandQty) -> Result<Self, HandQty> {
             if h.dim == NUMBER { Ok(h.value) } else { Err(h) }
@@ -182,7 +182,7 @@ pub mod by_hand {
     }
 
     // `Mul -> Self`, `Div -> Self`: every field by its own operator.
-    impl const Mul for HandQty {
+    const impl Mul for HandQty {
         type Output = HandQty;
         fn mul(self, r: HandQty) -> HandQty {
             HandQty {
@@ -191,7 +191,7 @@ pub mod by_hand {
             }
         }
     }
-    impl const Div for HandQty {
+    const impl Div for HandQty {
         type Output = HandQty;
         fn div(self, r: HandQty) -> HandQty {
             HandQty {
@@ -201,7 +201,7 @@ pub mod by_hand {
         }
     }
     // `Add -> Option<Self>`, `Sub -> Option<Self>`: `None` if any field's is.
-    impl const Add for HandQty {
+    const impl Add for HandQty {
         type Output = Option<HandQty>;
         fn add(self, r: HandQty) -> Option<HandQty> {
             Some(HandQty {
@@ -210,7 +210,7 @@ pub mod by_hand {
             })
         }
     }
-    impl const Sub for HandQty {
+    const impl Sub for HandQty {
         type Output = Option<HandQty>;
         fn sub(self, r: HandQty) -> Option<HandQty> {
             Some(HandQty {
@@ -220,7 +220,7 @@ pub mod by_hand {
         }
     }
     // `Mul<f64>`, `Div<f64>`, `Neg`: every field by its own operator.
-    impl const Mul<f64> for HandQty {
+    const impl Mul<f64> for HandQty {
         type Output = Option<HandQty>;
         fn mul(self, k: f64) -> Option<HandQty> {
             Some(HandQty {
@@ -229,7 +229,7 @@ pub mod by_hand {
             })
         }
     }
-    impl const Div<f64> for HandQty {
+    const impl Div<f64> for HandQty {
         type Output = Option<HandQty>;
         fn div(self, k: f64) -> Option<HandQty> {
             Some(HandQty {
@@ -238,7 +238,7 @@ pub mod by_hand {
             })
         }
     }
-    impl const Neg for HandQty {
+    const impl Neg for HandQty {
         type Output = Option<HandQty>;
         fn neg(self) -> Option<HandQty> {
             Some(HandQty {
@@ -267,7 +267,7 @@ pub mod by_hand {
         }
     }
     // `HasDim<D = Dim>::dim(&self) -> Dim = self.dim`: a getter.
-    impl const HasDim for HandQty {
+    const impl HasDim for HandQty {
         type D = Dim;
         fn dim(&self) -> Dim {
             self.dim
@@ -486,7 +486,7 @@ pub struct Point<const D: Dim> {
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug)]
 pub struct Tag(pub u8);
-impl const Sub for Tag {
+const impl Sub for Tag {
     type Output = Option<Tag>;
     fn sub(self, r: Tag) -> Option<Tag> {
         match (self.0, r.0) {
@@ -496,7 +496,7 @@ impl const Sub for Tag {
         }
     }
 }
-impl const Mul<f64> for Tag {
+const impl Mul<f64> for Tag {
     type Output = Tag;
     fn mul(self, _: f64) -> Tag {
         self

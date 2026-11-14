@@ -58,39 +58,39 @@ impl Base {
     }
 }
 
-impl const Mul for Base {
+const impl Mul for Base {
     type Output = Option<Base>;
     fn mul(self, o: Base) -> Option<Base> {
         Some(self.and(o))
     }
 }
-impl const Div for Base {
+const impl Div for Base {
     type Output = Option<Base>;
     fn div(self, o: Base) -> Option<Base> {
         Some(self.and(o))
     }
 }
 /// The same on both sides adds; nothing else does.
-impl const Add for Base {
+const impl Add for Base {
     type Output = Option<Base>;
     fn add(self, o: Base) -> Option<Base> {
         if self == o { Some(self) } else { None }
     }
 }
-impl const Sub for Base {
+const impl Sub for Base {
     type Output = Option<Base>;
     fn sub(self, o: Base) -> Option<Base> {
         if self == o { Some(self) } else { None }
     }
 }
 /// A quantity scaled by a number keeps its unit, and so its `Base`.
-impl const Mul<f64> for Base {
+const impl Mul<f64> for Base {
     type Output = Base;
     fn mul(self, _: f64) -> Base {
         self
     }
 }
-impl const Div<f64> for Base {
+const impl Div<f64> for Base {
     type Output = Base;
     fn div(self, _: f64) -> Base {
         self

@@ -1128,7 +1128,7 @@ pub fn derive_values(input: TokenStream) -> TokenStream {
 ///
 /// - `+ - * /` between members, `S<A, N> op S<B, N>` (and `&S<B, N>`): the
 ///   values combined by `N`'s operator, each lifted parameter by its type's
-///   own (`impl const Mul for T { type Output = Option<T> }`), the result
+///   own (`const impl Mul for T { type Output = Option<T> }`), the result
 ///   `S<{ A * B }, N>`. The impl exists only where every lifted parameter's
 ///   operator gives `Some`; where one gives `None`, its result type holds
 ///   that parameter's `one`, and no impl names it.

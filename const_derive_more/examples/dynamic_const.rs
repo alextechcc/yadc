@@ -32,7 +32,7 @@ pub struct Dims(pub i8);
 
 /// A product of sizes: the counts add (1-D × 2-D = 3-D).
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl const Mul for Dims {
+const impl Mul for Dims {
     type Output = Dims;
     fn mul(self, other: Dims) -> Dims {
         Dims(self.0 + other.0)
@@ -40,7 +40,7 @@ impl const Mul for Dims {
 }
 
 /// A sum of sizes: only of the same count.
-impl const Add for Dims {
+const impl Add for Dims {
     type Output = Option<Dims>;
     fn add(self, other: Dims) -> Option<Dims> {
         if self == other { Some(self) } else { None }

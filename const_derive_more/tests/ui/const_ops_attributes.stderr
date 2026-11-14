@@ -39,3 +39,14 @@ error: `ConstOps` needs one value field (and any `PhantomData`): `struct S<const
    |
 68 | pub struct TwoValues<#[ops(one = Tag(0))] const P: Tag>(f64, f64);
    |            ^^^^^^^^^
+
+warning: `feature(generic_const_exprs)` is not supported with the next-generation trait solver
+ --> tests/ui/const_ops_attributes.rs:2:12
+  |
+2 | #![feature(generic_const_exprs, adt_const_params, const_trait_impl, const_ops, const_cmp)]
+  |            ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `-Znext-solver=globally` is currently enabled by default for testing
+  = note: reverted the setting to `-Znext-solver=coherence` for this crate
+  = note: the currently stable trait solver will be used for this crate
+  = note: see issues #160895 <https://github.com/rust-lang/rust/issues/160895> for more information
