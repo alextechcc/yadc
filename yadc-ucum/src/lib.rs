@@ -439,6 +439,9 @@ where
 /// The coherent units printed by name, not as their product of base units.
 static NAMED: [(UcumUnit, &str); 0] = [];
 
+/// The base units, in `[dim]` order: a unit's powers are counted in these.
+const BASES: [&str; 7] = ["m", "s", "g", "rad", "K", "C", "cd"];
+
 /// The prefixes a unit is printed with: symbol, power of ten.
 static PREFIXES: [(&str, i16); 20] = [
     ("Y", 24),

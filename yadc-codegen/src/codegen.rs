@@ -32,8 +32,8 @@ impl<'a> Names<'a> {
 const EXACT: &str = include_str!("../templates/exact.rs");
 
 /// The unit type, as `src/unit.rs`. `__UNIT__` and `__QTY__` are the
-/// system's type names, `__F__` and `__B__` how many named units a unit and
-/// how many base units a named unit hold.
+/// system's type names, `__F__` how many named units a unit holds and
+/// `__B__` how many base units the system has.
 const UNIT: &str = include_str!("../templates/unit.rs");
 
 /// The SI prefixes: name, symbol, power of ten.
@@ -815,10 +815,11 @@ fn gen_numbers(qty: &str, unit: &str) -> String {
 fn gen_unit_rs(ctx: &Context<'_>) -> String {
     let n = Names::of(&ctx.system.system);
     let f = ctx.system.dim.fields.len().max(1).to_string();
+    let b = ctx.system.dim.fields.len().to_string();
     UNIT.replace("__UNIT__", n.unit)
         .replace("__QTY__", n.qty)
         .replace("__F__", &f)
-        .replace("__B__", &f)
+        .replace("__B__", &b)
 }
 
 fn gen_lib_rs(ctx: &Context<'_>) -> String {
@@ -889,6 +890,10 @@ fn gen_lib_rs(ctx: &Context<'_>) -> String {
     }
     s += "];\n\n";
 
+    s += "/// The base units, in `[dim]` order: a unit's powers are counted in these.\n";
+    s += &format!("const BASES: [&str; {}] = [", ctx.bases.len());
+    s += &ctx.bases.iter().map(|b| format!("\"{}\"", rust_str(b.symbol))).collect::<Vec<_>>().join(", ");
+    s += "];\n\n";
     s += "/// The prefixes a unit is printed with: symbol, power of ten.\n";
     s += &format!("static PREFIXES: [(&str, i16); {}] = [\n", PREFIXES.len());
     for (_, symbol, exp) in PREFIXES {
@@ -1694,6 +1699,8 @@ units = [
             "pub const GRAM: Unit<{ (KILOGRAM / KILO).unit() }> = Unit::ONE;"
         ));
         assert!(lib.contains("(\"μ\", -6),"));
+        // `SIUnit::base("m")` finds its slot in this list.
+        assert!(lib.contains("const BASES: [&str; "));
         assert!(lib.contains("(\"kg\", \"g\", Exact::dec(1, -3)),"));
     }
 

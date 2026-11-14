@@ -483,6 +483,9 @@ static NAMED: [(SIUnit, &str); 16] = [
     ((MOLE / SECOND).unit(), "kat"),
 ];
 
+/// The base units, in `[dim]` order: a unit's powers are counted in these.
+const BASES: [&str; 8] = ["m", "kg", "s", "A", "K", "mol", "cd", "rad"];
+
 /// The prefixes a unit is printed with: symbol, power of ten.
 static PREFIXES: [(&str, i16); 20] = [
     ("Y", 24),

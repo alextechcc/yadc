@@ -6,7 +6,7 @@ use core::ops::{Add, Div, Mul, Sub};
 
 /// At most this many named units in a product.
 const F: usize = __F__;
-/// At most this many base units in what a named unit is.
+/// The base units: a unit's dimension is its powers of these.
 const B: usize = __B__;
 
 /// A unit: an exact scale times a product of named units to powers -
@@ -27,21 +27,21 @@ const B: usize = __B__;
 pub struct __UNIT__ {
     scale: Exact,
     factors: [Factor; F],
+    /// Its dimension: powers of the base units, in `crate::BASES` order.
+    powers: [i8; B],
     zero: Exact,
     log_base: Exact,
     log_per: Exact,
 }
 
-/// One named unit of a product, to a power: its symbol, its size in base
-/// units, and what it is in base units. Power 0 is an empty slot,
-/// `Factor::NONE`.
+/// One named unit of a product, to a power: its symbol and its size in base
+/// units. Power 0 is an empty slot, `Factor::NONE`.
 #[derive_const(PartialEq)]
 #[derive(Copy, Clone, Debug, Eq, ConstParamTy)]
 pub struct Factor {
     symbol: &'static str,
     size: Exact,
     power: i8,
-    base: [(&'static str, i8); B],
 }
 
 impl Factor {
@@ -50,7 +50,6 @@ impl Factor {
         symbol: "",
         size: Exact::ONE,
         power: 0,
-        base: [("", 0); B],
     };
 }
 
@@ -87,78 +86,30 @@ const fn pow(x: Exact, n: i8) -> Exact {
     r
 }
 
-/// Adds `sign` times each base unit of `from` into `into`: merged, without
-/// zeros, sorted, empties last. `None` when there is no room.
-const fn merge<const K: usize>(
-    mut into: [(&'static str, i8); K],
-    from: [(&'static str, i8); K],
-    sign: i8,
-) -> Option<[(&'static str, i8); K]> {
-    let mut i = 0;
-    while i < K {
-        if from[i].1 != 0 {
-            let mut j = 0;
-            let mut placed = false;
-            while j < K && !placed {
-                if into[j].1 != 0 && str_cmp(into[j].0, from[i].0) == 0 {
-                    into[j].1 += sign * from[i].1;
-                    placed = true;
-                }
-                j += 1;
-            }
-            j = 0;
-            while j < K && !placed {
-                if into[j].1 == 0 {
-                    into[j] = (from[i].0, sign * from[i].1);
-                    placed = true;
-                }
-                j += 1;
-            }
-            if !placed {
-                return None;
-            }
-        }
-        i += 1;
-    }
-    let mut k = 0;
-    while k < K {
-        if into[k].1 == 0 {
-            into[k].0 = "";
-        }
-        k += 1;
-    }
-    let mut a = 0;
-    while a < K {
-        let mut b = a + 1;
-        while b < K {
-            if (into[a].1 == 0 && into[b].1 != 0)
-                || (into[a].1 != 0 && into[b].1 != 0 && str_cmp(into[b].0, into[a].0) < 0)
-            {
-                into.swap(a, b);
-            }
-            b += 1;
-        }
-        a += 1;
-    }
-    Some(into)
-}
-
 impl __UNIT__ {
     /// The unit of a plain number: no named units, scale one.
     pub const ONE: __UNIT__ = __UNIT__ {
         scale: Exact::ONE,
         factors: [Factor::NONE; F],
+        powers: [0; B],
         zero: Exact::ZERO,
         log_base: Exact::ZERO,
         log_per: Exact::ZERO,
     };
 
-    /// A base unit: a dimension of its own, `METRE`'s `"m"`.
+    /// A base unit: a dimension of its own, `METRE`'s `"m"`, one of
+    /// `crate::BASES`. A panic (in a constant, a compile error) for any other
+    /// symbol.
     pub const fn base(symbol: &'static str) -> __UNIT__ {
+        let mut i = 0;
+        while i < B && str_cmp(crate::BASES[i], symbol) != 0 {
+            i += 1;
+        }
+        assert!(i < B, "not a base unit of this system");
         let mut u = __UNIT__::ONE;
         u.factors[0].symbol = symbol;
         u.factors[0].power = 1;
-        u.factors[0].base[0] = (symbol, 1);
+        u.powers[i] = 1;
         u
     }
 
@@ -177,7 +128,7 @@ impl __UNIT__ {
         u.factors[0].symbol = symbol;
         u.factors[0].power = 1;
         u.factors[0].size = size * of.size();
-        u.factors[0].base = of.dimension();
+        u.powers = of.powers;
         u
     }
 
@@ -216,6 +167,11 @@ impl __UNIT__ {
         }
         let mut out = self;
         out.scale = self.scale * pow(other.scale, n);
+        let mut k = 0;
+        while k < B {
+            out.powers[k] += n * other.powers[k];
+            k += 1;
+        }
         let mut i = 0;
         while i < F {
             let o = other.factors[i];
@@ -297,47 +253,17 @@ impl __UNIT__ {
         s
     }
 
-    /// What it is in base units - its dimension: base symbols and powers.
+    /// What it is in base units - its dimension: the base symbols and their
+    /// powers.
     pub const fn in_base(self) -> ([&'static str; B], [i8; B]) {
-        let base = self.dimension();
-        let (mut symbols, mut powers) = ([""; B], [0; B]);
-        let mut i = 0;
-        while i < B {
-            (symbols[i], powers[i]) = base[i];
-            i += 1;
-        }
-        (symbols, powers)
-    }
-
-    /// Its dimension as base symbols with their powers, sorted, empties last.
-    const fn dimension(self) -> [(&'static str, i8); B] {
-        let mut out = [("", 0); B];
-        let mut i = 0;
-        while i < F {
-            let f = self.factors[i];
-            if f.power != 0 {
-                let mut scaled = f.base;
-                let mut k = 0;
-                while k < B {
-                    scaled[k].1 *= f.power;
-                    k += 1;
-                }
-                out = match merge(out, scaled, 1) {
-                    Some(x) => x,
-                    None => panic!("too many base units"),
-                };
-            }
-            i += 1;
-        }
-        out
+        (crate::BASES, self.powers)
     }
 
     /// Whether two units measure the same dimension.
     pub const fn same_dimension(self, other: __UNIT__) -> bool {
-        let (a, b) = (self.dimension(), other.dimension());
         let mut i = 0;
         while i < B {
-            if a[i].1 != b[i].1 || (a[i].1 != 0 && str_cmp(a[i].0, b[i].0) != 0) {
+            if self.powers[i] != other.powers[i] {
                 return false;
             }
             i += 1;
@@ -348,15 +274,7 @@ impl __UNIT__ {
     /// Whether it is the unit of a plain number: of dimension one, without a
     /// zero or a log scale - `m/km`, `%`, `k`.
     pub const fn is_plain_number(self) -> bool {
-        let base = self.dimension();
-        let mut i = 0;
-        while i < B {
-            if base[i].1 != 0 {
-                return false;
-            }
-            i += 1;
-        }
-        self.is_linear()
+        self.same_dimension(__UNIT__::ONE) && self.is_linear()
     }
 
     /// Whether it is the unit of a plain number of a whole size: `km/m`, not
